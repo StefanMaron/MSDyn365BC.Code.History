@@ -29,7 +29,6 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         EmailTxt: Label 'abc@microsoft.com', Locked = true;
 
     [Test]
-    [HandlerFunctions('IssuedFinChargeMemosRPH')]
     [Scope('OnPrem')]
     procedure FinChargeMemoWithCurrency()
     begin
@@ -40,7 +39,6 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     end;
 
     [Test]
-    [HandlerFunctions('IssuedFinChargeMemosRPH')]
     [Scope('OnPrem')]
     procedure FinChargeMemoWithOutCurrency()
     begin
@@ -137,11 +135,11 @@ codeunit 134911 "ERM Create Finance Charge Memo"
 
         // Setup: Create Finance Charge Memo Header.
         Initialize;
-        FinanceChargeMemoHeader.Init;
+        FinanceChargeMemoHeader.Init();
         FinanceChargeMemoHeader."No." :=
           LibraryUtility.GenerateRandomCode(
             FinanceChargeMemoHeader.FieldNo("No."), DATABASE::"Finance Charge Memo Header");
-        FinanceChargeMemoHeader.Insert;
+        FinanceChargeMemoHeader.Insert();
 
         // Exercise: Open Statistics Page.
         FinanceChargeMemoStatistics.Trap;
@@ -164,7 +162,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
 
         // Setup: Create Finance Charge Memo
         LibraryERM.CreateFinanceChargeMemoHeader(FinanceChargeMemoHeader, CreateCustomer);
-        Commit; // Use COMMIT to finish write transaction so that Report can run in Exercise step
+        Commit(); // Use COMMIT to finish write transaction so that Report can run in Exercise step
 
         // Exercise: Navigate to the created Finance Charge Memo, open its card and run Report 'Finance Charge Memo - Test'
         FinanceChargeMemoPage.OpenEdit;
@@ -236,7 +234,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(CreateFinChargeMemoAtDate(Customer, CalcDate('<-1D>', WorkDate)));
         LibraryVariableStorage.Enqueue(0); // Initial no of prints
-        Commit;
+        Commit();
         IssueAndPrintFinChargeMemo;
 
         LibraryERM.SetAllowPostingFromTo(CalcDate('<-1M>', WorkDate), WorkDate);
@@ -244,7 +242,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         // 2. Exercise: Run report "Issue Finance Charge Memos".
         FinChargeMemoHeaderFilter := Format(CreateFinChargeMemoAtDate(Customer, CalcDate('<+1M-1D>', WorkDate)));
         FinChargeMemoHeaderFilter += '..' + Format(CreateFinChargeMemoAtDate(Customer, CalcDate('<+1M>', WorkDate)));
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(PrintDocRef::Print);
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Dequeue(PrintCountVar); // Extract no of prints
@@ -274,14 +272,14 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         LibraryVariableStorage.Enqueue(PrintDocRef::Email);
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(CreateFinChargeMemoAtDate(Customer, CalcDate('<-1D>', WorkDate)));
-        Commit;
+        Commit();
 
         // [WHEN] Issue Finance Charge Memo Print = E-Mail and Hide Email-Dialog = No
         IssueAndPrintFinChargeMemo;
 
         // [THEN] Cancel on Email Dialog appeared
         // [THEN] Issued Finance Charge Memo for Customer "A" exists
-        IssuedFinChargeMemoHeader.Init;
+        IssuedFinChargeMemoHeader.Init();
         IssuedFinChargeMemoHeader.SetRange("Customer No.", Customer."No.");
         Assert.RecordIsNotEmpty(IssuedFinChargeMemoHeader);
     end;
@@ -304,7 +302,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         IsInitialized := true;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Create Finance Charge Memo");
     end;
 
@@ -330,7 +328,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         FinanceChargeInterestRate: Record "Finance Charge Interest Rate";
     begin
         FinanceChargeInterestRate.SetRange("Fin. Charge Terms Code", FinChargeTermsCode);
-        FinanceChargeInterestRate.DeleteAll;
+        FinanceChargeInterestRate.DeleteAll();
     end;
 
     local procedure CreateCustomerWithFinanceChargeTerms(FinChargeTermsCode: Code[10]): Code[20]
@@ -527,19 +525,6 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         IssueFinanceChargeMemos.HideEmailDialog.SetValue(LibraryVariableStorage.DequeueBoolean);
         IssueFinanceChargeMemos."Finance Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
         IssueFinanceChargeMemos.OK.Invoke;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure IssuedFinChargeMemosRPH(var IssuedFinChargeMemos: TestRequestPage "Issue Finance Charge Memos")
-    var
-        JnlTemplateName: Code[10];
-        JnlBatchName: Code[10];
-    begin
-        LibraryERM.FindGenJnlTemplateAndBatch(JnlTemplateName, JnlBatchName);
-        IssuedFinChargeMemos.JnlTemplateName.SetValue(JnlTemplateName);
-        IssuedFinChargeMemos.JnlBatchName.SetValue(JnlBatchName);
-        IssuedFinChargeMemos.OK.Invoke;
     end;
 
     [ConfirmHandler]

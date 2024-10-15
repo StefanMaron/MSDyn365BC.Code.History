@@ -27,7 +27,7 @@ report 2000030 "Import CODA Statement"
     trigger OnPostReport()
     begin
         while TxtFile.Pos < TxtFile.Len do begin
-            CodBankStmtSrcLine.Init;
+            CodBankStmtSrcLine.Init();
             CodBankStmtSrcLine."Bank Account No." := BankAccNo;
             CodBankStmtSrcLine."Statement No." := TempStatementNo;
             LineNo := LineNo + 1;
@@ -48,7 +48,7 @@ report 2000030 "Import CODA Statement"
             TempStatementNo := IncStr(CodBankStmtSrcLine."Statement No.");
         if TempStatementNo = '' then
             TempStatementNo := CopyStr(BankAccNo, 1, 18) + '/1';
-        CodBankStmtSrcLine.Reset;
+        CodBankStmtSrcLine.Reset();
 
         if FileName = '' then
             FileName := FileMgt.UploadFile('', '*.txt');
@@ -103,7 +103,7 @@ report 2000030 "Import CODA Statement"
             CodBankStmtSrcLine.ID::Header:
                 begin
                     CodaMgmt.CheckCodaHeader(CodBankStmtSrcLine);
-                    CodBankStmtSrcLine.Insert;
+                    CodBankStmtSrcLine.Insert();
                 end;
             CodBankStmtSrcLine.ID::"Old Balance":
                 begin
@@ -115,17 +115,17 @@ report 2000030 "Import CODA Statement"
                         FirstTime := false
                     end else
                         TempStatementNo := CodBankStmtSrcLine."Statement No.";
-                    CodBankStmtSrcLine.Insert;
+                    CodBankStmtSrcLine.Insert();
                 end;
             CodBankStmtSrcLine.ID::Movement, CodBankStmtSrcLine.ID::Information, CodBankStmtSrcLine.ID::"Free Message":
                 begin
                     CodaMgmt.CheckCodaRecord(CodBankStmtSrcLine);
-                    CodBankStmtSrcLine.Insert;
+                    CodBankStmtSrcLine.Insert();
                 end;
             CodBankStmtSrcLine.ID::"New Balance":
                 begin
                     CodaMgmt.CheckNewBalance(CodBankStmtSrcLine, AccountType);
-                    CodBankStmtSrcLine.Insert;
+                    CodBankStmtSrcLine.Insert();
                 end;
             CodBankStmtSrcLine.ID::Trailer:
                 begin
@@ -135,7 +135,7 @@ report 2000030 "Import CODA Statement"
                     CodBankStmtSrcLine2.SetRange("Bank Account No.", BankAccNo);
                     CodBankStmtSrcLine2.SetRange("Statement No.", TempStatementNo);
                     REPORT.RunModal(REPORT::"Initialise CODA Stmt. Lines", false, false, CodBankStmtSrcLine2);
-                    CodBankStmtSrcLine2.DeleteAll;
+                    CodBankStmtSrcLine2.DeleteAll();
                     TempStatementNo := IncStr(TempStatementNo);
                 end;
         end;

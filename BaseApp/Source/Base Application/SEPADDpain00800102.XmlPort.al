@@ -449,7 +449,7 @@ xmlport 1010 "SEPA DD pain.008.001.02"
           CopyStr(
             StrSubstNo('%1/%2', PaymentExportData."Message ID", PaymentGroupNo),
             1, MaxStrLen(PaymentExportDataGroup."Payment Information ID"));
-        PaymentExportDataGroup.Insert;
+        PaymentExportDataGroup.Insert();
     end;
 }
 

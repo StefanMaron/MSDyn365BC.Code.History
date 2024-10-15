@@ -53,17 +53,17 @@ codeunit 2000001 CheckPaymJnlLine
     [Scope('OnPrem')]
     procedure Init()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         ClearErrorLog;
-        TempGroupPmtJnlLine.Reset;
-        TempGroupPmtJnlLine.DeleteAll;
+        TempGroupPmtJnlLine.Reset();
+        TempGroupPmtJnlLine.DeleteAll();
     end;
 
     [Scope('OnPrem')]
     procedure ClearErrorLog()
     begin
-        ExportCheckErrorLog.Reset;
-        ExportCheckErrorLog.DeleteAll;
+        ExportCheckErrorLog.Reset();
+        ExportCheckErrorLog.DeleteAll();
     end;
 
     procedure InsertErrorLog(ErrorMessage: Text[250])
@@ -73,10 +73,10 @@ codeunit 2000001 CheckPaymJnlLine
         else
             ErrorId := 1;
 
-        ExportCheckErrorLog.Init;
+        ExportCheckErrorLog.Init();
         ExportCheckErrorLog."Entry No." := ErrorId;
         ExportCheckErrorLog."Error Message" := ErrorMessage;
-        ExportCheckErrorLog.Insert;
+        ExportCheckErrorLog.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -260,7 +260,7 @@ codeunit 2000001 CheckPaymJnlLine
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if DelChr(CompanyInfo.Name) = '' then
             InsertErrorLog(Text013);
     end;

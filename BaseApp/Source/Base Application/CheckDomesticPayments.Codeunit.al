@@ -4,8 +4,8 @@ codeunit 2000002 "Check Domestic Payments"
 
     trigger OnRun()
     begin
-        TempBankAcc.DeleteAll;
-        GLSetup.Get;
+        TempBankAcc.DeleteAll();
+        GLSetup.Get();
         CheckPaymJnlLine.ClearErrorLog;
 
         // Check if there is anything to export and exit if not
@@ -22,7 +22,7 @@ codeunit 2000002 "Check Domestic Payments"
                 if "Bank Account" <> '' then
                     if not TempBankAcc.Get("Bank Account") then begin
                         TempBankAcc."No." := "Bank Account";
-                        TempBankAcc.Insert;
+                        TempBankAcc.Insert();
                     end;
             until Next = 0;
 

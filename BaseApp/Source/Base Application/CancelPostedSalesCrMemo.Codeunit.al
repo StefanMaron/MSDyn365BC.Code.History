@@ -14,7 +14,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
         SetTrackInfoForCancellation(Rec);
 
-        Commit;
+        Commit();
     end;
 
     var
@@ -243,7 +243,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         PostingDate: Date;
     begin
         PostingDate := WorkDate;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
 
         if NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Invoice Nos.", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumInv, SalesCrMemoHeader);
@@ -256,7 +256,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         if (SalesCrMemoHeader."External Document No." = '') and SalesReceivablesSetup."Ext. Doc. No. Mandatory" then
             ErrorHelperHeader(ErrorType::ExtDocErr, SalesCrMemoHeader);
     end;

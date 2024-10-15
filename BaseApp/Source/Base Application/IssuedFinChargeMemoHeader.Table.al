@@ -294,12 +294,12 @@ table 304 "Issued Fin. Charge Memo Header"
     trigger OnDelete()
     begin
         TestField("No. Printed");
-        LockTable;
+        LockTable();
         FinChrgMemoIssue.DeleteIssuedFinChrgLines(Rec);
 
         FinChrgCommentLine.SetRange(Type, FinChrgCommentLine.Type::"Issued Finance Charge Memo");
         FinChrgCommentLine.SetRange("No.", "No.");
-        FinChrgCommentLine.DeleteAll;
+        FinChrgCommentLine.DeleteAll();
     end;
 
     var
@@ -329,10 +329,11 @@ table 304 "Issued Fin. Charge Memo Header"
 
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     procedure IncrNoPrinted()

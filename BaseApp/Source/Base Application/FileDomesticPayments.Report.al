@@ -389,7 +389,7 @@ report 2000001 "File Domestic Payments"
 
     trigger OnInitReport()
     begin
-        EBSetup.Get;
+        EBSetup.Get();
     end;
 
     trigger OnPostReport()
@@ -622,7 +622,7 @@ report 2000001 "File Domestic Payments"
     begin
         if BankAcc."No." <> BankAccCode then
             if not BankAcc.Get(BankAccCode) then
-                BankAcc.Init;
+                BankAcc.Init();
     end;
 
     [Scope('OnPrem')]

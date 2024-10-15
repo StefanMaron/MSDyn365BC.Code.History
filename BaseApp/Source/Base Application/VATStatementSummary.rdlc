@@ -262,7 +262,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!CurrReport_PAGENO_Control71Caption.Value</Value>
+                                                    <Value>=Fields!CurrReport_PAGENOCaption.Value</Value>
                                                     <Style>
                                                       <Color>Red</Color>
                                                     </Style>
@@ -4152,9 +4152,6 @@ End Function</Code>
         <Field Name="Heading">
           <DataField>Heading</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="COMPANYNAME">
           <DataField>COMPANYNAME</DataField>
         </Field>
@@ -4371,9 +4368,6 @@ End Function</Code>
         <Field Name="USERID_Control68">
           <DataField>USERID_Control68</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO_Control71">
-          <DataField>CurrReport_PAGENO_Control71</DataField>
-        </Field>
         <Field Name="FORMAT_TODAY_0_4__Control72">
           <DataField>FORMAT_TODAY_0_4__Control72</DataField>
         </Field>
@@ -4460,9 +4454,6 @@ End Function</Code>
         </Field>
         <Field Name="VAT_Statement_Name__Name_Control35Caption">
           <DataField>VAT_Statement_Name__Name_Control35Caption</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control71Caption">
-          <DataField>CurrReport_PAGENO_Control71Caption</DataField>
         </Field>
         <Field Name="Description_of_controlCaption">
           <DataField>Description_of_controlCaption</DataField>

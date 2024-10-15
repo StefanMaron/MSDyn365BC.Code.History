@@ -1378,8 +1378,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocNo);
 
         // [WHEN] Apply Payment to Invoice
-        asserterror CustEntryApplyPostedEntries.Apply(
-            CustLedgerEntry, DocNo, WorkDate, DummyGenJournalLine."Journal Template Name", DummyGenJournalLine."Journal Batch Name");
+        asserterror CustEntryApplyPostedEntries.Apply(CustLedgerEntry, DocNo, WorkDate);
 
         // [THEN] The following message appears: Cannot post because you did not specify which entry to apply. You must specify an entry in the Applies-to ID field for one or more open entries.
         Assert.ExpectedError(NoEntriesAppliedErr);
@@ -1471,7 +1470,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Unapply Customer");
     end;
 
@@ -1845,7 +1844,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.Validate("Unapplied Sales Entry Appln.", UnappliedSalesEntryAppln);
         SourceCodeSetup.Modify(true);
     end;

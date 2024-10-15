@@ -1,4 +1,3 @@
-
 table 133 "Incoming Document Attachment"
 {
     Caption = 'Incoming Document Attachment';
@@ -77,12 +76,10 @@ table 133 "Incoming Document Attachment"
             Caption = 'Document Table No. Filter';
             FieldClass = FlowFilter;
         }
-        field(12; "Document Type Filter"; Option)
+        field(12; "Document Type Filter"; Enum "Incoming Document Type")
         {
             Caption = 'Document Type Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(13; "Document No. Filter"; Code[20])
         {
@@ -387,7 +384,7 @@ table 133 "Incoming Document Attachment"
     begin
         if Type <> Type::XML then
             exit;
-        Commit;
+        Commit();
         if CODEUNIT.Run(CODEUNIT::"Data Exch. Type Selector", Rec) then;
     end;
 
@@ -436,7 +433,7 @@ table 133 "Incoming Document Attachment"
 
         OnBeforeExtractHeaderFields(TempFieldBuffer, IncomingDocument);
 
-        TempFieldBuffer.Reset;
+        TempFieldBuffer.Reset();
         TempFieldBuffer.FindSet;
         repeat
             ExtractHeaderField(XMLRootNode, IncomingDocument, TempFieldBuffer."Field ID");
@@ -445,7 +442,6 @@ table 133 "Incoming Document Attachment"
 
     local procedure ExtractHeaderField(var XMLRootNode: DotNet XmlNode; var IncomingDocument: Record "Incoming Document"; FieldNo: Integer)
     var
-        "Field": Record "Field";
         XMLDOMManagement: Codeunit "XML DOM Management";
         OCRServiceMgt: Codeunit "OCR Service Mgt.";
         ImportXMLFileToDataExch: Codeunit "Import XML File to Data Exch.";
@@ -466,31 +462,30 @@ table 133 "Incoming Document Attachment"
         XPath := ImportXMLFileToDataExch.EscapeMissingNamespacePrefix(XPath);
         RecRef.GetTable(IncomingDocument);
         FieldRef := RecRef.Field(FieldNo);
-        Field.Init;
         XMLDOMManagement.AddNamespaces(XmlNamespaceManager, XMLRootNode.OwnerDocument);
         XmlValue := XMLDOMManagement.FindNodeTextNs(XMLRootNode, XPath, XmlNamespaceManager);
 
-        case Format(FieldRef.Type) of
-            Format(Field.Type::Text), Format(Field.Type::Code):
+        case FieldRef.Type of
+            FieldType::Text, FieldType::Code:
                 FieldRef.Value := CopyStr(XmlValue, 1, FieldRef.Length);
-            Format(Field.Type::Date):
+            FieldType::Date:
                 if Evaluate(DateVar, XmlValue, 9) then
                     FieldRef.Value := DateVar
                 else
                     if Evaluate(DateVar, OCRServiceMgt.DateConvertYYYYMMDD2XML(XmlValue), 9) then
                         FieldRef.Value := DateVar;
-            Format(Field.Type::Integer):
+            FieldType::Integer:
                 if Evaluate(IntegerVar, XmlValue, 9) then
                     FieldRef.Value := IntegerVar;
-            Format(Field.Type::Decimal):
+            FieldType::Decimal:
                 if Evaluate(DecimalVar, XmlValue, 9) then
                     FieldRef.Value := DecimalVar;
-            Format(Field.Type::GUID):
+            FieldType::GUID:
                 if Evaluate(GuidVar, XmlValue, 9) then
                     FieldRef.Value := GuidVar;
         end;
         RecRef.SetTable(IncomingDocument);
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
     end;
 
     local procedure CheckMainAttachment()
@@ -541,6 +536,7 @@ table 133 "Incoming Document Attachment"
         GenJournalLine: Record "Gen. Journal Line";
         PurchInvHeader: Record "Purch. Inv. Header";
         DataTypeManagement: Codeunit "Data Type Management";
+        EnumAssignmentMgt: Codeunit "Enum Assignment Management";
         DocumentNoFieldRef: FieldRef;
         PostingDateFieldRef: FieldRef;
         PostingDate: Date;
@@ -552,14 +548,14 @@ table 133 "Incoming Document Attachment"
                 begin
                     MainRecordRef.SetTable(SalesHeader);
                     IncomingDocumentAttachment.SetRange("Document Table No. Filter", MainRecordRef.Number);
-                    IncomingDocumentAttachment.SetRange("Document Type Filter", SalesHeader."Document Type");
+                    IncomingDocumentAttachment.SetRange("Document Type Filter", EnumAssignmentMgt.GetSalesIncomingDocumentType(SalesHeader."Document Type"));
                     IncomingDocumentAttachment.SetRange("Document No. Filter", SalesHeader."No.");
                 end;
             DATABASE::"Purchase Header":
                 begin
                     MainRecordRef.SetTable(PurchaseHeader);
                     IncomingDocumentAttachment.SetRange("Document Table No. Filter", MainRecordRef.Number);
-                    IncomingDocumentAttachment.SetRange("Document Type Filter", PurchaseHeader."Document Type");
+                    IncomingDocumentAttachment.SetRange("Document Type Filter", EnumAssignmentMgt.GetPurchIncomingDocumentType(PurchaseHeader."Document Type"));
                     IncomingDocumentAttachment.SetRange("Document No. Filter", PurchaseHeader."No.");
                 end;
             DATABASE::"Gen. Journal Line":
@@ -585,11 +581,11 @@ table 133 "Incoming Document Attachment"
 
     procedure AddFieldToFieldBuffer(var TempFieldBuffer: Record "Field Buffer" temporary; FieldID: Integer)
     begin
-        TempFieldBuffer.Init;
+        TempFieldBuffer.Init();
         TempFieldBuffer.Order += 1;
         TempFieldBuffer."Table ID" := DATABASE::"Incoming Document";
         TempFieldBuffer."Field ID" := FieldID;
-        TempFieldBuffer.Insert;
+        TempFieldBuffer.Insert();
     end;
 
     procedure SendNotifActionCompleted()

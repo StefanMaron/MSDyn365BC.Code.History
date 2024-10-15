@@ -130,8 +130,8 @@ codeunit 139090 "Test Postcode Service Manager"
         if PostcodeServiceConfig.IsEmpty then begin
             BindSubscription(PostcodeDummyService);
 
-            PostcodeServiceConfig.Init;
-            PostcodeServiceConfig.Insert;
+            PostcodeServiceConfig.Init();
+            PostcodeServiceConfig.Insert();
             PostcodeServiceConfig.SaveServiceKey('Dummy Service');
         end;
     end;

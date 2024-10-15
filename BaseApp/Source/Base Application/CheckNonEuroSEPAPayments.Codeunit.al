@@ -4,7 +4,7 @@ codeunit 2000005 "Check Non Euro SEPA Payments"
 
     trigger OnRun()
     begin
-        CheckPaymJnlLine.Init;
+        CheckPaymJnlLine.Init();
 
         if FindSet then begin
             CheckPaymJnlLine.CheckExportProtocol("Export Protocol Code");

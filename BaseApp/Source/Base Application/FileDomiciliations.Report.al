@@ -32,7 +32,7 @@ report 2000021 "File Domiciliations"
                         Amt := Amount;
                         TypeCode := 1;
                     end else
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 CurrencyCode := "Currency Code";
                 WriteDataRecord;
             end;
@@ -263,7 +263,7 @@ report 2000021 "File Domiciliations"
                 DomicilJnlLine2: Record "Domiciliation Journal Line";
             begin
                 GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
-                GenJnlLine.Reset;
+                GenJnlLine.Reset();
                 GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
                 GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
                 LastGenJnlLine.Copy(GenJnlLine);
@@ -294,7 +294,7 @@ report 2000021 "File Domiciliations"
                 end;
 
                 if DomJnlBatchName <> '' then begin
-                    DomJnlLine.Reset;
+                    DomJnlLine.Reset();
                     DomJnlLine.SetRange("Journal Template Name", "Domiciliation Journal Line"."Journal Template Name");
                     DomJnlLine.SetRange("Journal Batch Name", DomJnlBatchName);
                     if DomJnlLine.FindLast then
@@ -303,7 +303,7 @@ report 2000021 "File Domiciliations"
                         LineNo := 0;
 
                     // rename
-                    DomJnlLine.Reset;
+                    DomJnlLine.Reset();
                     DomJnlLine.SetRange("Journal Template Name", "Domiciliation Journal Line"."Journal Template Name");
                     DomJnlLine.SetRange("Journal Batch Name", "Domiciliation Journal Line"."Journal Batch Name");
                     DomJnlLine.SetRange(Status, DomJnlLine.Status::" ", DomJnlLine.Status::Marked);
@@ -422,7 +422,7 @@ report 2000021 "File Domiciliations"
 
     trigger OnInitReport()
     begin
-        EBSetup.Get;
+        EBSetup.Get();
     end;
 
     trigger OnPostReport()
@@ -624,7 +624,7 @@ report 2000021 "File Domiciliations"
 
             "Domiciliation Journal Line".Status := "Domiciliation Journal Line".Status::Processed;
             "Domiciliation Journal Line".Processing := true;
-            "Domiciliation Journal Line".Modify;
+            "Domiciliation Journal Line".Modify();
         end;
         Amt := 0;
     end;
@@ -649,7 +649,7 @@ report 2000021 "File Domiciliations"
         TempDomJnlLine."Message 1" := '';
         TempDomJnlLine."Applies-to Doc. Type" := 0;
         TempDomJnlLine."Applies-to Doc. No." := '';
-        TempDomJnlLine.Insert;
+        TempDomJnlLine.Insert();
     end;
 
     [Scope('OnPrem')]

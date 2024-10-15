@@ -262,11 +262,11 @@ codeunit 139018 "Job Queue Entry Tests"
         asserterror Error(ExpectedErrorMessage);
 
         // [GIVEN] Job Queue Entry "A", where Status "In Process"
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
         JobQueueEntry.Insert(true);
         // [GIVEN] The Log Entry for "A", where Status is "Error"
-        JobQueueLogEntry.Init;
+        JobQueueLogEntry.Init();
         JobQueueLogEntry.ID := JobQueueEntry.ID;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
         JobQueueLogEntry.Insert(true);
@@ -294,11 +294,11 @@ codeunit 139018 "Job Queue Entry Tests"
         ExpectedErrorMessage := LibraryUtility.GenerateGUID;
         asserterror Error(ExpectedErrorMessage);
         // [GIVEN] Job Queue Entry "A", where Status "In Process"
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
         JobQueueEntry.Insert(true);
         // [GIVEN] Log Entry for "A", where Status "Error"
-        JobQueueLogEntry.Init;
+        JobQueueLogEntry.Init();
         JobQueueLogEntry.ID := JobQueueEntry.ID;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
         JobQueueLogEntry.Insert(true);
@@ -329,11 +329,11 @@ codeunit 139018 "Job Queue Entry Tests"
         ExpectedErrorMessage := LibraryUtility.GenerateGUID;
         asserterror Error(ExpectedErrorMessage);
         // [GIVEN] Job Queue Entry "A", where Status "In Process"
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
         JobQueueEntry.Insert(true);
         // [GIVEN] Log Entry "X" for "A", where Status "In Process"
-        JobQueueLogEntry.Init;
+        JobQueueLogEntry.Init();
         JobQueueLogEntry.ID := JobQueueEntry.ID;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::"In Process";
         JobQueueLogEntry.Insert(true);
@@ -356,7 +356,7 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         // [FEATURE] [Job Queue Log Entry]
         // [GIVEN] Log Entry, where Status "In Process", ID refers to not existing parent entry
-        JobQueueLogEntry.Init;
+        JobQueueLogEntry.Init();
         JobQueueLogEntry.ID := CreateGuid;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::"In Process";
         JobQueueLogEntry.Insert(true);
@@ -379,7 +379,7 @@ codeunit 139018 "Job Queue Entry Tests"
     begin
         // [FEATURE] [Job Queue Log Entry]
         // [GIVEN] Log Entry, where Status "Error"
-        JobQueueLogEntry.Init;
+        JobQueueLogEntry.Init();
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
         JobQueueLogEntry.Insert(true);
         // [WHEN] Mark the Log entry as Error
@@ -469,7 +469,7 @@ codeunit 139018 "Job Queue Entry Tests"
         ExpectedErrorMessage := LibraryUtility.GenerateGUID;
         JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
         JobQueueLogEntry.SetErrorCallStack(ExpectedErrorMessage);
-        JobQueueLogEntry.Insert;
+        JobQueueLogEntry.Insert();
         LibraryVariableStorage.Enqueue(ExpectedErrorMessage);
         JobQueueLogEntry.ShowErrorCallStack;
         // Handled by LogErrorMessageHandler
@@ -611,7 +611,7 @@ codeunit 139018 "Job Queue Entry Tests"
 
     local procedure CreateJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; InitialStatus: Option)
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."No. of Attempts to Run" := 3;
         JobQueueEntry.Status := InitialStatus;
         JobQueueEntry.Insert(true);
@@ -619,11 +619,11 @@ codeunit 139018 "Job Queue Entry Tests"
 
     local procedure MockJobQueueEntryWithUserID(var JobQueueEntry: Record "Job Queue Entry"; NewUserID: Text[65])
     begin
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid;
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
         JobQueueEntry."User ID" := NewUserID;
-        JobQueueEntry.Insert;
+        JobQueueEntry.Insert();
     end;
 
     local procedure VerifyErrorInJobQueueEntryAndLog(JobQueueEntry: Record "Job Queue Entry"; JobQueueLogEntry: Record "Job Queue Log Entry"; ExpectedErrorMessage: Text)

@@ -1,4 +1,4 @@
-﻿page 44 "Sales Credit Memo"
+page 44 "Sales Credit Memo"
 {
     Caption = 'Sales Credit Memo';
     PageType = Document;
@@ -633,7 +633,7 @@
                         OnBeforeStatisticsAction(Rec, Handled);
                         if not Handled then begin
                             CalcInvDiscForHeader;
-                            Commit;
+                            Commit();
                             PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                             SalesCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
                         end
@@ -1380,7 +1380,7 @@
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         ExternalDocNoMandatory := SalesReceivablesSetup."Ext. Doc. No. Mandatory"
     end;
 

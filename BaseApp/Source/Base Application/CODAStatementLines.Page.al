@@ -223,7 +223,7 @@ page 2000041 "CODA Statement Lines"
         end else
             BalanceEnable := false;
 
-        TempCodBankStmtLine.Reset;
+        TempCodBankStmtLine.Reset();
         TempCodBankStmtLine.SetCurrentKey("Bank Account No.", "Statement No.", "Application Status");
         TempCodBankStmtLine.SetRange("Bank Account No.", "Bank Account No.");
         TempCodBankStmtLine.SetRange("Statement No.", "Statement No.");

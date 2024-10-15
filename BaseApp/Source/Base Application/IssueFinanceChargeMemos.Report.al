@@ -36,7 +36,7 @@ report 193 "Issue Finance Charge Memos"
                 if (PrintDoc <> PrintDoc::" ") and not Mark then begin
                     FinChrgMemoIssue.GetIssuedFinChrgMemo(IssuedFinChrgMemoHeader);
                     TempIssuedFinChrgMemoHeader := IssuedFinChrgMemoHeader;
-                    TempIssuedFinChrgMemoHeader.Insert;
+                    TempIssuedFinChrgMemoHeader.Insert();
                 end;
             end;
 
@@ -46,7 +46,7 @@ report 193 "Issue Finance Charge Memos"
                 IsHandled: Boolean;
             begin
                 Window.Close;
-                Commit;
+                Commit();
                 if PrintDoc <> PrintDoc::" " then
                     if TempIssuedFinChrgMemoHeader.FindSet then
                         repeat

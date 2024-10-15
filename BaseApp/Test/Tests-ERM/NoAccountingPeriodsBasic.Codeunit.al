@@ -76,7 +76,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         AccountingPeriodMgt.InitStartYearAccountingPeriod(AccountingPeriod, WorkDate);
         Assert.AreEqual(CalcDate('<-CY>', WorkDate), AccountingPeriod."Starting Date", WrongValueErr);
         Assert.IsTrue(AccountingPeriod."New Fiscal Year", WrongValueErr);
-        InventorySetup.Get;
+        InventorySetup.Get();
         AccountingPeriod.TestField("Average Cost Calc. Type", InventorySetup."Average Cost Calc. Type");
         AccountingPeriod.TestField("Average Cost Period", InventorySetup."Average Cost Period");
     end;
@@ -113,12 +113,12 @@ codeunit 134360 "No Accounting Periods: Basic"
         // [FEATURE] [UT] [Report]
         // [SCENARIO 222561] Date Compress General Ledger report generates error when no accounting periods
         Initialize;
-        AnalysisView.DeleteAll;
-        GLEntry.Init;
+        AnalysisView.DeleteAll();
+        GLEntry.Init();
         GLEntry."G/L Account No." := LibraryERM.CreateGLAccountNo;
         GLEntry."Posting Date" := WorkDate;
         GLEntry.Amount := LibraryRandom.RandDec(100, 2);
-        GLEntry.Insert;
+        GLEntry.Insert();
         DateCompressGeneralLedger.InitializeRequest(WorkDate, WorkDate, 0, '', false, false, false, false, false, '');
         DateCompressGeneralLedger.UseRequestPage(false);
         asserterror DateCompressGeneralLedger.Run;
@@ -233,14 +233,14 @@ codeunit 134360 "No Accounting Periods: Basic"
         // [FEATURE] [UT] [Statistics]
         // [SCENARIO 222561] Accounting Period is initialized from existing accounting period in O365Statistics when we have filter after first run
         Initialize;
-        AccountingPeriod.Init;
+        AccountingPeriod.Init();
         AccountingPeriod."Starting Date" := WorkDate;
         AccountingPeriod."New Fiscal Year" := true;
-        AccountingPeriod.Insert;
+        AccountingPeriod.Insert();
         O365SalesStatistics.GetCurrentAccountingPeriod(AccountingPeriodStat);
         Assert.IsTrue(AccountingPeriodStat.GetFilter("New Fiscal Year") <> '', '');
         AccountingPeriod."New Fiscal Year" := false;
-        AccountingPeriod.Modify;
+        AccountingPeriod.Modify();
         O365SalesStatistics.GetCurrentAccountingPeriod(AccountingPeriodStat);
         AccountingPeriodStat.TestField("Starting Date", AccountingPeriod."Starting Date");
     end;
@@ -400,7 +400,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         AccountingPeriod: Record "Accounting Period";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"No Accounting Periods: Basic");
-        AccountingPeriod.DeleteAll;
+        AccountingPeriod.DeleteAll();
     end;
 
     local procedure RunCreateFiscalYear(StartingDate: Date)
@@ -408,7 +408,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         CreateFiscalYear: Report "Create Fiscal Year";
         PeriodLength: DateFormula;
     begin
-        Commit;
+        Commit();
         Evaluate(PeriodLength, '<1M>');
         LibraryVariableStorage.Enqueue(CalcDate('<-CY>', StartingDate));
         LibraryVariableStorage.Enqueue(12);

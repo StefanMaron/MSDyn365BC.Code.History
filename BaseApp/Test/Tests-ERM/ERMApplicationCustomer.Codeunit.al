@@ -59,9 +59,9 @@ codeunit 134010 "ERM Application Customer"
                 CustomerInvPmtDisc("Document Type"::Refund, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
                 // The following two combinations do not generate discount ledger entries and will thus fail to close.
                 asserterror CustomerInvPmtDisc("Document Type"::Payment, "Document Type"::Refund, CustomerAmount, Stepwise);
-                DeltaAssert.Reset;
+                DeltaAssert.Reset();
                 asserterror CustomerInvPmtDisc("Document Type"::Invoice, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
-                DeltaAssert.Reset;
+                DeltaAssert.Reset();
             end;
 
         TearDown;
@@ -426,7 +426,7 @@ codeunit 134010 "ERM Application Customer"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         CustomerAmount := -1000;  // Use a fixed amount to avoid rounding issues.
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
 
@@ -454,7 +454,7 @@ codeunit 134010 "ERM Application Customer"
         CurrencyExchangeRate.FindFirst;
 
         // Watch for Realized gain/loss dtld. ledger entries
-        LibraryERMCustomerWatch.Init;
+        LibraryERMCustomerWatch.Init();
         LibraryERMCustomerWatch.DtldEntriesEqual(Customer."No.", DtldLedgerType, 0);
 
         // Generate a document that triggers application dtld. ledger entries.
@@ -490,7 +490,7 @@ codeunit 134010 "ERM Application Customer"
         Currency.Get(SetExchRateForCurrency(CurrencyAdjustFactor));
 
         // Watch for Realized gain/loss dtld. ledger entries
-        LibraryERMCustomerWatch.Init;
+        LibraryERMCustomerWatch.Init();
         LibraryERMCustomerWatch.DtldEntriesEqual(Customer."No.", DtldLedgerType, 0);
 
         // Generate a document that triggers application dtld. ledger entries.
@@ -521,7 +521,7 @@ codeunit 134010 "ERM Application Customer"
         CreateCustomerWithPaymentTerms(Customer, GetPaymentTerms('>0'));
 
         // Watch for detailed ledger entry type "Payment Discount Tolerance (VAT Adjustment)" and "Payment Discount Tolerance (VAT Excl.)"
-        LibraryERMCustomerWatch.Init;
+        LibraryERMCustomerWatch.Init();
         LibraryERMCustomerWatch.DtldEntriesSigned(
           Amount, Customer."No.", DtldCustLedgEntry."Entry Type"::"Payment Discount (VAT Adjustment)", 0);
         LibraryERMCustomerWatch.DtldEntriesSigned(
@@ -548,7 +548,7 @@ codeunit 134010 "ERM Application Customer"
         CreateCustomerWithPaymentTerms(Customer, GetPaymentTerms('0'));
 
         // Watch for detailed ledger entry type "Payment Tolerance (VAT Adjustment)" and "Payment Tolerance (VAT Excl.)"
-        LibraryERMCustomerWatch.Init;
+        LibraryERMCustomerWatch.Init();
         LibraryERMCustomerWatch.DtldEntriesGreaterThan(
           Customer."No.", DtldCustLedgEntry."Entry Type"::"Payment Tolerance (VAT Adjustment)", 0);
         LibraryERMCustomerWatch.DtldEntriesGreaterThan(
@@ -578,7 +578,7 @@ codeunit 134010 "ERM Application Customer"
         CreateCustomerWithPaymentTerms(Customer, PaymentTerms.Code);
 
         // Watch for detailed ledger entry type "Payment Discount Tolerance (VAT Adjustment)" and "Payment Discount Tolerance (VAT Excl.)"
-        LibraryERMCustomerWatch.Init;
+        LibraryERMCustomerWatch.Init();
         LibraryERMCustomerWatch.DtldEntriesSigned(
           Amount, Customer."No.", DtldCustLedgEntry."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)", 0);
         LibraryERMCustomerWatch.DtldEntriesSigned(
@@ -608,7 +608,7 @@ codeunit 134010 "ERM Application Customer"
         CreateCustomerWithPaymentTerms(Customer, GetPaymentTerms('0'));
 
         // Setup basic application watches
-        LibraryERMCustomerWatch.Init;
+        LibraryERMCustomerWatch.Init();
         LibraryERMCustomerWatch.EntriesEqual(Customer."No.", InvType, -Amount);
         LibraryERMCustomerWatch.EntriesEqual(Customer."No.", PmtType, Amount);
         LibraryERMCustomerWatch.DtldEntriesEqual(Customer."No.", DtldCustLedgEntry."Entry Type"::"Initial Entry", 0);
@@ -636,7 +636,7 @@ codeunit 134010 "ERM Application Customer"
         DiscountAmount := GetDiscount(Customer."Payment Terms Code", Amount);
 
         // Watch for "Payment Discount" detailed ledger entries.
-        LibraryERMCustomerWatch.Init;
+        LibraryERMCustomerWatch.Init();
         LibraryERMCustomerWatch.DtldEntriesEqual(Customer."No.", DtldCustLedgEntry."Entry Type"::"Payment Discount", DiscountAmount);
 
         // Generate a document that triggers payment discount dtld. ledger entries.
@@ -668,7 +668,7 @@ codeunit 134010 "ERM Application Customer"
         Customer.Modify(true);
 
         // Try out Customer watch
-        LibraryERMCustomerWatch.Init;
+        LibraryERMCustomerWatch.Init();
         LibraryERMCustomerWatch.EntriesEqual(Customer."No.", InvType, -Amount);
         LibraryERMCustomerWatch.EntriesEqual(Customer."No.", PmtType, Amount);
         LibraryERMCustomerWatch.DtldEntriesEqual(Customer."No.", DtldCustLedgEntry."Entry Type"::"Initial Entry", 0);
@@ -705,7 +705,7 @@ codeunit 134010 "ERM Application Customer"
         CurrencyExchangeRate.Modify(true);
 
         // Watch for "Correction of Remaining Amount" detailed ledger entries.
-        LibraryERMCustomerWatch.Init;
+        LibraryERMCustomerWatch.Init();
         LibraryERMCustomerWatch.DtldEntriesGreaterThan(
           Customer."No.", DtldCustLedgEntry."Entry Type"::"Correction of Remaining Amount", 0);
 
@@ -782,7 +782,7 @@ codeunit 134010 "ERM Application Customer"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", 1.0);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 5.0);
         GeneralLedgerSetup.Modify(true);
@@ -861,7 +861,7 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetFilter("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
     end;
 
     local procedure MockCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -1058,7 +1058,7 @@ codeunit 134010 "ERM Application Customer"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Reset;
+        PaymentTerms.Reset();
         PaymentTerms.SetFilter("Discount %", DiscountFilter);
         PaymentTerms.FindFirst;
         PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := true;
@@ -1098,7 +1098,7 @@ codeunit 134010 "ERM Application Customer"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Max. Payment Tolerance Amount");
     end;
 

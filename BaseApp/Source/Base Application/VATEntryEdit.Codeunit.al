@@ -6,7 +6,7 @@ codeunit 338 "VAT Entry - Edit"
     trigger OnRun()
     begin
         VATEntry := Rec;
-        VATEntry.LockTable;
+        VATEntry.LockTable();
         VATEntry.Find;
         VATEntry.Validate(Type);
         VATEntry."Bill-to/Pay-to No." := "Bill-to/Pay-to No.";
@@ -17,7 +17,7 @@ codeunit 338 "VAT Entry - Edit"
         VATEntry."Enterprise No." := "Enterprise No.";
         OnBeforeVATEntryModify(VATEntry, Rec);
         VATEntry.TestField("Entry No.", "Entry No.");
-        VATEntry.Modify;
+        VATEntry.Modify();
         Rec := VATEntry;
     end;
 

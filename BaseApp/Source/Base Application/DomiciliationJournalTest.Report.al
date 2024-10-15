@@ -119,9 +119,6 @@ report 2000020 "Domiciliation Journal - Test"
                     column(CustomerNo1; CustomerNo1)
                     {
                     }
-                    column(Totalsca; Totalsca)
-                    {
-                    }
                     column(Jlpostingdate; Jlpostingdate)
                     {
                     }
@@ -160,10 +157,10 @@ report 2000020 "Domiciliation Journal - Test"
                         begin
                             if Number = 1 then begin
                                 if not DimensionSetEntry.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -185,14 +182,13 @@ report 2000020 "Domiciliation Journal - Test"
 
                         trigger OnPostDataItem()
                         begin
-                            if IsServiceTier then
-                                TotalAmount := TotalAmount + "Domiciliation Journal Line".Amount;
+                            TotalAmount := TotalAmount + "Domiciliation Journal Line".Amount;
                         end;
 
                         trigger OnPreDataItem()
                         begin
                             if not ShowDim then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             DimensionSetEntry.SetRange("Dimension Set ID", "Domiciliation Journal Line"."Dimension Set ID");
                         end;
                     }
@@ -226,12 +222,11 @@ report 2000020 "Domiciliation Journal - Test"
                         TableID: array[10] of Integer;
                         No: array[10] of Code[20];
                     begin
-                        if IsServiceTier then begin
-                            CustomerNo1 := TempCustomerNo;
-                            TempCustomerNo := "Customer No.";
-                            OutputNo := OutputNo + 1;
-                            Pmt_Disc_Possible := Pmt_Disc_Possible + "Pmt. Disc. Possible";
-                        end;
+                        CustomerNo1 := TempCustomerNo;
+                        TempCustomerNo := "Customer No.";
+                        OutputNo := OutputNo + 1;
+                        Pmt_Disc_Possible := Pmt_Disc_Possible + "Pmt. Disc. Possible";
+
                         Clear(DueDate);
                         CustLedgEntry.SetCurrentKey("Document No.");
                         CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
@@ -277,17 +272,15 @@ report 2000020 "Domiciliation Journal - Test"
                         No[2] := "Bank Account No.";
                         if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                             AddError(DimMgt.GetDimValuePostingErr);
-                        if IsServiceTier then begin
-                            Totalsca := CurrReport.TotalsCausedBy;
-                            Jlpostingdate := FieldNo("Posting Date");
-                            CustNo := "Customer No.";
-                        end;
+
+                        Jlpostingdate := FieldNo("Posting Date");
+                        CustNo := "Customer No.";
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         DomJnlTemplate.Get("Domiciliation Journal Batch"."Journal Template Name");
-                        DomJnlLine.Reset;
+                        DomJnlLine.Reset();
                         DomJnlLine.CopyFilters("Domiciliation Journal Line");
                         CustNo := "Domiciliation Journal Line"."Customer No.";
                     end;
@@ -296,21 +289,15 @@ report 2000020 "Domiciliation Journal - Test"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.PageNo := 1;
-
                 BatchName := "Domiciliation Journal Batch".Name;
-                if IsServiceTier then begin
-                    Pmt_Disc_Possible := 0;
-                    TotalAmount := 0;
-                end;
+                Pmt_Disc_Possible := 0;
+                TotalAmount := 0;
             end;
 
             trigger OnPreDataItem()
             begin
-                if IsServiceTier then begin
-                    OutputNo := 0;
-                    TempCustomerNo := ' ';
-                end;
+                OutputNo := 0;
+                TempCustomerNo := ' ';
             end;
         }
     }
@@ -380,7 +367,6 @@ report 2000020 "Domiciliation Journal - Test"
         OutputNo: Integer;
         BatchName: Text[30];
         CustomerNo1: Text[30];
-        Totalsca: Integer;
         Jlpostingdate: Integer;
         DomJnlLineFilter1: Text[30];
         TotalAmount: Decimal;

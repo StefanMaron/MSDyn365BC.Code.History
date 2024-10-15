@@ -199,8 +199,6 @@ report 2000019 "Suggest Vendor Payments EB"
             VendLedgEntry.SetRange(Open, true);
             if GetFilter("Currency Filter") <> '' then
                 VendLedgEntry.SetFilter("Currency Code", GetFilter("Currency Filter"));
-            VendLedgEntry.SetFilter("Global Dimension 1 Code", GetFilter("Global Dimension 1 Filter"));
-            VendLedgEntry.SetFilter("Global Dimension 2 Code", GetFilter("Global Dimension 2 Filter"));
 
             // first take credit memo's into account
             if IncCreditMemos then begin
@@ -258,7 +256,6 @@ report 2000019 "Suggest Vendor Payments EB"
     procedure SetPaymJnlLine()
     var
         DimMgt: Codeunit DimensionManagement;
-        DimSetIDArr: array [10] of Integer;
     begin
         with PaymJnlLine do begin
             // if the invoice already is attached to an unposted Payment Line, we skip it
@@ -301,12 +298,6 @@ report 2000019 "Suggest Vendor Payments EB"
                       DimMgt.TypeToTableID2000001("Account Type"), "Account No.",
                       DATABASE::"Bank Account", "Bank Account",
                       DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
-                    if "Dimension Set ID" <> VendLedgEntry."Dimension Set ID" then begin
-                        DimSetIDArr[1] := "Dimension Set ID";
-                        DimSetIDArr[2] := VendLedgEntry."Dimension Set ID";
-                        "Dimension Set ID" :=
-                            DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-                    end;
                     Insert;
                 end;
             end else begin

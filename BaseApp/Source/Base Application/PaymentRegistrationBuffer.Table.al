@@ -15,12 +15,10 @@ table 981 "Payment Registration Buffer"
             Caption = 'Source No.';
             DataClassification = SystemMetadata;
         }
-        field(3; "Document Type"; Option)
+        field(3; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(4; "Document No."; Code[20])
         {
@@ -131,12 +129,10 @@ table 981 "Payment Registration Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Payment Method" WHERE("Use for Invoicing" = CONST(true));
         }
-        field(17; "Bal. Account Type"; Option)
+        field(17; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(18; "Bal. Account No."; Code[20])
         {
@@ -183,7 +179,7 @@ table 981 "Payment Registration Buffer"
         PaymentRegistrationSetup.TestField("Bal. Account No.");
 
         Reset;
-        DeleteAll;
+        DeleteAll();
 
         CustLedgerEntry.SetFilter("Document Type", '<>%1', CustLedgerEntry."Document Type"::Payment);
         CustLedgerEntry.SetRange(Open, true);
@@ -247,12 +243,12 @@ table 981 "Payment Registration Buffer"
         TempWorkPmtRegnBuf: Record "Payment Registration Buffer" temporary;
     begin
         TempWorkPmtRegnBuf.Copy(Rec, true);
-        TempWorkPmtRegnBuf.Reset;
+        TempWorkPmtRegnBuf.Reset();
         TempWorkPmtRegnBuf.SetRange("Payment Made", true);
         if TempWorkPmtRegnBuf.FindSet then
             repeat
                 TempSavePmtRegnBuf := TempWorkPmtRegnBuf;
-                TempSavePmtRegnBuf.Insert;
+                TempSavePmtRegnBuf.Insert();
             until TempWorkPmtRegnBuf.Next = 0;
     end;
 

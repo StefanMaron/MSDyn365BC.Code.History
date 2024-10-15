@@ -156,7 +156,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -188,22 +188,18 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Currency Code", CreateCurrency);
-        Vendor.Modify;
+        Vendor.Modify();
         exit(Vendor."No.");
     end;
 
-    local procedure RunAdjustExchangeRate(CurrencyCode: Code[10]; var DocumentNo: Code[20])
+    local procedure RunAdjustExchangeRate(CurrencyCode: Code[10]; DocumentNo: Code[20])
     var
         Currency: Record Currency;
-        GenJnlBatch: Record "Gen. Journal Batch";
         AdjustExchangeRates: Report "Adjust Exchange Rates";
     begin
         Currency.SetRange(Code, CurrencyCode);
         AdjustExchangeRates.SetTableView(Currency);
-        DocumentNo := LibraryERM.GetNextDocNoByBatch(GenJnlBatch);
-        AdjustExchangeRates.InitializeRequest2(
-          0D, WorkDate, 'Test', WorkDate, '', true, false,
-          GenJnlBatch."Journal Template Name", GenJnlBatch.Name);
+        AdjustExchangeRates.InitializeRequest2(0D, WorkDate, 'Test', WorkDate, DocumentNo, true, false);
         AdjustExchangeRates.UseRequestPage(false);
         AdjustExchangeRates.Run;
     end;

@@ -37,7 +37,7 @@ codeunit 92 "Purch.-Post + Print"
 
         OnAfterConfirmPost(PurchHeader);
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         if PurchSetup."Post & Print with Job Queue" then
             PurchasePostViaJobQueue.EnqueuePurchDoc(PurchHeader)
         else begin

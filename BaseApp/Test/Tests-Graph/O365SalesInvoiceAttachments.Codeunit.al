@@ -299,7 +299,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         // [GIVEN] Company information E-Mail = EEE
         CompanyInformation."E-Mail" :=
           LibraryUtility.GenerateRandomCode(CompanyInformation.FieldNo("E-Mail"), DATABASE::"Company Information");
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         // [WHEN] Funciton CompanyInformation.GetContactUsText is being run
         ContactUsText := CompanyInformation.GetContactUsText;
@@ -327,7 +327,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
           LibraryUtility.GenerateRandomCode(CompanyInformation.FieldNo("Phone No."), DATABASE::"Company Information");
         // [GIVEN] Company information E-Mail is empty
         CompanyInformation."E-Mail" := '';
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         // [WHEN] Funciton CompanyInformation.GetContactUsText is being run
         ContactUsText := CompanyInformation.GetContactUsText;
@@ -355,7 +355,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         // [GIVEN] Company information E-Mail = EEE
         CompanyInformation."E-Mail" :=
           LibraryUtility.GenerateRandomCode(CompanyInformation.FieldNo("E-Mail"), DATABASE::"Company Information");
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         // [WHEN] Funciton CompanyInformation.GetContactUsText is being run
         ContactUsText := CompanyInformation.GetContactUsText;
@@ -382,7 +382,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         CompanyInformation."Phone No." := '';
         // [GIVEN] Company information E-Mail is empty
         CompanyInformation."E-Mail" := '';
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         // [WHEN] Funciton CompanyInformation.GetContactUsText is being run
         ContactUsText := CompanyInformation.GetContactUsText;
@@ -410,7 +410,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
-        O365C2GraphEventSettings.Modify;
+        O365C2GraphEventSettings.Modify();
 
         EventSubscriberInvoicingApp.SetRunJobQueueTasks(false);
         EventSubscriberInvoicingApp.SetAppId('INV');
@@ -471,7 +471,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         FileName: Text;
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocumentNo);
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment."Incoming Document Entry No." := IncomingDocumentNo;
 
         FileName := FileMgt.ServerTempFileName('.jpg');
@@ -511,7 +511,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
     begin
         IncomingDocumentAttachment.SetRange("Document No.", DocumentNo);
         IncomingDocumentAttachment.SetRange("Posting Date", PostingDate);
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment."Document No." := DocumentNo;
         IncomingDocumentAttachment."Posting Date" := PostingDate;
 
@@ -545,7 +545,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
 
     local procedure InitForDraftInvoice(var O365SalesInvoiceTestPage: TestPage "O365 Sales Invoice"; var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.DeleteAll;
+        SalesHeader.DeleteAll();
         CreateNewDraftInvoice(SalesHeader);
         O365SalesInvoiceTestPage.OpenEdit();
         O365SalesInvoiceTestPage.GotoRecord(SalesHeader);
@@ -557,7 +557,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
 
     local procedure InitForPostedInvoice(var O365PostedSalesInvoiceTestPage: TestPage "O365 Posted Sales Invoice"; var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
-        SalesInvoiceHeader.DeleteAll;
+        SalesInvoiceHeader.DeleteAll();
         CreateAndPostNewInvoice(SalesInvoiceHeader);
         O365PostedSalesInvoiceTestPage.OpenEdit();
         O365PostedSalesInvoiceTestPage.GotoRecord(SalesInvoiceHeader);
@@ -636,10 +636,10 @@ codeunit 138914 "O365 Sales Invoice Attachments"
 
         Assert.AreEqual('TESTRESOURCE', TestSecret, 'Could not configure keyvault');
 
-        GraphMailSetup.Insert;
+        GraphMailSetup.Insert();
         GraphMailSetup.Initialize(true);
         GraphMailSetup.Enabled := true;
-        GraphMailSetup.Modify;
+        GraphMailSetup.Modify();
     end;
 
     local procedure CleanupGraphEmail()
@@ -670,7 +670,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocumentNo);
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment.FindFirst;
         IncomingDocumentAttachment.Delete(true);
     end;

@@ -14,7 +14,7 @@ table 5913 Loaner
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    ServMgtSetup.Get;
+                    ServMgtSetup.Get();
                     NoSeriesMgt.TestManual(ServMgtSetup."Loaner Nos.");
                     "No. Series" := '';
                 end;
@@ -144,19 +144,19 @@ table 5913 Loaner
         Clear(LoanerEntry);
         LoanerEntry.SetCurrentKey("Loaner No.");
         LoanerEntry.SetRange("Loaner No.", "No.");
-        LoanerEntry.DeleteAll;
+        LoanerEntry.DeleteAll();
 
-        ServCommentLine.Reset;
+        ServCommentLine.Reset();
         ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::Loaner);
         ServCommentLine.SetRange("Table Subtype", 0);
         ServCommentLine.SetRange("No.", "No.");
-        ServCommentLine.DeleteAll;
+        ServCommentLine.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             ServMgtSetup.TestField("Loaner Nos.");
             NoSeriesMgt.InitSeries(ServMgtSetup."Loaner Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -180,7 +180,7 @@ table 5913 Loaner
     begin
         with Loaner do begin
             Loaner := Rec;
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             ServMgtSetup.TestField("Loaner Nos.");
             if NoSeriesMgt.SelectSeries(ServMgtSetup."Loaner Nos.", OldLoaner."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");

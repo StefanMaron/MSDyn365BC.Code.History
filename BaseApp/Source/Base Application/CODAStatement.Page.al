@@ -140,7 +140,7 @@ page 2000040 "CODA Statement"
                         CodBankStmtLine.SetRange("Bank Account No.", "Bank Account No.");
                         CodBankStmtLine.SetRange("Statement No.", "Statement No.");
                         CODEUNIT.Run(CODEUNIT::"Post Coded Bank Statement", CodBankStmtLine);
-                        CodBankStmtLine.Reset;
+                        CodBankStmtLine.Reset();
                     end;
                 }
             }

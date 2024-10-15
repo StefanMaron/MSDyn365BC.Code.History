@@ -289,7 +289,7 @@ page 5827 "Item Statistics"
     var
         MATRIX_SetWanted: Option Initial,Previous,Same,Next;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         with Item do begin
             if "No." <> '' then

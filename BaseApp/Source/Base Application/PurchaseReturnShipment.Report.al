@@ -165,10 +165,10 @@ report 6636 "Purchase - Return Shipment"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -192,7 +192,7 @@ report 6636 "Purchase - Return Shipment"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Return Shipment Line"; "Return Shipment Line")
@@ -250,10 +250,10 @@ report 6636 "Purchase - Return Shipment"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -277,14 +277,14 @@ report 6636 "Purchase - Return Shipment"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
 
                         trigger OnAfterGetRecord()
                         begin
                             if (not ShowCorrectionLines) and Correction then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             DimSetEntry2.SetRange("Dimension Set ID", "Dimension Set ID");
                             TypeInt := Type;
@@ -296,7 +296,7 @@ report 6636 "Purchase - Return Shipment"
                             while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) do
                                 MoreLines := Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
                         end;
                     }
@@ -314,7 +314,7 @@ report 6636 "Purchase - Return Shipment"
                         trigger OnPreDataItem()
                         begin
                             if "Return Shipment Header"."Buy-from Vendor No." = "Return Shipment Header"."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total2; "Integer")
@@ -463,7 +463,7 @@ report 6636 "Purchase - Return Shipment"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         OnAfterInitReport;
     end;

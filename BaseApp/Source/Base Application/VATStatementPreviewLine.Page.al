@@ -80,7 +80,7 @@ page 475 "VAT Statement Preview Line"
                                 end;
                             Type::"VAT Entry Totaling":
                                 begin
-                                    VATEntry.Reset;
+                                    VATEntry.Reset();
                                     VATEntry.SetCurrentKey(
                                       "Journal Template Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
                                     VATEntry.SetRange(Type, "Gen. Posting Type");
@@ -193,7 +193,7 @@ page 475 "VAT Statement Preview Line"
         IncludesRowTotaling: Boolean;
     begin
         Clear(ManualVATCorrectionListPage);
-        ManualVATCorrection.Reset;
+        ManualVATCorrection.Reset();
         ManualVATCorrection.FilterGroup(2);
         IncludesRowTotaling := MarkManVATCorrections(Rec, ManualVATCorrection);
         if IncludesRowTotaling then begin

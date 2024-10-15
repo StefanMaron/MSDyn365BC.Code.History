@@ -101,10 +101,10 @@ table 363 "Analysis View"
                                 if not GLAcc.Mark then begin
                                     AnalysisViewEntry.SetRange("Analysis View Code", Code);
                                     AnalysisViewEntry.SetRange("Account No.", GLAcc."No.");
-                                    AnalysisViewEntry.DeleteAll;
+                                    AnalysisViewEntry.DeleteAll();
                                     AnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
                                     AnalysisViewBudgetEntry.SetRange("G/L Account No.", GLAcc."No.");
-                                    AnalysisViewBudgetEntry.DeleteAll;
+                                    AnalysisViewBudgetEntry.DeleteAll();
                                 end;
                             until GLAcc.Next = 0;
                     end;
@@ -128,7 +128,7 @@ table 363 "Analysis View"
                                 if not CFAccount.Mark then begin
                                     AnalysisViewEntry.SetRange("Analysis View Code", Code);
                                     AnalysisViewEntry.SetRange("Account No.", CFAccount."No.");
-                                    AnalysisViewEntry.DeleteAll;
+                                    AnalysisViewEntry.DeleteAll();
                                 end;
                             until CFAccount.Next = 0;
                     end;
@@ -164,22 +164,22 @@ table 363 "Analysis View"
                     if BusUnit.Find('-') then
                         repeat
                             TempBusUnit := BusUnit;
-                            TempBusUnit.Insert;
+                            TempBusUnit.Insert();
                         until BusUnit.Next = 0;
-                    TempBusUnit.Init;
+                    TempBusUnit.Init();
                     TempBusUnit.Code := '';
-                    TempBusUnit.Insert;
+                    TempBusUnit.Insert();
                     TempBusUnit.SetFilter(Code, "Business Unit Filter");
-                    TempBusUnit.DeleteAll;
+                    TempBusUnit.DeleteAll();
                     TempBusUnit.SetRange(Code);
                     if TempBusUnit.Find('-') then
                         repeat
                             AnalysisViewEntry.SetRange("Analysis View Code", Code);
                             AnalysisViewEntry.SetRange("Business Unit Code", TempBusUnit.Code);
-                            AnalysisViewEntry.DeleteAll;
+                            AnalysisViewEntry.DeleteAll();
                             AnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
                             AnalysisViewBudgetEntry.SetRange("Business Unit Code", TempBusUnit.Code);
-                            AnalysisViewBudgetEntry.DeleteAll;
+                            AnalysisViewBudgetEntry.DeleteAll();
                         until TempBusUnit.Next = 0
                 end;
                 if ("Last Entry No." <> 0) and (xRec."Business Unit Filter" <> '') and
@@ -319,7 +319,7 @@ table 363 "Analysis View"
     begin
         AnalysisViewReset;
         AnalysisViewFilter.SetRange("Analysis View Code", Code);
-        AnalysisViewFilter.DeleteAll;
+        AnalysisViewFilter.DeleteAll();
     end;
 
     var
@@ -343,7 +343,8 @@ table 363 "Analysis View"
         NewAnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
         Dim: Record Dimension;
         Text016: Label '%1 is not applicable for source type %2.';
-        AnalysisViewUpdateMsg: Label 'If you enable the %1 feature it can take significantly more time to post documents, such as sales or purchase orders and invoices. Do you want to continue? \\Additionally, enabling the %1 feature immediately updates the analysis view with the latest entries. Do you want to start using the feature, and update the analysis view now?', Comment = '%1 = The name of the feature that is being enabled';
+        Text017Msg: Label 'Enabling the %1 feature immediately updates the analysis view with the latest entries. Do you want to start using the feature, and update the analysis view now?', Comment = '%1 = The name of the feature that is being enabled';	
+        Text018Msg: Label 'If you enable the %1 feature it can take significantly more time to post documents, such as sales or purchase orders and invoices. Do you want to continue?', Comment = '%1 = The name of the feature that is being enabled';
         SkipConfirmationDialogue: Boolean;
 
     local procedure ModifyDim(DimFieldName: Text[100]; DimValue: Code[20]; xDimValue: Code[20])
@@ -386,7 +387,7 @@ table 363 "Analysis View"
                     AnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
                 if AnalysisViewEntry.Find('-') then
                     repeat
-                        AnalysisViewEntry.Delete;
+                        AnalysisViewEntry.Delete();
                         NewAnalysisViewEntry := AnalysisViewEntry;
                         case DimFieldName of
                             FieldCaption("Dimension 1 Code"):
@@ -403,7 +404,7 @@ table 363 "Analysis View"
                 if "Account Source" = "Account Source"::"G/L Account" then
                     if AnalysisViewBudgetEntry.Find('-') then
                         repeat
-                            AnalysisViewBudgetEntry.Delete;
+                            AnalysisViewBudgetEntry.Delete();
                             NewAnalysisViewBudgetEntry := AnalysisViewBudgetEntry;
                             case DimFieldName of
                                 FieldCaption("Dimension 1 Code"):
@@ -423,7 +424,7 @@ table 363 "Analysis View"
 
     local procedure InsertAnalysisViewEntry()
     begin
-        if not NewAnalysisViewEntry.Insert then begin
+        if not NewAnalysisViewEntry.Insert() then begin
             NewAnalysisViewEntry.Find;
             NewAnalysisViewEntry.Amount := NewAnalysisViewEntry.Amount + AnalysisViewEntry.Amount;
             if "Account Source" = "Account Source"::"G/L Account" then begin
@@ -436,16 +437,16 @@ table 363 "Analysis View"
                 NewAnalysisViewEntry."Add.-Curr. Credit Amount" :=
                   NewAnalysisViewEntry."Add.-Curr. Credit Amount" + AnalysisViewEntry."Add.-Curr. Credit Amount";
             end;
-            NewAnalysisViewEntry.Modify;
+            NewAnalysisViewEntry.Modify();
         end;
     end;
 
     local procedure InsertAnalysisViewBudgetEntry()
     begin
-        if not NewAnalysisViewBudgetEntry.Insert then begin
+        if not NewAnalysisViewBudgetEntry.Insert() then begin
             NewAnalysisViewBudgetEntry.Find;
             NewAnalysisViewBudgetEntry.Amount := NewAnalysisViewBudgetEntry.Amount + AnalysisViewBudgetEntry.Amount;
-            NewAnalysisViewBudgetEntry.Modify;
+            NewAnalysisViewBudgetEntry.Modify();
         end;
     end;
 
@@ -454,7 +455,7 @@ table 363 "Analysis View"
         AnalysisViewEntry: Record "Analysis View Entry";
     begin
         AnalysisViewEntry.SetRange("Analysis View Code", Code);
-        AnalysisViewEntry.DeleteAll;
+        AnalysisViewEntry.DeleteAll();
         "Last Entry No." := 0;
         "Last Date Updated" := 0D;
         AnalysisviewBudgetReset;
@@ -568,7 +569,7 @@ table 363 "Analysis View"
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
     begin
         AnalysisViewBudgetEntry.SetRange("Analysis View Code", Code);
-        AnalysisViewBudgetEntry.DeleteAll;
+        AnalysisViewBudgetEntry.DeleteAll();
         "Last Budget Entry No." := 0;
     end;
 
@@ -605,17 +606,17 @@ table 363 "Analysis View"
                 then begin
                     if SelectedDim."Dimension Value Filter" = '' then begin
                         SelectedDim."Dimension Value Filter" := "Account Filter";
-                        SelectedDim.Modify;
+                        SelectedDim.Modify();
                     end;
                 end else begin
-                    SelectedDim.Init;
+                    SelectedDim.Init();
                     SelectedDim."User ID" := UserId;
                     SelectedDim."Object Type" := ObjectType;
                     SelectedDim."Object ID" := ObjectID;
                     SelectedDim."Analysis View Code" := AnalysisViewCode;
                     SelectedDim."Dimension Code" := DimensionCode;
                     SelectedDim."Dimension Value Filter" := "Account Filter";
-                    SelectedDim.Insert;
+                    SelectedDim.Insert();
                 end;
             end;
             if "Business Unit Filter" <> '' then
@@ -624,17 +625,17 @@ table 363 "Analysis View"
                 then begin
                     if SelectedDim."Dimension Value Filter" = '' then begin
                         SelectedDim."Dimension Value Filter" := "Business Unit Filter";
-                        SelectedDim.Modify;
+                        SelectedDim.Modify();
                     end;
                 end else begin
-                    SelectedDim.Init;
+                    SelectedDim.Init();
                     SelectedDim."User ID" := UserId;
                     SelectedDim."Object Type" := ObjectType;
                     SelectedDim."Object ID" := ObjectID;
                     SelectedDim."Analysis View Code" := AnalysisViewCode;
                     SelectedDim."Dimension Code" := BusUnit.TableCaption;
                     SelectedDim."Dimension Value Filter" := "Business Unit Filter";
-                    SelectedDim.Insert;
+                    SelectedDim.Insert();
                 end;
         end;
     end;
@@ -664,9 +665,12 @@ table 363 "Analysis View"
         if "Update on Posting" = NewUpdateOnPosting then
             exit;
 
-        if not "Update on Posting" and NewUpdateOnPosting then
-            if not Confirm(StrSubstNo(AnalysisViewUpdateMsg, FieldCaption("Update on Posting")), false) then
+        if not "Update on Posting" and NewUpdateOnPosting then begin
+            if not Confirm(StrSubstNo(Text018Msg, FieldCaption("Update on Posting")), false) then
                 exit;
+            if not Confirm(StrSubstNo(Text017Msg, FieldCaption("Update on Posting")), false) then
+                exit;
+        end;
 
         "Update on Posting" := NewUpdateOnPosting;
         if "Update on Posting" then begin
@@ -679,6 +683,15 @@ table 363 "Analysis View"
     procedure SetSkipConfirmationDialogue()
     begin
         SkipConfirmationDialogue := true;
+    end;
+
+    procedure RunAnalysisByDimensionPage()
+    var
+        AnalysisByDimParameters: Record "Analysis by Dim. Parameters" temporary;
+    begin
+        AnalysisByDimParameters."Analysis View Code" := Code;
+        AnalysisByDimParameters.Insert();
+        PAGE.RUN(PAGE::"Analysis by Dimensions", AnalysisByDimParameters);
     end;
 
     [IntegrationEvent(false, false)]

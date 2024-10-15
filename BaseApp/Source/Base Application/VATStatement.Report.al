@@ -139,7 +139,7 @@ report 12 "VAT Statement"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
             end;
         }
     }
@@ -308,7 +308,7 @@ report 12 "VAT Statement"
                 end;
             VATStmtLine2.Type::"VAT Entry Totaling":
                 begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     VATEntry.SetCurrentKey(
                       "Journal Template Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
                     VATEntry.SetRange("VAT Bus. Posting Group", VATStmtLine2."VAT Bus. Posting Group");

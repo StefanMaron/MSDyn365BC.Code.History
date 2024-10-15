@@ -161,7 +161,7 @@ page 161 "Purchase Statistics"
 
     trigger OnOpenPage()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         AllowInvDisc :=
           not (PurchSetup."Calc. Inv. Discount" and VendInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=
@@ -372,7 +372,7 @@ page 161 "Purchase Statistics"
                 TempVATAmountLine.Find;
                 TempVATAmountLine.ApplyNonDeductibleVAT(TempNonDeductVATAmountLineBuffer."VAT Amount");
             until TempNonDeductVATAmountLineBuffer.Next = 0;
-            TempNonDeductVATAmountLineBuffer.DeleteAll;
+            TempNonDeductVATAmountLineBuffer.DeleteAll();
         end;
 
         SetVATSpecification;
@@ -392,19 +392,19 @@ page 161 "Purchase Statistics"
                   PurchLine."VAT Identifier", PurchLine."VAT Calculation Type",
                   PurchLine."Tax Group Code", PurchLine."Use Tax", PurchLine."Line Amount" >= 0)
                 then begin
-                    TempNonDeductVATAmountLineBuffer.Init;
+                    TempNonDeductVATAmountLineBuffer.Init();
                     TempNonDeductVATAmountLineBuffer."VAT Identifier" := PurchLine."VAT Identifier";
                     TempNonDeductVATAmountLineBuffer."VAT Calculation Type" := PurchLine."VAT Calculation Type";
                     TempNonDeductVATAmountLineBuffer."Tax Group Code" := PurchLine."Tax Group Code";
                     TempNonDeductVATAmountLineBuffer."Use Tax" := PurchLine."Use Tax";
                     TempNonDeductVATAmountLineBuffer."VAT %" := PurchLine."VAT %";
                     TempNonDeductVATAmountLineBuffer.Positive := PurchLine."Line Amount" >= 0;
-                    TempNonDeductVATAmountLineBuffer.Insert;
+                    TempNonDeductVATAmountLineBuffer.Insert();
                 end;
                 NonDeductibleVAT :=
                   Round((PurchLine."Amount Including VAT" - PurchLine.Amount) * PurchLine."Non Deductible VAT %" / 100);
                 TempNonDeductVATAmountLineBuffer."VAT Amount" += NonDeductibleVAT;
-                TempNonDeductVATAmountLineBuffer.Modify;
+                TempNonDeductVATAmountLineBuffer.Modify();
             until PurchLine.Next = 0;
         PurchLine.SetRange("Non Deductible VAT %");
         PurchLine.SetRange("VAT Calculation Type");

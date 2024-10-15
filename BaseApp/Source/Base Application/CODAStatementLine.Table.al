@@ -177,11 +177,9 @@ table 2000041 "CODA Statement Line"
             OptionCaption = ' ,Partly applied,Applied,Indirectly applied';
             OptionMembers = " ","Partly applied",Applied,"Indirectly applied";
         }
-        field(40; "Account Type"; Option)
+        field(40; "Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
 
             trigger OnValidate()
             begin
@@ -215,7 +213,7 @@ table 2000041 "CODA Statement Line"
                     case "Account Type" of
                         "Account Type"::Customer:
                             begin
-                                CustLedgEntry.Reset;
+                                CustLedgEntry.Reset();
                                 CustLedgEntry.SetRange("Customer No.", xRec."Account No.");
                                 CustLedgEntry.SetRange(Open, true);
                                 CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
@@ -223,12 +221,12 @@ table 2000041 "CODA Statement Line"
                                     repeat
                                         CustLedgEntry.Validate("Applies-to ID", '');
                                         CustLedgEntry.Validate("Amount to Apply", 0);
-                                        CustLedgEntry.Modify;
+                                        CustLedgEntry.Modify();
                                     until CustLedgEntry.Next = 0;
                             end;
                         "Account Type"::Vendor:
                             begin
-                                VendLedgEntry.Reset;
+                                VendLedgEntry.Reset();
                                 VendLedgEntry.SetRange("Vendor No.", xRec."Account No.");
                                 VendLedgEntry.SetRange(Open, true);
                                 VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
@@ -236,7 +234,7 @@ table 2000041 "CODA Statement Line"
                                     repeat
                                         VendLedgEntry.Validate("Applies-to ID", '');
                                         VendLedgEntry.Validate("Amount to Apply", 0);
-                                        VendLedgEntry.Modify;
+                                        VendLedgEntry.Modify();
                                     until VendLedgEntry.Next = 0;
                             end;
                     end;
@@ -272,11 +270,9 @@ table 2000041 "CODA Statement Line"
                 UpdateStatus
             end;
         }
-        field(42; "Document Type"; Option)
+        field(42; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(43; "Document No."; Code[20])
         {
@@ -437,7 +433,7 @@ table 2000041 "CODA Statement Line"
         // Lines with global info and details
         if Type = Type::Global then begin
             // Modify all details
-            CODAStmtLine.Reset;
+            CODAStmtLine.Reset();
             CODAStmtLine.SetRange("Bank Account No.", "Bank Account No.");
             CODAStmtLine.SetRange("Statement No.", "Statement No.");
             CODAStmtLine.SetRange(ID, ID);
@@ -466,14 +462,14 @@ table 2000041 "CODA Statement Line"
             Modify;
 
             // Retrieve global info
-            CODAStmtLine.Reset;
+            CODAStmtLine.Reset();
             CODAStmtLine.Get("Bank Account No.", "Statement No.", "Attached to Line No.");
             CODAStmtLine.Validate(Amount, 0);
             CODAStmtLine."Unapplied Amount" := CODAStmtLine."Statement Amount";
 
             // Run through details
             Clear(StatusCount);
-            CODAStmtLine2.Reset;
+            CODAStmtLine2.Reset();
             CODAStmtLine2.SetCurrentKey("Bank Account No.", "Statement No.", ID, "Attached to Line No.");
             CODAStmtLine2.SetRange("Bank Account No.", CODAStmtLine."Bank Account No.");
             CODAStmtLine2.SetRange("Statement No.", CODAStmtLine."Statement No.");
@@ -496,7 +492,7 @@ table 2000041 "CODA Statement Line"
                     CODAStmtLine."Application Status" := "Application Status"::"Partly applied"
             end else
                 CODAStmtLine."Application Status" := "Application Status"::"Indirectly applied";
-            CODAStmtLine.Modify;
+            CODAStmtLine.Modify();
         end;
     end;
 }

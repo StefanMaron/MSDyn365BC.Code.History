@@ -25,10 +25,10 @@ report 2000058 "Initialise CODA Stmt. Lines"
                     case ID of
                         ID::Header:
                             begin
-                                CodBankStmtSrcLine2.Reset;
+                                CodBankStmtSrcLine2.Reset();
                                 CodBankStmtSrcLine2.CopyFilters(CodBankStmtSrcLine);
                                 CodBankStmtSrcLine2.SetRange("Statement No.", "Statement No.");
-                                TotRecords := CodBankStmtSrcLine2.Count;
+                                TotRecords := CodBankStmtSrcLine2.Count();
                                 LineNo := 0;
                             end;
                         ID::"Old Balance", ID::"New Balance":
@@ -36,13 +36,13 @@ report 2000058 "Initialise CODA Stmt. Lines"
                                 Skip := not CodaTrans.UpdateBankStatement(CodBankStmtSrcLine, CodBankStmt);
                                 if Skip and (GetFilter("Statement No.") <> '') then
                                     if GetRangeMin("Statement No.") = GetRangeMax("Statement No.") then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 Window.Update(2, "Statement No.");
                                 if ID = ID::"Old Balance" then begin
-                                    CodBankStmtSrcLine2.Reset;
+                                    CodBankStmtSrcLine2.Reset();
                                     CodBankStmtSrcLine2.CopyFilters(CodBankStmtSrcLine);
                                     CodBankStmtSrcLine2.SetRange("Statement No.", "Statement No.");
-                                    TotRecords := CodBankStmtSrcLine2.Count;
+                                    TotRecords := CodBankStmtSrcLine2.Count();
                                     LineNo := 0
                                 end;
                             end;
@@ -65,7 +65,7 @@ report 2000058 "Initialise CODA Stmt. Lines"
 
             trigger OnPreDataItem()
             begin
-                CodBankStmt.Reset;
+                CodBankStmt.Reset();
                 Skip := false;
                 Window.Open(
                   '#1#################################\\' +

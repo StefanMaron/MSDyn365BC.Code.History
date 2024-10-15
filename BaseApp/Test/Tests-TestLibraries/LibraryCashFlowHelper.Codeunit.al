@@ -110,77 +110,59 @@ codeunit 131332 "Library - Cash Flow Helper"
     end;
 
     procedure CalcDiscAmtFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line"; DiscountPercentage: Decimal): Decimal
-    var
-        VATBase: Decimal;
     begin
-        case GenJnlLine."Account Type" of
-            GenJnlLine."Account Type"::Customer:
-                VATBase := GetSalesVATBaseAmtFromVATEntry(GenJnlLine."Posting Date", GenJnlLine."Document No.");
-            GenJnlLine."Account Type"::Vendor:
-                VATBase := GetPurchVATBaseAmtFromVATEntry(GenJnlLine."Posting Date", GenJnlLine."Document No.");
-        end;
-        exit(CalculateDiscountAmount(VATBase, DiscountPercentage));
+        if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor then
+            GenJnlLine.Amount := -GenJnlLine.Amount;
+        exit(CalculateDiscountAmount(GenJnlLine.Amount, DiscountPercentage));
     end;
 
     procedure CalcCustDiscAmtLCY(CustLedgEntry: Record "Cust. Ledger Entry"; DiscountPercentage: Decimal; ExchRateAmount: Decimal): Decimal
     begin
-        exit(CalcCustDiscAmt(CustLedgEntry, DiscountPercentage));
+        exit(
+          Round(CalcCustDiscAmt(CustLedgEntry, DiscountPercentage) * ExchRateAmount, LibraryERM.GetAmountRoundingPrecision));
     end;
 
     procedure CalcVendDiscAmtLCY(VendLedgEntry: Record "Vendor Ledger Entry"; DiscountPercentage: Decimal; ExchRateAmount: Decimal): Decimal
     begin
-        exit(CalcVendDiscAmt(VendLedgEntry, DiscountPercentage));
+        exit(
+          Round(CalcVendDiscAmt(VendLedgEntry, DiscountPercentage) * ExchRateAmount, LibraryERM.GetAmountRoundingPrecision));
     end;
 
     procedure CalcCustDiscAmt(CustLedgEntry: Record "Cust. Ledger Entry"; DiscountPercentage: Decimal): Decimal
-    var
-        VATBase: Decimal;
     begin
-        VATBase := GetSalesVATBaseAmtFromVATEntry(CustLedgEntry."Posting Date", CustLedgEntry."Document No.");
         exit(
-          Round(VATBase * DiscountPercentage / 100, LibraryERM.GetAmountRoundingPrecision));
+          Round(CustLedgEntry.Amount * DiscountPercentage / 100, LibraryERM.GetAmountRoundingPrecision));
     end;
 
     procedure CalcVendDiscAmt(VendLedgEntry: Record "Vendor Ledger Entry"; DiscountPercentage: Decimal): Decimal
-    var
-        VATBase: Decimal;
     begin
-        VATBase := GetPurchVATBaseAmtFromVATEntry(VendLedgEntry."Posting Date", VendLedgEntry."Document No.");
         exit(
-          Round(VATBase * DiscountPercentage / 100, LibraryERM.GetAmountRoundingPrecision));
+          Round(VendLedgEntry.Amount * DiscountPercentage / 100, LibraryERM.GetAmountRoundingPrecision));
     end;
 
     procedure CalcSalesExpectedPrepmtAmounts(SalesHeader: Record "Sales Header"; DiscountPercentage: Decimal; var ExpectedOrderAmount: Decimal; var ExpectedPrePmtAmount: Decimal)
     var
         TotalOrderAmount: Decimal;
-        TotalVATBaseAmount: Decimal;
-        PrepmtVATBaseAmount: Decimal;
     begin
         TotalOrderAmount := GetTotalSalesAmount(SalesHeader, false);
-        TotalVATBaseAmount := GetTotalSalesVATBaseAmt(SalesHeader);
         ExpectedPrePmtAmount := Round(TotalOrderAmount / 100 * SalesHeader."Prepayment %");
-        PrepmtVATBaseAmount := Round(TotalVATBaseAmount / 100 * SalesHeader."Prepayment %");
         ExpectedOrderAmount := TotalOrderAmount - ExpectedPrePmtAmount;
         if DiscountPercentage > 0 then begin
-            ExpectedOrderAmount -= CalculateDiscountAmount(TotalVATBaseAmount, DiscountPercentage);
-            ExpectedPrePmtAmount -= CalculateDiscountAmount(PrepmtVATBaseAmount, DiscountPercentage);
+            ExpectedOrderAmount -= CalculateDiscountAmount(ExpectedOrderAmount, DiscountPercentage);
+            ExpectedPrePmtAmount -= CalculateDiscountAmount(ExpectedPrePmtAmount, DiscountPercentage);
         end;
     end;
 
     procedure CalcPurchExpectedPrepmtAmounts(PurchaseHeader: Record "Purchase Header"; DiscountPercentage: Decimal; var ExpectedOrderAmount: Decimal; var ExpectedPrePmtAmount: Decimal)
     var
         TotalOrderAmount: Decimal;
-        TotalVATBaseAmount: Decimal;
-        PrepmtVATBaseAmount: Decimal;
     begin
         TotalOrderAmount := GetTotalPurchaseAmount(PurchaseHeader, false);
-        TotalVATBaseAmount := GetTotalPurchVATBaseAmt(PurchaseHeader);
         ExpectedPrePmtAmount := Round(TotalOrderAmount / 100 * PurchaseHeader."Prepayment %");
-        PrepmtVATBaseAmount := Round(TotalVATBaseAmount / 100 * PurchaseHeader."Prepayment %");
         ExpectedOrderAmount := TotalOrderAmount - ExpectedPrePmtAmount;
         if DiscountPercentage > 0 then begin
-            ExpectedOrderAmount -= CalculateDiscountAmount(TotalVATBaseAmount, DiscountPercentage);
-            ExpectedPrePmtAmount -= CalculateDiscountAmount(PrepmtVATBaseAmount, DiscountPercentage);
+            ExpectedOrderAmount -= CalculateDiscountAmount(ExpectedOrderAmount, DiscountPercentage);
+            ExpectedPrePmtAmount -= CalculateDiscountAmount(ExpectedPrePmtAmount, DiscountPercentage);
         end;
     end;
 
@@ -509,7 +491,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             LibraryERM.CreateVATPostingSetupWithAccounts(
               VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 25));
             VATPostingSetup."VAT Bus. Posting Group" := PurchaseHeader."VAT Bus. Posting Group";
-            VATPostingSetup.Insert;
+            VATPostingSetup.Insert();
             GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase);
         end;
         LibraryPurchase.CreatePurchaseLine(
@@ -737,7 +719,6 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalAmount: Decimal;
         TotalDiscountAmount: Decimal;
         LineAmount: Decimal;
-        VATBaseAmount: Decimal;
     begin
         TotalAmount := 0;
         TotalDiscountAmount := 0;
@@ -746,26 +727,12 @@ codeunit 131332 "Library - Cash Flow Helper"
         SalesLine.FindSet;
         repeat
             LineAmount := SalesLine."Outstanding Amount (LCY)";
-            VATBaseAmount := GetVATBaseFromSalesLine(SalesHeader, SalesLine);
             TotalAmount += LineAmount;
             if ConsiderDefaultPmtDiscount then
                 TotalDiscountAmount +=
-                  CalculateDiscountAmount(VATBaseAmount, SalesHeader."Payment Discount %");
+                  CalculateDiscountAmount(LineAmount, SalesHeader."Payment Discount %");
         until SalesLine.Next = 0;
         exit(TotalAmount - TotalDiscountAmount);
-    end;
-
-    procedure GetTotalSalesVATBaseAmt(SalesHeader: Record "Sales Header") TotalAmount: Decimal
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindSet;
-        repeat
-            TotalAmount += GetVATBaseFromSalesLine(SalesHeader, SalesLine);
-        until SalesLine.Next = 0;
-        exit(TotalAmount);
     end;
 
     procedure GetTotalPurchaseAmount(PurchaseHeader: Record "Purchase Header"; ConsiderDefaultPmtDiscount: Boolean): Decimal
@@ -774,7 +741,6 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalAmount: Decimal;
         TotalDiscountAmount: Decimal;
         LineAmount: Decimal;
-        VATBaseAmount: Decimal;
     begin
         TotalAmount := 0;
         TotalDiscountAmount := 0;
@@ -783,25 +749,11 @@ codeunit 131332 "Library - Cash Flow Helper"
         PurchaseLine.FindSet;
         repeat
             LineAmount := PurchaseLine."Outstanding Amount (LCY)";
-            VATBaseAmount := GetVATBaseFromPurchLine(PurchaseHeader, PurchaseLine);
             TotalAmount += LineAmount;
             if ConsiderDefaultPmtDiscount then
-                TotalDiscountAmount += CalculateDiscountAmount(VATBaseAmount, PurchaseHeader."Payment Discount %");
+                TotalDiscountAmount += CalculateDiscountAmount(LineAmount, PurchaseHeader."Payment Discount %");
         until PurchaseLine.Next = 0;
         exit(TotalAmount - TotalDiscountAmount);
-    end;
-
-    procedure GetTotalPurchVATBaseAmt(PurchaseHeader: Record "Purchase Header") TotalAmount: Decimal
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.FindSet;
-        repeat
-            TotalAmount += GetVATBaseFromPurchLine(PurchaseHeader, PurchaseLine);
-        until PurchaseLine.Next = 0;
-        exit(TotalAmount);
     end;
 
     procedure GetTotalServiceAmount(ServiceHeader: Record "Service Header"; ConsiderDefaultPmtDiscount: Boolean): Decimal
@@ -810,7 +762,6 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalAmount: Decimal;
         TotalDiscountAmount: Decimal;
         LineAmount: Decimal;
-        VATBaseAmount: Decimal;
     begin
         TotalAmount := 0;
         TotalDiscountAmount := 0;
@@ -819,11 +770,10 @@ codeunit 131332 "Library - Cash Flow Helper"
         ServiceLine.FindSet;
         repeat
             LineAmount := ServiceLine."Outstanding Amount (LCY)";
-            VATBaseAmount := GetVATBaseFromServLine(ServiceHeader, ServiceLine);
             TotalAmount += LineAmount;
             if ConsiderDefaultPmtDiscount then
                 TotalDiscountAmount +=
-                  CalculateDiscountAmount(VATBaseAmount, ServiceHeader."Payment Discount %");
+                  CalculateDiscountAmount(LineAmount, ServiceHeader."Payment Discount %");
         until ServiceLine.Next = 0;
 
         exit(TotalAmount - TotalDiscountAmount);
@@ -837,7 +787,6 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalAmount: Decimal;
         TotalDiscountAmount: Decimal;
         LineAmount: Decimal;
-        VATBaseAmount: Decimal;
     begin
         Customer.Get(SalesHeader."Sell-to Customer No.");
         PaymentTermsCashFlow.Get(Customer."Cash Flow Payment Terms Code");
@@ -848,9 +797,8 @@ codeunit 131332 "Library - Cash Flow Helper"
         if SalesLine.FindSet then begin
             repeat
                 LineAmount := SalesLine."Outstanding Amount (LCY)";
-                VATBaseAmount := GetAmountLCY(SalesHeader."Currency Code", SalesHeader."Posting Date", SalesLine."VAT Base Amount");
                 TotalAmount += LineAmount;
-                TotalDiscountAmount += CalculateDiscountAmount(VATBaseAmount, PaymentTermsCashFlow."Discount %");
+                TotalDiscountAmount += CalculateDiscountAmount(LineAmount, PaymentTermsCashFlow."Discount %");
             until SalesLine.Next = 0;
         end;
         exit(TotalAmount - TotalDiscountAmount);
@@ -864,7 +812,6 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalAmount: Decimal;
         TotalDiscountAmount: Decimal;
         LineAmount: Decimal;
-        VATBaseAmount: Decimal;
     begin
         Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
         PaymentTermsCashFlow.Get(Vendor."Cash Flow Payment Terms Code");
@@ -875,9 +822,8 @@ codeunit 131332 "Library - Cash Flow Helper"
         if PurchaseLine.FindSet then begin
             repeat
                 LineAmount := PurchaseLine."Outstanding Amount (LCY)";
-                VATBaseAmount := GetAmountLCY(PurchaseHeader."Currency Code", PurchaseHeader."Posting Date", PurchaseLine."VAT Base Amount");
                 TotalAmount += LineAmount;
-                TotalDiscountAmount += CalculateDiscountAmount(VATBaseAmount, PaymentTermsCashFlow."Discount %");
+                TotalDiscountAmount += CalculateDiscountAmount(LineAmount, PaymentTermsCashFlow."Discount %");
             until PurchaseLine.Next = 0;
         end;
         exit(TotalAmount - TotalDiscountAmount);
@@ -891,7 +837,6 @@ codeunit 131332 "Library - Cash Flow Helper"
         TotalAmount: Decimal;
         TotalDiscountAmount: Decimal;
         LineAmount: Decimal;
-        VATBaseAmount: Decimal;
     begin
         Customer.Get(ServiceHeader."Bill-to Customer No.");
         PaymentTermsCashFlow.Get(Customer."Cash Flow Payment Terms Code");
@@ -902,9 +847,8 @@ codeunit 131332 "Library - Cash Flow Helper"
         if ServiceLine.FindSet then begin
             repeat
                 LineAmount := ServiceLine."Outstanding Amount (LCY)";
-                VATBaseAmount := GetAmountLCY(ServiceHeader."Currency Code", ServiceHeader."Posting Date", ServiceLine."VAT Base Amount");
                 TotalAmount += LineAmount;
-                TotalDiscountAmount += CalculateDiscountAmount(VATBaseAmount, PaymentTermsCashFlow."Discount %");
+                TotalDiscountAmount += CalculateDiscountAmount(LineAmount, PaymentTermsCashFlow."Discount %");
             until ServiceLine.Next = 0;
         end;
         exit(TotalAmount - TotalDiscountAmount);
@@ -978,84 +922,6 @@ codeunit 131332 "Library - Cash Flow Helper"
         exit(TotalAmount);
     end;
 
-    local procedure GetTotalServVATBaseAmt(ServiceHeader: Record "Service Header") TotalAmount: Decimal
-    var
-        ServiceLine: Record "Service Line";
-    begin
-        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
-        ServiceLine.FindSet;
-        repeat
-            TotalAmount += GetVATBaseFromServLine(ServiceHeader, ServiceLine);
-        until ServiceLine.Next = 0;
-        exit(TotalAmount);
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetSalesVATBaseAmtFromVATEntry(PostingDate: Date; DocNo: Code[20]): Decimal
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        exit(GetVATBaseAmtFromVATEntry(PostingDate, DocNo, VATEntry.Type::Sale));
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetPurchVATBaseAmtFromVATEntry(PostingDate: Date; DocNo: Code[20]): Decimal
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        exit(GetVATBaseAmtFromVATEntry(PostingDate, DocNo, VATEntry.Type::Purchase));
-    end;
-
-    local procedure GetVATBaseAmtFromVATEntry(PostingDate: Date; DocNo: Code[20]; EntryType: Option) VATBaseAmount: Decimal
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        with VATEntry do begin
-            SetRange("Posting Date", PostingDate);
-            SetRange("Document No.", DocNo);
-            SetRange(Type, EntryType);
-            if FindSet then
-                repeat
-                    VATBaseAmount += VATEntry.Base;
-                until Next = 0;
-            exit(-VATBaseAmount);
-        end;
-    end;
-
-    local procedure GetVATBaseFromSalesLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line") VATBase: Decimal
-    begin
-        VATBase := SalesLine."Line Amount";
-        if SalesHeader."Prices Including VAT" then
-            VATBase := VATBase / (1 + SalesLine."VAT %" / 100);
-        exit(GetAmountLCY(SalesHeader."Currency Code", SalesHeader."Posting Date", VATBase));
-    end;
-
-    local procedure GetVATBaseFromPurchLine(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line") VATBase: Decimal
-    begin
-        VATBase := PurchLine."Line Amount";
-        if PurchHeader."Prices Including VAT" then
-            VATBase := VATBase / (1 + PurchLine."VAT %" / 100);
-        exit(GetAmountLCY(PurchHeader."Currency Code", PurchHeader."Posting Date", VATBase));
-    end;
-
-    local procedure GetVATBaseFromServLine(ServHeader: Record "Service Header"; ServLine: Record "Service Line") VATBase: Decimal
-    begin
-        VATBase := ServLine."Line Amount";
-        if ServHeader."Prices Including VAT" then
-            VATBase := VATBase / (1 + ServLine."VAT %" / 100);
-        exit(GetAmountLCY(ServHeader."Currency Code", ServHeader."Posting Date", ServLine."VAT Base Amount"));
-    end;
-
-    [Scope('OnPrem')]
-    procedure GetAmountLCY(CurrencyCode: Code[10]; PostingDate: Date; Amount: Decimal): Decimal
-    begin
-        if CurrencyCode = '' then
-            exit(Amount);
-        exit(
-          Round(LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', PostingDate), LibraryERM.GetAmountRoundingPrecision));
-    end;
-
     local procedure GetPaymentTermsCode(PaymentTermsCode: Code[20]): Code[20]
     var
         PaymentTerms: Record "Payment Terms";
@@ -1115,7 +981,6 @@ codeunit 131332 "Library - Cash Flow Helper"
         PurchaseHeader: Record "Purchase Header";
         ServiceHeader: Record "Service Header";
         TotalAmount: Decimal;
-        TotalVATBaseAmt: Decimal;
     begin
         case DocType of
             DocumentType::Sale:
@@ -1123,14 +988,12 @@ codeunit 131332 "Library - Cash Flow Helper"
                     SalesHeader.Get(SalesHeader."Document Type"::Order, DocumentNo);
                     FindCustomerCFPaymentTerms(PaymentTerms, PartnerNo);
                     TotalAmount := GetTotalSalesAmount(SalesHeader, false);
-                    TotalVATBaseAmt := GetTotalSalesVATBaseAmt(SalesHeader);
                 end;
             DocumentType::Service:
                 begin
                     ServiceHeader.Get(ServiceHeader."Document Type"::Order, DocumentNo);
                     FindCustomerCFPaymentTerms(PaymentTerms, PartnerNo);
                     TotalAmount := GetTotalServiceAmount(ServiceHeader, false);
-                    TotalVATBaseAmt := GetTotalServVATBaseAmt(ServiceHeader);
                 end;
             DocumentType::Purchase:
                 begin
@@ -1138,7 +1001,6 @@ codeunit 131332 "Library - Cash Flow Helper"
                     PaymentTerms.Get(Vendor."Cash Flow Payment Terms Code");
                     PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, DocumentNo);
                     TotalAmount := GetTotalPurchaseAmount(PurchaseHeader, false);
-                    TotalVATBaseAmt := GetTotalPurchVATBaseAmt(PurchaseHeader);
                 end;
             else
                 Error(UnhandledDocumentType);
@@ -1146,7 +1008,7 @@ codeunit 131332 "Library - Cash Flow Helper"
 
         if ConsiderDsctAndCFPmtTerms then begin
             ExpectedCFDate := CalcDate(PaymentTerms."Discount Date Calculation", CFSourceDate);
-            ExpectedAmount := TotalAmount - CalculateDiscountAmount(TotalVATBaseAmt, PaymentTerms."Discount %");
+            ExpectedAmount := TotalAmount - CalculateDiscountAmount(TotalAmount, PaymentTerms."Discount %");
         end else begin
             ExpectedCFDate := CalcDate(PaymentTerms."Due Date Calculation", CFSourceDate);
             ExpectedAmount := TotalAmount;
@@ -1160,7 +1022,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
 
         FASetup.Validate("Default Depr. Book", DepreciationBookCode);
         FASetup.Modify(true);
@@ -1177,7 +1039,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Discount Grace Period", NewDscGracePeriodFormula);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1186,7 +1048,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", NewPmtTolPercentage);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1195,7 +1057,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", NewPmtTolAmount);
         GeneralLedgerSetup.Modify(true);
     end;

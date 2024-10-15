@@ -82,7 +82,7 @@ codeunit 137301 "SCM Inventory Reports - I"
             CreateStockKeepingUnit(Item."No.", SKUCreationMethod::Location);
 
         // Exercise: Generate the Inventory Cost and Price List.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Inventory Cost and Price List", true, false, Item);
     end;
@@ -99,7 +99,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         CreateItem(Item);
 
         // Exercise: Generate Inventory List Report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Inventory - List", true, false, Item);
 
@@ -234,7 +234,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Exercise: Generate Inventory - Transaction Detail Report.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(ShowSorting);
         LibraryVariableStorage.Enqueue(ShowType);
         Item.SetFilter("No.", '%1|%2', ItemNo, ItemNo2);
@@ -285,7 +285,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         Item.CalcFields(Inventory, "Qty. on Sales Order");
 
         // Exercise: Generate the Inventory Reorder Report.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(UseStockKeepingUnit);
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Inventory - Reorders", true, false, Item);
@@ -365,7 +365,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         UpdateRevaluationJrnl(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // Exercise: Generate Revaluation Posting - Test Report.
-        Commit;
+        Commit();
         ItemJournalLine.SetRange("Item No.", Item."No.");
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Revaluation Posting - Test", true, false, ItemJournalLine);
@@ -409,7 +409,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         CreateAndRealeaseTransferOrder(TransferLine, FromLocationCode, ToLocationCode, InTransitLocationCode, Item."No.");
 
         // Exercise: Run Inventory Inbound Transfer report.
-        Commit;
+        Commit();
         TransferLine.SetRange("Transfer-to Code", ToLocationCode);
         REPORT.Run(REPORT::"Inventory - Inbound Transfer", true, false, TransferLine);
 
@@ -438,7 +438,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         SalesHeader.Modify(true);
 
         // Exercise : Run Inventory Order Details report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Inventory Order Details", true, false, Item);
 
@@ -468,7 +468,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         PurchaseHeader.Modify(true);
 
         // Exercise : Run Inventory Purchase Orders report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Inventory Purchase Orders", true, false, Item);
 
@@ -498,7 +498,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         CreatePurchaseOrder(PurchaseHeader, Item."No.", PurchaseQuantity, LibraryRandom.RandDec(100, 2), 1);
 
         // Exercise : Run Inventory Purchase Orders report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Inventory Purchase Orders", true, false, Item);
 
@@ -606,7 +606,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         SalesHeader.Modify(true);
 
         // Exercise : Run Inventory - Sales Back Orders report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         REPORT.Run(REPORT::"Inventory - Sales Back Orders", true, false, Item);
 
@@ -632,7 +632,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         CreateAndPostItemJrnl(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDec(100, 2));
 
         // Exercise : Run Status Report.
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         LibraryVariableStorage.Enqueue(WorkDate);
         REPORT.Run(REPORT::Status, true, false, Item);
@@ -773,7 +773,6 @@ codeunit 137301 "SCM Inventory Reports - I"
         PurchInvHeader: Record "Purch. Inv. Header";
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         PostMethod: Option "per Posting Group","per Entry";
-        DocNo: Code[20];
     begin
         // Setup: Create Item with costing method as standard.Create Purchase Order with two Item Lines and Post It.
         Initialize;
@@ -783,9 +782,9 @@ codeunit 137301 "SCM Inventory Reports - I"
         FindPurchInvHeader(PurchInvHeader, PurchaseHeader."No.");
 
         // Exercise: Generate the Post Inventory Cost to G/L report.
-        Commit;
-        DocNo := GetNextCostPostingDocNo;
+        Commit();
         LibraryVariableStorage.Enqueue(PostMethod::"per Posting Group");
+        LibraryVariableStorage.Enqueue(PurchInvHeader."No.");
         LibraryVariableStorage.Enqueue(Post);
         REPORT.Run(REPORT::"Post Inventory Cost to G/L", true, false, PostValueEntryToGL);
 
@@ -796,7 +795,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemValueEntryDocumentNo', PurchInvHeader."No.");
 
         // Verify Inventory Account in Gl Entry.
-        VerifyInvtAccountInGLEntry(Item."No.", DocNo, Post);
+        VerifyInvtAccountInGLEntry(Item."No.", PurchInvHeader."No.", Post);
     end;
 
     [Test]
@@ -831,7 +830,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         FindPurchInvHeader(PurchInvHeader, PurchaseHeader."No.");
 
         // Exercise: Generate Inventory Valuation with include Expected Cost False.
-        Commit;
+        Commit();
         RunInvtValuationReport(Item, '', 0D, WorkDate, IncludeExpectedCost);
 
         // Verify Value Entry Quantity.
@@ -950,7 +949,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         CreateAndPostTransferOrder(FromLocation.Code, ToLocation.Code, IntransitLocation.Code, Item."No.", PurchaseQuantity / 2);
 
         // Exercise: Generate Inventory Valuation.
-        Commit;
+        Commit();
         RunInvtValuationReport(Item, ToLocation.Code, CalcDate('<1D>', WorkDate), CalcDate('<CM>', WorkDate), false);
 
         // Verify: Verify Quantity of Opening Balance on Inventory Valuation Report.
@@ -974,9 +973,10 @@ codeunit 137301 "SCM Inventory Reports - I"
         CreateItem(Item);
 
         // [WHEN] Run Post Inventory Cost to G/L report with filters on "Item No." = "X"
-        Commit;
+        Commit();
         PostValueEntryToGL.SetRange("Item No.", Item."No.");
         LibraryVariableStorage.Enqueue(PostMethod::"per Entry"); // Equeue for PostInvtCostToGLRequestPageHandler
+        LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(true);
         REPORT.Run(REPORT::"Post Inventory Cost to G/L", true, false, PostValueEntryToGL);
 
@@ -1005,7 +1005,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Run Post Inventory Cost to G/L Test report with filters on "Item No." = "X"
-        Commit;
+        Commit();
         PostValueEntryToGL.SetRange("Item No.", Item."No.");
         LibraryVariableStorage.Enqueue(PostMethod::"per Entry"); // Equeue for PostInvtCostToGLRequestPageHandler
         LibraryVariableStorage.Enqueue('');
@@ -1031,7 +1031,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         LibraryInventory.CreateItem(Item);
 
         // [WHEN] Run Inventory Valuation report
-        Commit;
+        Commit();
         RunInvtValuationReport(Item, '', 0D, WorkDate, false);
 
         // [THEN] Report doesn't contain info for Item "X"
@@ -1101,7 +1101,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         UpdateInventorySetupCostPosting;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - I");
     end;
 
@@ -1227,7 +1227,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         if InventoryPeriod.FindFirst then
             exit;
 
-        InventoryPeriod.Init;
+        InventoryPeriod.Init();
         InventoryPeriod.Validate("Ending Date", WorkDate);
         InventoryPeriod.Insert(true);
     end;
@@ -1376,7 +1376,7 @@ codeunit 137301 "SCM Inventory Reports - I"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", false);
         InventorySetup.Modify(true);
     end;
@@ -1526,15 +1526,14 @@ codeunit 137301 "SCM Inventory Reports - I"
     [Scope('OnPrem')]
     procedure PostInvtCostToGLRequestPageHandler(var PostInventoryCostToGL: TestRequestPage "Post Inventory Cost to G/L")
     var
-        InventorySetup: Record "Inventory Setup";
         PostMethod: Variant;
+        DocNo: Variant;
         Post: Variant;
     begin
         LibraryVariableStorage.Dequeue(PostMethod);
         PostInventoryCostToGL.PostMethod.SetValue(PostMethod); // Post Method: per entry or per Posting Group.
-        InventorySetup.Get;
-        PostInventoryCostToGL.JnlTemplateName.SetValue(InventorySetup."Jnl. Templ. Name Cost Posting");
-        PostInventoryCostToGL.JnlBatchName.SetValue(InventorySetup."Jnl. Batch Name Cost Posting");
+        LibraryVariableStorage.Dequeue(DocNo);
+        PostInventoryCostToGL.DocumentNo.SetValue(DocNo); // Doc No. required when posting per Posting Group.
         LibraryVariableStorage.Dequeue(Post); // Post to G/L.
         PostInventoryCostToGL.Post.SetValue(Post);
         PostInventoryCostToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
@@ -1544,14 +1543,13 @@ codeunit 137301 "SCM Inventory Reports - I"
     [Scope('OnPrem')]
     procedure PostInvtCostToGLTestRequestPageHandler(var PostInventoryCostToGLTest: TestRequestPage "Post Invt. Cost to G/L - Test")
     var
-        InventorySetup: Record "Inventory Setup";
         PostMethod: Variant;
+        DocNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(PostMethod);
         PostInventoryCostToGLTest.PostingMethod.SetValue(PostMethod); // Post Method: per entry or per Posting Group.
-        InventorySetup.Get;
-        PostInventoryCostToGLTest.JnlTemplateName.SetValue(InventorySetup."Jnl. Templ. Name Cost Posting");
-        PostInventoryCostToGLTest.JnlBatchName.SetValue(InventorySetup."Jnl. Batch Name Cost Posting");
+        LibraryVariableStorage.Dequeue(DocNo);
+        PostInventoryCostToGLTest.DocumentNo.SetValue(DocNo); // Doc No. required when posting per Posting Group.
         PostInventoryCostToGLTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1591,17 +1589,6 @@ codeunit 137301 "SCM Inventory Reports - I"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
-    end;
-
-    local procedure GetNextCostPostingDocNo(): Code[20]
-    var
-        InventorySetup: Record "Inventory Setup";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-    begin
-        InventorySetup.Get;
-        GenJournalBatch.Get(InventorySetup."Jnl. Templ. Name Cost Posting", InventorySetup."Jnl. Batch Name Cost Posting");
-        exit(NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false));
     end;
 }
 

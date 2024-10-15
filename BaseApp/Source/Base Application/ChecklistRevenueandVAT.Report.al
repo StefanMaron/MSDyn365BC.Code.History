@@ -219,7 +219,7 @@ report 11312 "Checklist Revenue and VAT"
                 begin
                     Clear(TotRevenue);
                     "G/L Account".ClearMarks;
-                    GLAccount.Reset;
+                    GLAccount.Reset();
                     GLAccount.CopyFilters("G/L Account");
                 end;
             }
@@ -228,9 +228,6 @@ report 11312 "Checklist Revenue and VAT"
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
             column(USERID; UserId)
-            {
-            }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -463,11 +460,11 @@ report 11312 "Checklist Revenue and VAT"
 
             trigger OnPreDataItem()
             begin
-                GLEntry1.Reset;
+                GLEntry1.Reset();
                 GLEntry1.SetCurrentKey("G/L Account No.", "Posting Date");
                 GLEntry1.SetFilter("Gen. Posting Type", '<> %1', GLEntry1."Gen. Posting Type"::Sale);
 
-                GLEntry2.Reset;
+                GLEntry2.Reset();
                 GLEntry2.SetCurrentKey("G/L Account No.", "Posting Date");
                 GLEntry2.SetFilter("Gen. Posting Type", '= %1', GLEntry2."Gen. Posting Type"::Sale);
             end;
@@ -476,9 +473,6 @@ report 11312 "Checklist Revenue and VAT"
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
             column(USERID_Control22; UserId)
-            {
-            }
-            column(CurrReport_PAGENO_Control92; CurrReport.PageNo)
             {
             }
             column(FORMAT_TODAY_0_4__Control108; Format(Today, 0, 4))
@@ -497,9 +491,6 @@ report 11312 "Checklist Revenue and VAT"
             {
             }
             column(SkipHeader_3_; SkipHeader[3])
-            {
-            }
-            column(CurrReport_PAGENO_Control92Caption; CurrReport_PAGENO_Control92CaptionLbl)
             {
             }
             column(Checklist_between_Revenue_and_VATCaption_Control114; Checklist_between_Revenue_and_VATCaption_Control114Lbl)
@@ -626,15 +617,13 @@ report 11312 "Checklist Revenue and VAT"
                 begin
                     "G/L Account".Get("No.");
                     if "G/L Account".Mark then
-                        CurrReport.Skip;
-                    if IsServiceTier then begin
-                        Clear(TotalDebitAmt);
-                        Clear(TotalCreditAmt);
-                        if DebitAmt > CreditAmt then
-                            TotalDebitAmt := DebitAmt - CreditAmt
-                        else
-                            TotalCreditAmt := CreditAmt - DebitAmt;
-                    end;
+                        CurrReport.Skip();
+                    Clear(TotalDebitAmt);
+                    Clear(TotalCreditAmt);
+                    if DebitAmt > CreditAmt then
+                        TotalDebitAmt := DebitAmt - CreditAmt
+                    else
+                        TotalCreditAmt := CreditAmt - DebitAmt;
                 end;
 
                 trigger OnPostDataItem()
@@ -655,9 +644,6 @@ report 11312 "Checklist Revenue and VAT"
             column(USERID_Control10; UserId)
             {
             }
-            column(CurrReport_PAGENO_Control11; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0_4__Control14; Format(Today, 0, 4))
             {
             }
@@ -671,9 +657,6 @@ report 11312 "Checklist Revenue and VAT"
             {
             }
             column(SkipHeader_4_; SkipHeader[4])
-            {
-            }
-            column(CurrReport_PAGENO_Control11Caption; CurrReport_PAGENO_Control11CaptionLbl)
             {
             }
             column(Checklist_between_Revenue_and_VATCaption_Control19; Checklist_between_Revenue_and_VATCaption_Control19Lbl)
@@ -800,49 +783,47 @@ report 11312 "Checklist Revenue and VAT"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if IsServiceTier then begin
-                        Clear(SourceName);
-                        if "Source Type" = "Source Type"::Customer then
-                            if Cust.Get("Source No.") then
-                                SourceName := Cust.Name;
+                    Clear(SourceName);
+                    if "Source Type" = "Source Type"::Customer then
+                        if Cust.Get("Source No.") then
+                            SourceName := Cust.Name;
 
-                        if "Source Type" = "Source Type"::Vendor then
-                            if Vend.Get("Source No.") then
-                                SourceName := Vend.Name;
+                    if "Source Type" = "Source Type"::Vendor then
+                        if Vend.Get("Source No.") then
+                            SourceName := Vend.Name;
 
-                        Clear(BaseVAT);
-                        Clear(BaseBefPmtDisc);
-                        Clear(Amount1);
-                        VATEntry.Reset;
-                        GLEntry2.Reset;
-                        VATEntry.SetCurrentKey("Document No.", "Posting Date");
-                        VATEntry.SetRange("Posting Date", "Posting Date");
-                        VATEntry.SetRange("Document No.", "Document No.");
-                        VATEntry.SetRange(Type, VATEntry.Type::Sale);
-                        if VATEntry.FindSet then
-                            repeat
-                                BaseVAT := BaseVAT + VATEntry.Base;
-                                BaseBefPmtDisc := BaseBefPmtDisc + VATEntry."Base Before Pmt. Disc.";
-                            until VATEntry.Next = 0;
+                    Clear(BaseVAT);
+                    Clear(BaseBefPmtDisc);
+                    Clear(Amount1);
+                    VATEntry.Reset();
+                    GLEntry2.Reset();
+                    VATEntry.SetCurrentKey("Document No.", "Posting Date");
+                    VATEntry.SetRange("Posting Date", "Posting Date");
+                    VATEntry.SetRange("Document No.", "Document No.");
+                    VATEntry.SetRange(Type, VATEntry.Type::Sale);
+                    if VATEntry.FindSet then
+                        repeat
+                            BaseVAT := BaseVAT + VATEntry.Base;
+                            BaseBefPmtDisc := BaseBefPmtDisc + VATEntry."Base Before Pmt. Disc.";
+                        until VATEntry.Next = 0;
 
-                        GLEntry2.SetRange("Document No.", "Document No.");
-                        GLEntry2.SetRange("Gen. Posting Type", "Gen. Posting Type"::Sale);
-                        if GLEntry2.FindSet then
-                            repeat
-                                Amount1 := Amount1 + GLEntry2.Amount;
-                            until GLEntry2.Next = 0;
+                    GLEntry2.SetRange("Document No.", "Document No.");
+                    GLEntry2.SetRange("Gen. Posting Type", "Gen. Posting Type"::Sale);
+                    if GLEntry2.FindSet then
+                        repeat
+                            Amount1 := Amount1 + GLEntry2.Amount;
+                        until GLEntry2.Next = 0;
 
-                        if LastDocumentNo <> "Document No." then begin
-                            LastDocumentNo := "Document No.";
-                            if BaseVAT <> Amount1 then begin
-                                TotBaseVAT := TotBaseVAT + BaseVAT;
-                                TotAmount := TotAmount + Amount1;
-                                TotBaseBefPmtDisc := TotBaseBefPmtDisc + BaseBefPmtDisc;
-                            end else
-                                CurrReport.Skip;
+                    if LastDocumentNo <> "Document No." then begin
+                        LastDocumentNo := "Document No.";
+                        if BaseVAT <> Amount1 then begin
+                            TotBaseVAT := TotBaseVAT + BaseVAT;
+                            TotAmount := TotAmount + Amount1;
+                            TotBaseBefPmtDisc := TotBaseBefPmtDisc + BaseBefPmtDisc;
                         end else
-                            CurrReport.Skip;
-                    end;
+                            CurrReport.Skip();
+                    end else
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPostDataItem()
@@ -864,9 +845,6 @@ report 11312 "Checklist Revenue and VAT"
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
             column(USERID_Control183; UserId)
-            {
-            }
-            column(CurrReport_PAGENO_Control184; CurrReport.PageNo)
             {
             }
             column(FORMAT_TODAY_0_4__Control186; Format(Today, 0, 4))
@@ -907,9 +885,6 @@ report 11312 "Checklist Revenue and VAT"
                 AutoFormatType = 1;
             }
             column(Total1; Total1)
-            {
-            }
-            column(CurrReport_PAGENO_Control184Caption; CurrReport_PAGENO_Control184CaptionLbl)
             {
             }
             column(Checklist_between_Revenue_and_VATCaption_Control189; Checklist_between_Revenue_and_VATCaption_Control189Lbl)
@@ -1015,7 +990,7 @@ report 11312 "Checklist Revenue and VAT"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("VAT Statement Template Name");
         GLSetup.TestField("VAT Statement Name");
 
@@ -1035,7 +1010,7 @@ report 11312 "Checklist Revenue and VAT"
             DateName[i] := PeriodFormManagement.CreatePeriodFormat(PeriodType, Calender."Period Start");
             DateFilter[i] := Format(Calender."Period Start") + '..' + Format(Calender."Period End");
 
-            AccountingPeriod.Reset;
+            AccountingPeriod.Reset();
             AccountingPeriod.SetRange("Starting Date", Calender."Period Start");
             AccountingPeriod.SetRange(Name, Calender."Period Name");
             if AccountingPeriod.FindFirst then
@@ -1104,7 +1079,6 @@ report 11312 "Checklist Revenue and VAT"
         No_Caption_Control227Lbl: Label 'No.';
         NameCaption_Control228Lbl: Label 'Name';
         TotalsCaption_Control272Lbl: Label 'Totals';
-        CurrReport_PAGENO_Control92CaptionLbl: Label 'Page';
         Checklist_between_Revenue_and_VATCaption_Control114Lbl: Label 'Checklist between Revenue and VAT';
         Sales_not_posted_in_the_selected_range_of_accounts_CaptionLbl: Label 'Sales not posted in the selected range of accounts.';
         G_L_Account_No_CaptionLbl: Label 'G/L Account No.';
@@ -1117,7 +1091,6 @@ report 11312 "Checklist Revenue and VAT"
         Credit_AmountCaptionLbl: Label 'Credit Amount';
         Journal_NameCaptionLbl: Label 'Journal Name';
         TotalsCaption_Control129Lbl: Label 'Totals';
-        CurrReport_PAGENO_Control11CaptionLbl: Label 'Page';
         Checklist_between_Revenue_and_VATCaption_Control19Lbl: Label 'Checklist between Revenue and VAT';
         Total___Posted_revenues_with_difference_between_posted_Amount_and_VAT_Base_AmountCaptionLbl: Label 'Total - Posted revenues with difference between posted Amount and VAT Base Amount';
         Journal_NameCaption_Control146Lbl: Label 'Journal Name';
@@ -1128,7 +1101,6 @@ report 11312 "Checklist Revenue and VAT"
         Pmt__Disc_CaptionLbl: Label 'Pmt. Disc.';
         OtherCaptionLbl: Label 'Other';
         TotalsCaption_Control180Lbl: Label 'Totals';
-        CurrReport_PAGENO_Control184CaptionLbl: Label 'Page';
         Checklist_between_Revenue_and_VATCaption_Control189Lbl: Label 'Checklist between Revenue and VAT';
         Summary__CaptionLbl: Label 'Summary :';
         Total___Revenues_accounts_in_the_selected_rangeCaptionLbl: Label 'Total - Revenues accounts in the selected range';

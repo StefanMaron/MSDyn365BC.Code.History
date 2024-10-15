@@ -1,4 +1,4 @@
-﻿page 20 "General Ledger Entries"
+page 20 "General Ledger Entries"
 {
     AdditionalSearchTerms = 'g/l transactions';
     ApplicationArea = Basic, Suite;
@@ -394,7 +394,7 @@
                         GLEABRec: Record "G/L Entry Application Buffer";
                     begin
                         ApplyGLEntries.SetAppliedEntries(Rec);
-                        GLEABRec.Init;
+                        GLEABRec.Init();
                         GLEABRec."Entry No." := "Entry No.";
                         if GLEABRec.Find('=><') then
                             ApplyGLEntries.SetRecord(GLEABRec);
@@ -428,7 +428,7 @@
                         Clear(ReversalEntry);
                         if Reversed then
                             ReversalEntry.AlreadyReversedEntry(TableCaption, "Entry No.");
-                        SourceCodeSetup.Get;
+                        SourceCodeSetup.Get();
                         if ("Journal Batch Name" = '') or
                            ("Source Code" in [SourceCodeSetup."Sales Entry Application", SourceCodeSetup."Purchase Entry Application"])
                         then
@@ -606,7 +606,7 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;

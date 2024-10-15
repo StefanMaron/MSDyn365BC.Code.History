@@ -38,7 +38,7 @@ codeunit 133008 "Item Tracking Test"
         LibraryInventory.CreateItem(Item);
         Evaluate(ExpirationDateFormula, '<+1D>');
         Item."Expiration Calculation" := ExpirationDateFormula; // force it without validation to simulate the case when items already existed with expiration calculation but no item tracking code
-        Item.Modify;
+        Item.Modify();
 
         // [WHEN] The user tries to assign the item tracking code to this item
         asserterror Item.Validate("Item Tracking Code", ItemTrackingCodeNoExp.Code);
@@ -337,14 +337,14 @@ codeunit 133008 "Item Tracking Test"
     begin
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
         ItemTrackingCode.Validate("Use Expiration Dates", true);
-        ItemTrackingCode.Modify;
+        ItemTrackingCode.Modify();
     end;
 
     local procedure CreateTrackingCodeNoExp(var ItemTrackingCode: Record "Item Tracking Code")
     begin
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
         ItemTrackingCode.Validate("Use Expiration Dates", false);
-        ItemTrackingCode.Modify;
+        ItemTrackingCode.Modify();
     end;
 
     local procedure CreateItemWithExpirationCalcFormulaAndItemTrackingCode(var Item: Record Item; ItemTrackingCode: Record "Item Tracking Code"; ExpirationDateFormulaText: Text)
@@ -355,7 +355,7 @@ codeunit 133008 "Item Tracking Test"
         Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
         Evaluate(ExpirationDateFormula, ExpirationDateFormulaText);
         Item.Validate("Expiration Calculation", ExpirationDateFormula);
-        Item.Modify;
+        Item.Modify();
     end;
 
     [ConfirmHandler]

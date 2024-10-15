@@ -107,7 +107,8 @@ table 7347 "Internal Movement Line"
 
             trigger OnValidate()
             begin
-                "Qty. (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Qty. (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
 
                 if CurrFieldNo = FieldNo(Quantity) then
                     CheckBinContentQty;
@@ -449,11 +450,8 @@ table 7347 "Internal Movement Line"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         SourceQuantityArray: array[2] of Decimal;
         UndefinedQtyArray: array[2] of Decimal;
-        WhseSNRequired: Boolean;
-        WhseLNRequired: Boolean;
     begin
-        ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", WhseSNRequired, WhseLNRequired, false);
-        if WhseSNRequired or WhseLNRequired then begin
+        if ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then begin
             WhseWorksheetLine.InitLineWithItem(
               WhseWorksheetLine."Whse. Document Type"::"Internal Movement", "No.", "Line No.",
               "Location Code", "Item No.", "Variant Code",
@@ -472,7 +470,7 @@ table 7347 "Internal Movement Line"
         LowerLineNo: Integer;
     begin
         InternalMovementLine.SetRange("No.", InternalMovementHeader."No.");
-        if InternalMovementHeader."Sorting Method" <> InternalMovementHeader."Sorting Method"::" " then
+        if InternalMovementHeader."Sorting Method" <> InternalMovementHeader."Sorting Method"::None then
             exit(GetLastLineNo + 10000);
 
         InternalMovementLine."No." := InternalMovementHeader."No.";
@@ -518,7 +516,7 @@ table 7347 "Internal Movement Line"
 
         InternalMovementLine.SetRange("No.", "No.");
         case InternalMovementHeader."Sorting Method" of
-            InternalMovementHeader."Sorting Method"::" ":
+            InternalMovementHeader."Sorting Method"::None:
                 InternalMovementLine.SetCurrentKey("No.", "Line No.");
             InternalMovementHeader."Sorting Method"::Item:
                 InternalMovementLine.SetCurrentKey("No.", "Item No.");

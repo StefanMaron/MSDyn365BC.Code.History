@@ -208,7 +208,7 @@ report 11303 "Centralization Ledger"
                     TotalAddCurrCredit := TotalAddCurrCredit + "Add.-Currency Credit Amount";
 
                     if OldName = "Journal Template Name" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     OldName := "Journal Template Name";
                 end;
@@ -235,10 +235,6 @@ report 11303 "Centralization Ledger"
             begin
                 SetRange(Number, 1, NoOfPeriods);
                 PeriodEndDate := StartDate - 1;
-                CurrReport.PageNo := Startpage;
-
-                if IsServiceTier then
-                    PageCount := Startpage;
             end;
         }
     }

@@ -87,7 +87,7 @@ table 2000020 "Domiciliation Journal Template"
     trigger OnInsert()
     begin
         Validate("Page ID");
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         "Source Code" := SourceCodeSetup."Domiciliation Journal";
     end;
 

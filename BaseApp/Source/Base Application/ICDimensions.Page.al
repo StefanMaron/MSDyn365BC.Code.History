@@ -177,16 +177,16 @@ page 600 "IC Dimensions"
         if not ConfirmManagement.GetResponseOrDefault(Text004, true) then
             exit;
 
-        ICDimVal.LockTable;
-        ICDim.LockTable;
+        ICDimVal.LockTable();
+        ICDim.LockTable();
         Dim.SetRange(Blocked, false);
         if Dim.Find('-') then
             repeat
                 if not ICDim.Get(Dim.Code) then begin
-                    ICDim.Init;
+                    ICDim.Init();
                     ICDim.Code := Dim.Code;
                     ICDim.Name := Dim.Name;
-                    ICDim.Insert;
+                    ICDim.Insert();
                 end;
 
                 ICDimValExists := false;
@@ -200,13 +200,13 @@ page 600 "IC Dimensions"
                         if not ICDimValEmpty then
                             ICDimValExists := ICDimVal.Get(DimVal."Dimension Code", DimVal.Code);
                         if not ICDimValExists and not DimVal.Blocked then begin
-                            ICDimVal.Init;
+                            ICDimVal.Init();
                             ICDimVal."Dimension Code" := DimVal."Dimension Code";
                             ICDimVal.Code := DimVal.Code;
                             ICDimVal.Name := DimVal.Name;
                             ICDimVal."Dimension Value Type" := DimVal."Dimension Value Type";
                             ICDimVal.Indentation := PrevIndentation;
-                            ICDimVal.Insert;
+                            ICDimVal.Insert();
                         end;
                         PrevIndentation := ICDimVal.Indentation;
                         if DimVal."Dimension Value Type" = DimVal."Dimension Value Type"::"Begin-Total" then
@@ -224,7 +224,7 @@ page 600 "IC Dimensions"
         FileName: Text[1024];
         StartFileName: Text[1024];
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         StartFileName := CompanyInfo."IC Inbox Details";
         if StartFileName <> '' then begin
@@ -252,7 +252,7 @@ page 600 "IC Dimensions"
         FileName: Text;
         DefaultFileName: Text;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         DefaultFileName := CompanyInfo."IC Inbox Details";
         if DefaultFileName <> '' then

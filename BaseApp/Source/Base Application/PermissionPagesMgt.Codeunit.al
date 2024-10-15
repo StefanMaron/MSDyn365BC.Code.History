@@ -131,14 +131,14 @@ codeunit 9001 "Permission Pages Mgt."
 
     local procedure ShowTenantPermissions(AggregatePermissionSetScope: Option; AppId: Guid; var TenantPermission: Record "Tenant Permission"; RunAsModal: Boolean)
     var
-        PermissionManager: Codeunit "Permission Manager";
+        UserPermissions: Codeunit "User Permissions";
         TenantPermissions: Page "Tenant Permissions";
     begin
         TenantPermissions.SetRecord(TenantPermission);
         TenantPermissions.SetTableView(TenantPermission);
 
         if IsPermissionsInGivenScopeAndAppIdEditable(AggregatePermissionSetScope, AppId) and
-           PermissionManager.CanManageUsersOnTenant(UserSecurityId)
+           UserPermissions.CanManageUsersOnTenant(UserSecurityId)
         then
             TenantPermissions.SetControlsAsEditable
         else
@@ -165,10 +165,10 @@ codeunit 9001 "Permission Pages Mgt."
     procedure CheckAndRaiseNotificationIfAppDBPermissionSetsChanged()
     var
         PermissionSetLink: Record "Permission Set Link";
-        PermissionManager: Codeunit "Permission Manager";
+        UserPermissions: Codeunit "User Permissions";
         Notification: Notification;
     begin
-        if not PermissionManager.CanManageUsersOnTenant(UserSecurityId) then
+        if not UserPermissions.CanManageUsersOnTenant(UserSecurityId) then
             exit;
 
         if not AppDbPermissionChangedNotificationEnabled then
@@ -279,9 +279,9 @@ codeunit 9001 "Permission Pages Mgt."
 
     procedure DisallowEditingPermissionSetsForNonAdminUsers()
     var
-        PermissionManager: Codeunit "Permission Manager";
+        UserPermissions: Codeunit "User Permissions";
     begin
-        if not PermissionManager.CanManageUsersOnTenant(UserSecurityId) then
+        if not UserPermissions.CanManageUsersOnTenant(UserSecurityId) then
             Error(CannotManagePermissionsErr);
     end;
 

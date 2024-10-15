@@ -275,7 +275,7 @@ codeunit 134825 "UT Customer Table"
         // Setup
         NoneExixtingCustomerNo := LibrarySales.CreateCustomerNo;
         Customer.Get(NoneExixtingCustomerNo);
-        Customer.Delete;
+        Customer.Delete();
 
         // Exercise and Verify None Existing Customer
         asserterror Customer.GetCustNo(NoneExixtingCustomerNo);
@@ -456,7 +456,7 @@ codeunit 134825 "UT Customer Table"
         LibrarySales.CreateCustomer(Customer);
         Customer."Primary Contact No." := ExpectedPrimaryContactNo;
         Customer.Contact := '';
-        Customer.Modify;
+        Customer.Modify();
 
         // [GIVEN] Text[50] = "XX"
         ExpectedContact := CopyStr(LibraryUtility.GenerateRandomText(50), 1, 50);
@@ -706,7 +706,7 @@ codeunit 134825 "UT Customer Table"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT Customer Table");
-        Customer.DeleteAll;
+        Customer.DeleteAll();
         LibraryApplicationArea.EnableFoundationSetup;
         LibrarySetupStorage.Restore;
 
@@ -717,7 +717,7 @@ codeunit 134825 "UT Customer Table"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT Customer Table");
     end;
 
@@ -772,13 +772,7 @@ codeunit 134825 "UT Customer Table"
     local procedure UpdateSalesReceivablesSetupNoS()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Sales);
-        GenJournalTemplate.Validate("Posting No. Series", LibraryUtility.GetGlobalNoSeriesCode);
-        GenJournalTemplate.Modify(true);
-
         with SalesReceivablesSetup do begin
             Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -789,8 +783,6 @@ codeunit 134825 "UT Customer Table"
             Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Journal Templ. Sales Invoice", GenJournalTemplate.Name);
-            Validate("Journal Templ. Sales Cr. Memo", GenJournalTemplate.Name);
             Modify(true);
         end;
     end;

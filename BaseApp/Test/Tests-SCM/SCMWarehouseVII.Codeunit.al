@@ -322,7 +322,7 @@ codeunit 137159 "SCM Warehouse VII"
         Item."Last DateTime Modified" := 0DT;
         Item."Last Date Modified" := 0D;
         Item."Last Time Modified" := 0T;
-        Item.Modify;
+        Item.Modify();
 
         ItemsbyLocation.Trap;
         OpenItemsByLocationPageFromItemCard(Item."No.");
@@ -1008,7 +1008,7 @@ codeunit 137159 "SCM Warehouse VII"
         CreateSalesReturnOrderByPage(SalesReturnOrder, LocationWhite.Code);
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror SalesReturnOrder.SalesLines."Return Qty. to Receive".SetValue(LibraryRandom.RandDec(10, 2));
 
         // Verify.
@@ -1044,7 +1044,7 @@ codeunit 137159 "SCM Warehouse VII"
         CreatePurchaseInvoiceByPage(PurchaseInvoice, LocationWhite.Code);
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
 
         // Verify.
@@ -2022,7 +2022,7 @@ codeunit 137159 "SCM Warehouse VII"
         LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse VII");
     end;
 
@@ -2099,7 +2099,7 @@ codeunit 137159 "SCM Warehouse VII"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Components at Location", '');
         ManufacturingSetup.Modify(true);
     end;
@@ -2954,7 +2954,7 @@ codeunit 137159 "SCM Warehouse VII"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         LibrarySales.GetShipmentLines(SalesLine);
@@ -3267,7 +3267,7 @@ codeunit 137159 "SCM Warehouse VII"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         NoSeries: Record "No. Series";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         NoSeries.Get(SalesReceivablesSetup."Invoice Nos.");
         NoSeries.Validate("Manual Nos.", true);
         NoSeries.Modify(true);
@@ -3558,7 +3558,7 @@ codeunit 137159 "SCM Warehouse VII"
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        ProdOrderLine.Init;
+        ProdOrderLine.Init();
         ProdOrderLine.SetRange("Item No.", ItemNo);
         Assert.RecordIsEmpty(ProdOrderLine);
     end;
@@ -3718,7 +3718,7 @@ codeunit 137159 "SCM Warehouse VII"
 
     local procedure MakeSalesOrderAndVerifyErr(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; ExpectedQty: Integer)
     begin
-        Commit; // COMMIT is necessary here since the following LibraryInventory.BlanketSalesOrderMakeOrder will invoke RUNMODAL.
+        Commit(); // COMMIT is necessary here since the following LibraryInventory.BlanketSalesOrderMakeOrder will invoke RUNMODAL.
         asserterror LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
         Assert.ExpectedError(
           StrSubstNo(
@@ -3728,7 +3728,7 @@ codeunit 137159 "SCM Warehouse VII"
 
     local procedure MakePurchaseOrderAndVerifyErr(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; ExpectedQty: Integer)
     begin
-        Commit; // COMMIT is necessary here since the following LibraryInventory.BlanketPurchaseOrderMakeOrder will invoke RUNMODAL.
+        Commit(); // COMMIT is necessary here since the following LibraryInventory.BlanketPurchaseOrderMakeOrder will invoke RUNMODAL.
         asserterror LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);
         Assert.ExpectedError(
           StrSubstNo(

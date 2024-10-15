@@ -16,8 +16,8 @@ codeunit 6061 "Hybrid Deployment Handler"
         HybridDeploymentSetup: Record "Hybrid Deployment Setup";
     begin
         if not HybridDeploymentSetup.Get then begin
-            HybridDeploymentSetup.Init;
-            HybridDeploymentSetup.Insert;
+            HybridDeploymentSetup.Init();
+            HybridDeploymentSetup.Insert();
         end;
 
         exit(HybridDeploymentSetup."Handler Codeunit ID" = CODEUNIT::"Hybrid Deployment Handler");

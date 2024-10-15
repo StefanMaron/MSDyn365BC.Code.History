@@ -9,7 +9,7 @@ codeunit 2000042 "Post Coded Bank Statement"
 
     trigger OnRun()
     begin
-        EBSetup.Get;
+        EBSetup.Get();
         CodBankStmtLine.SetCurrentKey("Bank Account No.", "Statement No.", "Statement Line No.");
         CodBankStmtLine.CopyFilters(Rec);
         Code;
@@ -69,7 +69,7 @@ codeunit 2000042 "Post Coded Bank Statement"
             if not Confirm(Text001, false) then
                 exit;
 
-            CodedBankStmtLine.Reset;
+            CodedBankStmtLine.Reset();
 
             SetFilter("Application Status", '%1|%2', "Application Status"::Applied, "Application Status"::"Partly applied");
             FindFirst;
@@ -114,7 +114,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                 if Amount <> 0 then begin
                     OnTransferCodBankStmtLinesOnBeforeInitGenJnlLine(CodBankStmtLine);
                     LineCounter := LineCounter + 1;
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     LineNo := LineNo + 10000;
                     GenJnlLine."Journal Template Name" := GenJnlTemplate.Name;
                     GenJnlLine."Journal Batch Name" := BatchName;
@@ -138,7 +138,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                     GenJnlLine."Applies-to ID" := "Applies-to ID";
                     GenJnlLine.Validate(Amount, -Amount);
                     GenJnlLine."System-Created Entry" := true;
-                    GenJnlLine.Insert;
+                    GenJnlLine.Insert();
 
                     // Link Coded Bank Statement line to Gen. Jnl. Line
                     "Journal Template Name" := GenJnlLine."Journal Template Name";
@@ -168,7 +168,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                     ApplyCodedTransaction(CodedBankStmtLine);
 
                     if Type = Type::Global then begin
-                        CodBankStmtLine.Reset;
+                        CodBankStmtLine.Reset();
                         CodBankStmtLine.SetRange("Bank Account No.", "Bank Account No.");
                         CodBankStmtLine.SetRange("Statement No.", "Statement No.");
                         CodBankStmtLine.SetRange(ID, ID);
@@ -181,7 +181,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                             until CodBankStmtLine.Next = 0
                     end;
                 end else begin
-                    CodBankStmtLine.Reset;
+                    CodBankStmtLine.Reset();
                     CodBankStmtLine.SetRange("Bank Account No.", "Bank Account No.");
                     CodBankStmtLine.SetRange("Statement No.", "Statement No.");
                     CodBankStmtLine.SetRange(ID, ID);

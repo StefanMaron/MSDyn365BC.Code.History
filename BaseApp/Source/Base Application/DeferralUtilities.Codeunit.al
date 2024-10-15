@@ -36,7 +36,7 @@ codeunit 1720 "Deferral Utilities"
           CopyStr(StrSubstNo(Description, Day, Week, Month, MonthText, AccountingPeriod.Name, Year), 1, MaxStrLen(Description));
     end;
 
-    procedure CreateDeferralSchedule(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; AmountToDefer: Decimal; CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined"; StartDate: Date; NoOfPeriods: Integer; ApplyDeferralPercentage: Boolean; DeferralDescription: Text[100]; AdjustStartDate: Boolean; CurrencyCode: Code[10])
+    procedure CreateDeferralSchedule(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; AmountToDefer: Decimal; CalcMethod: Enum "Deferral Calculation Method"; StartDate: Date; NoOfPeriods: Integer; ApplyDeferralPercentage: Boolean; DeferralDescription: Text[100]; AdjustStartDate: Boolean; CurrencyCode: Code[10])
     var
         DeferralTemplate: Record "Deferral Template";
         DeferralHeader: Record "Deferral Header";
@@ -47,8 +47,8 @@ codeunit 1720 "Deferral Utilities"
     begin
         IsHandled := false;
         OnBeforeCreateDeferralSchedule(
-          DeferralCode, DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo, AmountToDefer, CalcMethod,
-          StartDate, NoOfPeriods, ApplyDeferralPercentage, DeferralDescription, AdjustStartDate, CurrencyCode, IsHandled);
+            DeferralCode, DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo, AmountToDefer, CalcMethod,
+            StartDate, NoOfPeriods, ApplyDeferralPercentage, DeferralDescription, AdjustStartDate, CurrencyCode, IsHandled);
         if IsHandled then
             exit;
 
@@ -64,9 +64,10 @@ codeunit 1720 "Deferral Utilities"
         if ApplyDeferralPercentage then
             AdjustedDeferralAmount := Round(AdjustedDeferralAmount * (DeferralTemplate."Deferral %" / 100), AmountRoundingPrecision);
 
-        SetDeferralRecords(DeferralHeader, DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo,
-          CalcMethod, NoOfPeriods, AdjustedDeferralAmount, AdjustedStartDate,
-          DeferralCode, DeferralDescription, AmountToDefer, AdjustStartDate, CurrencyCode);
+        SetDeferralRecords(
+            DeferralHeader, DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo,
+            CalcMethod, NoOfPeriods, AdjustedDeferralAmount, AdjustedStartDate,
+            DeferralCode, DeferralDescription, AmountToDefer, AdjustStartDate, CurrencyCode);
 
         case CalcMethod of
             CalcMethod::"Straight-Line":
@@ -82,7 +83,7 @@ codeunit 1720 "Deferral Utilities"
         OnAfterCreateDeferralSchedule(DeferralHeader, DeferralLine, DeferralTemplate);
     end;
 
-    procedure CalcDeferralNoOfPeriods(CalcMethod: Option; NoOfPeriods: Integer; StartDate: Date): Integer
+    procedure CalcDeferralNoOfPeriods(CalcMethod: Enum "Deferral Calculation Method"; NoOfPeriods: Integer; StartDate: Date): Integer
     var
         DeferralTemplate: Record "Deferral Template";
         AccountingPeriod: Record "Accounting Period";
@@ -179,7 +180,7 @@ codeunit 1720 "Deferral Utilities"
 
             DeferralLine.Amount := AmountToDefer;
 
-            DeferralLine.Insert;
+            DeferralLine.Insert();
         end;
 
         OnAfterCalculateStraightline(DeferralHeader, DeferralLine, DeferralTemplate);
@@ -211,7 +212,7 @@ codeunit 1720 "Deferral Utilities"
                 AmountToDefer := (DeferralHeader."Amount to Defer" - RunningDeferralTotal);
 
             DeferralLine.Amount := AmountToDefer;
-            DeferralLine.Insert;
+            DeferralLine.Insert();
         end;
 
         OnAfterCalculateEqualPerPeriod(DeferralHeader, DeferralLine, DeferralTemplate);
@@ -318,7 +319,7 @@ codeunit 1720 "Deferral Utilities"
 
             DeferralLine.Amount := AmountToDefer;
 
-            DeferralLine.Insert;
+            DeferralLine.Insert();
         end;
 
         OnAfterCalculateDaysPerPeriod(DeferralHeader, DeferralLine, DeferralTemplate);
@@ -341,7 +342,7 @@ codeunit 1720 "Deferral Utilities"
                 Error(InvalidPostingDateErr, PostDate);
 
             // For User-Defined, user must enter in deferral amounts
-            DeferralLine.Insert;
+            DeferralLine.Insert();
         end;
 
         OnAfterCalculateUserDefined(DeferralHeader, DeferralLine, DeferralTemplate);
@@ -360,13 +361,13 @@ codeunit 1720 "Deferral Utilities"
     local procedure SetStartDate(DeferralTemplate: Record "Deferral Template"; StartDate: Date) AdjustedStartDate: Date
     var
         AccountingPeriod: Record "Accounting Period";
-        DeferralStartOption: Option "Posting Date","Beginning of Period","End of Period","Beginning of Next Period";
+        DeferralStartDate: Enum "Deferral Calculation Start Date";
     begin
         // "Start Date" passed in needs to be adjusted based on the Deferral Code's Start Date setting;
         case DeferralTemplate."Start Date" of
-            DeferralStartOption::"Posting Date":
+            DeferralStartDate::"Posting Date":
                 AdjustedStartDate := StartDate;
-            DeferralStartOption::"Beginning of Period":
+            DeferralStartDate::"Beginning of Period":
                 begin
                     if AccountingPeriod.IsEmpty then
                         exit(CalcDate('<-CM>', StartDate));
@@ -374,7 +375,7 @@ codeunit 1720 "Deferral Utilities"
                     if AccountingPeriod.FindLast then
                         AdjustedStartDate := AccountingPeriod."Starting Date";
                 end;
-            DeferralStartOption::"End of Period":
+            DeferralStartDate::"End of Period":
                 begin
                     if AccountingPeriod.IsEmpty then
                         exit(CalcDate('<CM>', StartDate));
@@ -382,7 +383,7 @@ codeunit 1720 "Deferral Utilities"
                     if AccountingPeriod.FindFirst then
                         AdjustedStartDate := CalcDate('<-1D>', AccountingPeriod."Starting Date");
                 end;
-            DeferralStartOption::"Beginning of Next Period":
+            DeferralStartDate::"Beginning of Next Period":
                 begin
                     if AccountingPeriod.IsEmpty then
                         exit(CalcDate('<CM + 1D>', StartDate));
@@ -395,7 +396,7 @@ codeunit 1720 "Deferral Utilities"
         OnAfterSetStartDate(DeferralTemplate, StartDate);
     end;
 
-    procedure SetDeferralRecords(var DeferralHeader: Record "Deferral Header"; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined"; NoOfPeriods: Integer; AdjustedDeferralAmount: Decimal; AdjustedStartDate: Date; DeferralCode: Code[10]; DeferralDescription: Text[100]; AmountToDefer: Decimal; AdjustStartDate: Boolean; CurrencyCode: Code[10])
+    procedure SetDeferralRecords(var DeferralHeader: Record "Deferral Header"; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; CalcMethod: Enum "Deferral Calculation Method"; NoOfPeriods: Integer; AdjustedDeferralAmount: Decimal; AdjustedStartDate: Date; DeferralCode: Code[10]; DeferralDescription: Text[100]; AmountToDefer: Decimal; AdjustStartDate: Boolean; CurrencyCode: Code[10])
     begin
         if not DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
             // Need to create the header record.
@@ -405,7 +406,7 @@ codeunit 1720 "Deferral Utilities"
             DeferralHeader."Document Type" := DocumentType;
             DeferralHeader."Document No." := DocumentNo;
             DeferralHeader."Line No." := LineNo;
-            DeferralHeader.Insert;
+            DeferralHeader.Insert();
         end;
         DeferralHeader."Amount to Defer" := AdjustedDeferralAmount;
         if AdjustStartDate then
@@ -416,7 +417,7 @@ codeunit 1720 "Deferral Utilities"
         DeferralHeader."Schedule Description" := DeferralDescription;
         DeferralHeader."Deferral Code" := DeferralCode;
         DeferralHeader."Currency Code" := CurrencyCode;
-        DeferralHeader.Modify;
+        DeferralHeader.Modify();
         // Remove old lines as they will be recalculated/recreated
         RemoveDeferralLines(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo);
     end;
@@ -429,7 +430,7 @@ codeunit 1720 "Deferral Utilities"
         if DeferralCode = '' then
             // If the user cleared the deferral code, we should remove the saved schedule...
             if DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
-                DeferralHeader.Delete;
+                DeferralHeader.Delete();
                 RemoveDeferralLines(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo);
             end;
         if DeferralCode <> '' then
@@ -501,7 +502,7 @@ codeunit 1720 "Deferral Utilities"
             end;
 
             // Create the Posted Deferral Schedule with the Document Number created from the posted GL Trx...
-            PostedDeferralHeader.Init;
+            PostedDeferralHeader.Init();
             PostedDeferralHeader.TransferFields(DeferralHeader);
             PostedDeferralHeader."Deferral Doc. Type" := DeferralHeader."Deferral Doc. Type"::"G/L";
             // Adding document number so we can connect the Ledger and Deferral Schedule details...
@@ -522,7 +523,7 @@ codeunit 1720 "Deferral Utilities"
               0, '', GenJournalLine."Line No.");
             if DeferralLine.FindSet then begin
                 repeat
-                    PostedDeferralLine.Init;
+                    PostedDeferralLine.Init();
                     PostedDeferralLine.TransferFields(DeferralLine);
                     PostedDeferralLine."Deferral Doc. Type" := DeferralHeader."Deferral Doc. Type"::"G/L";
                     PostedDeferralLine."Gen. Jnl. Document No." := GenJournalLine."Document No.";
@@ -549,8 +550,8 @@ codeunit 1720 "Deferral Utilities"
         DeferralLine: Record "Deferral Line";
         DeferralTemplate: Record "Deferral Template";
     begin
-        DeferralHeader.Init;
-        DeferralLine.Init;
+        DeferralHeader.Init();
+        DeferralLine.Init();
         if DeferralCode = '' then
             // If the user cleared the deferral code, we should remove the saved schedule...
             DeferralCodeOnDelete(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo)
@@ -573,7 +574,7 @@ codeunit 1720 "Deferral Utilities"
         if LineNo <> 0 then
             // Deferral Additions
             if DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
-                DeferralHeader.Delete;
+                DeferralHeader.Delete();
                 RemoveDeferralLines(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo);
             end;
     end;
@@ -599,7 +600,7 @@ codeunit 1720 "Deferral Utilities"
                       GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo, Amount,
                       DeferralTemplate."Calc. Method", PostingDate, DeferralTemplate."No. of Periods", true,
                       GetDeferralDescription(GenJnlBatchName, DocumentNo, Description), true, CurrencyCode);
-                    Commit;
+                    Commit();
                     if DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
                         DeferralSchedule.SetParameter(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo);
                         DeferralSchedule.RunModal;
@@ -638,7 +639,7 @@ codeunit 1720 "Deferral Utilities"
         DeferralLine: Record "Deferral Line";
     begin
         FilterDeferralLines(DeferralLine, DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo);
-        DeferralLine.DeleteAll;
+        DeferralLine.DeleteAll();
     end;
 
     local procedure ValidateDeferralTemplate(DeferralTemplate: Record "Deferral Template")
@@ -667,7 +668,7 @@ codeunit 1720 "Deferral Utilities"
 
         DeferralHeader."Amount to Defer (LCY)" :=
           Round(CurrExchRate.ExchangeAmtFCYToLCY(UseDate, CurrencyCode, DeferralHeader."Amount to Defer", CurrencyFactor));
-        DeferralHeader.Modify;
+        DeferralHeader.Modify();
         AmtToDefer := DeferralHeader."Amount to Defer";
         AmtToDeferLCY := DeferralHeader."Amount to Defer (LCY)";
         FilterDeferralLines(
@@ -675,17 +676,17 @@ codeunit 1720 "Deferral Utilities"
           DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
           DeferralHeader."Document Type", DeferralHeader."Document No.", DeferralHeader."Line No.");
         if DeferralLine.FindSet then begin
-            TotalDeferralCount := DeferralLine.Count;
+            TotalDeferralCount := DeferralLine.Count();
             repeat
                 DeferralCount := DeferralCount + 1;
                 if DeferralCount = TotalDeferralCount then begin
                     DeferralLine."Amount (LCY)" := DeferralHeader."Amount to Defer (LCY)" - TotalAmountLCY;
-                    DeferralLine.Modify;
+                    DeferralLine.Modify();
                 end else begin
                     DeferralLine."Amount (LCY)" :=
                       Round(CurrExchRate.ExchangeAmtFCYToLCY(UseDate, CurrencyCode, DeferralLine.Amount, CurrencyFactor));
                     TotalAmountLCY := TotalAmountLCY + DeferralLine."Amount (LCY)";
-                    DeferralLine.Modify;
+                    DeferralLine.Modify();
                 end;
             until DeferralLine.Next = 0;
         end;
@@ -713,7 +714,7 @@ codeunit 1720 "Deferral Utilities"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        DeferralLine.Init;
+        DeferralLine.Init();
         DeferralLine."Deferral Doc. Type" := DeferralHeader."Deferral Doc. Type";
         DeferralLine."Gen. Jnl. Template Name" := DeferralHeader."Gen. Jnl. Template Name";
         DeferralLine."Gen. Jnl. Batch Name" := DeferralHeader."Gen. Jnl. Batch Name";
@@ -743,7 +744,7 @@ codeunit 1720 "Deferral Utilities"
     var
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
     begin
-        AccountingPeriod.Reset;
+        AccountingPeriod.Reset();
         if not AccountingPeriod.IsEmpty then
             exit(true);
 
@@ -904,7 +905,7 @@ codeunit 1720 "Deferral Utilities"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateDeferralSchedule(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; AmountToDefer: Decimal; CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined"; StartDate: Date; NoOfPeriods: Integer; ApplyDeferralPercentage: Boolean; DeferralDescription: Text[100]; AdjustStartDate: Boolean; CurrencyCode: Code[10]; var IsHandled: Boolean)
+    local procedure OnBeforeCreateDeferralSchedule(DeferralCode: Code[10]; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer; AmountToDefer: Decimal; CalcMethod: Enum "Deferral Calculation Method"; StartDate: Date; NoOfPeriods: Integer; ApplyDeferralPercentage: Boolean; DeferralDescription: Text[100]; AdjustStartDate: Boolean; CurrencyCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

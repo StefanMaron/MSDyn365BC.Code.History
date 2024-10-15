@@ -193,7 +193,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         // [GIVEN] Issued reminder with line
         MockIssuedReminder(IssuedReminderHeader);
         IssuedReminderHeader.SetRecFilter;
-        Commit;
+        Commit();
 
         // [WHEN] Run report "Reminder"
         REPORT.Run(REPORT::Reminder, true, false, IssuedReminderHeader);
@@ -283,7 +283,6 @@ codeunit 134907 "ERM Invoice and Reminder"
     end;
 
     [Test]
-    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure IssueReminderForMultipleInvoicesWithDifferentReminderLevels()
     var
@@ -312,14 +311,14 @@ codeunit 134907 "ERM Invoice and Reminder"
         // [GIVEN] Posted invoice "Inv1" and issued Reminder "Rem1" with level 1
         PostSalesInvoice(CustomerNo, InvoicePostingDate[1]);
         CreateReminderForDate(ReminderHeader, CustomerNo, ReminderPostingDate[1]);
-        REPORT.RunModal(REPORT::"Issue Reminders", true, true, ReminderHeader);
+        REPORT.RunModal(REPORT::"Issue Reminders", false, true, ReminderHeader);
 
         // [GIVEN]  Posted invoice "Inv2" and created Reminder "Rem2" with level 2 for "Inv1" and level 1 for "Inv2"
         InvoiceDocumentNo := PostSalesInvoice(CustomerNo, InvoicePostingDate[2]);
         CreateReminderForDate(ReminderHeader, CustomerNo, ReminderPostingDate[2]);
 
         // [WHEN] Reminder issued
-        REPORT.RunModal(REPORT::"Issue Reminders", true, true, ReminderHeader);
+        REPORT.RunModal(REPORT::"Issue Reminders", false, true, ReminderHeader);
 
         // [THEN] Reminder/Fin. Charge entry for invoice "Inv2" has Intereset Posted set to 'FALSE'
         ReminderFinChargeEntry.SetFilter("Document No.", InvoiceDocumentNo);
@@ -398,7 +397,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Invoice and Reminder");
     end;
 
@@ -607,11 +606,11 @@ codeunit 134907 "ERM Invoice and Reminder"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         if SalesReceivablesSetup."Reminder Nos." = '' then
             SalesReceivablesSetup.Validate("Reminder Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup."Issued Reminder Nos." := SalesReceivablesSetup."Reminder Nos.";
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
 
         LibraryERM.CreateReminderHeader(ReminderHeader);
         ReminderHeader.Validate("Customer No.", CustomerNo);
@@ -633,16 +632,16 @@ codeunit 134907 "ERM Invoice and Reminder"
         IssuedReminderLine: Record "Issued Reminder Line";
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        IssuedReminderHeader.Init;
+        IssuedReminderHeader.Init();
         IssuedReminderHeader."No." :=
           LibraryUtility.GenerateRandomCode(IssuedReminderHeader.FieldNo("No."), DATABASE::"Issued Reminder Header");
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
         CustomerPostingGroup."Additional Fee Account" := '';
-        CustomerPostingGroup.Modify;
+        CustomerPostingGroup.Modify();
         IssuedReminderHeader."Customer Posting Group" := CustomerPostingGroup.Code;
         IssuedReminderHeader."Due Date" := LibraryRandom.RandDate(LibraryRandom.RandIntInRange(10, 100));
-        IssuedReminderHeader.Insert;
-        IssuedReminderLine.Init;
+        IssuedReminderHeader.Insert();
+        IssuedReminderLine.Init();
         IssuedReminderLine."Line No." := LibraryUtility.GetNewRecNo(IssuedReminderLine, IssuedReminderLine.FieldNo("Line No."));
         IssuedReminderLine."Line Type" := IssuedReminderLine."Line Type"::"Reminder Line";
         IssuedReminderLine."Reminder No." := IssuedReminderHeader."No.";
@@ -650,7 +649,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         IssuedReminderLine."Remaining Amount" := LibraryRandom.RandIntInRange(10, 100);
         IssuedReminderLine.Amount := IssuedReminderLine."Remaining Amount";
         IssuedReminderLine.Type := IssuedReminderLine.Type::"G/L Account";
-        IssuedReminderLine.Insert;
+        IssuedReminderLine.Insert();
     end;
 
     local procedure ModifyReminderHeader(var ReminderHeader: Record "Reminder Header")
@@ -741,18 +740,6 @@ codeunit 134907 "ERM Invoice and Reminder"
     procedure ReminderRequestPageHandler(var Reminder: TestRequestPage Reminder)
     begin
         Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure IssueRemindersRequestPageHandler(var IssueReminders: TestRequestPage "Issue Reminders")
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
-    begin
-        GenJournalBatch.FindFirst;
-        IssueReminders.JnlTemplateName.SetValue(GenJournalBatch."Journal Template Name");
-        IssueReminders.JnlBatchName.SetValue(GenJournalBatch.Name);
-        IssueReminders.OK.Invoke;
     end;
 }
 

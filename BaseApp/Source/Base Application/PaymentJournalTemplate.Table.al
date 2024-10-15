@@ -87,7 +87,7 @@ table 2000000 "Payment Journal Template"
     trigger OnInsert()
     begin
         Validate("Page ID");
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         "Source Code" := SourceCodeSetup."Payment Journal";
     end;
 

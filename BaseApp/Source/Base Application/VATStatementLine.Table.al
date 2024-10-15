@@ -26,11 +26,9 @@ table 256 "VAT Statement Line"
         {
             Caption = 'Description';
         }
-        field(6; Type; Option)
+        field(6; Type; Enum "VAT Statement Line Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Account Totaling,VAT Entry Totaling,Row Totaling,Description';
-            OptionMembers = "Account Totaling","VAT Entry Totaling","Row Totaling",Description;
 
             trigger OnValidate()
             begin
@@ -192,7 +190,7 @@ table 256 "VAT Statement Line"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         exit(GLSetup."Additional Reporting Currency");
     end;
 }

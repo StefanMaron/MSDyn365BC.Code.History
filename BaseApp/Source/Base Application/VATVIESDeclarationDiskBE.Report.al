@@ -32,7 +32,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
 
                             VatRepAmount := VatRepAmount + VatAmount;
 
-                            Buffer2.Init;
+                            Buffer2.Init();
                             Buffer2."Entry No." := No;
                             Buffer2."Country/Region Code" := Country."EU Country/Region Code";
                             Buffer2."VAT Registration No." :=
@@ -69,7 +69,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
                         VatAmount := Amount;
                         VatRepAmount := VatRepAmount + VatAmount;
 
-                        Buffer2.Init;
+                        Buffer2.Init();
                         Buffer2."Entry No." := No;
                         Country.Get("Country/Region Code");
                         Buffer2."Country/Region Code" := Country."EU Country/Region Code";
@@ -104,9 +104,9 @@ report 11315 "VAT-VIES Declaration Disk BE"
                 trigger OnAfterGetRecord()
                 begin
                     if VATCustomer.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if VATCustomer.Mark then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     VATCustomer.Mark(true);
                 end;
 
@@ -271,7 +271,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
 
     trigger OnInitReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if not CheckVatNo.MOD97Check(CompanyInformation."Enterprise No.") then
             Error(Text000);
         CompanyInformation.TestField("Country/Region Code");
@@ -390,9 +390,9 @@ report 11315 "VAT-VIES Declaration Disk BE"
             if Buffer.Amount = 0 then
                 Buffer.Delete
             else
-                Buffer.Modify;
+                Buffer.Modify();
         end else begin
-            Buffer.Init;
+            Buffer.Init();
             Buffer."Entry No." := Buffer2."Entry No.";
             Buffer."Country/Region Code" := Buffer2."Country/Region Code";
             Buffer."VAT Registration No." := Buffer2."VAT Registration No.";
@@ -402,10 +402,10 @@ report 11315 "VAT-VIES Declaration Disk BE"
             Buffer."Month/Quarter" := Buffer2."Month/Quarter";
             Buffer.Amount := Buffer2.Amount;
             Buffer."EU Service" := Buffer2."EU Service";
-            Buffer.Insert;
+            Buffer.Insert();
         end;
 
-        Buffer.Reset;
+        Buffer.Reset();
     end;
 
     local procedure InitializeXMLFile()
@@ -466,13 +466,13 @@ report 11315 "VAT-VIES Declaration Disk BE"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if RefreshSequenceNumber or TestDeclaration then begin
             CompanyInformation."XML Seq. No. EU Sales List" := CompanyInformation."XML Seq. No. EU Sales List" + 1;
             if CompanyInformation."XML Seq. No. EU Sales List" > 9999 then
                 CompanyInformation."XML Seq. No. EU Sales List" := 1;
             if not TestDeclaration then
-                CompanyInformation.Modify;
+                CompanyInformation.Modify();
             RefreshSequenceNumber := false;
         end;
 
@@ -610,7 +610,7 @@ report 11315 "VAT-VIES Declaration Disk BE"
             SetRange("VAT Registration No.", FormatBufferVATNo(GetEUCountryRegionCode(CountryRegionCode), VATRegistrationNo));
             CalcSums(Amount);
             if Amount = 0 then
-                DeleteAll;
+                DeleteAll();
             SetRange("VAT Registration No.");
         end;
     end;

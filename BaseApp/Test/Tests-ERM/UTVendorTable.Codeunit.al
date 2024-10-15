@@ -275,7 +275,7 @@ codeunit 134824 "UT Vendor Table"
         // Setup
         NoneExistingVendorNo := LibraryPurchase.CreateVendorNo;
         Vendor.Get(NoneExistingVendorNo);
-        Vendor.Delete;
+        Vendor.Delete();
 
         // Exercise and Verify None Existing Vendor
         asserterror Vendor.GetVendorNo(NoneExistingVendorNo);
@@ -449,7 +449,7 @@ codeunit 134824 "UT Vendor Table"
         LibraryPurchase.CreateVendor(Vendor);
         Vendor."Primary Contact No." := ExpectedPrimaryContactNo;
         Vendor.Contact := '';
-        Vendor.Modify;
+        Vendor.Modify();
 
         // [GIVEN] Text[50] = "XX"
         ExpectedContact := CopyStr(LibraryUtility.GenerateRandomText(50), 1, 50);
@@ -699,7 +699,7 @@ codeunit 134824 "UT Vendor Table"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT Vendor Table");
-        Vendor.DeleteAll;
+        Vendor.DeleteAll();
         LibraryApplicationArea.EnableFoundationSetup;
         LibrarySetupStorage.Restore;
 
@@ -711,7 +711,7 @@ codeunit 134824 "UT Vendor Table"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT Vendor Table");
     end;
 
@@ -774,13 +774,7 @@ codeunit 134824 "UT Vendor Table"
     local procedure UpdatePurchasesPayablesSetupNoS()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Purchases);
-        GenJournalTemplate.Validate("Posting No. Series", LibraryUtility.GetGlobalNoSeriesCode);
-        GenJournalTemplate.Modify(true);
-
         with PurchasesPayablesSetup do begin
             Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -791,8 +785,6 @@ codeunit 134824 "UT Vendor Table"
             Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Journal Templ. Purch. Invoice", GenJournalTemplate.Name);
-            Validate("Journal Templ. Purch. Cr. Memo", GenJournalTemplate.Name);
             Modify(true);
         end;
     end;

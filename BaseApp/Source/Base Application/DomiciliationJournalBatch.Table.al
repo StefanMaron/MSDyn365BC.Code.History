@@ -63,7 +63,7 @@ table 2000021 "Domiciliation Journal Batch"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         DomiciliationJnlTemplate.Get("Journal Template Name");
         "Reason Code" := DomiciliationJnlTemplate."Reason Code";
     end;

@@ -60,7 +60,7 @@ codeunit 1711 "Positive Pay Export Mgt"
             end;
             if LineFileType = LineType::Footer then begin
                 DataExch."File Name" := CopyStr(Filename, 1, 250);
-                DataExch.Modify;
+                DataExch.Modify();
             end;
 
             // Now copy current file contents to table, also.
@@ -79,7 +79,7 @@ codeunit 1711 "Positive Pay Export Mgt"
         DataExchMapping: Record "Data Exch. Mapping";
         TableID: Integer;
     begin
-        DataExchMapping.Init;
+        DataExchMapping.Init();
         DataExchMapping.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         DataExchMapping.SetRange("Data Exch. Line Def Code", DataExch."Data Exch. Line Def Code");
         if DataExchMapping.FindFirst then begin
@@ -116,7 +116,7 @@ codeunit 1711 "Positive Pay Export Mgt"
             else begin
                 FieldRef := RecRef.Field(DataExchFieldMapping."Field ID");
 
-                if Format(FieldRef.Class) = 'FlowField' then
+                if FieldRef.Class = FieldClass::FlowField then
                     FieldRef.CalcField;
                 CheckOptional(DataExchFieldMapping.Optional, FieldRef);
                 CastToDestinationType(ValueAsDestType, FieldRef.Value, DataExchColumnDef, DataExchFieldMapping.Multiplier);
@@ -139,7 +139,7 @@ codeunit 1711 "Positive Pay Export Mgt"
 
             DataExchField.Get(DataExch."Entry No.", LineNo, DataExchFieldMapping."Column No.");
             DataExchField.Value := ValueAsString;
-            DataExchField.Modify;
+            DataExchField.Modify();
         until DataExchFieldMapping.Next = 0;
     end;
 
@@ -263,23 +263,23 @@ codeunit 1711 "Positive Pay Export Mgt"
     var
         PosPayHeader: Record "Positive Pay Header";
     begin
-        PosPayHeader.Init;
+        PosPayHeader.Init();
         PosPayHeader."Data Exch. Entry No." := DataExch."Entry No.";
         PosPayHeader."Company Name" := CompanyName;
         PosPayHeader."Account Number" := BankAccountNo;
         PosPayHeader."Date of File" := Today;
-        PosPayHeader.Insert;
+        PosPayHeader.Insert();
     end;
 
     procedure PreparePosPayFooter(DataExch: Record "Data Exch."; DataExchDetalEntryNo: Integer; BankAccountNo: Text[30])
     var
         PosPayFooter: Record "Positive Pay Footer";
     begin
-        PosPayFooter.Init;
+        PosPayFooter.Init();
         PosPayFooter."Data Exch. Entry No." := DataExch."Entry No.";
         PosPayFooter."Data Exch. Detail Entry No." := DataExchDetalEntryNo;
         PosPayFooter."Account Number" := BankAccountNo;
-        PosPayFooter.Insert;
+        PosPayFooter.Insert();
     end;
 }
 

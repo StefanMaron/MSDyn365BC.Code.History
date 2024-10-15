@@ -17,7 +17,7 @@ page 9124 "Service Line FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
             field("STRSUBSTNO('%1',ServInfoPaneMgt.CalcAvailability(Rec))"; StrSubstNo('%1', ServInfoPaneMgt.CalcAvailability(Rec)))
@@ -43,8 +43,8 @@ page 9124 "Service Line FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowItemSub;
-                    CurrPage.Update;
+                    ShowItemSub();
+                    CurrPage.Update();
                 end;
             }
             field("STRSUBSTNO('%1',ServInfoPaneMgt.CalcNoOfSalesPrices(Rec))"; StrSubstNo('%1', ServInfoPaneMgt.CalcNoOfSalesPrices(Rec)))
@@ -57,8 +57,8 @@ page 9124 "Service Line FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowPrices;
-                    CurrPage.Update;
+                    PickPrice();
+                    CurrPage.Update();
                 end;
             }
             field("STRSUBSTNO('%1',ServInfoPaneMgt.CalcNoOfSalesLineDisc(Rec))"; StrSubstNo('%1', ServInfoPaneMgt.CalcNoOfSalesLineDisc(Rec)))
@@ -71,8 +71,8 @@ page 9124 "Service Line FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowLineDisc;
-                    CurrPage.Update;
+                    PickDiscount();
+                    CurrPage.Update();
                 end;
             }
         }
@@ -83,9 +83,7 @@ page 9124 "Service Line FactBox"
     }
 
     var
-        ServHeader: Record "Service Header";
         ServInfoPaneMgt: Codeunit "Service Info-Pane Management";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
 
     local procedure ShowDetails()
@@ -96,20 +94,6 @@ page 9124 "Service Line FactBox"
             Item.Get("No.");
             PAGE.Run(PAGE::"Item Card", Item);
         end;
-    end;
-
-    local procedure ShowPrices()
-    begin
-        ServHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetServLinePrice(ServHeader, Rec);
-    end;
-
-    local procedure ShowLineDisc()
-    begin
-        ServHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetServLineLineDisc(ServHeader, Rec);
     end;
 }
 

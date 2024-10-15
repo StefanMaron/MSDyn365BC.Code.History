@@ -63,7 +63,7 @@ report 11332 "Import Tariff Numbers Part 2"
         TariffNumber."No." := CopyStr(Text, Field_No_Start, Field_No_Len);
         if CopyStr(Text, Field_Weight_Start, Field_Weight_Len) = 'Yes' then
             TariffNumber."Weight Mandatory" := true;
-        TariffNumber.Insert;
+        TariffNumber.Insert();
     end;
 
     [Scope('OnPrem')]

@@ -450,8 +450,6 @@ report 2000004 "Payment Journal Post"
                 "Source No." := PaymentJnlLine."Account No.";
                 UpdateDimSetID("Dimension Set ID", PaymentJnlLine);
                 Validate("Dimension Set ID");
-                "Message to Recipient" := CopyStr(PaymentJnlLine."Payment Message", 1, MaxStrLen("Message to Recipient"));
-                "Exported to Payment File" := true;
                 OnBeforeGenJnlLineInsert(GenJnlLine, PaymentJnlLine);
                 Insert;
 

@@ -183,7 +183,7 @@ report 11306 "Trial Balance - Debit/Credit"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
 
                 // new client
                 PageGroupNo := 1;

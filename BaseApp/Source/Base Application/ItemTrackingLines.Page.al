@@ -749,13 +749,13 @@ page 6510 "Item Tracking Lines"
             Delete(true);
 
             if not AlreadyDeleted then
-                TempItemTrackLineDelete.Insert;
+                TempItemTrackLineDelete.Insert();
             ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
               TempItemTrackLineDelete, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 2);
             if TempItemTrackLineInsert.Get("Entry No.") then
-                TempItemTrackLineInsert.Delete;
+                TempItemTrackLineInsert.Delete();
             if TempItemTrackLineModify.Get("Entry No.") then
-                TempItemTrackLineModify.Delete;
+                TempItemTrackLineModify.Delete();
         end;
         CalculateSums;
 
@@ -803,7 +803,7 @@ page 6510 "Item Tracking Lines"
             if not TestTempSpecificationExists then begin
                 TempItemTrackLineInsert.TransferFields(Rec);
                 OnInsertRecordOnBeforeTempItemTrackLineInsert(TempItemTrackLineInsert, Rec);
-                TempItemTrackLineInsert.Insert;
+                TempItemTrackLineInsert.Insert();
                 Insert;
                 ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
                   TempItemTrackLineInsert, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 0);
@@ -834,15 +834,15 @@ page 6510 "Item Tracking Lines"
             end;
 
             if TempItemTrackLineModify.Get("Entry No.") then
-                TempItemTrackLineModify.Delete;
+                TempItemTrackLineModify.Delete();
             if TempItemTrackLineInsert.Get("Entry No.") then begin
                 TempItemTrackLineInsert.TransferFields(Rec);
-                TempItemTrackLineInsert.Modify;
+                TempItemTrackLineInsert.Modify();
                 ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
                   TempItemTrackLineInsert, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 1);
             end else begin
                 TempItemTrackLineModify.TransferFields(Rec);
-                TempItemTrackLineModify.Insert;
+                TempItemTrackLineModify.Insert();
                 ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
                   TempItemTrackLineModify, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 1);
             end;
@@ -914,7 +914,7 @@ page 6510 "Item Tracking Lines"
         Text005: Label 'Error when writing to database.';
         Text006: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
         Text007: Label 'Another user has modified the item tracking data since it was retrieved from the database.\Start again.';
-        CurrentEntryStatus: Option Reservation,Tracking,Surplus,Prospect;
+        CurrentEntryStatus: Enum "Reservation Status";
         FormRunMode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer;
         InsertIsBlocked: Boolean;
         Text008: Label 'The quantity to create must be an integer.';
@@ -1028,12 +1028,12 @@ page 6510 "Item Tracking Lines"
         GetItem(TrackingSpecification."Item No.");
         ForBinCode := TrackingSpecification."Bin Code";
         SetFilters(TrackingSpecification);
-        TempTrackingSpecification.DeleteAll;
-        TempItemTrackLineInsert.DeleteAll;
-        TempItemTrackLineModify.DeleteAll;
-        TempItemTrackLineDelete.DeleteAll;
+        TempTrackingSpecification.DeleteAll();
+        TempItemTrackLineInsert.DeleteAll();
+        TempItemTrackLineModify.DeleteAll();
+        TempItemTrackLineDelete.DeleteAll();
 
-        TempReservEntry.DeleteAll;
+        TempReservEntry.DeleteAll();
         LastEntryNo := 0;
         if ItemTrackingMgt.IsOrderNetworkEntity(TrackingSpecification."Source Type",
              TrackingSpecification."Source Subtype") and not (FormRunMode = FormRunMode::"Drop Shipment")
@@ -1121,7 +1121,7 @@ page 6510 "Item Tracking Lines"
         if TrackingSpecification.FindSet then
             repeat
                 TempTrackingSpecification := TrackingSpecification;
-                TempTrackingSpecification.Insert;
+                TempTrackingSpecification.Insert();
             until TrackingSpecification.Next = 0;
 
         // Data regarding posted quantities on transfers is collected from Item Ledger Entries:
@@ -1210,7 +1210,7 @@ page 6510 "Item Tracking Lines"
             repeat
                 if Color = 0 then begin
                     TempReservEntry := ReservEntry;
-                    TempReservEntry.Insert;
+                    TempReservEntry.Insert();
                 end;
                 if ReservEntry.TrackingExists then begin
                     AddTracking := true;
@@ -1236,7 +1236,7 @@ page 6510 "Item Tracking Lines"
                         end;
                         TempTrackingSpecification."Buffer Status" := Color;
                         OnAddReservEntriesToTempRecSetOnBeforeInsert(TempTrackingSpecification, ReservEntry, SwapSign, Color);
-                        TempTrackingSpecification.Insert;
+                        TempTrackingSpecification.Insert();
                     end;
                 end;
             until ReservEntry.Next = 0;
@@ -1286,7 +1286,7 @@ page 6510 "Item Tracking Lines"
 
                     if "Buffer Status" = 0 then begin
                         xTempItemTrackingLine := Rec;
-                        xTempItemTrackingLine.Insert;
+                        xTempItemTrackingLine.Insert();
                     end;
                 end;
 
@@ -1446,7 +1446,7 @@ page 6510 "Item Tracking Lines"
                 RecordCount += 1;
             until ReservEntry.Next = 0;
 
-        OK := RecordCount = TempReservEntry.Count;
+        OK := RecordCount = TempReservEntry.Count();
     end;
 
     local procedure EntriesAreIdentical(var ReservEntry1: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry"; var IdenticalArray: array[2] of Boolean): Boolean
@@ -1519,7 +1519,7 @@ page 6510 "Item Tracking Lines"
     begin
         OnBeforeWriteToDatabase(Rec, CurrentPageIsOpen);
         if CurrentPageIsOpen then begin
-            TempReservEntry.LockTable;
+            TempReservEntry.LockTable();
             TempRecValid;
 
             if Item."Order Tracking Policy" = Item."Order Tracking Policy"::None then
@@ -1528,11 +1528,11 @@ page 6510 "Item Tracking Lines"
                 QtyToAddAsBlank := UndefinedQtyArray[1] * CurrentSignFactor;
 
             Reset;
-            DeleteAll;
+            DeleteAll();
 
             Window.Open('#1############# @2@@@@@@@@@@@@@@@@@@@@@');
             Window.Update(1, Text018);
-            NoOfLines := TempItemTrackLineInsert.Count + TempItemTrackLineModify.Count + TempItemTrackLineDelete.Count;
+            NoOfLines := TempItemTrackLineInsert.Count + TempItemTrackLineModify.Count + TempItemTrackLineDelete.Count();
             if TempItemTrackLineDelete.Find('-') then begin
                 repeat
                     i := i + 1;
@@ -1540,9 +1540,9 @@ page 6510 "Item Tracking Lines"
                         Window.Update(2, Round(i / NoOfLines * 10000, 1));
                     RegisterChange(TempItemTrackLineDelete, TempItemTrackLineDelete, ChangeType::Delete, false);
                     if TempItemTrackLineModify.Get(TempItemTrackLineDelete."Entry No.") then
-                        TempItemTrackLineModify.Delete;
+                        TempItemTrackLineModify.Delete();
                 until TempItemTrackLineDelete.Next = 0;
-                TempItemTrackLineDelete.DeleteAll;
+                TempItemTrackLineDelete.DeleteAll();
             end;
 
             for ModifyLoop := 1 to 2 do begin
@@ -1569,11 +1569,11 @@ page 6510 "Item Tracking Lines"
                                     RegisterChange(xTempItemTrackingLine, TempItemTrackLineModify, ChangeType::Modify, false);
                                     SetQtyToHandleAndInvoice(TempItemTrackLineModify);
                                 end;
-                                TempItemTrackLineModify.Delete;
+                                TempItemTrackLineModify.Delete();
                             end;
                         end else begin
                             i := i + 1;
-                            TempItemTrackLineModify.Delete;
+                            TempItemTrackLineModify.Delete();
                         end;
                         if i mod 100 = 0 then
                             Window.Update(2, Round(i / NoOfLines * 10000, 1));
@@ -1595,11 +1595,11 @@ page 6510 "Item Tracking Lines"
                     then
                         SetQtyToHandleAndInvoice(TempItemTrackLineInsert);
                 until TempItemTrackLineInsert.Next = 0;
-                TempItemTrackLineInsert.DeleteAll;
+                TempItemTrackLineInsert.DeleteAll();
             end;
             Window.Close;
         end else begin
-            TempReservEntry.LockTable;
+            TempReservEntry.LockTable();
             TempRecValid;
 
             if Item."Order Tracking Policy" = Item."Order Tracking Policy"::None then
@@ -1609,10 +1609,10 @@ page 6510 "Item Tracking Lines"
 
             Reset;
             SetFilter("Buffer Status", '<>%1', 0);
-            DeleteAll;
+            DeleteAll();
             Reset;
 
-            xTempItemTrackingLine.Reset;
+            xTempItemTrackingLine.Reset();
             SetCurrentKey("Entry No.");
             xTempItemTrackingLine.SetCurrentKey("Entry No.");
             if xTempItemTrackingLine.Find('-') then
@@ -1623,13 +1623,13 @@ page 6510 "Item Tracking Lines"
                             EntryNo := xTempItemTrackingLine."Entry No.";
                             xTempItemTrackingLine := Rec;
                             xTempItemTrackingLine."Entry No." := EntryNo;
-                            xTempItemTrackingLine.Modify;
+                            xTempItemTrackingLine.Modify();
                         end;
                         SetQtyToHandleAndInvoice(Rec);
                         Delete;
                     end else begin
                         RegisterChange(xTempItemTrackingLine, xTempItemTrackingLine, ChangeType::Delete, false);
-                        xTempItemTrackingLine.Delete;
+                        xTempItemTrackingLine.Delete();
                     end;
                 until xTempItemTrackingLine.Next = 0;
 
@@ -1639,7 +1639,7 @@ page 6510 "Item Tracking Lines"
                 repeat
                     if RegisterChange(Rec, Rec, ChangeType::Insert, false) then begin
                         xTempItemTrackingLine := Rec;
-                        xTempItemTrackingLine.Insert;
+                        xTempItemTrackingLine.Insert();
                     end else
                         Error(Text005);
                     SetQtyToHandleAndInvoice(Rec);
@@ -1651,7 +1651,7 @@ page 6510 "Item Tracking Lines"
         ReestablishReservations; // Late Binding
 
         if not BlockCommit then
-            Commit;
+            Commit();
     end;
 
     local procedure RegisterChange(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; ChangeType: Option Insert,Modify,FullDelete,PartDelete,ModifyAll; ModifySharedFields: Boolean) OK: Boolean
@@ -1678,20 +1678,19 @@ page 6510 "Item Tracking Lines"
                 begin
                     if (OldTrackingSpecification."Quantity (Base)" = 0) or not OldTrackingSpecification.TrackingExists then
                         exit(true);
-                    TempReservEntry.SetTrackingFilter('', '');
+                    TempReservEntry.SetTrackingFilterBlank;
                     OldTrackingSpecification."Quantity (Base)" :=
                       CurrentSignFactor *
                       ReservEngineMgt.AddItemTrackingToTempRecSet(
-                        TempReservEntry, NewTrackingSpecification,
-                        CurrentSignFactor * OldTrackingSpecification."Quantity (Base)", QtyToAddAsBlank,
-                        ItemTrackingCode."SN Specific Tracking", ItemTrackingCode."Lot Specific Tracking");
+                        TempReservEntry, NewTrackingSpecification, CurrentSignFactor * OldTrackingSpecification."Quantity (Base)",
+                        QtyToAddAsBlank, ItemTrackingCode);
                     TempReservEntry.ClearTrackingFilter;
 
                     // Late Binding
                     if ReservEngineMgt.RetrieveLostReservQty(LostReservQty) then begin
                         TempItemTrackLineReserv := NewTrackingSpecification;
                         TempItemTrackLineReserv."Quantity (Base)" := LostReservQty * CurrentSignFactor;
-                        TempItemTrackLineReserv.Insert;
+                        TempItemTrackLineReserv.Insert();
                     end;
 
                     if OldTrackingSpecification."Quantity (Base)" = 0 then
@@ -1755,21 +1754,21 @@ page 6510 "Item Tracking Lines"
 
                     if Abs(OldTrackingSpecification."Quantity (Base)") < Abs(NewTrackingSpecification."Quantity (Base)") then begin
                         // Item Tracking is added to any blank reservation entries:
-                        TempReservEntry.SetTrackingFilter('', '');
+                        TempReservEntry.SetTrackingFilterBlank;
                         QtyToAdd :=
                           CurrentSignFactor *
                           ReservEngineMgt.AddItemTrackingToTempRecSet(
                             TempReservEntry, NewTrackingSpecification,
                             CurrentSignFactor * (NewTrackingSpecification."Quantity (Base)" -
                                                  OldTrackingSpecification."Quantity (Base)"), QtyToAddAsBlank,
-                            ItemTrackingCode."SN Specific Tracking", ItemTrackingCode."Lot Specific Tracking");
+                            ItemTrackingCode);
                         TempReservEntry.ClearTrackingFilter;
 
                         // Late Binding
                         if ReservEngineMgt.RetrieveLostReservQty(LostReservQty) then begin
                             TempItemTrackLineReserv := NewTrackingSpecification;
                             TempItemTrackLineReserv."Quantity (Base)" := LostReservQty * CurrentSignFactor;
-                            TempItemTrackLineReserv.Insert;
+                            TempItemTrackLineReserv.Insert();
                         end;
 
                         OldTrackingSpecification."Quantity (Base)" := QtyToAdd;
@@ -1790,7 +1789,7 @@ page 6510 "Item Tracking Lines"
                             TempReservEntry, OldTrackingSpecification,
                             CurrentSignFactor * (OldTrackingSpecification."Quantity (Base)" -
                                                  NewTrackingSpecification."Quantity (Base)"), QtyToAddAsBlank,
-                            ItemTrackingCode."SN Specific Tracking", ItemTrackingCode."Lot Specific Tracking");
+                            ItemTrackingCode);
                         TempReservEntry.ClearTrackingFilter;
                         RegisterChange(NewTrackingSpecification, NewTrackingSpecification,
                           ChangeType::PartDelete, not IdenticalArray[2]);
@@ -1813,8 +1812,8 @@ page 6510 "Item Tracking Lines"
                           CurrentSignFactor *
                           ReservEngineMgt.AddItemTrackingToTempRecSet(
                             TempReservEntry, OldTrackingSpecification,
-                            CurrentSignFactor * OldTrackingSpecification."Quantity (Base)", QtyToAddAsBlank,
-                            ItemTrackingCode."SN Specific Tracking", ItemTrackingCode."Lot Specific Tracking");
+                            CurrentSignFactor * OldTrackingSpecification."Quantity (Base)",
+                            QtyToAddAsBlank, ItemTrackingCode);
                         TempReservEntry.ClearTrackingFilter;
                         ReservationMgt.DeleteReservEntries(true, 0, ReservEntry1);
                         OnRegisterChangeOnAfterFullDelete(ReservEntry1);
@@ -1855,7 +1854,7 @@ page 6510 "Item Tracking Lines"
                 ReservEntry1."New Lot No." := TrackingSpecification."New Lot No.";
                 ReservEntry1."New Expiration Date" := TrackingSpecification."New Expiration Date";
                 OnAfterMoveFields(TrackingSpecification, ReservEntry1);
-                ReservEntry1.Modify;
+                ReservEntry1.Modify();
             until ReservEntry1.Next = 0;
     end;
 
@@ -1889,7 +1888,7 @@ page 6510 "Item Tracking Lines"
                         if TrackingSpecification."Qty. to Invoice (Base)" <> QtyToInvoiceThisLine then begin
                             TrackingSpecification."Qty. to Invoice (Base)" := QtyToInvoiceThisLine;
                             OnSetQtyToHandleAndInvoiceOnBeforeTrackingSpecModify(TrackingSpecification);
-                            TrackingSpecification.Modify;
+                            TrackingSpecification.Modify();
                         end;
                         TotalQtyToInvoice -= QtyToInvoiceThisLine;
                     end;
@@ -1923,7 +1922,7 @@ page 6510 "Item Tracking Lines"
                             ReservEntry1."Qty. to Handle (Base)" := QtyToHandleThisLine;
                             ReservEntry1."Qty. to Invoice (Base)" := QtyToInvoiceThisLine;
                             OnSetQtyToHandleAndInvoiceOnBeforeReservEntryModify(ReservEntry1, TrackingSpecification);
-                            ReservEntry1.Modify;
+                            ReservEntry1.Modify();
                         end;
                         TotalQtyToHandle -= QtyToHandleThisLine;
                         TotalQtyToInvoice -= QtyToInvoiceThisLine;
@@ -1937,7 +1936,7 @@ page 6510 "Item Tracking Lines"
                     ReservEntry1."Qty. to Handle (Base)" := TotalQtyToHandle;
                     ReservEntry1."Qty. to Invoice (Base)" := TotalQtyToInvoice;
                     OnSetQtyToHandleAndInvoiceOnBeforeReservEntryModify(ReservEntry1, TrackingSpecification);
-                    ReservEntry1.Modify;
+                    ReservEntry1.Modify();
                 end;
     end;
 
@@ -1974,7 +1973,7 @@ page 6510 "Item Tracking Lines"
                 TempTrackingSpecification."Qty. per Unit of Measure" := ItemLedgerEntry."Qty. per Unit of Measure";
                 TempTrackingSpecification.InitQtyToShip;
                 OnBeforeCollectTempTrackingSpecificationInsert(TempTrackingSpecification, ItemLedgerEntry, TrackingSpecification);
-                TempTrackingSpecification.Insert;
+                TempTrackingSpecification.Insert();
             until ItemEntryRelation.Next = 0;
     end;
 
@@ -2010,7 +2009,7 @@ page 6510 "Item Tracking Lines"
                 TempTrackingSpecification."Qty. per Unit of Measure" := ItemLedgerEntry."Qty. per Unit of Measure";
                 TempTrackingSpecification.InitQtyToShip;
                 OnBeforeCollectTempTrackingSpecificationInsert(TempTrackingSpecification, ItemLedgerEntry, TrackingSpecification);
-                TempTrackingSpecification.Insert;
+                TempTrackingSpecification.Insert();
             until ItemEntryRelation.Next = 0;
     end;
 
@@ -2053,7 +2052,7 @@ page 6510 "Item Tracking Lines"
                 TempTrackingSpecification."Qty. per Unit of Measure" := ItemLedgerEntry."Qty. per Unit of Measure";
                 TempTrackingSpecification.InitQtyToShip;
                 OnBeforeCollectTempTrackingSpecificationInsert(TempTrackingSpecification, ItemLedgerEntry, TrackingSpecification);
-                TempTrackingSpecification.Insert;
+                TempTrackingSpecification.Insert();
 
                 if BackwardFlushing then begin
                     SourceQuantityArray[1] += ItemLedgerEntry.Quantity;
@@ -2073,7 +2072,7 @@ page 6510 "Item Tracking Lines"
         xTrackingSpec.Copy(Rec);
         Reset;
         SetRange("Quantity (Base)", 0);
-        SetTrackingFilter('', '');
+        SetTrackingFilterBlank;
         OK := not IsEmpty;
         Copy(xTrackingSpec);
     end;
@@ -2138,7 +2137,7 @@ page 6510 "Item Tracking Lines"
             OnAssignSerialNoBatchOnAfterInsert(Rec);
 
             TempItemTrackLineInsert.TransferFields(Rec);
-            TempItemTrackLineInsert.Insert;
+            TempItemTrackLineInsert.Insert();
             if i = QtyToCreate then
                 ItemTrackingDataCollection.SetSkipLot(false);
             ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
@@ -2176,7 +2175,7 @@ page 6510 "Item Tracking Lines"
         OnAssignLotNoOnAfterInsert(Rec);
 
         TempItemTrackLineInsert.TransferFields(Rec);
-        TempItemTrackLineInsert.Insert;
+        TempItemTrackLineInsert.Insert();
         ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
           TempItemTrackLineInsert, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 0);
         CalculateSums;
@@ -2255,7 +2254,7 @@ page 6510 "Item Tracking Lines"
                 Error('');
             Insert;
             TempItemTrackLineInsert.TransferFields(Rec);
-            TempItemTrackLineInsert.Insert;
+            TempItemTrackLineInsert.Insert();
             ItemTrackingDataCollection.UpdateTrackingDataSetWithChange(
               TempItemTrackLineInsert, CurrentSignFactor * SourceQuantityArray[1] < 0, CurrentSignFactor, 0);
             if i < QtyToCreate then begin
@@ -2301,7 +2300,7 @@ page 6510 "Item Tracking Lines"
     begin
         SourceSpecification.TestField("Source Type"); // Check if source has been set.
         if not CalledFromSynchWhseItemTrkg then
-            TempTrackingSpecification.Reset;
+            TempTrackingSpecification.Reset();
         if not TempTrackingSpecification.Find('-') then
             exit;
 
@@ -2323,8 +2322,7 @@ page 6510 "Item Tracking Lines"
                 Modify;
             end else begin
                 TransferFields(SourceSpecification);
-                "Serial No." := TempTrackingSpecification."Serial No.";
-                "Lot No." := TempTrackingSpecification."Lot No.";
+                CopyTrackingFromTrackingSpec(TempTrackingSpecification);
                 "Warranty Date" := TempTrackingSpecification."Warranty Date";
                 "Expiration Date" := TempTrackingSpecification."Expiration Date";
                 if FormRunMode = FormRunMode::Reclass then begin
@@ -2395,7 +2393,7 @@ page 6510 "Item Tracking Lines"
           not (("Buffer Status2" = "Buffer Status2"::"ExpDate blocked") or (CurrentSignFactor < 0));
     end;
 
-    local procedure LookupAvailable(LookupMode: Option "Serial No.","Lot No.")
+    local procedure LookupAvailable(LookupMode: Enum "Item Tracking Type")
     begin
         "Bin Code" := ForBinCode;
         ItemTrackingDataCollection.LookupTrackingAvailability(Rec, LookupMode);
@@ -2403,7 +2401,7 @@ page 6510 "Item Tracking Lines"
         CurrPage.Update;
     end;
 
-    local procedure TrackingAvailable(var TrackingSpecification: Record "Tracking Specification"; LookupMode: Option "Serial No.","Lot No."): Boolean
+    local procedure TrackingAvailable(var TrackingSpecification: Record "Tracking Specification"; LookupMode: Enum "Item Tracking Type"): Boolean
     begin
         exit(ItemTrackingDataCollection.TrackingAvailable(TrackingSpecification, LookupMode));
     end;
@@ -2426,22 +2424,22 @@ page 6510 "Item Tracking Lines"
                     "Buffer Status"::MODIFY:
                         begin
                             if TempItemTrackLineModify.Get("Entry No.") then
-                                TempItemTrackLineModify.Delete;
+                                TempItemTrackLineModify.Delete();
                             if TempItemTrackLineInsert.Get("Entry No.") then begin
                                 TempItemTrackLineInsert.TransferFields(Rec);
                                 OnSelectEntriesOnAfterTransferFields(TempItemTrackLineInsert, Rec);
-                                TempItemTrackLineInsert.Modify;
+                                TempItemTrackLineInsert.Modify();
                             end else begin
                                 TempItemTrackLineModify.TransferFields(Rec);
                                 OnSelectEntriesOnAfterTransferFields(TempItemTrackLineModify, Rec);
-                                TempItemTrackLineModify.Insert;
+                                TempItemTrackLineModify.Insert();
                             end;
                         end;
                     "Buffer Status"::INSERT:
                         begin
                             TempItemTrackLineInsert.TransferFields(Rec);
                             OnSelectEntriesOnAfterTransferFields(TempItemTrackLineInsert, Rec);
-                            TempItemTrackLineInsert.Insert;
+                            TempItemTrackLineInsert.Insert();
                         end;
                 end;
                 "Buffer Status" := 0;
@@ -2463,7 +2461,7 @@ page 6510 "Item Tracking Lines"
                 LateBindingMgt.ReserveItemTrackingLine(TempItemTrackLineReserv, 0, TempItemTrackLineReserv."Quantity (Base)");
                 SetQtyToHandleAndInvoice(TempItemTrackLineReserv);
             until TempItemTrackLineReserv.Next = 0;
-        TempItemTrackLineReserv.DeleteAll;
+        TempItemTrackLineReserv.DeleteAll();
     end;
 
     procedure SetInbound(NewInbound: Boolean)
@@ -2558,34 +2556,34 @@ page 6510 "Item Tracking Lines"
 
     procedure GetVariables(var TempTrackingSpecInsert2: Record "Tracking Specification" temporary; var TempTrackingSpecModify2: Record "Tracking Specification" temporary; var TempTrackingSpecDelete2: Record "Tracking Specification" temporary; var Item2: Record Item; var UndefinedQtyArray2: array[3] of Decimal; var SourceQuantityArray2: array[3] of Decimal; var CurrentSignFactor2: Integer; var InsertIsBlocked2: Boolean; var DeleteIsBlocked2: Boolean; var BlockCommit2: Boolean)
     begin
-        TempTrackingSpecInsert2.DeleteAll;
-        TempTrackingSpecInsert2.Reset;
-        TempItemTrackLineInsert.Reset;
+        TempTrackingSpecInsert2.DeleteAll();
+        TempTrackingSpecInsert2.Reset();
+        TempItemTrackLineInsert.Reset();
         if TempItemTrackLineInsert.Find('-') then
             repeat
-                TempTrackingSpecInsert2.Init;
+                TempTrackingSpecInsert2.Init();
                 TempTrackingSpecInsert2 := TempItemTrackLineInsert;
-                TempTrackingSpecInsert2.Insert;
+                TempTrackingSpecInsert2.Insert();
             until TempItemTrackLineInsert.Next = 0;
 
-        TempTrackingSpecModify2.DeleteAll;
-        TempTrackingSpecModify2.Reset;
-        TempItemTrackLineModify.Reset;
+        TempTrackingSpecModify2.DeleteAll();
+        TempTrackingSpecModify2.Reset();
+        TempItemTrackLineModify.Reset();
         if TempItemTrackLineModify.Find('-') then
             repeat
-                TempTrackingSpecModify2.Init;
+                TempTrackingSpecModify2.Init();
                 TempTrackingSpecModify2 := TempItemTrackLineModify;
-                TempTrackingSpecModify2.Insert;
+                TempTrackingSpecModify2.Insert();
             until TempItemTrackLineModify.Next = 0;
 
-        TempTrackingSpecDelete2.DeleteAll;
-        TempTrackingSpecDelete2.Reset;
-        TempItemTrackLineDelete.Reset;
+        TempTrackingSpecDelete2.DeleteAll();
+        TempTrackingSpecDelete2.Reset();
+        TempItemTrackLineDelete.Reset();
         if TempItemTrackLineDelete.Find('-') then
             repeat
-                TempTrackingSpecDelete2.Init;
+                TempTrackingSpecDelete2.Init();
                 TempTrackingSpecDelete2 := TempItemTrackLineDelete;
-                TempTrackingSpecDelete2.Insert;
+                TempTrackingSpecDelete2.Insert();
             until TempItemTrackLineDelete.Next = 0;
 
         Item2 := Item;
@@ -2599,34 +2597,34 @@ page 6510 "Item Tracking Lines"
 
     procedure SetVariables(var TempTrackingSpecInsert2: Record "Tracking Specification" temporary; var TempTrackingSpecModify2: Record "Tracking Specification" temporary; var TempTrackingSpecDelete2: Record "Tracking Specification" temporary)
     begin
-        TempItemTrackLineInsert.DeleteAll;
-        TempItemTrackLineInsert.Reset;
-        TempTrackingSpecInsert2.Reset;
+        TempItemTrackLineInsert.DeleteAll();
+        TempItemTrackLineInsert.Reset();
+        TempTrackingSpecInsert2.Reset();
         if TempTrackingSpecInsert2.Find('-') then
             repeat
-                TempItemTrackLineInsert.Init;
+                TempItemTrackLineInsert.Init();
                 TempItemTrackLineInsert := TempTrackingSpecInsert2;
-                TempItemTrackLineInsert.Insert;
+                TempItemTrackLineInsert.Insert();
             until TempTrackingSpecInsert2.Next = 0;
 
-        TempItemTrackLineModify.DeleteAll;
-        TempItemTrackLineModify.Reset;
-        TempTrackingSpecModify2.Reset;
+        TempItemTrackLineModify.DeleteAll();
+        TempItemTrackLineModify.Reset();
+        TempTrackingSpecModify2.Reset();
         if TempTrackingSpecModify2.Find('-') then
             repeat
-                TempItemTrackLineModify.Init;
+                TempItemTrackLineModify.Init();
                 TempItemTrackLineModify := TempTrackingSpecModify2;
-                TempItemTrackLineModify.Insert;
+                TempItemTrackLineModify.Insert();
             until TempTrackingSpecModify2.Next = 0;
 
-        TempItemTrackLineDelete.DeleteAll;
-        TempItemTrackLineDelete.Reset;
-        TempTrackingSpecDelete2.Reset;
+        TempItemTrackLineDelete.DeleteAll();
+        TempItemTrackLineDelete.Reset();
+        TempTrackingSpecDelete2.Reset();
         if TempTrackingSpecDelete2.Find('-') then
             repeat
-                TempItemTrackLineDelete.Init;
+                TempItemTrackLineDelete.Init();
                 TempItemTrackLineDelete := TempTrackingSpecDelete2;
-                TempItemTrackLineDelete.Insert;
+                TempItemTrackLineDelete.Insert();
             until TempTrackingSpecDelete2.Next = 0;
     end;
 
@@ -2690,12 +2688,12 @@ page 6510 "Item Tracking Lines"
 
     procedure GetTrackingSpec(var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
-        TempTrackingSpecification.DeleteAll;
+        TempTrackingSpecification.DeleteAll();
 
         if FindSet then
             repeat
                 TempTrackingSpecification := Rec;
-                TempTrackingSpecification.Insert;
+                TempTrackingSpecification.Insert();
             until Next = 0;
     end;
 

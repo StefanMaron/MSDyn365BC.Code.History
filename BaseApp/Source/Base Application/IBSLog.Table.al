@@ -146,7 +146,7 @@ table 2000010 "IBS Log"
                 "IBS Contract ID" := IBSAccountConflict."Contract ID";
                 "Upload Status" := "Upload Status"::"Ready for Upload";
                 Modify;
-                IBSAccountConflict.DeleteAll;
+                IBSAccountConflict.DeleteAll();
             end;
     end;
 }

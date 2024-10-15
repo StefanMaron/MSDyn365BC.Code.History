@@ -341,7 +341,6 @@ codeunit 134086 "ERM Update Currency - Purchase"
         GenJournalLine: Record "Gen. Journal Line";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         VendorNo: Code[20];
-        DocNo: Code[20];
     begin
         // Check that after Modify Relational Exch. Rate Amount and run Adjust Exchange rate batch job, GL entry and
         // Detailed Vendor Ledger Entry created with Correct Amount.
@@ -353,12 +352,12 @@ codeunit 134086 "ERM Update Currency - Purchase"
         UpdateExchangeRate(CurrencyExchangeRate);
 
         // 2. Exercise: Run Adjust Exchange Rate batch job.
-        RunAdjustExchangeRates(DocNo, CurrencyExchangeRate);
+        RunAdjustExchangeRates(CurrencyExchangeRate);
 
         // 3. Verify: Verify G/L Entry and Detailed Vendor Ledger Entry made for correct Amount after running
         // Adjust Exchange Rate Batch Job
-        VerifyGLEntryAdjustExchange(GenJournalLine, CurrencyExchangeRate, DocNo);
-        VerifyDetailedVendorLedgEntry(GenJournalLine, CurrencyExchangeRate, DocNo);
+        VerifyGLEntryAdjustExchange(GenJournalLine, CurrencyExchangeRate);
+        VerifyDetailedVendorLedgEntry(GenJournalLine, CurrencyExchangeRate);
     end;
 
     [Test]
@@ -636,24 +635,22 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateLocalData;
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Normal]
-    local procedure RunAdjustExchangeRates(var DocNo: Code[20]; CurrencyExchangeRate: Record "Currency Exchange Rate")
+    local procedure RunAdjustExchangeRates(CurrencyExchangeRate: Record "Currency Exchange Rate")
     var
         Currency: Record Currency;
-        GenJnlBatch: Record "Gen. Journal Batch";
         AdjustExchangeRates: Report "Adjust Exchange Rates";
     begin
         // Using Random Number Generator for Document No.
         Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
         Clear(AdjustExchangeRates);
         AdjustExchangeRates.SetTableView(Currency);
-        DocNo := LibraryERM.GetNextDocNoByBatch(GenJnlBatch);
         AdjustExchangeRates.InitializeRequest2(
           CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date", 'Test', CurrencyExchangeRate."Starting Date",
-          '', true, false, GenJnlBatch."Journal Template Name", GenJnlBatch.Name);
+          CurrencyExchangeRate."Currency Code", true, false);
         AdjustExchangeRates.UseRequestPage(false);
         AdjustExchangeRates.Run;
     end;
@@ -838,7 +835,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
 
@@ -850,7 +847,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         SuggestVendorPayments.InitializeRequest(
           WorkDate, false, 0, false, WorkDate, VendorNo, true, BalanceAccuntType::"Bank Account", BankAccountNo, BankPmtType);
         SuggestVendorPayments.UseRequestPage(false);
-        Commit;
+        Commit();
         SuggestVendorPayments.Run;
     end;
 
@@ -871,10 +868,13 @@ codeunit 134086 "ERM Update Currency - Purchase"
     local procedure UpdatePurchaseLines(DocumentType: Option; DocumentNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
+        ItemNo: code[20];
     begin
         FindPurchaseLines(PurchaseLine, DocumentType, DocumentNo);
         repeat
-            PurchaseLine.Validate("No.");
+            ItemNo := PurchaseLine."No.";
+            PurchaseLine."No." := '';
+            PurchaseLine.Validate("No.", ItemNo);
             PurchaseLine.Validate("Line Discount %", 0);
             PurchaseLine.Modify(true);
         until PurchaseLine.Next = 0;
@@ -975,14 +975,14 @@ codeunit 134086 "ERM Update Currency - Purchase"
     end;
 
     [Normal]
-    local procedure VerifyGLEntryAdjustExchange(GenJournalLine: Record "Gen. Journal Line"; CurrencyExchangeRate: Record "Currency Exchange Rate"; DocNo: Code[20])
+    local procedure VerifyGLEntryAdjustExchange(GenJournalLine: Record "Gen. Journal Line"; CurrencyExchangeRate: Record "Currency Exchange Rate")
     var
         GLEntry: Record "G/L Entry";
         Currency: Record Currency;
     begin
         Currency.Get(CurrencyExchangeRate."Currency Code");
         Currency.InitRoundingPrecision;
-        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("Document No.", CurrencyExchangeRate."Currency Code");
         GLEntry.SetFilter(Amount, '<0');
         GLEntry.FindFirst;
         GLEntry.TestField(
@@ -1000,14 +1000,14 @@ codeunit 134086 "ERM Update Currency - Purchase"
         VendorLedgerEntry.TestField("Currency Code", CurrencyCode);
     end;
 
-    local procedure VerifyDetailedVendorLedgEntry(GenJournalLine: Record "Gen. Journal Line"; CurrencyExchangeRate: Record "Currency Exchange Rate"; DocNo: Code[20])
+    local procedure VerifyDetailedVendorLedgEntry(GenJournalLine: Record "Gen. Journal Line"; CurrencyExchangeRate: Record "Currency Exchange Rate")
     var
         Currency: Record Currency;
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         Currency.Get(CurrencyExchangeRate."Currency Code");
         Currency.InitRoundingPrecision;
-        DetailedVendorLedgEntry.SetRange("Document No.", DocNo);
+        DetailedVendorLedgEntry.SetRange("Document No.", CurrencyExchangeRate."Currency Code");
         DetailedVendorLedgEntry.FindFirst;
         DetailedVendorLedgEntry.TestField(
           "Amount (LCY)", Round(

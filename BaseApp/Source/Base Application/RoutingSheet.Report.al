@@ -152,7 +152,7 @@ report 99000787 "Routing Sheet"
                                     SetRange("Routing No.", Item."Routing No.");
 
                                     if not PrintComment then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end;
                             }
                             dataitem("Routing Tool"; "Routing Tool")
@@ -169,7 +169,7 @@ report 99000787 "Routing Sheet"
                                 trigger OnPreDataItem()
                                 begin
                                     if not PrintTool then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end;
                             }
                             dataitem("Routing Personnel"; "Routing Personnel")
@@ -186,7 +186,7 @@ report 99000787 "Routing Sheet"
                                 trigger OnPreDataItem()
                                 begin
                                     if not PrintPersonnel then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end;
                             }
                             dataitem("Routing Quality Measure"; "Routing Quality Measure")
@@ -203,7 +203,7 @@ report 99000787 "Routing Sheet"
                                 trigger OnPreDataItem()
                                 begin
                                     if not PrintQualityMeasures then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end;
                             }
 
@@ -239,7 +239,7 @@ report 99000787 "Routing Sheet"
                 trigger OnAfterGetRecord()
                 begin
                     if CopyNo = LoopNo then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     CopyNo := CopyNo + 1;
 
@@ -265,7 +265,7 @@ report 99000787 "Routing Sheet"
             trigger OnAfterGetRecord()
             begin
                 if "Routing No." = '' then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 ActiveVersionCode :=
                   VersionMgt.GetRtngVersion("Routing No.", WorkDate, true);

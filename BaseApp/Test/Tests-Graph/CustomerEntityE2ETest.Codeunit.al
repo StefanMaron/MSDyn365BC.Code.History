@@ -34,7 +34,7 @@ codeunit 135502 "Customer Entity E2E Test"
             exit;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -96,7 +96,7 @@ codeunit 135502 "Customer Entity E2E Test"
         // [GIVEN] A customer exists and has values assigned to some of the fields contained in complex types.
         CreateCustomerWithAddress(Customer);
         Customer.Address := 'Test "Adress" 12æ åø"';
-        Customer.Modify;
+        Customer.Modify();
 
         // [WHEN] The user calls GET for the given Customer.
         TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.Id, PAGE::"Customer Entity", ServiceNameTxt);
@@ -143,7 +143,7 @@ codeunit 135502 "Customer Entity E2E Test"
         LibraryERM.CreateCurrency(Currency);
 
         CustomerJSON := GetComplexCustomerJSON(Customer, Currency, TaxAreaID, PaymentTerms, ShipmentMethod, PaymentMethod);
-        Commit;
+        Commit();
 
         // [WHEN] The user posts the JSON to the service.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Customer Entity", ServiceNameTxt);
@@ -201,7 +201,7 @@ codeunit 135502 "Customer Entity E2E Test"
         // [FEATURE] [Template]
         // [SCENARIO 184717] User can create a new customer and have the system apply a template.
         Initialize;
-        ConfigTmplSelectionRules.DeleteAll;
+        ConfigTmplSelectionRules.DeleteAll();
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Customer Entity", ServiceNameTxt);
         CountryRegion.FindLast;
         CityName := LibraryUtility.GenerateGUID;
@@ -309,7 +309,7 @@ codeunit 135502 "Customer Entity E2E Test"
         RequestBody := GetCustomerWithAddressJSON(TempCustomer);
 
         // [WHEN] The user makes a patch request to the service and specifies address fields.
-        Commit; // Need to commit transaction to unlock integration record table.
+        Commit(); // Need to commit transaction to unlock integration record table.
         TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.Id, PAGE::"Customer Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, Response);
 
@@ -339,7 +339,7 @@ codeunit 135502 "Customer Entity E2E Test"
         RequestBody := '{ "address" : null }';
 
         // [WHEN] A user makes a PATCH request to the specific customer.
-        Commit; // Need to commit in order to unlock integration record table.
+        Commit(); // Need to commit in order to unlock integration record table.
         TargetURL := LibraryGraphMgt.CreateTargetURL(Customer.Id, PAGE::"Customer Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, RequestBody, Response);
 
@@ -372,7 +372,7 @@ codeunit 135502 "Customer Entity E2E Test"
 
         // [WHEN] We look through all customers.
         // [THEN] The integration record for the customer should have the same record id.
-        Customer.Reset;
+        Customer.Reset();
         if Customer.Find('-') then begin
             repeat
                 Assert.IsTrue(IntegrationRecord.Get(Customer.Id), 'The Customer id should exist in the integration record table');
@@ -401,7 +401,7 @@ codeunit 135502 "Customer Entity E2E Test"
     var
         GraphMgtCustomer: Codeunit "Graph Mgt - Customer";
     begin
-        Customer.Init;
+        Customer.Init();
         Customer."No." := NextCustomerNo;
         Customer.Name := LibraryUtility.GenerateGUID;
         Customer.Insert(true);
@@ -409,7 +409,7 @@ codeunit 135502 "Customer Entity E2E Test"
         GraphMgtCustomer.UpdateIntegrationRecords(true); // Currently need to do this as integration records aren't be created otherwise.
         Customer.Get(Customer."No.");
 
-        Commit; // Need to commit in order to unlock tables and allow web service to pick up changes.
+        Commit(); // Need to commit in order to unlock tables and allow web service to pick up changes.
     end;
 
     local procedure GetCustomerWithAddressJSON(var Customer: Record Customer) Json: Text

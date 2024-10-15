@@ -21,7 +21,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
             if FromDirectDebitCollectionEntry.FindSet then
                 repeat
                     ToDirectDebitCollectionEntry := FromDirectDebitCollectionEntry;
-                    ToDirectDebitCollectionEntry.Insert;
+                    ToDirectDebitCollectionEntry.Insert();
                 until FromDirectDebitCollectionEntry.Next = 0
         end else
             CreateTempCollectionEntries(FromDirectDebitCollectionEntry, ToDirectDebitCollectionEntry);
@@ -38,7 +38,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
         DomiciliationJournalLine.SetRange(Status, DomiciliationJournalLine.Status::Marked);
         if DomiciliationJournalLine.FindSet then
             repeat
-                ToDirectDebitCollectionEntry.Init;
+                ToDirectDebitCollectionEntry.Init();
                 ToDirectDebitCollectionEntry."Direct Debit Collection No." := DirectDebitCollection."No.";
                 ToDirectDebitCollectionEntry."Entry No." := DomiciliationJournalLine."Line No.";
                 ToDirectDebitCollectionEntry.Validate("Customer No.", DomiciliationJournalLine."Customer No.");

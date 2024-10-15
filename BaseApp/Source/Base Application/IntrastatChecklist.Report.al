@@ -289,7 +289,7 @@ report 502 "Intrastat - Checklist"
                         AddError(
                           "Intrastat Jnl. Line", FieldNo("Country/Region Code"),
                           StrSubstNo(Text11305, Country.Code));
-                    IntrastatJnlLineTemp.Reset;
+                    IntrastatJnlLineTemp.Reset();
                     IntrastatJnlLineTemp.SetRange(Type, Type);
                     IntrastatJnlLineTemp.SetRange("Tariff No.", "Tariff No.");
                     IntrastatJnlLineTemp.SetRange("Country/Region Code", "Country/Region Code");
@@ -297,7 +297,7 @@ report 502 "Intrastat - Checklist"
                     IntrastatJnlLineTemp.SetRange("Transport Method", "Transport Method");
                     if not IntrastatJnlLineTemp.FindFirst then begin
                         IntrastatJnlLineTemp := "Intrastat Jnl. Line";
-                        IntrastatJnlLineTemp.Insert;
+                        IntrastatJnlLineTemp.Insert();
                         NoOfRecordsRTC += 1;
                     end;
 
@@ -344,7 +344,7 @@ report 502 "Intrastat - Checklist"
                     ErrorMessage.SetContext("Intrastat Jnl. Batch");
                     ErrorMessage.ClearLog;
 
-                    IntrastatJnlLineTemp.DeleteAll;
+                    IntrastatJnlLineTemp.DeleteAll();
                     NoOfDetails := 0;
                     NoOfRecords := 0;
 
@@ -365,7 +365,7 @@ report 502 "Intrastat - Checklist"
 
             trigger OnAfterGetRecord()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if "Intrastat Jnl. Batch"."Amounts in Add. Currency" then
                     GLSetup.TestField("Additional Reporting Currency")
                 else
@@ -415,8 +415,8 @@ report 502 "Intrastat - Checklist"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
     end;
 
     var

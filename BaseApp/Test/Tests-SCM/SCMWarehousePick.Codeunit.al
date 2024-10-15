@@ -190,7 +190,7 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", '', 0.0);
-        Commit;
+        Commit();
 
         // Exercise: Calculate Counting Period.
         LibraryInventory.CalculateCountingPeriod(ItemJournalLine);
@@ -330,7 +330,7 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
 
         // [GIVEN] Create inventory pick from transfer
-        Commit;
+        Commit();
         TransferHeader.CreateInvtPutAwayPick;
 
         FindWhseActivityLine(
@@ -435,7 +435,7 @@ codeunit 137055 "SCM Warehouse Pick"
         CreateLocationNotRequirePick(Location);
 
         // [WHEN] Internal Movement Card "IMC" opens
-        InternalMovementHeader.Init;
+        InternalMovementHeader.Init();
         InternalMovementHeader.OpenInternalMovementHeader(InternalMovementHeader);
 
         // [THEN] "IMC"."Location Code" field value is not equal to "DL"."Code" field.
@@ -465,7 +465,7 @@ codeunit 137055 "SCM Warehouse Pick"
         DefaultLocationCode := WMSManagement.GetDefaultLocation;
 
         // [WHEN] Internal Movement Card "IMC" opens
-        InternalMovementHeader.Init;
+        InternalMovementHeader.Init();
         InternalMovementHeader.OpenInternalMovementHeader(InternalMovementHeader);
 
         // [THEN] "IMC"."Location Code" field value is equal to "DL"."Code" field.
@@ -474,7 +474,7 @@ codeunit 137055 "SCM Warehouse Pick"
           StrSubstNo(LocationCodeMustNotOccurErr, InternalMovementHeader.GetFilter("Location Code"), DefaultLocationCode));
 
         // Tear down.
-        WarehouseEmployee.Reset;
+        WarehouseEmployee.Reset();
         WarehouseEmployee.DeleteAll(true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationOrange.Code, false);
@@ -505,14 +505,14 @@ codeunit 137055 "SCM Warehouse Pick"
           SavedBinMandatory, SavedDirectedPutAwayAndPick, WMSManagement.GetDefaultLocation, true, true);
 
         // [WHEN] Internal Movement Card "IMC" opens
-        InternalMovementHeader.Init;
+        InternalMovementHeader.Init();
         asserterror InternalMovementHeader.OpenInternalMovementHeader(InternalMovementHeader);
 
         // [THEN] Error "No locations with allowed internal movements with permissions for you." occurs.
         Assert.ExpectedError(NoAllowedLocationsErr);
 
         // Tear down.
-        WarehouseEmployee.Reset;
+        WarehouseEmployee.Reset();
         WarehouseEmployee.DeleteAll(true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationWhite.Code, true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationOrange.Code, false);
@@ -1197,7 +1197,7 @@ codeunit 137055 "SCM Warehouse Pick"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Pick");
-        WarehouseActivityLine.DeleteAll;
+        WarehouseActivityLine.DeleteAll();
         Clear(GlobalItemNo);
         LibraryVariableStorage.Clear;
 
@@ -1212,7 +1212,7 @@ codeunit 137055 "SCM Warehouse Pick"
         CreateLocationSetup;
         ItemJournalSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse Pick");
     end;
 
@@ -1312,12 +1312,12 @@ codeunit 137055 "SCM Warehouse Pick"
     begin
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);

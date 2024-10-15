@@ -1,4 +1,4 @@
-﻿page 131 "Posted Sales Shpt. Subform"
+page 131 "Posted Sales Shpt. Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

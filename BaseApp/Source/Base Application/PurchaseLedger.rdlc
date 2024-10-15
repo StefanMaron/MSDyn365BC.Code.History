@@ -7127,9 +7127,6 @@ End Function</Code>
         <Field Name="Name_GenJournalTemplate">
           <DataField>Name_GenJournalTemplate</DataField>
         </Field>
-        <Field Name="PageNumber">
-          <DataField>PageNumber</DataField>
-        </Field>
         <Field Name="ReportFilter">
           <DataField>ReportFilter</DataField>
         </Field>

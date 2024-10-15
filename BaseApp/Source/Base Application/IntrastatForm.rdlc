@@ -675,7 +675,7 @@ First(Fields!VYear.Value)+Chr(177)+
 First(Fields!TELCaption_Control1010077.Value)+Chr(177)+
 First(Fields!FAXCaption_Control1010079.Value)+Chr(177)+
 First(Fields!Text2.Value)+Chr(177)+
-First(Fields!CurrReport_PAGENO.Value).ToString+Chr(177)+
+First(""+Chr(177)+
 First(Fields!Pages.Value).ToString+Chr(177)+
 First(Fields!Vthird_1_.Value)+Chr(177)+
 First(Fields!Vthird_2_.Value)+Chr(177)+
@@ -1762,9 +1762,6 @@ End Function
         <Field Name="Vthird_7_">
           <DataField>Vthird_7_</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="Text2">
           <DataField>Text2</DataField>
         </Field>
@@ -1896,9 +1893,6 @@ End Function
         </Field>
         <Field Name="Vthird_7__Control1010049">
           <DataField>Vthird_7__Control1010049</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control1010001">
-          <DataField>CurrReport_PAGENO_Control1010001</DataField>
         </Field>
         <Field Name="Text2_Control1010004">
           <DataField>Text2_Control1010004</DataField>

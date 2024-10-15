@@ -465,7 +465,6 @@ codeunit 135409 "Item Costing Plan-based E2E"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Item Costing Plan-based E2E");
 
@@ -487,12 +486,9 @@ codeunit 135409 "Item Costing Plan-based E2E"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Item Costing Plan-based E2E");
-
-        // Populate table Plan if empty
-        AzureADPlanTestLibrary.PopulatePlanTable();
     end;
 
     local procedure CreateVendorCustomerAndItemWithLIFOCosting(var VendorNo: Code[20]; var CustomerNo: Code[20]; var ItemNo: Code[20])

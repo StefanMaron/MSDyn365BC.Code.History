@@ -104,7 +104,7 @@ report 6 "Trial Balance"
                     trigger OnAfterGetRecord()
                     begin
                         if BlankLineNo = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         BlankLineNo -= 1;
                     end;

@@ -57,7 +57,7 @@ table 2000002 "Paym. Journal Batch"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         PaymentJnlTemplate.Get("Journal Template Name");
         "Reason Code" := PaymentJnlTemplate."Reason Code";
     end;

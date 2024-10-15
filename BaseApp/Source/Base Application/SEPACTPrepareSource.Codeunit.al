@@ -19,7 +19,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
             repeat
                 TempGenJnlLine := FromGenJnlLine;
-                TempGenJnlLine.Insert;
+                TempGenJnlLine.Insert();
             until FromGenJnlLine.Next = 0
         end else
             CreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);
@@ -35,7 +35,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
             PmtJnlLineToExport.SetFilter("Line No.", FromGenJnlLine.GetFilter("Line No."));
             if PmtJnlLineToExport.FindSet then
                 repeat
-                    TempGenJnlLine.Init;
+                    TempGenJnlLine.Init();
                     TempGenJnlLine."Journal Template Name" := "Journal Template Name";
                     TempGenJnlLine."Journal Batch Name" := "Journal Batch Name";
                     TempGenJnlLine."Document No." := PmtJnlLineToExport."Applies-to Doc. No.";
@@ -55,7 +55,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
                     TempGenJnlLine."Posting Date" := PmtJnlLineToExport."Posting Date";
                     TempGenJnlLine."Recipient Bank Account" := PmtJnlLineToExport."Beneficiary Bank Account";
                     TempGenJnlLine."Message to Recipient" := PmtJnlLineToExport."Payment Message";
-                    TempGenJnlLine.Insert;
+                    TempGenJnlLine.Insert();
                 until PmtJnlLineToExport.Next = 0;
         end;
 

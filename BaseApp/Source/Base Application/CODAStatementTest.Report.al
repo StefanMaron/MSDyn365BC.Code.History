@@ -176,7 +176,7 @@ report 2000040 "CODA Statement - Test"
                 if "Statement Date" = 0D then
                     AddError(Text000);
 
-                CodBankStmtLine.Reset;
+                CodBankStmtLine.Reset();
                 CodBankStmtLine.SetCurrentKey("Bank Account No.", "Statement No.", ID, "Attached to Line No.", Type);
                 CodBankStmtLine.SetRange("Bank Account No.", "Bank Account No.");
                 CodBankStmtLine.SetRange("Statement No.", "Statement No.");

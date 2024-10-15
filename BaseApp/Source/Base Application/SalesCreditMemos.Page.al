@@ -1,4 +1,4 @@
-﻿page 9302 "Sales Credit Memos"
+page 9302 "Sales Credit Memos"
 {
     AdditionalSearchTerms = 'refund credit return refund correct cancel undo sale';
     ApplicationArea = Basic, Suite;
@@ -282,7 +282,7 @@
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                     end;
                 }

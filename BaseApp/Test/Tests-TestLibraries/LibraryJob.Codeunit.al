@@ -34,7 +34,7 @@ codeunit 131920 "Library - Job"
             JobNo := IncStr(JobNo);
         until not Job.Get(JobNo);
 
-        Job.Init;
+        Job.Init();
         Job.Validate("No.", JobNo);
         Job.Insert(true);
         Job.Validate("Bill-to Customer No.", CreateCustomer);
@@ -56,7 +56,7 @@ codeunit 131920 "Library - Job"
         if JobTaskLocal.FindLast then
             JobTaskNo := IncStr(JobTaskLocal."Job Task No.");
 
-        JobTask.Init;
+        JobTask.Init();
         JobTask.Validate("Job No.", Job."No.");
         JobTask.Validate("Job Task No.", JobTaskNo);
         JobTask.Insert(true);
@@ -69,7 +69,7 @@ codeunit 131920 "Library - Job"
     begin
         // Create a job planning line for job task <JobTask> of type <LineType> for consumable type <Type>
 
-        JobPlanningLine.Init;
+        JobPlanningLine.Init();
         JobPlanningLine.Validate("Job No.", JobTask."Job No.");
         JobPlanningLine.Validate("Job Task No.", JobTask."Job Task No.");
         JobPlanningLine.Validate("Line No.", GetNextLineNo(JobPlanningLine));
@@ -186,7 +186,7 @@ codeunit 131920 "Library - Job"
 
     procedure CreateJobWIPMethod(var JobWIPMethod: Record "Job WIP Method")
     begin
-        JobWIPMethod.Init;
+        JobWIPMethod.Init();
         JobWIPMethod.Validate(
           Code,
           CopyStr(
@@ -256,7 +256,7 @@ codeunit 131920 "Library - Job"
 
     procedure CreateJobGLAccountPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; JobTaskNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10])
     begin
-        JobGLAccountPrice.Init;
+        JobGLAccountPrice.Init();
         JobGLAccountPrice.Validate("Job No.", JobNo);
         JobGLAccountPrice.Validate("Job Task No.", JobTaskNo);
         JobGLAccountPrice.Validate("G/L Account No.", GLAccountNo);
@@ -266,7 +266,7 @@ codeunit 131920 "Library - Job"
 
     procedure CreateJobItemPrice(var JobItemPrice: Record "Job Item Price"; JobNo: Code[20]; JobTaskNo: Code[20]; ItemNo: Code[20]; CurrencyCode: Code[10]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10])
     begin
-        JobItemPrice.Init;
+        JobItemPrice.Init();
         JobItemPrice.Validate("Job No.", JobNo);
         JobItemPrice.Validate("Job Task No.", JobTaskNo);
         JobItemPrice.Validate("Item No.", ItemNo);
@@ -278,7 +278,7 @@ codeunit 131920 "Library - Job"
 
     procedure CreateJobResourcePrice(var JobResourcePrice: Record "Job Resource Price"; JobNo: Code[20]; JobTaskNo: Code[20]; Type: Option; "Code": Code[20]; WorkTypeCode: Code[10]; CurrencyCode: Code[10])
     begin
-        JobResourcePrice.Init;
+        JobResourcePrice.Init();
         JobResourcePrice.Validate("Job No.", JobNo);
         JobResourcePrice.Validate("Job Task No.", JobTaskNo);
         JobResourcePrice.Validate(Type, Type);
@@ -306,7 +306,7 @@ codeunit 131920 "Library - Job"
 
     procedure CreateJobJournalTemplate(var JobJournalTemplate: Record "Job Journal Template")
     begin
-        JobJournalTemplate.Init;
+        JobJournalTemplate.Init();
         JobJournalTemplate.Validate(
           Name, LibraryUtility.GenerateRandomCode(JobJournalTemplate.FieldNo(Name), DATABASE::"Job Journal Template"));
         JobJournalTemplate.Insert(true);
@@ -662,7 +662,7 @@ codeunit 131920 "Library - Job"
         Item: Record Item;
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        GLEntry.Reset;
+        GLEntry.Reset();
         GLEntry.SetRange("Posting Date", JobLedgerEntry."Posting Date");
         GLEntry.SetRange("Document No.", JobLedgerEntry."Document No.");
         GLEntry.SetRange("Job No.", JobLedgerEntry."Job No.");
@@ -988,7 +988,7 @@ codeunit 131920 "Library - Job"
     var
         JobsSetup: Record "Jobs Setup";
     begin
-        JobsSetup.Get;
+        JobsSetup.Get();
         JobsSetup.Validate("Automatic Update Job Item Cost", IsEnabled);
         JobsSetup.Modify(true);
     end;
@@ -1008,14 +1008,14 @@ codeunit 131920 "Library - Job"
                 GLAccount.Modify(true);
                 FieldRef.Value := GLAccount."No.";
                 FieldRef.TestField;
-                RecordRef.Modify;
+                RecordRef.Modify();
             end
         end
     end;
 
     procedure GetNextLineNo(JobPlanningLine: Record "Job Planning Line"): Integer
     begin
-        JobPlanningLine.Reset;
+        JobPlanningLine.Reset();
         JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
         if JobPlanningLine.FindLast then
@@ -1135,7 +1135,7 @@ codeunit 131920 "Library - Job"
         FromPurchaseLine.FindSet;
         repeat
             ToPurchaseLine := FromPurchaseLine;
-            ToPurchaseLine.Insert;
+            ToPurchaseLine.Insert();
         until FromPurchaseLine.Next = 0
     end;
 

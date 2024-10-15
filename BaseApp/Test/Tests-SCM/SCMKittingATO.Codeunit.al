@@ -31,6 +31,7 @@ codeunit 137096 "SCM Kitting - ATO"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         GenProdPostingGr: Code[20];
         AsmInvtPostingGr: Code[20];
         CompInvtPostingGr: Code[20];
@@ -81,7 +82,7 @@ codeunit 137096 "SCM Kitting - ATO"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - ATO");
 
-        GLSetup.Get;
+        GLSetup.Get();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -93,7 +94,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
         isInitialized := true;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - ATO");
     end;
 
@@ -113,7 +114,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         UpdateAssemblySetup('');
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -177,7 +178,7 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Item Category Code", ItemCategory.Code);
         Item.Validate("Warehouse Class Code", WarehouseClass.Code);
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure SetupSNTrackingAndDefaultBinContent(LocationCode: Code[10]; Item: Record Item)
@@ -187,7 +188,7 @@ codeunit 137096 "SCM Kitting - ATO"
         BinContent: Record "Bin Content";
     begin
         TempItem := Item;
-        TempItem.Insert;
+        TempItem.Insert();
         CollectSetupBOMComponent(TempItem, Item."No.");
 
         LibraryWarehouse.CreateBin(Bin, LocationCode, '', '', '');
@@ -218,7 +219,7 @@ codeunit 137096 "SCM Kitting - ATO"
         Clear(ItemJournalLine);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
     end;
 
     local procedure SetupManufacturingSetup()
@@ -226,7 +227,7 @@ codeunit 137096 "SCM Kitting - ATO"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         Clear(ManufacturingSetup);
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         Evaluate(ManufacturingSetup."Default Safety Lead Time", '<1D>');
         ManufacturingSetup.Modify(true);
 
@@ -237,7 +238,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"No Warning");
         SalesReceivablesSetup.Modify(true);
@@ -256,7 +257,7 @@ codeunit 137096 "SCM Kitting - ATO"
             Clear(Item);
             LibraryInventory.CreateItem(Item);
             Item.Validate("Costing Method", CompCostingMethod);
-            Item.Modify;
+            Item.Modify();
             AddComponentToAssemblyList(
               BOMComponent, BOMComponent.Type::Item, Item."No.", ParentItem."No.", '',
               BOMComponent."Resource Usage Type"::Direct, Item."Base Unit of Measure", QtyPer);
@@ -267,7 +268,7 @@ codeunit 137096 "SCM Kitting - ATO"
             LibraryAssembly.CreateResource(Resource, true, GenProdPostingGr);
             LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
             Resource.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Resource.Modify;
+            Resource.Modify();
             AddComponentToAssemblyList(
               BOMComponent, BOMComponent.Type::Resource, Resource."No.", ParentItem."No.", '',
               BOMComponent."Resource Usage Type"::Direct, Resource."Base Unit of Measure", QtyPer);
@@ -438,7 +439,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         AssemblyOrderPage: TestPage "Assembly Order";
     begin
-        Commit;
+        Commit();
         AssemblyOrderPage.OpenEdit;
         AssemblyOrderPage.FILTER.SetFilter("No.", AssemblyHeader."No.");
         AssemblyOrderPage.GotoRecord(AssemblyHeader);
@@ -472,7 +473,7 @@ codeunit 137096 "SCM Kitting - ATO"
             LeadTimeCalculation := Item."Lead Time Calculation";
             SafetyLeadTime := Item."Safety Lead Time";
             if Format(SafetyLeadTime) = '' then begin // if safety lead time is empty consider the manuf setup one
-                ManufacturingSetup.Get;
+                ManufacturingSetup.Get();
                 SafetyLeadTime := ManufacturingSetup."Default Safety Lead Time";
             end;
         end;
@@ -678,7 +679,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         AssemblyHeader: Record "Assembly Header";
     begin
-        AssemblyHeader.Reset;
+        AssemblyHeader.Reset();
         AssemblyHeader.SetRange("Document Type", DocumentType);
         exit(AssemblyHeader.Count);
     end;
@@ -732,7 +733,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
     local procedure FindItemAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; ItemNo: Code[20]; Index: Integer)
     begin
-        AssemblyHeader.Reset;
+        AssemblyHeader.Reset();
         AssemblyHeader.SetRange("Item No.", ItemNo);
         AssemblyHeader.FindSet;
         if Index > 1 then
@@ -775,7 +776,7 @@ codeunit 137096 "SCM Kitting - ATO"
                 Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
                 Item.Modify(true);
                 ItemBuf := Item;
-                ItemBuf.Insert;
+                ItemBuf.Insert();
             until Next = 0;
         end;
     end;
@@ -844,7 +845,7 @@ codeunit 137096 "SCM Kitting - ATO"
         AssemblyHeader: Record "Assembly Header";
     begin
         Clear(AssemblyHeader);
-        Commit;
+        Commit();
         asserterror AssemblyHeader.Get(DocumentType, DocumentNo);
     end;
 
@@ -892,7 +893,7 @@ codeunit 137096 "SCM Kitting - ATO"
         Clear(ReservationEntry);
         ReservationEntry.SetRange("Entry No.", EntryNo);
 
-        Commit;
+        Commit();
         asserterror ReservationEntry.FindFirst;
     end;
 
@@ -1749,7 +1750,7 @@ codeunit 137096 "SCM Kitting - ATO"
           Item."Base Unit of Measure", OrderQty, 1);
 
         // commit as there are several consecutive assert errors.
-        Commit;
+        Commit();
 
         // Try to change fields on assembly header
         asserterror AssemblyHeader.Validate("Item No.", TestItem."No.");
@@ -2012,7 +2013,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
         if StartwithATO then begin
             // Exercise check item no cannot be switched if Qty to asm <>0
-            Commit;
+            Commit();
             asserterror SalesLine.Validate("No.", ItemNo);
 
             // Exercise - Change Qty to asm to 0 and then item no
@@ -2386,7 +2387,7 @@ codeunit 137096 "SCM Kitting - ATO"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
     end;
 
@@ -3701,7 +3702,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
         // Verify - SOs posted and invoiced - no SOs
         // No ATO headers - posted
-        Commit;
+        Commit();
         asserterror SalesHeader.Get(SalesHeader1."Document Type", SalesHeader1."No.");
         asserterror SalesHeader.Get(SalesHeader2."Document Type", SalesHeader2."No.");
         AssertNoAssemblyHeader(AssemblyHeader1."Document Type", AssemblyHeader1."No.");
@@ -4587,7 +4588,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         // TFS: 341553 - [NAV 2013] Item Charge cost not rolling up to Assembly BOM
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         Message(''); // cover for unexpected messages from inventory setup update.
         LibraryInventory.UpdateInventorySetup(InventorySetup,
           InventorySetup."Automatic Cost Posting", InventorySetup."Expected Cost Posting to G/L",
@@ -4898,20 +4899,10 @@ codeunit 137096 "SCM Kitting - ATO"
 
     local procedure FindAssemblyLine(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line")
     begin
-        AssemblyLine.Reset;
+        AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.FindFirst;
-    end;
-
-    local procedure FindAssemblyComp(var CompItem: Record Item; AsmItem: Record Item)
-    var
-        BOMComponent: Record "BOM Component";
-    begin
-        BOMComponent.SetRange("Parent Item No.", AsmItem."No.");
-        BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-        BOMComponent.FindFirst();
-        CompItem.Get(BOMComponent."No.");
     end;
 
     local procedure UpdateAssemblyLine(AssemblyHeader: Record "Assembly Header")
@@ -5116,7 +5107,7 @@ codeunit 137096 "SCM Kitting - ATO"
         CreateSalesOrder(SalesHeader, Item."No.", '', SalesQty, WorkDate, '');
 
         // [WHEN] Run preview posting of the sales order.
-        Commit;
+        Commit();
         GLPostingPreview.Trap;
         asserterror SalesPostYesNo.Preview(SalesHeader);
 
@@ -5133,76 +5124,6 @@ codeunit 137096 "SCM Kitting - ATO"
           Item."Base Unit of Measure", SalesQty);
         AssemblyHeader.TestField("Posting No.", '');
         AssemblyHeader.TestField(Status, AssemblyHeader.Status::Open);
-    end;
-
-    [Test]
-    [HandlerFunctions('MsgHandlerPostedAOs')]
-    [Scope('OnPrem')]
-    procedure CorrectQtyByGetPostedAsmLinesForDocumentFunc()
-    var
-        AsmItem: Record Item;
-        CompItem: Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesInvoiceLine: array[2] of Record "Sales Invoice Line";
-        PostedAssemblyLine: Record "Posted Assembly Line";
-        ValueEntry: Record "Value Entry";
-        TempPostedAssemblyLine: Record "Posted Assembly Line" temporary;
-        Qty: Decimal;
-        i: Integer;
-    begin
-        // [FEATURE] [Assemble-to-Order]
-        // [SCENARIO 345339] Function "GetAssemblyLinesForDocument" returns correct posted assembly quantity when there are several value entries for an item entry.
-        Initialize();
-
-        // [GIVEN] Assemble-to-order item "A" with component "C". Qty. per = 1.
-        CreateAssembledItem(AsmItem, AsmItem."Assembly Policy"::"Assemble-to-Order", 1, 0, 0, 1, AsmItem."Costing Method"::FIFO);
-        FindAssemblyComp(CompItem, AsmItem);
-
-        // [GIVEN] Do the following twice.
-        for i := 1 to ArrayLen(SalesInvoiceLine) do begin
-            Qty := LibraryRandom.RandIntInRange(10, 20);
-
-            // [GIVEN] Post purchase receipt for the component "C".
-            LibraryPurchase.CreatePurchaseDocumentWithItem(
-              PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', CompItem."No.", Qty, '', WorkDate());
-            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-
-            // [GIVEN] Sales order for "A" with linked assembly-to-order.
-            // [GIVEN] Ship and invoice the sales order.
-            LibrarySales.CreateSalesDocumentWithItem(
-              SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', AsmItem."No.", Qty, '', WorkDate());
-            LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-            // [GIVEN] Find sales invoice line. "SIL1" on the first run, "SIL2" on the second run.
-            SalesInvoiceLine[i].SetRange(Type, SalesInvoiceLine[i].Type::Item);
-            SalesInvoiceLine[i].SetRange("No.", AsmItem."No.");
-            SalesInvoiceLine[i].FindFirst();
-
-            // [GIVEN] Post purchase invoice for the component "C".
-            // [GIVEN] This is required so there will be two value entries for the sales invoice after the cost adjustment.
-            PurchaseLine.Find();
-            PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
-            PurchaseLine.Modify(true);
-            LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
-        end;
-
-        // [GIVEN] Run the cost adjustment for both "A" and "C".
-        LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', AsmItem."No.", CompItem."No."), '');
-
-        for i := 1 to ArrayLen(SalesInvoiceLine) do begin
-            // [WHEN] Get posted assembly lines using "GeetAssemblyLinesForDocument" function run for "SIL1" and "SIL2" successively.
-            PostedAssemblyLine.GetAssemblyLinesForDocument(
-              TempPostedAssemblyLine, ValueEntry."Document Type"::"Sales Invoice",
-              SalesInvoiceLine[i]."Document No.", SalesInvoiceLine[i]."Line No.");
-
-            // [THEN] The function returns posted assembly line with quantity matching the correspondent sales invoice line.
-            TempPostedAssemblyLine.FindFirst();
-            TempPostedAssemblyLine.TestField("No.", CompItem."No.");
-            TempPostedAssemblyLine.TestField(Quantity, SalesInvoiceLine[i].Quantity);
-        end;
     end;
 
     local procedure SetQtyToAssembleToOrder(var SalesLine: Record "Sales Line"; Quantity: Decimal)
@@ -5338,6 +5259,9 @@ codeunit 137096 "SCM Kitting - ATO"
     local procedure CreateSalesAndResourcePricesOnCompList(ItemNo: Code[20])
     var
         BOMComponent: Record "BOM Component";
+        SalesPrice: Record "Sales Price";
+        ResourcePrice: Record "Resource Price";
+        PriceListLine: Record "Price List Line";
     begin
         with BOMComponent do begin
             SetRange("Parent Item No.", ItemNo);
@@ -5352,6 +5276,8 @@ codeunit 137096 "SCM Kitting - ATO"
                 end;
             until Next = 0;
         end;
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(ResourcePrice, PriceListLine);
     end;
 
     local procedure GetSalesPrice(ItemNo: Code[20]; VariantCode: Code[10]): Decimal
@@ -5416,7 +5342,7 @@ codeunit 137096 "SCM Kitting - ATO"
         for i := 1 to NoOfSerialNos do begin
             ReservationEntry.Next;
             ReservationEntry."Qty. to Handle (Base)" := 0;
-            ReservationEntry.Modify;
+            ReservationEntry.Modify();
         end;
     end;
 
@@ -5754,7 +5680,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // [GIVEN] No. Series "B-ASM" for blanket assembly order nos. with disabled "Manual Nos." flag.
         LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Blanket Assembly Order Nos.", NoSeries.Code);
         AssemblySetup.Modify(true);
 

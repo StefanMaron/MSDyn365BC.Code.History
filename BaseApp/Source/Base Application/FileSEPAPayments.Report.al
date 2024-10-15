@@ -214,8 +214,8 @@ report 2000005 "File SEPA Payments"
         XMLNodeCurr: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
     begin
-        EBSetup.Get;
-        CompanyInfo.Get;
+        EBSetup.Get();
+        CompanyInfo.Get();
 
         XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8"?><Document></Document>', XMLDomDoc);
         XMLRootElement := XMLDomDoc.DocumentElement;
@@ -618,21 +618,21 @@ report 2000005 "File SEPA Payments"
     begin
         if BankAcc."No." <> BankAccCode then
             if not BankAcc.Get(BankAccCode) then
-                BankAcc.Init;
+                BankAcc.Init();
     end;
 
     local procedure GetVendorBankAccount(VendorNo: Code[20]; BankAccCode: Code[20])
     begin
         if (VendorNo <> VendorBankAcc."Vendor No.") or (BankAccCode <> VendorBankAcc.Code) then
             if not VendorBankAcc.Get(VendorNo, BankAccCode) then
-                VendorBankAcc.Init;
+                VendorBankAcc.Init();
     end;
 
     local procedure GetCustomerBankAccount(CustomerNo: Code[20]; BankAccCode: Code[20])
     begin
         if (CustomerNo <> CustomerBankAcc."Customer No.") or (BankAccCode <> CustomerBankAcc.Code) then
             if not CustomerBankAcc.Get(CustomerNo, BankAccCode) then
-                CustomerBankAcc.Init;
+                CustomerBankAcc.Init();
 
         OnAfterGetCustomerBankAccount(CustomerBankAcc, "Payment Journal Line");
     end;
@@ -643,7 +643,7 @@ report 2000005 "File SEPA Payments"
     begin
         if Vendor."No." <> VendorNo then begin
             if not Vendor.Get(VendorNo) then
-                Vendor.Init;
+                Vendor.Init();
             Vendor.CheckBlockedVendOnJnls(Vendor, VendorLedgerEntry."Document Type"::Payment, false);
         end;
     end;
@@ -654,7 +654,7 @@ report 2000005 "File SEPA Payments"
     begin
         if Customer."No." <> CustomerNo then begin
             if not Customer.Get(CustomerNo) then
-                Customer.Init;
+                Customer.Init();
             Customer.CheckBlockedCustOnJnls(Customer, CustLedgerEntry."Document Type"::Payment, false);
         end;
     end;

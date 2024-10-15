@@ -587,9 +587,9 @@ codeunit 134931 "Journal Management Tests"
 
     local procedure CreateReqWorksheetTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template")
     begin
-        ReqWkshTemplate.Init;
+        ReqWkshTemplate.Init();
         ReqWkshTemplate.Name := LibraryUtility.GenerateGUID;
-        ReqWkshTemplate.Insert;
+        ReqWkshTemplate.Insert();
     end;
 
     local procedure VerifyFiltersInFilterGroups(RecVar: Variant; TemplateFieldNo: Integer; ExpectedJournalTemplateName: array[2] of Code[10]; ExpectedFilterGroup: Integer)

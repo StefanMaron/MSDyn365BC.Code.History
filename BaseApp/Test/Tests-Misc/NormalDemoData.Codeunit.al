@@ -10,6 +10,8 @@ codeunit 138200 "Normal DemoData"
 
     var
         Assert: Codeunit Assert;
+        LibrarySales: Codeunit "Library - Sales";
+        NothingToPostErr: Label 'There is nothing to post.';
         NoPurchHeaderErr: Label 'There is no Purchase Header within the filter.';
         EmptyBlobErr: Label 'BLOB field is empty.';
 
@@ -20,7 +22,7 @@ codeunit 138200 "Normal DemoData"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO] The current Company is a Demo Company
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Assert.IsTrue(CompanyInformation."Demo Company", CompanyInformation.FieldName("Demo Company"));
     end;
 
@@ -31,13 +33,34 @@ codeunit 138200 "Normal DemoData"
         SalesHeader: Record "Sales Header";
     begin
         // [FEATURE] [Sales]
-        // [SCENARIO] There is 0 Sales Invoice and 0 documents of other types
+        // [SCENARIO] There is 1 Sales Invoice and 43 documents of other types
         with SalesHeader do begin
             SetRange("Document Type", "Document Type"::Invoice);
-            Assert.RecordCount(SalesHeader, 0);
+            Assert.RecordCount(SalesHeader, 1);
 
             SetFilter("Document Type", '<>%1', "Document Type"::Invoice);
-            Assert.RecordCount(SalesHeader, 0);
+            Assert.RecordCount(SalesHeader, 43);
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoices()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO] Existing Sales Invoice cannot be posted
+        with SalesHeader do begin
+            // [WHEN] Post all Invoices
+            Reset;
+            SetRange("Document Type", "Document Type"::Invoice);
+            FindSet;
+            repeat
+                asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
+                // [THEN] An error: 'There is nothing to post.'
+                Assert.ExpectedError(NothingToPostErr);
+            until Next = 0;
         end;
     end;
 
@@ -48,13 +71,13 @@ codeunit 138200 "Normal DemoData"
         PurchHeader: Record "Purchase Header";
     begin
         // [FEATURE] [Purchase]
-        // [SCENARIO] There are 0 Purchase Invoices and 0 documents of other types
+        // [SCENARIO] There are 0 Purchase Invoices and 21 documents of other types
         with PurchHeader do begin
             SetRange("Document Type", "Document Type"::Invoice);
             Assert.RecordCount(PurchHeader, 0);
 
             SetFilter("Document Type", '<>%1', "Document Type"::Invoice);
-            Assert.RecordCount(PurchHeader, 0);
+            Assert.RecordCount(PurchHeader, 21);
         end;
     end;
 
@@ -161,8 +184,8 @@ codeunit 138200 "Normal DemoData"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        // [SCENARIO] There are 11 VAT Prod. Posting groups
-        Assert.RecordCount(VATProductPostingGroup, 11);
+        // [SCENARIO] There are 3 VAT Prod. Posting groups
+        Assert.RecordCount(VATProductPostingGroup, 3);
     end;
 
     [Test]
@@ -200,7 +223,7 @@ codeunit 138200 "Normal DemoData"
     begin
         // [FEATURE] [Tax Invoice Threshold]
         // [SCENARIO 271628] "Tax Invoice Renaming Threshold" is 0.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Tax Invoice Renaming Threshold", 0);
     end;
 
@@ -212,10 +235,12 @@ codeunit 138200 "Normal DemoData"
         UsageOption: Option;
     begin
         // [FEATURE] [Electronic Document]
-        // [SCENARIO 341241] Electronic document format has setup for PEPPOL BIS3 for all Usage options
+        // [SCENARIO 278316] Electronic document format has setup for PEPPOL 2.0, 2.1 for all Usage options
         with ElectronicDocumentFormat do
-            for UsageOption := Usage::"Sales Invoice" to Usage::"Service Validation" do
-                Get('PEPPOL BIS3', UsageOption);
+            for UsageOption := Usage::"Sales Invoice" to Usage::"Service Validation" do begin
+                Get('PEPPOL 2.0', UsageOption);
+                Get('PEPPOL 2.1', UsageOption);
+            end;
     end;
 
     [Test]

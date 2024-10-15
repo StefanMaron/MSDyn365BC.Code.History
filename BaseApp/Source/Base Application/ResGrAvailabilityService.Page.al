@@ -113,7 +113,7 @@ page 6010 "Res.Gr. Availability (Service)"
 
     trigger OnOpenPage()
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
         SetColumns(SetWanted::Initial);
     end;
 

@@ -121,13 +121,13 @@ table 2000005 "Export Protocol"
                     if not Confirm(ExportAgainQst) then
                         exit;
 
-                GenJnlLine.Reset;
+                GenJnlLine.Reset();
                 GenJnlLine.SetRange("Journal Batch Name", PaymentJnlLine."Journal Batch Name");
                 GenJnlLine.SetRange("Journal Template Name", PaymentJnlLine."Journal Template Name");
                 GenJnlLine.SetFilter("Line No.", SelectionFilterManagement.GetSelectionFilterForEBPaymentJournal(PmtJnlLineToExport));
                 SEPACTExportFile.Export(GenJnlLine, "Export Object ID");
                 PaymentJnlLine."Exported To File" := true;
-                PaymentJnlLine.Modify;
+                PaymentJnlLine.Modify();
             end;
         end;
     end;

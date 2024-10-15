@@ -54,7 +54,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item and Customer with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -95,7 +95,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item and Customer with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -132,7 +132,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -175,7 +175,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -215,7 +215,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item and Transfer Locations.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -259,7 +259,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item and Transfer Locations.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -296,7 +296,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item and Customer with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
@@ -338,7 +338,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item and Customer with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -376,7 +376,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
@@ -418,7 +418,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -455,7 +455,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item, Customer with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -494,7 +494,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -538,7 +538,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item, Customer, and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -586,7 +586,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -638,7 +638,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups for Sales, Purchase Return and Transfer with Customer, Vendor Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -670,7 +670,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups for Sales, Purchase Return and Transfer with Customer, Vendor Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -703,7 +703,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups for Sales, Purchase Return and Transfer with Customer, Vendor Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -735,7 +735,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
@@ -772,7 +772,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item and Customer with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
@@ -820,7 +820,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
@@ -864,7 +864,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
@@ -906,7 +906,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -936,7 +936,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -965,7 +965,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Posting errors are not processed");
@@ -998,7 +998,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
@@ -1034,7 +1034,7 @@ codeunit 137047 "SCM Warehouse I"
     begin
         // Setup: Create setups, Item, Customer and Vendor with Dimensions.
         Initialize;
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         UpdateWarehouseSetup(
           WarehouseSetup."Shipment Posting Policy"::"Posting errors are not processed",
           WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
@@ -1177,7 +1177,7 @@ codeunit 137047 "SCM Warehouse I"
         BlockItemForPosting(BlockedItem."No.", true);
 
         // [WHEN] "Create Warehouse Shipment" action is invoked.
-        Commit;
+        Commit();
         asserterror LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
         // [THEN] Error message: "Blocked must be equal to "No" in Item I2".
@@ -1411,7 +1411,7 @@ codeunit 137047 "SCM Warehouse I"
 
         // [GIVEN] Create item "I" with defaul global dimension 1 value = "D1"
         LibraryInventory.CreateItem(Item);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDimensionValue(DimensionValue[1], Dimension.Code);
         LibraryDimension.CreateDimensionValue(DimensionValue[2], Dimension.Code);
@@ -1867,7 +1867,7 @@ codeunit 137047 "SCM Warehouse I"
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
 
         // [WHEN] Register the warehouse pick but do not confirm deleting the reservation between the sales and the purchase.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(OrderToOrderBindingOnSalesLineQst);
         LibraryVariableStorage.Enqueue(false);
         asserterror LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
@@ -2037,7 +2037,7 @@ codeunit 137047 "SCM Warehouse I"
         NoSeriesSetup;
         ItemJournalSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse I");
     end;
 
@@ -2067,11 +2067,11 @@ codeunit 137047 "SCM Warehouse I"
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -2079,13 +2079,13 @@ codeunit 137047 "SCM Warehouse I"
     local procedure ItemJournalSetup()
     begin
         Clear(ItemJournalTemplate);
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalBatch.Modify(true);
@@ -2242,7 +2242,7 @@ codeunit 137047 "SCM Warehouse I"
     var
         WarehouseSetup: Record "Warehouse Setup";
     begin
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         WarehouseSetup.Validate("Shipment Posting Policy", ShipmentPostingPolicy);
         WarehouseSetup.Validate("Receipt Posting Policy", ReceiptPostingPolicy);
         WarehouseSetup.Modify(true);

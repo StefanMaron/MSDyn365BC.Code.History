@@ -209,8 +209,8 @@ report 2000006 "File Non Euro SEPA Payments"
         XMLNodeCurr: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
     begin
-        EBSetup.Get;
-        CompanyInfo.Get;
+        EBSetup.Get();
+        CompanyInfo.Get();
 
         if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Desktop, CLIENTTYPE::Windows] then begin
             if DelChr(FileName, '<>') = '' then
@@ -427,7 +427,7 @@ report 2000006 "File Non Euro SEPA Payments"
         IBANTransfer: Boolean;
     begin
         with PmtJnlLine do begin
-            GLSetup.Get;
+            GLSetup.Get();
             RootNode := XMLNodeCurr;
             NumberOfTransactions += 1;
 
@@ -603,7 +603,7 @@ report 2000006 "File Non Euro SEPA Payments"
     begin
         if CountryCode <> Country.Code then
             if not Country.Get(CountryCode) then
-                Country.Init;
+                Country.Init();
     end;
 
     [Scope('OnPrem')]
@@ -611,7 +611,7 @@ report 2000006 "File Non Euro SEPA Payments"
     begin
         if BankAcc."No." <> BankAccCode then
             if not BankAcc.Get(BankAccCode) then
-                BankAcc.Init;
+                BankAcc.Init();
     end;
 
     [Scope('OnPrem')]
@@ -619,7 +619,7 @@ report 2000006 "File Non Euro SEPA Payments"
     begin
         if (VendorNo <> VendorBankAcc."Vendor No.") or (BankAccCode <> VendorBankAcc.Code) then
             if not VendorBankAcc.Get(VendorNo, BankAccCode) then
-                VendorBankAcc.Init;
+                VendorBankAcc.Init();
     end;
 
     [Scope('OnPrem')]
@@ -627,7 +627,7 @@ report 2000006 "File Non Euro SEPA Payments"
     begin
         if (CustomerNo <> CustomerBankAcc."Customer No.") or (BankAccCode <> CustomerBankAcc.Code) then
             if not CustomerBankAcc.Get(CustomerNo, BankAccCode) then
-                CustomerBankAcc.Init;
+                CustomerBankAcc.Init();
 
         OnAfterGetCustomerBankAccount(CustomerBankAcc, "Payment Journal Line");
     end;
@@ -637,7 +637,7 @@ report 2000006 "File Non Euro SEPA Payments"
     begin
         if Vendor."No." <> VendorNo then
             if not Vendor.Get(VendorNo) then
-                Vendor.Init;
+                Vendor.Init();
     end;
 
     [Scope('OnPrem')]
@@ -645,7 +645,7 @@ report 2000006 "File Non Euro SEPA Payments"
     begin
         if Customer."No." <> CustomerNo then
             if not Customer.Get(CustomerNo) then
-                Customer.Init;
+                Customer.Init();
     end;
 
     [Scope('OnPrem')]
@@ -653,7 +653,7 @@ report 2000006 "File Non Euro SEPA Payments"
     begin
         if Currency.Code <> CurrencyCode then
             if not Currency.Get(CurrencyCode) then
-                Currency.Init;
+                Currency.Init();
     end;
 
     local procedure GetInstructionPriority(InstructionPriorityOption: Option): Text[10]

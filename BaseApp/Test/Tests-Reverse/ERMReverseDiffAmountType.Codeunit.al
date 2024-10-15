@@ -133,7 +133,7 @@ codeunit 134145 "ERM Reverse Diff Amount Type"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGLEntry(GLEntry, GenJournalLine."Document No.", GenJournalLine."Account No.");
         Assert.AreNearlyEqual(
           -GenJournalLine."Amount (LCY)", GLEntry."Debit Amount", GeneralLedgerSetup."Amount Rounding Precision",
@@ -147,7 +147,7 @@ codeunit 134145 "ERM Reverse Diff Amount Type"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGLEntry(GLEntry, GenJournalLine."Document No.", GenJournalLine."Account No.");
         Assert.AreNearlyEqual(
           GenJournalLine."Amount (LCY)", GLEntry."Credit Amount", GeneralLedgerSetup."Amount Rounding Precision",

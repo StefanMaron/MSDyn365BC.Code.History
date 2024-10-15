@@ -17,7 +17,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
                     PostUnApplyCustomer(DetailedCustLedgEntryPreviewContext, DocumentNoPreviewContext, ApplicationDatePreviewContext);
             end
         else begin
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Use Workdate for Appl./Unappl." then
                 ApplicationDate := WorkDate;
             Apply(
@@ -67,7 +67,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
                 if ApplicationDate < GetApplicationDate(CustLedgEntry) then
                     Error(MustNotBeBeforeErr);
 
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Use Workdate for Appl./Unappl." then
                 if ApplicationDate > WorkDate then
                     Error(Text11302, WorkDate);
@@ -122,9 +122,9 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         with CustLedgEntry do begin
             Window.Open(PostingApplicationMsg);
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
 
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             GenJnlLine."Document No." := DocumentNo;
             GenJnlLine."Posting Date" := ApplicationDate;
             GenJnlLine."Document Date" := GenJnlLine."Posting Date";
@@ -153,7 +153,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             if PreviewMode then
                 GenJnlPostPreview.ThrowError;
 
-            Commit;
+            Commit();
             Window.Close;
             UpdateAnalysisView.UpdateAll(0, true);
         end;
@@ -163,11 +163,8 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        DtldCustLedgEntry.LockTable;
-        if DtldCustLedgEntry.FindLast then
-            exit(DtldCustLedgEntry."Entry No.");
-
-        exit(0);
+        DtldCustLedgEntry.LockTable();
+        exit(DtldCustLedgEntry.GetLastEntryNo());
     end;
 
     procedure FindLastApplEntry(CustLedgEntryNo: Integer): Integer
@@ -274,9 +271,9 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         MaxPostingDate: Date;
     begin
         MaxPostingDate := 0D;
-        GLEntry.LockTable;
-        DtldCustLedgEntry.LockTable;
-        CustLedgEntry.LockTable;
+        GLEntry.LockTable();
+        DtldCustLedgEntry.LockTable();
+        CustLedgEntry.LockTable();
         CustLedgEntry.Get(DtldCustLedgEntry2."Cust. Ledger Entry No.");
         CheckPostingDate(PostingDate, MaxPostingDate, CustLedgEntry."Journal Template Name");
         if PostingDate < DtldCustLedgEntry2."Posting Date" then
@@ -315,10 +312,10 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 0);
 
         with DtldCustLedgEntry2 do begin
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             CustLedgEntry.Get("Cust. Ledger Entry No.");
             GenJnlLine."Document No." := DocNo;
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Use Workdate for Appl./Unappl." then begin
                 if PostingDate > WorkDate then
                     Error(Text11302, PostingDate);
@@ -345,7 +342,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
                 GenJnlPostPreview.ThrowError;
 
             if CommitChanges then
-                Commit;
+                Commit();
             Window.Close;
         end;
     end;
@@ -368,7 +365,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     begin
         if OldPostingDate = NewPostingDate then
             exit;
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Additional Reporting Currency" <> '' then
             if CurrExchRate.ExchangeRate(OldPostingDate, GLSetup."Additional Reporting Currency") <>
                CurrExchRate.ExchangeRate(NewPostingDate, GLSetup."Additional Reporting Currency")
@@ -404,7 +401,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         ApplyingCustLedgEntry."Applies-to ID" := CustEntryApplID;
         ApplyingCustLedgEntry."Amount to Apply" := ApplyingCustLedgEntry."Remaining Amount";
         CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", ApplyingCustLedgEntry);
-        Commit;
+        Commit();
 
         CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
         CustLedgEntry.SetRange("Customer No.", ApplyingCustLedgEntry."Customer No.");
@@ -425,7 +422,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        TempCustLedgerEntry.DeleteAll;
+        TempCustLedgerEntry.DeleteAll();
         with DetailedCustLedgEntry do begin
             if DetailedCustLedgEntry2."Transaction No." = 0 then begin
                 SetCurrentKey("Application No.", "Customer No.", "Entry Type");
@@ -440,7 +437,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
             if FindSet then
                 repeat
                     TempCustLedgerEntry."Entry No." := "Cust. Ledger Entry No.";
-                    if TempCustLedgerEntry.Insert then;
+                    if TempCustLedgerEntry.Insert() then;
                 until Next = 0;
         end;
     end;

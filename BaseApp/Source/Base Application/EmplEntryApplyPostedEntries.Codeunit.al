@@ -18,7 +18,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
                     PostUnApplyEmployee(DetailedEmployeeLedgEntryPreviewContext, DocumentNoPreviewContext, ApplicationDatePreviewContext);
             end
         else begin
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Use Workdate for Appl./Unappl." then
                 ApplicationDate := WorkDate;
 
@@ -62,7 +62,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
                 if ApplicationDate < GetApplicationDate(EmplLedgEntry) then
                     Error(MustNotBeBeforeErr);
 
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Use Workdate for Appl./Unappl." then
                 if ApplicationDate > WorkDate then
                     Error(WorkdateErr, WorkDate);
@@ -109,9 +109,9 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         with EmplLedgEntry do begin
             Window.Open(PostingApplicationMsg);
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
 
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             GenJnlLine."Document No." := DocumentNo;
             GenJnlLine."Posting Date" := ApplicationDate;
             GenJnlLine."Document Date" := GenJnlLine."Posting Date";
@@ -146,7 +146,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
             if PreviewMode then
                 GenJnlPostPreview.ThrowError;
 
-            Commit;
+            Commit();
             Window.Close;
             UpdateAnalysisView.UpdateAll(0, true);
         end;
@@ -156,11 +156,8 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
     var
         DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry";
     begin
-        DtldEmplLedgEntry.LockTable;
-        if DtldEmplLedgEntry.FindLast then
-            exit(DtldEmplLedgEntry."Entry No.");
-
-        exit(0);
+        DtldEmplLedgEntry.LockTable();
+        exit(DtldEmplLedgEntry.GetLastEntryNo());
     end;
 
     local procedure FindLastApplEntry(EmplLedgEntryNo: Integer): Integer
@@ -256,9 +253,9 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         MaxPostingDate: Date;
     begin
         MaxPostingDate := 0D;
-        GLEntry.LockTable;
-        DtldEmplLedgEntry.LockTable;
-        EmplLedgEntry.LockTable;
+        GLEntry.LockTable();
+        DtldEmplLedgEntry.LockTable();
+        EmplLedgEntry.LockTable();
         EmplLedgEntry.Get(DtldEmplLedgEntry2."Employee Ledger Entry No.");
         CheckPostingDate(PostingDate, MaxPostingDate, EmplLedgEntry."Journal Template Name");
         if PostingDate < DtldEmplLedgEntry2."Posting Date" then
@@ -295,7 +292,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 0);
 
         with DtldEmplLedgEntry2 do begin
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             EmplLedgEntry.Get("Employee Ledger Entry No.");
             GenJnlLine."Document No." := DocNo;
             GenJnlLine."Posting Date" := PostingDate;
@@ -319,7 +316,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
             if PreviewMode then
                 GenJnlPostPreview.ThrowError;
 
-            Commit;
+            Commit();
             Window.Close;
         end;
     end;
@@ -342,7 +339,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
     begin
         if OldPostingDate = NewPostingDate then
             exit;
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Additional Reporting Currency" <> '' then
             if CurrExchRate.ExchangeRate(OldPostingDate, GLSetup."Additional Reporting Currency") <>
                CurrExchRate.ExchangeRate(NewPostingDate, GLSetup."Additional Reporting Currency")
@@ -370,7 +367,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
             ApplyingEmplLedgEntry."Applies-to ID" := EmplEntryApplID;
         ApplyingEmplLedgEntry."Amount to Apply" := ApplyingEmplLedgEntry."Remaining Amount";
         CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", ApplyingEmplLedgEntry);
-        Commit;
+        Commit();
 
         EmplLedgEntry.SetCurrentKey("Employee No.", Open, Positive);
         EmplLedgEntry.SetRange("Employee No.", ApplyingEmplLedgEntry."Employee No.");

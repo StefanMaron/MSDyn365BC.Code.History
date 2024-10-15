@@ -58,7 +58,7 @@ codeunit 139005 "Test Experience Change"
         ExperienceTierSetup: Record "Experience Tier Setup";
     begin
         if ExperienceTierSetup.Get(CompanyName) then
-            ExperienceTierSetup.Init;
+            ExperienceTierSetup.Init();
     end;
 
     [Scope('OnPrem')]

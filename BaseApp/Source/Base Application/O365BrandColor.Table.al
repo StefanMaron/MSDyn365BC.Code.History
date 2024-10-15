@@ -70,15 +70,15 @@ table 2121 "O365 Brand Color"
     procedure CreateOrUpdateCustomColor(var O365BrandColor: Record "O365 Brand Color"; ColorValue: Code[10])
     begin
         if not O365BrandColor.Get(CustomColorCodeTxt) then begin
-            O365BrandColor.Init;
+            O365BrandColor.Init();
             O365BrandColor.Code := CustomColorCodeTxt;
             O365BrandColor.Name := CustomColorNameTxt;
-            O365BrandColor.Insert;
+            O365BrandColor.Insert();
         end;
 
         O365BrandColor."Color Value" := ColorValue;
         O365BrandColor.MakePicture;
-        O365BrandColor.Modify;
+        O365BrandColor.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -192,7 +192,7 @@ table 2121 "O365 Brand Color"
         O365BrandColor.Name := BrandColorName;
         O365BrandColor."Color Value" := ColorValue;
         O365BrandColor.MakePicture;
-        O365BrandColor.Insert;
+        O365BrandColor.Insert();
     end;
 }
 

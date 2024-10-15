@@ -1,5 +1,7 @@
 codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
 {
+    Permissions = TableData "Vendor Ledger Entry" = rimd,
+                  TableData "Detailed Vendor Ledg. Entry" = rimd;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -59,7 +61,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
             PmtGenJournalLine."Bank Payment Type" := PmtGenJournalLine."Bank Payment Type"::"Electronic Payment";
         if PmtGenJournalLine."Bal. Account Type" = PmtGenJournalLine."Bal. Account Type"::"Bank Account" then
             PmtGenJournalLine."Bank Payment Type" := PmtGenJournalLine."Bank Payment Type"::"Electronic Payment";
-        PmtGenJournalLine.Modify;
+        PmtGenJournalLine.Modify();
 
         ApplyPaymentToPurchaseInvoice(PmtGenJournalLine, InvGenJournalLine);
 
@@ -124,7 +126,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         BankAccount.Get(BankAccountNo);
         BankAccount.GetBankExportImportSetup(BankExportImportSetup);
         BankExportImportSetup."Processing Codeunit ID" := CODEUNIT::"Pmt Export Mgt Gen. Jnl Line";
-        BankExportImportSetup.Modify;
+        BankExportImportSetup.Modify();
     end;
 
     local procedure ApplyPaymentToPurchaseInvoice(var PmtGenJournalLine: Record "Gen. Journal Line"; InvGenJournalLine: Record "Gen. Journal Line")
@@ -221,7 +223,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
             PmtGenJournalLine."Bank Payment Type" := PmtGenJournalLine."Bank Payment Type"::"Electronic Payment";
         if PmtGenJournalLine."Bal. Account Type" = PmtGenJournalLine."Bal. Account Type"::"Bank Account" then
             PmtGenJournalLine."Bank Payment Type" := PmtGenJournalLine."Bank Payment Type"::"Electronic Payment";
-        PmtGenJournalLine.Modify;
+        PmtGenJournalLine.Modify();
 
         ApplyPaymentToPurchaseInvoiceManually(PmtGenJournalLine, InvGenJournalLine);
 
@@ -285,7 +287,7 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
             PmtGenJournalLine."Bank Payment Type" := PmtGenJournalLine."Bank Payment Type"::"Electronic Payment";
         if PmtGenJournalLine."Bal. Account Type" = PmtGenJournalLine."Bal. Account Type"::"Bank Account" then
             PmtGenJournalLine."Bank Payment Type" := PmtGenJournalLine."Bank Payment Type"::"Electronic Payment";
-        PmtGenJournalLine.Modify;
+        PmtGenJournalLine.Modify();
 
         // Exercise
         PmtExportMgtGenJnlLine.EnableExportToServerTempFile(true, 'txt');
@@ -295,6 +297,146 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         ValidatePaymentFile(PmtExportMgtGenJnlLine.GetServerTempFileName, MessageToRecipient);
         ValidateExportedPmtJnlLine(GenJournalBatch);
         ValidateCreditTransferRegister(DataExchMapping."Data Exch. Def Code", GenJournalBatch."Bal. Account No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckPmtJnlLineAmountAfterExport()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        InvGenJournalLine: Record "Gen. Journal Line";
+        PmtGenJournalLine: Record "Gen. Journal Line";
+        DataExchMapping: Record "Data Exch. Mapping";
+        Vendor: Record Vendor;
+        CountryRegion: Record "Country/Region";
+        Currency: Record Currency;
+        BankAcc: Record "Bank Account";
+        PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
+        PaymentType: Code[20];
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 324483] Created Vendor Bank Account and Bank Account with equal Country/Region code.
+        // [SCENARIO 324483] Started export process. GenJnlLine.Amout should be exported.
+
+        // [GIVEN] Vendor, Vendor Bank Account and Bank Account created with Country/Region code
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        PaymentType := LibraryUtility.GenerateGUID;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        Currency.Get(CurrencyCode);
+        Currency.Validate("Currency Factor", LibraryRandom.RandDecInRange(5, 10, 2));
+        CreateVendorWithBankAccountAndCountryRegion(Vendor, PaymentType, CountryRegion.Code);
+        CreateBankAccountWithExportFormatAndCountryRegion(
+          BankAcc, CreatePaymentExportFormatWithFullSetupClient(PaymentType), CountryRegion);
+
+        PostPurchaseInvoice(InvGenJournalLine, Vendor."No.");
+        DefinePaymentExportFormatForAmount(DataExchMapping);
+        UpdatePaymentMethodLineDef(Vendor."Payment Method Code", DataExchMapping."Data Exch. Line Def Code");
+
+        // [GIVEN] GenJnlLine is created with Amount LCY and prepared to Export
+        LibraryPaymentExport.CreatePaymentExportBatch(GenJournalBatch, DataExchMapping."Data Exch. Def Code");
+        UpdateBankExportImportSetup(GenJournalBatch."Bal. Account No.");
+
+        LibraryPaymentExport.CreateVendorPmtJnlLine(PmtGenJournalLine, GenJournalBatch, Vendor."No.");
+        UpdateGenJnlLine(PmtGenJournalLine, Currency.Code);
+
+        ApplyPaymentToPurchaseInvoiceManually(PmtGenJournalLine, InvGenJournalLine);
+
+        // [WHEN] Export Process run
+        PmtExportMgtGenJnlLine.EnableExportToServerTempFile(true, 'txt');
+        PmtExportMgtGenJnlLine.ExportJournalPaymentFileYN(PmtGenJournalLine);
+
+        // [THEN] Amount in exported file is equal to GenJnlLine.Amount
+        Assert.AreEqual(PmtGenJournalLine.Amount, GetAmountFromFile(PmtExportMgtGenJnlLine.GetServerTempFileName), 'Amount');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SavePaymentDetailsToFileForCurrencyWithFactorforLocalsBankAccount()
+    var
+        BankAcc: Record "Bank Account";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
+        CountryRegion: Record "Country/Region";
+        Currency: Record Currency;
+        PaymentType: Code[20];
+    begin
+        // [SCENARIO 324483] Created Vendor Bank Account and Bank Account with equal Country/Region code.
+        // [SCENARIO 324483] Started export process. GenJnlLine.Amout should be exported.
+
+        // [GIVEN] Vendor, Vendor Bank Account and Bank Account created with Country/Region code
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        LibraryERM.CreateCurrency(Currency);
+
+        PaymentType := LibraryUtility.GenerateGUID;
+        CreateCurrencyWithFactor(Currency);
+
+        CreateVendorWithBankAccountAndCountryRegion(Vendor, PaymentType, CountryRegion.Code);
+        CreateBankAccountWithExportFormatAndCountryRegion(
+          BankAcc, CreatePaymentExportFormatWithFullSetupClient(PaymentType), CountryRegion);
+        CreateExportGenJournalBatch(GenJnlBatch, BankAcc."No.");
+
+        // [GIVEN] GenJnlLine is created with Amount LCY and prepared to Export
+        LibraryERM.CreateGeneralJnlLine(GenJnlLine,
+          GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
+          GenJnlLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(1000, 2));
+        UpdateGenJnlLine(GenJnlLine, Currency.Code);
+
+        GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+
+        // [WHEN] Export Process run
+        CODEUNIT.Run(CODEUNIT::"Exp. Launcher Gen. Jnl.", GenJnlLine);
+
+        // [THEN] Amount in exported file is equal to GenJnlLine.Amount
+        Assert.AreEqual(GenJnlLine.Amount, GetAmountFromLongFile(GetFilePath(BankAcc."No.")), 'Amount');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckVendorLedgerEntryAmountAfterExport()
+    var
+        Vendor: Record Vendor;
+        CountryRegion: Record "Country/Region";
+        Currency: Record Currency;
+        BankAcc: Record "Bank Account";
+        TempPaymentExportData: Record "Payment Export Data" temporary;
+        DataExch: Record "Data Exch.";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PmtExportMgtVendLedgEntry: Codeunit "Pmt Export Mgt Vend Ledg Entry";
+        PaymentType: Code[20];
+        LineNo: Integer;
+    begin
+        // [SCENARIO 324483] Created Vendor Bank Account and Bank Account with equal Country/Region code.
+        // [SCENARIO 324483] Started preparing export process. VendorLedgerEntry. Amout should be validated in PaymentExportData.
+
+        // [GIVEN] Vendor, Vendor Bank Account and Bank Account created with Country/Region code
+        LineNo := 1000;
+        LibraryERM.CreateCountryRegion(CountryRegion);
+
+        PaymentType := LibraryUtility.GenerateGUID;
+        CreateCurrencyWithFactor(Currency);
+        CreateVendorWithBankAccountAndCountryRegion(Vendor, PaymentType, CountryRegion.Code);
+        CreateBankAccountWithExportFormatAndCountryRegion(
+          BankAcc, CreatePaymentExportFormatWithFullSetupClient(PaymentType), CountryRegion);
+
+        // [GIVEN] VendorLedgerEntry is created with Amount LCY and prepared to Export
+        CreateVendorLedgerEntry(
+          VendorLedgerEntry,
+          VendorLedgerEntry."Document Type"::Invoice,
+          true,
+          Vendor."No.",
+          BankAcc."No.",
+          Vendor."Preferred Bank Account Code",
+          Vendor."Payment Method Code",
+          Currency);
+
+        // [WHEN] Export Preparing Process run
+        PmtExportMgtVendLedgEntry.PreparePaymentExportDataVLE(TempPaymentExportData, VendorLedgerEntry,
+          DataExch."Entry No.", LineNo);
+
+        // [THEN] Amount in TempPaymentExportData is equal to VendorLedgerEntry.Amount
+        Assert.AreEqual(VendorLedgerEntry.Amount, TempPaymentExportData.Amount, 'Amount');
     end;
 
     [Test]
@@ -393,13 +535,94 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         end;
     end;
 
+    local procedure CreateVendorWithBankAccountAndCountryRegion(var Vendor: Record Vendor; PaymentType: Code[20]; CountryRegionCode: Code[10])
+    var
+        PaymentMethod: Record "Payment Method";
+        VendorBankAcc: Record "Vendor Bank Account";
+    begin
+        LibraryPaymentExport.CreateVendorWithBankAccount(Vendor);
+        VendorBankAcc.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
+
+        VendorBankAcc.IBAN := LibraryUtility.GenerateGUID;
+        VendorBankAcc."Country/Region Code" := CountryRegionCode;
+        VendorBankAcc.Modify(true);
+
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod.Validate("Pmt. Export Line Definition", PaymentType);
+        PaymentMethod.Modify(true);
+
+        Vendor.Validate("Preferred Bank Account Code", VendorBankAcc.Code);
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreateBankAccountWithExportFormatAndCountryRegion(var BankAcc: Record "Bank Account"; PaymentExportFormat: Code[20]; CountryRegion: Record "Country/Region")
+    begin
+        LibraryERM.CreateBankAccount(BankAcc);
+        BankAcc.IBAN := LibraryUtility.GenerateGUID;
+        BankAcc.Validate("Payment Export Format", PaymentExportFormat);
+        BankAcc."Country/Region Code" := CountryRegion.Code;
+        BankAcc.Modify(true);
+    end;
+
+    local procedure ReadFile(FileName: Text) Content: Text
+    var
+        File: File;
+    begin
+        File.WriteMode := false;
+        File.TextMode := true;
+        File.Open(FileName);
+        File.Read(Content);
+        File.Close;
+    end;
+
     local procedure GetAmountFromFile(FilePath: Text) Amount: Decimal
     var
         String: Text;
     begin
-        String := ReadPaymentFile(FilePath);
+        String := ReadFile(FilePath);
         String := CopyStr(String, 2, StrLen(String) - 2);
         Evaluate(Amount, String);
+    end;
+
+    local procedure GetAmountFromLongFile(FilePath: Text) Amount: Decimal
+    var
+        String: Text;
+    begin
+        String := ReadFile(FilePath);
+        String := CopyStr(String, StrPos(String, ',') + 1, StrLen(String) - StrPos(String, ','));
+        String := CopyStr(String, StrPos(String, ',') + 1, StrLen(String) - StrPos(String, ','));
+        String := CopyStr(String, 2, StrLen(String) - 2);
+        Evaluate(Amount, String);
+    end;
+
+    local procedure CreatePaymentExportFormatWithFullSetupClient(PaymentType: Code[20]): Code[20]
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        DataExchDef: Record "Data Exch. Def";
+        DataExchColumnDef: Record "Data Exch. Column Def";
+        DataExchLineDef: Record "Data Exch. Line Def";
+        DataExchMapping: Record "Data Exch. Mapping";
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        LibraryPaymentFormat: Codeunit "Library - Payment Format";
+    begin
+        LibraryPaymentFormat.CreateDataExchDef(
+          DataExchDef, CODEUNIT::"Exp. Data Handling Gen. Jnl.",
+          CODEUNIT::"Exp. Validation Gen. Jnl.", CODEUNIT::"Exp. Writing Gen. Jnl.", XMLPORT::"Export Generic CSV",
+          CODEUNIT::"Save Data Exch. Blob Sample", CODEUNIT::"Exp. User Feedback Gen. Jnl.");
+
+        DataExchLineDef.InsertRec(DataExchDef.Code, PaymentType, LibraryUtility.GenerateGUID, 3);
+
+        LibraryPaymentFormat.CreateDataExchColumnDef(DataExchColumnDef, DataExchDef.Code, DataExchLineDef.Code);
+
+        LibraryPaymentFormat.CreateDataExchMapping(DataExchMapping, DataExchDef.Code, DataExchLineDef.Code,
+          CODEUNIT::"Exp. Pre-Mapping Gen. Jnl.", CODEUNIT::"Exp. Mapping Gen. Jnl.", CODEUNIT::"Exp. Post-Mapping Gen. Jnl.");
+
+        LibraryPaymentFormat.CreateDataExchFieldMapping(DataExchFieldMapping, DataExchDef.Code, DataExchLineDef.Code);
+
+        LibraryPaymentFormat.CreateBankExportImportSetup(BankExportImportSetup, DataExchDef);
+
+        exit(BankExportImportSetup.Code);
     end;
 
     local procedure DefinePaymentExportFormatForAmount(var DataExchMapping: Record "Data Exch. Mapping")
@@ -419,6 +642,82 @@ codeunit 134161 "Pmt Export Mgt Gen. Jnl Test"
         DataExchLineDef.Get(DataExchMapping."Data Exch. Def Code", DataExchMapping."Data Exch. Line Def Code");
         DataExchLineDef.Validate("Column Count", 1);
         DataExchLineDef.Modify(true);
+    end;
+
+    local procedure CreateVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; Exported: Boolean; VendorCode: Code[20]; BankAccountCode: Code[20]; VendorBankAccountCode: Code[20]; VendorPaymentMethodCode: Code[10]; Currency: Record Currency)
+    var
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+    begin
+        with VendLedgerEntry do begin
+            Init;
+            "Entry No." := LibraryUtility.GetNewRecNo(VendLedgerEntry, FieldNo("Entry No."));
+            "Vendor No." := VendorCode;
+            "Posting Date" := WorkDate;
+            "Document Type" := DocumentType;
+            "Document No." := LibraryUtility.GenerateGUID;
+            Open := true;
+            "Due Date" := CalcDate('<1D>', "Posting Date");
+            Amount := -LibraryRandom.RandDecInRange(100, 1000, 2);
+            "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
+            "Bal. Account No." := BankAccountCode;
+            "Payment Method Code" := VendorPaymentMethodCode;
+            "Recipient Bank Account" := VendorBankAccountCode;
+            "Message to Recipient" := LibraryUtility.GenerateGUID;
+            "Exported to Payment File" := Exported;
+            "Currency Code" := Currency.Code;
+            "Amount (LCY)" := Amount * Currency."Currency Factor";
+            Insert;
+        end;
+        with DetailedVendorLedgEntry do begin
+            Init;
+            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
+            Amount := VendLedgerEntry.Amount;
+            "Vendor Ledger Entry No." := VendLedgerEntry."Entry No.";
+            "Ledger Entry Amount" := true;
+            "Posting Date" := VendLedgerEntry."Date Filter";
+            Insert;
+        end;
+    end;
+
+    local procedure CreateExportGenJournalBatch(var GenJnlBatch: Record "Gen. Journal Batch"; BalAccountNo: Code[20])
+    begin
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, LibraryPaymentExport.SelectPaymentJournalTemplate);
+        GenJnlBatch.Validate("Bal. Account Type", GenJnlBatch."Bal. Account Type"::"Bank Account");
+        GenJnlBatch.Validate("Bal. Account No.", BalAccountNo);
+        GenJnlBatch.Validate("Allow Payment Export", true);
+        GenJnlBatch.Modify(true);
+    end;
+
+    [Normal]
+    [Scope('OnPrem')]
+    procedure GetFilePath(BankAccountCode: Code[20]): Text
+    var
+        BankAccount: Record "Bank Account";
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        DataExch: Record "Data Exch.";
+    begin
+        BankAccount.Get(BankAccountCode);
+        BankAccount.TestField("Payment Export Format");
+        BankExportImportSetup.Get(BankAccount."Payment Export Format");
+        BankExportImportSetup.TestField("Data Exch. Def. Code");
+        DataExch.SetRange("Data Exch. Def Code", BankExportImportSetup."Data Exch. Def. Code");
+        DataExch.FindFirst;
+        exit(DataExch."File Name");
+    end;
+
+    local procedure CreateCurrencyWithFactor(var Currency: Record Currency)
+    begin
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates);
+        Currency.Validate("Currency Factor", LibraryRandom.RandDecInRange(5, 10, 2));
+        Currency.Modify(true);
+    end;
+
+    local procedure UpdateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10])
+    begin
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate(Amount, GenJournalLine.Amount);
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Electronic Payment");
+        GenJournalLine.Modify(true);
     end;
 }
 

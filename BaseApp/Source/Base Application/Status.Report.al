@@ -127,7 +127,7 @@ report 706 Status
                     else begin
                         CalcRemainingQty;
                         if RemainingQty = 0 then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     CalcUnitCost;

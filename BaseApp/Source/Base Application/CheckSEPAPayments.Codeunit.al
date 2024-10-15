@@ -4,7 +4,7 @@ codeunit 2000004 "Check SEPA Payments"
 
     trigger OnRun()
     begin
-        CheckPaymJnlLine.Init;
+        CheckPaymJnlLine.Init();
         CheckPaymJnlLine.CheckCompanyName;
 
         if FindSet then begin

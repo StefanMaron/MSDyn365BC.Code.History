@@ -110,11 +110,11 @@ page 563 "G/L Entries Dimension Overview"
     procedure SetTempGLEntry(var NewGLEntry: Record "G/L Entry")
     begin
         RunOnTempRec := true;
-        TempGLEntry.DeleteAll;
+        TempGLEntry.DeleteAll();
         if NewGLEntry.Find('-') then
             repeat
                 TempGLEntry := NewGLEntry;
-                TempGLEntry.Insert;
+                TempGLEntry.Insert();
             until NewGLEntry.Next = 0;
     end;
 

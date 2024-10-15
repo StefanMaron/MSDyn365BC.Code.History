@@ -200,7 +200,7 @@ report 11304 "Financial Ledger"
                                 end;
 
                             if not GLAccount.Get(BalAccNo) then
-                                GLAccount.Init;
+                                GLAccount.Init();
                             JTNdescription := GLAccount.Name;
 
                             GLAccount.SetRange("Date Filter", 0D, ClosingDate(PeriodStartDate - 1));
@@ -210,7 +210,7 @@ report 11304 "Financial Ledger"
                         end;
 
                         if not GLAccount.Get("G/L Account No.") then
-                            GLAccount.Init;
+                            GLAccount.Init();
                         GLPostingDescription := Description;
 
                         CurrencyCode := '';
@@ -245,7 +245,7 @@ report 11304 "Financial Ledger"
                                 TotalBalance := TotalBalance + "Credit Amount";
 
                         if (BalAccNo = "G/L Account No.") and (BalAccNo <> "Bal. Account No.") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if not UseAmtsInAddCurr then begin
                             Clear(VATDetail.Base);
@@ -288,7 +288,7 @@ report 11304 "Financial Ledger"
                         GLEntry.SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
 
                         if GLEntry.IsEmpty then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(Loop2; "Integer")
@@ -360,7 +360,7 @@ report 11304 "Financial Ledger"
                         trigger OnAfterGetRecord()
                         begin
                             if not GLAccount.Get("G/L Account No.") then
-                                GLAccount.Init;
+                                GLAccount.Init();
 
                             Description := GLAccount.Name;
 
@@ -368,7 +368,7 @@ report 11304 "Financial Ledger"
                                ("Debit Amount" = 0) and
                                ("Credit Amount" = 0)
                             then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end;
 
                         trigger OnPreDataItem()
@@ -428,23 +428,21 @@ report 11304 "Financial Ledger"
 
                         trigger OnAfterGetRecord()
                         begin
-                            if IsServiceTier then begin
-                                Clear(VATSumBuffer);
-                                if "Document Type" <> "Document Type"::"Credit Memo" then begin
-                                    VATSumBuffer."Base Invoices" := -Base;
-                                    VATSumBuffer."VAT Amount Invoices" := -Amount;
-                                    VATSumBuffer."Add.-Curr. Base Invoices" := -"Additional-Currency Base";
-                                    VATSumBuffer."Add.-Curr. VAT Amount Invoices" := -"Additional-Currency Amount";
-                                end else begin
-                                    VATSumBuffer."Base CM" := Base;
-                                    VATSumBuffer."VAT Amount CM" := Amount;
-                                    VATSumBuffer."Add.-Curr. Base CM" := "Additional-Currency Base";
-                                    VATSumBuffer."Add.-Curr. VAT Amount CM" := "Additional-Currency Amount";
-                                end;
-                                VATSumBuffer."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
-                                VATSumBuffer."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
-                                VATSumBuffer.InsertLine;
+                            Clear(VATSumBuffer);
+                            if "Document Type" <> "Document Type"::"Credit Memo" then begin
+                                VATSumBuffer."Base Invoices" := -Base;
+                                VATSumBuffer."VAT Amount Invoices" := -Amount;
+                                VATSumBuffer."Add.-Curr. Base Invoices" := -"Additional-Currency Base";
+                                VATSumBuffer."Add.-Curr. VAT Amount Invoices" := -"Additional-Currency Amount";
+                            end else begin
+                                VATSumBuffer."Base CM" := Base;
+                                VATSumBuffer."VAT Amount CM" := Amount;
+                                VATSumBuffer."Add.-Curr. Base CM" := "Additional-Currency Base";
+                                VATSumBuffer."Add.-Curr. VAT Amount CM" := "Additional-Currency Amount";
                             end;
+                            VATSumBuffer."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
+                            VATSumBuffer."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
+                            VATSumBuffer.InsertLine;
                         end;
 
                         trigger OnPreDataItem()
@@ -452,7 +450,7 @@ report 11304 "Financial Ledger"
                             SetRange("Journal Template Name", "Gen. Journal Template".Name);
                             "G/L Entry".CopyFilter("Posting Date", "Posting Date");
 
-                            VATSumBuffer.DeleteAll;
+                            VATSumBuffer.DeleteAll();
                         end;
                     }
                     dataitem(VATSummary; "Integer")
@@ -613,7 +611,7 @@ report 11304 "Financial Ledger"
                                (NetAmountLCY = 0) and
                                (TotalAmountAddCurr = 0)
                             then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end;
 
                         trigger OnPreDataItem()
@@ -655,7 +653,6 @@ report 11304 "Financial Ledger"
             trigger OnAfterGetRecord()
             begin
                 HeaderPrinted := false;
-                CurrReport.PageNo := Startpage;
             end;
         }
     }
@@ -728,7 +725,7 @@ report 11304 "Financial Ledger"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("VAT Statement Template Name");
         GLSetup.TestField("VAT Statement Name");
     end;

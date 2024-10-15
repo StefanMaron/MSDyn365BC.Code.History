@@ -125,20 +125,17 @@ report 11310 "VAT Statement Lines"
 
             trigger OnAfterGetRecord()
             begin
-                // new client
-                if IsServiceTier then begin
-                    CalculateWith2 := "Calculate with";
-                    PrintWith2 := "Print with";
-                    Pos := 0;
-                    vTotaling := CopyStr("VAT Statement Line"."Row Totaling", 26);
-                    if vTotaling <> '' then begin
-                        Pos := 25 + StrPos(vTotaling, '|');
-                        vTotal[1] := CopyStr("VAT Statement Line"."Row Totaling", 1, Pos);
-                        vTotal[2] := CopyStr("VAT Statement Line"."Row Totaling", Pos + 1);
-                    end else begin
-                        vTotal[1] := "VAT Statement Line"."Row Totaling";
-                        vTotal[2] := '';
-                    end;
+                CalculateWith2 := "Calculate with";
+                PrintWith2 := "Print with";
+                Pos := 0;
+                vTotaling := CopyStr("VAT Statement Line"."Row Totaling", 26);
+                if vTotaling <> '' then begin
+                    Pos := 25 + StrPos(vTotaling, '|');
+                    vTotal[1] := CopyStr("VAT Statement Line"."Row Totaling", 1, Pos);
+                    vTotal[2] := CopyStr("VAT Statement Line"."Row Totaling", Pos + 1);
+                end else begin
+                    vTotal[1] := "VAT Statement Line"."Row Totaling";
+                    vTotal[2] := '';
                 end;
             end;
         }

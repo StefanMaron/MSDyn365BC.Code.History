@@ -166,7 +166,7 @@ page 400 "Purchase Invoice Statistics"
                 if TempVATAmountLine.Find then
                     TempVATAmountLine.ApplyNonDeductibleVAT(TempNonDeductVATAmountLine."VAT Amount");
             until TempNonDeductVATAmountLine.Next = 0;
-            TempNonDeductVATAmountLine.DeleteAll;
+            TempNonDeductVATAmountLine.DeleteAll();
         end;
 
         CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
@@ -210,20 +210,20 @@ page 400 "Purchase Invoice Statistics"
           PurchInvLine."VAT Identifier", PurchInvLine."VAT Calculation Type",
           PurchInvLine."Tax Group Code", PurchInvLine."Use Tax", PurchInvLine."Line Amount" >= 0)
         then begin
-            TempNonDeductVATAmountLine.Init;
+            TempNonDeductVATAmountLine.Init();
             TempNonDeductVATAmountLine."VAT Identifier" := PurchInvLine."VAT Identifier";
             TempNonDeductVATAmountLine."VAT Calculation Type" := PurchInvLine."VAT Calculation Type";
             TempNonDeductVATAmountLine."Tax Group Code" := PurchInvLine."Tax Group Code";
             TempNonDeductVATAmountLine."Use Tax" := PurchInvLine."Use Tax";
             TempNonDeductVATAmountLine."VAT %" := PurchInvLine."VAT %";
             TempNonDeductVATAmountLine.Positive := PurchInvLine."Line Amount" >= 0;
-            TempNonDeductVATAmountLine.Insert;
+            TempNonDeductVATAmountLine.Insert();
         end;
 
         NonDeductibleVAT :=
           Round((PurchInvLine."Amount Including VAT" - PurchInvLine.Amount) * PurchInvLine."Non Deductible VAT %" / 100);
         TempNonDeductVATAmountLine."VAT Amount" += NonDeductibleVAT;
-        TempNonDeductVATAmountLine.Modify;
+        TempNonDeductVATAmountLine.Modify();
     end;
 
     local procedure ApplyNonDeductVATToTotals(var TempNonDeductVATAmountLine: Record "VAT Amount Line" temporary)

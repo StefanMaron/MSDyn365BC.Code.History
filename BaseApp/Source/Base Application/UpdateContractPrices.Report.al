@@ -30,7 +30,7 @@ report 6031 "Update Contract Prices"
                 TotSignedAmount := TotSignedAmount + "Calcd. Annual Amount";
 
                 TotContractLinesAmount := 0;
-                ServContractLine.Reset;
+                ServContractLine.Reset();
                 ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                 ServContractLine.SetRange("Contract No.", "Contract No.");
                 if GetFilter("Item Filter") <> '' then
@@ -72,7 +72,7 @@ report 6031 "Update Contract Prices"
                         Currency."Amount Rounding Precision");
                     if OldAnnualAmount <> ServContract."Annual Amount" then
                         ServContract."Print Increase Text" := true;
-                    ServContract.Modify;
+                    ServContract.Modify();
                     if ServMgtSetup."Register Contract Changes" then
                         ServContract.UpdContractChangeLog("Service Contract Header");
                     TotNewAmount := TotNewAmount + ServContract."Annual Amount";
@@ -88,7 +88,7 @@ report 6031 "Update Contract Prices"
                     ContractPriceUpdateTest.InitVariables(PriceUpdPct, UpdateToDate);
                     ContractPriceUpdateTest.SetTableView("Service Contract Header");
                     ContractPriceUpdateTest.RunModal;
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
 
                 TotOldAnnualAmount := 0;
@@ -107,7 +107,7 @@ report 6031 "Update Contract Prices"
                 SetFilter("Next Price Update Date", '<>%1&<=%2', 0D, UpdateToDate);
 
                 Currency.InitRoundingPrecision;
-                ServMgtSetup.Get;
+                ServMgtSetup.Get();
             end;
         }
     }

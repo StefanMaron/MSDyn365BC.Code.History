@@ -118,6 +118,14 @@ table 5335 "Integration Table Mapping"
         {
             Caption = 'Delete After Synchronization';
         }
+        field(23; "BC Rec Page Id"; Integer)
+        {
+            Caption = 'The Id of the BC Record Page';
+        }
+        field(24; "CDS Rec Page Id"; Integer)
+        {
+            Caption = 'The Id of the Common Data Service Record Page';
+        }
         field(30; "Dependency Filter"; Text[250])
         {
             Caption = 'Dependency Filter';
@@ -168,12 +176,23 @@ table 5335 "Integration Table Mapping"
         IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", Name);
-        IntegrationFieldMapping.DeleteAll;
+        IntegrationFieldMapping.DeleteAll();
 
         CRMOptionMapping.SetRange("Table ID", "Table ID");
         CRMOptionMapping.SetRange("Integration Table ID", "Integration Table ID");
         CRMOptionMapping.SetRange("Integration Field ID", "Integration Table UID Fld. No.");
-        CRMOptionMapping.DeleteAll;
+        CRMOptionMapping.DeleteAll();
+    end;
+
+    trigger OnInsert()
+    var
+        IntegrationManagement: Codeunit "Integration Management";
+    begin
+        if not ("Table ID" in [Database::Contact, Database::Customer, Database::Item, Database::Vendor,
+                                Database::Resource, Database::Opportunity, Database::Currency, Database::"Customer Price Group",
+                                Database::"Sales Invoice Header", Database::"Sales Invoice Line", Database::"Sales Price",
+                                Database::"Unit of Measure", Database::"Payment Terms", Database::"Shipment Method", Database::"Shipping Agent", DATABASE::"Salesperson/Purchaser"]) then
+            IntegrationManagement.InitializeIntegrationRecords("Table ID");
     end;
 
     var
@@ -262,7 +281,7 @@ table 5335 "Integration Table Mapping"
     var
         TableCaption: Text;
     begin
-        TableCaption := GetTableCaption("Integration Table ID");
+        TableCaption := GetTableExternalName("Integration Table ID");
         if TableCaption <> '' then
             if "Int. Tbl. Caption Prefix" <> '' then
                 exit(StrSubstNo('%1 %2', "Int. Tbl. Caption Prefix", TableCaption));
@@ -275,6 +294,15 @@ table 5335 "Integration Table Mapping"
     begin
         if TableMetadata.Get(ID) then
             exit(TableMetadata.Caption);
+        exit('');
+    end;
+
+    local procedure GetTableExternalName(ID: Integer): Text
+    var
+        TableMetadata: Record "Table Metadata";
+    begin
+        if TableMetadata.Get(ID) then
+            exit(TableMetadata.ExternalName);
         exit('');
     end;
 
@@ -357,7 +385,7 @@ table 5335 "Integration Table Mapping"
             Clear("Synch. Modified On Filter");
             Clear("Synch. Int. Tbl. Mod. On Fltr.");
             Modify;
-            Commit;
+            Commit();
         end;
         CODEUNIT.Run("Synch. Codeunit ID", Rec);
     end;
@@ -438,14 +466,14 @@ table 5335 "Integration Table Mapping"
         Direction := DirectionArg;
         "Int. Tbl. Caption Prefix" := Prefix;
         "Synch. Only Coupled Records" := SynchOnlyCoupledRecords;
-        Insert;
+        Insert(true);
     end;
 
     procedure SetFullSyncStartAndCommit()
     begin
         Validate("Full Sync is Running", true);
         Modify;
-        Commit;
+        Commit();
         Get(Name);
     end;
 
@@ -453,7 +481,7 @@ table 5335 "Integration Table Mapping"
     begin
         Validate("Full Sync is Running", false);
         Modify;
-        Commit;
+        Commit();
         Get(Name);
     end;
 
@@ -464,7 +492,7 @@ table 5335 "Integration Table Mapping"
             exit(true);
 
         if not IsSessionActive("Full Sync Session ID") then begin
-            SetFullSyncEndAndCommit;
+            SetFullSyncEndAndCommit();
             exit(true);
         end;
         if Abs(CurrentDateTime - "Last Full Sync Start DateTime") >= OneDayInMiliseconds then

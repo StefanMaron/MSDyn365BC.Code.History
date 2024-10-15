@@ -104,10 +104,10 @@ codeunit 5763 "Whse.-Post Shipment"
             end;
 
             if not SuppressCommit then
-                Commit;
+                Commit();
 
             WhseShptHeader."Create Posted Header" := true;
-            WhseShptHeader.Modify;
+            WhseShptHeader.Modify();
 
             SetCurrentKey("No.", "Source Type", "Source Subtype", "Source No.", "Source Line No.");
             OnAfterSetCurrentKeyForWhseShptLine(WhseShptLine);
@@ -122,7 +122,7 @@ codeunit 5763 "Whse.-Post Shipment"
                 InitSourceDocumentLines(WhseShptLine);
                 InitSourceDocumentHeader;
                 if not SuppressCommit then
-                    Commit;
+                    Commit();
 
                 CounterSourceDocTotal := CounterSourceDocTotal + 1;
 
@@ -142,7 +142,7 @@ codeunit 5763 "Whse.-Post Shipment"
         Clear(WMSMgt);
         Clear(WhseJnlRegisterLine);
 
-        WhseShptLine.Reset;
+        WhseShptLine.Reset();
     end;
 
     local procedure GetSourceDocument()
@@ -231,7 +231,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         end;
                         OnInitSourceDocumentHeaderOnBeforeSalesHeaderModify(SalesHeader, WhseShptHeader, ModifyHeader, Invoice, WhseShptLine);
                         if ModifyHeader then
-                            SalesHeader.Modify;
+                            SalesHeader.Modify();
                     end;
                 DATABASE::"Purchase Line": // Return Order
                     begin
@@ -263,7 +263,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         end;
                         OnInitSourceDocumentHeaderOnBeforePurchHeaderModify(PurchHeader, WhseShptHeader, ModifyHeader);
                         if ModifyHeader then
-                            PurchHeader.Modify;
+                            PurchHeader.Modify();
                     end;
                 DATABASE::"Transfer Line":
                     begin
@@ -307,7 +307,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         end;
                         OnInitSourceDocumentHeaderOnBeforeTransHeaderModify(TransHeader, WhseShptHeader, ModifyHeader);
                         if ModifyHeader then
-                            TransHeader.Modify;
+                            TransHeader.Modify();
                     end;
                 DATABASE::"Service Line":
                     begin
@@ -316,7 +316,7 @@ codeunit 5763 "Whse.-Post Shipment"
                             ServiceHeader.SetHideValidationDialog(true);
                             ServiceHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
                             ReleaseServiceDocument.Run(ServiceHeader);
-                            ServiceHeader.Modify;
+                            ServiceHeader.Modify();
                         end;
                         if (WhseShptHeader."Shipping Agent Code" <> '') and
                            (WhseShptHeader."Shipping Agent Code" <> ServiceHeader."Shipping Agent Code")
@@ -339,7 +339,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         end;
                         OnInitSourceDocumentHeaderOnBeforeServiceHeaderModify(ServiceHeader, WhseShptHeader, ModifyHeader);
                         if ModifyHeader then
-                            ServiceHeader.Modify;
+                            ServiceHeader.Modify();
                     end;
                 else
                     OnInitSourceDocumentHeader(WhseShptHeader, WhseShptLine);
@@ -376,7 +376,7 @@ codeunit 5763 "Whse.-Post Shipment"
         ServicePost: Codeunit "Service-Post";
         IsHandled: Boolean;
     begin
-        WhseSetup.Get;
+        WhseSetup.Get();
         with WhseShptLine do begin
             WhseShptHeader.Get("No.");
             case "Source Type" of
@@ -552,7 +552,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         ItemTrackingMgt.SetDeleteReservationEntries(true);
                         ItemTrackingMgt.DeleteWhseItemTrkgLines(
                           DATABASE::"Warehouse Shipment Line", 0, "No.", '', 0, "Line No.", "Location Code", true);
-                        WhseShptLine2.Delete;
+                        WhseShptLine2.Delete();
                     end else begin
                         OnBeforePostUpdateWhseShptLine(WhseShptLine2);
                         WhseShptLine2."Qty. Shipped" := "Qty. Shipped" + "Qty. to Ship";
@@ -561,17 +561,17 @@ codeunit 5763 "Whse.-Post Shipment"
                         WhseShptLine2."Qty. Outstanding (Base)" := "Qty. Outstanding (Base)" - "Qty. to Ship (Base)";
                         WhseShptLine2.Status := WhseShptLine2.CalcStatusShptLine;
                         OnBeforePostUpdateWhseShptLineModify(WhseShptLine2);
-                        WhseShptLine2.Modify;
+                        WhseShptLine2.Modify();
                         OnAfterPostUpdateWhseShptLine(WhseShptLine2);
                     end;
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
             end;
 
         WhseShptLine2.SetRange("No.", WhseShptHeaderParam."No.");
         if not WhseShptLine2.FindFirst then begin
             WhseShptHeaderParam.DeleteRelatedLines;
-            WhseShptHeaderParam.Delete;
+            WhseShptHeaderParam.Delete();
         end else begin
             WhseShptHeaderParam."Document Status" := WhseShptHeaderParam.GetDocumentStatus(0);
             if WhseShptHeaderParam."Create Posted Header" then begin
@@ -579,7 +579,7 @@ codeunit 5763 "Whse.-Post Shipment"
                 WhseShptHeaderParam."Shipping No." := '';
                 WhseShptHeaderParam."Create Posted Header" := false;
             end;
-            WhseShptHeaderParam.Modify;
+            WhseShptHeaderParam.Modify();
         end;
 
         OnAfterPostUpdateWhseDocuments(WhseShptHeaderParam);
@@ -616,7 +616,7 @@ codeunit 5763 "Whse.-Post Shipment"
             exit;
         end;
 
-        PostedWhseShptHeader.Init;
+        PostedWhseShptHeader.Init();
         PostedWhseShptHeader."No." := WhseShptHeader."Shipping No.";
         PostedWhseShptHeader."Location Code" := WhseShptHeader."Location Code";
         PostedWhseShptHeader."Assigned User ID" := WhseShptHeader."Assigned User ID";
@@ -634,7 +634,7 @@ codeunit 5763 "Whse.-Post Shipment"
         PostedWhseShptHeader."Whse. Shipment No." := WhseShptHeader."No.";
         PostedWhseShptHeader."External Document No." := WhseShptHeader."External Document No.";
         OnBeforePostedWhseShptHeaderInsert(PostedWhseShptHeader, WhseShptHeader);
-        PostedWhseShptHeader.Insert;
+        PostedWhseShptHeader.Insert();
         OnAfterPostedWhseShptHeaderInsert(PostedWhseShptHeader, LastShptNo);
 
         WhseComment.SetRange("Table Name", WhseComment."Table Name"::"Whse. Shipment");
@@ -642,11 +642,11 @@ codeunit 5763 "Whse.-Post Shipment"
         WhseComment.SetRange("No.", WhseShptHeader."No.");
         if WhseComment.Find('-') then
             repeat
-                WhseComment2.Init;
+                WhseComment2.Init();
                 WhseComment2 := WhseComment;
                 WhseComment2."Table Name" := WhseComment2."Table Name"::"Posted Whse. Shipment";
                 WhseComment2."No." := PostedWhseShptHeader."No.";
-                WhseComment2.Insert;
+                WhseComment2.Insert();
             until WhseComment.Next = 0;
 
         OnAfterCreatePostedShptHeader(PostedWhseShptHeader, WhseShptHeader);
@@ -700,9 +700,9 @@ codeunit 5763 "Whse.-Post Shipment"
             WhseShptLineBuf."No." := "No.";
             WhseShptLineBuf."Line No." := "Line No.";
             if not WhseShptLineBuf.Find then begin
-                WhseShptLineBuf.Init;
+                WhseShptLineBuf.Init();
                 WhseShptLineBuf := WhseShptLine2;
-                WhseShptLineBuf.Insert;
+                WhseShptLineBuf.Insert();
             end;
         end;
     end;
@@ -736,7 +736,7 @@ codeunit 5763 "Whse.-Post Shipment"
         SourceCodeSetup: Record "Source Code Setup";
     begin
         with PostedWhseShptLine do begin
-            WhseJnlLine.Init;
+            WhseJnlLine.Init();
             WhseJnlLine."Entry Type" := WhseJnlLine."Entry Type"::"Negative Adjmt.";
             WhseJnlLine."Location Code" := "Location Code";
             WhseJnlLine."From Zone Code" := "Zone Code";
@@ -758,7 +758,7 @@ codeunit 5763 "Whse.-Post Shipment"
             WhseJnlLine."Reference No." := LastShptNo;
             WhseJnlLine."Registering Date" := PostingDate;
             WhseJnlLine."Registering No. Series" := WhseShptHeader."Shipping No. Series";
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             case "Source Document" of
                 "Source Document"::"Purchase Order":
                     begin
@@ -802,7 +802,7 @@ codeunit 5763 "Whse.-Post Shipment"
            (ItemUnitOfMeasure.Code <> UOMCode)
         then
             if not ItemUnitOfMeasure.Get(ItemNo, UOMCode) then
-                ItemUnitOfMeasure.Init;
+                ItemUnitOfMeasure.Init();
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -819,13 +819,10 @@ codeunit 5763 "Whse.-Post Shipment"
         ReservationEntry: Record "Reservation Entry";
         WhseItemTrkgLine: Record "Whse. Item Tracking Line";
         QtyPickedBase: Decimal;
-        WhseSNRequired: Boolean;
-        WhseLNRequired: Boolean;
     begin
         if WhseShptLine."Assemble to Order" then
             exit;
-        ItemTrackingMgt.CheckWhseItemTrkgSetup(WhseShptLine."Item No.", WhseSNRequired, WhseLNRequired, false);
-        if not (WhseSNRequired or WhseLNRequired) then
+        if not ItemTrackingMgt.GetWhseItemTrkgSetup(WhseShptLine."Item No.") then
             exit;
 
         ReservationEntry.SetSourceFilter(
@@ -835,7 +832,7 @@ codeunit 5763 "Whse.-Post Shipment"
                 if ReservationEntry.TrackingExists then begin
                     QtyPickedBase := 0;
                     WhseItemTrkgLine.SetCurrentKey("Serial No.", "Lot No.");
-                    WhseItemTrkgLine.SetTrackingFilter(ReservationEntry."Serial No.", ReservationEntry."Lot No.");
+                    WhseItemTrkgLine.SetTrackingFilterFromReservEntry(ReservationEntry);
                     WhseItemTrkgLine.SetSourceFilter(DATABASE::"Warehouse Shipment Line", -1, WhseShptLine."No.", WhseShptLine."Line No.", false);
                     if WhseItemTrkgLine.Find('-') then
                         repeat
@@ -923,7 +920,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         end;
                     end else begin
                         ModifyLine :=
-                          ((SalesHeader."Shipping Advice" <> SalesHeader."Shipping Advice"::Complete) or
+                          ((SalesHeader."Shipping Advice" = SalesHeader."Shipping Advice"::Partial) or
                            (SalesLine.Type = SalesLine.Type::Item)) and
                           ((SalesLine."Qty. to Ship" <> 0) or
                            (SalesLine."Return Qty. to Receive" <> 0) or
@@ -939,7 +936,7 @@ codeunit 5763 "Whse.-Post Shipment"
                     end;
                     OnBeforeSalesLineModify(SalesLine, WhseShptLine, ModifyLine, Invoice);
                     if ModifyLine then
-                        SalesLine.Modify;
+                        SalesLine.Modify();
                 until SalesLine.Next = 0;
         end;
     end;
@@ -1002,7 +999,7 @@ codeunit 5763 "Whse.-Post Shipment"
                     end;
                     OnBeforePurchLineModify(PurchLine, WhseShptLine, ModifyLine, Invoice);
                     if ModifyLine then
-                        PurchLine.Modify;
+                        PurchLine.Modify();
                 until PurchLine.Next = 0;
         end;
     end;
@@ -1043,7 +1040,7 @@ codeunit 5763 "Whse.-Post Shipment"
                     end;
                     OnBeforeTransLineModify(TransLine, WhseShptLine, ModifyLine);
                     if ModifyLine then
-                        TransLine.Modify;
+                        TransLine.Modify();
                 until TransLine.Next = 0;
         end;
     end;
@@ -1080,7 +1077,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         end;
                     end else begin
                         ModifyLine :=
-                          ((ServiceHeader."Shipping Advice" <> ServiceHeader."Shipping Advice"::Complete) or
+                          ((ServiceHeader."Shipping Advice" = ServiceHeader."Shipping Advice"::Partial) or
                            (ServLine.Type = ServLine.Type::Item)) and
                           ((ServLine."Qty. to Ship" <> 0) or
                            (ServLine."Qty. to Consume" <> 0) or
@@ -1094,7 +1091,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         end;
                     end;
                     if ModifyLine then
-                        ServLine.Modify;
+                        ServLine.Modify();
                 until ServLine.Next = 0;
         end;
     end;

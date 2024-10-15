@@ -24,14 +24,14 @@ codeunit 2000000 PmtJrnlManagement
     begin
         JnlSelected := true;
 
-        PaymentJnlTemplate.Reset;
+        PaymentJnlTemplate.Reset();
         if not PaymentJnlTemplate.FindSet then begin
-            PaymentJnlTemplate.Init;
+            PaymentJnlTemplate.Init();
             PaymentJnlTemplate.Name := Text000;
             PaymentJnlTemplate.Description := Text001;
             PaymentJnlTemplate."Page ID" := PAGE::"EB Payment Journal";
             PaymentJnlTemplate.Insert(true);
-            Commit;
+            Commit();
         end else begin
             PaymentJnlTemplate2 := PaymentJnlTemplate;
             if PaymentJnlTemplate.Next <> 0 then
@@ -63,13 +63,13 @@ codeunit 2000000 PmtJrnlManagement
         PaymJnlBatch.SetRange("Journal Template Name", CurrenJnlTemplateName);
         if not PaymJnlBatch.Get(CurrenJnlTemplateName, CurrentJnlBatchName) then begin
             if not PaymJnlBatch.FindLast then begin
-                PaymJnlBatch.Init;
+                PaymJnlBatch.Init();
                 PaymJnlBatch."Journal Template Name" := CurrenJnlTemplateName;
                 PaymJnlBatch.Name := Text000;
                 PaymJnlBatch.Description := Text002;
                 PaymJnlBatch."Reason Code" := PaymentJnlTemplate."Reason Code";
-                PaymJnlBatch.Insert;
-                Commit;
+                PaymJnlBatch.Insert();
+                Commit();
             end;
             CurrentJnlBatchName := PaymJnlBatch.Name
         end;

@@ -49,7 +49,7 @@ codeunit 134987 "ERM Financial Reports III"
         AmountToApplyDiscTolSalesTxt: Label 'Amount_to_Apply____AmountDiscounted___AmountPmtDiscTolerance___AmountPmtTolerance_';
         AmountToApplyDiscTolPurchTxt: Label 'Amount_to_Apply____AmountDiscounted___AmountPmtDiscTolerance___AmountPmtTolerance__Control3036';
         AmountTotalDiscTolAppliedTxt: Label 'Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied';
-        FormatTok: Label '<Precision,%1:%2><Standard Format,1>';
+        FormatTok: Label '<Precision,%1:%2><Standard Format,1>', Locked = true;
 
     [Test]
     [HandlerFunctions('BalanceCompPrevYearReqPageHandler')]
@@ -65,7 +65,7 @@ codeunit 134987 "ERM Financial Reports III"
         Clear(BalanceCompPrevYear);
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror BalanceCompPrevYear.Run;
 
         // Verify: Verify Error Raised during Save Report.
@@ -130,7 +130,7 @@ codeunit 134987 "ERM Financial Reports III"
         GLAccount.SetRange("No.", GenJournalLine."Account No.");
         BalanceCompPrevYear.SetTableView(GLAccount);
         BalanceCompPrevYear.InitializeRequest(WorkDate, 0D, 0D, 0D, RoundingFactor2, Indent); // Take OD for all fields as workdate will flow.
-        Commit;
+        Commit();
         BalanceCompPrevYear.Run;
 
         // Verify: Verify Saved Report with Different Fields value.
@@ -147,7 +147,7 @@ codeunit 134987 "ERM Financial Reports III"
 
         FindGLAccount(GLAccount, GenJournalLine."Account No.", 0D, PeriodEndingDate);
         GLAccount.CalcFields("Balance at Date");
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists('PeriodEndingDate', Format(PeriodEndingDate));
         LibraryReportDataset.AssertElementWithValueExists('PreviousEndingDate', Format(CalcDate('<-1Y>', PeriodEndingDate)));
         LibraryReportDataset.AssertElementWithValueExists(
@@ -188,7 +188,7 @@ codeunit 134987 "ERM Financial Reports III"
         Clear(TrialBalanceByPeriod);
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror TrialBalanceByPeriod.Run;
 
         // Verify: Verify Error Raised during Save Report.
@@ -254,7 +254,7 @@ codeunit 134987 "ERM Financial Reports III"
         GLAccount.SetRange("No.", GenJournalLine."Account No.");
         TrialBalanceByPeriod.SetTableView(GLAccount);
         TrialBalanceByPeriod.InitializeRequest(CalcDate('<-1M>', StartingDate), RoundingFactor2, Indent);
-        Commit;
+        Commit();
         TrialBalanceByPeriod.Run;
 
         // Verify: Verify Saved Report with Different Fields value.
@@ -265,7 +265,7 @@ codeunit 134987 "ERM Financial Reports III"
             Error(StrSubstNo(RowNotFoundErr, 'G_L_Account___No__', GLAccount."No."));
         VerifyTextAmountInXMLFile(
           'ColumnValuesAsText_3_', FormatAmount(Round(GenJournalLine.Amount / RoundingFactorAmount, 0.1), Decimals));
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists('G_L_Account__TABLECAPTION__________GLFilter',
           GLAccount.TableCaption + ': ' + GLAccount.GetFilters);
         LibraryReportDataset.AssertElementWithValueExists('Text015___FORMAT_Indent_', StrSubstNo(IndentationLevelLbl, Indent));
@@ -308,7 +308,7 @@ codeunit 134987 "ERM Financial Reports III"
         Clear(ForeignCurrencyBalance);
         Currency.SetRange(Code, CurrencyCode);
         ForeignCurrencyBalance.SetTableView(Currency);
-        Commit;
+        Commit();
         ForeignCurrencyBalance.Run;
 
         // Verify: Verify Saved Report with Field value.
@@ -350,7 +350,7 @@ codeunit 134987 "ERM Financial Reports III"
         Clear(BankAccountStatementReport);
         BankAccountStatementLine.SetRange("Document No.", DocumentNo);
         BankAccountStatementReport.SetTableView(BankAccountStatementLine);
-        Commit;
+        Commit();
         BankAccountStatementReport.Run;
 
         // Verify: Verify Bank Account Statement Report.
@@ -363,7 +363,6 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     // [Test]
-    [HandlerFunctions('GeneralJournalTemplateListModalPageHandler')]
     [Scope('OnPrem')]
     procedure AmountTextOnCheckPreview()
     var
@@ -400,7 +399,7 @@ codeunit 134987 "ERM Financial Reports III"
         Check.FormatNoText(NumberText, -PaymentDiscountAmount, '');
 
         // Exercise: Open Check Preview Page through Payment Journal.
-        Commit;
+        Commit();
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
         ActualValue := LibraryERM.CheckPreview(PaymentJournal);
@@ -473,7 +472,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     // [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,GeneralJournalTemplateListModalPageHandler')]
+    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure AmountTextOnCheckPreviewWithCurrency()
     var
@@ -567,7 +566,7 @@ codeunit 134987 "ERM Financial Reports III"
 
         // [WHEN] Print Payment Check
         UpdateLastCheckNoAndEnqueueValues(GenJournalLine."Bal. Account No.");
-        Commit;
+        Commit();
         DocumentPrint.PrintCheck(GenJournalLine);
 
         // [THEN] Verify check has two lines for 100 for Invoice and -90 for Credit Memo and a Total amount = 10
@@ -580,7 +579,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler,GeneralJournalTemplateListModalPageHandler')]
+    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler')]
     [Scope('OnPrem')]
     procedure PrintVendCheckForUpdatedAppToCrMemoAmount()
     begin
@@ -590,7 +589,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler,GeneralJournalTemplateListModalPageHandler')]
+    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler')]
     [Scope('OnPrem')]
     procedure PrintVendCheckForUpdatedAppToInvoiceAmount()
     begin
@@ -600,7 +599,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler,GeneralJournalTemplateListModalPageHandler')]
+    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler')]
     [Scope('OnPrem')]
     procedure PrintVendCheckForUpdatedAppToCrMemoAmountRounded()
     begin
@@ -614,7 +613,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler,GeneralJournalTemplateListModalPageHandler')]
+    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler')]
     [Scope('OnPrem')]
     procedure PrintVendCheckForUpdatedAppToInvoiceAmountRounded()
     begin
@@ -911,7 +910,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('PrintCheckReqPageHandler,GeneralJournalTemplateListModalPageHandler')]
+    [HandlerFunctions('PrintCheckReqPageHandler')]
     [Scope('OnPrem')]
     procedure VendorCheckForPaymentExceedingSumOfMaxIterationsInvoices()
     var
@@ -957,7 +956,7 @@ codeunit 134987 "ERM Financial Reports III"
 
         // [WHEN] Check printed from Payment Journal page
         UpdateLastCheckNoAndEnqueueValues(GenJournalLine."Bal. Account No.");
-        Commit;
+        Commit();
 
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
@@ -969,7 +968,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('PrintCheckReqPageHandler,GeneralJournalTemplateListModalPageHandler')]
+    [HandlerFunctions('PrintCheckReqPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerCheckForPaymentExceedingSumOfMaxIterationsInvoices()
     var
@@ -1002,7 +1001,6 @@ codeunit 134987 "ERM Financial Reports III"
               Customer."No.", PaymentAmount, "Bank Payment Type"::"Computer Check");
             Validate("Applies-to ID", UserId);
             Modify(true);
-
             // [GIVEN] MaxEntries number of Purchases Gen. Jnl Lines posted
             CreateAndPostGenJournalLines(
               GenJournalTemplate.Type::Purchases, PAGE::"Purchase Journal",
@@ -1015,7 +1013,7 @@ codeunit 134987 "ERM Financial Reports III"
 
         // [WHEN] Check printed from Payment Journal page
         UpdateLastCheckNoAndEnqueueValues(GenJournalLine."Bal. Account No.");
-        Commit;
+        Commit();
 
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
@@ -1042,6 +1040,7 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryERMCountryData.UpdateLocalData;
         UpdateIntrastatCountryCode; // Required for Intrastat.
         LibraryERMCountryData.UpdateLocalPostingSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
 
         IsInitialized := true;
 
@@ -1230,14 +1229,14 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         CreateGenJournalLine2(GenJournalLine, AccountType, AccountNo, LibraryRandom.RandDec(10, 2));
         GenJournalLine."Applies-to Doc. Type" := AppliesToDocType;
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure CreateGenJournalLineWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; AmountLCY: Decimal; AppliesToID: Code[20])
     begin
         CreateGenJournalLine2(GenJournalLine, AccountType, AccountNo, AmountLCY);
         GenJournalLine."Applies-to ID" := AppliesToID;
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure CreateCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CustNo: Code[20])
@@ -1275,7 +1274,7 @@ codeunit 134987 "ERM Financial Reports III"
         VendorLedgerEntry.Open := true;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         VendorLedgerEntry."Purchaser Code" := PurchaserCode;
-        VendorLedgerEntry.Insert;
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure CreateGenJournalLine2(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; GenJnlLineAmount: Decimal)
@@ -1283,13 +1282,13 @@ codeunit 134987 "ERM Financial Reports III"
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        GenJournalTemplate.Init;
+        GenJournalTemplate.Init();
         GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
-        GenJournalTemplate.Insert;
-        GenJournalBatch.Init;
+        GenJournalTemplate.Insert();
+        GenJournalBatch.Init();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
         GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
-        GenJournalBatch.Insert;
+        GenJournalBatch.Insert();
 
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
@@ -1300,7 +1299,7 @@ codeunit 134987 "ERM Financial Reports III"
         GenJournalLine.Amount := GenJnlLineAmount;
         GenJournalLine."Amount (LCY)" := GenJnlLineAmount;
         GenJournalLine."Balance (LCY)" := GenJournalLine."Amount (LCY)";
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
     end;
 
     local procedure CreateCustLedgerEntryWithSpecificAmountAndAppliesToID(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CustNo: Code[20]; EntryAmount: Decimal; AppliesToID: Code[20])
@@ -1389,7 +1388,7 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryVariableStorage.Enqueue(VendorNo);
         LibraryVariableStorage.Enqueue(BalAccountNo);
         LibraryVariableStorage.Enqueue(SummarizePerVend);
-        Commit;  // Commit required to run report.
+        Commit();  // Commit required to run report.
         SuggestVendorPayments.Run;
     end;
 
@@ -1477,7 +1476,7 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
         LibraryVariableStorage.Enqueue(true);
 
-        Commit;
+        Commit();
 
         PaymentJournal.OpenEdit;
         PaymentJournal.CurrentJnlBatchName.SetValue := BatchName;
@@ -1527,7 +1526,7 @@ codeunit 134987 "ERM Financial Reports III"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Amount Decimal Places");
     end;
 
@@ -1549,7 +1548,7 @@ codeunit 134987 "ERM Financial Reports III"
         CompanyInformation: Record "Company Information";
         CountryRegion: Record "Country/Region";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CountryRegion.Get(CompanyInformation."Country/Region Code");
         if CountryRegion."Intrastat Code" = '' then begin
             CountryRegion."Intrastat Code" := CountryRegion.Code;
@@ -1566,19 +1565,19 @@ codeunit 134987 "ERM Financial Reports III"
     local procedure UpdateCustLedgEntryWithPmtDisc(var CustLedgerEntry: Record "Cust. Ledger Entry"; RemPmtDiscPossible: Decimal)
     begin
         CustLedgerEntry."Remaining Pmt. Disc. Possible" := RemPmtDiscPossible;
-        CustLedgerEntry.Modify;
+        CustLedgerEntry.Modify();
     end;
 
     local procedure UpdateVendLedgEntryWithPmtDisc(var VendLedgerEntry: Record "Vendor Ledger Entry"; RemPmtDiscPossible: Decimal)
     begin
         VendLedgerEntry."Remaining Pmt. Disc. Possible" := RemPmtDiscPossible;
-        VendLedgerEntry.Modify;
+        VendLedgerEntry.Modify();
     end;
 
     local procedure UpdateAppliesToDocumentNoOnGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AppliesToDocNo: Code[20])
     begin
         GenJournalLine."Applies-to Doc. No." := AppliesToDocNo;
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure UpdateGLSetupToleranceDiscount()
@@ -1652,7 +1651,7 @@ codeunit 134987 "ERM Financial Reports III"
         GenJournalBatch: Record "Gen. Journal Batch";
         VendorPrePaymentJournal: Report "Vendor Pre-Payment Journal";
     begin
-        Commit;
+        Commit();
         GenJournalBatch.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalBatch.SetRange(Name, GenJournalLine."Journal Batch Name");
         Clear(VendorPrePaymentJournal);
@@ -1860,13 +1859,6 @@ codeunit 134987 "ERM Financial Reports III"
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate);
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
         SuggestVendorPayments.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
-    begin
-        GeneralJournalTemplateList.OK.Invoke;
     end;
 
     [MessageHandler]

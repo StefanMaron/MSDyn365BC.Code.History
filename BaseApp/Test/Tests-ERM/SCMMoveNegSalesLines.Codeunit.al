@@ -40,7 +40,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Move Neg. Sales Lines");
     end;
 
@@ -123,7 +123,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
     [Normal]
     local procedure UpdateSalesReceivablesSetup()
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"No Warning");
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Modify(true);
@@ -140,7 +140,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
-        TempSalesLine.DeleteAll;
+        TempSalesLine.DeleteAll();
 
         // Create a Sales document with mixed lines: alternating positive and negative quantities.
         Count := 5 + LibraryRandom.RandInt(8);
@@ -150,7 +150,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
               Power(InitialSign, i) * LibraryRandom.RandDec(10, 2));
             if SalesLine.Quantity < 0 then begin
                 TempSalesLine := SalesLine;
-                TempSalesLine.Insert;
+                TempSalesLine.Insert();
             end;
         end;
     end;
@@ -196,7 +196,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
         until SalesLine.Next = 0;
 
         // Check there are no un-migrated lines.
-        TempSalesLine.Reset;
+        TempSalesLine.Reset();
         Assert.AreEqual(0, TempSalesLine.Count, 'Remaining un-migrated lines.');
     end;
 
@@ -213,7 +213,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesOrder.GetRecord(SalesHeader);
         SalesHeaderNo := SalesHeader."No.";
     end;
@@ -224,7 +224,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesReturnOrder.GetRecord(SalesHeader);
         SalesHeaderNo := SalesHeader."No.";
     end;
@@ -235,7 +235,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesInvoice.GetRecord(SalesHeader);
         SalesHeaderNo := SalesHeader."No.";
     end;
@@ -246,7 +246,7 @@ codeunit 137206 "SCM Move Neg. Sales Lines"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesCreditMemo.GetRecord(SalesHeader);
         SalesHeaderNo := SalesHeader."No.";
     end;

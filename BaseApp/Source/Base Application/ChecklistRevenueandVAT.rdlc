@@ -180,7 +180,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!CurrReport_PAGENO_Control184Caption.Value</Value>
+                                                    <Value>=Fields!CurrReport_PAGENOCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>8pt</FontSize>
                                                       <Color>Red</Color>
@@ -1769,7 +1769,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!CurrReport_PAGENO_Control11Caption.Value</Value>
+                                                    <Value>=Fields!CurrReport_PAGENOCaption.Value</Value>
                                                     <Style>
                                                       <FontSize>7pt</FontSize>
                                                       <Color>Red</Color>
@@ -3324,7 +3324,7 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!CurrReport_PAGENO_Control92Caption.Value</Value>
+                                                    <Value>=Fields!CurrReport_PAGENOCaption.Value</Value>
                                                     <Style>
                                                       <Color>Red</Color>
                                                     </Style>
@@ -9445,9 +9445,6 @@ End Function
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="FORMAT_TODAY_0_4_">
           <DataField>FORMAT_TODAY_0_4_</DataField>
         </Field>
@@ -9691,9 +9688,6 @@ End Function
         <Field Name="USERID_Control22">
           <DataField>USERID_Control22</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO_Control92">
-          <DataField>CurrReport_PAGENO_Control92</DataField>
-        </Field>
         <Field Name="FORMAT_TODAY_0_4__Control108">
           <DataField>FORMAT_TODAY_0_4__Control108</DataField>
         </Field>
@@ -9711,9 +9705,6 @@ End Function
         </Field>
         <Field Name="SkipHeader_3_">
           <DataField>SkipHeader_3_</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control92Caption">
-          <DataField>CurrReport_PAGENO_Control92Caption</DataField>
         </Field>
         <Field Name="Checklist_between_Revenue_and_VATCaption_Control114">
           <DataField>Checklist_between_Revenue_and_VATCaption_Control114</DataField>
@@ -9832,9 +9823,6 @@ End Function
         <Field Name="USERID_Control10">
           <DataField>USERID_Control10</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO_Control11">
-          <DataField>CurrReport_PAGENO_Control11</DataField>
-        </Field>
         <Field Name="FORMAT_TODAY_0_4__Control14">
           <DataField>FORMAT_TODAY_0_4__Control14</DataField>
         </Field>
@@ -9849,9 +9837,6 @@ End Function
         </Field>
         <Field Name="SkipHeader_4_">
           <DataField>SkipHeader_4_</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control11Caption">
-          <DataField>CurrReport_PAGENO_Control11Caption</DataField>
         </Field>
         <Field Name="Checklist_between_Revenue_and_VATCaption_Control19">
           <DataField>Checklist_between_Revenue_and_VATCaption_Control19</DataField>
@@ -10003,9 +9988,6 @@ End Function
         <Field Name="USERID_Control183">
           <DataField>USERID_Control183</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO_Control184">
-          <DataField>CurrReport_PAGENO_Control184</DataField>
-        </Field>
         <Field Name="FORMAT_TODAY_0_4__Control186">
           <DataField>FORMAT_TODAY_0_4__Control186</DataField>
         </Field>
@@ -10062,9 +10044,6 @@ End Function
         </Field>
         <Field Name="Total1Format">
           <DataField>Total1Format</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control184Caption">
-          <DataField>CurrReport_PAGENO_Control184Caption</DataField>
         </Field>
         <Field Name="Checklist_between_Revenue_and_VATCaption_Control189">
           <DataField>Checklist_between_Revenue_and_VATCaption_Control189</DataField>

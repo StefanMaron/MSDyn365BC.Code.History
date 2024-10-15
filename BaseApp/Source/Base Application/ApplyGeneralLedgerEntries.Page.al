@@ -508,7 +508,7 @@ page 11309 "Apply General Ledger Entries"
                     ShowTotalAppliedAmount -= GLEntryBuf."Remaining Amount"
                 else
                     ShowTotalAppliedAmount += GLEntryBuf."Remaining Amount";
-                GLEntryBuf.Modify;
+                GLEntryBuf.Modify();
             until GLEntryBuf.Next = 0;
         end;
     end;
@@ -524,7 +524,7 @@ page 11309 "Apply General Ledger Entries"
         GLEntry.SetCurrentKey("G/L Account No.");
         GLEntry.SetRange("G/L Account No.", GLAccNo);
         if GLEntry.FindSet then begin
-            NoOfRecords := GLEntry.Count;
+            NoOfRecords := GLEntry.Count();
             Window.Open(Text11300);
             repeat
                 TransferGLEntry(TempGLEntryBuf, GLEntry);
@@ -597,7 +597,7 @@ page 11309 "Apply General Ledger Entries"
     begin
         // 'Real' G/L Entry changed whilst application ?
         with GlEntry do begin
-            LockTable;
+            LockTable();
             Get(TempEntry."Entry No.");
             if ("Remaining Amount" <> TempEntry."Remaining Amount") or
                (Open <> TempEntry.Open) or
@@ -648,7 +648,7 @@ page 11309 "Apply General Ledger Entries"
     begin
         GLEntryBuf.TransferFields(GLEntry);
         GLEntryBuf.Positive := GLEntry.Amount > 0;
-        GLEntryBuf.Insert;
+        GLEntryBuf.Insert();
     end;
 }
 

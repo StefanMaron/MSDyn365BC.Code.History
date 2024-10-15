@@ -94,13 +94,13 @@ table 1206 "Credit Transfer Entry"
         "Credit Transfer Register No." := RegisterNo;
         if EntryNo = 0 then begin
             SetRange("Credit Transfer Register No.", RegisterNo);
-            LockTable;
+            LockTable();
             if FindLast then;
             "Entry No." += 1;
         end else
             "Entry No." := EntryNo;
         Init;
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         case GenJnlAccountType of
             GenJnlLine."Account Type"::Customer:
                 "Account Type" := "Account Type"::Customer;
@@ -186,7 +186,7 @@ table 1206 "Credit Transfer Entry"
 
     local procedure GetAppliesToEntry(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer")
     begin
-        CVLedgerEntryBuffer.Init;
+        CVLedgerEntryBuffer.Init();
         if "Applies-to Entry No." = 0 then
             exit;
 

@@ -120,7 +120,7 @@ codeunit 137044 "SCM Order Promising"
 
         // Update the Shipment Date later than WORKDATE + CompanyInformation."Check-Avail. Period Calc." on the 2nd Sales Order.
         // To trigger Check Availablity warning we need to modify it on page.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         LibraryVariableStorage.Enqueue(false);
         UpdateShipmentDateOnSalesOrderPage(
           SalesHeader."No.", CalcDate('<' + Format(LibraryRandom.RandIntInRange(10, 20)) + 'D>',
@@ -1179,7 +1179,7 @@ codeunit 137044 "SCM Order Promising"
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Order Promising");
     end;
 
@@ -1187,7 +1187,7 @@ codeunit 137044 "SCM Order Promising"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", OldDate));
     end;
 
@@ -1329,7 +1329,7 @@ codeunit 137044 "SCM Order Promising"
         ItemNo: array[5] of Code[20];
         "Count": Integer;
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, BaseUnitOfMeasure);
 
         for Count := 1 to NoBOMLine do begin
@@ -1350,7 +1350,7 @@ codeunit 137044 "SCM Order Promising"
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         CreateSetupWorkCenter(WorkCenter);
         CreateSetupMachineCenter(MachineCenter, WorkCenter."No.");
 

@@ -40,7 +40,7 @@ codeunit 136901 "Marketing Reports"
         LibraryService.SetupServiceMgtNoSeries;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Reports");
     end;
 
@@ -123,7 +123,7 @@ codeunit 136901 "Marketing Reports"
         Clear(ContactCompanySummary);
         Contact.SetRange("No.", Contact."No.");
         ContactCompanySummary.SetTableView(Contact);
-        Commit;
+        Commit();
         ContactCompanySummary.Run;
 
         // 3. Verify: Check that Contact of Type Peson related to another contact, seen properly in Contact Company Summary.
@@ -166,7 +166,7 @@ codeunit 136901 "Marketing Reports"
         Clear(CampaignDetails);
         Campaign.SetRange("No.", Campaign."No.");
         CampaignDetails.SetTableView(Campaign);
-        Commit;
+        Commit();
         CampaignDetails.Run;
 
         // 3. Verify: Verify that the Campaign - Details Report print the correct Campaign and Segment Header Values.
@@ -207,7 +207,7 @@ codeunit 136901 "Marketing Reports"
         Clear(SalespersonTasks);
         Task.SetRange("Salesperson Code", Contact."Salesperson Code");
         SalespersonTasks.SetTableView(Task);
-        Commit;
+        Commit();
         SalespersonTasks.Run;
 
         // 3. Verify: Verify Task details on Salesperson To Dos Report.
@@ -245,7 +245,7 @@ codeunit 136901 "Marketing Reports"
         UpdateOpportunity(Contact."No.");
 
         // 2. Exercise: Run the Salesperson Opportunities Report.
-        Commit;
+        Commit();
         Clear(SalespersonOpportunities);
         Opportunity.SetRange("Salesperson Code", Contact."Salesperson Code");
         SalespersonOpportunities.SetTableView(Opportunity);
@@ -280,7 +280,7 @@ codeunit 136901 "Marketing Reports"
 
         // 2. Exercise: Run the Team To Dos Report.
         Clear(TeamTasks);
-        Commit;
+        Commit();
         Task.SetRange("Team Code", Team.Code);
         TeamTasks.SetTableView(Task);
         TeamTasks.Run;
@@ -324,7 +324,7 @@ codeunit 136901 "Marketing Reports"
 
         // 2. Exercise: Run the Questionnaire Handouts Report.
         Clear(QuestionnaireHandouts);
-        Commit;
+        Commit();
         ProfileQuestionnaireHeader.SetRange(Code, ProfileQuestionnaireLine."Profile Questionnaire Code");
         QuestionnaireHandouts.SetTableView(ProfileQuestionnaireHeader);
         QuestionnaireHandouts.Run;
@@ -355,7 +355,7 @@ codeunit 136901 "Marketing Reports"
         ModifyQuestionnaireLine(ProfileQuestionnaireLine, false);
 
         // 2. Exercise: Run the Questionnaire Test Report.
-        Commit;
+        Commit();
         Clear(QuestionnaireTest);
         ProfileQuestionnaireHeader.SetRange(Code, ProfileQuestionnaireLine."Profile Questionnaire Code");
         QuestionnaireTest.SetTableView(ProfileQuestionnaireHeader);
@@ -390,7 +390,7 @@ codeunit 136901 "Marketing Reports"
         Contact.CreateInteraction;
 
         // 2. Exercise: Run Contact Person Summary Report.
-        Commit;
+        Commit();
         Clear(ContactPersonSummary);
         Contact.SetRange("No.", Contact."No.");
         ContactPersonSummary.SetTableView(Contact);
@@ -419,7 +419,7 @@ codeunit 136901 "Marketing Reports"
         CreateTexts(Text);
 
         // 2. Exercise: Run Contact Cover Sheet Report.
-        Commit;
+        Commit();
         Contact.SetRange("No.", Contact."No.");
         Clear(ContactCoverSheet);
         ContactCoverSheet.SetTableView(Contact);
@@ -582,7 +582,7 @@ codeunit 136901 "Marketing Reports"
         Text := LibraryUtility.GenerateGUID;
 
         // 2. Exercise: Run Contact Cover Sheet Report with Custom Remarks.
-        Commit;
+        Commit();
         Contact.SetRange("No.", Contact."No.");
         Clear(ContactCoverSheet);
         ContactCoverSheet.SetTableView(Contact);
@@ -612,7 +612,7 @@ codeunit 136901 "Marketing Reports"
         CreateTexts(Text);
 
         // 2. Exercise: Run Segment Cover Sheet Report.
-        Commit;
+        Commit();
         SegmentHeader.SetRange("No.", SegmentHeader."No.");
         Clear(SegmentCoverSheet);
         SegmentCoverSheet.SetTableView(SegmentHeader);
@@ -789,7 +789,7 @@ codeunit 136901 "Marketing Reports"
         Text := LibraryUtility.GenerateGUID;
 
         // 2. Exercise: Run Segment Cover Sheet Report with Custom Remarks.
-        Commit;
+        Commit();
         SegmentHeader.SetRange("No.", SegmentHeader."No.");
         Clear(SegmentCoverSheet);
         SegmentCoverSheet.SetTableView(SegmentHeader);
@@ -834,7 +834,7 @@ codeunit 136901 "Marketing Reports"
         UpdateOpportunity(Contact."No.");
 
         // 2. Exercise: Run Contact List Report.
-        Commit;
+        Commit();
         Contact.SetRange("No.", Contact."No.");
         Clear(ContactList);
         ContactList.SetTableView(Contact);
@@ -881,7 +881,7 @@ codeunit 136901 "Marketing Reports"
         UpdateOpportunity(Contact."No.");
 
         // 2. Exercise: Run Opportunity List Report.
-        Commit;
+        Commit();
         Opportunity.SetRange("Contact No.", Contact."No.");
         Clear(OpportunityList);
         OpportunityList.SetTableView(Opportunity);
@@ -915,7 +915,7 @@ codeunit 136901 "Marketing Reports"
 
         LibraryVariableStorage.Enqueue(SalesCycleStage."Sales Cycle Code");
         CreateOpportunity(Contact."No.");
-        Commit;
+        Commit();
 
         // [WHEN] Run report "Opportunity - List", save report output to Excel file.
         Opportunity.SetRange("Contact No.", Contact."No.");
@@ -980,7 +980,7 @@ codeunit 136901 "Marketing Reports"
         UpdateOpportunity(Contact2."No.");
 
         // 2. Exercise: Run Sales Cycle Analysis Report.
-        Commit;
+        Commit();
         SalesCycle.SetRange(Code, SalesCycle.Code);
         Clear(SalesCycleAnalysis);
         SalesCycleAnalysis.SetTableView(SalesCycle);
@@ -1008,7 +1008,7 @@ codeunit 136901 "Marketing Reports"
         Initialize;
 
         // Exercise.
-        Commit;  // Commit required for Request Page Handler.
+        Commit();  // Commit required for Request Page Handler.
         REPORT.Run(REPORT::"Contact - Cover Sheet");
 
         // Verify.
@@ -1157,7 +1157,7 @@ codeunit 136901 "Marketing Reports"
         OpportunityDetails: Report "Opportunity - Details";
     begin
         Clear(OpportunityDetails);
-        Commit;
+        Commit();
         Opportunity.SetRange("Contact No.", ContactNo);
         OpportunityDetails.SetTableView(Opportunity);
         // LibraryReportValidation.SetFileName(ContactNo);
@@ -1171,7 +1171,7 @@ codeunit 136901 "Marketing Reports"
         SegmentContacts: Report "Segment - Contacts";
     begin
         Clear(SegmentContacts);
-        Commit;
+        Commit();
         SegmentHeader.SetRange("No.", No);
         SegmentContacts.SetTableView(SegmentHeader);
         SegmentContacts.Run;
@@ -1450,9 +1450,9 @@ codeunit 136901 "Marketing Reports"
     var
         TempOpportunity: Record Opportunity temporary;
     begin
-        TempOpportunity.Init;
+        TempOpportunity.Init();
         CreateOpportunity.GetRecord(TempOpportunity);
-        TempOpportunity.Insert;
+        TempOpportunity.Insert();
         TempOpportunity.Validate(
           Description, LibraryUtility.GenerateRandomCode(TempOpportunity.FieldNo(Description), DATABASE::Opportunity));
 
@@ -1475,7 +1475,7 @@ codeunit 136901 "Marketing Reports"
         TempSegmentLine: Record "Segment Line" temporary;
     begin
         CreateInteraction.GetRecord(TempSegmentLine);
-        TempSegmentLine.Insert;  // Insert temporary Segment Line to modify fields later.
+        TempSegmentLine.Insert();  // Insert temporary Segment Line to modify fields later.
         TempSegmentLine.Validate("Contact No.", ContactNo2);
         TempSegmentLine.Validate("Interaction Template Code", InteractionTemplateCode);
         TempSegmentLine.Validate(Description, InteractionTemplateCode);
@@ -1491,14 +1491,14 @@ codeunit 136901 "Marketing Reports"
     var
         TempTask: Record "To-do" temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         CreateTask.GetRecord(TempTask);
-        TempTask.Insert;
+        TempTask.Insert();
         TempTask.Validate("Team Code", TeamCode);
         TempTask.Validate(Description, TeamCode);
         TempTask.Validate("Team To-do", true);
         TempTask.Validate(Date, WorkDate);
-        TempTask.Modify;
+        TempTask.Modify();
         TempTask.CheckStatus;
         TempTask.FinishWizard(false);
     end;
@@ -1509,13 +1509,13 @@ codeunit 136901 "Marketing Reports"
     var
         TempTask: Record "To-do" temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         CreateTask.GetRecord(TempTask);
-        TempTask.Insert;
+        TempTask.Insert();
         TempTask.Validate(Description, TempTask."Contact No.");
         TempTask.Validate("Opportunity No.", OpportunityNo);
         TempTask.Validate(Date, WorkDate);
-        TempTask.Modify;
+        TempTask.Modify();
         TempTask.CheckStatus;
         TempTask.FinishWizard(false);
     end;
@@ -1527,9 +1527,9 @@ codeunit 136901 "Marketing Reports"
         TempOpportunityEntry: Record "Opportunity Entry" temporary;
         ActionType: Option " ",First,Next,Previous,Skip,Update,Jump;
     begin
-        TempOpportunityEntry.Init;
+        TempOpportunityEntry.Init();
         UpdateOpportunity.GetRecord(TempOpportunityEntry);
-        TempOpportunityEntry.Insert;
+        TempOpportunityEntry.Insert();
         TempOpportunityEntry.CreateStageList;
         TempOpportunityEntry.Validate("Action Type", ActionType::First);
         TempOpportunityEntry.Validate("Sales Cycle Stage", CurrentSalesCycleStage);
@@ -1538,7 +1538,7 @@ codeunit 136901 "Marketing Reports"
         TempOpportunityEntry.Validate("Estimated Value (LCY)", LibraryRandom.RandInt(100));
         TempOpportunityEntry.Validate("Chances of Success %", LibraryRandom.RandInt(100));
         TempOpportunityEntry.Validate("Estimated Close Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
-        TempOpportunityEntry.Modify;
+        TempOpportunityEntry.Modify();
 
         TempOpportunityEntry.CheckStatus2;
         TempOpportunityEntry.FinishWizard2;
@@ -1550,9 +1550,9 @@ codeunit 136901 "Marketing Reports"
     var
         TempOpportunityEntry: Record "Opportunity Entry" temporary;
     begin
-        TempOpportunityEntry.Init;
+        TempOpportunityEntry.Init();
         UpdateOpportunity.GetRecord(TempOpportunityEntry);
-        TempOpportunityEntry.Insert;
+        TempOpportunityEntry.Insert();
         TempOpportunityEntry.CreateStageList;
         TempOpportunityEntry.Validate("Sales Cycle Stage", CurrentSalesCycleStage);
 
@@ -1560,7 +1560,7 @@ codeunit 136901 "Marketing Reports"
         TempOpportunityEntry.Validate("Estimated Value (LCY)", LibraryRandom.RandDec(100, 2));
         TempOpportunityEntry.Validate("Chances of Success %", LibraryRandom.RandDec(100, 2));
         TempOpportunityEntry.Validate("Estimated Close Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
-        TempOpportunityEntry.Modify;
+        TempOpportunityEntry.Modify();
 
         TempOpportunityEntry.CheckStatus2;
         TempOpportunityEntry.FinishWizard2;
@@ -1641,7 +1641,7 @@ codeunit 136901 "Marketing Reports"
         Contact: Record Contact;
         ContactCoverSheet: Report "Contact - Cover Sheet";
     begin
-        Commit;
+        Commit();
         Contact.SetRange("No.", ContactNo);
         Clear(ContactCoverSheet);
         ContactCoverSheet.SetTableView(Contact);
@@ -1668,7 +1668,7 @@ codeunit 136901 "Marketing Reports"
         SegmentHeader: Record "Segment Header";
         SegmentCoverSheet: Report "Segment - Cover Sheet";
     begin
-        Commit;
+        Commit();
         SegmentHeader.SetRange("No.", SegmentHeaderNo);
         Clear(SegmentCoverSheet);
         SegmentCoverSheet.SetTableView(SegmentHeader);

@@ -24,18 +24,18 @@ codeunit 2000020 DomiciliationJnlManagement
     begin
         JnlSelected := true;
 
-        DomJnlTemplate.Reset;
+        DomJnlTemplate.Reset();
 
         case DomJnlTemplate.Count of
             0:
                 begin
-                    DomJnlTemplate.Init;
+                    DomJnlTemplate.Init();
                     DomJnlTemplate.Name := Text000;
                     DomJnlTemplate.Description := Text001;
                     DomJnlTemplate."Page ID" := PAGE::"Domiciliation Journal";
                     DomJnlTemplate."Test Report ID" := REPORT::"Domiciliation Journal - Test";
                     DomJnlTemplate.Insert(true);
-                    Commit;
+                    Commit();
                 end;
             1:
                 DomJnlTemplate.FindFirst;
@@ -66,13 +66,13 @@ codeunit 2000020 DomiciliationJnlManagement
         DomJnlBatch.SetRange("Journal Template Name", CurrenJnlTemplateName);
         if not DomJnlBatch.Get(CurrenJnlTemplateName, CurrentJnlBatchName) then begin
             if not DomJnlBatch.FindLast then begin
-                DomJnlBatch.Init;
+                DomJnlBatch.Init();
                 DomJnlBatch."Journal Template Name" := CurrenJnlTemplateName;
                 DomJnlBatch.Name := Text000;
                 DomJnlBatch.Description := Text002;
                 DomJnlBatch."Reason Code" := DomJnlTemplate."Reason Code";
-                DomJnlBatch.Insert;
-                Commit;
+                DomJnlBatch.Insert();
+                Commit();
             end;
             CurrentJnlBatchName := DomJnlBatch.Name
         end;

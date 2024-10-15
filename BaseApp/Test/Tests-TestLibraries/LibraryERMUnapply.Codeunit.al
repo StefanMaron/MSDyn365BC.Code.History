@@ -27,7 +27,6 @@ codeunit 131301 "Library - ERM Unapply"
 
     procedure UnapplyCustomerLedgerEntryBase(CustLedgerEntry: Record "Cust. Ledger Entry"; PostingDate: Date)
     var
-        GLSetup: Record "General Ledger Setup";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
         SourceCodeSetup: Record "Source Code Setup";
@@ -42,7 +41,7 @@ codeunit 131301 "Library - ERM Unapply"
         with DetailedCustLedgEntry do begin
             if PostingDate = 0D then
                 PostingDate := "Posting Date";
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             CustLedgerEntry.Get("Cust. Ledger Entry No.");
             GenJournalLine.Validate("Document No.", "Document No.");
             GenJournalLine.Validate("Posting Date", PostingDate);
@@ -59,15 +58,12 @@ codeunit 131301 "Library - ERM Unapply"
             GenJournalLine.Validate("Source Code", SourceCodeSetup."Unapplied Sales Entry Appln.");
             GenJournalLine.Validate("Source Currency Code", "Currency Code");
             GenJournalLine.Validate("System-Created Entry", true);
-            GLSetup.Get;
-            GenJournalLine.Validate("Journal Template Name", GLSetup."Jnl. Templ. Name for Applying");
             GenJnlPostLine.UnapplyCustLedgEntry(GenJournalLine, DetailedCustLedgEntry);
         end;
     end;
 
     procedure UnapplyVendorLedgerEntryBase(VendorLedgerEntry: Record "Vendor Ledger Entry"; PostingDate: Date)
     var
-        GLSetup: Record "General Ledger Setup";
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
         SourceCodeSetup: Record "Source Code Setup";
@@ -82,7 +78,7 @@ codeunit 131301 "Library - ERM Unapply"
         with DetailedVendorLedgEntry do begin
             if PostingDate = 0D then
                 PostingDate := "Posting Date";
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             VendorLedgerEntry.Get("Vendor Ledger Entry No.");
             GenJournalLine.Validate("Document No.", "Document No.");
             GenJournalLine.Validate("Posting Date", PostingDate);
@@ -99,8 +95,6 @@ codeunit 131301 "Library - ERM Unapply"
             GenJournalLine.Validate("Source Code", SourceCodeSetup."Unapplied Purch. Entry Appln.");
             GenJournalLine.Validate("Source Currency Code", "Currency Code");
             GenJournalLine.Validate("System-Created Entry", true);
-            GLSetup.Get;
-            GenJournalLine.Validate("Journal Template Name", GLSetup."Jnl. Templ. Name for Applying");
             GenJnlPostLine.UnapplyVendLedgEntry(GenJournalLine, DetailedVendorLedgEntry);
         end;
     end;
@@ -121,7 +115,7 @@ codeunit 131301 "Library - ERM Unapply"
         with DetailedEmployeeLedgerEntry do begin
             if PostingDate = 0D then
                 PostingDate := "Posting Date";
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             EmployeeLedgerEntry.Get("Employee Ledger Entry No.");
             GenJournalLine.Validate("Document No.", "Document No.");
             GenJournalLine.Validate("Posting Date", PostingDate);

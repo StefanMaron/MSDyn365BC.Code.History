@@ -79,7 +79,7 @@ report 11333 "Import Tariff Numbers Part 1"
         end;
         TariffNumber."Weight Mandatory" := true;
         if not TariffNumber2.Get(TariffNumber."No.") then
-            TariffNumber.Insert;
+            TariffNumber.Insert();
     end;
 
     [Scope('OnPrem')]

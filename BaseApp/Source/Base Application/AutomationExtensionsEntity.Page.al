@@ -11,11 +11,11 @@ page 5441 "Automation Extensions Entity"
     ModifyAllowed = false;
     ODataKeyFields = "Package ID";
     PageType = API;
-    SourceTable = "NAV App";
+    SourceTable = "Published Application";
     SourceTableView = SORTING(Name)
                       WHERE(Name = FILTER(<> '_Exclude_*'),
                             "Tenant Visible" = CONST(true),
-                            "Package Type" = FILTER(= 0 | 2));
+                            "Package Type" = FILTER(= Extension | Designer));
 
     layout
     {
@@ -53,17 +53,27 @@ page 5441 "Automation Extensions Entity"
                     ApplicationArea = All;
                     Caption = 'versionMinor', Locked = true;
                 }
-                field(scope; Scope)
+                field(scope; GetExtensionScope())
                 {
                     ApplicationArea = All;
                     Caption = 'scope', Locked = true;
                     Editable = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The scope of the extension has been replaced by the publishedAs property.';
+                    ObsoleteTag = '16.0';
                 }
                 field(isInstalled; Isinstalled)
                 {
                     ApplicationArea = All;
                     Caption = 'isInstalled', Locked = true;
                     Editable = false;
+                }
+                field(publishedAs; "Published As")
+                {
+                    ApplicationArea = All;
+                    Caption = 'publishedAs', Locked = true;
+                    Editable = false;
+                    ToolTip = 'TODO(pteisolation) We should remove the code cop error for API pages';
                 }
             }
         }
@@ -129,6 +139,14 @@ page 5441 "Automation Extensions Entity"
 
         ODataActionManagement.AddKey(FieldNo("Package ID"), "Package ID");
         ODataActionManagement.SetUpdatedPageResponse(ActionContext, PAGE::"Automation Extensions Entity");
+    end;
+
+    local procedure GetExtensionScope(): Integer
+    begin
+        if (Rec."Published As" = Rec."Published As"::Global) then
+            exit(0)
+        else
+            exit(1);
     end;
 }
 

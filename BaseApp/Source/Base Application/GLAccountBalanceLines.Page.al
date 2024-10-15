@@ -6,7 +6,8 @@ page 416 "G/L Account Balance Lines"
     LinksAllowed = false;
     PageType = ListPart;
     SaveValues = true;
-    SourceTable = Date;
+    SourceTable = "G/L Acc. Balance Buffer";
+    SourceTableTemporary = true;
 
     layout
     {
@@ -29,7 +30,7 @@ page 416 "G/L Account Balance Lines"
                     Editable = false;
                     ToolTip = 'Specifies the name of the period shown in the line.';
                 }
-                field(DebitAmount; GLAcc."Debit Amount")
+                field(DebitAmount; "Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -44,7 +45,7 @@ page 416 "G/L Account Balance Lines"
                         BalanceDrillDown;
                     end;
                 }
-                field(CreditAmount; GLAcc."Credit Amount")
+                field(CreditAmount; "Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -56,10 +57,10 @@ page 416 "G/L Account Balance Lines"
 
                     trigger OnDrillDown()
                     begin
-                        BalanceDrillDown;
+                        BalanceDrillDown();
                     end;
                 }
-                field(NetChange; GLAcc."Net Change")
+                field(NetChange; "Net Change")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -72,7 +73,7 @@ page 416 "G/L Account Balance Lines"
 
                     trigger OnDrillDown()
                     begin
-                        BalanceDrillDown;
+                        BalanceDrillDown();
                     end;
                 }
             }
@@ -85,40 +86,38 @@ page 416 "G/L Account Balance Lines"
 
     trigger OnAfterGetRecord()
     begin
-        SetDateFilter;
-        if DebitCreditTotals then
-            GLAcc.CalcFields("Net Change", "Debit Amount", "Credit Amount")
-        else begin
-            GLAcc.CalcFields("Net Change");
-            if GLAcc."Net Change" > 0 then begin
-                GLAcc."Debit Amount" := GLAcc."Net Change";
-                GLAcc."Credit Amount" := 0
-            end else begin
-                GLAcc."Debit Amount" := 0;
-                GLAcc."Credit Amount" := -GLAcc."Net Change"
-            end
-        end
+        if DateRec.Get("Period Type", "Period Start") then;
+        CalcLine();
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
+    trigger OnFindRecord(Which: Text) FoundDate: Boolean
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, GLPeriodLength));
+        VariantRec := Rec;
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, GLPeriodLength);
+        Rec := VariantRec;
     end;
 
-    trigger OnNextRecord(Steps: Integer): Integer
+    trigger OnNextRecord(Steps: Integer) ResultSteps: Integer
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, GLPeriodLength));
+        VariantRec := Rec;
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, GLPeriodLength);
+        Rec := VariantRec;
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
     end;
 
     var
         AccountingPeriod: Record "Accounting Period";
         GLAcc: Record "G/L Account";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        DateRec: Record Date;
+        PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         GLPeriodLength: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
         ClosingEntryFilter: Option Include,Exclude;
@@ -127,6 +126,7 @@ page 416 "G/L Account Balance Lines"
     procedure Set(var NewGLAcc: Record "G/L Account"; NewGLPeriodLength: Integer; NewAmountType: Option "Net Change",Balance; NewClosingEntryFilter: Option Include,Exclude; NewDebitCreditTotals: Boolean)
     begin
         GLAcc.Copy(NewGLAcc);
+        DeleteAll();
         GLPeriodLength := NewGLPeriodLength;
         AmountType := NewAmountType;
         ClosingEntryFilter := NewClosingEntryFilter;
@@ -144,8 +144,8 @@ page 416 "G/L Account Balance Lines"
         if IsHandled then
             exit;
 
-        SetDateFilter;
-        GLEntry.Reset;
+        SetDateFilter();
+        GLEntry.Reset();
         GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
         GLEntry.SetRange("G/L Account No.", GLAcc."No.");
         if GLAcc.Totaling <> '' then
@@ -178,7 +178,7 @@ page 416 "G/L Account Balance Lines"
                     GLAcc.SetFilter(
                       "Date Filter", GLAcc.GetFilter("Date Filter") + '&<>%1',
                       ClosingDate(AccountingPeriod."Starting Date" - 1));
-                until AccountingPeriod.Next = 0;
+                until AccountingPeriod.Next() = 0;
         end else
             GLAcc.SetRange(
               "Date Filter",
@@ -186,8 +186,36 @@ page 416 "G/L Account Balance Lines"
               ClosingDate(GLAcc.GetRangeMax("Date Filter")));
     end;
 
+    local procedure CalcLine()
+    begin
+        SetDateFilter();
+        if DebitCreditTotals then
+            GLAcc.CalcFields("Net Change", "Debit Amount", "Credit Amount")
+        else begin
+            GLAcc.CalcFields("Net Change");
+            if GLAcc."Net Change" > 0 then begin
+                GLAcc."Debit Amount" := GLAcc."Net Change";
+                GLAcc."Credit Amount" := 0
+            end else begin
+                GLAcc."Debit Amount" := 0;
+                GLAcc."Credit Amount" := -GLAcc."Net Change"
+            end
+        end;
+
+        "Debit Amount" := GLAcc."Debit Amount";
+        "Credit Amount" := GLAcc."Credit Amount";
+        "Net Change" := GLAcc."Net Change";
+
+        OnAfterCalcLine(GLAcc, Rec);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBalanceDrillDown(var GLAccount: Record "G/L Account"; GLPeriodLength: Option Day,Week,Month,Quarter,Year,"Accounting Period"; AmountType: Option "Net Change","Balance at Date"; ClosingEntryFilter: Option Include,Exclude; DebitCreditTotals: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcLine(var GLAccount: Record "G/L Account"; var GLAccBalanceBuffer: Record "G/L Acc. Balance Buffer")
     begin
     end;
 }

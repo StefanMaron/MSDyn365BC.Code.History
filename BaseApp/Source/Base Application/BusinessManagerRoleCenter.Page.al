@@ -22,7 +22,10 @@ page 9022 "Business Manager Role Center"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = '';
-                ToolTip = 'Specifies the view of your business assistance';
+            }
+            part(Control56; "Product Video Topics")
+            {
+                ApplicationArea = All;
             }
             part("Favorite Accounts"; "My Accounts")
             {
@@ -118,7 +121,7 @@ page 9022 "Business Manager Role Center"
                 Image = NewPurchaseInvoice;
                 RunObject = Page "Purchase Invoice";
                 RunPageMode = Create;
-                ToolTip = 'Create purchase invoices to mirror sales documents that vendors send to you. This enables you to record the cost of purchases and to track accounts payable. Posting purchase invoices dynamically updates inventory levels so that you can minimize inventory costs and provide better customer service. Purchase invoices can be created automatically from PDF or image files from your vendors by using the Incoming Documents feature.';
+                ToolTip = 'Create a purchase invoice to mirror a sales document sent by a vendor.';
             }
         }
         area(processing)

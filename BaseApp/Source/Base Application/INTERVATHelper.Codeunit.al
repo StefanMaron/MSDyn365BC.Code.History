@@ -19,7 +19,7 @@ codeunit 11308 "INTERVAT Helper"
         ParentNode: DotNet XmlNode;
         DeclarantReference: Text[250];
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         XMLDOMMgt.AddElement(XMLCurrNode, 'Declarant', '', XMLCurrNode.NamespaceURI, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         XMLDOMMgt.AddElement(
@@ -55,7 +55,7 @@ codeunit 11308 "INTERVAT Helper"
         CompanyInformation: Record "Company Information";
         DeclarantReference: Text[250];
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         DeclarantReference :=
           PadStr('', 4 - StrLen(Format(SequenceNumber)), '0') + Format(SequenceNumber);
         DeclarantReference := RemoveNonNumericCharacters(CompanyInformation."Enterprise No.") + DeclarantReference;
@@ -147,7 +147,7 @@ codeunit 11308 "INTERVAT Helper"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         exit(CompanyInformation."Country/Region Code");
     end;
 
@@ -156,7 +156,7 @@ codeunit 11308 "INTERVAT Helper"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.TestField("E-Mail");
     end;
 }

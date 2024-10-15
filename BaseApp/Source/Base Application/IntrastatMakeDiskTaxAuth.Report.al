@@ -25,7 +25,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 var
                     ExportType: Option Receipt,Shipment;
                 begin
-                    TempIntrastatJnlLine.Reset;
+                    TempIntrastatJnlLine.Reset();
 
                     // Reciepts
                     if StrPos(GetFilter(Type), Format(Type::Receipt)) <> 0 then begin
@@ -39,7 +39,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                         IntrastatJnlBatch."System 29 reported" := true;
                     end;
 
-                    IntrastatJnlBatch.Modify;
+                    IntrastatJnlBatch.Modify();
                 end;
             }
 
@@ -54,7 +54,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
                 ReportingDate := ConvertPeriodToDate("Statistics Period");
 
-                TempIntrastatJnlLine.DeleteAll;
+                TempIntrastatJnlLine.DeleteAll();
             end;
         }
     }
@@ -130,7 +130,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     trigger OnPostReport()
@@ -149,7 +149,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         if ThirdPartyVatRegNo <> '' then
             EnterpriseNo := DelChr(ThirdPartyVatRegNo, '=', DelChr(ThirdPartyVatRegNo, '=', '0123456789'))
         else begin
-            CompanyInformation.Get;
+            CompanyInformation.Get();
             if not VATLogicalTests.MOD97Check(CompanyInformation."Enterprise No.") then
                 Error(EnterpriseNoNotValidErr);
             EnterpriseNo := DelChr(CompanyInformation."Enterprise No.", '=', DelChr(CompanyInformation."Enterprise No.", '=', '0123456789'));
@@ -208,9 +208,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 TempIntrastatJnlLine."No. of Supplementary Units" :=
                   TempIntrastatJnlLine."No. of Supplementary Units" + "No. of Supplementary Units";
                 TempIntrastatJnlLine."Document No." := "Document No.";
-                TempIntrastatJnlLine.Modify;
+                TempIntrastatJnlLine.Modify();
             end else begin
-                TempIntrastatJnlLine.Init;
+                TempIntrastatJnlLine.Init();
                 TempIntrastatJnlLine."Journal Template Name" := "Journal Template Name";
                 TempIntrastatJnlLine."Journal Batch Name" := "Journal Batch Name";
                 TempIntrastatJnlLine.Type := Type;
@@ -228,7 +228,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 TempIntrastatJnlLine."Document No." := "Document No.";
                 TempIntrastatJnlLine."Country/Region of Origin Code" := "Country/Region of Origin Code";
                 TempIntrastatJnlLine."Partner ID" := "Partner ID";
-                TempIntrastatJnlLine.Insert;
+                TempIntrastatJnlLine.Insert();
             end;
         end;
     end;

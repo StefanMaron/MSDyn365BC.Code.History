@@ -75,7 +75,7 @@ codeunit 5889 "Phys. Invt. Tracking Mgt."
         ItemJnlLine.TestField("Location Code", PhysInvtOrderLine."Location Code");
         ItemJnlLine.TestField("Bin Code", PhysInvtOrderLine."Bin Code");
 
-        ReservEntry.Reset;
+        ReservEntry.Reset();
         ReservEntry.SetCurrentKey(
           "Source Type", "Source Subtype", "Source ID",
           "Source Batch Name", "Source Prod. Order Line",

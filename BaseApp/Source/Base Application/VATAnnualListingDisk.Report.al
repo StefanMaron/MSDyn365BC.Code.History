@@ -36,11 +36,11 @@ report 11309 "VAT Annual Listing - Disk"
                 trigger OnAfterGetRecord()
                 begin
                     if VATCustomer.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     if VATCustomer.Mark then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if not CheckVatNo.MOD97Check(VATCustomer."Enterprise No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     VATCustomer.Mark(true);
                 end;
 
@@ -74,14 +74,14 @@ report 11309 "VAT Annual Listing - Disk"
                 begin
                     i := Buffer.Count + 1;
                     if not SkipMinimumAmount or IsCreditMemo then begin
-                        Buffer.Init;
+                        Buffer.Init();
                         Buffer."Entry No." := i;
                         Buffer."Enterprise No." := DelChr(Customer."Enterprise No.", '=', DelChr(Customer."Enterprise No.", '=', '0123456789'));
                         Country2.Get(Customer."Country/Region Code");
                         Buffer."Country/Region Code" := Country2."ISO Code";
                         Buffer.Base := -WBase;
                         Buffer.Amount := -WAmount;
-                        Buffer.Insert;
+                        Buffer.Insert();
                     end;
                 end;
 
@@ -95,12 +95,15 @@ report 11309 "VAT Annual Listing - Disk"
             }
 
             trigger OnAfterGetRecord()
+            var
+                EnterpriseNoPrefix: Text[50];
             begin
                 if not CheckVatNo.MOD97Check("Enterprise No.") then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
-                if not CheckVatNo.CheckEnterpriseNoFormat("Enterprise No.") then
-                    CurrReport.Skip;
+                EnterpriseNoPrefix := UpperCase(DelChr("Enterprise No.", '=', '0123456789,?;.:/-_ '));
+                if (StrPos(EnterpriseNoPrefix, 'BTW') = 0) and (StrPos(EnterpriseNoPrefix, 'TVA') = 0) then
+                    CurrReport.Skip();
 
                 Clear(WBase);
                 Clear(WAmount);
@@ -180,7 +183,7 @@ report 11309 "VAT Annual Listing - Disk"
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
                             Caption = 'Minimum Amount';
-                            ToolTip = 'Specifies the minimum customer''s year balance to be included in the report. If the yearly balance of the customer is smaller than the minimum amount (and there are no negative entries), the customer will not be included in the declaration.';
+                            ToolTip = 'Specifies the minimum customer''s year balance to be included in the report. If the yearly balance of the customer is smaller than the minimum amount, the customer will not be included in the declaration.';
                         }
                         field(TestDeclaration; TestDeclaration)
                         {
@@ -267,7 +270,7 @@ report 11309 "VAT Annual Listing - Disk"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if not CheckVatNo.MOD97Check(CompanyInformation."Enterprise No.") then
             Error(Text000, CompanyInformation.FieldCaption("Enterprise No."), CompanyInformation.TableCaption);
         CompanyInformation.TestField("Country/Region Code");
@@ -434,14 +437,14 @@ report 11309 "VAT Annual Listing - Disk"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if RefreshClientListingsNbr or TestDeclaration then begin
             CompanyInformation."XML Seq. No. Annual Listing" := CompanyInformation."XML Seq. No. Annual Listing" + 1;
             if CompanyInformation."XML Seq. No. Annual Listing" > 9999 then
                 CompanyInformation."XML Seq. No. Annual Listing" := 1;
 
             if not TestDeclaration then
-                CompanyInformation.Modify;
+                CompanyInformation.Modify();
 
             RefreshClientListingsNbr := false;
         end;

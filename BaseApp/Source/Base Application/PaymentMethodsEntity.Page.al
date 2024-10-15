@@ -100,7 +100,7 @@ page 5486 "Payment Methods Entity"
         if TempFieldSet.Get(DATABASE::"Payment Method", FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::"Payment Method";
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

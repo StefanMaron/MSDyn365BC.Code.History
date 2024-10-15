@@ -70,7 +70,7 @@ table 2000040 "CODA Statement"
 
     trigger OnDelete()
     begin
-        CODAStatementLine.Reset;
+        CODAStatementLine.Reset();
         CODAStatementLine.SetRange("Bank Account No.", "Bank Account No.");
         CODAStatementLine.SetRange("Statement No.", "Statement No.");
         CODAStatementLine.DeleteAll(true);

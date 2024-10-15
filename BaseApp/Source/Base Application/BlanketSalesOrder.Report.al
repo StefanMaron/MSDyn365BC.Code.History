@@ -231,10 +231,10 @@ report 210 "Blanket Sales Order"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -258,7 +258,7 @@ report 210 "Blanket Sales Order"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Sales Line"; "Sales Line")
@@ -269,7 +269,7 @@ report 210 "Blanket Sales Order"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -404,10 +404,10 @@ report 210 "Blanket Sales Order"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.Find('-') then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -431,7 +431,7 @@ report 210 "Blanket Sales Order"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry2.SetRange("Dimension Set ID", "Sales Line"."Dimension Set ID");
                             end;
@@ -460,7 +460,7 @@ report 210 "Blanket Sales Order"
 
                         trigger OnPostDataItem()
                         begin
-                            SalesLine.DeleteAll;
+                            SalesLine.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
@@ -472,7 +472,7 @@ report 210 "Blanket Sales Order"
                             do
                                 MoreLines := SalesLine.Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SalesLine.SetRange("Line No.", 0, SalesLine."Line No.");
                             SetRange(Number, 1, SalesLine.Count);
 
@@ -536,7 +536,7 @@ report 210 "Blanket Sales Order"
                         trigger OnPreDataItem()
                         begin
                             if VATAmount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SetRange(Number, 1, VATAmountLine.Count);
                         end;
                     }
@@ -585,7 +585,7 @@ report 210 "Blanket Sales Order"
                                ("Sales Header"."Currency Code" = '') or
                                (VATAmountLine.GetTotalVATAmount = 0)
                             then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, VATAmountLine.Count);
                             Clear(VALVATBaseLCY);
@@ -644,7 +644,7 @@ report 210 "Blanket Sales Order"
                         trigger OnPreDataItem()
                         begin
                             if not ShowShippingAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -655,8 +655,8 @@ report 210 "Blanket Sales Order"
                 begin
                     Clear(SalesLine);
                     Clear(SalesPost);
-                    SalesLine.DeleteAll;
-                    VATAmountLine.DeleteAll;
+                    SalesLine.DeleteAll();
+                    VATAmountLine.DeleteAll();
                     SalesPost.GetSalesLines("Sales Header", SalesLine, 0);
                     SalesLine.CalcVATAmountLines(0, "Sales Header", SalesLine, VATAmountLine);
                     SalesLine.UpdateVATOnLines(0, "Sales Header", SalesLine, VATAmountLine);
@@ -786,9 +786,9 @@ report 210 "Blanket Sales Order"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
+        SalesSetup.Get();
         FormatDocument.SetLogoPosition(SalesSetup."Logo Position on Documents", CompanyInfo1, CompanyInfo2, CompanyInfo3);
     end;
 

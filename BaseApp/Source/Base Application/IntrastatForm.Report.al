@@ -57,9 +57,6 @@ report 501 "Intrastat - Form"
             column(Vthird_7_; Vthird[7])
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(Text2; Text2)
             {
             }
@@ -195,9 +192,6 @@ report 501 "Intrastat - Form"
                 {
                 }
                 column(Vthird_7__Control1010049; Vthird[7])
-                {
-                }
-                column(CurrReport_PAGENO_Control1010001; CurrReport.PageNo)
                 {
                 }
                 column(Text2_Control1010004; Text2)
@@ -442,7 +436,7 @@ report 501 "Intrastat - Form"
                 trigger OnPreDataItem()
                 begin
                     if Nihil then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if Count > 0 then begin
                         if GetRangeMin(Type) = 0 then
@@ -600,8 +594,8 @@ report 501 "Intrastat - Form"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        Company.Get;
+        GLSetup.Get();
+        Company.Get();
         if not CheckVatNo.MOD97Check(Company."Enterprise No.") then
             Error(Text11315);
     end;

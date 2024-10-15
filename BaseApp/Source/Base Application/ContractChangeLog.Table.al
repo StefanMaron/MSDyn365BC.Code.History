@@ -93,15 +93,15 @@ table 5967 "Contract Change Log"
 
     procedure LogContractChange(ContractNo: Code[20]; ContractPart: Option Header,Line,Discount; FieldName: Text[100]; ChangeType: Integer; OldValue: Text[100]; NewValue: Text[100]; ServItemNo: Code[20]; ServContractLineNo: Integer)
     begin
-        ContractChangeLog.Reset;
-        ContractChangeLog.LockTable;
+        ContractChangeLog.Reset();
+        ContractChangeLog.LockTable();
         ContractChangeLog.SetRange("Contract No.", ContractNo);
         if ContractChangeLog.FindLast then
             NextChangeNo := ContractChangeLog."Change No." + 1
         else
             NextChangeNo := 1;
 
-        ContractChangeLog.Init;
+        ContractChangeLog.Init();
         ContractChangeLog."Contract Type" := ContractChangeLog."Contract Type"::Contract;
         ContractChangeLog."Contract No." := ContractNo;
         ContractChangeLog."User ID" := UserId;
@@ -125,7 +125,7 @@ table 5967 "Contract Change Log"
         ContractChangeLog."Field Description" := FieldName;
         ContractChangeLog."Old Value" := OldValue;
         ContractChangeLog."New Value" := NewValue;
-        ContractChangeLog.Insert;
+        ContractChangeLog.Insert();
     end;
 }
 

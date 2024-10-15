@@ -14,7 +14,7 @@ codeunit 11301 "Localization Management"
         Item.Get(ItemNo);
         if Item."Country/Region of Origin Code" <> '' then
             exit(Item."Country/Region of Origin Code");
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if CompanyInformation."Country/Region Code" <> '' then
             exit(CompanyInformation."Country/Region Code");
         exit('QU');

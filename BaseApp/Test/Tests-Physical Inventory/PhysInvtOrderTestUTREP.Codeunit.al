@@ -31,7 +31,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         PhysInvtOrderHeader.Status := PhysInvtOrderHeader.Status::Open;
         PhysInvtOrderHeader."Posting Date" := 0D;
         PhysInvtOrderHeader."No. Series" := LibraryUTUtility.GetNewCode10;
-        PhysInvtOrderHeader.Modify;
+        PhysInvtOrderHeader.Modify();
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestRequestPageHandler.
 
         // Exercise.
@@ -60,11 +60,11 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         Initialize;
         UserSetup."User ID" := UserId;
         UserSetup."Allow Posting From" := CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
-        UserSetup.Insert;
+        UserSetup.Insert();
 
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         PhysInvtOrderHeader."Posting Date" := WorkDate;
-        PhysInvtOrderHeader.Modify;
+        PhysInvtOrderHeader.Modify();
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestRequestPageHandler.
 
         // Exercise.
@@ -90,12 +90,12 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         Initialize;
         UserSetup."User ID" := UserId;
         UserSetup."Allow Posting To" := WorkDate;
-        UserSetup.Insert;
+        UserSetup.Insert();
 
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         PhysInvtOrderHeader."Posting Date" :=
           CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', UserSetup."Allow Posting To");
-        PhysInvtOrderHeader.Modify;
+        PhysInvtOrderHeader.Modify();
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestRequestPageHandler.
 
         // Exercise.
@@ -180,11 +180,11 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         LocationCode := LibraryUTUtility.GetNewCode10;
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         PhysInvtOrderHeader."Location Code" := LocationCode;
-        PhysInvtOrderHeader.Modify;
+        PhysInvtOrderHeader.Modify();
 
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryUTUtility.GetNewCode);
         PhysInvtOrderLine."Location Code" := LocationCode;
-        PhysInvtOrderLine.Modify;
+        PhysInvtOrderLine.Modify();
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestWithFiltersRequestPageHandler.
         LibraryVariableStorage.Enqueue(PhysInvtOrderLine."Location Code");  // Required inside for PhysInvtOrderTestWithFiltersRequestPageHandler.
 
@@ -218,7 +218,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", CreateBlockedItem);
         PhysInvtOrderLine."Dimension Set ID" := DimensionSetEntry2."Dimension Set ID";
-        PhysInvtOrderLine.Modify;
+        PhysInvtOrderLine.Modify();
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestRequestPageHandler.
 
         // Exercise.
@@ -254,7 +254,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", CreateBlockedItem);
         PhysInvtOrderLine."Dimension Set ID" := DimensionSetEntry3."Dimension Set ID";
-        PhysInvtOrderLine.Modify;
+        PhysInvtOrderLine.Modify();
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestRequestPageHandler.
 
         // Exercise.
@@ -276,7 +276,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     local procedure CreatePhysInventoryOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
         PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
-        PhysInvtOrderHeader.Insert;
+        PhysInvtOrderHeader.Insert();
     end;
 
     local procedure CreatePhysInventoryOrderLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; DocumentNo: Code[20]; ItemNo: Code[20])
@@ -284,7 +284,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         PhysInvtOrderLine."Document No." := DocumentNo;
         PhysInvtOrderLine."Line No." := 1;
         PhysInvtOrderLine."Item No." := ItemNo;
-        PhysInvtOrderLine.Insert;
+        PhysInvtOrderLine.Insert();
     end;
 
     local procedure CreateBlockedItem(): Code[20]
@@ -293,7 +293,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     begin
         Item."No." := LibraryUTUtility.GetNewCode;
         Item.Blocked := true;
-        Item.Insert;
+        Item.Insert();
         exit(Item."No.")
     end;
 
@@ -303,12 +303,12 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     begin
         DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode;
         DimensionValue.Code := LibraryUTUtility.GetNewCode;
-        DimensionValue.Insert;
+        DimensionValue.Insert();
 
         DimensionSetEntry."Dimension Set ID" := DimensionSetID;
         DimensionSetEntry."Dimension Code" := DimensionValue."Dimension Code";
         DimensionSetEntry."Dimension Value Code" := DimensionValue.Code;
-        DimensionSetEntry.Insert;
+        DimensionSetEntry.Insert();
     end;
 
     [RequestPageHandler]

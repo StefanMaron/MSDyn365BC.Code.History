@@ -63,7 +63,7 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         // Magic numbers from original repro steps Bug 332246
         AddPurchOrderLine(PurchLine, PurchaseHeader, 19.625, 1192, 100, 0);
         PurchLine.Validate("Line Amount", 16559.33);
-        PurchLine.Modify;
+        PurchLine.Modify();
     end;
 
     [Test]
@@ -256,7 +256,7 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         PreparePurchOrder(PurchHeader);
         AddPurchOrderLine100PctPrepmt(PurchLine, PurchHeader, PositiveDiff);
         PurchLine.Validate("Line Discount %", GetSpecialLineDiscPct);
-        PurchLine.Modify;
+        PurchLine.Modify();
     end;
 
     [Test]
@@ -743,7 +743,7 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purch Full Prepmt Rounding");
     end;
 
@@ -751,8 +751,6 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
     var
         VATPostingSetup: array[2] of Record "VAT Posting Setup";
         PurchaseHeader: Record "Purchase Header";
-        ExpectedGLEntryCount: Integer;
-        ExpectedVATEntryCount: Integer;
     begin
         Initialize;
         CreateTwoVATPostingSetups(VATPostingSetup, 21);
@@ -766,14 +764,8 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         InvoiceNo := InvoicePurchaseDoc(PurchaseHeader);
 
         VerifyGLEntryAmount(InvoiceNo, GetVendorPostingGroupPayAccNo(PurchaseHeader."Buy-from Vendor No."), 0, 0);
-        ExpectedGLEntryCount := 7;
-        ExpectedVATEntryCount := 3;
-        if not CompressPrepmt then begin
-            ExpectedGLEntryCount += 2;
-            ExpectedVATEntryCount += 1;
-        end;
-        VerifyGLEntryCount(InvoiceNo, ExpectedGLEntryCount);
-        VerifyVATEntryCount(InvoiceNo, ExpectedVATEntryCount);
+        VerifyGLEntryCount(InvoiceNo, 7);
+        VerifyVATEntryCount(InvoiceNo, 3);
     end;
 
     local procedure PreparePOPostPrepmtAndReceipt(var PurchaseOrderHeader: Record "Purchase Header")
@@ -1005,7 +997,7 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         PurchLine.Find;
         PurchLine.Validate("Qty. to Receive", QtyToReceive);
         PurchLine.Validate("Qty. to Invoice", QtyToInvoice);
-        PurchLine.Modify;
+        PurchLine.Modify();
     end;
 
     local procedure UpdatePurchLine(var PurchaseLine: Record "Purchase Line"; NewDirectUnitCost: Decimal; NewDiscountPct: Decimal; NewPrepmtPct: Decimal)

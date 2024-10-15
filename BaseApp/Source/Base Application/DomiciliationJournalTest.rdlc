@@ -2055,14 +2055,14 @@
                                       </TablixMember>
                                       <TablixMember>
                                         <Visibility>
-                                          <Hidden>=IIF(Last(Fields!Totalsca.Value) = Last(Fields!Jlpostingdate.Value) AND Not IsNothing(Fields!Totalsca.Value) ,False,True)</Hidden>
+                                          <Hidden>true</Hidden>
                                         </Visibility>
                                         <KeepWithGroup>Before</KeepWithGroup>
                                         <KeepTogether>true</KeepTogether>
                                       </TablixMember>
                                       <TablixMember>
                                         <Visibility>
-                                          <Hidden>=IIF(Last(Fields!Totalsca.Value) = Last(Fields!Jlpostingdate.Value) AND Not IsNothing(Fields!Totalsca.Value) ,False,True)</Hidden>
+                                          <Hidden>=true</Hidden>
                                         </Visibility>
                                         <KeepWithGroup>Before</KeepWithGroup>
                                         <KeepTogether>true</KeepTogether>
@@ -2637,9 +2637,6 @@ End Function</Code>
         </Field>
         <Field Name="CustomerNo1">
           <DataField>CustomerNo1</DataField>
-        </Field>
-        <Field Name="Totalsca">
-          <DataField>Totalsca</DataField>
         </Field>
         <Field Name="Jlpostingdate">
           <DataField>Jlpostingdate</DataField>

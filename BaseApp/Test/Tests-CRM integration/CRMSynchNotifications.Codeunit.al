@@ -34,11 +34,11 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Contact] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
         TestInit;
-        Contact.DeleteAll;
+        Contact.DeleteAll();
         // [GIVEN] Contact "A" coupled to a CRM Contact
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
         Contact."Company No." := LibraryUtility.GenerateGUID;
-        Contact.Modify;
+        Contact.Modify();
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
         // [GIVEN] CRM Integration record for Contact "A" marked as failed
         ExpectedErrorMsg := LibraryUtility.GenerateGUID;
@@ -75,7 +75,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Contact] [UI]
         // [SCENARIO] Notification should be shown on Card page refresh, if the record is coupled but has failed the last sync.
         TestInit;
-        Contact[1].DeleteAll;
+        Contact[1].DeleteAll();
         // [GIVEN] Contacts "A" and "B" coupled to a CRM Contacts
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact[1], CRMContact[1]);
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact[2], CRMContact[2]);
@@ -120,11 +120,11 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Contact] [Log] [UI]
         TestInit;
-        Contact.DeleteAll;
+        Contact.DeleteAll();
         // [GIVEN] Contact "A" coupled to CRM Contact
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
         Contact."Company No." := LibraryUtility.GenerateGUID; // to enable CRM actions
-        Contact.Modify;
+        Contact.Modify();
 
         // [GIVEN] 2 Synch Jobs for "CONTACT" mapping and 1 for "CUSTOMER" mapping
         JobID[1] := LibraryCRMIntegration.MockSyncJob(DATABASE::Contact, '');
@@ -135,7 +135,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.FindByRecordID(Contact.RecordId);
         CRMIntegrationRecord."Last Synch. Job ID" := JobID[3];
         Clear(CRMIntegrationRecord."Last Synch. CRM Job ID");
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Contact Card page
         ContactCardPage.Trap;
@@ -148,6 +148,7 @@ codeunit 139185 "CRM Synch. Notifications"
         IntegrationSynchJobListPage.First;
         IntegrationSynchJobListPage.Message.AssertEquals(Msg);
         Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -165,7 +166,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Contact] [Log] [UI]
         TestInit;
-        Contact.DeleteAll;
+        Contact.DeleteAll();
         // [GIVEN] Contact "A" coupled to CRM Contact
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
 
@@ -178,7 +179,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.FindByRecordID(Contact.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
         CRMIntegrationRecord."Last Synch. CRM Job ID" := JobID[1];
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Contact List page
         ContactListPage.Trap;
@@ -189,7 +190,8 @@ codeunit 139185 "CRM Synch. Notifications"
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Contact "A"
         IntegrationSynchJobListPage.First;
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.')
+        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -207,7 +209,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Currency] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
         TestInit;
-        Currency.DeleteAll;
+        Currency.DeleteAll();
         // [GIVEN] Currency "A" coupled to a CRM Transactioncurrency
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
           Currency, CRMTransactioncurrency);
@@ -234,6 +236,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [WHEN] Close Integration Synch Job List Page
         // [THEN] Notification: "Err" is not sent
         VerifyNoNotificationSent;
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -251,7 +254,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [SCENARIO] Notification should be shown on Card page refresh, if the record is coupled but has failed the last sync.
         TestInit;
         // [GIVEN] Currencies "A" and "B"  coupled to a CRM Transactioncurrencies
-        Currency[1].DeleteAll;
+        Currency[1].DeleteAll();
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
           Currency[1], CRMTransactioncurrency[1]);
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
@@ -300,7 +303,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Currency] [Log] [UI]
         TestInit;
-        Currency.DeleteAll;
+        Currency.DeleteAll();
         // [GIVEN] Currency "A" coupled to CRM Transactioncurrency
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
           Currency, CRMTransactioncurrency);
@@ -315,7 +318,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.FindByRecordID(Currency.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
         CRMIntegrationRecord."Last Synch. CRM Job ID" := JobID[1];
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Currencies page
         Currencies.Trap;
@@ -326,7 +329,8 @@ codeunit 139185 "CRM Synch. Notifications"
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Currency "A"
         IntegrationSynchJobListPage.First;
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.')
+        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -344,7 +348,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Customer] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
         TestInit;
-        Customer.DeleteAll;
+        Customer.DeleteAll();
         // [GIVEN] Customer "A" coupled to a CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
@@ -382,7 +386,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Customer] [UI]
         // [SCENARIO] Notification should be shown on Card page refresh, if the record is coupled but has failed the last sync.
         TestInit;
-        Customer[1].DeleteAll;
+        Customer[1].DeleteAll();
         // [GIVEN] Customers "A" and "B" coupled to a CRM Accounts
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[1], CRMAccount[1]);
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[2], CRMAccount[2]);
@@ -427,7 +431,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Customer] [UI]
         // [SCENARIO] Notification should be shown on Card page opening, if the record has failed the initial sync.
         TestInit;
-        Customer.DeleteAll;
+        Customer.DeleteAll();
         // [GIVEN] Customer "A" coupled to a CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
@@ -436,7 +440,7 @@ codeunit 139185 "CRM Synch. Notifications"
           Customer.RecordId, CRMAccount.RecordId, ExpectedErrorMsg, CurrentDateTime, false);
         // [GIVEN] CRM Integration record for Customer "A" does not exist
         CRMIntegrationRecord.FindByRecordID(Customer.RecordId);
-        CRMIntegrationRecord.Delete;
+        CRMIntegrationRecord.Delete();
 
         // [WHEN] Open Customer Card for "A"
         CustomerCardPage.Trap;
@@ -457,7 +461,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Customer] [UI]
         TestInit;
-        Customer.DeleteAll;
+        Customer.DeleteAll();
         // [GIVEN] Customer "A" coupled to a CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] CRM Integration record for Customer "A" marked as successful
@@ -486,7 +490,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Customer] [Log] [UI]
         TestInit;
-        Customer.DeleteAll;
+        Customer.DeleteAll();
         // [GIVEN] Customer "A" coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
 
@@ -501,7 +505,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.FindByRecordID(Customer.RecordId);
         CRMIntegrationRecord."Last Synch. Job ID" := JobID[1];
         CRMIntegrationRecord."Last Synch. CRM Job ID" := JobID[3];
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Customer Card page
         CustomerCardPage.Trap;
@@ -514,7 +518,8 @@ codeunit 139185 "CRM Synch. Notifications"
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[2]); // latest job goes first due to sorting by datetime
         IntegrationSynchJobListPage.Next;
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 2 records in the list.')
+        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 2 records in the list.');
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -533,7 +538,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Customer] [Log] [UI]
         TestInit;
-        Customer.DeleteAll;
+        Customer.DeleteAll();
         // [GIVEN] Customer "A" coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
 
@@ -550,7 +555,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.FindByRecordID(Customer.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
         Clear(CRMIntegrationRecord."Last Synch. CRM Job ID");
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Customer List page
         CustomerListPage.Trap;
@@ -566,6 +571,7 @@ codeunit 139185 "CRM Synch. Notifications"
         IntegrationSynchJobListPage.Next;
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
         Assert.IsFalse(IntegrationSynchJobListPage.Next, 'there should be three jobs in the list.');
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -583,7 +589,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Customer Price Group] [Log] [UI]
         TestInit;
-        CustomerPriceGroup.DeleteAll;
+        CustomerPriceGroup.DeleteAll();
         // [GIVEN] Customer Price Group "A" coupled to CRM Pricelevel
         LibraryCRMIntegration.CreateCoupledPriceGroupAndPricelevel(
           CustomerPriceGroup, CRMPricelevel);
@@ -598,7 +604,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.FindByRecordID(CustomerPriceGroup.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
         CRMIntegrationRecord."Last Synch. CRM Job ID" := JobID[1];
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Customer Price Groups page
         CustomerPriceGroups.Trap;
@@ -609,7 +615,8 @@ codeunit 139185 "CRM Synch. Notifications"
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Customer Price Group "A"
         IntegrationSynchJobListPage.First;
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.')
+        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -627,7 +634,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Item] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
         TestInit;
-        Item.DeleteAll;
+        Item.DeleteAll();
         // [GIVEN] Item "A" coupled to a CRM Product
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
@@ -653,6 +660,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [WHEN] Close Integration Synch Job List Page
         // [THEN] Notification: "Err" is not sent
         VerifyNoNotificationSent;
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -669,7 +677,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Item] [UI]
         // [SCENARIO] Notification should be shown on Card page refresh, if the record is coupled but has failed the last sync.
         TestInit;
-        Item[1].DeleteAll;
+        Item[1].DeleteAll();
         // [GIVEN] Items "A" and "B" coupled to CRM Products
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item[1], CRMProduct[2]);
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item[2], CRMProduct[2]);
@@ -712,7 +720,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Item] [UI]
         // [SCENARIO 257616] Notification should not be shown on Card page openning, if item is coupled, has failed the last sync and Integration Synch. Job entry is deleted.
         TestInit;
-        Item.DeleteAll;
+        Item.DeleteAll();
         // [GIVEN] Item "A" coupled to a CRM Product
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
         // [GIVEN] CRM Integration record for Item "A" marked as failed
@@ -721,7 +729,7 @@ codeunit 139185 "CRM Synch. Notifications"
             Item.RecordId, CRMProduct.RecordId, '', CurrentDateTime, false);
         // [GIVEN] Integration Synch. Job entry deleted
         IntegrationSynchJob.Get(SyncJobId);
-        IntegrationSynchJob.Delete;
+        IntegrationSynchJob.Delete();
 
         // [WHEN] Open Item Card for "A"
         ItemCardPage.Trap;
@@ -745,7 +753,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Item] [UI]
         // [SCENARIO 257616] Notification should not be shown on Card page openning, if item is coupled, has failed the last sync and Integration Synch. Job entry is deleted.
         TestInit;
-        Item.DeleteAll;
+        Item.DeleteAll();
         // [GIVEN] Item "A" coupled to a CRM Product
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
         // [GIVEN] CRM Integration record for Item "A" marked as failed
@@ -754,7 +762,7 @@ codeunit 139185 "CRM Synch. Notifications"
             CRMProduct.ProductId, CRMProduct.RecordId, Item.RecordId, '', CurrentDateTime, false);
         // [GIVEN] Integration Synch. Job entry deleted
         IntegrationSynchJob.Get(SyncJobId);
-        IntegrationSynchJob.Delete;
+        IntegrationSynchJob.Delete();
 
         // [WHEN] Open Item Card for "A"
         ItemCardPage.Trap;
@@ -778,7 +786,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Item] [Log] [UI]
         TestInit;
-        Item.DeleteAll;
+        Item.DeleteAll();
         // [GIVEN] Item "A" coupled to a CRM Product
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
 
@@ -792,7 +800,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.FindByRecordID(Item.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
         CRMIntegrationRecord."Last Synch. CRM Job ID" := JobID[1];
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Item List page
         ItemListPage.Trap;
@@ -803,7 +811,8 @@ codeunit 139185 "CRM Synch. Notifications"
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Item "A"
         IntegrationSynchJobListPage.First;
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.')
+        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -821,7 +830,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Resource] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
         TestInit;
-        Resource.DeleteAll;
+        Resource.DeleteAll();
         // [GIVEN] Resource "A" coupled to a CRM Product
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource, CRMProduct);
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
@@ -847,6 +856,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [WHEN] Close Integration Synch Job List Page
         // [THEN] Notification: "Err" is not sent
         VerifyNoNotificationSent;
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -866,7 +876,7 @@ codeunit 139185 "CRM Synch. Notifications"
         TestInit;
         LibraryApplicationArea.EnableJobsSetup;
         // [GIVEN] Resourcea "A" and "B" coupled to CRM Products
-        Resource[1].DeleteAll;
+        Resource[1].DeleteAll();
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource[1], CRMProduct[1]);
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource[2], CRMProduct[2]);
         // [GIVEN] Open Resource Card for "A"
@@ -910,7 +920,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Resource] [Log] [UI]
         TestInit;
-        Resource.DeleteAll;
+        Resource.DeleteAll();
         // [GIVEN] Resource "A" coupled to a CRM Product
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource, CRMProduct);
 
@@ -924,7 +934,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.FindByRecordID(Resource.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
         CRMIntegrationRecord."Last Synch. CRM Job ID" := JobID[1];
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Resource List page
         ResourceListPage.Trap;
@@ -935,7 +945,8 @@ codeunit 139185 "CRM Synch. Notifications"
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Resource "A"
         IntegrationSynchJobListPage.First;
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.')
+        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -953,7 +964,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Sales] [Invoice] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
         TestInit;
-        SalesInvoiceHeader.DeleteAll;
+        SalesInvoiceHeader.DeleteAll();
         // [GIVEN] Sales Invoice "A" coupled to a CRM Invoice
         CreateCoupledSalesInvoiceAndCRMInvoice(SalesInvoiceHeader, CRMInvoice);
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
@@ -979,6 +990,8 @@ codeunit 139185 "CRM Synch. Notifications"
         // [WHEN] Close Integration Synch Job List Page
         // [THEN] Notification: "Err" is not sent
         VerifyNoNotificationSent;
+        IntegrationSynchJobListPage.Close();
+        PostedSalesInvoicePage.Close();
     end;
 
     [Test]
@@ -995,7 +1008,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Sales] [Invoice] [UI]
         // [SCENARIO] Notification should be shown on Card page refresh, if the record is coupled but has failed the last sync.
         TestInit;
-        SalesInvoiceHeader[1].DeleteAll;
+        SalesInvoiceHeader[1].DeleteAll();
         // [GIVEN] Sales Invoice "A" and "B" coupled to CRM Invoices
         CreateCoupledSalesInvoiceAndCRMInvoice(SalesInvoiceHeader[1], CRMInvoice[1]);
         CreateCoupledSalesInvoiceAndCRMInvoice(SalesInvoiceHeader[2], CRMInvoice[2]);
@@ -1022,6 +1035,7 @@ codeunit 139185 "CRM Synch. Notifications"
         PostedSalesInvoicePage."No.".AssertEquals(SalesInvoiceHeader[1]."No.");
         // [THEN] Notification: "ErrA"
         VerifyNotificationMessage(ExpectedErrorMsg[1]);
+        PostedSalesInvoicePage.Close();
     end;
 
     [Test]
@@ -1039,7 +1053,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Sales] [Invoice] [Log] [UI]
         TestInit;
-        SalesInvoiceHeader.DeleteAll;
+        SalesInvoiceHeader.DeleteAll();
         // [GIVEN] Sales Invoice "A" coupled to a CRM Invoice
         CreateCoupledSalesInvoiceAndCRMInvoice(SalesInvoiceHeader, CRMInvoice);
 
@@ -1053,7 +1067,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.FindByRecordID(SalesInvoiceHeader.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
         CRMIntegrationRecord."Last Synch. CRM Job ID" := JobID[1];
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Posted Sales Invoices page
         PostedSalesInvoices.OpenView;
@@ -1064,7 +1078,8 @@ codeunit 139185 "CRM Synch. Notifications"
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Sales Invoice "A"
         IntegrationSynchJobListPage.First;
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.')
+        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -1082,7 +1097,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Salesperson] [UI]
         // [SCENARIO] Notification should be shown on Card page openning, if the record is coupled but has failed the last sync.
         TestInit;
-        SalespersonPurchaser.DeleteAll;
+        SalespersonPurchaser.DeleteAll();
         // [GIVEN] Salesperson "A" coupled to a CRM Systemuser
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
         // [GIVEN] Synch. Job Error for "A" contains the message: "Err"
@@ -1109,6 +1124,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [WHEN] Close Integration Synch Job List Page
         // [THEN] Notification: "Err" is not sent
         VerifyNoNotificationSent;
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -1125,7 +1141,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [FEATURE] [Salesperson] [UI]
         // [SCENARIO] Notification should be shown on Card page refresh, if the record is coupled but has failed the last sync.
         TestInit;
-        SalespersonPurchaser[1].DeleteAll;
+        SalespersonPurchaser[1].DeleteAll();
         // [GIVEN] Salespersons "A" and "B" coupled to CRM Systemusers
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser[1], CRMSystemuser[1]);
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser[2], CRMSystemuser[2]);
@@ -1171,7 +1187,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Salesperson] [Log] [UI]
         TestInit;
-        SalespersonPurchaser.DeleteAll;
+        SalespersonPurchaser.DeleteAll();
         // [GIVEN] Salesperson "A" coupled to a CRM Systemuser
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
 
@@ -1185,7 +1201,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.FindByRecordID(SalespersonPurchaser.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
         CRMIntegrationRecord."Last Synch. CRM Job ID" := JobID[1];
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Salespersons/Purchasers page
         SalespersonsPurchasers.Trap;
@@ -1196,7 +1212,8 @@ codeunit 139185 "CRM Synch. Notifications"
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Salesperson/Purchaser "A"
         IntegrationSynchJobListPage.First;
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.')
+        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -1215,7 +1232,7 @@ codeunit 139185 "CRM Synch. Notifications"
     begin
         // [FEATURE] [Unit Of Measure] [Log] [UI]
         TestInit;
-        UnitOfMeasure.DeleteAll;
+        UnitOfMeasure.DeleteAll();
         // [GIVEN] Unit Of Measure "A" coupled to a CRM Uomschedule
         LibraryCRMIntegration.CreateCoupledUnitOfMeasureAndUomSchedule(
           UnitOfMeasure, CRMUom, CRMUomschedule);
@@ -1230,7 +1247,7 @@ codeunit 139185 "CRM Synch. Notifications"
         CRMIntegrationRecord.FindByRecordID(UnitOfMeasure.RecordId);
         Clear(CRMIntegrationRecord."Last Synch. Job ID");
         CRMIntegrationRecord."Last Synch. CRM Job ID" := JobID[1];
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
 
         // [WHEN] Run "Synchronization Log" action in Units Of Measure page
         UnitsofMeasure.Trap;
@@ -1241,7 +1258,8 @@ codeunit 139185 "CRM Synch. Notifications"
         // [THEN] "Integration Synch. Job List" page open, where is 1 job related to Unit Of Measure "A"
         IntegrationSynchJobListPage.First;
         IntegrationSynchJobListPage.Message.AssertEquals(Msg[1]);
-        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.')
+        Assert.IsFalse(IntegrationSynchJobListPage.Next, 'There should be 1 record in the list.');
+        IntegrationSynchJobListPage.Close();
     end;
 
     [Test]
@@ -1295,7 +1313,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [GIVEN] "Last Synch. CRM Modified On" is later than "Last Synch. Modified On"
         CRMIntegrationRecord.FindByRecordID(Customer.RecordId);
         CRMIntegrationRecord."Last Synch. CRM Modified On" := CRMIntegrationRecord."Last Synch. Modified On" + 1000;
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
 
         // [WHEN] SendResultNotification() for Customer
         Assert.IsFalse(CRMIntegrationManagement.SendResultNotification(Customer), 'Should be no notification.');
@@ -1330,7 +1348,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [GIVEN] "Last Synch. Modified On" is later than "Last Synch. CRM Modified On"
         CRMIntegrationRecord.FindByRecordID(Customer.RecordId);
         CRMIntegrationRecord."Last Synch. CRM Modified On" := CRMIntegrationRecord."Last Synch. Modified On" - 1000;
-        CRMIntegrationRecord.Modify;
+        CRMIntegrationRecord.Modify();
 
         // [WHEN] SendResultNotification() for Customer
         Assert.IsTrue(CRMIntegrationManagement.SendResultNotification(Customer), 'Should be a notification.');
@@ -1360,7 +1378,7 @@ codeunit 139185 "CRM Synch. Notifications"
 
         // [GIVEN] Item Description modified to 'D'
         Item.Description := LibraryUtility.GenerateGUID;
-        Item.Modify;
+        Item.Modify();
         LibraryCRMIntegration.ShiftModifiedOnBy(Item.RecordId, 1000);
 
         BindSubscription(CRMSynchNotifications); // to throw an error OnBeforeModify CRM Product
@@ -1401,7 +1419,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [GIVEN] CRM Product Name modified to 'D'
         CRMProduct.Name := LibraryUtility.GenerateGUID;
         CRMProduct.ModifiedOn := CurrentDateTime + 1000;
-        CRMProduct.Modify;
+        CRMProduct.Modify();
 
         BindSubscription(CRMSynchNotifications); // to throw an error OnBeforeModify Item
 
@@ -1437,7 +1455,7 @@ codeunit 139185 "CRM Synch. Notifications"
 
         // [GIVEN] Item Description modified to 'D'
         Item.Description := LibraryUtility.GenerateGUID;
-        Item.Modify;
+        Item.Modify();
         LibraryCRMIntegration.ShiftModifiedOnBy(Item.RecordId, 1000);
 
         // [WHEN] Sync Item
@@ -1471,7 +1489,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [GIVEN] CRM Product Name modified to 'D'
         CRMProduct.Name := LibraryUtility.GenerateGUID;
         CRMProduct.ModifiedOn := CurrentDateTime + 1000;
-        CRMProduct.Modify;
+        CRMProduct.Modify();
 
         // [WHEN] Sync Item
         IntegrationTableMapping.Get('ITEM-PRODUCT');
@@ -1503,10 +1521,10 @@ codeunit 139185 "CRM Synch. Notifications"
         // [GIVEN] CRM Product Name modified to 'D2'
         CRMProduct.Name := LibraryUtility.GenerateGUID;
         CRMProduct.ModifiedOn := CurrentDateTime + 1000;
-        CRMProduct.Modify;
+        CRMProduct.Modify();
         // [GIVEN] Item Description modified to 'D1'
         Item.Description := LibraryUtility.GenerateGUID;
-        Item.Modify;
+        Item.Modify();
         LibraryCRMIntegration.ShiftModifiedOnBy(Item.RecordId, 1000);
 
         // [WHEN] Sync Item
@@ -1537,7 +1555,7 @@ codeunit 139185 "CRM Synch. Notifications"
         // [GIVEN] CRM Product Name modified to 'D2'
         CRMProduct.Name := LibraryUtility.GenerateGUID;
         CRMProduct.ModifiedOn := CurrentDateTime + 3000;
-        CRMProduct.Modify;
+        CRMProduct.Modify();
 
         // [WHEN] Sync Item to Product
         IntegrationTableMapping.Get('ITEM-PRODUCT');
@@ -1565,7 +1583,7 @@ codeunit 139185 "CRM Synch. Notifications"
 
         // [GIVEN] Item Description modified to 'D1'
         Item.Description := LibraryUtility.GenerateGUID;
-        Item.Modify;
+        Item.Modify();
         LibraryCRMIntegration.ShiftModifiedOnBy(Item.RecordId, 1000);
 
         // [WHEN] Sync Product to Item
@@ -1592,8 +1610,8 @@ codeunit 139185 "CRM Synch. Notifications"
         // [SCENARIO] Coupled Sales Invoice Line should not get markers regarding the last synch. job.
         TestInit;
         // [GIVEN] Sales Invoice Line is coupled to CRM Sales Invoice Line
-        SalesInvoiceLine.Init;
-        SalesInvoiceLine.Insert;
+        SalesInvoiceLine.Init();
+        SalesInvoiceLine.Insert();
         SourceRecordRef.GetTable(SalesInvoiceLine);
         IntegrationTableMapping.SetRange("Table ID", SourceRecordRef.Number);
         IntegrationTableMapping.FindFirst;
@@ -1692,7 +1710,7 @@ codeunit 139185 "CRM Synch. Notifications"
         LibraryCRMIntegration.ConfigureCRM;
         ResetDefaultCRMSetupConfiguration;
 
-        RecordLink.DeleteAll;
+        RecordLink.DeleteAll();
 
         MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
     end;
@@ -1708,13 +1726,13 @@ codeunit 139185 "CRM Synch. Notifications"
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        SalesInvoiceHeader.Init;
+        SalesInvoiceHeader.Init();
         SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
         SalesInvoiceHeader.Insert(true);
 
-        CRMInvoice.Init;
+        CRMInvoice.Init();
         CRMInvoice.InvoiceId := CreateGuid;
-        CRMInvoice.Insert;
+        CRMInvoice.Insert();
 
         CRMIntegrationRecord.CoupleRecordIdToCRMID(SalesInvoiceHeader.RecordId, CRMInvoice.InvoiceId);
     end;
@@ -1722,9 +1740,15 @@ codeunit 139185 "CRM Synch. Notifications"
     local procedure ResetDefaultCRMSetupConfiguration()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Modify();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;
 

@@ -241,14 +241,14 @@ table 5611 "Depreciation Book"
                     TestField("Use Custom 1 Depreciation", false);
                     TestField("Periodic Depr. Date Calc.", "Periodic Depr. Date Calc."::"Last Entry");
                 end;
-                FADeprBook.LockTable;
+                FADeprBook.LockTable();
                 Modify;
                 FADeprBook.SetCurrentKey("Depreciation Book Code", "FA No.");
                 FADeprBook.SetRange("Depreciation Book Code", Code);
                 if FADeprBook.FindSet(true) then
                     repeat
                         FADeprBook.CalcDeprPeriod;
-                        FADeprBook.Modify;
+                        FADeprBook.Modify();
                     until FADeprBook.Next = 0;
             end;
         }
@@ -271,7 +271,7 @@ table 5611 "Depreciation Book"
         InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry";
         FADeprBook: Record "FA Depreciation Book";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FADeprBook.SetCurrentKey("Depreciation Book Code");
         FADeprBook.SetRange("Depreciation Book Code", Code);
         if not FADeprBook.IsEmpty then
@@ -283,10 +283,10 @@ table 5611 "Depreciation Book"
               FASetup.TableCaption, FASetup.FieldCaption("Insurance Depr. Book"), Code);
 
         FAPostingTypeSetup.SetRange("Depreciation Book Code", Code);
-        FAPostingTypeSetup.DeleteAll;
+        FAPostingTypeSetup.DeleteAll();
 
         FAJnlSetup.SetRange("Depreciation Book Code", Code);
-        FAJnlSetup.DeleteAll;
+        FAJnlSetup.DeleteAll();
     end;
 
     trigger OnInsert()

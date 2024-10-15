@@ -48,7 +48,7 @@ report 714 "Inventory - Vendor Purchases"
                 begin
                     FillTempValueEntry("Value Entry");
 
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
             }
             dataitem("Integer"; "Integer")
@@ -81,7 +81,7 @@ report 714 "Inventory - Vendor Purchases"
                         TempValueEntry.FindSet
                     else
                         if TempValueEntry.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                     if not Vend.Get(TempValueEntry."Source No.") then
                         Clear(Vend);
@@ -90,13 +90,13 @@ report 714 "Inventory - Vendor Purchases"
                 trigger OnPreDataItem()
                 begin
                     if TempValueEntry.IsEmpty then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
-                TempValueEntry.DeleteAll;
+                TempValueEntry.DeleteAll();
             end;
         }
     }
@@ -142,14 +142,14 @@ report 714 "Inventory - Vendor Purchases"
         with ValueEntry do begin
             TempValueEntry.SetRange("Source No.", "Source No.");
             if not TempValueEntry.FindSet then begin
-                TempValueEntry.Init;
+                TempValueEntry.Init();
                 TempValueEntry := "Value Entry";
-                TempValueEntry.Insert;
+                TempValueEntry.Insert();
             end else begin
                 TempValueEntry."Cost Amount (Actual)" := TempValueEntry."Cost Amount (Actual)" + "Cost Amount (Actual)";
                 TempValueEntry."Invoiced Quantity" := TempValueEntry."Invoiced Quantity" + "Invoiced Quantity";
                 TempValueEntry."Discount Amount" := TempValueEntry."Discount Amount" + "Discount Amount";
-                TempValueEntry.Modify;
+                TempValueEntry.Modify();
             end;
         end;
     end;

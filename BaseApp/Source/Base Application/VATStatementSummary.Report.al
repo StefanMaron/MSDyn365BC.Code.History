@@ -28,9 +28,6 @@ report 11311 "VAT Statement Summary"
                 column(Heading; Heading)
                 {
                 }
-                column(CurrReport_PAGENO; CurrReport.PageNo)
-                {
-                }
                 column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
                 {
                 }
@@ -252,13 +249,12 @@ report 11311 "VAT Statement Summary"
 
                 trigger OnPreDataItem()
                 begin
-                    if IsServiceTier then
-                        if UseAmtsInAddCurr then
-                            HeaderText := Text11305 + GLSetup."Additional Reporting Currency"
-                        else begin
-                            GLSetup.TestField("LCY Code");
-                            HeaderText := Text11305 + GLSetup."LCY Code";
-                        end;
+                    if UseAmtsInAddCurr then
+                        HeaderText := Text11305 + GLSetup."Additional Reporting Currency"
+                    else begin
+                        GLSetup.TestField("LCY Code");
+                        HeaderText := Text11305 + GLSetup."LCY Code";
+                    end;
                 end;
             }
             dataitem("Integer"; "Integer")
@@ -277,9 +273,6 @@ report 11311 "VAT Statement Summary"
                 {
                 }
                 column(USERID_Control68; UserId)
-                {
-                }
-                column(CurrReport_PAGENO_Control71; CurrReport.PageNo)
                 {
                 }
                 column(FORMAT_TODAY_0_4__Control72; Format(Today, 0, 4))
@@ -371,9 +364,6 @@ report 11311 "VAT Statement Summary"
                 column(VAT_Statement_Name__Name_Control35Caption; VAT_Statement_Name__Name_Control35CaptionLbl)
                 {
                 }
-                column(CurrReport_PAGENO_Control71Caption; CurrReport_PAGENO_Control71CaptionLbl)
-                {
-                }
                 column(Description_of_controlCaption; Description_of_controlCaptionLbl)
                 {
                 }
@@ -384,7 +374,7 @@ report 11311 "VAT Statement Summary"
                 trigger OnPreDataItem()
                 begin
                     if not ReportErrors then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     VATLogicalControls.CheckForErrors(NoOfPeriods, Row, ErrorMargin, December, Control, Checklist);
 
@@ -394,13 +384,12 @@ report 11311 "VAT Statement Summary"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.PageNo := 1;
                 Clear(Row);
             end;
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
             end;
         }
     }
@@ -482,7 +471,7 @@ report 11311 "VAT Statement Summary"
     trigger OnPreReport()
     begin
         if ReportErrors then begin
-            GLSetup.Get;
+            GLSetup.Get();
             if UseAmtsInAddCurr then
                 ReportingCurr := GLSetup."Additional Reporting Currency"
             else
@@ -513,7 +502,7 @@ report 11311 "VAT Statement Summary"
             DateName[i] := PeriodFormManagement.CreatePeriodFormat(PeriodType, Calender."Period Start");
             DateFilter[i] := Format(Calender."Period Start") + '..' + Format(Calender."Period End");
 
-            AccountingPeriod.Reset;
+            AccountingPeriod.Reset();
             AccountingPeriod.SetRange("Starting Date", Calender."Period Start");
             AccountingPeriod.SetRange(Name, Calender."Period Name");
             if AccountingPeriod.FindFirst then
@@ -574,7 +563,6 @@ report 11311 "VAT Statement Summary"
         VAT_Statement_Logical_ControlsCaptionLbl: Label 'VAT Statement Logical Controls';
         VAT_Statement_Name___Statement_Template_Name__Control37CaptionLbl: Label 'VAT Statement Template';
         VAT_Statement_Name__Name_Control35CaptionLbl: Label 'VAT Statement Name';
-        CurrReport_PAGENO_Control71CaptionLbl: Label 'Page';
         Description_of_controlCaptionLbl: Label 'Description of control';
 
     local procedure GetCurrency(): Code[10]

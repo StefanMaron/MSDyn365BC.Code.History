@@ -137,7 +137,7 @@ page 2183 "O365 Sales Invoice Line Dummy"
         CurrencySymbol: Text[10];
     begin
         if "Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             CurrencySymbol := GLSetup.GetCurrencySymbol;
         end else begin
             if Currency.Get("Currency Code") then;

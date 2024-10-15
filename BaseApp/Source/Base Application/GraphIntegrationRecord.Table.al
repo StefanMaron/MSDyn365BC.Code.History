@@ -203,7 +203,7 @@ table 5451 "Graph Integration Record"
             "Last Synch. Graph Modified On" := GraphLastModifiedOn;
             "Last Synch. Modified On" := LastModifiedOn;
             Modify(true);
-            Commit;
+            Commit();
         end;
     end;
 
@@ -216,7 +216,7 @@ table 5451 "Graph Integration Record"
 
         GraphIntegrationRecord."Last Synch. Graph Modified On" := GraphLastModifiedOn;
         GraphIntegrationRecord.Modify(true);
-        Commit;
+        Commit();
     end;
 
     procedure IsModifiedAfterLastSynchonizedGraphRecord(GraphID: Text[250]; DestinationTableID: Integer; CurrentModifiedOn: DateTime): Boolean
@@ -261,7 +261,7 @@ table 5451 "Graph Integration Record"
         IntegrationRecord.FindByIntegrationId(IntegrationID);
         if IntegrationRecord."Deleted On" <> 0DT then begin
             if FindRowFromIntegrationID(IntegrationID, GraphIntegrationRecord) then
-                GraphIntegrationRecord.Delete;
+                GraphIntegrationRecord.Delete();
             exit(true);
         end;
 

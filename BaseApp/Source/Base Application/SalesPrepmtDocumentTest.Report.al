@@ -253,10 +253,10 @@ report 212 "Sales Prepmt. Document Test"
                     begin
                         if Number = 1 then begin
                             if not DimSetEntry.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if not Continue then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         DimText := '';
 
@@ -272,7 +272,7 @@ report 212 "Sales Prepmt. Document Test"
                     trigger OnPreDataItem()
                     begin
                         if not ShowDim then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(HeaderErrorCounter; "Integer")
@@ -304,7 +304,7 @@ report 212 "Sales Prepmt. Document Test"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(SalesLineLoop; "Integer")
@@ -386,10 +386,10 @@ report 212 "Sales Prepmt. Document Test"
                         begin
                             if Number = 1 then begin
                                 if not TempSalesLine.Find('-') then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if TempSalesLine.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             "Sales Line" := TempSalesLine;
 
                             with "Sales Line" do begin
@@ -432,11 +432,11 @@ report 212 "Sales Prepmt. Document Test"
                     var
                         TempSalesLineToDeduct: Record "Sales Line" temporary;
                     begin
-                        TempSalesLine.Reset;
-                        TempSalesLine.DeleteAll;
+                        TempSalesLine.Reset();
+                        TempSalesLine.DeleteAll();
 
                         Clear(SalesPostPrepmt);
-                        TempVATAmountLine.DeleteAll;
+                        TempVATAmountLine.DeleteAll();
                         SalesPostPrepmt.GetSalesLines("Sales Header", DocumentType, TempSalesLine);
                         if DocumentType = DocumentType::Invoice then begin
                             SalesPostPrepmt.GetSalesLinesToDeduct("Sales Header", TempSalesLineToDeduct);
@@ -543,7 +543,7 @@ report 212 "Sales Prepmt. Document Test"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(LineDimLoop; "Integer")
@@ -563,10 +563,10 @@ report 212 "Sales Prepmt. Document Test"
                         begin
                             if Number = 1 then begin
                                 if not LineDimSetEntry.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             DimText := '';
 
@@ -582,7 +582,7 @@ report 212 "Sales Prepmt. Document Test"
                         trigger OnPreDataItem()
                         begin
                             if not ShowDim then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(PrepmtErrorCounter; "Integer")
@@ -610,10 +610,10 @@ report 212 "Sales Prepmt. Document Test"
                     begin
                         if Number = 1 then begin
                             if not TempPrepmtInvLineBuf.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if TempPrepmtInvLineBuf.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         LineDimSetEntry.SetRange("Dimension Set ID", TempPrepmtInvLineBuf."Dimension Set ID");
                         "Prepayment Inv. Line Buffer" := TempPrepmtInvLineBuf;
@@ -689,7 +689,7 @@ report 212 "Sales Prepmt. Document Test"
                     trigger OnPreDataItem()
                     begin
                         if VATAmount = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 1, TempVATAmountLine.Count);
                     end;
                 }
@@ -809,8 +809,8 @@ report 212 "Sales Prepmt. Document Test"
     begin
         SalesHeaderFilter := "Sales Header".GetFilters;
 
-        GLSetup.Get;
-        SalesSetup.Get;
+        GLSetup.Get();
+        SalesSetup.Get();
 
         if DocumentType = DocumentType::Invoice then
             PrepmtDocText := Text013

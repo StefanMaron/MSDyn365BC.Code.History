@@ -14,7 +14,7 @@ report 2000039 "Suggest domicilations"
             begin
                 if "Domiciliation No." <> '' then
                     if not GenJnlManagement.CheckDomiciliationNo("Domiciliation No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 Window.Update(1, "No.");
                 SuggestDomiciliations
             end;
@@ -34,7 +34,7 @@ report 2000039 "Suggest domicilations"
 
                 Cust2.CopyFilters(Cust);
 
-                DomJnlLine.LockTable;
+                DomJnlLine.LockTable();
                 DomJnlLine.SetRange("Journal Template Name", DomJnlBatch."Journal Template Name");
                 DomJnlLine.SetRange("Journal Batch Name", DomJnlBatch.Name);
                 if DomJnlLine.FindLast then;
@@ -48,11 +48,11 @@ report 2000039 "Suggest domicilations"
 
             trigger OnAfterGetRecord()
             begin
-                DomJnlLine2.Reset;
+                DomJnlLine2.Reset();
                 DomJnlLine2.SetRange("Journal Template Name", DomJnlTemplate.Name);
                 DomJnlLine2.SetRange("Journal Batch Name", DomJnlBatch.Name);
                 DomJnlLine2.SetRange("Customer No.", '');
-                DomJnlLine2.DeleteAll;
+                DomJnlLine2.DeleteAll();
             end;
         }
     }
@@ -168,7 +168,7 @@ report 2000039 "Suggest domicilations"
     begin
         with Cust do begin
             // selection on entries
-            CustLedgEntry.Reset;
+            CustLedgEntry.Reset();
             CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date");
             CustLedgEntry.SetRange("Customer No.", "No.");
             CustLedgEntry.SetRange(Open, true);
@@ -217,7 +217,7 @@ report 2000039 "Suggest domicilations"
     begin
         with DomJnlLine do begin
             // don't insert invoice if already in DomJnlLine
-            DomJnlLine2.Reset;
+            DomJnlLine2.Reset();
             DomJnlLine2.SetCurrentKey("Customer No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
             DomJnlLine2.SetRange("Customer No.", CustLedgEntry."Customer No.");
             DomJnlLine2.SetRange("Applies-to Doc. Type", CustLedgEntry."Document Type");

@@ -26,7 +26,7 @@ codeunit 134711 "Autom. Payment Registration.UX"
         Initialize;
 
         BankAccNo := CreateBankAcc;
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := BankAccReconciliation."Statement Type"::"Payment Application";
         BankAccReconciliation."Bank Account No." := BankAccNo;
 
@@ -155,38 +155,35 @@ codeunit 134711 "Autom. Payment Registration.UX"
     local procedure InsertDummyBankReconHeaderAndLine(StatementType: Option; StatementNo: Code[20]; var BankAccReconciliation: Record "Bank Acc. Reconciliation"; StatementAmount: Decimal)
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := StatementType;
         BankAccReconciliation."Bank Account No." := CreateBankAcc;
         BankAccReconciliation."Statement No." := StatementNo;
-        if GenJournalTemplate.FindFirst then
-            BankAccReconciliation."Journal Template Name" := GenJournalTemplate.Name;
-        BankAccReconciliation.Insert;
+        BankAccReconciliation.Insert();
 
-        BankAccReconciliationLine.Init;
+        BankAccReconciliationLine.Init();
         BankAccReconciliationLine."Statement Type" := StatementType;
         BankAccReconciliationLine."Bank Account No." := BankAccReconciliation."Bank Account No.";
         BankAccReconciliationLine."Statement No." := StatementNo;
         BankAccReconciliationLine."Statement Amount" := StatementAmount;
-        BankAccReconciliationLine.Insert;
+        BankAccReconciliationLine.Insert();
     end;
 
     local procedure DeleteAllBankAcc()
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount.DeleteAll;
+        BankAccount.DeleteAll();
     end;
 
     local procedure CreateBankAcc(): Code[20]
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount."No." := CopyStr(CreateGuid, 1, 20);
-        BankAccount.Insert;
+        BankAccount.Insert();
 
         exit(BankAccount."No.");
     end;

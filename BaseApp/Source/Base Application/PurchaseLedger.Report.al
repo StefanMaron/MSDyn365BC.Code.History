@@ -26,9 +26,6 @@ report 11301 "Purchase Ledger"
                 {
                     DataItemLinkReference = PeriodLoop;
                     DataItemTableView = SORTING("Journal Template Name", "Posting Date", "Document No.");
-                    column(PageNumber; CurrReport.PageNo)
-                    {
-                    }
                     column(ReportFilter; ReportFilter)
                     {
                     }
@@ -168,7 +165,7 @@ report 11301 "Purchase Ledger"
                            ("VAT Bus. Posting Group" = '') and
                            ("VAT Prod. Posting Group" = '')
                         then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if OldName <> "Journal Template Name" then begin
                             OldDate := 0D;
@@ -188,7 +185,7 @@ report 11301 "Purchase Ledger"
                             PrnDocno := '';
 
                         if not GLAccount.Get("G/L Account No.") then
-                            GLAccount.Init;
+                            GLAccount.Init();
                         GLPostingDescription := Description;
 
                         CurrencyCode := '';
@@ -246,7 +243,7 @@ report 11301 "Purchase Ledger"
                         GLEntry.SetRange("Posting Date", PeriodStartDate, PeriodEndDate);
 
                         if GLEntry.IsEmpty then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem(Loop2; "Integer")
@@ -336,7 +333,7 @@ report 11301 "Purchase Ledger"
                         trigger OnAfterGetRecord()
                         begin
                             if not GLAccount.Get("G/L Account No.") then
-                                GLAccount.Init;
+                                GLAccount.Init();
 
                             Description := GLAccount.Name;
 
@@ -344,7 +341,7 @@ report 11301 "Purchase Ledger"
                                ("Debit Amount" = 0) and
                                ("Credit Amount" = 0)
                             then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end;
 
                         trigger OnPreDataItem()
@@ -382,7 +379,7 @@ report 11301 "Purchase Ledger"
                             SetRange("Journal Template Name", "Gen. Journal Template".Name);
                             "G/L Entry".CopyFilter("Posting Date", "Posting Date");
 
-                            VATSumBuffer.DeleteAll;
+                            VATSumBuffer.DeleteAll();
                         end;
                     }
                     dataitem(VATSummary; "Integer")
@@ -570,7 +567,7 @@ report 11301 "Purchase Ledger"
                                (NetAmountLCY = 0) and
                                (TotalAmountAddCurr = 0)
                             then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         end;
 
                         trigger OnPreDataItem()
@@ -613,8 +610,6 @@ report 11301 "Purchase Ledger"
             begin
                 Clear(OldDocno);
                 Clear(PrnDocno);
-
-                CurrReport.PageNo := Startpage;
             end;
         }
     }
@@ -687,7 +682,7 @@ report 11301 "Purchase Ledger"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("VAT Statement Template Name");
         GLSetup.TestField("VAT Statement Name");
     end;

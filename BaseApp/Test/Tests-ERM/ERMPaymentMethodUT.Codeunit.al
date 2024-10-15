@@ -31,7 +31,7 @@ codeunit 134405 "ERM Payment Method UT"
         CreateGLAccount(GLAccount);
         PaymentMethod."Bal. Account Type" := PaymentMethod."Bal. Account Type"::"G/L Account";
         PaymentMethod."Bal. Account No." := GLAccount."No.";
-        PaymentMethod.Modify;
+        PaymentMethod.Modify();
 
         // Exercise
         PaymentMethod.Validate("Bal. Account Type", PaymentMethod."Bal. Account Type"::"G/L Account");
@@ -272,7 +272,7 @@ codeunit 134405 "ERM Payment Method UT"
         // [SCENARIO 290597] "Payment Method Code" doesn't get filled from Customer for Sales Credit Memo
 
         // [GIVEN] "Credit Memo" Sales header
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.Insert(true);
         // [GIVEN] Customer with "Payment Method Code" <> ''
@@ -296,7 +296,7 @@ codeunit 134405 "ERM Payment Method UT"
         // [SCENARIO 290597] "Payment Method Code" doesn't get filled from Customer for Sales Return Order
 
         // [GIVEN] "Return Order" Sales header
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Return Order");
         SalesHeader.Insert(true);
         // [GIVEN] Customer with "Payment Method Code" <> ''
@@ -321,7 +321,7 @@ codeunit 134405 "ERM Payment Method UT"
         // [SCENARIO 336492] "Payment Method Code" gets filled from Vendor for Purchase Credit Memo
 
         // [GIVEN] "Credit Memo" Purchase header
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeader.Insert(true);
 
@@ -349,7 +349,7 @@ codeunit 134405 "ERM Payment Method UT"
         // [SCENARIO 336492] "Payment Method Code" gets filled from Vendor for Purchase Return Order
 
         // [GIVEN] "Return Order" Purchase header
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Return Order");
         PurchaseHeader.Insert(true);
 
@@ -377,7 +377,7 @@ codeunit 134405 "ERM Payment Method UT"
         // [SCENARIO 290597] "Payment Method Code" doesn't get filled from Customer for Service Credit Memo
 
         // [GIVEN] "Credit Memo" Service header
-        ServiceHeader.Init;
+        ServiceHeader.Init();
         ServiceHeader.Validate("Document Type", ServiceHeader."Document Type"::"Credit Memo");
         ServiceHeader.Validate("No.", LibraryUTUtility.GetNewCode);
         ServiceHeader.Insert(true);
@@ -399,14 +399,14 @@ codeunit 134405 "ERM Payment Method UT"
 
     local procedure CreateBankAccount(var BankAccount: Record "Bank Account")
     begin
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount.Validate("No.", LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("No."), DATABASE::"Bank Account"));
         BankAccount.Insert(true);
     end;
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
     begin
-        GLAccount.Init;
+        GLAccount.Init();
         GLAccount.Validate(
           "No.", '1' + LibraryUtility.GenerateRandomCode(GLAccount.FieldNo("No."), DATABASE::"G/L Account"));
         GLAccount.Insert(true);
@@ -414,7 +414,7 @@ codeunit 134405 "ERM Payment Method UT"
 
     local procedure CreatePaymentTerms(var PaymentTerms: Record "Payment Terms")
     begin
-        PaymentTerms.Init;
+        PaymentTerms.Init();
         PaymentTerms.Validate(Code,
           CopyStr(LibraryUtility.GenerateRandomCode(PaymentTerms.FieldNo(Code), DATABASE::"Payment Terms"), 1,
             LibraryUtility.GetFieldLength(DATABASE::"Payment Terms", PaymentTerms.FieldNo(Code))));
@@ -423,12 +423,12 @@ codeunit 134405 "ERM Payment Method UT"
 
     local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def")
     begin
-        DataExchDef.Init;
+        DataExchDef.Init();
         DataExchDef.Validate(Code,
           CopyStr(LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def"), 1,
             LibraryUtility.GetFieldLength(DATABASE::"Data Exch. Def", DataExchDef.FieldNo(Code))));
         DataExchDef.Type := DataExchDef.Type::"Payment Export";
-        DataExchDef.Insert;
+        DataExchDef.Insert();
     end;
 
     local procedure CreateVendor(): Code[20]

@@ -235,11 +235,9 @@ table 2000022 "Domiciliation Journal Line"
             Editable = false;
             TableRelation = "Source Code";
         }
-        field(35; "Applies-to Doc. Type"; Option)
+        field(35; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(36; "Applies-to Doc. No."; Code[20])
         {
@@ -386,7 +384,7 @@ table 2000022 "Domiciliation Journal Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         DomiciliationJnlTemplate.Get("Journal Template Name");
         "Source Code" := DomiciliationJnlTemplate."Source Code";
         DomiciliationJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -421,7 +419,7 @@ table 2000022 "Domiciliation Journal Line"
 
     local procedure InitCompanyInformation()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     [Scope('OnPrem')]
@@ -529,8 +527,8 @@ table 2000022 "Domiciliation Journal Line"
 
         DirectDebitCollection.CreateNew("Journal Template Name", DomJnlTemp."Bank Account No.", DomJnlBatch."Partner Type");
         DirectDebitCollection."Domiciliation Batch Name" := "Journal Batch Name";
-        DirectDebitCollection.Modify;
-        Commit;
+        DirectDebitCollection.Modify();
+        Commit();
 
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
         RunFileExportCodeunit(BankAccount.GetDDExportCodeunitID, DirectDebitCollection."No.", DirectDebitCollectionEntry);
@@ -548,7 +546,7 @@ table 2000022 "Domiciliation Journal Line"
             if DirectDebitCollectionEntry."Entry No." <> CodeunitID then begin
                 FindSet;
                 DeleteDirectDebitCollection(DirectDebitCollectionNo);
-                Commit;
+                Commit();
                 REPORT.Run(REPORT::"Create Gen. Jnl. Lines", true, true, Rec);
                 ModifyAll(Status, Status::Posted);
             end;
@@ -557,7 +555,7 @@ table 2000022 "Domiciliation Journal Line"
         Reset;
         LastError := GetLastErrorText;
         DeleteDirectDebitCollection(DirectDebitCollectionNo);
-        Commit;
+        Commit();
         Error(LastError);
     end;
 

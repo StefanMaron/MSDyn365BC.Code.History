@@ -71,8 +71,8 @@ codeunit 134031 "ERM VAT With Payment Discount"
         Initialize;
         CreateAndPostSalesDocument(SalesHeader, false, '', SalesHeader."Document Type"::Invoice);
         PaymentAmount :=
-          SalesHeader."Amount Including VAT" - (SalesHeader.Amount * SalesHeader."Payment Discount %" / 100);
-        DiscountAmountLCY := SalesHeader.Amount * SalesHeader."Payment Discount %" / 100;
+          SalesHeader."Amount Including VAT" - (SalesHeader."Amount Including VAT" * SalesHeader."Payment Discount %" / 100);
+        DiscountAmountLCY := SalesHeader."Amount Including VAT" * SalesHeader."Payment Discount %" / 100;
 
         // Make Payment for the Sales Document, Calculate Discount Amount and verify Discount Amount.
         MakePmtAndVerifyDiscAmtSales(
@@ -113,8 +113,8 @@ codeunit 134031 "ERM VAT With Payment Discount"
         Initialize;
         CreateAndPostPurchaseDocument(PurchaseHeader, false, '', PurchaseHeader."Document Type"::Invoice);
         PaymentAmount :=
-          PurchaseHeader."Amount Including VAT" - (PurchaseHeader.Amount * PurchaseHeader."Payment Discount %" / 100);
-        AmountLCY := PurchaseHeader.Amount * PurchaseHeader."Payment Discount %" / 100;
+          PurchaseHeader."Amount Including VAT" - (PurchaseHeader."Amount Including VAT" * PurchaseHeader."Payment Discount %" / 100);
+        AmountLCY := PurchaseHeader."Amount Including VAT" * PurchaseHeader."Payment Discount %" / 100;
 
         // Make Payment for the Purchase Document, Calculate Discount Amount and verify Discount Amount.
         MakePmtAndVerifyDiscAmtPurch(
@@ -335,15 +335,15 @@ codeunit 134031 "ERM VAT With Payment Discount"
         LibrarySetupStorage.Restore;
         if isInitialized then
             exit;
-        LibraryERMCountryData.CreateVATData;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT With Payment Discount");
+        LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT With Payment Discount");
     end;
@@ -441,8 +441,6 @@ codeunit 134031 "ERM VAT With Payment Discount"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        Currency."Invoice Rounding Precision" := Currency."Amount Rounding Precision";
-        Currency.Modify(true);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         exit(Currency.Code);
     end;

@@ -48,7 +48,7 @@ codeunit 2000041 "CODA Write Statements"
                          StrSubstNo(Text000,
                            CodedBankStnt.TableCaption, "Bank Account No.", "Statement No."))
                     then begin
-                        CodBankStmtLine.Reset;
+                        CodBankStmtLine.Reset();
                         CodBankStmtLine.SetRange("Bank Account No.", "Bank Account No.");
                         CodBankStmtLine.SetRange("Statement No.", "Statement No.");
                         CodBankStmtLine.DeleteAll(true);
@@ -84,7 +84,7 @@ codeunit 2000041 "CODA Write Statements"
                 ID::"Free Message":
                     UpdateFreeMessage;
             end;
-            CodBankStmtLine.Modify;
+            CodBankStmtLine.Modify();
         end;
         CodBankStmtSrcLine.Transferred := true;
         LastCodBankStmtSrcLine := CodBankStmtSrcLine;
@@ -123,7 +123,7 @@ codeunit 2000041 "CODA Write Statements"
                       NextID, ID, "Bank Account No.", "Statement No.", "Line No.");
             end;
 
-            CodBankStmtLine.Init;
+            CodBankStmtLine.Init();
             CodBankStmtLine."Bank Account No." := "Bank Account No.";
             CodBankStmtLine."Statement No." := "Statement No.";
             if (ID = ID::"Free Message") or ("Item Code" = '1') then begin
@@ -132,7 +132,7 @@ codeunit 2000041 "CODA Write Statements"
                 CodBankStmtLine."Document No." := StrSubstNo('%1/%2', CopyStr(Data, 122, 3), "Sequence No.");
                 CodBankStmtLine."Currency Code" := BankAcc."Currency Code";
                 OnBeforeCodBankStmtLineInsert(CodBankStmtSrcLine, CodBankStmtLine);
-                CodBankStmtLine.Insert;
+                CodBankStmtLine.Insert();
             end else
                 CodBankStmtLine."Statement Line No." := LastCodBankStmtLine."Statement Line No.";
             if not CodBankStmtLine.Find then
@@ -231,7 +231,7 @@ codeunit 2000041 "CODA Write Statements"
                             CodBankStmtLine2.Find('<');
                             CodBankStmtLine2."Address Other Party" := "Address Other Party";
                             CodBankStmtLine2."City Other Party" := "City Other Party";
-                            CodBankStmtLine2.Modify;
+                            CodBankStmtLine2.Modify();
                         end;
                     end;
                 '3':
@@ -272,15 +272,15 @@ codeunit 2000041 "CODA Write Statements"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         with CodedBankStmtLine do begin
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             GenJnlLine.Validate("Posting Date", "Posting Date");
             GenJnlLine.Validate("Document No.", "Document No.");
             GenJnlLine.Validate("Account Type", "Account Type");
             GenJnlLine.Validate("Account No.", "Account No.");
             GenJnlLine.Validate(Amount, -"Statement Amount");
-            if not GenJnlLine.Insert then
-                GenJnlLine.Modify;
-            Commit;
+            if not GenJnlLine.Insert() then
+                GenJnlLine.Modify();
+            Commit();
             // show error message when Account Type is G/L Account
             CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJnlLine);
             if GenJnlLine."Applies-to ID" <> '' then begin
@@ -291,7 +291,7 @@ codeunit 2000041 "CODA Write Statements"
                 Modify(true);
             end;
             GenJnlLine.Get('', '', 0);
-            GenJnlLine.Delete;
+            GenJnlLine.Delete();
         end
     end;
 

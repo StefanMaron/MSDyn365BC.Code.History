@@ -398,7 +398,7 @@ page 869 "Cash Flow Forecast Chart"
     begin
         if not Confirm(ConfirmRecalculationQst) then
             exit;
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowManagement.UpdateCashFlowForecast(CashFlowSetup."Azure AI Enabled");
         CurrPage.Update(false);
 

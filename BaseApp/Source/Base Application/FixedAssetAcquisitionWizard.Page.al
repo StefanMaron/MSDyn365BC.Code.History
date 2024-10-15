@@ -329,10 +329,10 @@ page 5551 "Fixed Asset Acquisition Wizard"
         ValidateCurrentStep(Step);
 
         if Step = Step::Done then begin
-            TempBalancingGenJournalLine.Init;
+            TempBalancingGenJournalLine.Init();
             TempBalancingGenJournalLine.TransferFields(Rec);
             TempBalancingGenJournalLine."Account No." := '';
-            if not TempBalancingGenJournalLine.Insert then
+            if not TempBalancingGenJournalLine.Insert() then
                 TempBalancingGenJournalLine.Modify(true);
         end;
 

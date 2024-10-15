@@ -55,7 +55,7 @@ table 11300 "VAT VIES Correction"
 
             trigger OnValidate()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if GLSetup."Additional Reporting Currency" <> '' then begin
                     AddCurrencyFactor :=
                       CurrencyExchRate.ExchangeRate("Correction Date", GLSetup."Additional Reporting Currency");
@@ -173,7 +173,7 @@ table 11300 "VAT VIES Correction"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         exit(GLSetup."Additional Reporting Currency");
     end;
 

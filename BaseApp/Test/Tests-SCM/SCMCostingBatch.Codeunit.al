@@ -869,7 +869,7 @@ codeunit 137402 "SCM Costing Batch"
         // Test to check the functionality of Adjust Item Cost Prices report for Stock keeping Unit Last Direct Cost with Rounding method.
 
         // Setup: Create Item with Standard Cost. Create Stock keeping Unit and update Last Direct Cost. Set values to global variables. Find first Rounding method.
-        DeleteObejctOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded;
         CreateAndModifyItem(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(100, 2), 0);  // Taking Random value for Standard Cost. Taking 0 for Unit Price as it is not required in the test.
         CreateStockkeepingUnit(Item);
         LastDirectCost := UpdateLastDirectCostOnStockkeepingUnit(Item."No.");
@@ -1002,7 +1002,7 @@ codeunit 137402 "SCM Costing Batch"
         // Clear global variables.
         ClearGlobalVariables;
 
-        DeleteObejctOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded;
 
         // Lazy Setup.
         if isInitialized then
@@ -1018,7 +1018,7 @@ codeunit 137402 "SCM Costing Batch"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Batch");
     end;
 
@@ -1332,14 +1332,11 @@ codeunit 137402 "SCM Costing Batch"
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         PostInventoryCosttoGL: Report "Post Inventory Cost to G/L";
         PostMethod: Option "Per Posting Group","Per Entry";
-        TemplateName: Code[10];
-        BatchName: Code[10];
     begin
-        Commit;
-        PostValueEntryToGL.Reset;
+        Commit();
+        PostValueEntryToGL.Reset();
         PostMethod := PostMethod::"Per Entry";
-        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        PostInventoryCosttoGL.InitializeRequest(PostMethod, true, TemplateName, BatchName);
+        PostInventoryCosttoGL.InitializeRequest(PostMethod, '', true);
         PostInventoryCosttoGL.SetTableView(PostValueEntryToGL);
         PostInventoryCosttoGL.UseRequestPage(false);
         PostInventoryCosttoGL.SaveAsPdf(StrSubstNo(FileName, TemporaryPath, LibraryUtility.GetGlobalNoSeriesCode));
@@ -1350,7 +1347,7 @@ codeunit 137402 "SCM Costing Batch"
         AdjustCostItemEntries: Report "Adjust Cost - Item Entries";
     begin
         Clear(AdjustCostItemEntries);
-        Commit;  // Commit required for batch job reports.
+        Commit();  // Commit required for batch job reports.
         AdjustCostItemEntries.InitializeRequest(ItemNoFilter, '');
         AdjustCostItemEntries.UseRequestPage(true);
         AdjustCostItemEntries.RunModal;
@@ -1360,7 +1357,7 @@ codeunit 137402 "SCM Costing Batch"
     var
         AdjustItemCostsPrices: Report "Adjust Item Costs/Prices";
     begin
-        Commit;  // COMMIT is required to run the report.
+        Commit();  // COMMIT is required to run the report.
         Clear(AdjustItemCostsPrices);
         Item.SetRange("No.", Item."No.");
         AdjustItemCostsPrices.SetTableView(Item);
@@ -1373,7 +1370,7 @@ codeunit 137402 "SCM Costing Batch"
         StockkeepingUnit: Record "Stockkeeping Unit";
         AdjustItemCostsPrices: Report "Adjust Item Costs/Prices";
     begin
-        Commit;  // COMMIT is required to run the report.
+        Commit();  // COMMIT is required to run the report.
         Clear(AdjustItemCostsPrices);
         StockkeepingUnit.SetRange("Item No.", ItemNo);
         AdjustItemCostsPrices.SetTableView(StockkeepingUnit);
@@ -1386,7 +1383,7 @@ codeunit 137402 "SCM Costing Batch"
         Item: Record Item;
         AdjustItemCostsPrices: Report "Adjust Item Costs/Prices";
     begin
-        Commit; // COMMIT is required to run the report.
+        Commit(); // COMMIT is required to run the report.
         Clear(AdjustItemCostsPrices);
         Item.SetRange("Vendor No.", VendorNo);
         AdjustItemCostsPrices.SetTableView(Item);
@@ -1399,7 +1396,7 @@ codeunit 137402 "SCM Costing Batch"
         StandardCostWorksheet: Record "Standard Cost Worksheet";
         ImplementStandardCostChange: Report "Implement Standard Cost Change";
     begin
-        Commit;  // Commit required for batch job reports.
+        Commit();  // Commit required for batch job reports.
         StandardCostWorksheet.SetRange("Standard Cost Worksheet Name", StandardCostWorksheetName);
         StandardCostWorksheet.SetRange(Type, Type);
         StandardCostWorksheet.SetRange("No.", No);
@@ -1417,7 +1414,7 @@ codeunit 137402 "SCM Costing Batch"
         RollUpStandardCost: Report "Roll Up Standard Cost";
     begin
         ProductionBOMHeader.ModifyAll(Status, ProductionBOMHeader.Status::Certified);  // Use to Certify all Production BOM before running the report.
-        Commit;  // Commit required for batch job reports.
+        Commit();  // Commit required for batch job reports.
         Item.SetRange("Replenishment System", Item."Replenishment System"::"Prod. Order");
         Clear(RollUpStandardCost);
         RollUpStandardCost.SetTableView(Item);
@@ -1772,7 +1769,8 @@ codeunit 137402 "SCM Costing Batch"
         Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
     end;
 
-    local procedure DeleteObejctOptionsIfNeeded()
+    [Scope('OnPrem')]
+    procedure DeleteObjectOptionsIfNeeded()
     var
         LibraryReportValidation: Codeunit "Library - Report Validation";
     begin

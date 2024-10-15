@@ -9,6 +9,7 @@ codeunit 365 "Format Address"
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         i: Integer;
+        LanguageCode: Code[10];
 
     procedure FormatAddr(var AddrArray: array[8] of Text[100]; Name: Text[100]; Name2: Text[100]; Contact: Text[100]; Addr: Text[100]; Addr2: Text[50]; City: Text[50]; PostCode: Code[20]; County: Text[50]; CountryCode: Code[10])
     var
@@ -29,18 +30,18 @@ codeunit 365 "Format Address"
         Clear(AddrArray);
 
         if CountryCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             Clear(Country);
             Country."Address Format" := GLSetup."Local Address Format";
             Country."Contact Address Format" := GLSetup."Local Cont. Addr. Format";
         end else
             if not Country.Get(CountryCode) then begin
-                Country.Init;
+                Country.Init();
                 Country.Name := CountryCode;
             end;
 
         if Country."Address Format" = Country."Address Format"::Custom then begin
-            CustomAddressFormat.Reset;
+            CustomAddressFormat.Reset();
             CustomAddressFormat.SetCurrentKey("Country/Region Code", "Line Position");
             CustomAddressFormat.SetRange("Country/Region Code", CountryCode);
             if CustomAddressFormat.FindSet then
@@ -120,7 +121,7 @@ codeunit 365 "Format Address"
                     end;
             end;
         end;
-        OnAfterFormatAddress(AddrArray, Name, Name2, Contact, Addr, Addr2, City, PostCode, County, CountryCode);
+        OnAfterFormatAddress(AddrArray, Name, Name2, Contact, Addr, Addr2, City, PostCode, County, CountryCode, LanguageCode);
     end;
 
     procedure FormatPostCodeCity(var PostCodeCityText: Text[100]; var CountyText: Text[50]; City: Text[50]; PostCode: Code[20]; County: Text[50]; CountryCode: Code[10])
@@ -131,7 +132,7 @@ codeunit 365 "Format Address"
         Clear(CountyText);
 
         if CountryCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             Clear(Country);
             Country."Address Format" := GLSetup."Local Address Format";
             Country."Contact Address Format" := GLSetup."Local Cont. Addr. Format";
@@ -206,17 +207,17 @@ codeunit 365 "Format Address"
     begin
         PostCodeCityLine := '';
 
-        CustomAddressFormat.Reset;
+        CustomAddressFormat.Reset();
         CustomAddressFormat.SetRange("Country/Region Code", Country.Code);
         CustomAddressFormat.SetRange("Field ID", 0);
         if not CustomAddressFormat.FindFirst then
             exit;
 
-        CustomAddressFormatLine.Reset;
+        CustomAddressFormatLine.Reset();
         CustomAddressFormatLine.SetCurrentKey("Country/Region Code", "Line No.", "Field Position");
         CustomAddressFormatLine.SetRange("Country/Region Code", CustomAddressFormat."Country/Region Code");
         CustomAddressFormatLine.SetRange("Line No.", CustomAddressFormat."Line No.");
-        CustomAddressFormatLineQty := CustomAddressFormatLine.Count;
+        CustomAddressFormatLineQty := CustomAddressFormatLine.Count();
         if CustomAddressFormatLine.FindSet then
             repeat
                 Counter += 1;
@@ -895,7 +896,7 @@ codeunit 365 "Format Address"
         if Handled then
             exit;
 
-        RMSetup.Get;
+        RMSetup.Get();
 
         if (Cont.Type = Cont.Type::Person) and (Cont."Company No." <> '') then begin
             ContCompany.Get(Cont."Company No.");
@@ -1170,7 +1171,7 @@ codeunit 365 "Format Address"
         CustomAddressFormat: Record "Custom Address Format";
     begin
         if CountryCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             case true of
                 GLSetup."Local Address Format" = GLSetup."Local Address Format"::"City+County+Post Code":
                     exit(true);
@@ -1229,8 +1230,13 @@ codeunit 365 "Format Address"
         end;
     end;
 
+    procedure SetLanguageCode(NewLanguageCode: Code[10])
+    begin
+        LanguageCode := NewLanguageCode;
+    end;
+
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFormatAddress(var AddrArray: array[8] of Text[100]; var Name: Text[100]; var Name2: Text[100]; var Contact: Text[100]; var Addr: Text[100]; var Addr2: Text[50]; var City: Text[50]; var PostCode: Code[20]; var County: Text[50]; var CountryCode: Code[10])
+    local procedure OnAfterFormatAddress(var AddrArray: array[8] of Text[100]; var Name: Text[100]; var Name2: Text[100]; var Contact: Text[100]; var Addr: Text[100]; var Addr2: Text[50]; var City: Text[50]; var PostCode: Code[20]; var County: Text[50]; var CountryCode: Code[10]; LanguageCode: Code[10])
     begin
     end;
 

@@ -39,7 +39,7 @@ page 5050 "Contact Card"
                     begin
                         if "No." = '' then begin
                             Insert(true);
-                            Commit;
+                            Commit();
                         end;
                         Contact := Rec;
                         Contact.SetRecFilter;
@@ -91,7 +91,7 @@ page 5050 "Contact Card"
                 {
                     ApplicationArea = All;
                     Caption = 'Integration Customer No.';
-                    ToolTip = 'Specifies the number of a customer that is integrated through Dynamics 365 for Sales.';
+                    ToolTip = 'Specifies the number of a customer that is integrated through Dynamics 365 Sales.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -522,15 +522,15 @@ page 5050 "Contact Card"
             }
             group(ActionGroupCRM)
             {
-                Caption = 'Dynamics 365 for Sales';
+                Caption = 'Common Data Service';
                 Enabled = (Type <> Type::Company) AND ("Company No." <> '');
-                Visible = CRMIntegrationEnabled;
+                Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 action(CRMGotoContact)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Contact';
                     Image = CoupledContactPerson;
-                    ToolTip = 'Open the coupled Dynamics 365 for Sales contact.';
+                    ToolTip = 'Open the coupled Common Data Service contact.';
 
                     trigger OnAction()
                     var
@@ -545,7 +545,7 @@ page 5050 "Contact Card"
                     ApplicationArea = Suite;
                     Caption = 'Synchronize';
                     Image = Refresh;
-                    ToolTip = 'Send or get updated data to or from Dynamics 365 for Sales.';
+                    ToolTip = 'Send or get updated data to or from Common Data Service.';
 
                     trigger OnAction()
                     var
@@ -558,14 +558,14 @@ page 5050 "Contact Card"
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 for Sales record.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
                         ApplicationArea = Suite;
                         Caption = 'Set Up Coupling';
                         Image = LinkAccount;
-                        ToolTip = 'Create or modify the coupling to a Dynamics 365 for Sales contact.';
+                        ToolTip = 'Create or modify the coupling to a Common Data Service contact.';
 
                         trigger OnAction()
                         var
@@ -581,7 +581,7 @@ page 5050 "Contact Card"
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Dynamics 365 for Sales contact.';
+                        ToolTip = 'Delete the coupling to a Common Data Service contact.';
 
                         trigger OnAction()
                         var
@@ -1020,7 +1020,7 @@ page 5050 "Contact Card"
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
-        if CRMIntegrationEnabled then begin
+        if CRMIntegrationEnabled or CDSIntegrationEnabled then begin
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
             if "No." <> xRec."No." then
                 CRMIntegrationManagement.SendResultNotification(Rec);
@@ -1065,6 +1065,7 @@ page 5050 "Contact Card"
     begin
         IsOfficeAddin := OfficeManagement.IsAvailable;
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
         SetNoFieldVisible;
         SetParentalConsentReceivedEnable;
     end;
@@ -1087,6 +1088,7 @@ page 5050 "Contact Card"
         CompanyGroupEnabled: Boolean;
         PersonGroupEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
+        CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
         IsOfficeAddin: Boolean;
         ActionVisible: Boolean;

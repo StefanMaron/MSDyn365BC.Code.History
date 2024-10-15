@@ -92,7 +92,7 @@ table 11301 "Manual VAT Correction"
         CurrencyExchRate: Record "Currency Exchange Rate";
         AddCurrencyFactor: Decimal;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Additional Reporting Currency" <> '' then begin
             ;
             Currency.Get(GLSetup."Additional Reporting Currency");

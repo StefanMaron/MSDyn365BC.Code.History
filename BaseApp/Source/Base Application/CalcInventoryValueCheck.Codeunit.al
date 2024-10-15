@@ -28,7 +28,7 @@ codeunit 5899 "Calc. Inventory Value-Check"
 
     procedure SetProperties(NewPostingDate: Date; NewCalculatePer: Option; NewByLocation: Boolean; NewByVariant: Boolean; NewShowDialog: Boolean; NewTestMode: Boolean)
     begin
-        TempErrorBuf.DeleteAll;
+        TempErrorBuf.DeleteAll();
         ClearAll;
 
         PostingDate := NewPostingDate;
@@ -38,7 +38,7 @@ codeunit 5899 "Calc. Inventory Value-Check"
         ShowDialog := NewShowDialog;
         TestMode := NewTestMode;
 
-        InvtSetup.Get;
+        InvtSetup.Get();
     end;
 
     procedure RunCheck(var Item: Record Item; var NewErrorBuf: Record "Error Buffer")
@@ -71,11 +71,11 @@ codeunit 5899 "Calc. Inventory Value-Check"
             end;
         end;
 
-        TempErrorBuf.Reset;
+        TempErrorBuf.Reset();
         if TempErrorBuf.FindSet then
             repeat
                 NewErrorBuf := TempErrorBuf;
-                NewErrorBuf.Insert;
+                NewErrorBuf.Insert();
             until TempErrorBuf.Next = 0;
     end;
 
@@ -160,7 +160,7 @@ codeunit 5899 "Calc. Inventory Value-Check"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
         ItemLedgEntry.SetRange("Item No.", Item."No.");
         ItemLedgEntry.SetRange(Open, true);
@@ -186,13 +186,13 @@ codeunit 5899 "Calc. Inventory Value-Check"
     begin
         if TestMode then begin
             ErrorCounter := ErrorCounter + 1;
-            TempErrorBuf.Init;
+            TempErrorBuf.Init();
             TempErrorBuf."Error No." := ErrorCounter;
             TempErrorBuf."Error Text" := CopyStr(Text, 1, MaxStrLen(TempErrorBuf."Error Text"));
             TempErrorBuf."Source Table" := SourceTable;
             TempErrorBuf."Source No." := SourceNo;
             TempErrorBuf."Source Ref. No." := SourceRefNo;
-            TempErrorBuf.Insert;
+            TempErrorBuf.Insert();
         end else
             Error(Text);
     end;

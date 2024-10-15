@@ -86,7 +86,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Assert.AreNotEqual(NewReminderTermsCode, ReminderTermsCode, 'Random code is not unique');
         ReminderTerms.Get(ReminderTermsCode);
         ReminderTerms.Rename(NewReminderTermsCode);
-        Commit;
+        Commit();
 
         // [THEN] All sub records are renamed as well
         ReminderLevel.SetRange("Reminder Terms Code", NewReminderTermsCode);
@@ -216,7 +216,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
         Customer.Get(CustNo);
         Customer.Validate("Reminder Terms Code", '');
-        Customer.Modify;
+        Customer.Modify();
 
         // [GIVEN] A posted sales invoice (I_a) for Customer A with empty Reminder Terms Code
         PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
@@ -363,6 +363,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure SuggestSalesInvWith1LineFee2ndRmd()
     var
@@ -389,7 +390,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] The first reminder is issued for invoice A with Line Fee
         FirstReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate));
-        IssueReminder(FirstReminderNo);
+        IssueReminder(FirstReminderNo, 0, false);
 
         // [GIVEN] The invoice and Line Fee is NOT paid
         // [GIVEN] The invoice due date + 2nd reminder grace period < TODAY
@@ -407,6 +408,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure SuggestSalesInvWith12LineFee2ndRmd()
     var
@@ -435,7 +437,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] The first reminder is issued for invoice A with Line Fee
         FirstReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate));
-        IssueReminder(FirstReminderNo);
+        IssueReminder(FirstReminderNo, 0, false);
 
         // [GIVEN] The invoice and Line Fee is NOT paid
         // [GIVEN] The invoice due date + 2nd reminder grace period < TODAY
@@ -455,6 +457,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure SuggestSalesInvWithLineFee2ndRmdMultiple()
     var
@@ -482,7 +485,8 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] The first reminder (R1) is issued for invoice A and B with Line Fee X
         FirstReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate));
-        FirstIssuedReminderNo := IssueReminder(FirstReminderNo);
+        FirstIssuedReminderNo := IssueReminder(FirstReminderNo, 0, false);
+
         // [GIVEN] The invoices and Line Fees are NOT paid
         // [GIVEN] The invoice due date + 2nd reminder grace period < TODAY
         // [WHEN] A 2nd reminder is created for the customer with Apply Line Fee on Invoices
@@ -508,6 +512,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure SuggestSalesInvWithLineFee2ndRmdNotAppliedBefore()
     var
@@ -539,7 +544,7 @@ codeunit 134997 "Reminder - Add. Line fee"
             GetReminderLines(ReminderLine, FirstReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
             Delete(true);
         end;
-        IssueReminder(FirstReminderNo);
+        IssueReminder(FirstReminderNo, 0, false);
 
         // [GIVEN] The invoice is NOT paid
         // [GIVEN] The invoice due date + 2nd reminder grace period < TODAY
@@ -633,7 +638,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] All Reminder Lines with Line Type = "Ending Text" is removed from the Reminder
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Ending Text");
-        ReminderLine.DeleteAll;
+        ReminderLine.DeleteAll();
 
         // [WHEN] User invokes "Update Reminder Text"
         UpdateReminderText(ReminderNo, 1);
@@ -682,13 +687,13 @@ codeunit 134997 "Reminder - Add. Line fee"
         with ReminderLine2 do
             VerifyReminderLineExists(ReminderLine2, ReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
         ReminderLine2.Validate(Amount, LibraryRandom.RandDecInRange(1, 100, 2));
-        ReminderLine2.Modify;
+        ReminderLine2.Modify();
         AmountY := ReminderLine2."Remaining Amount" + ReminderLine2.Amount + ReminderLine2."VAT Amount";
 
         // [GIVEN] All Reminder Lines with Line Type = "Ending Text" is removed from the Reminder
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Ending Text");
-        ReminderLine.DeleteAll;
+        ReminderLine.DeleteAll();
 
         // [WHEN] User invokes "Update Reminder Text"
         UpdateReminderText(ReminderNo, 1);
@@ -859,10 +864,10 @@ codeunit 134997 "Reminder - Add. Line fee"
         PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
 
         // [GIVEN] A reminder for the customer is created with Q Reminder Lines
-        CustLedgEntryLineFeeOn.Reset;
+        CustLedgEntryLineFeeOn.Reset();
         ReminderNo := CreateReminderAndSuggestLines(CustNo, WorkDate, CustLedgEntryLineFeeOn);
         ReminderLine.SetRange("Reminder No.", ReminderNo);
-        NumberOfLines := ReminderLine.Count;
+        NumberOfLines := ReminderLine.Count();
 
         // [WHEN] "Suggest Reminder Lines" are invoked again
         SuggestReminderLines(ReminderNo, CustLedgEntryLineFeeOn);
@@ -1045,7 +1050,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] Invoice I_a is overdue
         // [WHEN] A reminder is created for customer C with currency H
-        ReminderLine.DeleteAll;
+        ReminderLine.DeleteAll();
         ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
 
         // [THEN] A Reminder line is created for Invoice I_a
@@ -1301,7 +1306,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderHeader.Modify(true);
 
         // [GIVEN] User added a Reminder line
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine.Validate("Reminder No.", ReminderHeader."No.");
         ReminderLine.Insert(true);
 
@@ -1454,7 +1459,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
 
         // [GIVEN] User added a new Reminder line of type Line Fee
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine.Validate("Reminder No.", ReminderNo);
         ReminderLine.Validate(Type, ReminderLine.Type::"Line Fee");
         ReminderLine.Insert(true);
@@ -1493,7 +1498,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderNo := CreateReminderWithOverdueInvoiceAndLineFee;
 
         // [GIVEN] User added a new Reminder line of type Line Fee
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine.Validate("Reminder No.", ReminderNo);
         ReminderLine.Validate(Type, ReminderLine.Type::"Line Fee");
         ReminderLine.Insert(true);
@@ -1622,6 +1627,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure EditChangeAppliesToLevelAlreadyApplied()
     var
@@ -1647,14 +1653,14 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateReminderLineOfTypeLineFee(ReminderLine, ReminderHeader."No.", ReminderLine."Applies-to Document Type"::Invoice, InvoiceA);
 
         // [GIVEN] Reminder R_1 is issued
-        IssueReminder(ReminderHeader."No.");
+        IssueReminder(ReminderHeader."No.", 0, false);
 
         // [GIVEN] A reminder (R_2) is created for customer C without lines
         CreateReminderHeader(ReminderHeader, CustNo, WorkDate);
 
         // [GIVEN] A Reminder Line of type Line Fee is added to R_2
         // [WHEN] The user attempts to apply the Line Fee to invoice I_A
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine.Validate("Reminder No.", ReminderHeader."No.");
         ReminderLine.Validate(Type, ReminderLine.Type::"Line Fee");
         ReminderLine.Insert(true);
@@ -1790,6 +1796,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure Issue1stRmdSingleInvoiceNoFee()
     var
@@ -1817,7 +1824,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] No additional fee or interest on the reminder
         // [WHEN] The Reminder is issued
-        IssuedReminderNo := IssueReminder(ReminderNo);
+        IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [THEN] A Customer Ledger Entry is posted with amount = X
         FindOpenCustomerLedgerEntriesExclVAT(CustLedgerEntry, IssuedReminderNo, CustNo);
@@ -1835,6 +1842,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure Issue1stRmdSingleInvoiceNoFeeNoPost()
     var
@@ -1862,7 +1870,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] No additional fee or interest on the reminder
         // [WHEN] The Reminder is issued
-        IssuedReminderNo := IssueReminder(ReminderNo);
+        IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [THEN] The Reminder document is posted
         IssuedReminderHeader.Get(IssuedReminderNo);
@@ -1873,6 +1881,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure Issue1stRmdMultipleInvoiceNoFee()
     var
@@ -1900,7 +1909,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] No additional fee or interest on the reminder
         // [WHEN] The Reminder is issued
-        IssuedReminderNo := IssueReminder(ReminderNo);
+        IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [THEN] A Customer Ledger Entry is posted with amount = X_1+X_2+X_3
         FindOpenCustomerLedgerEntriesExclVAT(CustLedgerEntry, IssuedReminderNo, CustNo);
@@ -1909,6 +1918,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure Issue1stRmdMultipleInvoiceMixedLineFees()
     var
@@ -1941,7 +1951,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] No additional fee or interest on the reminder
         // [WHEN] The Reminder is issued
-        IssuedReminderNo := IssueReminder(ReminderNo);
+        IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [THEN] A Customer Ledger Entry is posted with amount = X_1+X_2
         FindOpenCustomerLedgerEntriesExclVAT(CustLedgerEntry, IssuedReminderNo, CustNo);
@@ -1950,6 +1960,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure Issue1stRmdSingleInvoiceWithFee()
     var
@@ -1992,7 +2003,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
 
         // [WHEN] The Reminder is issued
-        IssuedReminderNo := IssueReminder(ReminderNo);
+        IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         AmountY := ReminderLevel."Additional Fee (LCY)";
         LineFeeX := ReminderLevel."Add. Fee per Line Amount (LCY)";
@@ -2020,6 +2031,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure Issue2ndRmdSingleInvoiceWithNewLineFee()
     var
@@ -2052,14 +2064,14 @@ codeunit 134997 "Reminder - Add. Line fee"
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
         ReminderLine.Delete(true);
-        IssueReminder(ReminderNo);
+        IssueReminder(ReminderNo, 0, false);
 
         // [GIVEN] A 2nd reminder (R_2) is created for invoice I_a and Line Fee of Y is suggested for the invoice
         SecondReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
 
         // [GIVEN] The reminder does not have additional fee or interests
         // [WHEN] The reminder is issued
-        SecondIssuedReminderNo := IssueReminder(SecondReminderNo);
+        SecondIssuedReminderNo := IssueReminder(SecondReminderNo, 0, false);
 
         // [THEN] A Customer Ledger Entry is posted for the Reminder R_2 with amount = Y
         FindOpenCustomerLedgerEntriesExclVAT(CustLedgerEntry, SecondIssuedReminderNo, CustNo);
@@ -2068,6 +2080,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure IssueValidateAmount()
     var
@@ -2087,7 +2100,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderLine.Modify(true);
 
         // [WHEN] The Reminder is issued
-        asserterror IssueReminder(ReminderNo);
+        asserterror IssueReminder(ReminderNo, 0, false);
 
         // [THEN] An error is thrown indicating an error with the Line Fee Amount
         Assert.ExpectedError(
@@ -2095,6 +2108,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure IssueValidateAmountNegative()
     var
@@ -2114,7 +2128,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderLine.Modify(true);
 
         // [WHEN] The Reminder is issued
-        asserterror IssueReminder(ReminderNo);
+        asserterror IssueReminder(ReminderNo, 0, false);
 
         // [THEN] An error is thrown indicating an error with the Line Fee Amount
         Assert.ExpectedError(
@@ -2122,6 +2136,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure IssueValidateGLAccount()
     var
@@ -2141,13 +2156,14 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderLine.Modify(true);
 
         // [WHEN] The Reminder is issued
-        asserterror IssueReminder(ReminderNo);
+        asserterror IssueReminder(ReminderNo, 0, false);
 
         // [THEN] An error is thrown indicating an error with the G/L account
         Assert.ExpectedErrorCode('TestField');
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure IssueValidateAppliesToEmpty()
     var
@@ -2167,13 +2183,14 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderLine.Modify(true);
 
         // [WHEN] The Reminder is issued
-        asserterror IssueReminder(ReminderNo);
+        asserterror IssueReminder(ReminderNo, 0, false);
 
         // [THEN] An error is thrown indicating that an Applies-to Document has to be set
         Assert.ExpectedError(AppliesToDocErr);
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure IssueValidateAppliesToNotOverDue()
     var
@@ -2200,7 +2217,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderLine.Modify(true);
 
         // [WHEN] The Reminder is issued
-        asserterror IssueReminder(ReminderNo);
+        asserterror IssueReminder(ReminderNo, 0, false);
 
         // [THEN] An error is thrown indicating that the invoice have to be overdue
         Assert.ExpectedError(StrSubstNo(EntryNotOverdueErr,
@@ -2208,6 +2225,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure IssueValidateAppliesToAnotherCustomer()
     var
@@ -2248,13 +2266,14 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderLine.Modify(true);
 
         // [WHEN] The Reminder is issued
-        asserterror IssueReminder(ReminderNo);
+        asserterror IssueReminder(ReminderNo, 0, false);
 
         // [THEN] An error is thrown indicating that the invoice does not belong to the customer
         Assert.ExpectedErrorCode('DB:NothingInsideFilter');
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure IssueValidateAppliesToMultipleFees()
     var
@@ -2271,7 +2290,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] The user changes the Applies To for the Line Fee to a Invoice that is not overdue
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee", "Document Type"::Invoice, '');
-        ReminderLine2.Init;
+        ReminderLine2.Init();
         ReminderLine2.Validate("Reminder No.", ReminderNo);
         ReminderLine2.Validate(Type, ReminderLine.Type::"Line Fee");
         ReminderLine2.Insert(true);
@@ -2281,7 +2300,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderLine2.Modify(true);
 
         // [WHEN] The Reminder is issued
-        asserterror IssueReminder(ReminderNo);
+        asserterror IssueReminder(ReminderNo, 0, false);
 
         // [THEN] An error is thrown indicating that the invoice have to be overdue
         Assert.ExpectedError(
@@ -2289,6 +2308,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure IssueVATOnLineFee()
     var
@@ -2325,7 +2345,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate));
 
         // [WHEN] The Reminder is issued
-        IssuedReminderNo := IssueReminder(ReminderNo);
+        IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [THEN] A VAT entry is created for the Line Fee with amount = Y*Z/100 and base = Y
         // [THEN] VAT Registration No. is filled in value taken from Customer (TFS 276034)
@@ -2340,6 +2360,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PostNoInterestOnLineFeeFinCharge()
     var
@@ -2373,7 +2394,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] An Issued Reminder (IR_1) with reminder for Invoice I_a and Line Fee X for I_a
         PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate));
         ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate));
-        IssuedReminderNo := IssueReminder(ReminderNo);
+        IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [GIVEN] IR_1 is overdue
         // [WHEN] A Finance Charge is created and lines are suggested (i.e. interest rate is calculated)
@@ -2389,6 +2410,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PostNoInterestOnLineFeeFinChargeNoAddFee()
     var
@@ -2416,7 +2438,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] An Issued Reminder (IR_1) with reminder for Invoice I_a and Line Fee X for I_a
         PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate));
         ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate));
-        IssuedReminderNo := IssueReminder(ReminderNo);
+        IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [GIVEN] IR_1 is overdue
         // [WHEN] A Finance Charge is created and lines are suggested (i.e. interest rate is calculated)
@@ -2431,6 +2453,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PostNoInterestOnLineFeeReminder()
     var
@@ -2466,7 +2489,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] An Issued Reminder (IR_1) with reminder for Invoice I_a and Line Fee X for I_a
         InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate));
         ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate));
-        IssuedReminderNo := IssueReminder(ReminderNo);
+        IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [GIVEN] IR_1 is overdue
         // [WHEN] A 2nd Reminder is created with R (and interest is calculated)
@@ -2491,6 +2514,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PostInterestOnLineFeeFinCharge()
     var
@@ -2526,7 +2550,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] An Issued Reminder (IR_1) with reminder for Invoice I_a and Line Fee X for I_a
         PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate));
         ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate));
-        IssuedReminderNo := IssueReminder(ReminderNo);
+        IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [GIVEN] IR_1 is overdue
         // [WHEN] A Finance Charge is created and lines are suggested (i.e. interest rate is calculated)
@@ -2542,6 +2566,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     end;
 
     [Test]
+    [HandlerFunctions('IssueRemindersRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PostInterestOnLineFeeReminder()
     var
@@ -2579,7 +2604,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] An Issued Reminder (IR_1) with reminder for Invoice I_a and Line Fee X for I_a
         InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate));
         ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate));
-        IssuedReminderNo := IssueReminder(ReminderNo);
+        IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [GIVEN] IR_1 is overdue
         // [WHEN] A 2nd Reminder is created with R (and interest is calculated)
@@ -2617,14 +2642,14 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] Customer "A" with Reminder Print = E-Mail and Hide Email-Dialog = No
         CreateReminderForCustomer(CustomerNo, ReminderNo);
-        Commit;
+        Commit();
 
         // [WHEN] Issue Reminder
-        IssueReminderReport(ReminderNo, PrintDocRef::Email, false);
+        IssueReminder(ReminderNo, PrintDocRef::Email, false);
 
         // [THEN] Cancel on Email Dialog appeared
         // [THEN] Issued Reminder for Customer "A" exists
-        IssuedReminderHeader.Init;
+        IssuedReminderHeader.Init();
         IssuedReminderHeader.SetRange("Customer No.", CustomerNo);
         Assert.RecordIsNotEmpty(IssuedReminderHeader);
     end;
@@ -2735,7 +2760,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     var
         CustLedgEntryLineFeeOn: Record "Cust. Ledger Entry";
     begin
-        CustLedgEntryLineFeeOn.Reset;
+        CustLedgEntryLineFeeOn.Reset();
         exit(CreateReminderAndSuggestLines(CustomerNo, PostingDate, CustLedgEntryLineFeeOn));
     end;
 
@@ -2762,7 +2787,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
     local procedure CreateReminderLineOfTypeLineFee(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; DocType: Option; DocNo: Code[20])
     begin
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine.Validate("Reminder No.", ReminderNo);
         ReminderLine.Insert(true);
         ReminderLine.Validate(Type, ReminderLine.Type::"Line Fee");
@@ -2966,7 +2991,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         if ReminderText.FindLast then;
         NextLineNo := ReminderText."Line No." + 1000;
 
-        ReminderText.Init;
+        ReminderText.Init();
         ReminderText."Reminder Terms Code" := ReminderTermCode;
         ReminderText."Reminder Level" := Level;
         ReminderText.Position := Position;
@@ -2979,7 +3004,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     var
         ReminderHeader: Record "Reminder Header";
     begin
-        Commit;
+        Commit();
         ReminderHeader.SetRange("No.", ReminderNo);
         LibraryVariableStorage.Enqueue(Level);
         REPORT.RunModal(REPORT::"Update Reminder Text", true, false, ReminderHeader);
@@ -2990,10 +3015,10 @@ codeunit 134997 "Reminder - Add. Line fee"
         Customer: Record Customer;
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         Customer.Get(CustomerNo);
         Customer."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure FindOpenCustomerLedgerEntriesExclVAT(var CustLedgerEntry: Record "Cust. Ledger Entry"; IssuedReminderNo: Code[20]; CustomerNo: Code[20])
@@ -3072,7 +3097,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
     local procedure GetReminderLines(var ReminderLine: Record "Reminder Line"; ReminderHeaderNo: Code[20]; Type: Option " ","G/L Account","Customer Ledger Entry","Line Fee"; DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; DocumentNo: Code[20]): Boolean
     begin
-        ReminderLine.Reset;
+        ReminderLine.Reset();
         ReminderLine.SetRange("Reminder No.", ReminderHeaderNo);
         ReminderLine.SetRange(Type, Type);
         if Type = ReminderLine.Type::"Line Fee" then begin
@@ -3104,46 +3129,19 @@ codeunit 134997 "Reminder - Add. Line fee"
           StrSubstNo(ReminderLineMustNotExistErr, ReminderLine.GetFilters));
     end;
 
-    local procedure IssueReminder(ReminderHeaderNo: Code[20]): Code[20]
-    var
-        IssuedReminderHeader: Record "Issued Reminder Header";
-        ReminderHeader: Record "Reminder Header";
-        ReminderIssue: Codeunit "Reminder-Issue";
-        TemplateName: Code[10];
-        BatchName: Code[10];
-    begin
-        ReminderHeader.Get(ReminderHeaderNo);
-        ReminderHeader.SetRange("No.", ReminderHeaderNo);
-        Commit;
-        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        ReminderIssue.Set(ReminderHeader, false, ReminderHeader."Document Date");
-        ReminderIssue.SetJournal(TemplateName, BatchName);
-        ReminderIssue.Run;
-
-        IssuedReminderHeader.SetFilter("Customer No.", ReminderHeader."Customer No.");
-        IssuedReminderHeader.FindLast;
-        exit(IssuedReminderHeader."No.")
-    end;
-
-    local procedure IssueReminderReport(ReminderHeaderNo: Code[20]; PrintDoc: Option; HideEmailDialog: Boolean): Code[20]
+    local procedure IssueReminder(ReminderHeaderNo: Code[20]; PrintDoc: Option; HideEmailDialog: Boolean): Code[20]
     var
         IssuedReminderHeader: Record "Issued Reminder Header";
         ReminderHeader: Record "Reminder Header";
         IssueReminders: Report "Issue Reminders";
-        TemplateName: Code[10];
-        BatchName: Code[10];
     begin
         LibraryVariableStorage.Enqueue(PrintDoc);
         LibraryVariableStorage.Enqueue(HideEmailDialog);
-        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        LibraryVariableStorage.Enqueue(TemplateName);
-        LibraryVariableStorage.Enqueue(BatchName);
         ReminderHeader.Get(ReminderHeaderNo);
         ReminderHeader.SetRange("No.", ReminderHeaderNo);
         Clear(IssueReminders);
         IssueReminders.SetTableView(ReminderHeader);
-
-        Commit;
+        Commit();
         IssueReminders.Run;
 
         IssuedReminderHeader.SetFilter("Customer No.", ReminderHeader."Customer No.");
@@ -3212,8 +3210,6 @@ codeunit 134997 "Reminder - Add. Line fee"
     begin
         IssueReminders.PrintDoc.SetValue(LibraryVariableStorage.DequeueInteger);
         IssueReminders.HideEmailDialog.SetValue(LibraryVariableStorage.DequeueBoolean);
-        IssueReminders.JnlTemplateName.SetValue(LibraryVariableStorage.DequeueText);
-        IssueReminders.JnlBatchName.SetValue(LibraryVariableStorage.DequeueText);
         IssueReminders.OK.Invoke;
     end;
 

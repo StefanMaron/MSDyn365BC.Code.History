@@ -1,4 +1,4 @@
-﻿page 5912 "Service Ledger Entries"
+page 5912 "Service Ledger Entries"
 {
     ApplicationArea = Service;
     Caption = 'Service Ledger Entries';

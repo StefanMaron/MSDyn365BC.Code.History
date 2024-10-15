@@ -1,4 +1,4 @@
-﻿page 528 "Posted Purchase Receipt Lines"
+page 528 "Posted Purchase Receipt Lines"
 {
     Caption = 'Posted Purchase Receipt Lines';
     Editable = false;
@@ -192,7 +192,7 @@
         if PurchRcptLine.FindSet then
             repeat
                 TempPurchRcptLine := PurchRcptLine;
-                TempPurchRcptLine.Insert;
+                TempPurchRcptLine.Insert();
             until PurchRcptLine.Next = 0;
     end;
 }

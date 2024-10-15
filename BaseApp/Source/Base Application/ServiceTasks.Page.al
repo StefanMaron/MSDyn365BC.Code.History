@@ -24,7 +24,7 @@ page 5915 "Service Tasks"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        Res.Reset;
+                        Res.Reset();
                         if PAGE.RunModal(0, Res) = ACTION::LookupOK then begin
                             Text := Res."No.";
                             SetResourceFilter;
@@ -54,7 +54,7 @@ page 5915 "Service Tasks"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ResourceGroup.Reset;
+                        ResourceGroup.Reset();
                         if PAGE.RunModal(0, ResourceGroup) = ACTION::LookupOK then begin
                             Text := ResourceGroup."No.";
                             SetResourceGroupFilter;
@@ -138,7 +138,7 @@ page 5915 "Service Tasks"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ServHeader.Reset;
+                        ServHeader.Reset();
                         SetDocFilterHeader(ServHeader);
                         if PAGE.RunModal(0, ServHeader) = ACTION::LookupOK then begin
                             Text := ServHeader."No.";
@@ -168,7 +168,7 @@ page 5915 "Service Tasks"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        RepairStatus.Reset;
+                        RepairStatus.Reset();
                         if PAGE.RunModal(0, RepairStatus) = ACTION::LookupOK then begin
                             Text := RepairStatus.Code;
                             SetRepStatFilter;
@@ -358,7 +358,7 @@ page 5915 "Service Tasks"
                             PageManagement.PageRunModal(ServHeader);
 
                             if ServOrderFilter <> '' then begin
-                                ServItemLine.Reset;
+                                ServItemLine.Reset();
                                 ServItemLine.CopyFilters(Rec);
                                 if ServItemLine.GetRangeMin("Document No.") = ServItemLine.GetRangeMax("Document No.") then
                                     if ServItemLine.IsEmpty then begin
@@ -468,16 +468,18 @@ page 5915 "Service Tasks"
         Res: Record Resource;
         ResourceGroup: Record "Resource Group";
         UserMgt: Codeunit "User Setup Management";
+        AllocationStatus: Option " ",Nonactive,Active,Finished,Canceled,"Reallocation Needed";
+        DocFilter: Option "Order",Quote,All;
+        TempTextFilter: Text;
+        Text000: Label 'There is no %1 within the filter.';
+        TempAllocationStatus: Option " ",Nonactive,Active,Finished,Canceled,"Reallocation Needed";
+
+    protected var
         RepairStatusFilter: Text;
         RespDateFilter: Text;
         ServOrderFilter: Text;
         ResourceFilter: Text;
-        AllocationStatus: Option " ",Nonactive,Active,Finished,Canceled,"Reallocation Needed";
-        DocFilter: Option "Order",Quote,All;
         ResourceGroupFilter: Text;
-        TempTextFilter: Text;
-        Text000: Label 'There is no %1 within the filter.';
-        TempAllocationStatus: Option " ",Nonactive,Active,Finished,Canceled,"Reallocation Needed";
 
     procedure SetAllFilters()
     begin

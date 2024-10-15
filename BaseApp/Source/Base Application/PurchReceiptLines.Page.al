@@ -1,4 +1,4 @@
-﻿page 5806 "Purch. Receipt Lines"
+page 5806 "Purch. Receipt Lines"
 {
     Caption = 'Purch. Receipt Lines';
     Editable = false;
@@ -267,7 +267,7 @@
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
-        TempPurchRcptLine.Reset;
+        TempPurchRcptLine.Reset();
         TempPurchRcptLine.CopyFilters(Rec);
         TempPurchRcptLine.SetRange("Document No.", "Document No.");
         if not TempPurchRcptLine.FindFirst then begin
@@ -278,7 +278,7 @@
             if not PurchRcptLine.FindFirst then
                 exit(false);
             TempPurchRcptLine := PurchRcptLine;
-            TempPurchRcptLine.Insert;
+            TempPurchRcptLine.Insert();
         end;
         if "Line No." = TempPurchRcptLine."Line No." then
             exit(true);

@@ -26,8 +26,8 @@ codeunit 1620 "PEPPOL Validation"
         Customer: Record Customer;
     begin
         with SalesHeader do begin
-            CompanyInfo.Get;
-            GLSetup.Get;
+            CompanyInfo.Get();
+            GLSetup.Get();
 
             CheckCurrencyCode("Currency Code");
 
@@ -50,7 +50,6 @@ codeunit 1620 "PEPPOL Validation"
 
             if CompanyInfo.GLN + CompanyInfo."VAT Registration No." + CompanyInfo."Enterprise No." = '' then
                 Error(MissingCompInfGLNOrVATRegNoOrEnterpNoErr);
-
             TestField("Bill-to Name");
             TestField("Bill-to Address");
             TestField("Bill-to City");
@@ -70,7 +69,6 @@ codeunit 1620 "PEPPOL Validation"
 
             if "Document Type" in ["Document Type"::Invoice, "Document Type"::Order] then
                 TestField("Shipment Date");
-            TestField("Your Reference");
             TestField("Ship-to Address");
             TestField("Ship-to City");
             TestField("Ship-to Post Code");
@@ -226,7 +224,7 @@ codeunit 1620 "PEPPOL Validation"
         MaxCurrencyCodeLength := 3;
 
         if CurrencyCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetup.TestField("LCY Code");
             CurrencyCode := GLSetup."LCY Code";
         end;
@@ -250,7 +248,7 @@ codeunit 1620 "PEPPOL Validation"
         MaxCountryCodeLength := 2;
 
         if CountryRegionCode = '' then begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             CompanyInfo.TestField("Country/Region Code");
             CountryRegionCode := CompanyInfo."Country/Region Code";
         end;

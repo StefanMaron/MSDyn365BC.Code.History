@@ -187,10 +187,10 @@ report 5877 "Phys. Invt. Order - Test"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -213,10 +213,10 @@ report 5877 "Phys. Invt. Order - Test"
                         trigger OnPreDataItem()
                         begin
                             if not ShowDim then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             if LineIsEmpty then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(LineErrorCounter; "Integer")
@@ -301,7 +301,7 @@ report 5877 "Phys. Invt. Order - Test"
                                     AllowPostingFrom := UserSetup."Allow Posting From";
                                     AllowPostingTo := UserSetup."Allow Posting To";
                                 end;
-                            GLSetup.Get;
+                            GLSetup.Get();
                             if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
                                 AllowPostingFrom := GLSetup."Allow Posting From";
                                 AllowPostingTo := GLSetup."Allow Posting To";
@@ -323,7 +323,7 @@ report 5877 "Phys. Invt. Order - Test"
                                 MustBeSpecifiedErr,
                                 FieldCaption("Posting No. Series")));
 
-                PhysInvtOrderLine.Reset;
+                PhysInvtOrderLine.Reset();
                 PhysInvtOrderLine.SetRange("Document No.", "No.");
                 if not PhysInvtOrderLine.FindFirst then
                     AddError(NothingToPostErr);

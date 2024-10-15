@@ -55,7 +55,7 @@ codeunit 378 "Transfer Extended Text"
         if AutoText then begin
             SalesLine.TestField("Document No.");
             SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-            ExtTextHeader.SetRange("Table Name", SalesLine.Type);
+            ExtTextHeader.SetRange("Table Name", SalesLine.Type.AsInteger());
             ExtTextHeader.SetRange("No.", SalesLine."No.");
             case SalesLine."Document Type" of
                 SalesLine."Document Type"::Quote:
@@ -165,6 +165,9 @@ codeunit 378 "Transfer Extended Text"
                         if Item.Get(PurchLine."No.") then
                             AutoText := Item."Automatic Ext. Texts";
                     end;
+                PurchLine.Type::Resource:
+                    if Res.Get(PurchLine."No.") then
+                        AutoText := Res."Automatic Ext. Texts";
             end;
 
         OnPurchCheckIfAnyExtTextOnBeforeSetFilters(PurchLine, AutoText);
@@ -172,7 +175,7 @@ codeunit 378 "Transfer Extended Text"
         if AutoText then begin
             PurchLine.TestField("Document No.");
             PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
-            ExtTextHeader.SetRange("Table Name", PurchLine.Type);
+            ExtTextHeader.SetRange("Table Name", PurchLine.Type.AsInteger());
             ExtTextHeader.SetRange("No.", PurchLine."No.");
             case PurchLine."Document Type" of
                 PurchLine."Document Type"::Quote:
@@ -198,7 +201,7 @@ codeunit 378 "Transfer Extended Text"
         GLAcc: Record "G/L Account";
         ExtTextHeader: Record "Extended Text Header";
     begin
-        ExtTextLine.DeleteAll;
+        ExtTextLine.DeleteAll();
 
         GLAcc.Get(GLAccNo);
         if not GLAcc."Automatic Ext. Texts" then
@@ -222,7 +225,7 @@ codeunit 378 "Transfer Extended Text"
             TempExtTextLine.Find('-');
             repeat
                 ExtTextLine := TempExtTextLine;
-                ExtTextLine.Insert;
+                ExtTextLine.Insert();
             until TempExtTextLine.Next = 0;
         end;
     end;
@@ -243,7 +246,7 @@ codeunit 378 "Transfer Extended Text"
         if IsHandled then
             exit;
 
-        ToSalesLine.Reset;
+        ToSalesLine.Reset();
         ToSalesLine.SetRange("Document Type", SalesLine."Document Type");
         ToSalesLine.SetRange("Document No.", SalesLine."Document No.");
         ToSalesLine := SalesLine;
@@ -258,10 +261,10 @@ codeunit 378 "Transfer Extended Text"
 
         NextLineNo := SalesLine."Line No." + LineSpacing;
 
-        TempExtTextLine.Reset;
+        TempExtTextLine.Reset();
         if TempExtTextLine.Find('-') then begin
             repeat
-                ToSalesLine.Init;
+                ToSalesLine.Init();
                 ToSalesLine."Document Type" := SalesLine."Document Type";
                 ToSalesLine."Document No." := SalesLine."Document No.";
                 ToSalesLine."Line No." := NextLineNo;
@@ -269,11 +272,11 @@ codeunit 378 "Transfer Extended Text"
                 ToSalesLine.Description := TempExtTextLine.Text;
                 ToSalesLine."Attached to Line No." := SalesLine."Line No.";
                 OnBeforeToSalesLineInsert(ToSalesLine, SalesLine, TempExtTextLine, NextLineNo, LineSpacing);
-                ToSalesLine.Insert;
+                ToSalesLine.Insert();
             until TempExtTextLine.Next = 0;
             MakeUpdateRequired := true;
         end;
-        TempExtTextLine.DeleteAll;
+        TempExtTextLine.DeleteAll();
         LastInsertedSalesLine := ToSalesLine;
     end;
 
@@ -286,7 +289,7 @@ codeunit 378 "Transfer Extended Text"
         if IsHandled then
             exit;
 
-        ToReminderLine.Reset;
+        ToReminderLine.Reset();
         ToReminderLine.SetRange("Reminder No.", ReminderLine."Reminder No.");
         ToReminderLine := ReminderLine;
         if ToReminderLine.Find('>') then begin
@@ -300,10 +303,10 @@ codeunit 378 "Transfer Extended Text"
 
         NextLineNo := ReminderLine."Line No." + LineSpacing;
 
-        TempExtTextLine.Reset;
+        TempExtTextLine.Reset();
         if TempExtTextLine.Find('-') then begin
             repeat
-                ToReminderLine.Init;
+                ToReminderLine.Init();
                 ToReminderLine."Reminder No." := ReminderLine."Reminder No.";
                 ToReminderLine."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + LineSpacing;
@@ -311,11 +314,11 @@ codeunit 378 "Transfer Extended Text"
                 ToReminderLine."Attached to Line No." := ReminderLine."Line No.";
                 ToReminderLine."Line Type" := ReminderLine."Line Type";
                 OnBeforeToReminderLineInsert(ToReminderLine, ReminderLine, TempExtTextLine);
-                ToReminderLine.Insert;
+                ToReminderLine.Insert();
             until TempExtTextLine.Next = 0;
             MakeUpdateRequired := true;
         end;
-        TempExtTextLine.DeleteAll;
+        TempExtTextLine.DeleteAll();
     end;
 
     procedure InsertFinChrgMemoExtText(var FinChrgMemoLine: Record "Finance Charge Memo Line")
@@ -327,7 +330,7 @@ codeunit 378 "Transfer Extended Text"
         if IsHandled then
             exit;
 
-        ToFinChrgMemoLine.Reset;
+        ToFinChrgMemoLine.Reset();
         ToFinChrgMemoLine.SetRange("Finance Charge Memo No.", FinChrgMemoLine."Finance Charge Memo No.");
         ToFinChrgMemoLine := FinChrgMemoLine;
         if ToFinChrgMemoLine.Find('>') then begin
@@ -341,20 +344,20 @@ codeunit 378 "Transfer Extended Text"
 
         NextLineNo := FinChrgMemoLine."Line No." + LineSpacing;
 
-        TempExtTextLine.Reset;
+        TempExtTextLine.Reset();
         if TempExtTextLine.Find('-') then begin
             repeat
-                ToFinChrgMemoLine.Init;
+                ToFinChrgMemoLine.Init();
                 ToFinChrgMemoLine."Finance Charge Memo No." := FinChrgMemoLine."Finance Charge Memo No.";
                 ToFinChrgMemoLine."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + LineSpacing;
                 ToFinChrgMemoLine.Description := TempExtTextLine.Text;
                 ToFinChrgMemoLine."Attached to Line No." := FinChrgMemoLine."Line No.";
-                ToFinChrgMemoLine.Insert;
+                ToFinChrgMemoLine.Insert();
             until TempExtTextLine.Next = 0;
             MakeUpdateRequired := true;
         end;
-        TempExtTextLine.DeleteAll;
+        TempExtTextLine.DeleteAll();
     end;
 
     procedure InsertPurchExtText(var PurchLine: Record "Purchase Line")
@@ -373,7 +376,7 @@ codeunit 378 "Transfer Extended Text"
         if IsHandled then
             exit;
 
-        ToPurchLine.Reset;
+        ToPurchLine.Reset();
         ToPurchLine.SetRange("Document Type", PurchLine."Document Type");
         ToPurchLine.SetRange("Document No.", PurchLine."Document No.");
         ToPurchLine := PurchLine;
@@ -388,10 +391,10 @@ codeunit 378 "Transfer Extended Text"
 
         NextLineNo := PurchLine."Line No." + LineSpacing;
 
-        TempExtTextLine.Reset;
+        TempExtTextLine.Reset();
         if TempExtTextLine.Find('-') then begin
             repeat
-                ToPurchLine.Init;
+                ToPurchLine.Init();
                 ToPurchLine."Document Type" := PurchLine."Document Type";
                 ToPurchLine."Document No." := PurchLine."Document No.";
                 ToPurchLine."Line No." := NextLineNo;
@@ -399,11 +402,11 @@ codeunit 378 "Transfer Extended Text"
                 ToPurchLine.Description := TempExtTextLine.Text;
                 ToPurchLine."Attached to Line No." := PurchLine."Line No.";
                 OnBeforeToPurchLineInsert(ToPurchLine, PurchLine, TempExtTextLine, NextLineNo, LineSpacing);
-                ToPurchLine.Insert;
+                ToPurchLine.Insert();
             until TempExtTextLine.Next = 0;
             MakeUpdateRequired := true;
         end;
-        TempExtTextLine.DeleteAll;
+        TempExtTextLine.DeleteAll();
         LastInsertedPurchLine := ToPurchLine;
     end;
 
@@ -433,7 +436,7 @@ codeunit 378 "Transfer Extended Text"
         ReminderLine2 := ReminderLine;
         if ReminderLine2.Find('>') then begin
             repeat
-                ReminderLine2.Delete;
+                ReminderLine2.Delete();
             until ReminderLine2.Next = 0;
             exit(true);
         end;
@@ -448,7 +451,7 @@ codeunit 378 "Transfer Extended Text"
         FinChrgMemoLine2 := FinChrgMemoLine;
         if FinChrgMemoLine2.Find('>') then begin
             repeat
-                FinChrgMemoLine2.Delete;
+                FinChrgMemoLine2.Delete();
             until FinChrgMemoLine2.Next = 0;
             exit(true);
         end;
@@ -503,7 +506,7 @@ codeunit 378 "Transfer Extended Text"
                     exit;
             end;
         end;
-        TempExtTextLine.DeleteAll;
+        TempExtTextLine.DeleteAll();
         repeat
             ExtTextLine.SetRange("Table Name", ExtTextHeader."Table Name");
             ExtTextLine.SetRange("No.", ExtTextHeader."No.");
@@ -512,7 +515,7 @@ codeunit 378 "Transfer Extended Text"
             if ExtTextLine.FindSet then begin
                 repeat
                     TempExtTextLine := ExtTextLine;
-                    TempExtTextLine.Insert;
+                    TempExtTextLine.Insert();
                 until ExtTextLine.Next = 0;
                 Result := true;
             end;
@@ -619,7 +622,7 @@ codeunit 378 "Transfer Extended Text"
         ServiceLine2 := ServiceLine;
         if ServiceLine2.Find('>') then begin
             repeat
-                ServiceLine2.Delete;
+                ServiceLine2.Delete();
             until ServiceLine2.Next = 0;
             exit(true);
         end;
@@ -639,7 +642,7 @@ codeunit 378 "Transfer Extended Text"
         if IsHandled then
             exit;
 
-        ToServiceLine.Reset;
+        ToServiceLine.Reset();
         ToServiceLine.SetRange("Document Type", ServiceLine."Document Type");
         ToServiceLine.SetRange("Document No.", ServiceLine."Document No.");
         ToServiceLine := ServiceLine;
@@ -654,10 +657,10 @@ codeunit 378 "Transfer Extended Text"
 
         NextLineNo := ServiceLine."Line No." + LineSpacing;
 
-        TempExtTextLine.Reset;
+        TempExtTextLine.Reset();
         if TempExtTextLine.Find('-') then begin
             repeat
-                ToServiceLine.Init;
+                ToServiceLine.Init();
                 ToServiceLine."Document Type" := ServiceLine."Document Type";
                 ToServiceLine."Document No." := ServiceLine."Document No.";
                 ToServiceLine."Service Item Line No." := ServiceLine."Service Item Line No.";
@@ -671,7 +674,7 @@ codeunit 378 "Transfer Extended Text"
             until TempExtTextLine.Next = 0;
             MakeUpdateRequired := true;
         end;
-        TempExtTextLine.DeleteAll;
+        TempExtTextLine.DeleteAll();
     end;
 
     local procedure IsDeleteAttachedLines(LineNo: Integer; No: Code[20]; AttachedToLineNo: Integer): Boolean

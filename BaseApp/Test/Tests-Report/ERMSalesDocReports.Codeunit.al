@@ -40,7 +40,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalData;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Doc. Reports");
     end;
 
@@ -436,7 +436,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
 
         // 2. Exercise: Archive the Sales Document and Run Report Archived Sales Order.
         ArchiveManagement.ArchiveSalesDocument(SalesHeader);
-        Commit;
+        Commit();
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
         REPORT.Run(REPORT::"Archived Sales Order", true, false, SalesHeaderArchive);
 
@@ -586,7 +586,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
     begin
         // [SCENARIO 341358] Check Customer Balance To Date with two lines with the same Amount in different Currency
 
-        Initialize;
+        Initialize();
         ItemsCount := LibraryRandom.RandInt(10);
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
 
@@ -624,7 +624,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         SaveCustomerBalanceToDate(SalesHeaderCrMemo, false, false, false);
 
         // [THEN] Report was created
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Original Amount was filled correctly
         LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', CustLedgerEntryCrMemo."Original Amount");
@@ -647,7 +647,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
     begin
         // [SCENARIO 341358] Check Customer Balance To Date with two lines with the same Amount in different Currency
 
-        Initialize;
+        Initialize();
         ItemsCount := LibraryRandom.RandInt(10);
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
 
@@ -685,7 +685,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         SaveCustomerBalanceToDate(SalesHeaderCrMemo, false, false, true);
 
         // [THEN] Report was created
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Original Amount was filled correctly
         LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', CustLedgerEntryCrMemo."Original Amount");
@@ -708,7 +708,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
     begin
         // [SCENARIO 341358] Check Customer Balance To Date skip with two lines with the same Amount
 
-        Initialize;
+        Initialize();
         ItemsCount := LibraryRandom.RandInt(10);
         Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
 
@@ -746,7 +746,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         SaveCustomerBalanceToDate(SalesHeaderCrMemo, false, false, false);
 
         // [THEN] Report was created
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Documents are not exported
         LibraryReportDataset.AssertElementWithValueNotExist('DocNo_CustLedgEntry', CustLedgerEntryCrMemo."Document No.");
@@ -768,7 +768,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         SalesHeader: Record "Sales Header";
         BlanketSalesOrder: Report "Blanket Sales Order";
     begin
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(BlanketSalesOrder);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Blanket Order");
         SalesHeader.SetRange("No.", No);
@@ -1047,7 +1047,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OldPrintVATSpecInLCY := GeneralLedgerSetup."Print VAT specification in LCY";
         GeneralLedgerSetup."Print VAT specification in LCY" := PrintVATSpecInLCY;
         GeneralLedgerSetup.Modify(true);
@@ -1065,7 +1065,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesCreditMemoNos: Report "Sales Credit Memo Nos.";
     begin
-        Commit;
+        Commit();
         Clear(SalesCreditMemoNos);
         SalesCrMemoHeader.Get(PostedCrMemoNo);
         SalesCreditMemoNos.SetTableView(SalesCrMemoHeader);
@@ -1077,7 +1077,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceNos: Report "Sales Invoice Nos.";
     begin
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(SalesInvoiceNos);
         SalesInvoiceHeader.Get(PostedInvoiceNo);
         SalesInvoiceNos.SetTableView(SalesInvoiceHeader);
@@ -1088,7 +1088,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
     var
         ReturnOrderConfirmation: Report "Return Order Confirmation";
     begin
-        Commit; // Required to run report with request page.
+        Commit(); // Required to run report with request page.
         Clear(ReturnOrderConfirmation);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeader.SetRange("No.", SalesHeader."No.");
@@ -1102,7 +1102,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesCreditMemo: Report "Sales - Credit Memo";
     begin
-        Commit;
+        Commit();
         Clear(SalesCreditMemo);
         SalesCrMemoHeader.SetRange("Pre-Assigned No.", SalesHeaderNo);
         SalesCrMemoHeader.FindFirst;
@@ -1115,7 +1115,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PurchaseCreditMemo: Report "Purchase - Credit Memo";
     begin
-        Commit;
+        Commit();
         Clear(PurchaseCreditMemo);
         PurchCrMemoHdr.SetRange("Vendor Cr. Memo No.", VendorCrMemoNo);
         PurchCrMemoHdr.FindFirst;
@@ -1139,7 +1139,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         Customer.SetRange("Date Filter", SalesHeader."Posting Date");
         CustomerBalanceToDate.SetTableView(Customer);
         CustomerBalanceToDate.InitializeRequest(AmountLCY, false, Unapplied, WorkDate);
-        CustomerBalanceToDate.Run;
+        CustomerBalanceToDate.Run();
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -1213,7 +1213,7 @@ codeunit 134390 "ERM Sales Doc. Reports"
         UpdateSalesLine(SalesLine, QuantityToInvoice);
 
         // Exercise: Run Order Confirmation Report.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Order Confirmation", true, false, SalesHeader);
 
         // Verify: Verify Inv. Discount Amounts on Order Confiramtion Report.

@@ -178,7 +178,7 @@ report 211 "Customer - Payment Receipt"
                         trigger OnAfterGetRecord()
                         begin
                             if "Entry No." = "Cust. Ledger Entry"."Entry No." then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             PmtDiscInvCurr := 0;
                             PmtTolInvCurr := 0;
@@ -242,7 +242,7 @@ report 211 "Customer - Payment Receipt"
                         trigger OnAfterGetRecord()
                         begin
                             if "Entry No." = "Cust. Ledger Entry"."Entry No." then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             PmtDiscInvCurr := 0;
                             PmtTolInvCurr := 0;
@@ -316,9 +316,9 @@ report 211 "Customer - Payment Receipt"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
-                GLSetup.Get;
+                GLSetup.Get();
             end;
         }
     }

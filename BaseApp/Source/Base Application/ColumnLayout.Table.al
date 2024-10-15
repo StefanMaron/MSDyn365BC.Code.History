@@ -508,12 +508,12 @@ table 334 "Column Layout"
                       ColumnLayoutName.TableCaption, AnalysisView.TableCaption, ColumnLayoutName."Analysis View Name",
                       ColumnLayoutName.FieldCaption("Analysis View Name"), ColumnLayoutName.TableCaption);
                     ColumnLayoutName."Analysis View Name" := '';
-                    ColumnLayoutName.Modify;
+                    ColumnLayoutName.Modify();
                 end;
 
         if ColumnLayoutName."Analysis View Name" = '' then begin
             if not HasGLSetup then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 HasGLSetup := true;
             end;
             Clear(AnalysisView);

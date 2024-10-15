@@ -15,7 +15,7 @@ report 11313 "Link to Accon"
             trigger OnAfterGetRecord()
             begin
                 if "Account Type" <> "Account Type"::Posting then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 Clear(DebitAmt);
                 Clear(CreditAmt);
                 if UseAmtsInAddCurr then begin
@@ -100,7 +100,7 @@ report 11313 "Link to Accon"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if UseAmtsInAddCurr then
             ReportingCurr := GLSetup."Additional Reporting Currency"
         else
@@ -109,9 +109,9 @@ report 11313 "Link to Accon"
 
     var
         BEFTok: Label 'BEF';
-        Text11302: Label '<integer,12>';
-        Text11303: Label '<integer,12>.';
-        Text11304: Label '<Decimals,3>';
+        Text11302: Label '<integer,12>', Locked = true;
+        Text11303: Label '<integer,12>.', Locked = true;
+        Text11304: Label '<Decimals,3>', Locked = true;
         GLSetup: Record "General Ledger Setup";
         FileMgt: Codeunit "File Management";
         UseAmtsInAddCurr: Boolean;

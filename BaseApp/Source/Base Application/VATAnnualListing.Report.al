@@ -96,13 +96,13 @@ report 11308 "VAT Annual Listing"
                 trigger OnAfterGetRecord()
                 begin
                     if CheckVatNo.MOD97Check("Enterprise No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not WrongVATRegNoList then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if IncludeCountry = IncludeCountry::Specific then
                         SetRange("Country/Region Code", Country);
@@ -138,11 +138,11 @@ report 11308 "VAT Annual Listing"
                     trigger OnAfterGetRecord()
                     begin
                         if VATCustomer.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         if VATCustomer.Mark then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         if not CheckVatNo.MOD97Check(VATCustomer."Enterprise No.") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         VATCustomer.Mark(true);
                     end;
 
@@ -178,19 +178,19 @@ report 11308 "VAT Annual Listing"
                     begin
                         // Filling up buffer for printing in printloop
                         if not SkipMinimumAmount or IsCreditMemo then begin
-                            Buffer.Reset;
+                            Buffer.Reset();
                             Buffer.SetRange("VAT Registration No.", VAT1 + ' ' + VAT2);
                             if Buffer.FindFirst then begin
                                 Buffer.Base += -WBase;
                                 Buffer.Amount += -WAmount;
-                                Buffer.Modify;
+                                Buffer.Modify();
                             end else begin
-                                Buffer.Init;
+                                Buffer.Init();
                                 Buffer."Entry No." := No;
                                 Buffer."VAT Registration No." := VAT1 + ' ' + VAT2;
                                 Buffer.Base := -WBase;
                                 Buffer.Amount := -WAmount;
-                                Buffer.Insert;
+                                Buffer.Insert();
                             end;
                         end;
                     end;
@@ -199,10 +199,11 @@ report 11308 "VAT Annual Listing"
                 trigger OnAfterGetRecord()
                 begin
                     if not CheckVatNo.MOD97Check("Enterprise No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
-                    if not CheckVatNo.CheckEnterpriseNoFormat("Enterprise No.") then
-                        CurrReport.Skip;
+                    EnterpriseNoPrefix := UpperCase(DelChr("Enterprise No.", '=', '0123456789,?;.:/-_ '));
+                    if (StrPos(EnterpriseNoPrefix, 'BTW') = 0) and (StrPos(EnterpriseNoPrefix, 'TVA') = 0) then
+                        CurrReport.Skip();
 
                     Clear(WBase);
                     Clear(WAmount);
@@ -216,9 +217,9 @@ report 11308 "VAT Annual Listing"
                 trigger OnPreDataItem()
                 begin
                     if not VATAnnualList then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
-                    Company.Get;
+                    Company.Get();
                     if not CheckVatNo.MOD97Check(Company."Enterprise No.") then
                         Error(Text001);
 
@@ -259,9 +260,9 @@ report 11308 "VAT Annual Listing"
                 trigger OnPreDataItem()
                 begin
                     if not VATAnnualList then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
-                    Buffer.Reset;
+                    Buffer.Reset();
                     SetRange(Number, 1, Buffer.Count);
                 end;
             }
@@ -307,7 +308,7 @@ report 11308 "VAT Annual Listing"
                         ApplicationArea = Basic, Suite;
                         AutoFormatType = 1;
                         Caption = 'Minimum Amount';
-                        ToolTip = 'Specifies the minimum customer''s year balance to be included in the report. If the yearly balance of the customer is smaller than the minimum amount (and there are no negative entries), the customer will not be included in the declaration.';
+                        ToolTip = 'Specifies the minimum customer''s year balance to be included in the report. If the yearly balance of the customer is smaller than the minimum amount, the customer will not be included in the declaration.';
                     }
                     field(IncludeCountry; IncludeCountry)
                     {
@@ -367,6 +368,7 @@ report 11308 "VAT Annual Listing"
         VAT1: Text[30];
         VAT2: Text[30];
         VatRegNoFilter: Text[250];
+        EnterpriseNoPrefix: Text[50];
         WrongVATRegNoList: Boolean;
         VATAnnualList: Boolean;
         intYear: Integer;

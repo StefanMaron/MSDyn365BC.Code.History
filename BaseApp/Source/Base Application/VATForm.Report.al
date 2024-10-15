@@ -256,12 +256,12 @@ report 11307 "VAT - Form"
         CompanyInformation: Record "Company Information";
         CheckVatNo: Codeunit VATLogicalTests;
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if not CheckVatNo.MOD97Check(CompanyInformation."Enterprise No.") then
             Error(Text001, CompanyInformation.FieldCaption("Enterprise No."), CompanyInformation.TableCaption);
         CompanyInformation.TestField("Country/Region Code");
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("VAT Statement Template Name");
         GLSetup.TestField("VAT Statement Name");
     end;
@@ -342,12 +342,12 @@ report 11307 "VAT - Form"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if RefreshSequenceNumber then begin
             CompanyInformation."XML Seq. No. VAT Declaration" := CompanyInformation."XML Seq. No. VAT Declaration" + 1;
             if CompanyInformation."XML Seq. No. VAT Declaration" > 9999 then
                 CompanyInformation."XML Seq. No. VAT Declaration" := 1;
-            CompanyInformation.Modify;
+            CompanyInformation.Modify();
             RefreshSequenceNumber := false;
         end;
 

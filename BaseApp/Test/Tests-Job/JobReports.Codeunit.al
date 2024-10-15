@@ -45,7 +45,7 @@ codeunit 136906 "Job Reports"
         JobBatchJobs.SetJobNoSeries(JobsSetup, NoSeries);
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Reports");
     end;
 
@@ -126,7 +126,7 @@ codeunit 136906 "Job Reports"
         // [THEN] Report output is saved to Excel file.
         LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(1, 7, '1'); // page number
-        LibraryReportValidation.VerifyCellValue(2, 1, 'Job WIP To G/L');
+        Assert.AreNotEqual(0, LibraryReportValidation.FindColumnNoFromColumnCaption('Job WIP To G/L'), '');
     end;
 
     local procedure CreateAndPostJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; JobPlanningLine: Record "Job Planning Line")
@@ -234,7 +234,7 @@ codeunit 136906 "Job Reports"
         Job.SetRange("No.", Job."No.");
         Clear(JobWIPToGL);
         JobWIPToGL.SetTableView(Job);
-        Commit;
+        Commit();
         JobWIPToGL.Run;
     end;
 
@@ -264,16 +264,10 @@ codeunit 136906 "Job Reports"
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure JobPostWIPToGLHandler(var JobPostWIPToGL: TestRequestPage "Job Post WIP to G/L")
-    var
-        TemplateName: Code[10];
-        BatchName: Code[10];
     begin
         JobPostWIPToGL.ReversalPostingDate.SetValue(Format(WorkDate));
         JobPostWIPToGL.ReversalDocumentNo.SetValue(Format(LibraryRandom.RandInt(10)));  // Use random Reversal Document No.
         JobPostWIPToGL.UseReversalDate.SetValue(true);
-        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        JobPostWIPToGL.JnlTemplateName.SetValue(TemplateName);
-        JobPostWIPToGL.JnlBatchName.SetValue(BatchName);
         JobPostWIPToGL.OK.Invoke;
     end;
 

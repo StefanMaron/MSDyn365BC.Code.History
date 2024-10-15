@@ -87,7 +87,7 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM WIP Costing Addnl Currency");
     end;
 
@@ -189,7 +189,7 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
     begin
         // Set Residual Gains Account and Residual Losses Account for Currency.
         UpdateResidualAccountsCurrency(CurrencyExchangeRate, Currency);
-        Commit;
+        Commit();
 
         // Update Additional Reporting Currency on G/L setup to execute Adjust Additional Reporting Currency report.
         GeneralLedgerSetup.OpenEdit;
@@ -283,14 +283,10 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
     [ReportHandler]
     [Scope('OnPrem')]
     procedure AdjustAddnlCurrReportHandler(var AdjustAddReportingCurrency: Report "Adjust Add. Reporting Currency")
-    var
-        TemplateName: Code[10];
-        BatchName: Code[10];
     begin
-        // Report Handler: Update request form with random template and batch, Retained Earnings Account and run the
+        // Report Handler: Update request form with random Document No, Retained Earnings Account and run the
         // Adjust Additional Reporting Currency report.
-        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        AdjustAddReportingCurrency.InitializeRequest(SelectGLAccountNo, TemplateName, BatchName);
+        AdjustAddReportingCurrency.InitializeRequest(Format(LibraryRandom.RandInt(100)), SelectGLAccountNo);
         AdjustAddReportingCurrency.UseRequestPage(false);
         AdjustAddReportingCurrency.Run;
     end;

@@ -6,7 +6,7 @@ codeunit 2000003 "Check International Payments"
     var
         CheckDomesticPmt: Codeunit "Check Domestic Payments";
     begin
-        TempBankAcc.DeleteAll;
+        TempBankAcc.DeleteAll();
         CheckPaymJnlLine.ClearErrorLog;
 
         // Check if there is anything to export and exit if not
@@ -22,7 +22,7 @@ codeunit 2000003 "Check International Payments"
                 if "Bank Account" <> '' then
                     if not TempBankAcc.Get("Bank Account") then begin
                         TempBankAcc."No." := "Bank Account";
-                        TempBankAcc.Insert;
+                        TempBankAcc.Insert();
                     end;
                 OnAfterCheckPaymJnlLine(Rec);
             until Next = 0;
@@ -52,7 +52,7 @@ codeunit 2000003 "Check International Payments"
         IbanTransfer: Boolean;
     begin
         GetCountry(PmtJnlLine."Bank Country/Region Code");
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         IbanTransfer := (PmtJnlLine."Beneficiary IBAN" <> '') and Country."IBAN Country/Region";
         if not IbanTransfer then begin
             // Check if BBAN is blank

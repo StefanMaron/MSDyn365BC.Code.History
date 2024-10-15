@@ -34,7 +34,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         FieldError2: Label '%1 is not different than %2.';
         FieldError3: Label '%1 %2 %3 does not exist.', Comment = '%1=Table name,%2=Field value,%3=Field value';
         FieldError4: Label '%1 must not be specified when %2 is specified.';
-        FormatString: Label '<Precision,2><Standard Format,0>';
+        FormatString: Label '<Precision,2><Standard Format,0>', Locked = true;
         GLAccNetChangeCaption: Label 'GLAccNetChange';
         MaintenanceCodeCaption: Label 'Maintenance_Ledger_Entry__Maintenance_Code_';
         NoFACaption: Label 'No_FA';
@@ -75,7 +75,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Exercise: Run and Save Fixed Asset Journal Test Report.
         Clear(FixedAssetJournalTest);
         FixedAssetJournalTest.SetTableView(FAJournalBatch);
-        Commit;
+        Commit();
         FixedAssetJournalTest.Run;
 
         // Verify: Verify different warnings on Fixed Asset Journal Test Report.
@@ -103,7 +103,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Exercise: Run and Save Fixed Asset Journal Test Report.
         Clear(InsuranceJournalTest);
         InsuranceJournalTest.SetTableView(InsuranceJournalBatch);
-        Commit;
+        Commit();
         InsuranceJournalTest.Run;
 
         // Verify: Verify different warnings on Insurance Journal Test Report.
@@ -217,7 +217,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         Initialize;
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate, WorkDate, true);  // TRUE for FixedAssetsAcquired.
-        Commit;  // Commit required for running report.
+        Commit();  // Commit required for running report.
 
         // Exercise:
         REPORT.Run(REPORT::"Fixed Asset - Acquisition List");
@@ -240,7 +240,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         Initialize;
         CreateFixedAssetWithAcquisitionCost(FixedAsset);
         EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate, WorkDate, false);  // FALSE for FixedAssetsAcquired.
-        Commit;  // Commit required for running report.
+        Commit();  // Commit required for running report.
 
         // Exercise.
         REPORT.Run(REPORT::"Fixed Asset - Acquisition List");
@@ -362,7 +362,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         CreateAndModifyFixedAsset(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
         EnqueueValuesForFixedAssetListReport(FADepreciationBook."Depreciation Book Code", false, FixedAsset."No.");  // FALSE for New Page Per Asset.
-        Commit;  // Commit required for running report.
+        Commit();  // Commit required for running report.
 
         // Exercise.
         REPORT.Run(REPORT::"Fixed Asset - List");
@@ -395,7 +395,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
           FADepreciationBook."Depreciation Book Code", true,
           StrSubstNo(FixedAssetFilter, FixedAsset."No.", FixedAsset2."No."));  // TRUE for New Page Per Asset.
         FixedAsset.SetRange("No.", FixedAsset."No.", FixedAsset2."No.");
-        Commit;  // Commit required for running report.
+        Commit();  // Commit required for running report.
 
         // Exercise.
         REPORT.Run(REPORT::"Fixed Asset - List");
@@ -416,7 +416,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Setup:
         Initialize;
         EnqueueValuesForMaintenanceAnalysisReport('', 0D, 0D, '');  // '' for Depreciation Book code, maintenance code, 0D for Starting Date and Ending date.
-        Commit;  // Commit required for running report.
+        Commit();  // Commit required for running report.
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"Maintenance - Analysis");
@@ -438,7 +438,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         Initialize;
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         EnqueueValuesForMaintenanceAnalysisReport(DepreciationBook.Code, 0D, 0D, '');  // '' for Maintenance code.
-        Commit;  // Commit required for running report.
+        Commit();  // Commit required for running report.
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"Maintenance - Analysis");
@@ -469,7 +469,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         FADepreciationBook.SetRange("FA No.", FixedAsset."No.");
         FADepreciationBook.FindFirst;
         EnqueueValuesForMaintenanceAnalysisReport(FADepreciationBook."Depreciation Book Code", WorkDate, WorkDate, Maintenance.Code);
-        Commit;  // Commit required for running report.
+        Commit();  // Commit required for running report.
 
         // Exercise.
         REPORT.Run(REPORT::"Maintenance - Analysis");
@@ -526,7 +526,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify: Verify Amounts for Maintenance and Reversed Entries.
         LibraryReportDataset.LoadDataSetFile;
         VerifyMaintenanceDetailReport(Maintenance.Code, Round(AcquisitionCost / 2));  // Devide by 2 since Maintenance Cost is half of Acquisition Cost.
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         VerifyMaintenanceDetailReport('', Round(AcquisitionCost / 2));  // Devide by 2 since Maintenance Cost is half of Acquisition Cost.
         LibraryReportDataset.AssertElementWithValueExists(AmountCaption, -Round(AcquisitionCost / 2));
     end;
@@ -654,7 +654,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         CreateAndModifyFixedAsset(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
         EnqueueValuesForFixedAssetListReport(FADepreciationBook."Depreciation Book Code", false, FixedAsset."No.");
-        Commit;
+        Commit();
 
         // [WHEN] Run report "Fixed Asset - List"
         REPORT.Run(REPORT::"Fixed Asset - List");
@@ -687,7 +687,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         CreateAndModifyFixedAsset(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
         EnqueueValuesForFixedAssetListReport(FADepreciationBook."Depreciation Book Code", false, FixedAsset."No.");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Fixed Asset - List");
 
         // [THEN] Report terminates successfully and contains "X"
@@ -714,7 +714,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CalculateAmount(GLAccountNo: Code[20]): Decimal
@@ -757,7 +757,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Enqueue values for MaintenanceDetailsRequestPagetHandler.
         LibraryVariableStorage.Enqueue(FixedAsset."No.");
         LibraryVariableStorage.Enqueue(IncludeReversedEntries);
-        Commit;  // Required to run Maintenance - Details report.
+        Commit();  // Required to run Maintenance - Details report.
     end;
 
     local procedure CreateAndModifyFixedAsset(var FixedAsset: Record "Fixed Asset")
@@ -907,7 +907,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         FixedAsset.SetRange("No.", No);
         FixedAssetBookValue02.SetTableView(FixedAsset);
         FixedAssetBookValue02.SetMandatoryFields(LibraryFixedAsset.GetDefaultDeprBook, WorkDate, WorkDate);
-        Commit;
+        Commit();
         FixedAssetBookValue02.Run;
     end;
 

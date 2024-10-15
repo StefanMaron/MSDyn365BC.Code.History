@@ -348,11 +348,9 @@ table 2000001 "Payment Journal Line"
             Editable = false;
             TableRelation = "Source Code";
         }
-        field(35; "Applies-to Doc. Type"; Option)
+        field(35; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(36; "Applies-to Doc. No."; Code[20])
         {
@@ -368,7 +366,7 @@ table 2000001 "Payment Journal Line"
                 case AccType of
                     AccType::Customer:
                         begin
-                            CustLedgEntry.Reset;
+                            CustLedgEntry.Reset();
                             CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date");
                             CustLedgEntry.SetRange("Customer No.", AccNo);
                             CustLedgEntry.SetRange(Open, true);
@@ -395,7 +393,7 @@ table 2000001 "Payment Journal Line"
                                             CustLedgEntry.SetRange(Positive);
                                         end;
                             if CustLedgEntry.IsEmpty then begin
-                                CustLedgEntry.Init;
+                                CustLedgEntry.Init();
                                 CustLedgEntry."Customer No." := AccNo;
                             end;
                             InitGenJnlLine(GenJnlLine);
@@ -411,7 +409,7 @@ table 2000001 "Payment Journal Line"
                         end;
                     AccType::Vendor:
                         begin
-                            VendLedgEntry.Reset;
+                            VendLedgEntry.Reset();
                             VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
                             VendLedgEntry.SetRange("Vendor No.", AccNo);
                             VendLedgEntry.SetRange(Open, true);
@@ -438,7 +436,7 @@ table 2000001 "Payment Journal Line"
                                             VendLedgEntry.SetRange(Positive);
                                         end;
                             if VendLedgEntry.IsEmpty then begin
-                                VendLedgEntry.Init;
+                                VendLedgEntry.Init();
                                 VendLedgEntry."Vendor No." := AccNo;
                             end;
                             InitGenJnlLine(GenJnlLine);
@@ -462,7 +460,7 @@ table 2000001 "Payment Journal Line"
                     case "Account Type" of
                         "Account Type"::Customer:
                             begin
-                                CustLedgEntry.Reset;
+                                CustLedgEntry.Reset();
                                 CustLedgEntry.SetCurrentKey("Document No.");
                                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
@@ -473,7 +471,7 @@ table 2000001 "Payment Journal Line"
                             end;
                         "Account Type"::Vendor:
                             begin
-                                VendLedgEntry.Reset;
+                                VendLedgEntry.Reset();
                                 VendLedgEntry.SetCurrentKey("Document No.");
                                 VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                 VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
@@ -690,7 +688,7 @@ table 2000001 "Payment Journal Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         PaymentJnlTemplate.Get("Journal Template Name");
         "Source Code" := PaymentJnlTemplate."Source Code";
         PaymJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -740,7 +738,7 @@ table 2000001 "Payment Journal Line"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if "Currency Code" = '' then begin
             Clear(Currency);
             Currency.InitRoundingPrecision;
@@ -792,7 +790,7 @@ table 2000001 "Payment Journal Line"
                 Amount := 0;
             end;
 
-            PaymentJnlLine.Reset;
+            PaymentJnlLine.Reset();
             PaymentJnlLine.SetCurrentKey("Account Type", "Account No.");
             PaymentJnlLine.SetRange("Account Type", PaymentJnlLine."Account Type"::Vendor);
             PaymentJnlLine.SetRange("Account No.", VendLedgEntry."Vendor No.");
@@ -864,7 +862,7 @@ table 2000001 "Payment Journal Line"
                 Amount := 0;
             end;
 
-            PaymentJnlLine.Reset;
+            PaymentJnlLine.Reset();
             PaymentJnlLine.SetCurrentKey("Account Type", "Account No.");
             PaymentJnlLine.SetRange("Account Type", PaymentJnlLine."Account Type"::Customer);
             PaymentJnlLine.SetRange("Account No.", CustLedgEntry."Customer No.");

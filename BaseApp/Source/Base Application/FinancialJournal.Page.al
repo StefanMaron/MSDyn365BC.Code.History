@@ -863,7 +863,7 @@ page 11300 "Financial Journal"
 
     local procedure CalcJournalTotal(): Decimal
     begin
-        GenJnlLine.Reset;
+        GenJnlLine.Reset();
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
         GenJnlLine.CalcSums(Amount, "Amount (LCY)");

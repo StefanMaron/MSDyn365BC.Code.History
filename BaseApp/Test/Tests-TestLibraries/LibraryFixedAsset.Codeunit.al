@@ -17,7 +17,7 @@ codeunit 131330 "Library - Fixed Asset"
     var
         RecRef: RecordRef;
     begin
-        CommentLine.Init;
+        CommentLine.Init();
         CommentLine.Validate("Table Name", TableName);
         CommentLine.Validate("No.", No);
         RecRef.GetTable(CommentLine);
@@ -27,7 +27,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure CreateDepreciationBook(var DepreciationBook: Record "Depreciation Book")
     begin
-        DepreciationBook.Init;
+        DepreciationBook.Init();
         DepreciationBook.Validate(
           Code,
           CopyStr(
@@ -39,7 +39,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure CreateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; FANo: Code[20]; DepreciationBookCode: Code[10])
     begin
-        FADepreciationBook.Init;
+        FADepreciationBook.Init();
         FADepreciationBook.Validate("FA No.", FANo);
         FADepreciationBook.Validate("Depreciation Book Code", DepreciationBookCode);
         FADepreciationBook.Insert(true);
@@ -49,7 +49,7 @@ codeunit 131330 "Library - Fixed Asset"
     var
         RecRef: RecordRef;
     begin
-        FAAllocation.Init;
+        FAAllocation.Init();
         FAAllocation.Validate(Code, Code);
         FAAllocation.Validate("Allocation Type", AllocationType);
         RecRef.GetTable(FAAllocation);
@@ -62,7 +62,7 @@ codeunit 131330 "Library - Fixed Asset"
         RecRef: RecordRef;
     begin
         // Create a Fixed Asset General Journal Entry.
-        FAJournalLine.Init;
+        FAJournalLine.Init();
         FAJournalLine.Validate("Journal Template Name", JournalTemplateName);
         FAJournalLine.Validate("Journal Batch Name", JournalBatchName);
         RecRef.GetTable(FAJournalLine);
@@ -72,7 +72,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure CreateFAJournalSetup(var FAJournalSetup: Record "FA Journal Setup"; DepreciationBookCode: Code[10]; UserID: Code[50])
     begin
-        FAJournalSetup.Init;
+        FAJournalSetup.Init();
         FAJournalSetup.Validate("Depreciation Book Code", DepreciationBookCode);
         FAJournalSetup.Validate("User ID", UserID);
         FAJournalSetup.Insert(true);
@@ -80,7 +80,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure CreateFAPostingGroup(var FAPostingGroup: Record "FA Posting Group")
     begin
-        FAPostingGroup.Init;
+        FAPostingGroup.Init();
         FAPostingGroup.Validate(
           Code,
           CopyStr(
@@ -126,7 +126,7 @@ codeunit 131330 "Library - Fixed Asset"
         RecRef: RecordRef;
     begin
         // Create a Fixed Asset Reclass Journal Entry.
-        FAReclassJournalLine.Init;
+        FAReclassJournalLine.Init();
         FAReclassJournalLine.Validate("Journal Template Name", JournalTemplateName);
         FAReclassJournalLine.Validate("Journal Batch Name", JournalBatchName);
         RecRef.GetTable(FAReclassJournalLine);
@@ -137,14 +137,14 @@ codeunit 131330 "Library - Fixed Asset"
     [Scope('OnPrem')]
     procedure CreateFAReclassJournalTemplate(var FAReclassJournalTemplate: Record "FA Reclass. Journal Template")
     begin
-        FAReclassJournalTemplate.Init;
+        FAReclassJournalTemplate.Init();
         FAReclassJournalTemplate.Name := LibraryUtility.GenerateGUID;
-        FAReclassJournalTemplate.Insert;
+        FAReclassJournalTemplate.Insert();
     end;
 
     procedure CreateFAReclassJournalBatch(var FAReclassJournalBatch: Record "FA Reclass. Journal Batch"; JournalTemplateName: Code[10])
     begin
-        FAReclassJournalBatch.Init;
+        FAReclassJournalBatch.Init();
         FAReclassJournalBatch.Validate("Journal Template Name", JournalTemplateName);
         FAReclassJournalBatch.Validate(
           Name,
@@ -163,7 +163,7 @@ codeunit 131330 "Library - Fixed Asset"
         // creates a new FA Journal Batch named with the next available number (if it does not yet exist), OR
         // returns the FA Journal batch named with the next available number
 
-        FAJournalBatch.Init;
+        FAJournalBatch.Init();
         FAJournalBatch.Validate("Journal Template Name", JournalTemplateName);
         FAJournalBatch.Validate(
           Name,
@@ -179,7 +179,7 @@ codeunit 131330 "Library - Fixed Asset"
     begin
         LibraryUtility.UpdateSetupNoSeriesCode(DATABASE::"FA Setup", FASetup.FieldNo("Fixed Asset Nos."));
 
-        FixedAsset.Init;
+        FixedAsset.Init();
         FixedAsset.Insert(true);
         FixedAsset.Validate(Description, FixedAsset."No.");  // Validating Description as No because value is not important.
         FixedAsset.Modify(true);
@@ -211,7 +211,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure CreateGLBudgetName(var GLBudgetName: Record "G/L Budget Name")
     begin
-        GLBudgetName.Init;
+        GLBudgetName.Init();
         GLBudgetName.Validate(
           Name,
           CopyStr(
@@ -228,7 +228,7 @@ codeunit 131330 "Library - Fixed Asset"
     begin
         LibraryUtility.UpdateSetupNoSeriesCode(DATABASE::"FA Setup", FASetup.FieldNo("Insurance Nos."));
 
-        Insurance.Init;
+        Insurance.Init();
         Insurance.Insert(true);
         Insurance.Validate(Description, Insurance."No.");  // Validating Description as No because value is not important.
         Insurance.Modify(true);
@@ -237,14 +237,14 @@ codeunit 131330 "Library - Fixed Asset"
     [Scope('OnPrem')]
     procedure CreateInsuranceJournalTemplate(var InsuranceJournalTemplate: Record "Insurance Journal Template")
     begin
-        InsuranceJournalTemplate.Init;
+        InsuranceJournalTemplate.Init();
         InsuranceJournalTemplate.Name := LibraryUtility.GenerateGUID;
-        InsuranceJournalTemplate.Insert;
+        InsuranceJournalTemplate.Insert();
     end;
 
     procedure CreateInsuranceJournalBatch(var InsuranceJournalBatch: Record "Insurance Journal Batch"; JournalTemplateName: Code[10])
     begin
-        InsuranceJournalBatch.Init;
+        InsuranceJournalBatch.Init();
         InsuranceJournalBatch.Validate("Journal Template Name", JournalTemplateName);
         InsuranceJournalBatch.Validate(
           Name,
@@ -263,7 +263,7 @@ codeunit 131330 "Library - Fixed Asset"
         RecRef: RecordRef;
     begin
         // Create an Insurance Journal Entry.
-        InsuranceJournalLine.Init;
+        InsuranceJournalLine.Init();
         InsuranceJournalLine.Validate("Journal Template Name", JournalTemplateName);
         InsuranceJournalLine.Validate("Journal Batch Name", JournalBatchName);
         RecRef.GetTable(InsuranceJournalLine);
@@ -273,7 +273,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure CreateMaintenance(var Maintenance: Record Maintenance)
     begin
-        Maintenance.Init;
+        Maintenance.Init();
         Maintenance.Validate(
           Code,
           CopyStr(
@@ -288,7 +288,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure CreateInsuranceType(var InsuranceType: Record "Insurance Type")
     begin
-        InsuranceType.Init;
+        InsuranceType.Init();
         InsuranceType.Validate(
           Code,
           CopyStr(
@@ -303,7 +303,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure CreateJournalTemplate(var FAJournalTemplate: Record "FA Journal Template")
     begin
-        FAJournalTemplate.Init;
+        FAJournalTemplate.Init();
         FAJournalTemplate.Validate(
           Name,
           CopyStr(
@@ -318,7 +318,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure CreateDepreciationTableHeader(var DepreciationTableHeader: Record "Depreciation Table Header")
     begin
-        DepreciationTableHeader.Init;
+        DepreciationTableHeader.Init();
         DepreciationTableHeader.Validate(
           Code,
           CopyStr(
@@ -336,7 +336,7 @@ codeunit 131330 "Library - Fixed Asset"
         DepreciationTableLine.SetRange("Depreciation Table Code", DepreciationTableCode);
         // Check if Lines are alredy exist.
         if DepreciationTableLine.FindLast then;
-        DepreciationTableLine.Init;
+        DepreciationTableLine.Init();
         DepreciationTableLine.Validate("Depreciation Table Code", DepreciationTableCode);
         DepreciationTableLine.Validate("Period No.", DepreciationTableLine."Period No." + 1);
         DepreciationTableLine.Insert(true);
@@ -344,7 +344,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure CreateMainAssetComponent(var MainAssetComponent: Record "Main Asset Component"; MainAssetNo: Code[20]; FANo: Code[20])
     begin
-        MainAssetComponent.Init;
+        MainAssetComponent.Init();
         MainAssetComponent.Validate("Main Asset No.", MainAssetNo);
         MainAssetComponent.Validate("FA No.", FANo);
         MainAssetComponent.Insert(true);
@@ -352,7 +352,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure CreateFAClass(var FAClass: Record "FA Class")
     begin
-        FAClass.Init;
+        FAClass.Init();
         FAClass.Validate(
           Code,
           CopyStr(
@@ -366,7 +366,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure CreateFASubclass(var FASubclass: Record "FA Subclass")
     begin
-        FASubclass.Init;
+        FASubclass.Init();
         FASubclass.Validate(
           Code,
           CopyStr(
@@ -380,7 +380,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure CreateFASubclassDetailed(var FASubclass: Record "FA Subclass"; FAClassCode: Code[10]; FAPostingGroupCode: Code[20])
     begin
-        FASubclass.Init;
+        FASubclass.Init();
         FASubclass.Validate(
           Code,
           CopyStr(
@@ -432,7 +432,7 @@ codeunit 131330 "Library - Fixed Asset"
 
     procedure GetDefaultDeprBook(): Code[10]
     begin
-        FASetup.Get;
+        FASetup.Get();
         exit(FASetup."Default Depr. Book");
     end;
 
@@ -472,7 +472,7 @@ codeunit 131330 "Library - Fixed Asset"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.Validate("Default Depr. Book", DefaultDeprBook);
         FASetup.Modify(true);
     end;

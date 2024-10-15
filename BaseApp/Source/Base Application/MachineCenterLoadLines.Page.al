@@ -7,7 +7,8 @@ page 99000890 "Machine Center Load Lines"
     LinksAllowed = false;
     PageType = ListPart;
     SaveValues = true;
-    SourceTable = Date;
+    SourceTable = "Load Buffer";
+    SourceTableTemporary = true;
 
     layout
     {
@@ -28,7 +29,7 @@ page 99000890 "Machine Center Load Lines"
                     Caption = 'Period Name';
                     ToolTip = 'Specifies the name of the period shown in the line.';
                 }
-                field(Capacity; MachineCenter."Capacity (Effective)")
+                field(Capacity; Capacity)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Capacity';
@@ -46,7 +47,7 @@ page 99000890 "Machine Center Load Lines"
                         PAGE.Run(0, CalendarEntry);
                     end;
                 }
-                field(AllocatedQty; MachineCenter."Prod. Order Need (Qty.)")
+                field(AllocatedQty; "Allocated Qty.")
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Allocated Qty.';
@@ -65,14 +66,14 @@ page 99000890 "Machine Center Load Lines"
                         PAGE.Run(0, ProdOrderCapNeed);
                     end;
                 }
-                field(CapacityAvailable; CapacityAvailable)
+                field(CapacityAvailable; "Availability After Orders")
                 {
                     ApplicationArea = Planning;
                     Caption = 'Availability After Orders';
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the available capacity of this machine center that is not used in the planning of a given time period.';
                 }
-                field(CapacityEfficiency; CapacityEfficiency)
+                field(CapacityEfficiency; Load)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Load';
@@ -89,41 +90,44 @@ page 99000890 "Machine Center Load Lines"
 
     trigger OnAfterGetRecord()
     begin
-        SetDateFilter;
-        MachineCenter.CalcFields("Capacity (Effective)", "Prod. Order Need (Qty.)");
-        CapacityAvailable := MachineCenter."Capacity (Effective)" - MachineCenter."Prod. Order Need (Qty.)";
-        if MachineCenter."Capacity (Effective)" <> 0 then
-            CapacityEfficiency := Round(MachineCenter."Prod. Order Need (Qty.)" / MachineCenter."Capacity (Effective)" * 100, 0.1)
-        else
-            CapacityEfficiency := 0;
+        if DateRec.Get("Period Type", "Period Start") then;
+        CalcLine();
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
+    trigger OnFindRecord(Which: Text) FoundDate: Boolean
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, PeriodType));
+        VariantRec := Rec;
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        Rec := VariantRec;
     end;
 
-    trigger OnNextRecord(Steps: Integer): Integer
+    trigger OnNextRecord(Steps: Integer) ResultSteps: Integer
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, PeriodType));
+        VariantRec := Rec;
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        Rec := VariantRec;
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
     end;
 
     var
         MachineCenter: Record "Machine Center";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
-        CapacityAvailable: Decimal;
-        CapacityEfficiency: Decimal;
+        DateRec: Record Date;
+        PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
 
     procedure Set(var NewMachineCenter: Record "Machine Center"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         MachineCenter.Copy(NewMachineCenter);
+        DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
@@ -135,6 +139,26 @@ page 99000890 "Machine Center Load Lines"
             MachineCenter.SetRange("Date Filter", "Period Start", "Period End")
         else
             MachineCenter.SetRange("Date Filter", 0D, "Period End");
+    end;
+
+    local procedure CalcLine()
+    begin
+        SetDateFilter();
+        MachineCenter.CalcFields("Capacity (Effective)", "Prod. Order Need (Qty.)");
+        Capacity := MachineCenter."Capacity (Effective)";
+        "Allocated Qty." := MachineCenter."Prod. Order Need (Qty.)";
+        "Availability After Orders" := MachineCenter."Capacity (Effective)" - MachineCenter."Prod. Order Need (Qty.)";
+        if MachineCenter."Capacity (Effective)" <> 0 then
+            Load := Round(MachineCenter."Prod. Order Need (Qty.)" / MachineCenter."Capacity (Effective)" * 100, 0.1)
+        else
+            Load := 0;
+
+        OnAfterCalcLine(MachineCenter, Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcLine(var MachineCenter: Record "Machine Center"; var LoadBuffer: Record "Load Buffer")
+    begin
     end;
 }
 

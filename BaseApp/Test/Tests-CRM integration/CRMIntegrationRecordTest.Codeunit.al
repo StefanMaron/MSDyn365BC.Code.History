@@ -150,7 +150,7 @@ codeunit 139161 "CRM Integration Record Test"
         // [GIVEN] An Integration Record does NOT exist for the customer record
         // [WHEN] Searching for CRM ID
         // [THEN] No CRM ID's can be found
-        IntegrationRecord.Delete;
+        IntegrationRecord.Delete();
         Assert.IsFalse(
           CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId, CRMId),
           'Still did not expect to find any ids');
@@ -179,33 +179,11 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIntegrationRecord.SetFilter("Integration ID", IntegrationRecord."Integration ID");
         Assert.AreEqual(0, CRMIntegrationRecord.Count, 'Did not expect any couplings to CRM');
         CRMID := CreateGuid;
-        CRMIntegrationRecord.Reset;
+        CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.CoupleCRMIDToRecordID(CRMID, Customer.RecordId);
-        CRMIntegrationRecord.Reset;
+        CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.SetFilter("Integration ID", IntegrationRecord."Integration ID");
         Assert.AreEqual(1, CRMIntegrationRecord.Count, 'Expected coupling to be created');
-
-        // [GIVEN] A new Integration ID
-        // [GIVEN] A existing CRMID
-        // [WHEN] Creating a coupling between CRMID and Record
-        // [THEN] CRM Integration Record is updated with the new Integration ID
-        NewIntegrationID := CreateGuid;
-        Assert.AreNotEqual(NewIntegrationID, IntegrationRecord."Integration ID", 'Expected a new guid');
-        IntegrationRecord.Delete;
-        LibraryCRMIntegration.CreateIntegrationRecord(NewIntegrationID, DATABASE::Customer, Customer.RecordId);
-        IntegrationRecord.FindByRecordId(Customer.RecordId);
-        CRMIntegrationRecord.SetFilter("Integration ID", IntegrationRecord."Integration ID");
-        Assert.AreEqual(0, CRMIntegrationRecord.Count, 'Did not expect any couplings to CRM for the newly created integration id');
-
-        CRMIntegrationRecord.Reset;
-        CRMIntegrationRecord.SetFilter("CRM ID", CRMID);
-        Assert.AreEqual(1, CRMIntegrationRecord.Count, 'Expected coupling to stay');
-
-        CRMIntegrationRecord.CoupleCRMIDToRecordID(CRMID, Customer.RecordId);
-        CRMIntegrationRecord.Reset;
-        CRMIntegrationRecord.SetFilter("Integration ID", NewIntegrationID);
-        CRMIntegrationRecord.SetFilter("CRM ID", CRMID);
-        Assert.AreEqual(1, CRMIntegrationRecord.Count, 'Expected coupling to be updated');
     end;
 
     [Test]
@@ -264,29 +242,6 @@ codeunit 139161 "CRM Integration Record Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CannotCoupleCRMIDWithoutIntegrationID()
-    var
-        Customer: Record Customer;
-        IntegrationRecord: Record "Integration Record";
-        CRMIntegrationRecord: Record "CRM Integration Record";
-        CRMID: Guid;
-    begin
-        LibraryCRMIntegration.ResetEnvironment;
-        // [GIVEN] A valid CRM Setup
-        // [GIVEN] A valid record
-        // [GIVEN] No integration record for the record
-        // [WHEN] Creating a coupling
-        // [THEN] Error - Missing Integration ID
-        LibraryCRMIntegration.CreateCRMConnectionSetup('', 'testhostname.domain.int', true);
-        CRMID := CreateGuid;
-
-        LibraryCRMIntegration.CreateCustomerAndEnsureIntegrationRecord(Customer, IntegrationRecord);
-        IntegrationRecord.Delete;
-        asserterror CRMIntegrationRecord.CoupleCRMIDToRecordID(CRMID, Customer.RecordId);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure CanCoupleRecordToCRMID()
     var
         Customer: Record Customer;
@@ -307,9 +262,9 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIntegrationRecord.SetFilter("CRM ID", CRMID);
         Assert.AreEqual(0, CRMIntegrationRecord.Count, 'Did not expect any couplings to NAV');
 
-        CRMIntegrationRecord.Reset;
+        CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId, CRMID);
-        CRMIntegrationRecord.Reset;
+        CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.SetFilter("CRM ID", CRMID);
         Assert.AreEqual(1, CRMIntegrationRecord.Count, 'Expected coupling to be created');
 
@@ -321,12 +276,12 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIntegrationRecord.SetFilter("CRM ID", CRMID);
         Assert.AreEqual(0, CRMIntegrationRecord.Count, 'Did not expect any couplings to CRM for the newly created crm id');
 
-        CRMIntegrationRecord.Reset;
+        CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.SetFilter("Integration ID", IntegrationRecord."Integration ID");
         Assert.AreEqual(1, CRMIntegrationRecord.Count, 'Expected coupling to stay');
 
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId, CRMID);
-        CRMIntegrationRecord.Reset;
+        CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.SetFilter("CRM ID", CRMID);
         CRMIntegrationRecord.SetFilter("Integration ID", IntegrationRecord."Integration ID");
         Assert.AreEqual(1, CRMIntegrationRecord.Count, 'Expected coupling to be updated');
@@ -353,7 +308,7 @@ codeunit 139161 "CRM Integration Record Test"
         CRMID := CreateGuid;
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId, CRMID);
 
-        CRMIntegrationRecord.Reset;
+        CRMIntegrationRecord.Reset();
         LibraryCRMIntegration.CreateCustomerAndEnsureIntegrationRecord(NewCustomer, IntegrationRecord);
         asserterror CRMIntegrationRecord.CoupleRecordIdToCRMID(NewCustomer.RecordId, CRMID);
     end;
@@ -378,9 +333,9 @@ codeunit 139161 "CRM Integration Record Test"
 
         // [GIVEN] An existing but 'broken' coupling to a deleted NAV entity
         CRMIntegrationRecord.FindByCRMID(CRMID);
-        CRMIntegrationRecord.Delete;
-        Customer.Delete;
-        CRMIntegrationRecord.Insert;
+        CRMIntegrationRecord.Delete();
+        Customer.Delete();
+        CRMIntegrationRecord.Insert();
 
         // [GIVEN] A new record
         LibraryCRMIntegration.CreateCustomerAndEnsureIntegrationRecord(NewCustomer, IntegrationRecord);
@@ -388,7 +343,7 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIntegrationRecord.CoupleRecordIdToCRMID(NewCustomer.RecordId, CRMID);
 
         // [THEN] The CRM Integration Record is updated with the new Integration ID
-        CRMIntegrationRecord.Reset;
+        CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.SetFilter("CRM ID", CRMID);
         CRMIntegrationRecord.SetFilter("Integration ID", IntegrationRecord."Integration ID");
         Assert.AreEqual(1, CRMIntegrationRecord.Count, 'Expected coupling to be updated');
@@ -451,33 +406,33 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIntegrationRecord.CoupleRecordIdToCRMID(CustomerB.RecordId, CRMIDB);
 
         CRMIntegrationRecord.FindByCRMID(CRMIDA);
-        CRMIntegrationRecord.Delete;
-        CustomerA.Delete;
-        CRMIntegrationRecord.Insert;
+        CRMIntegrationRecord.Delete();
+        CustomerA.Delete();
+        CRMIntegrationRecord.Insert();
 
         CRMIntegrationRecord.CoupleRecordIdToCRMID(CustomerB.RecordId, CRMIDA);
 
-        CRMIntegrationRecord.Reset;
+        CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.SetFilter("CRM ID", CRMIDA);
         Assert.AreEqual(1, CRMIntegrationRecord.Count,
           'Expected there to be only one CRM Integration Record referring to CRM AccountA');
 
-        CRMIntegrationRecord.Reset;
+        CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.SetFilter("CRM ID", CRMIDB);
         Assert.AreEqual(0, CRMIntegrationRecord.Count,
           'Did not expect there to be a CRM Integration Record referring to CRM AccountB');
 
-        CRMIntegrationRecord.Reset;
+        CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.SetFilter("Integration ID", IntegrationRecordB."Integration ID");
         Assert.AreEqual(1, CRMIntegrationRecord.Count,
           'Expected there to be only one CRM Integration Record referring to Customer B');
 
-        CRMIntegrationRecord.Reset;
+        CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.SetFilter("Integration ID", IntegrationRecordA."Integration ID");
         Assert.AreEqual(0, CRMIntegrationRecord.Count,
           'Did not expect there to be a CRM Integration Record referring to Customer A');
 
-        CRMIntegrationRecord.Reset;
+        CRMIntegrationRecord.Reset();
         CRMIntegrationRecord.SetFilter("CRM ID", CRMIDA);
         CRMIntegrationRecord.SetFilter("Integration ID", IntegrationRecordB."Integration ID");
         Assert.AreEqual(1, CRMIntegrationRecord.Count, 'Expected CustomerB to be coupled to CRM AccountA');
@@ -512,13 +467,6 @@ codeunit 139161 "CRM Integration Record Test"
         CRMIntegrationRecord.RemoveCouplingToRecord(Customer.RecordId);
         CRMIntegrationRecord.RemoveCouplingToRecord(Customer.RecordId);
         CRMIntegrationRecord.RemoveCouplingToRecord(Customer.RecordId);
-
-        // [GIVEN] No coupling for CustomerA
-        // [GIVEN] No integration record for CustomerA
-        // [WHEN] Deleting coupling
-        // [THEN] An error occurs
-        IntegrationRecord.Delete;
-        asserterror CRMIntegrationRecord.RemoveCouplingToRecord(Customer.RecordId);
     end;
 
     [Test]
@@ -539,7 +487,7 @@ codeunit 139161 "CRM Integration Record Test"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
 
         // [WHEN] Delete Customer
-        Customer.Delete;
+        Customer.Delete();
         // [THEN] CRM Integration Record for Customer, where "Skipped" is 'Yes'
         Assert.IsFalse(CRMIntegrationRecord.FindByRecordID(Customer.RecordId), 'FindByRecordID should fail.');
         Assert.IsTrue(CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId), 'FindByCRMID should not fail.');
@@ -567,7 +515,7 @@ codeunit 139161 "CRM Integration Record Test"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
         CRMSalesorder.SalesOrderId := CreateGuid;
-        CRMSalesorder.Insert;
+        CRMSalesorder.Insert();
         CRMIntegrationRecord.CoupleCRMIDToRecordID(CRMSalesorder.SalesOrderId, SalesHeader.RecordId);
 
         // [WHEN] Delete Sales Order

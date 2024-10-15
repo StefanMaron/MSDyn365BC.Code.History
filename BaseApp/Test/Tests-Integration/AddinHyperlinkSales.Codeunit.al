@@ -53,7 +53,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] SalesQuotePageHandler will verify the Sales Quote window opens, with the correct document number.
-        SalesHeader.Delete;
+        SalesHeader.Delete();
     end;
 
     [Test]
@@ -88,7 +88,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] SalesQuotePageHandler will verify the Sales Quote window opens, with the correct document number.
-        SalesHeader.Delete;
+        SalesHeader.Delete();
     end;
 
     [Test]
@@ -125,7 +125,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] SalesQuotePageHandler will verify the Sales Quote window opens, with the correct document number.
-        SalesHeader.Delete;
+        SalesHeader.Delete();
     end;
 
     [Test]
@@ -155,7 +155,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] SalesOrderPageHandler will verify the Sales Order window opens, with the correct document number.
-        SalesHeader.Delete;
+        SalesHeader.Delete();
     end;
 
     [Test]
@@ -190,7 +190,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] SalesOrderPageHandler will verify the Sales Order window opens, with the correct document number.
-        SalesHeader.Delete;
+        SalesHeader.Delete();
     end;
 
     [Test]
@@ -226,7 +226,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] SalesOrderPageHandler will verify the Sales Order window opens, with the correct document number.
-        SalesHeader.Delete;
+        SalesHeader.Delete();
     end;
 
     [Test]
@@ -256,7 +256,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] SalesInvoicePageHandler will verify the Sales Invoice window opens, with the correct document number.
-        SalesHeader.Delete;
+        SalesHeader.Delete();
     end;
 
     [Test]
@@ -291,7 +291,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] SalesInvoicePageHandler will verify the Sales Invoice window opens, with the correct document number.
-        SalesHeader.Delete;
+        SalesHeader.Delete();
     end;
 
     [Test]
@@ -328,7 +328,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] SalesInvoicePageHandler will verify the Sales Invoice window opens, with the correct document number.
-        SalesHeader.Delete;
+        SalesHeader.Delete();
     end;
 
     [Test]
@@ -377,9 +377,9 @@ codeunit 139051 "Add-in Hyperlink Sales"
         OfficeDocumentSelection.Next;
         OfficeDocumentSelection."Document No.".AssertEquals(SalesHeader3."No.");
 
-        SalesHeader1.Delete;
-        SalesHeader2.Delete;
-        SalesHeader3.Delete;
+        SalesHeader1.Delete();
+        SalesHeader2.Delete();
+        SalesHeader3.Delete();
     end;
 
     [Test]
@@ -423,7 +423,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         for i := 1 to Count do begin
             OfficeDocumentSelection."Document No.".AssertEquals(SalesHeader[i]."No.");
             OfficeDocumentSelection.Next;
-            SalesHeader[i].Delete;
+            SalesHeader[i].Delete();
         end;
     end;
 
@@ -803,7 +803,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
             SalesHeader.Modify(true);
         end else begin
             SalesHeader."Due Date" := PostingDate;
-            SalesHeader.Modify;
+            SalesHeader.Modify();
         end;
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, No, 2);
     end;
@@ -826,7 +826,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         case DocType of
             DocType::"Credit Memo":
                 begin
-                    SalesReceivablesSetup.Get;
+                    SalesReceivablesSetup.Get();
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'SCRM-0000', 'SCRM-1999');
                     LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
@@ -836,11 +836,11 @@ codeunit 139051 "Add-in Hyperlink Sales"
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'SPCRM2000', 'SPCRM3999');
                     LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     SalesReceivablesSetup."Posted Credit Memo Nos." := NoSeries.Code;
-                    SalesReceivablesSetup.Modify;
+                    SalesReceivablesSetup.Modify();
                 end;
             DocType::Invoice:
                 begin
-                    SalesReceivablesSetup.Get;
+                    SalesReceivablesSetup.Get();
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'S-INV4000', 'S-INV5999');
                     LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
@@ -850,28 +850,28 @@ codeunit 139051 "Add-in Hyperlink Sales"
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'SPINV6000', 'SPINV7999');
                     LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     SalesReceivablesSetup."Posted Invoice Nos." := NoSeries.Code;
-                    SalesReceivablesSetup.Modify;
+                    SalesReceivablesSetup.Modify();
                 end;
             DocType::Order:
                 begin
-                    SalesReceivablesSetup.Get;
+                    SalesReceivablesSetup.Get();
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'SORD0000', 'SORD1999');
                     LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     SalesReceivablesSetup."Order Nos." := NoSeries.Code;
-                    SalesReceivablesSetup.Modify;
+                    SalesReceivablesSetup.Modify();
                 end;
             DocType::Quote:
                 begin
-                    SalesReceivablesSetup.Get;
+                    SalesReceivablesSetup.Get();
                     LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
                     LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, 'SQUO-0000', 'SQUO-1999');
                     LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
                     SalesReceivablesSetup."Quote Nos." := NoSeries.Code;
-                    SalesReceivablesSetup.Modify;
+                    SalesReceivablesSetup.Modify();
                 end;
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateSalesHeaderWithDocNo(var SalesHeader: Record "Sales Header"; DocumentType: Option)
@@ -936,7 +936,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
 
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
-        LibraryRandom.Init;
+        LibraryRandom.Init();
         Clear(LibraryOfficeHostProvider);
         BindSubscription(LibraryOfficeHostProvider);
         InitializeOfficeHostProvider(OfficeHostType.OutlookHyperlink);
@@ -959,7 +959,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
-        SalesHeader.DeleteAll; // tests do not expect existing Sales Header
+        SalesHeader.DeleteAll(); // tests do not expect existing Sales Header
         SMBOfficePages.SetupMarketing;
         isInitialized := true;
         Commit();
@@ -973,7 +973,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         OfficeManagement: Codeunit "Office Management";
         OfficeHost: DotNet OfficeHost;
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeHostUnAvailable;
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
@@ -987,8 +987,8 @@ codeunit 139051 "Add-in Hyperlink Sales"
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
         if NameValueBuffer.Get(SessionId) then begin
-            NameValueBuffer.Delete;
-            Commit;
+            NameValueBuffer.Delete();
+            Commit();
         end;
     end;
 
@@ -996,15 +996,15 @@ codeunit 139051 "Add-in Hyperlink Sales"
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        OfficeAddinSetup.Get;
+        OfficeAddinSetup.Get();
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
-        OfficeAddinSetup.Modify;
+        OfficeAddinSetup.Modify();
     end;
 
     [Normal]
     local procedure SetupDocumentNoMatch(var OfficeAddinContext: Record "Office Add-in Context"; DocumentNo: Code[20])
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeAddinContextFilter(OfficeAddinContext);
         OfficeAddinContext.SetFilter("Document No.", '=%1', DocumentNo);
     end;
@@ -1012,7 +1012,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
     [Normal]
     local procedure SetupRegExMatch(var OfficeAddinContext: Record "Office Add-in Context"; RegularExpressionText: Text)
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeAddinContextFilter(OfficeAddinContext);
         OfficeAddinContext.SetFilter("Regular Expression Match", '=%1', RegularExpressionText);
     end;

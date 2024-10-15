@@ -42,13 +42,13 @@ codeunit 1000 "Job Calculate WIP"
         First: Boolean;
     begin
         ClearAll;
-        TempJobWIPBuffer[1].DeleteAll;
+        TempJobWIPBuffer[1].DeleteAll();
 
-        JobPlanningLine.LockTable;
-        JobLedgEntry.LockTable;
-        JobWIPEntry.LockTable;
-        JobTask.LockTable;
-        Job.LockTable;
+        JobPlanningLine.LockTable();
+        JobLedgEntry.LockTable();
+        JobWIPEntry.LockTable();
+        JobTask.LockTable();
+        Job.LockTable();
 
         JobWIPGLEntry.SetCurrentKey("Job No.", Reversed, "Job Complete");
         JobWIPGLEntry.SetRange("Job No.", Job."No.");
@@ -70,7 +70,7 @@ codeunit 1000 "Job Calculate WIP"
         if (Job."Ending Date" = 0D) and Job.Complete then
             Job.Validate("Ending Date", WIPPostingDate);
         JobComplete := Job.Complete and (WIPPostingDate >= Job."Ending Date");
-        Job.Modify;
+        Job.Modify();
 
         DeleteWIP(Job);
 
@@ -159,7 +159,7 @@ codeunit 1000 "Job Calculate WIP"
                       "Contract (Invoiced Cost)");
 
                     CalcWIP(JobTask, JobWIPTotal);
-                    JobTask.Modify;
+                    JobTask.Modify();
 
                     JobWIPTotal."Calc. Recog. Costs Amount" += JobTask."Recognized Costs Amount";
                     JobWIPTotal."Calc. Recog. Sales Amount" += JobTask."Recognized Sales Amount";
@@ -171,7 +171,7 @@ codeunit 1000 "Job Calculate WIP"
             until JobTask.Next = 0;
 
         CalcCostInvoicePercentage(JobWIPTotal);
-        JobWIPTotal.Modify;
+        JobWIPTotal.Modify();
         JobWIPWarning.CreateEntries(JobWIPTotal);
     end;
 
@@ -181,7 +181,7 @@ codeunit 1000 "Job Calculate WIP"
         WIPAmount := 0;
         RecognizedAllocationPercentage := 0;
 
-        JobWIPTotal.Init;
+        JobWIPTotal.Init();
 
         if JobTask.Find('-') then
             repeat
@@ -218,7 +218,7 @@ codeunit 1000 "Job Calculate WIP"
         JobWIPTotal."WIP Planning Date Filter" :=
           CopyStr(JobTask.GetFilter("Planning Date Filter"), 1, MaxStrLen(JobWIPTotal."WIP Planning Date Filter"));
         JobWIPTotal."WIP Method" := JobTask."WIP Method";
-        JobWIPTotal.Insert;
+        JobWIPTotal.Insert();
     end;
 
     local procedure CalcWIP(var JobTask: Record "Job Task"; JobWIPTotal: Record "Job WIP Total")
@@ -464,8 +464,8 @@ codeunit 1000 "Job Calculate WIP"
         JobWIPMethod: Record "Job WIP Method";
     begin
         Clear(TempJobWIPBuffer);
-        TempDimensionBuffer.Reset;
-        TempDimensionBuffer.DeleteAll;
+        TempDimensionBuffer.Reset();
+        TempDimensionBuffer.DeleteAll();
 
         JobTaskDimension.SetRange("Job No.", JobTask."Job No.");
         JobTaskDimension.SetRange("Job Task No.", JobTask."Job Task No.");
@@ -473,7 +473,7 @@ codeunit 1000 "Job Calculate WIP"
             repeat
                 TempDimensionBuffer."Dimension Code" := JobTaskDimension."Dimension Code";
                 TempDimensionBuffer."Dimension Value Code" := JobTaskDimension."Dimension Value Code";
-                TempDimensionBuffer.Insert;
+                TempDimensionBuffer.Insert();
             until JobTaskDimension.Next = 0;
         if not DimMgt.CheckDimBuffer(TempDimensionBuffer) then
             Error(DimMgt.GetDimCombErr);
@@ -600,7 +600,7 @@ codeunit 1000 "Job Calculate WIP"
                 end;
         end;
 
-        JobLedgerEntry.Modify;
+        JobLedgerEntry.Modify();
 
         if TempJobWIPBuffer[1]."WIP Entry Amount" <> 0 then begin
             TempJobWIPBuffer[1].Reverse := true;
@@ -634,9 +634,9 @@ codeunit 1000 "Job Calculate WIP"
         TempJobWIPBuffer[2] := TempJobWIPBuffer[1];
         if TempJobWIPBuffer[2].Find then begin
             TempJobWIPBuffer[2]."WIP Entry Amount" += TempJobWIPBuffer[1]."WIP Entry Amount";
-            TempJobWIPBuffer[2].Modify;
+            TempJobWIPBuffer[2].Modify();
         end else
-            TempJobWIPBuffer[1].Insert;
+            TempJobWIPBuffer[1].Insert();
     end;
 
     local procedure CreateWIPEntries(JobNo: Code[20])
@@ -646,10 +646,7 @@ codeunit 1000 "Job Calculate WIP"
         NextEntryNo: Integer;
         CreateEntry: Boolean;
     begin
-        if JobWIPEntry.FindLast then
-            NextEntryNo := JobWIPEntry."Entry No." + 1
-        else
-            NextEntryNo := 1;
+        NextEntryNo := JobWIPEntry.GetLastEntryNo() + 1;
 
         GetGLSetup;
         if TempJobWIPBuffer[1].Find('-') then
@@ -712,16 +709,16 @@ codeunit 1000 "Job Calculate WIP"
     begin
         JnlTemplateName := JnlTemplateName2;
         JnlBatchName := JnlBatchName2;
-        JobWIPGLEntry.LockTable;
-        JobWIPEntry.LockTable;
-        Job.LockTable;
+        JobWIPGLEntry.LockTable();
+        JobWIPEntry.LockTable();
+        Job.LockTable();
 
         JobWIPGLEntry.SetCurrentKey("Job No.", Reversed, "Job Complete");
         JobWIPGLEntry.SetRange("Job No.", JobNo);
         JobWIPGLEntry.SetRange("Job Complete", true);
         if not JobWIPGLEntry.IsEmpty then
             exit;
-        JobWIPGLEntry.Reset;
+        JobWIPGLEntry.Reset();
 
         Job.Get(JobNo);
         Job.TestBlocked;
@@ -729,12 +726,9 @@ codeunit 1000 "Job Calculate WIP"
             Job."WIP G/L Posting Date" := PostingDate;
         if JustReverse then
             Job."WIP G/L Posting Date" := 0D;
-        Job.Modify;
+        Job.Modify();
 
-        if JobWIPGLEntry.FindLast then
-            NextEntryNo := JobWIPGLEntry."Entry No." + 1
-        else
-            NextEntryNo := 1;
+        NextEntryNo := JobWIPGLEntry.GetLastEntryNo() + 1;
 
         JobWIPGLEntry.SetCurrentKey("WIP Transaction No.");
         if JobWIPGLEntry.FindLast then
@@ -742,7 +736,7 @@ codeunit 1000 "Job Calculate WIP"
         else
             NextTransactionNo := 1;
 
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
 
         // Reverse Entries
         JobWIPGLEntry.SetCurrentKey("Job No.", Reversed);
@@ -781,7 +775,7 @@ codeunit 1000 "Job Calculate WIP"
                 JobWIPGLEntry."WIP Method Used" := JobWIPEntry."WIP Method Used";
                 if not NewPostDate then begin
                     Job."WIP G/L Posting Date" := JobWIPEntry."WIP Posting Date";
-                    Job.Modify;
+                    Job.Modify();
                 end;
                 JobWIPGLEntry.Reversed := false;
                 JobWIPGLEntry."Job Complete" := JobWIPEntry."Job Complete";
@@ -807,12 +801,11 @@ codeunit 1000 "Job Calculate WIP"
                   JobWIPGLEntry."Document No.",
                   SourceCodeSetup."Job G/L WIP",
                   JobWIPGLEntry."Posting Date");
-                GLEntry.FindLast;
-                JobWIPGLEntry."G/L Entry No." := GLEntry."Entry No.";
-                JobWIPGLEntry.Insert;
+                JobWIPGLEntry."G/L Entry No." := GLEntry.GetLastEntryNo();
+                JobWIPGLEntry.Insert();
                 JobWIPTotal.Get(JobWIPGLEntry."Job WIP Total Entry No.");
                 JobWIPTotal."Posted to G/L" := true;
-                JobWIPTotal.Modify;
+                JobWIPTotal.Modify();
             until JobWIPEntry.Next = 0;
 
         with JobTask do begin
@@ -900,7 +893,7 @@ codeunit 1000 "Job Calculate WIP"
     local procedure GetGLSetup()
     begin
         if not HasGotGLSetup then begin
-            GLSetup.Get;
+            GLSetup.Get();
             HasGotGLSetup := true;
         end;
     end;

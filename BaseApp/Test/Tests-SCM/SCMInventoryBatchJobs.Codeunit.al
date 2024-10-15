@@ -80,7 +80,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         CreateAndPostPurchaseDocument(PurchaseLine, ServiceLine."No.", ServiceLine.Quantity, false);  // False for Invoice.
         CreatePurchaseOrder(PurchaseLine2, PurchaseLine."Buy-from Vendor No.", PurchaseLine."No.", PurchaseLine.Quantity);
         PurchaseLine2.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost" + 10);  // Fixed value is taken for greater value of Direct unit Cost.
-        PurchaseLine2.Modify;
+        PurchaseLine2.Modify();
         PostPurchaseDocument(PurchaseLine2, true);
 
         // Exercise: Run Adjust Cost Item Entries.
@@ -114,7 +114,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         PostPurchaseDocument(PurchaseLine, true);
 
         // Exercise: Run Post Inventory Cost To G/L batch job.
-        PostInventoryCostToGL(PostMethod::"per Entry", PurchaseLine."No.", '', '');
+        PostInventoryCostToGL(PostMethod::"per Entry", PurchaseLine."No.", '');
 
         // Verify: Verify Item Ledger Entry after running Adjust Cost Item Entries.
         VerifyValueEntryCost(PurchaseLine."No.");
@@ -126,8 +126,6 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     var
         PurchaseLine: Record "Purchase Line";
         PostMethod: Option "per Posting Group","per Entry";
-        TemplateName: Code[10];
-        BatchName: Code[10];
     begin
         // Verify Value Entry after running Post Invt Cost To G/L batch job using Post Method 'Per Posting Group'.
 
@@ -139,8 +137,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         PostPurchaseDocument(PurchaseLine, true);
 
         // Exercise: Run Post Inventory Cost To G/L batch job.
-        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        PostInventoryCostToGL(PostMethod::"per Posting Group", PurchaseLine."No.", TemplateName, BatchName);
+        PostInventoryCostToGL(PostMethod::"per Posting Group", PurchaseLine."No.", PurchaseLine."No.");
 
         // Verify: Verify Item Ledger Entry after running Adjust Cost Item Entries.
         VerifyValueEntryCost(PurchaseLine."No.");
@@ -163,7 +160,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         PostPurchaseDocument(PurchaseLine, true);
 
         // Exercise: Run Post Invt. Cost To G/L - Test batch job.
-        LibraryCosting.PostInvtCostToGLTest(PostMethod::"per Entry", PurchaseLine."No.", '', '', false, false);
+        LibraryCosting.PostInvtCostToGLTest(PostMethod::"per Entry", PurchaseLine."No.", '', false, false);
 
         // Verify: Verify Item Ledger Entry after running Adjust Cost Item Entries.
         VerifyValueEntryCost(PurchaseLine."No.");
@@ -175,8 +172,6 @@ codeunit 137285 "SCM Inventory Batch Jobs"
     var
         PurchaseLine: Record "Purchase Line";
         PostMethod: Option "per Posting Group","per Entry";
-        TemplateName: Code[10];
-        BatchName: Code[10];
     begin
         // Verify Value Entry after running Post Inventory Cost To G/L - Test batch job using Post Method 'Per Posting Group'.
 
@@ -188,8 +183,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         PostPurchaseDocument(PurchaseLine, true);
 
         // Exercise: Run Post Invt. Cost To G/L - Test batch job.
-        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        LibraryCosting.PostInvtCostToGLTest(PostMethod::"per Posting Group", PurchaseLine."No.", TemplateName, BatchName, false, false);
+        LibraryCosting.PostInvtCostToGLTest(PostMethod::"per Posting Group", PurchaseLine."No.", PurchaseLine."No.", false, false);
 
         // Verify: Verify Item Ledger Entry after running Adjust Cost Item Entries.
         VerifyValueEntryCost(PurchaseLine."No.");
@@ -212,7 +206,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         PostPurchaseDocument(PurchaseLine, true);
 
         // Exercise: Run Post Invt. Cost To G/L - Test batch job.
-        PostInventoryCostToGL(PostMethod::"per Entry", PurchaseLine."No.", '', '');
+        PostInventoryCostToGL(PostMethod::"per Entry", PurchaseLine."No.", '');
 
         // Verify: Verify Confirmation Warning and message, Verifyication done in 'ConfirmHandler' and 'MessageHandler'.
     end;
@@ -1246,7 +1240,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Batch Jobs");
     end;
 
@@ -1525,7 +1519,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Create another Purchase Order and Post as Receive and Invoice with Direct Unit Cost greater than above Purchase Order's Direct Unit Cost.
         CreatePurchaseOrder(PurchaseLine2, PurchaseLine."Buy-from Vendor No.", PurchaseLine."No.", PurchaseLine.Quantity);
         PurchaseLine2.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost" + 10);
-        PurchaseLine2.Modify;
+        PurchaseLine2.Modify();
     end;
 
     local procedure CreateServiceDocumentAndUpdateServiceLine(var ServiceLine: Record "Service Line"; ItemNo: Code[20]; CustomerNo: Code[20]; Quantity: Decimal)
@@ -1593,18 +1587,11 @@ codeunit 137285 "SCM Inventory Batch Jobs"
 
     local procedure GetPostInvtToGLTestBuffer(var TempInvtPostToGLTestBuffer: Record "Invt. Post to G/L Test Buffer" temporary; var ValueEntry: Record "Value Entry")
     var
-        GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: Record "Gen. Journal Batch";
         InventoryPostingToGL: Codeunit "Inventory Posting To G/L";
     begin
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
-        GenJournalBatch.Modify(true);
-
         InventoryPostingToGL.SetRunOnlyCheck(false, true, true);
         InventoryPostingToGL.BufferInvtPosting(ValueEntry);
-        InventoryPostingToGL.PostInvtPostBufPerEntry(ValueEntry, GenJournalTemplate.Name, GenJournalBatch.Name);
+        InventoryPostingToGL.PostInvtPostBufPerEntry(ValueEntry);
         InventoryPostingToGL.GetTempInvtPostToGLTestBuf(TempInvtPostToGLTestBuffer);
     end;
 
@@ -1657,14 +1644,14 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         PostPurchaseDocument(PurchaseLine, true);
     end;
 
-    local procedure PostInventoryCostToGL(PostMethod: Option; ItemNo: Code[20]; TemplateName: Code[10]; BatchName: Code[10])
+    local procedure PostInventoryCostToGL(PostMethod: Option; ItemNo: Code[20]; DocumentNo: Code[20])
     var
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         PostInventoryCostToGL: Report "Post Inventory Cost to G/L";
     begin
-        Commit;
+        Commit();
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
-        PostInventoryCostToGL.InitializeRequest(PostMethod, true, TemplateName, BatchName);
+        PostInventoryCostToGL.InitializeRequest(PostMethod, DocumentNo, true);
         PostInventoryCostToGL.SetTableView(PostValueEntryToGL);
         PostInventoryCostToGL.UseRequestPage(false);
     end;

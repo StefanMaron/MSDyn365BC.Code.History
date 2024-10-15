@@ -51,14 +51,14 @@ report 8621 "Config. Package - Process"
 
     procedure AddRuleForField(TableNo: Integer; FieldNo: Integer; TransformationType: Option; var TempField: Record "Field" temporary; var TempTransformationRule: Record "Transformation Rule" temporary)
     begin
-        TempField.Init;
+        TempField.Init();
         TempField.TableNo := TableNo;
         TempField."No." := FieldNo;
-        TempField.Insert;
-        TempTransformationRule.Init;
+        TempField.Insert();
+        TempTransformationRule.Init();
         TempTransformationRule.Code := Format(TempField."No.");
         TempTransformationRule."Transformation Type" := TransformationType;
-        TempTransformationRule.Insert;
+        TempTransformationRule.Insert();
     end;
 
     local procedure ApplyTextTransformation(ConfigPackageTable: Record "Config. Package Table"; FieldNo: Integer; TransformationRule: Record "Transformation Rule")
@@ -68,7 +68,7 @@ report 8621 "Config. Package - Process"
         if GetConfigPackageData(ConfigPackageData, ConfigPackageTable, FieldNo) then
             repeat
                 ConfigPackageData.Value := CopyStr(TransformationRule.TransformText(ConfigPackageData.Value), 1, 250);
-                ConfigPackageData.Modify;
+                ConfigPackageData.Modify();
             until ConfigPackageData.Next = 0;
     end;
 

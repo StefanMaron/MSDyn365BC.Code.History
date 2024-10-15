@@ -65,7 +65,7 @@ codeunit 132 "Release Incoming Document"
             Status := Status::Failed;
 
             Modify(true);
-            Commit;
+            Commit();
 
             OnAfterCreateDocFromIncomingDocFail(IncomingDocument);
         end;
@@ -80,7 +80,7 @@ codeunit 132 "Release Incoming Document"
             Status := Status::Created;
 
             Modify(true);
-            Commit;
+            Commit();
             OnAfterCreateDocFromIncomingDocSuccess(IncomingDocument);
         end;
     end;

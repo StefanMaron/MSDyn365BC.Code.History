@@ -7,7 +7,8 @@ page 6012 "Res.Gr Availability Lines (SM)"
     LinksAllowed = false;
     PageType = ListPart;
     SaveValues = true;
-    SourceTable = Date;
+    SourceTable = "Res. Availability Buffer";
+    SourceTableTemporary = true;
 
     layout
     {
@@ -28,7 +29,7 @@ page 6012 "Res.Gr Availability Lines (SM)"
                     Caption = 'Period Name';
                     ToolTip = 'Specifies the name of the period shown in the line.';
                 }
-                field(Capacity; ResGr.Capacity)
+                field(Capacity; Capacity)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Capacity';
@@ -50,7 +51,7 @@ page 6012 "Res.Gr Availability Lines (SM)"
                         PAGE.RunModal(0, ResCapacityEntry);
                     end;
                 }
-                field("ResGr.""Qty. on Service Order"""; ResGr."Qty. on Service Order")
+                field("ResGr.""Qty. on Service Order"""; "Qty. on Service Order")
                 {
                     ApplicationArea = Service;
                     Caption = 'Qty. on Service Order';
@@ -68,7 +69,7 @@ page 6012 "Res.Gr Availability Lines (SM)"
                         PAGE.RunModal(0, ServOrderAlloc);
                     end;
                 }
-                field(NetAvailability; NetAvailability)
+                field(NetAvailability; "Net Availability")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Net Availability';
@@ -85,40 +86,44 @@ page 6012 "Res.Gr Availability Lines (SM)"
 
     trigger OnAfterGetRecord()
     begin
-        SetDateFilter;
-        ResGr.CalcFields(Capacity, "Qty. on Service Order");
-        CapacityAfterOrders := ResGr.Capacity;
-        CapacityAfterQuotes := CapacityAfterOrders;
-        NetAvailability := CapacityAfterQuotes - ResGr."Qty. on Service Order";
+        if DateRec.Get("Period Type", "Period Start") then;
+        CalcLine();
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
+    trigger OnFindRecord(Which: Text) FoundDate: Boolean
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, PeriodType));
+        VariantRec := Rec;
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        Rec := VariantRec;
     end;
 
-    trigger OnNextRecord(Steps: Integer): Integer
+    trigger OnNextRecord(Steps: Integer) ResultSteps: Integer
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, PeriodType));
+        VariantRec := Rec;
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        Rec := VariantRec;
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
     end;
 
     var
         ResGr: Record "Resource Group";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
-        CapacityAfterOrders: Decimal;
-        CapacityAfterQuotes: Decimal;
-        NetAvailability: Decimal;
+        DateRec: Record Date;
+        PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
 
     procedure Set(var NewResGr: Record "Resource Group"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         ResGr.Copy(NewResGr);
+        DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
@@ -130,6 +135,23 @@ page 6012 "Res.Gr Availability Lines (SM)"
             ResGr.SetRange("Date Filter", "Period Start", "Period End")
         else
             ResGr.SetRange("Date Filter", 0D, "Period End");
+    end;
+
+    local procedure CalcLine()
+    begin
+        SetDateFilter();
+        ResGr.CalcFields(Capacity, "Qty. on Service Order");
+
+        Capacity := ResGr.Capacity;
+        "Qty. on Service Order" := ResGr."Qty. on Service Order";
+        "Net Availability" := Capacity - "Qty. on Service Order";
+
+        OnAfterCalcLine(ResGr, Rec);
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterCalcLine(var ResourceGroup: Record "Resource Group"; var ResAvailabilityBuffer: Record "Res. Availability Buffer")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -30,14 +30,14 @@ report 190 "Issue Reminders"
                         end;
                         OldDateTime := CurrentDateTime;
                     end;
-                    Commit;
+                    Commit();
                     Mark := not ReminderIssue.Run;
                 end;
 
                 if PrintDoc <> PrintDoc::" " then begin
                     ReminderIssue.GetIssuedReminder(IssuedReminderHeader);
                     TempIssuedReminderHeader := IssuedReminderHeader;
-                    TempIssuedReminderHeader.Insert;
+                    TempIssuedReminderHeader.Insert();
                 end;
             end;
 
@@ -48,7 +48,7 @@ report 190 "Issue Reminders"
                 IsHandled: Boolean;
             begin
                 Window.Close;
-                Commit;
+                Commit();
                 if PrintDoc <> PrintDoc::" " then
                     if TempIssuedReminderHeader.FindSet then
                         repeat
@@ -129,7 +129,7 @@ report 190 "Issue Reminders"
                         var
                             ReminderList: Page "Reminder List";
                         begin
-                            "Reminder Header".Reset;
+                            "Reminder Header".Reset();
                             ReminderList.LookupMode(true);
                             if not (ReminderList.RunModal = ACTION::LookupOK) then
                                 exit(false);

@@ -24,14 +24,14 @@ codeunit 270 ResJnlManagement
     begin
         JnlSelected := true;
 
-        ResJnlTemplate.Reset;
+        ResJnlTemplate.Reset();
         ResJnlTemplate.SetRange("Page ID", PageID);
         ResJnlTemplate.SetRange(Recurring, RecurringJnl);
 
         case ResJnlTemplate.Count of
             0:
                 begin
-                    ResJnlTemplate.Init;
+                    ResJnlTemplate.Init();
                     ResJnlTemplate.Recurring := RecurringJnl;
                     if not RecurringJnl then begin
                         ResJnlTemplate.Name := Text000;
@@ -41,8 +41,8 @@ codeunit 270 ResJnlManagement
                         ResJnlTemplate.Description := Text003;
                     end;
                     ResJnlTemplate.Validate("Page ID");
-                    ResJnlTemplate.Insert;
-                    Commit;
+                    ResJnlTemplate.Insert();
+                    Commit();
                 end;
             1:
                 ResJnlTemplate.FindFirst;
@@ -143,13 +143,13 @@ codeunit 270 ResJnlManagement
         ResJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not ResJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             if not ResJnlBatch.FindFirst then begin
-                ResJnlBatch.Init;
+                ResJnlBatch.Init();
                 ResJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 ResJnlBatch.SetupNewBatch;
                 ResJnlBatch.Name := Text004;
                 ResJnlBatch.Description := Text005;
                 ResJnlBatch.Insert(true);
-                Commit;
+                Commit();
             end;
             CurrentJnlBatchName := ResJnlBatch.Name;
         end;
@@ -174,7 +174,7 @@ codeunit 270 ResJnlManagement
     var
         ResJnlBatch: Record "Res. Journal Batch";
     begin
-        Commit;
+        Commit();
         ResJnlBatch."Journal Template Name" := ResJnlLine.GetRangeMax("Journal Template Name");
         ResJnlBatch.Name := ResJnlLine.GetRangeMax("Journal Batch Name");
         ResJnlBatch.FilterGroup(2);

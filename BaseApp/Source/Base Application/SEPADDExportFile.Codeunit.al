@@ -23,16 +23,16 @@ codeunit 1230 "SEPA DD-Export File"
                 if BankAccount.IBAN = '' then
                     Error(ExportWithoutIBANErr, BankAccount.TableCaption(), BankAccount."No.");
 
-        DirectDebitCollection.LockTable;
+        DirectDebitCollection.LockTable();
         DirectDebitCollection.DeletePaymentFileErrors;
-        Commit;
+        Commit();
         if not Export(Rec, BankAccount.GetDDExportXMLPortID, DirectDebitCollection.Identifier) then
             Error('');
 
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
         DirectDebitCollectionEntry.ModifyAll(Status, DirectDebitCollectionEntry.Status::"File Created");
         DirectDebitCollection.Status := DirectDebitCollection.Status::"File Created";
-        DirectDebitCollection.Modify;
+        DirectDebitCollection.Modify();
     end;
 
     var

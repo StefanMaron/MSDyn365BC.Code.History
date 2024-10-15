@@ -354,7 +354,7 @@ report 2000002 "File International Payments"
     trigger OnInitReport()
     begin
         ClearAll;
-        EBSetup.Get;
+        EBSetup.Get();
     end;
 
     trigger OnPostReport()
@@ -758,7 +758,7 @@ report 2000002 "File International Payments"
     begin
         if BankAcc."No." <> BankAccCode then
             if not BankAcc.Get(BankAccCode) then
-                BankAcc.Init;
+                BankAcc.Init();
     end;
 
     [Scope('OnPrem')]

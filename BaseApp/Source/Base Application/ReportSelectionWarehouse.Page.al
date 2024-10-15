@@ -6,6 +6,7 @@ page 7401 "Report Selection - Warehouse"
     SaveValues = true;
     SourceTable = "Report Selection Warehouse";
     UsageCategory = Administration;
+    DelayedInsert = true;
 
     layout
     {

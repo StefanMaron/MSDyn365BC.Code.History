@@ -136,7 +136,7 @@ codeunit 99000886 "Capable to Promise"
         LeadTimeMgt: Codeunit "Lead-Time Management";
         PlngLnMgt: Codeunit "Planning Line Management";
     begin
-        ReqLine.Init;
+        ReqLine.Init();
         ReqLine."Order Promising ID" := OrderPromisingID;
         ReqLine."Order Promising Line ID" := SourceLineNo;
         ReqLine."Order Promising Line No." := OrderPromisingLineNo;
@@ -249,8 +249,8 @@ codeunit 99000886 "Capable to Promise"
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
-        CompanyInfo.Get;
-        OrderPromisingSetup.Get;
+        CompanyInfo.Get();
+        OrderPromisingSetup.Get();
         OrderPromisingSetup.TestField("Order Promising Template");
         OrderPromisingSetup.TestField("Order Promising Worksheet");
         if LocOrderPromisingID = '' then begin
@@ -339,7 +339,7 @@ codeunit 99000886 "Capable to Promise"
                 exit;
             LastRefOrderNo := "Ref. Order No.";
 
-            MfgSetup.Get;
+            MfgSetup.Get();
             MfgSetup.TestField("Planned Order Nos.");
 
             SetFilter("Ref. Order No.", '<>%1&<=%2', '', LastRefOrderNo);

@@ -19,7 +19,7 @@ codeunit 134384 "ERM Document Posting Error"
         LibrarySales: Codeunit "Library - Sales";
         IsInitialized: Boolean;
         SalesOrderPostingErr: Label 'The total amount for the invoice must be 0 or greater.';
-        PurchaseInvoicePostingErr: Label 'Amount must be negative in Gen. Journal Line Journal Template Name=''%1'',Journal Batch Name='''',Line No.=''0''.', Comment = '.';
+        PurchaseInvoicePostingErr: Label 'Amount must be negative in Gen. Journal Line Journal Template Name='''',Journal Batch Name='''',Line No.=''0''.';
         StatusErr: Label 'Status must be equal to ''Open''  in %1: Document Type=%2, No.=%3. Current value is ''Released''.', Comment = '.';
 
     [Test]
@@ -58,7 +58,7 @@ codeunit 134384 "ERM Document Posting Error"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Posting Error and Status field.
-        Assert.ExpectedError(GetPurchInvPostingErr(PurchaseHeader));
+        Assert.ExpectedError(PurchaseInvoicePostingErr);
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::Open);
     end;
 
@@ -498,7 +498,7 @@ codeunit 134384 "ERM Document Posting Error"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Document Posting Error");
     end;
 
@@ -567,15 +567,10 @@ codeunit 134384 "ERM Document Posting Error"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OldBillToSellToVATCalc := GeneralLedgerSetup."Bill-to/Sell-to VAT Calc.";
         GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", BillToSellToVATCalc);
         GeneralLedgerSetup.Modify(true);
-    end;
-
-    local procedure GetPurchInvPostingErr(PurchHeader: Record "Purchase Header"): Text[250]
-    begin
-        exit(StrSubstNo(PurchaseInvoicePostingErr, PurchHeader."Journal Template Name"));
     end;
 
     local procedure VerifyReleaseSalesDocument(SalesHeader: Record "Sales Header")
