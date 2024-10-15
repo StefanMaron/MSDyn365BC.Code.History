@@ -46,6 +46,12 @@ codeunit 1232 "SEPA DD-Prepare Source"
                 ToDirectDebitCollectionEntry."Transfer Date" := DomiciliationJournalLine."Posting Date";
                 ToDirectDebitCollectionEntry.Validate("Transfer Amount", -DomiciliationJournalLine.Amount);
                 ToDirectDebitCollectionEntry.Validate("Mandate ID", DomiciliationJournalLine."Direct Debit Mandate ID");
+                ToDirectDebitCollectionEntry."Message to Recipient" := DomiciliationJournalLine."Message 1";
+                if DomiciliationJournalLine."Message 2" <> '' then begin
+                    if ToDirectDebitCollectionEntry."Message to Recipient" <> '' then
+                        ToDirectDebitCollectionEntry."Message to Recipient" += ', ';
+                    ToDirectDebitCollectionEntry."Message to Recipient" += DomiciliationJournalLine."Message 2";
+                end;
                 ToDirectDebitCollectionEntry.Insert(true);
             until DomiciliationJournalLine.Next() = 0
         else

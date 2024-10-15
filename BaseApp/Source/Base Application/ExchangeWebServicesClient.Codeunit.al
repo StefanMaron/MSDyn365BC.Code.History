@@ -110,7 +110,7 @@ codeunit 5320 "Exchange Web Services Client"
         end;
 
         if ServiceOnClient.LastError <> '' then begin
-            Session.LogMessage('0000D8C', StrSubstNo(ServiceOnClientLastErrorTxt, ServiceOnClient.LastError), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
+            LogLastClientError();
             Message(ServiceOnClient.LastError);
         end;
 
@@ -163,7 +163,7 @@ codeunit 5320 "Exchange Web Services Client"
         end;
 
         if ServiceOnServer.LastError <> '' then begin
-            Session.LogMessage('0000D8E', StrSubstNo(ServiceOnServerLastErrorTxt, ServiceOnServer.LastError), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
+            LogLastServerError();
             Message(ServiceOnServer.LastError);
         end;
 
@@ -194,9 +194,10 @@ codeunit 5320 "Exchange Web Services Client"
 
         if Initialized then
             Session.LogMessage('0000D8F', InitializedOnClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt)
-        else
+        else begin
             Session.LogMessage('0000D8G', NotInitializedOnClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
-
+            LogLastClientError();
+        end;
         exit(Initialized);
     end;
 
@@ -220,8 +221,10 @@ codeunit 5320 "Exchange Web Services Client"
 
         if Initialized then
             Session.LogMessage('0000D8H', InitializedOnServerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt)
-        else
+        else begin
             Session.LogMessage('0000D8I', NotInitializedOnServerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
+            LogLastServerError();
+        end;
 
         exit(Initialized);
     end;
@@ -249,8 +252,10 @@ codeunit 5320 "Exchange Web Services Client"
 
         if Initialized then
             Session.LogMessage('0000D8J', InitializedOnServerWithImpersonationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt)
-        else
+        else begin
             Session.LogMessage('0000D8K', NotInitializedOnServerWithImpersonationTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
+            LogLastServerError();
+        end;
 
         exit(Initialized);
     end;
@@ -268,14 +273,18 @@ codeunit 5320 "Exchange Web Services Client"
             Exists := ServiceOnClient.FolderExists(UniqueID);
             if Exists then
                 Session.LogMessage('0000D8M', FolderFoundOnClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt)
-            else
+            else begin
                 Session.LogMessage('0000D8N', FolderNotFoundOnClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
+                LogLastClientError();
+            end;
         end else begin
             Exists := ServiceOnServer.FolderExists(UniqueID);
             if Exists then
                 Session.LogMessage('0000D8O', FolderFoundOnServerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt)
-            else
+            else begin
                 Session.LogMessage('0000D8P', FolderNotFoundOnServerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
+                LogLastServerError();
+            end;
         end;
         exit(Exists);
     end;
@@ -331,6 +340,7 @@ codeunit 5320 "Exchange Web Services Client"
     begin
         if not ServiceOnServer.ValidateCredentials() then begin
             Session.LogMessage('0000D8R', InvalidCredentialsOnServerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
+            LogLastServerError();
             exit(false);
         end;
         Session.LogMessage('0000D8S', ValidCredentialsOnServerTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
@@ -342,10 +352,29 @@ codeunit 5320 "Exchange Web Services Client"
     begin
         if not ServiceOnClient.ValidateCredentials() then begin
             Session.LogMessage('0000D8T', InvalidCredentialsOnClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
+            LogLastClientError();
             exit(false);
         end;
         Session.LogMessage('0000D8U', ValidCredentialsOnClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
         exit(true);
+    end;
+
+    local procedure LogLastServerError()
+    var
+        LastError: Text;
+    begin
+        LastError := ServiceOnServer.LastError();
+        if LastError <> '' then
+            Session.LogMessage('0000D8E', StrSubstNo(ServiceOnServerLastErrorTxt, LastError), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
+    end;
+
+    local procedure LogLastClientError()
+    var
+        LastError: Text;
+    begin
+        LastError := ServiceOnClient.LastError();
+        if LastError <> '' then
+            Session.LogMessage('0000D8C', StrSubstNo(ServiceOnClientLastErrorTxt, LastError), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
     end;
 }
 

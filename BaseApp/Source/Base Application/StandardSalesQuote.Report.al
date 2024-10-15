@@ -432,7 +432,7 @@ report 1304 "Standard Sales - Quote"
                 }
                 column(AmountIncludingVAT_Line; "Amount Including VAT")
                 {
-                    AutoFormatExpression = "Currency Code";
+                    AutoFormatExpression = Header."Currency Code";
                     AutoFormatType = 1;
                 }
                 column(AmountIncludingVAT_Line_Lbl; FieldCaption("Amount Including VAT"))
@@ -772,7 +772,7 @@ report 1304 "Standard Sales - Quote"
                 column(TotalVATBaseLCY; TotalVATBaseLCY)
                 {
                 }
-                column(TotalAmountIncludingVAT; TotalAmountInclVAT)
+                column(TotalAmountIncludingVAT; Format(TotalAmountInclVAT, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
                     AutoFormatExpression = Header."Currency Code";
                     AutoFormatType = 1;
@@ -1025,6 +1025,7 @@ report 1304 "Standard Sales - Quote"
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
+        AutoFormat: Codeunit "Auto Format";
         WorkDescriptionInstream: InStream;
         WorkDescriptionLine: Text;
         CustAddr: array[8] of Text[100];
@@ -1072,7 +1073,7 @@ report 1304 "Standard Sales - Quote"
         ThanksLbl: Label 'Thank You!';
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
-        PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a 2% payment discount.', Comment = '%1 = Discount Due Date %2 = value of Payment Discount % ';
+        PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a %2% payment discount.', Comment = '%1 = Discount Due Date %2 = value of Payment Discount % ';
         BodyLbl: Label 'Thank you for your business. Your quote is attached to this message.';
         EstimateBodyLbl: Label 'As promised, here''s our estimate. Please see the attached estimate for details.';
         QuoteValidToDateLbl: Label 'Valid to';
@@ -1123,14 +1124,14 @@ report 1304 "Standard Sales - Quote"
     begin
         ReportTotalsLine.DeleteAll();
         if (TotalInvDiscAmount <> 0) or (TotalAmountVAT <> 0) then
-            ReportTotalsLine.Add(SubtotalLbl, TotalSubTotal, true, false, false);
+            ReportTotalsLine.Add(SubtotalLbl, TotalSubTotal, true, false, false, Header."Currency Code");
         if TotalInvDiscAmount <> 0 then begin
-            ReportTotalsLine.Add(InvDiscountAmtLbl, TotalInvDiscAmount, false, false, false);
+            ReportTotalsLine.Add(InvDiscountAmtLbl, TotalInvDiscAmount, false, false, false, Header."Currency Code");
             if TotalAmountVAT <> 0 then
-                ReportTotalsLine.Add(TotalExclVATText, TotalAmount, true, false, false);
+                ReportTotalsLine.Add(TotalExclVATText, TotalAmount, true, false, false, Header."Currency Code");
         end;
         if TotalAmountVAT <> 0 then
-            ReportTotalsLine.Add(VATAmountLine.VATAmountText, TotalAmountVAT, false, true, false);
+            ReportTotalsLine.Add(VATAmountLine.VATAmountText, TotalAmountVAT, false, true, false, Header."Currency Code");
     end;
 
     local procedure SetLanguage(var LanguageCode: Code[10])

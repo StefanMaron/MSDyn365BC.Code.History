@@ -15,6 +15,8 @@ codeunit 144002 "Sales/Purchase Application"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryJob: Codeunit "Library - Job";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         WrongApplDateErr: Label 'When using workdate for applying/unapplying, the workdate must not be before the latest posting date';
         EmptyJnlTemplateErr: Label 'Please enter a Journal Template Name';
@@ -24,6 +26,7 @@ codeunit 144002 "Sales/Purchase Application"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Sales/Purchase Application");
+        LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear;
 
         if isInitialized then
@@ -32,6 +35,7 @@ codeunit 144002 "Sales/Purchase Application"
 
         isInitialized := true;
         Commit();
+        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Sales/Purchase Application");
     end;
 
@@ -428,6 +432,110 @@ codeunit 144002 "Sales/Purchase Application"
         ErrorText := GetLastErrorText;
         if StrPos(ErrorText, 'can be filled in on recurring') = 0 then
             Error(InvalidErr, ErrorText);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    [Scope('OnPrem')]
+    procedure JobLedgerEntryIsCreatedWhenPostingPreviewIsRunWithCopyLineDescrToGLEntry()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseLine: Record "Purchase Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        GLAccount: Record "G/L Account";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [SCENARIO 386102] Job Ledger Entries are created, when Posting Preview are run with enabled "Copy Line Descr. to G/L Entry" in PurchSetup
+        Initialize();
+
+        // [GIVEN] Edited "Purchases & Payables Setup". Set "Copy Line Descr. to G/L Entry" to True
+        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Validate("Copy Line Descr. to G/L Entry", true);
+        PurchasesPayablesSetup.Modify(true);
+
+        // [GIVEN] Created Purchase Order for G/L Account, Job and Job Task No.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, PurchaseHeader."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
+        PurchaseLine.Validate(Type, PurchaseLine.Type::"G/L Account");
+        PurchaseLine.Validate(
+          "No.", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        PurchaseLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
+        PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Modify(true);
+        Commit();
+
+        // [WHEN] Run "Preview Posing" for created order
+        GLPostingPreview.Trap();
+        asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchaseHeader);
+
+        // [THEN] No errors occured - preview mode error only
+        // [THEN] Number of created "Job Ledger Entry" is equal to 1
+        Assert.ExpectedError('');
+        GLPostingPreview.FILTER.SetFilter("Table Name", 'Job Ledger Entry');
+        GLPostingPreview.First();
+        GLPostingPreview."No. of Records".AssertEquals(Format(1));
+        GLPostingPreview.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    [Scope('OnPrem')]
+    procedure JobLedgerEntryIsCreatedWhenPostingPreviewIsRunWithoutCopyLineDescrToGLEntry()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseLine: Record "Purchase Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        GLAccount: Record "G/L Account";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [SCENARIO 386102] Job Ledger Entries are created, when Posting Preview are run with disabled "Copy Line Descr. to G/L Entry" in PurchSetup
+        Initialize();
+
+        // [GIVEN] Edited "Purchases & Payables Setup". Set "Copy Line Descr. to G/L Entry" to False
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Copy Line Descr. to G/L Entry", false);
+        PurchasesPayablesSetup.Modify(true);
+
+        // [GIVEN] Created Purchase Order for G/L Account, Job and Job Task No.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryERM.CreateGLAccount(GLAccount);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, PurchaseHeader."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
+        PurchaseLine.Validate(Type, PurchaseLine.Type::"G/L Account");
+        PurchaseLine.Validate(
+          "No.", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        PurchaseLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
+        PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Modify(true);
+        Commit();
+
+        // [WHEN] Run "Preview Posing" for created order
+        GLPostingPreview.Trap();
+        asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchaseHeader);
+
+        // [THEN] No errors occured - preview mode error only
+        // [THEN] Number of created "Job Ledger Entry" is equal to 1
+        Assert.ExpectedError('');
+        GLPostingPreview.FILTER.SetFilter("Table Name", 'Job Ledger Entry');
+        GLPostingPreview.First();
+        GLPostingPreview."No. of Records".AssertEquals(Format(1));
+        GLPostingPreview.Close();
     end;
 
     local procedure SalesApplication(UseWorkDate: Boolean; ApplicationDate: Date): Code[20]

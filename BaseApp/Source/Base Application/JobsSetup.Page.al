@@ -57,6 +57,21 @@ page 463 "Jobs Setup"
                     Visible = JobSimplificationAvailable;
                 }
             }
+            group(Prices)
+            {
+                Caption = 'Prices';
+                Visible = ExtendedPriceEnabled;
+                field("Default Sales Price List Code"; Rec."Default Sales Price List Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code of the existing sales price list that stores all new price lines created in the price worksheet page.';
+                }
+                field("Default Purch Price List Code"; Rec."Default Purch Price List Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code of the existing purchase price list that stores all new price lines created in the price worksheet page.';
+                }
+            }
             group(Numbering)
             {
                 Caption = 'Numbering';
@@ -73,6 +88,7 @@ page 463 "Jobs Setup"
                 field("Price List Nos."; "Price List Nos.")
                 {
                     ApplicationArea = Jobs;
+                    Visible = ExtendedPriceEnabled;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to job price lists.';
                 }
             }
@@ -104,15 +120,21 @@ page 463 "Jobs Setup"
     end;
 
     trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        PriceUXManagement: Codeunit "Price UX Management";
     begin
         Reset;
         if not Get then begin
             Init;
             Insert;
         end;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+        PriceUXManagement.InitSmartListDesigner();
     end;
 
     var
+        ExtendedPriceEnabled: Boolean;
         JobSimplificationAvailable: Boolean;
 }
 

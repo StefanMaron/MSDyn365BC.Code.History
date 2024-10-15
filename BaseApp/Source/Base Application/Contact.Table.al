@@ -481,6 +481,13 @@
         {
             Caption = 'Business Relation';
             Editable = false;
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Replaced by the Contact Business Relation field.';
+            ObsoleteTag = '18.1';
         }
         field(5076; "Cost (LCY)"; Decimal)
         {
@@ -588,6 +595,11 @@
             Caption = 'Campaign Filter';
             FieldClass = FlowFilter;
             TableRelation = Campaign;
+        }
+        field(5086; "Contact Business Relation"; Enum "Contact Business Relation")
+        {
+            Caption = 'Contact Business Relation';
+            Editable = false;
         }
         field(5087; "Action Taken Filter"; Option)
         {
@@ -781,7 +793,7 @@
         fieldgroup(DropDown; "No.", Name, Type, City, "Post Code", "Phone No.")
         {
         }
-        fieldgroup(Brick; "Company Name", Name, Type, "Business Relation", "Phone No.", "E-Mail", Image)
+        fieldgroup(Brick; "Company Name", Name, Type, "Contact Business Relation", "Phone No.", "E-Mail", Image)
         {
         }
     }
@@ -1013,9 +1025,6 @@
         Text11300: Label '%1 is not valid.';
         Text11301: Label 'You must use %1 for Belgian contacts.';
         Text11302: Label 'You cannot use %1 for foreign contacts.';
-        MultipleTok: Label 'Multiple', MaxLength = 50;
-        NoneTok: Label 'None', MaxLength = 50;
-        OtherTok: Label 'Other', MaxLength = 50;
         SelectContactErr: Label 'You must select an existing contact.';
         AlreadyExistErr: Label '%1 %2 already has a %3 with %4 %5.', Comment = '%1=Contact table caption;%2=Contact number;%3=Contact Business Relation table caption;%4=Contact Business Relation Link to Table value;%5=Contact Business Relation number';
         PrivacyBlockedPostErr: Label 'You cannot post this type of document because contact %1 is blocked due to privacy.', Comment = '%1=contact no.';
@@ -1579,7 +1588,13 @@
         BankAcc: Record "Bank Account";
         ContComp: Record Contact;
         ContBusRel: Record "Contact Business Relation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateBankAccount(Rec, BankAccountNo, IsHandled);
+        if IsHandled then
+            exit(BankAccountNo);
+
         TestField("Company No.");
         RMSetup.Get();
         RMSetup.TestField("Bus. Rel. Code for Bank Accs.");
@@ -1608,6 +1623,8 @@
 
         if not HideValidationDialog then
             Message(RelatedRecordIsCreatedMsg, BankAcc.TableCaption);
+
+        OnAfterCreateBankAccount(Rec, BankAcc);
     end;
 
     procedure CreateCustomerLink()
@@ -1749,14 +1766,14 @@
         PAGE.Run(PAGE::"Contact Business Relations", ContactBusinessRelation);
     end;
 
-    local procedure GetBusinessRelation(): Text[50];
+    local procedure GetBusinessRelation() ContactBusinessRelation: Enum "Contact Business Relation";
     var
         ContBusRel: Record "Contact Business Relation";
         AllCount: Integer;
     begin
         FilterBusinessRelations(ContBusRel, "Contact Business Relation Link To Table"::" ", true);
         if ContBusRel.IsEmpty() then
-            exit(NoneTok);
+            exit(ContactBusinessRelation::None);
         AllCount := ContBusRel.Count();
         ContBusRel.SetFilter("Business Relation Code", GetSelectedRelationCodes());
         ContBusRel.SetFilter("No.", '<>''''');
@@ -1764,23 +1781,26 @@
             ContBusRel.SetRange("Business Relation Code");
             ContBusRel.SetRange("No.");
             if ContBusRel.Count() = 1 then
-                exit(OtherTok);
-            exit(MultipleTok);
+                exit(ContactBusinessRelation::Other);
+            exit(ContactBusinessRelation::Multiple);
         end else
             if (ContBusRel.Count() = 1) and (AllCount = 1) then begin
                 ContBusRel.FindFirst();
-                exit(CopyStr(Format(ContBusRel."Link to Table"), 1, MaxStrLen("Business Relation")));
+                exit(ContBusRel."Link to Table");
             end;
-        exit(MultipleTok);
+        exit(ContactBusinessRelation::Multiple);
     end;
 
     procedure UpdateBusinessRelation(): Boolean;
     var
-        OldBusinessRelation: Text[50];
+        OldBusinessRelation: Enum "Contact Business Relation";
     begin
-        OldBusinessRelation := "Business Relation";
-        "Business Relation" := GetBusinessRelation();
-        exit(OldBusinessRelation <> "Business Relation")
+        OldBusinessRelation := "Contact Business Relation";
+        "Contact Business Relation" := GetBusinessRelation();
+#if not CLEAN19
+        "Business Relation" := StrSubstNo(Format("Contact Business Relation"), 1, MaxStrLen("Business Relation"));
+#endif
+        exit(OldBusinessRelation <> "Contact Business Relation")
     end;
 
     local procedure GetSelectedRelationCodes() CodeFilter: Text;
@@ -2962,7 +2982,13 @@
     local procedure SetDefaultSalesperson()
     var
         UserSetup: Record "User Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetDefaultSalesperson(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if UserSetup.Get(UserId) and (UserSetup."Salespers./Purch. Code" <> '') then
             "Salesperson Code" := UserSetup."Salespers./Purch. Code";
 
@@ -3332,7 +3358,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIsUpdateNeeded(Contact: Record Contact; xContact: Record Contact; var UpdateNeeded: Boolean)
+    local procedure OnBeforeIsUpdateNeeded(var Contact: Record Contact; xContact: Record Contact; var UpdateNeeded: Boolean)
     begin
     end;
 
@@ -3356,6 +3382,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculatedName(var Contact: Record Contact; var NewName92: Text[92])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateBankAccount(var Contact: Record Contact; var BankAccount: Record "Bank Account");
     begin
     end;
 
@@ -3526,6 +3557,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateBankAccount(var Contact: Record Contact; var BankAccountNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateSalesQuoteFromContact(var Contact: Record Contact; var SalesHeader: Record "Sales Header")
     begin
     end;
@@ -3679,6 +3715,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTypeChangeOnAfterTypePersonTestFields(Contact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultSalesperson(var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 }

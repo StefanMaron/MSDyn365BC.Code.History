@@ -231,7 +231,13 @@ codeunit 1535 "Approvals Mgmt."
     procedure ApproveApprovalRequests(var ApprovalEntry: Record "Approval Entry")
     var
         ApprovalEntryToUpdate: Record "Approval Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeApproveApprovalRequests(ApprovalEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if ApprovalEntry.FindSet() then
             repeat
                 ApprovalEntryToUpdate := ApprovalEntry;
@@ -242,7 +248,13 @@ codeunit 1535 "Approvals Mgmt."
     procedure RejectApprovalRequests(var ApprovalEntry: Record "Approval Entry")
     var
         ApprovalEntryToUpdate: Record "Approval Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRejectApprovalRequests(ApprovalEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if ApprovalEntry.FindSet() then
             repeat
                 ApprovalEntryToUpdate := ApprovalEntry;
@@ -272,9 +284,14 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     local procedure ApproveSelectedApprovalRequest(var ApprovalEntry: Record "Approval Entry")
+    var
+        IsHandled: Boolean;
     begin
-        if ApprovalEntry.Status <> ApprovalEntry.Status::Open then
-            Error(ApproveOnlyOpenRequestsErr);
+        IsHandled := false;
+        OnBeforeApproveSelectedApprovalRequest(ApprovalEntry, IsHandled);
+        if IsHandled then
+            exit;
+        CheckOpenStatus(ApprovalEntry, "Approval Action"::Approve, ApproveOnlyOpenRequestsErr);
 
         if ApprovalEntry."Approver ID" <> UserId then
             CheckUserAsApprovalAdministrator(ApprovalEntry);
@@ -286,8 +303,7 @@ codeunit 1535 "Approvals Mgmt."
 
     local procedure RejectSelectedApprovalRequest(var ApprovalEntry: Record "Approval Entry")
     begin
-        if ApprovalEntry.Status <> ApprovalEntry.Status::Open then
-            Error(RejectOnlyOpenRequestsErr);
+        CheckOpenStatus(ApprovalEntry, "Approval Action"::Reject, RejectOnlyOpenRequestsErr);
 
         if ApprovalEntry."Approver ID" <> UserId then
             CheckUserAsApprovalAdministrator(ApprovalEntry);
@@ -296,14 +312,15 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.Get(ApprovalEntry."Entry No.");
         ApprovalEntry.Validate(Status, ApprovalEntry.Status::Rejected);
         ApprovalEntry.Modify(true);
+
+        OnAfterRejectSelectedApprovalRequest(ApprovalEntry);
     end;
 
     procedure DelegateSelectedApprovalRequest(var ApprovalEntry: Record "Approval Entry"; CheckCurrentUser: Boolean)
     var
         IsHandled: Boolean;
     begin
-        if ApprovalEntry.Status <> ApprovalEntry.Status::Open then
-            Error(DelegateOnlyOpenRequestsErr);
+        CheckOpenStatus(ApprovalEntry, "Approval Action"::Delegate, DelegateOnlyOpenRequestsErr);
 
         if CheckCurrentUser and (not ApprovalEntry.CanCurrentUserEdit) then
             Error(NoPermissionToDelegateErr);
@@ -314,6 +331,19 @@ codeunit 1535 "Approvals Mgmt."
             exit;
 
         SubstituteUserIdForApprovalEntry(ApprovalEntry)
+    end;
+
+    local procedure CheckOpenStatus(ApprovalEntry: Record "Approval Entry"; ApprovalAction: Enum "Approval Action"; ErrorMessage: Text)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckStatus(ApprovalEntry, ApprovalAction, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ApprovalEntry.Status <> ApprovalEntry.Status::Open then
+            Error(ErrorMessage);
     end;
 
     local procedure SubstituteUserIdForApprovalEntry(ApprovalEntry: Record "Approval Entry")
@@ -355,6 +385,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         ApprovalEntry.SetRange("Approver ID", UserId);
         ApprovalEntry.SetRange("Related to Change", false);
+        OnFindOpenApprovalEntryForCurrUserOnAfterApprovalEntrySetFilters(ApprovalEntry);
 
         exit(ApprovalEntry.FindFirst);
     end;
@@ -416,10 +447,12 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
         ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Created, ApprovalEntry.Status::Open);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
+        OnApproveApprovalRequestsForRecordOnAfterApprovalEntrySetFilters(ApprovalEntry);
         if ApprovalEntry.FindSet() then
             repeat
                 ApprovalEntryToUpdate := ApprovalEntry;
                 ApprovalEntryToUpdate.Validate(Status, ApprovalEntry.Status::Approved);
+                OnApproveApprovalRequestsForRecordOnBeforeApprovalEntryToUpdateModify(ApprovalEntryToUpdate);
                 ApprovalEntryToUpdate.Modify(true);
                 CreateApprovalEntryNotification(ApprovalEntryToUpdate, WorkflowStepInstance);
             until ApprovalEntry.Next() = 0;
@@ -444,6 +477,7 @@ codeunit 1535 "Approvals Mgmt."
                 ApprovalEntryToUpdate.Modify(true);
                 if OldStatus in [ApprovalEntry.Status::Open, ApprovalEntry.Status::Approved] then
                     CreateApprovalEntryNotification(ApprovalEntryToUpdate, WorkflowStepInstance);
+                OnCancelApprovalRequestsForRecordOnAfterCreateApprovalEntryNotification(ApprovalEntryToUpdate, WorkflowStepInstance, OldStatus);
             until ApprovalEntry.Next() = 0;
     end;
 
@@ -466,6 +500,7 @@ codeunit 1535 "Approvals Mgmt."
                 ApprovalEntryToUpdate.Modify(true);
                 if OldStatus in [ApprovalEntry.Status::Open] then
                     CreateApprovalEntryNotification(ApprovalEntryToUpdate, WorkflowStepInstance);
+                OnRejectApprovalRequestsForRecordOnAfterCreateApprovalEntryNotification(ApprovalEntryToUpdate, WorkflowStepInstance, OldStatus);
             until ApprovalEntry.Next() = 0;
         end;
     end;
@@ -506,7 +541,13 @@ codeunit 1535 "Approvals Mgmt."
     var
         ApprovalEntry2: Record "Approval Entry";
         ApprovalEntry3: Record "Approval Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendApprovalRequestFromApprovalEntry(ApprovalEntry, WorkflowStepInstance, IsHandled);
+        if IsHandled then
+            exit;
+
         if ApprovalEntry.Status = ApprovalEntry.Status::Open then begin
             CreateApprovalEntryNotification(ApprovalEntry, WorkflowStepInstance);
             exit;
@@ -623,6 +664,7 @@ codeunit 1535 "Approvals Mgmt."
         WorkflowUserGroupMember: Record "Workflow User Group Member";
         ApproverId: Code[50];
         SequenceNo: Integer;
+        IsHandled: Boolean;
     begin
         if not UserSetup.Get(UserId) then
             Error(UserIdNotInSetupErr, UserId);
@@ -639,6 +681,9 @@ codeunit 1535 "Approvals Mgmt."
                 ApproverId := "User Name";
                 if not UserSetup.Get(ApproverId) then
                     Error(WFUserGroupNotInSetupErr, ApproverId);
+                IsHandled := false;
+                OnCreateApprReqForApprTypeWorkflowUserGroupOnBeforeMakeApprovalEntry(WorkflowUserGroupMember, ApprovalEntryArgument, WorkflowStepArgument, ApproverId, IsHandled);
+                if not IsHandled then
                 MakeApprovalEntry(ApprovalEntryArgument, SequenceNo + "Sequence No.", ApproverId, WorkflowStepArgument);
             until Next() = 0;
         end;
@@ -835,7 +880,7 @@ codeunit 1535 "Approvals Mgmt."
             SetLimitType(WorkflowStepArgument, ApprovalEntry);
             "Record ID to Approve" := ApprovalEntryArgument."Record ID to Approve";
             "Approval Code" := ApprovalEntryArgument."Approval Code";
-            OnBeforeApprovalEntryInsert(ApprovalEntry, ApprovalEntryArgument);
+            OnBeforeApprovalEntryInsert(ApprovalEntry, ApprovalEntryArgument, WorkflowStepArgument);
             Insert(true);
         end;
     end;
@@ -1141,6 +1186,7 @@ codeunit 1535 "Approvals Mgmt."
 
     procedure IsPurchaseApprovalsWorkflowEnabled(var PurchaseHeader: Record "Purchase Header"): Boolean
     begin
+        OnBeforeIsPurchaseApprovalsWorkflowEnabled(PurchaseHeader);
         exit(WorkflowManagement.CanExecuteWorkflow(PurchaseHeader, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode));
     end;
 
@@ -1419,6 +1465,7 @@ codeunit 1535 "Approvals Mgmt."
         RecRef: RecordRef;
         IsHandled: Boolean;
     begin
+        OnBeforeSetStatusToPendingApproval(Variant);
         RecRef.GetTable(Variant);
 
         case RecRef.Number of
@@ -1580,6 +1627,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         ApprovalEntry.SetRange("Related to Change", false);
+        OnHasOpenApprovalEntriesOnAfterApprovalEntrySetFilters(ApprovalEntry);
         exit(not ApprovalEntry.IsEmpty);
     end;
 
@@ -1611,6 +1659,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Record ID to Approve", RecId);
         ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Open, ApprovalEntry.Status::Created);
         ApprovalEntry.SetFilter("Workflow Step Instance ID", WorkflowInstanceId);
+        OnHasPendingApprovalEntriesForWorkflowOnAfterApprovalEntrySetFilters(ApprovalEntry);
         exit(not ApprovalEntry.IsEmpty);
     end;
 
@@ -1624,6 +1673,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Table ID", DATABASE::"Gen. Journal Line");
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         ApprovalEntry.SetRange("Related to Change", false);
+        OnHasAnyOpenJournalLineApprovalEntriesOnAfterApprovalEntrySetFilters(ApprovalEntry);
         if ApprovalEntry.IsEmpty() then
             exit(false);
 
@@ -1855,7 +1905,7 @@ codeunit 1535 "Approvals Mgmt."
         if not UserSetup."Approval Administrator" then
             ApprovalEntry.SetRange("Sender ID", UserId);
         Result := ApprovalEntry.FindFirst();
-        OnAfterCanCancelApprovalForRecord(RecID, Result);
+        OnAfterCanCancelApprovalForRecord(RecID, Result, ApprovalEntry, UserSetup);
     end;
 
     local procedure FindUserSetupBySalesPurchCode(var UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry")
@@ -1920,7 +1970,12 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCanCancelApprovalForRecord(RecID: RecordID; var Result: Boolean)
+    local procedure OnApproveApprovalRequestsForRecordOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCanCancelApprovalForRecord(RecID: RecordID; var Result: Boolean; var ApprovalEntry: Record "Approval Entry"; UserSetup: Record "User Setup")
     begin
     end;
 
@@ -1965,7 +2020,12 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeApprovalEntryInsert(var ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry")
+    local procedure OnAfterRejectSelectedApprovalRequest(var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApprovalEntryInsert(var ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument")
     begin
     end;
 
@@ -2000,12 +2060,27 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetStatusToPendingApproval(var Variant: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsPurchaseApprovalsWorkflowEnabled(var PurchaseHeader: Record "Purchase Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeIsSufficientSalesApprover(UserSetup: Record "User Setup"; DocumentType: Enum "Sales Document Type"; ApprovalAmountLCY: Decimal; var IsSufficient: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsSufficientPurchApprover(UserSetup: Record "User Setup"; DocumentType: Enum "Purchase Document Type"; ApprovalAmountLCY: Decimal; var IsSufficient: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendApprovalRequestFromApprovalEntry(ApprovalEntry: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2030,7 +2105,17 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCancelApprovalRequestsForRecordOnAfterCreateApprovalEntryNotification(var ApprovalEntry: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance"; OldStatus: Enum "Approval Status");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateApprovalRequestForApproverOnAfterCheckUserSetupUserID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateApprReqForApprTypeWorkflowUserGroupOnBeforeMakeApprovalEntry(var WorkflowUserGroupMember: Record "Workflow User Group Member"; ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument"; ApproverId: Code[50]; var IsHandled: Boolean)
     begin
     end;
 
@@ -2055,12 +2140,37 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFindOpenApprovalEntryForCurrUserOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHasAnyOpenJournalLineApprovalEntriesOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHasPendingApprovalEntriesForWorkflowOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHasOpenApprovalEntriesOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostApprovalEntriesOnBeforePostedApprovalEntryInsert(var PostedApprovalEntry: Record "Posted Approval Entry"; ApprovalEntry: Record "Approval Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnPostApprovalCommentLinesOnBeforePostedApprovalCommentLineInsert(var PostedApprovalCommentLine: Record "Posted Approval Comment Line"; ApprovalCommentLine: Record "Approval Comment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRejectApprovalRequestsForRecordOnAfterCreateApprovalEntryNotification(var ApprovalEntry: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance"; OldStatus: Enum "Approval Status");
     begin
     end;
 
@@ -2085,7 +2195,32 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckStatus(var ApprovalEntry: Record "Approval Entry"; ApprovalAction: Enum "Approval Action"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateApprovalRequestsOnElseCase(WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntryArgument: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApproveApprovalRequestsForRecordOnBeforeApprovalEntryToUpdateModify(var ApprovalEntryToUpdate: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApproveSelectedApprovalRequest(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRejectApprovalRequests(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApproveApprovalRequests(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
     begin
     end;
 }

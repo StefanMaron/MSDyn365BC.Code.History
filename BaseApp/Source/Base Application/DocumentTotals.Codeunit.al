@@ -750,6 +750,7 @@ codeunit 57 "Document Totals"
             PurchCrMemoHdr.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
             VATAmount := PurchCrMemoHdr."Amount Including VAT" - PurchCrMemoHdr.Amount;
         end;
+        OnAfterCalculatePostedPurchCreditMemoTotals(PurchCrMemoHdr, VATAmount, PurchCrMemoLine);
     end;
 
     local procedure ClearSalesAmounts(var TotalsSalesLine: Record "Sales Line"; var VATAmount: Decimal)
@@ -841,7 +842,7 @@ codeunit 57 "Document Totals"
             Clear(Currency);
             Currency.Initialize(TotalSalesHeader."Currency Code");
         end;
-        if SalesHeader.Get(TotalSalesHeader."Document Type",TotalSalesHeader."No.") then
+        if SalesHeader.Get(TotalSalesHeader."Document Type", TotalSalesHeader."No.") then
             if SalesHeader."Invoice Discount Value" <> TotalSalesHeader."Invoice Discount Value" then
                 TotalsUpToDate := false;
     end;
@@ -866,7 +867,7 @@ codeunit 57 "Document Totals"
             Clear(Currency);
             Currency.Initialize(TotalPurchaseHeader."Currency Code");
         end;
-        if PurchaseHeader.Get(TotalPurchaseHeader."Document Type",TotalPurchaseHeader."No.") then
+        if PurchaseHeader.Get(TotalPurchaseHeader."Document Type", TotalPurchaseHeader."No.") then
             if PurchaseHeader."Invoice Discount Value" <> TotalPurchaseHeader."Invoice Discount Value" then
                 TotalsUpToDate := false;
     end;
@@ -972,6 +973,11 @@ codeunit 57 "Document Totals"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateSalesSubPageTotals(var TotalSalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal; var TotalSalesLine2: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculatePostedPurchCreditMemoTotals(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var VATAmount: Decimal; var PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     begin
     end;
 

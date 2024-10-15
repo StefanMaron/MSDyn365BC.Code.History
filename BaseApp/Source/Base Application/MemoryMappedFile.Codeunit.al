@@ -60,6 +60,26 @@ codeunit 491 "Memory Mapped File"
         MemoryMappedViewStream.Dispose;
     end;
 
+    [TryFunction]
+    [Scope('OnPrem')]
+    procedure ReadTextWithSeparatorsFromMemoryMappedFile(var Text: Text)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        TypeHelper: Codeunit "Type Helper";
+        InStr: InStream;
+        MemoryMappedViewStream: DotNet MemoryMappedViewStream;
+    begin
+        if MemFileName = '' then
+            Error(NoNameSpecifiedErr);
+        TempBlob.CreateInStream(InStr, TEXTENCODING::UTF8);
+        MemoryMappedViewStream := MemoryMappedFile.CreateViewStream();
+        MemoryMappedViewStream.CopyTo(InStr);
+
+        Text := TypeHelper.ReadAsTextWithSeparator(InStr, TypeHelper.LFSeparator());
+        Text := DelChr(Text, '>', TypeHelper.LFSeparator());
+        MemoryMappedViewStream.Dispose();
+    end;
+
     [Scope('OnPrem')]
     procedure GetName(): Text
     begin

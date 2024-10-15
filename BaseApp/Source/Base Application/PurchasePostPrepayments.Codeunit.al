@@ -276,7 +276,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateLinesFromBuffer(PurchHeader, TempPrepmtInvLineBuffer, LineCount, Window, PurchInvHeader, PurchCrMemoHeader, PostedDocTabNo, IsHandled);
+        OnBeforeCreateLinesFromBuffer(PurchHeader, TempPrepmtInvLineBuffer, LineCount, Window, PurchInvHeader, PurchCrMemoHeader, PostedDocTabNo, IsHandled, DocumentType, LineNo);
         if IsHandled then
             exit;
 
@@ -1695,7 +1695,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateLinesFromBuffer(var PurchHeader: Record "Purchase Header"; var TempGlobalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary; var LineCount: Integer; var Window: Dialog; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var PostedDocTabNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeCreateLinesFromBuffer(var PurchHeader: Record "Purchase Header"; var TempGlobalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary; var LineCount: Integer; var Window: Dialog; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var PostedDocTabNo: Integer; var IsHandled: Boolean; DocumentType: Option; var LastLineNo: Integer)
     begin
     end;
 

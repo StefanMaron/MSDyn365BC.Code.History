@@ -2,7 +2,7 @@ page 5050 "Contact Card"
 {
     Caption = 'Contact Card';
     PageType = ListPlus;
-    PromotedActionCategories = 'New,Process,Report,Navigate,Contact'; 
+    PromotedActionCategories = 'New,Process,Report,Navigate,Contact';
     SourceTable = Contact;
 
     layout
@@ -36,23 +36,27 @@ page 5050 "Contact Card"
                     trigger OnAssistEdit()
                     var
                         Contact: Record Contact;
+                        IsHandled: Boolean;
                     begin
                         CurrPage.SaveRecord();
                         Commit();
 
                         Contact := Rec;
                         Contact.SetRecFilter();
-                        if Contact.Type = Contact.Type::Person then begin
-                            Clear(NameDetails);
-                            NameDetails.SetTableView(Contact);
-                            NameDetails.SetRecord(Contact);
-                            NameDetails.RunModal;
-                        end else begin
-                            Clear(CompanyDetails);
-                            CompanyDetails.SetTableView(Contact);
-                            CompanyDetails.SetRecord(Contact);
-                            CompanyDetails.RunModal;
-                        end;
+                        IsHandled := false;
+                        OnAssistEditNameOnAfterContactSetRecFilter(Contact, IsHandled);
+                        if not IsHandled then
+                            if Contact.Type = Contact.Type::Person then begin
+                                Clear(NameDetails);
+                                NameDetails.SetTableView(Contact);
+                                NameDetails.SetRecord(Contact);
+                                NameDetails.RunModal;
+                            end else begin
+                                Clear(CompanyDetails);
+                                CompanyDetails.SetTableView(Contact);
+                                CompanyDetails.SetRecord(Contact);
+                                CompanyDetails.RunModal;
+                            end;
                         Rec := Contact;
                         CurrPage.Update(false);
                     end;
@@ -89,7 +93,7 @@ page 5050 "Contact Card"
                         CurrPage.Update(false);
                     end;
                 }
-                field("Business Relation"; Rec."Business Relation")
+                field("Contact Business Relation"; Rec."Contact Business Relation")
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
@@ -101,6 +105,19 @@ page 5050 "Contact Card"
                         Rec.ShowBusinessRelation("Contact Business Relation Link To Table"::" ", true);
                     end;
                 }
+#if not CLEAN19
+                field("Business Relation"; Rec."Business Relation")
+                {
+                    ApplicationArea = All;
+                    Importance = Promoted;
+                    Caption = 'Business Relation';
+                    ToolTip = 'Specifies the type of the existing business relation.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the Contact Business Relation field.';
+                    ObsoleteTag = '18.1';
+                }
+#endif
                 field(IntegrationCustomerNo; IntegrationCustomerNo)
                 {
                     ApplicationArea = All;
@@ -232,7 +249,7 @@ page 5050 "Contact Card"
             part(ContactIntEntriesSubform; "Contact Int. Entries Subform")
             {
                 ApplicationArea = RelationshipMgmt;
-                Caption = 'Interaction Log Entries';
+                Caption = 'History';
                 SubPageLink = "Contact Company No." = FIELD("Company No."),
                                 "Contact No." = FILTER(<> ''),
                                 "Contact No." = FIELD(FILTER("Lookup Contact No."));
@@ -1274,8 +1291,9 @@ page 5050 "Contact Card"
                 CRMIntegrationManagement.SendResultNotification(Rec);
         end;
 
-        if Rec."Business Relation" = '' then
+        if Rec."Contact Business Relation" = Rec."Contact Business Relation"::" " then
             Rec.UpdateBusinessRelation();
+
         xRec := Rec;
         EnableFields();
         SetEnabledRelatedActions();
@@ -1403,6 +1421,11 @@ page 5050 "Contact Card"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintContactCoverSheet(var ContactCoverSheetReportID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssistEditNameOnAfterContactSetRecFilter(var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 }

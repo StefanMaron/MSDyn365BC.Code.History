@@ -1607,10 +1607,16 @@ report 840 "Suggest Worksheet Lines"
         end;
     end;
 
-    local procedure NoOptionsChosen(): Boolean
+    local procedure NoOptionsChosen() Result: Boolean
     var
         SourceType: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNoOptionsChosen(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         for SourceType := 1 to ArrayLen(ConsiderSource) do
             if ConsiderSource[SourceType] then
                 exit(false);
@@ -1746,6 +1752,11 @@ report 840 "Suggest Worksheet Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetTaxPayableDateFromSourceOnBeforeExit(SourceTableNum: Integer; SalesHeader: Record "Sales Header"; PurchaseHeader: Record "Purchase Header"; VATEntry: Record "VAT Entry"; var DocumentDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNoOptionsChosen(var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

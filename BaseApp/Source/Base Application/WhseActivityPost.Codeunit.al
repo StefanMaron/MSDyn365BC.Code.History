@@ -608,11 +608,8 @@ codeunit 7324 "Whse.-Activity-Post"
         EntriesExist: Boolean;
     begin
         with WhseActivLine do
-            if CheckItemTracking(WhseActivLine) and
-                ("Activity Type" = "Activity Type"::"Invt. Put-away")
-            then
-                "Expiration Date" := ItemTrackingMgt.ExistingExpirationDate(
-                    "Item No.", "Variant Code", "Lot No.", "Serial No.", false, EntriesExist);
+            if CheckItemTracking(WhseActivLine) and ("Activity Type" = "Activity Type"::"Invt. Put-away") then
+                "Expiration Date" := ItemTrackingMgt.ExistingExpirationDate(WhseActivLine, false, EntriesExist);
     end;
 
     local procedure PostWhseJnlLine(WhseActivLine: Record "Warehouse Activity Line")
