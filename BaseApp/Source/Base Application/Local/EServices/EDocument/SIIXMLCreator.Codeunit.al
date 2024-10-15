@@ -1712,7 +1712,9 @@ codeunit 10750 "SII XML Creator"
 
         TotalAmount := Abs(OldTotalBase + OldTotalVATAmount) - Abs(TotalBase + TotalVATAmount);
         if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice then
-            TotalAmount := -TotalAmount;
+            if not (CopyStr(Format(SIIDocUploadState."Sales Invoice Type"), 1, 2) in ['R1', 'R2', 'R3', 'R4', 'R5']) then
+                TotalAmount := -TotalAmount;
+
         if IncludeImporteTotalNode() then
             XMLDOMManagement.AddElementWithPrefix(
               XMLNode, 'ImporteTotal', FormatNumber(TotalAmount), 'sii', SiiTxt,

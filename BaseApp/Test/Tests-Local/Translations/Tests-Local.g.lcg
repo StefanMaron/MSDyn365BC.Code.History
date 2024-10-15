@@ -4163,6 +4163,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Documents Exemption - NamedType XPathSalesNoExentaTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3734030123 - NamedType 2318256851" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount should be in negative.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Documents No Taxable - NamedType AmountShouldBeNegative)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3734030123 - NamedType 3555830849" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must not be %2]]></Val>

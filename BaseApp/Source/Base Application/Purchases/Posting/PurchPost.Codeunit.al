@@ -8236,7 +8236,7 @@ codeunit 90 "Purch.-Post"
                                 TempInvoicePostBufferReverseCharge := TempInvoicePostBuffer;
                                 if TempInvoicePostBufferReverseCharge.Find() then begin
                                     VATAmountRemainder += VATAmount;
-                                    if VATBaseAmount <> 0 then
+                                    if (VATBaseAmount <> 0) and (VATAmount <> 0) then
                                         TempInvoicePostBuffer."VAT Amount" := Round(VATAmountRemainder, CurrencyDocument."Amount Rounding Precision");
                                     VATAmountRemainder -= TempInvoicePostBuffer."VAT Amount";
 
@@ -8246,7 +8246,7 @@ codeunit 90 "Purch.-Post"
                                                 PurchHeader.GetUseDate(), PurchHeader."Currency Code", TempInvoicePostBuffer."VAT Amount", PurchHeader."Currency Factor"));
 
                                     VATAmountACYRemainder += VATAmountACY;
-                                    if VATBaseAmountACY <> 0 then
+                                    if (VATBaseAmountACY <> 0) and (VATAmountACY <> 0) then
                                         TempInvoicePostBuffer."VAT Amount (ACY)" := Round(VATAmountACYRemainder, Currency."Amount Rounding Precision");
                                     VATAmountACYRemainder -= TempInvoicePostBuffer."VAT Amount (ACY)";
 
