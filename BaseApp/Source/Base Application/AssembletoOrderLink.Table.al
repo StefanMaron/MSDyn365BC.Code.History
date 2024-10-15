@@ -91,54 +91,61 @@ table 904 "Assemble-to-Order Link"
     var
         SalesLine2: Record "Sales Line";
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        IsHandled: Boolean;
+        ShouldDeleteAsm: Boolean;
     begin
-        if AsmExists then begin
-            if not NewSalesLine.IsAsmToOrderAllowed() then begin
-                DeleteAsmFromSalesLine(NewSalesLine);
-                exit;
-            end;
-            if NewSalesLine."Qty. to Assemble to Order" = 0 then begin
-                DeleteAsmFromSalesLine(NewSalesLine);
-                InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Assembly);
-                InvtAdjmtEntryOrder.SetRange("Order No.", "Assembly Document No.");
-                if ("Assembly Document Type" = "Assembly Document Type"::Order) and not InvtAdjmtEntryOrder.IsEmpty() then
-                    Insert();
-                exit;
-            end;
-            if not GetAsmHeader() then begin
-                Delete();
-                InsertAsmHeader(AsmHeader, "Assembly Document Type", "Assembly Document No.");
-            end else begin
-                if not NeedsSynchronization(NewSalesLine) then
+        IsHandled := false;
+        OnBeforeUpdateAsm(NewSalesLine, AsmExists, IsHandled);
+        if not IsHandled then begin
+            if AsmExists then begin
+                if not NewSalesLine.IsAsmToOrderAllowed() then begin
+                    DeleteAsmFromSalesLine(NewSalesLine);
                     exit;
-                OnUpdateAsmOnBeforeAsmReOpenIfReleased(Rec, AsmHeader);
-                AsmReopenIfReleased();
-                Delete();
+                end;
+                ShouldDeleteAsm := NewSalesLine."Qty. to Assemble to Order" = 0;
+                OnUpdateAsmOnAfterCalcShouldDeleteAsm(NewSalesLine, ShouldDeleteAsm);
+                if ShouldDeleteAsm then begin
+                    DeleteAsmFromSalesLine(NewSalesLine);
+                    InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Assembly);
+                    InvtAdjmtEntryOrder.SetRange("Order No.", "Assembly Document No.");
+                    if ("Assembly Document Type" = "Assembly Document Type"::Order) and not InvtAdjmtEntryOrder.IsEmpty() then
+                        Insert();
+                    exit;
+                end;
+                if not GetAsmHeader() then begin
+                    Delete();
+                    InsertAsmHeader(AsmHeader, "Assembly Document Type", "Assembly Document No.");
+                end else begin
+                    if not NeedsSynchronization(NewSalesLine) then
+                        exit;
+                    OnUpdateAsmOnBeforeAsmReOpenIfReleased(Rec, AsmHeader);
+                    AsmReopenIfReleased();
+                    Delete();
+                end;
+            end else begin
+                if NewSalesLine."Qty. to Assemble to Order" = 0 then
+                    exit;
+                if not SalesLine2.Get(NewSalesLine."Document Type", NewSalesLine."Document No.", NewSalesLine."Line No.") then
+                    exit;
+
+                InsertAsmHeader(AsmHeader, NewSalesLine."Document Type", '');
+
+                "Assembly Document Type" := AsmHeader."Document Type";
+                "Assembly Document No." := AsmHeader."No.";
+                Type := Type::Sale;
+                "Document Type" := NewSalesLine."Document Type";
+                "Document No." := NewSalesLine."Document No.";
+                "Document Line No." := NewSalesLine."Line No.";
             end;
-        end else begin
-            if NewSalesLine."Qty. to Assemble to Order" = 0 then
-                exit;
-            if not SalesLine2.Get(NewSalesLine."Document Type", NewSalesLine."Document No.", NewSalesLine."Line No.") then
-                exit;
 
-            InsertAsmHeader(AsmHeader, NewSalesLine."Document Type", '');
+            OnUpdateAsmOnBeforeSynchronizeAsmFromSalesLine(Rec, AsmHeader, NewSalesLine);
+            SynchronizeAsmFromSalesLine(NewSalesLine);
 
-            "Assembly Document Type" := AsmHeader."Document Type";
-            "Assembly Document No." := AsmHeader."No.";
-            Type := Type::Sale;
-            "Document Type" := NewSalesLine."Document Type";
-            "Document No." := NewSalesLine."Document No.";
-            "Document Line No." := NewSalesLine."Line No.";
+            Insert();
+            AsmHeader."Shortcut Dimension 1 Code" := NewSalesLine."Shortcut Dimension 1 Code";
+            AsmHeader."Shortcut Dimension 2 Code" := NewSalesLine."Shortcut Dimension 2 Code";
+            AsmHeader.Modify(true);
         end;
-
-        OnUpdateAsmOnBeforeSynchronizeAsmFromSalesLine(Rec, AsmHeader, NewSalesLine);
-        SynchronizeAsmFromSalesLine(NewSalesLine);
-
-        Insert();
-        AsmHeader."Shortcut Dimension 1 Code" := NewSalesLine."Shortcut Dimension 1 Code";
-        AsmHeader."Shortcut Dimension 2 Code" := NewSalesLine."Shortcut Dimension 2 Code";
-        AsmHeader.Modify(true);
-
         OnAfterUpdateAsm(AsmHeader, Rec, NewSalesLine, AsmExists);
     end;
 
@@ -462,7 +469,14 @@ table 904 "Assemble-to-Order Link"
     end;
 
     local procedure ChangeDate(NewDate: Date)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeChangeDate(AsmHeader, NewDate, IsHandled);
+        if IsHandled then
+            exit;
+
         if AsmHeader."Due Date" = NewDate then
             exit;
 
@@ -810,7 +824,13 @@ table 904 "Assemble-to-Order Link"
     procedure ShowAsmToOrderLines(SalesLine: Record "Sales Line")
     var
         AsmLine: Record "Assembly Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowAsmToOrderLines(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.TestField("Qty. to Asm. to Order (Base)");
         if AsmExistsForSalesLine(SalesLine) then begin
             AsmLine.FilterGroup := 2;
@@ -1333,6 +1353,11 @@ table 904 "Assemble-to-Order Link"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeChangeDate(var AssemblyHeader: Record "Assembly Header"; NewDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetATOLink(var AssembleToOrderLink: Record "Assemble-to-Order Link"; var AssemblyHeader: Record "Assembly Header"; var LinkFound: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -1354,6 +1379,16 @@ table 904 "Assemble-to-Order Link"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesLineCheckAvailShowWarning(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowAsmToOrderLines(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAsm(var NewSalesLine: Record "Sales Line"; AsmExists: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1404,6 +1439,11 @@ table 904 "Assemble-to-Order Link"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAsmOnBeforeSynchronizeAsmFromSalesLine(var AssembleToOrderLink: Record "Assemble-to-Order Link"; var AssemblyHeader: Record "Assembly Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAsmOnAfterCalcShouldDeleteAsm(var NewSalesLine: Record "Sales Line"; var ShouldDeleteAsm: Boolean)
     begin
     end;
 

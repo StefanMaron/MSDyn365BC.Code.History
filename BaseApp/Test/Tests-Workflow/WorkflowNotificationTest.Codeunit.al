@@ -1853,7 +1853,7 @@ codeunit 134301 "Workflow Notification Test"
         asserterror Codeunit.Run(Codeunit::"Notification Entry Dispatcher", JobQueueEntry);
         assert.IsTrue(ErrorMessageHandler.AppendTo(TempErrorMessage), 'Email sending error is expected');
         TempErrorMessage.FindFirst();
-        Assert.IsSubstring(TempErrorMessage.Description, FailedToSendEmailEmailErr)
+        Assert.IsSubstring(TempErrorMessage."Message", FailedToSendEmailEmailErr)
     end;
 
     [Test]
@@ -2073,7 +2073,7 @@ codeunit 134301 "Workflow Notification Test"
         asserterror Codeunit.Run(Codeunit::"Notification Entry Dispatcher", JobQueueEntry);
         assert.IsTrue(ErrorMessageHandler.AppendTo(TempErrorMessage), 'Email sending error is expected');
         TempErrorMessage.FindFirst();
-        Assert.IsSubstring(TempErrorMessage.Description, FailedToSendEmailEmailErr);
+        Assert.IsSubstring(TempErrorMessage."Message", FailedToSendEmailEmailErr);
 
         // [THEN] Email Body contains "User1", "User2" names and Item No.
         ExpectedValues[1] := StrSubstNo(CreatedByUserTxt, UserId());

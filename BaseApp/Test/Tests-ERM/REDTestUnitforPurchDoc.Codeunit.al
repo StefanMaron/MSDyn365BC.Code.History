@@ -2505,6 +2505,61 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         VerifyGLEntriesDoNotExistWithBlankDescription(GLAccountDeferral."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('UpdateStartDateOnDeferralScheduleModalPageHandler')]
+    procedure T459058_PurchaseInvoiceDeferralScheduleStartDateChange_WithGeneralLedgerSetupDateLimits()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccount: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        DeferralTemplateCode: Code[10];
+        BaseDate: Date;
+    begin
+        // [FEATURE] [UI] [Allow Deferral Posting From] [Allow Deferral Posting To] [Deferral Template] [Purchase Invoice] [Deferral Schedule]
+        // [SCENARIO 459058] Define "Allow Posting From" and "Allow Deferral Posting From" in "General Ledger Setup" to year start. Define "Allow Posting To" to end of January and "Allow Deferral Posting To" to end of the year.
+        // [SCENARIO 459058] Create a Purchase Invoice with G/L Account and Deferral Code. Modify "Start Date" in "Deferral Schedule" to date after "Allow Posting To", but before "Allow Deferral Posting To".
+        Initialize();
+
+        BaseDate := WorkDate();
+        // [GIVEN] "User Setup" has no setup on "Allow Deferrals Posting From" and "Allow Deferral Posting To"
+        // [GIVEN] "General Ledger Setup", set "Allow Posting From" to 1/January and "Allow Posting To" to 31/January
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Allow Posting From" := DMY2Date(1, 1, Date2DMY(BaseDate, 3));
+        GeneralLedgerSetup."Allow Posting To" := DMY2Date(31, 1, Date2DMY(BaseDate, 3));
+        // [GIVEN] "General Ledger Setup", set "Allow Deferral Posting From" to 1/January and "Allow Deferral Posting To" to 31/December
+        GeneralLedgerSetup."Allow Deferral Posting From" := DMY2Date(1, 1, Date2DMY(BaseDate, 3));
+        GeneralLedgerSetup."Allow Deferral Posting To" := DMY2Date(31, 12, Date2DMY(BaseDate, 3));
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Create Deferral Template
+        DeferralTemplateCode := CreateDeferralTemplate(100, "Deferral Calculation Method"::"Straight-Line", "Deferral Calculation Start Date"::"Beginning of Period", 3, 'Deferral %1');
+
+        // [GIVEN] Create Purchase Invoice on 15/January with G/L Account and "Deferral Code"
+        CreateGLAccount(GLAccount);
+        CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
+          PurchaseHeader."Document Type"::Invoice, PurchaseLine.Type::"G/L Account", GLAccount."No.", DMY2Date(15, 1, Date2DMY(BaseDate, 3)));
+        PurchaseLine.Validate("Quantity", 1);
+        PurchaseLine.Validate("Deferral Code", DeferralTemplateCode);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Open "Purchase Invoice" page
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.GotoRecord(PurchaseHeader);
+
+        // [GIVEN] Run "Deferral Schedule" action on the line
+        LibraryVariableStorage.Enqueue(DMY2Date(1, 5, Date2DMY(BaseDate, 3)));
+        PurchaseInvoice.PurchLines.DeferralSchedule.Invoke();
+
+        // [WHEN] Change "Start Date" to 1/February
+        // "Start Date" change handled in UpdateStartDateOnDeferralScheduleModalPageHandler.
+
+        // [THEN] There was no error for "Start Date" change
+
+        PurchaseInvoice.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2541,6 +2596,23 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         DeferralTemplate."Start Date" := StartDate;
         DeferralTemplate."No. of Periods" := NumOfPeriods;
         DeferralTemplate."Period Description" := 'Deferral Revenue for %4';
+
+        DeferralTemplate.Insert();
+        exit(DeferralTemplate."Deferral Code");
+    end;
+
+    local procedure CreateDeferralTemplate(DeferralPercent: Decimal; DeferralCalculationMethod: Enum "Deferral Calculation Method"; StartDate: Enum "Deferral Calculation Start Date"; NumberOfPeriods: Integer; PeriodDescription: Text[100]): Code[10]
+    var
+        DeferralTemplate: Record "Deferral Template";
+    begin
+        DeferralTemplate.Init();
+        DeferralTemplate."Deferral Code" := LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
+        DeferralTemplate."Deferral Account" := LibraryERM.CreateGLAccountNo();
+        DeferralTemplate."Deferral %" := DeferralPercent;
+        DeferralTemplate."Calc. Method" := DeferralCalculationMethod;
+        DeferralTemplate."Start Date" := StartDate;
+        DeferralTemplate."No. of Periods" := NumberOfPeriods;
+        DeferralTemplate."Period Description" := PeriodDescription;
 
         DeferralTemplate.Insert();
         exit(DeferralTemplate."Deferral Code");
@@ -3609,6 +3681,17 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         NoOfPeriods: Variant;
     begin
         DeferralSchedule."Amount to Defer".SetValue(LibraryVariableStorage.DequeueDecimal());
+        DeferralSchedule.CalculateSchedule.Invoke();
+        DeferralSchedule.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure UpdateStartDateOnDeferralScheduleModalPageHandler(var DeferralSchedule: TestPage "Deferral Schedule")
+    var
+        StartDate: Variant;
+    begin
+        DeferralSchedule."Start Date".SetValue(LibraryVariableStorage.DequeueDate());
         DeferralSchedule.CalculateSchedule.Invoke();
         DeferralSchedule.OK.Invoke();
     end;

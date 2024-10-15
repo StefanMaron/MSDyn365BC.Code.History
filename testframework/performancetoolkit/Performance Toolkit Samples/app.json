@@ -2,7 +2,7 @@
     "id":  "75f1590f-55c5-4501-ae63-bada5504e852",
     "name":  "Performance Toolkit Samples",
     "publisher":  "Microsoft",
-    "version":  "21.3.51409.52692",
+    "version":  "21.4.52563.52785",
     "brief":  "Performance Toolkit Samples (W1)",
     "description":  "This extension provides tests that simulate business processes, such as creating sales orders, for the Business Central Performance Toolkit. Developers can use these to test for performance regressions during development.",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -15,21 +15,21 @@
                              "id":  "75f1590f-55c5-4501-ae63-bada5534e852",
                              "publisher":  "Microsoft",
                              "name":  "Performance Toolkit",
-                             "version":  "21.3.0.0"
+                             "version":  "21.4.0.0"
                          }
                      ],
     "screenshots":  [
 
                     ],
     "platform":  "21.0.0.0",
-    "application":  "21.3.0.0",
+    "application":  "21.4.0.0",
     "idRanges":  [
                      {
                          "from":  149100,
                          "to":  149499
                      }
                  ],
-    "contextSensitiveHelpUrl":  "https://go.microsoft.com/fwlink/?LinkId=2206603",
+    "contextSensitiveHelpUrl":  "https://learn.microsoft.com/dynamics365/business-central/",
     "resourceExposurePolicy":  {
                                    "allowDebugging":  true,
                                    "allowDownloadingSource":  true,

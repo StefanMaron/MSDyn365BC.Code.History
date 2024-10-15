@@ -42,7 +42,7 @@ codeunit 28 "Error Message Management"
     begin
         if GetErrorsInContext(ContextVariant, TempErrorMessage) then begin
             if not GuiAllowed then
-                Session.LogMessage('000097V', TempErrorMessage.Description, Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', JobQueueErrMsgProcessingTxt);
+                Session.LogMessage('000097V', TempErrorMessage."Message", Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', JobQueueErrMsgProcessingTxt);
             StopTransaction();
         end;
     end;
@@ -388,7 +388,7 @@ codeunit 28 "Error Message Management"
             foreach ErrInfo in ErrorList do begin
                 TempLineErrorMessage.Init();
                 TempLineErrorMessage.ID := TempLineErrorMessage.ID + 1;
-                TempLineErrorMessage.Description := copystr(ErrInfo.Message, 1, MaxStrLen(TempLineErrorMessage.Description));
+                TempLineErrorMessage."Message" := copystr(ErrInfo.Message, 1, MaxStrLen(TempLineErrorMessage."Message"));
                 TempLineErrorMessage.Validate("Context Record ID", ErrInfo.RecordId);
                 TempLineErrorMessage."Context Field Number" := ErrInfo.FieldNo;
                 TempLineErrorMessage.SetErrorCallStack(ErrInfo.Callstack);
@@ -536,7 +536,7 @@ codeunit 28 "Error Message Management"
             Evaluate(TempErrorMessage."Context Field Number", ContextFieldNumberText);
             Evaluate(TempErrorMessage."Context Table Number", ContextTableNumberText);
             Evaluate(TempErrorMessage.Duplicate, DuplicateText);
-            TempErrorMessage.Description := CopyStr(Description, 1, MaxStrLen(TempErrorMessage.Description));
+            TempErrorMessage."Message" := CopyStr(Description, 1, MaxStrLen(TempErrorMessage."Message"));
             TempErrorMessage."Additional Information" := CopyStr(AdditionalInfo, 1, MaxStrLen(TempErrorMessage."Additional Information"));
             TempErrorMessage."Support Url" := CopyStr(SupportURL, 1, MaxStrLen(TempErrorMessage."Support Url"));
             TempErrorMessage.SetErrorCallStack(CallStack);
@@ -559,7 +559,7 @@ codeunit 28 "Error Message Management"
         JObject.Add('RecordId', format(ErrorMessage."Record ID"));
         JObject.Add('FieldNumber', ErrorMessage."Field Number");
         JObject.Add('TableNumber', ErrorMessage."Table Number");
-        JObject.Add('Description', ErrorMessage.Description);
+        JObject.Add('Description', ErrorMessage."Message");
         JObject.Add('ContextRecordId', format(ErrorMessage."Context Record ID"));
         JObject.Add('ContextFieldNumber', ErrorMessage."Context Field Number");
         JObject.Add('ContextTableNumber', ErrorMessage."Context Table Number");
@@ -678,5 +678,49 @@ codeunit 28 "Error Message Management"
     local procedure OnLogLastError()
     begin
     end;
+
+#if not CLEAN22
+    [EventSubscriber(ObjectType::Table, Database::"Error Message", 'OnBeforeInsertEvent', '', false, false)]
+    [Obsolete('Temporarily syncing Description and Message fields until Description is obsolete.', '22.0')]
+    local procedure ErrorMessageOnBeforeInsertEvent(var Rec: Record "Error Message")
+    begin
+        if Rec.Message = '' then
+            Rec.Message := Rec.Description
+        else
+            Rec.Description := CopyStr(Rec.Message, 1, MaxStrLen(Rec.Description));
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Error Message", 'OnBeforeModifyEvent', '', false, false)]
+    [Obsolete('Temporarily syncing Description and Message fields until Description is obsolete.', '22.0')]
+    local procedure ErrorMessageOnBeforeModifyEvent(var Rec: Record "Error Message"; var xRec: Record "Error Message")
+    begin
+        if Rec.Message <> xRec.Message then
+            Rec.Description := CopyStr(Rec.Message, 1, MaxStrLen(Rec.Description))
+        else
+            if Rec.Description <> xRec.Description then
+                Rec.Message := Rec.Description;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Error Message Register", 'OnBeforeInsertEvent', '', false, false)]
+    [Obsolete('Temporarily syncing Description and Message fields until Description is obsolete.', '22.0')]
+    local procedure ErrorMessageRegisterOnBeforeInsertEvent(var Rec: Record "Error Message Register")
+    begin
+        if Rec.Message = '' then
+            Rec.Message := Rec.Description
+        else
+            Rec.Description := CopyStr(Rec.Message, 1, MaxStrLen(Rec.Description));
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Error Message Register", 'OnBeforeModifyEvent', '', false, false)]
+    [Obsolete('Temporarily syncing Description and Message fields until Description is obsolete.', '22.0')]
+    local procedure ErrorMessageRegisterOnBeforeModifyEvent(var Rec: Record "Error Message Register"; var xRec: Record "Error Message Register")
+    begin
+        if Rec.Message <> xRec.Message then
+            Rec.Description := CopyStr(Rec.Message, 1, MaxStrLen(Rec.Description))
+        else
+            if Rec.Description <> xRec.Description then
+                Rec.Message := Rec.Description;
+    end;
+#endif
 }
 

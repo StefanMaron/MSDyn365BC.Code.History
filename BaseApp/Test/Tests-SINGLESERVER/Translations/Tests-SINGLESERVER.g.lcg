@@ -1409,6 +1409,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - start date, %2 - Description,]D;]A;(LookupHint=Codeunit New Time Sheet Experience - NamedType PageDataCaptionTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1212730964 - NamedType 2126931429" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reopen must be disabled]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit New Time Sheet Experience - NamedType ReopenDisabledTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1212730964 - NamedType 2943255295" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Resources (%1 resources)]]></Val>
@@ -1418,6 +1427,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - number]D;]A;(LookupHint=Codeunit New Time Sheet Experience - NamedType ResourcesStatusTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1212730964 - NamedType 1664441807" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected message.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit New Time Sheet Experience - NamedType UnexpectedTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1212730964 - NamedType 1403461566" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[User Setup (%1 users in User Setup)]]></Val>
@@ -1425,6 +1443,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - number]D;]A;(LookupHint=Codeunit New Time Sheet Experience - NamedType UserSetupStatusTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1212730964 - Method 1048384359 - NamedType 61309646" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Time Sheet]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit New Time Sheet Experience - Method ConfirmHandlerVerify - NamedType TimeSheetTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1692564887 - NamedType 2922458564" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
