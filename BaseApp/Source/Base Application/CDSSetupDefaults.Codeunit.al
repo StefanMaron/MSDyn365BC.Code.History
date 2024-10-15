@@ -990,7 +990,7 @@ codeunit 7204 "CDS Setup Defaults"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Customer-Contact Link");
+        JobQueueEntry.SetRange("Object ID to Run", 5351); // codeunit 5351 "CRM Customer-Contact Link" is not available if CLEAN18
         JobQueueEntry.DeleteTasks();
     end;
 

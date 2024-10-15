@@ -8,7 +8,7 @@ codeunit 5058 "BankCont-Update"
     var
         RMSetup: Record "Marketing Setup";
         BankContactUpdateCategoryTxt: Label 'Bank Contact Orphaned Links', Locked = true;
-        BankContactUpdateTelemetryMsg: Label 'Contact %1 does not exist. The contact business relation with code %2 which points to it has been deleted', Locked = true;
+        BankContactUpdateTelemetryMsg: Label 'Contact does not exist. The contact business relation which points to it has been deleted', Locked = true;
 
     procedure OnInsert(var BankAcc: Record "Bank Account")
     begin
@@ -36,7 +36,7 @@ codeunit 5058 "BankCont-Update"
                 exit;
             if not Cont.Get("Contact No.") then begin
                 Delete();
-                Session.LogMessage('0000B38', StrSubstNo(BankContactUpdateTelemetryMsg, "Contact No.", "Business Relation Code"), Verbosity::Normal, DataClassification::EndUserIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', BankContactUpdateCategoryTxt);
+                Session.LogMessage('0000B38', BankContactUpdateTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankContactUpdateCategoryTxt);
                 exit;
             end;
             OldCont := Cont;

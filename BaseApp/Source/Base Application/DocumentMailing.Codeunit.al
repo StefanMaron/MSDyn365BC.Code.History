@@ -64,8 +64,9 @@
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
-        TempEmailItem."Source Table" := SourceReference.Number();
-        TempEmailItem."Source System Id" := SourceReference.Field(SourceReference.SystemIdNo()).Value();
+        repeat
+            TempEmailItem.AddSourceDocument(SourceReference.Number(), SourceReference.Field(SourceReference.SystemIdNo()).Value());
+        until SourceReference.Next() = 0;
 
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
         exit(EmailFileInternal(
@@ -86,8 +87,9 @@
     var
         TempEmailItem: Record "Email Item" temporary;
     begin
-        TempEmailItem."Source Table" := SourceReference.Number();
-        TempEmailItem."Source System Id" := SourceReference.Field(SourceReference.SystemIdNo()).Value();
+        repeat
+            TempEmailItem.AddSourceDocument(SourceReference.Number(), SourceReference.Field(SourceReference.SystemIdNo()).Value());
+        until SourceReference.Next() = 0;
 
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
         exit(EmailFileInternal(
@@ -252,8 +254,10 @@
     begin
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
 
-        TempEmailItem."Source Table" := SourceReference.Number();
-        TempEmailItem."Source System Id" := SourceReference.Field(SourceReference.SystemIdNo()).Value();
+        repeat
+            TempEmailItem.AddSourceDocument(SourceReference.Number(), SourceReference.Field(SourceReference.SystemIdNo()).Value());
+        until SourceReference.Next() = 0;
+
         exit(EmailFileInternal(
             TempEmailItem,
             HtmlBodyFilePath,

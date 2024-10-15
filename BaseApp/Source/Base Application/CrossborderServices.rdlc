@@ -1081,7 +1081,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!Total_CaptionLbl.Value)</Value>
+                                  <Value>=First(Fields!Total_Caption.Value)</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                   </Style>

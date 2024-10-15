@@ -115,7 +115,7 @@
   </Item>
   <Item ItemId=";Codeunit 893927009 - NamedType 854651776" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The depreciation has been calculated.\\%1 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?]]></Val>
+      <Val><![CDATA[The depreciation has been calculated.\\1 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -448,7 +448,7 @@
   </Item>
   <Item ItemId=";Codeunit 1562764938 - NamedType 2420549545" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?]]></Val>
+      <Val><![CDATA[The depreciation has been calculated.\\1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

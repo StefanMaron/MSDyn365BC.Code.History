@@ -75,13 +75,13 @@ page 673 "Job Queue Entry Card"
                 field("Earliest Start Date/Time"; "Earliest Start Date/Time")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the earliest date and time when the job queue entry should be run.';
+                    ToolTip = 'Specifies the earliest date and time when the job queue entry should be run. The format for the date and time must be month/day/year hour:minute, and then AM or PM. For example, 3/10/2021 12:00 AM.';
                 }
                 field("Expiration Date/Time"; "Expiration Date/Time")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies the date and time when the job queue entry is to expire, after which the job queue entry will not be run.';
+                    ToolTip = 'Specifies the date and time when the job queue entry is to expire, after which the job queue entry will not be run.  The format for the date and time must be month/day/year hour:minute, and then AM or PM. For example, 3/10/2021 12:00 AM.';
                 }
                 field("Timeout"; "Job Timeout")
                 {

@@ -153,6 +153,8 @@ page 7201 "CDS Connection Setup Wizard"
 
                             HasAdminSignedIn := true;
                             CDSIntegrationImpl.SignInCDSAdminUser(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, AdminADDomain, false);
+                            CDSIntegrationImpl.JITProvisionFirstPartyApp(CrmHelper);
+                            Sleep(5000);
 
                             AreAdminCredentialsCorrect := true;
                             SetPassword(UserPassword);

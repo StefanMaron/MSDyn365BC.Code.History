@@ -669,12 +669,14 @@ page 507 "Blanket Sales Order"
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Suite;
-                SubPageLink = "No." = FIELD("Bill-to Customer No.");
+                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Suite;
-                SubPageLink = "No." = FIELD("Sell-to Customer No.");
+                SubPageLink = "No." = FIELD("Sell-to Customer No."),
+                              "Date Filter" = field("Date Filter");
             }
             part(Control1906127307; "Sales Line FactBox")
             {

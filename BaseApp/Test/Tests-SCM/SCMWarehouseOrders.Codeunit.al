@@ -2052,6 +2052,70 @@ codeunit 137161 "SCM Warehouse Orders"
         VerifyPickWorksheetLine(WhseWorksheetName, Item."No.", Quantity, 2 * Quantity, false);
     end;
 
+    [Test]
+    procedure AvailQtyToPickWithQtyReceivedNotPutawayFromDedicatedBin()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Bin: array[3] of Record Bin;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Pick] [Dedicated Bin] [Receive] [Put-away]
+        // [SCENARIO 390083] A pick can be created from normal bin when not all quantity received to a dedicated bin has been put-away yet.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Location set up for required receive, shipment, pick, put-away.
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Bin "X" is dedicated and set up as a "Receipt Bin Code".
+        // [GIVEN] Bin "Y" is set up as "Shipment Bin Code".
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Bin[1].Validate(Dedicated, true);
+        Bin[1].Modify(true);
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("Receipt Bin Code", Bin[1].Code);
+        Location.Validate("Shipment Bin Code", Bin[2].Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Item and a default bin "Z" for it.
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateBin(Bin[3], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin[3].Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContent.Validate(Default, true);
+        BinContent.Modify(true);
+
+        // [GIVEN] Create and release purchase order for 65 pcs.
+        // [GIVEN] Post warehouse receipt.
+        // [GIVEN] Register put-away for 15 pcs. Now, 50 pcs are in the dedicated bin "X", 15 pcs are in normal bin "Z".
+        CreateAndRegisterPartialPutAwayFromWarehouseReceiptUsingPurchaseOrder(Item."No.", Qty * 5, Location.Code, Qty);
+
+        // [GIVEN] Create and release sales order for 15 pcs.
+        // [GIVEN] Create warehouse shipment.
+        CreateAndReleaseSalesOrder(SalesHeader, LibrarySales.CreateCustomerNo(), Item."No.", Qty, Location.Code);
+        CreateAndReleaseWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
+
+        // [WHEN] Create pick from the warehouse shipment in order to move 15 pcs from bin "Z" to bin "X".
+        CreatePickUsingSalesOrder(SalesHeader."No.");
+
+        // [THEN] The pick has been created and can be registered.
+        RegisterWarehouseActivity(
+          WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [THEN] The bin "Z" is now blank.
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.SetRange("Bin Code", Bin[3].Code);
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        WarehouseEntry.TestField("Qty. (Base)", 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Orders");

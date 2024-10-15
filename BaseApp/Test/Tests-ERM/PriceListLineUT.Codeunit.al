@@ -38,6 +38,8 @@ codeunit 134123 "Price List Line UT"
         ItemDiscGroupMustNotBePurchaseErr: Label 'Product Type must not be Item Discount Group';
         LineSourceTypeErr: Label 'cannot be set to %1 if the header''s source type is %2.', Comment = '%1 and %2 - the source type value.';
         SourceTypeMustBeErr: Label 'Applies-to Type must be equal to ''%1''', Comment = '%1 - source type value';
+        ParentSourceNoMustBeFilledErr: Label 'Applies-to Parent No. must have a value';
+        ParentSourceNoMustBeBlankErr: Label 'Applies-to Parent No. must be equal to ''''';
         SourceNoMustBeFilledErr: Label 'Applies-to No. must have a value';
         SourceNoMustBeBlankErr: Label 'Applies-to No. must be equal to ''''';
         CannotDeleteActivePriceListLineErr: Label 'You cannot delete the active price list line %1 %2.', Comment = '%1 - the price list code, %2 - line no';
@@ -567,7 +569,7 @@ codeunit 134123 "Price List Line UT"
     end;
 
     [Test]
-    procedure T023_UnitPriceNotAllowedForDiscountLine()
+    procedure T023_UnitPriceCostFactorNotAllowedForDiscountLine()
     var
         PriceListLine: Record "Price List Line";
     begin
@@ -579,20 +581,32 @@ codeunit 134123 "Price List Line UT"
             StrSubstNo(
                 FieldNotAllowedForAmountTypeErr, PriceListLine.FieldCaption("Unit Price"),
                 PriceListLine.FieldCaption("Amount Type"), PriceListLine."Amount Type"::Discount));
+
+        asserterror PriceListLine.Validate("Cost Factor", 1);
+        Assert.ExpectedError(
+            StrSubstNo(
+                FieldNotAllowedForAmountTypeErr, PriceListLine.FieldCaption("Cost Factor"),
+                PriceListLine.FieldCaption("Amount Type"), PriceListLine."Amount Type"::Discount));
     end;
 
     [Test]
-    procedure T024_CostFactorNotAllowedForDiscountLine()
+    procedure T024_UnitCostDirectUnitCostNotAllowedForDiscountLine()
     var
         PriceListLine: Record "Price List Line";
     begin
         // [SCENARIO] "Cost Factor" validation fails in Discount line
         Initialize();
-        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
-        asserterror PriceListLine.Validate("Cost Factor", 1);
+        PriceListLine.Validate("Source Type", "Price Source Type"::"Customer Disc. Group");
+        asserterror PriceListLine.Validate("Unit Cost", 1);
         Assert.ExpectedError(
             StrSubstNo(
-                FieldNotAllowedForAmountTypeErr, PriceListLine.FieldCaption("Cost Factor"),
+                FieldNotAllowedForAmountTypeErr, PriceListLine.FieldCaption("Unit Cost"),
+                PriceListLine.FieldCaption("Amount Type"), PriceListLine."Amount Type"::Discount));
+
+        asserterror PriceListLine.Validate("Direct Unit Cost", 1);
+        Assert.ExpectedError(
+            StrSubstNo(
+                FieldNotAllowedForAmountTypeErr, PriceListLine.FieldCaption("Direct Unit Cost"),
                 PriceListLine.FieldCaption("Amount Type"), PriceListLine."Amount Type"::Discount));
     end;
 
@@ -631,14 +645,75 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
     begin
-        // [SCENARIO] "Line Discount %" validation fails in Price line
+        // [SCENARIO] "Line Discount %" validation fails in Price line for "Customer Price Group"
         Initialize();
-        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
+        PriceListLine.Validate("Source Type", "Price Source Type"::"Customer Price Group");
         asserterror PriceListLine.Validate("Line Discount %", 3);
         Assert.ExpectedError(
             StrSubstNo(
                 FieldNotAllowedForAmountTypeErr, PriceListLine.FieldCaption("Line Discount %"),
                 PriceListLine.FieldCaption("Amount Type"), PriceListLine."Amount Type"::Price));
+    end;
+
+    [Test]
+    procedure T028_DefaultAmountTypeOnSourceTypeValidation()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] Default "Amount Type" depends on source type. 
+        Initialize();
+        PriceListLine.DeleteAll();
+        // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
+        PriceListLine.Validate("Source Type", "Price Source Type"::"Customer Disc. Group");
+        // [THEN] "Amount Type" is 'Discount'
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Discount);
+
+        // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
+        PriceListLine.Validate("Source Type", "Price Source Type"::"Customer Price Group");
+        // [THEN] "Amount Type" is 'Price'
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
+
+        // [WHEN] Set "Source Type" as "Customer" in Price list header
+        PriceListLine.Validate("Source Type", "Price Source Type"::Customer);
+        // [THEN] "Amount Type" is 'Any'
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Any);
+    end;
+
+    [Test]
+    procedure T029_ValidateAmountType()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] Cannot change "Amount Type" for source types "Customer Disc. Group", "Customer Price Group"
+        Initialize();
+        PriceListLine.Init();
+        // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
+        PriceListLine."Source Type" := "Price Source Type"::"Customer Disc. Group";
+        // [THEN] Can change "Amount Type" to 'Discount'
+        PriceListLine.Validate("Amount Type", "Price Amount Type"::Discount);
+        // [THEN] Cannot change "Amount Type" to 'Price' or 'Any'
+        asserterror PriceListLine.Validate("Amount Type", "Price Amount Type"::Price);
+        asserterror PriceListLine.Validate("Amount Type", "Price Amount Type"::Any);
+
+        PriceListLine.Init();
+        // [WHEN] Set "Source Type" as "Customer Disc. Group" in Price list header
+        PriceListLine."Source Type" := "Price Source Type"::"Customer Price Group";
+        // [THEN] Can change "Amount Type" to 'Price'
+        PriceListLine.Validate("Amount Type", "Price Amount Type"::Price);
+        // [THEN] Cannot change "Amount Type" to 'Discount' or 'Any'
+        asserterror PriceListLine.Validate("Amount Type", "Price Amount Type"::Discount);
+        asserterror PriceListLine.Validate("Amount Type", "Price Amount Type"::Any);
+
+        PriceListLine.Init();
+        // [WHEN] Set "Source Type" as "Customer" in Price list header
+        PriceListLine."Source Type" := "Price Source Type"::Customer;
+        // [THEN] Can change "Amount Type" to 'Any', 'Discount', or 'Price'
+        PriceListLine.Validate("Amount Type", "Price Amount Type"::Price);
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListLine.Validate("Amount Type", "Price Amount Type"::Any);
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Any);
+        PriceListLine.Validate("Amount Type", "Price Amount Type"::Discount);
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Discount);
     end;
 
     [Test]
@@ -1160,8 +1235,8 @@ codeunit 134123 "Price List Line UT"
         PriceListLine."Source Type" := "Price Source Type"::"All Locations";
         PriceListLine."Source No." := 'X';
 
-        // [WHEN] Set "Status" as 'Active' and answer 'Yes'
-        asserterror PriceListLine.VerifySource();
+        // [WHEN] Verify source
+        asserterror PriceListLine.Verify();
 
         // [THEN] Error: "Applies-to No. must be equal to ''''"
         Assert.ExpectedError(SourceNoMustBeBlankErr);
@@ -1175,15 +1250,54 @@ codeunit 134123 "Price List Line UT"
         // [FEATURE] [Price Source Type] [Extended]
         // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to No. is blank.
         Initialize();
-        // [GIVEN] New price list line, where "Source Type"::"Location", "Source No." is <blank>
+        // [GIVEN] New price list line, where "Source Type"::"Location", "Parent Source No." is 'X', "Source No." is <blank>
         PriceListLine."Source Type" := "Price Source Type"::Location;
+        PriceListLine."Parent Source No." := 'X';
         PriceListLine."Source No." := '';
 
         // [WHEN] Verify source
-        asserterror PriceListLine.VerifySource();
+        asserterror PriceListLine.Verify();
 
         // [THEN] Error: "Applies-to No. must have a value"
         Assert.ExpectedError(SourceNoMustBeFilledErr);
+    end;
+
+    [Test]
+    procedure T072_VerifySourceForSourceAllLocationsParentSourceFilled()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to Parent No. is filled.
+        Initialize();
+        // [GIVEN] New price list line, where "Source Type"::"All Locations", "Parent Source No." is 'X'
+        PriceListLine."Source Type" := "Price Source Type"::"All Locations";
+        PriceListLine."Parent Source No." := 'X';
+
+        // [WHEN] Verify source
+        asserterror PriceListLine.Verify();
+
+        // [THEN] Error: "Applies-to Parent No. must be equal to ''''"
+        Assert.ExpectedError(ParentSourceNoMustBeBlankErr);
+    end;
+
+    [Test]
+    procedure T073_VerifySourceForSourceLocationParentSourceBlank()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to Parent No. is blank.
+        Initialize();
+        // [GIVEN] New price list line, where "Source Type"::"Location", "Parent Source No." is <blank>
+        PriceListLine."Source Type" := "Price Source Type"::Location;
+        PriceListLine."Parent Source No." := '';
+
+        // [WHEN] Verify source
+        asserterror PriceListLine.Verify();
+
+        // [THEN] Error: "Applies-to Parent No. must have a value"
+        Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
     end;
 
     [Test]

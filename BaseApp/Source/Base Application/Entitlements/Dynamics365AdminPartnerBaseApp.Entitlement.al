@@ -9,5 +9,6 @@ entitlement "Dynamics 365 Admin - Partner BaseApp"
                          "D365 FULL ACCESS",
                          "D365 MONITOR FIELDS",
                          "D365 RAPIDSTART",
+                         "LOCAL",
                          "Security - Baseapp";
 }

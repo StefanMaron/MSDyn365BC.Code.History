@@ -30,6 +30,7 @@ codeunit 411 "Dimension Buffer Management"
     procedure InsertDimensionsUsingEntryNo(var DimBuf: Record "Dimension Buffer"; EntryNo: Integer)
     var
         DimCount: Integer;
+        IsHandled: Boolean;
     begin
         DimCount := DimBuf.Count();
         if DimBuf.Find('-') then
@@ -38,7 +39,10 @@ codeunit 411 "Dimension Buffer Management"
                 TempDimBuf := DimBuf;
                 TempDimBuf."Entry No." := EntryNo;
                 TempDimBuf."No. Of Dimensions" := DimCount;
-                TempDimBuf.Insert();
+                IsHandled := false;
+                OnInsertDimensionsUsingEntryNoOnBeforeTempDimBufInsert(TempDimBuf, DimBuf, EntryNo, IsHandled);
+                if not IsHandled then
+                    TempDimBuf.Insert();
             until DimBuf.Next() = 0;
     end;
 
@@ -222,6 +226,11 @@ codeunit 411 "Dimension Buffer Management"
         DimensionIDBuffer.ID := NextDimBufNo;
         NextDimBufNo += 1;
         DimensionIDBuffer.Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertDimensionsUsingEntryNoOnBeforeTempDimBufInsert(var TempDimBuf: Record "Dimension Buffer"; var DimBuf: Record "Dimension Buffer"; EntryNo: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

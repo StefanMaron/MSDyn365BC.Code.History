@@ -19,6 +19,7 @@ codeunit 5943 "Lock-OpenServContract"
         ServContractLine: Record "Service Contract Line";
         ConfirmManagement: Codeunit "Confirm Management";
         RaiseError: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeLockServContract(FromServContractHeader);
 
@@ -30,9 +31,12 @@ codeunit 5943 "Lock-OpenServContract"
             TestField("Annual Amount", "Calcd. Annual Amount");
             if "Annual Amount" < 0 then
                 Error(Text003);
-            if IsInvoicePeriodInTimeSegment() then
-                if "Annual Amount" = 0 then
-                    Error(Text004);
+            IsHandled := false;
+            OnLockServContractOnBeforeCheckZeroAnnualAmount(ServContractHeader, IsHandled);
+            if not IsHandled then
+                if IsInvoicePeriodInTimeSegment() then
+                    if "Annual Amount" = 0 then
+                        Error(Text004);
 
             LockTable();
             if ("Contract Type" = "Contract Type"::Contract) and
@@ -42,6 +46,7 @@ codeunit 5943 "Lock-OpenServContract"
                 ServContractLine.SetRange("Contract Type", "Contract Type");
                 ServContractLine.SetRange("Contract No.", "Contract No.");
                 ServContractLine.SetRange("Line Amount", 0);
+                ServContractLine.SetFilter("Line Discount %", '<%1', 100);
                 RaiseError := not ServContractLine.IsEmpty;
                 OnErrorIfServContractLinesHaveZeroAmount(ServContractHeader, ServContractLine, RaiseError);
                 if RaiseError then
@@ -96,6 +101,11 @@ codeunit 5943 "Lock-OpenServContract"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenServContract(var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLockServContractOnBeforeCheckZeroAnnualAmount(ServContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 }

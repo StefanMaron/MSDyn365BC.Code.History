@@ -627,6 +627,16 @@ table 79 "Company Information"
         {
             Caption = 'Participant No.';
         }
+        field(11051; "Check for Partner VAT ID"; Boolean)
+        {
+            Caption = 'Check for Partner VAT ID';
+            InitValue = true;
+        }
+        field(11052; "Check for Country of Origin"; Boolean)
+        {
+            Caption = 'Check for Country of Origin';
+            InitValue = true;
+        }
         field(11100; "Statistic No."; Code[20])
         {
             Caption = 'Statistic No.';
@@ -694,6 +704,8 @@ table 79 "Company Information"
         Modulus97: Integer;
         I: Integer;
     begin
+        OnBeforeCheckIBAN(IBANCode);
+
         if IBANCode = '' then
             exit;
         OriginalIBANCode := IBANCode;
@@ -1010,6 +1022,11 @@ table 79 "Company Information"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeGetVATRegistrationNumberLbl(var Result: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIBAN(IBANCode: Code[100])
     begin
     end;
 }

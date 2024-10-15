@@ -1054,6 +1054,7 @@ page 5522 "Order Planning"
             DemandOrderFilter::"Job Demand":
                 OrderPlanningMgt.SetJobOrder;
         end;
+        OnCalcPlanOnBeforeGetOrdersToPlan(ReqLine);
         OrderPlanningMgt.GetOrdersToPlan(ReqLine);
 
         InitTempRec;
@@ -1206,6 +1207,11 @@ page 5522 "Order Planning"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMakeSupplyOrders(var RequisitionLine: Record "Requisition Line"; ManufacturingUserTemplate: Record "Manufacturing User Template"; var ActionMsgCarriedOut: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcPlanOnBeforeGetOrdersToPlan(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }
