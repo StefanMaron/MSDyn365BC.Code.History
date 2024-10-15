@@ -68,7 +68,7 @@ table 1521 "Workflow Response"
         WorkflowEvent: Record "Workflow Event";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
-        if WorkflowEvent.FindSet then
+        if WorkflowEvent.FindSet() then
             repeat
                 WorkflowResponseHandling.AddResponsePredecessor("Function Name", WorkflowEvent."Function Name");
             until WorkflowEvent.Next() = 0;

@@ -199,6 +199,18 @@ table 380 "Detailed Vendor Ledg. Entry"
             Caption = 'Ledger Entry Amount';
             Editable = false;
         }
+        field(44; "Posting Group"; Code[20])
+        {
+            Caption = 'Vendor Posting Group';
+            Editable = false;
+            TableRelation = "Vendor Posting Group";
+        }
+        field(45; "Exch. Rate Adjmt. Reg. No."; Integer)
+        {
+            Caption = 'Exch. Rate Adjmt. Reg. No.';
+            Editable = false;
+            TableRelation = "Exch. Rate Adjmt. Reg.";
+        }
     }
 
     keys
@@ -209,6 +221,7 @@ table 380 "Detailed Vendor Ledg. Entry"
         }
         key(Key2; "Vendor Ledger Entry No.", "Posting Date")
         {
+            SumIndexFields = Amount, "Amount (LCY)";
         }
         key(Key3; "Vendor Ledger Entry No.", "Entry Type", "Posting Date")
         {

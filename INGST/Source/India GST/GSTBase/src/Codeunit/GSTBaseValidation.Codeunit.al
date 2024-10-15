@@ -61,11 +61,11 @@ codeunit 18001 "GST Base Validation"
 
     //Same Funciton is called in GST Sales
     procedure VerifyPOSOutOfIndia(
-    PartyType: Enum "Party Type";
-    LocationStateCode: Code[10];
-    VendCustStateCode: Code[10];
-    GSTVendorType: Enum "GST Vendor Type";
-    GSTCustomerType: Enum "GST Customer Type")
+        PartyType: Enum "Party Type";
+        LocationStateCode: Code[10];
+        VendCustStateCode: Code[10];
+        GSTVendorType: Enum "GST Vendor Type";
+        GSTCustomerType: Enum "GST Customer Type")
     begin
         if LocationStateCode <> VendCustStateCode then
             Error(POSLOCDiffErr);
@@ -1219,7 +1219,6 @@ codeunit 18001 "GST Base Validation"
                 end;
         end;
     end;
-
 
     local procedure UpdateECommOperatorGSTRegNo(
             DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry";

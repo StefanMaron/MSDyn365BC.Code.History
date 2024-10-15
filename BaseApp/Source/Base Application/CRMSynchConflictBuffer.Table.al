@@ -59,7 +59,7 @@ table 5374 "CRM Synch. Conflict Buffer"
                             "Int. Record Exists" := true;
 
                             IntegrationTableMapping.SetRange("Table ID", "Table ID");
-                            if IntegrationTableMapping.FindFirst then begin
+                            if IntegrationTableMapping.FindFirst() then begin
                                 FieldRef := RecRef.Field(IntegrationTableMapping."Int. Tbl. Modified On Fld. No.");
                                 "Int. Modified On" := FieldRef.Value;
                             end;
@@ -88,6 +88,22 @@ table 5374 "CRM Synch. Conflict Buffer"
         {
             Caption = 'Record ID';
             DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            var
+                CRMOptionMapping: Record "CRM Option Mapping";
+                RecRef: RecordRef;
+            begin
+                CRMOptionMapping.SetRange("Record ID", "Record ID");
+                if not CRMOptionMapping.IsEmpty() then begin
+                    "Record Exists" := RecRef.Get("Record ID");
+                    if "Record Exists" then begin
+                        "Record ID" := RecRef.RecordId;
+                        "Integration ID" := RecRef.Field(RecRef.SystemIdNo()).Value();
+                        Description := CopyStr(GetRecDescription, 1, MaxStrLen(Description));
+                    end;
+                end;
+            end;
         }
         field(7; Description; Text[250])
         {
@@ -152,6 +168,36 @@ table 5374 "CRM Synch. Conflict Buffer"
             Caption = 'Int. Record Exists';
             DataClassification = SystemMetadata;
         }
+        field(18; "CRM Option Id"; Integer)
+        {
+            Caption = 'CRM Option Id';
+            DataClassification = SystemMetadata;
+
+            trigger OnValidate()
+            var
+                CRMOptionMapping: Record "CRM Option Mapping";
+                IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
+                IntegrationTableMapping: Record "Integration Table Mapping";
+                CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
+                RecRef: RecordRef;
+            begin
+                if IntegrationTableMapping.FindMappingForTable("Table ID") then
+                    if CRMOptionMapping.FindRecordID(IntegrationTableMapping."Integration Table ID", IntegrationTableMapping."Integration Table UID Fld. No.", "CRM Option Id") then begin
+                        if CRMOptionMapping.GetLatestError(IntegrationSynchJobErrors) then begin
+                            "Error Message" := IntegrationSynchJobErrors.Message;
+                            "Failed On" := IntegrationSynchJobErrors."Date/Time";
+                        end;
+                        "Int. Table ID" := IntegrationTableMapping."Integration Table ID";
+                        CRMIntegrationTableSynch.LoadCRMOption(RecRef, IntegrationTableMapping);
+                        RecRef.Field(RecRef.KeyIndex(1).FieldIndex(1).Number).SetRange("CRM Option Id");
+                        if RecRef.FindFirst() then begin
+                            "Int. Description" := CRMOptionMapping.GetRecordRefOptionValue(RecRef);
+                            "Int. Record Exists" := true;
+                            RecRef.Close();
+                        end;
+                    end;
+            end;
+        }
     }
 
     keys
@@ -174,7 +220,7 @@ table 5374 "CRM Synch. Conflict Buffer"
         TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary;
     begin
         TempCRMSynchConflictBuffer.Copy(Rec, true);
-        if TempCRMSynchConflictBuffer.FindSet then
+        if TempCRMSynchConflictBuffer.FindSet() then
             repeat
                 TempCRMSynchConflictBuffer.DeleteCoupledRecord;
             until TempCRMSynchConflictBuffer.Next() = 0;
@@ -219,6 +265,7 @@ table 5374 "CRM Synch. Conflict Buffer"
     procedure DeleteCouplings()
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMOptionMapping: Record "CRM Option Mapping";
         TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary;
         LocalRecordRef: RecordRef;
         LocalIdList: List of [Guid];
@@ -238,33 +285,44 @@ table 5374 "CRM Synch. Conflict Buffer"
         PrevLocalTableID := 0;
         PrevIntegrationTableID := 0;
         repeat
-            LocalTableID := TempCRMSynchConflictBuffer."Table ID";
-            IntegrationTableID := TempCRMSynchConflictBuffer."Int. Table ID";
-            if LocalTableID <> PrevLocalTableID then begin
-                if PrevLocalTableID <> 0 then begin
-                    UncoupleLocalRecords(PrevLocalTableID, LocalIdList);
-                    UncoupleIntegrationRecords(PrevLocalTableID, PrevIntegrationTableID, IntegrationIdList);
-                    LocalIdList.RemoveRange(1, LocalIdList.Count());
-                    IntegrationIdList.RemoveRange(1, IntegrationIdList.Count());
+            if TempCRMSynchConflictBuffer."CRM Option Id" <> 0 then begin
+                if TempCRMSynchConflictBuffer."Record Exists" then begin
+                    LocalRecordRef.Open(TempCRMSynchConflictBuffer."Table ID");
+                    LocalRecordRef.Get(TempCRMSynchConflictBuffer."Record ID");
+                    CRMOptionMapping.SetRange("Record ID", LocalRecordRef.RecordId);
+                    if CRMOptionMapping.FindFirst() then
+                        CRMOptionMapping.Delete();
                     LocalRecordRef.Close();
                 end;
-                LocalRecordRef.Open(TempCRMSynchConflictBuffer."Table ID");
-                PrevLocalTableID := TempCRMSynchConflictBuffer."Table ID";
-                PrevIntegrationTableID := TempCRMSynchConflictBuffer."Int. Table ID";
-            end;
-            if TempCRMSynchConflictBuffer."Record Exists" then begin
-                if LocalRecordRef.Get(TempCRMSynchConflictBuffer."Record ID") then begin
-                    LocalId := LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value();
-                    if not IsNullGuid(LocalId) then
-                        LocalIdList.Add(LocalId);
-                end;
             end else begin
-                IntegrationId := TempCRMSynchConflictBuffer."CRM ID";
-                if TempCRMSynchConflictBuffer."Int. Record Exists" then begin
-                    if not IsNullGuid(IntegrationId) then
-                        IntegrationIdList.Add(IntegrationId);
-                end else
-                    CRMIntegrationRecord.RemoveCouplingToCRMID(IntegrationId, PrevLocalTableID);
+                LocalTableID := TempCRMSynchConflictBuffer."Table ID";
+                IntegrationTableID := TempCRMSynchConflictBuffer."Int. Table ID";
+                if LocalTableID <> PrevLocalTableID then begin
+                    if PrevLocalTableID <> 0 then begin
+                        UncoupleLocalRecords(PrevLocalTableID, LocalIdList);
+                        UncoupleIntegrationRecords(PrevLocalTableID, PrevIntegrationTableID, IntegrationIdList);
+                        LocalIdList.RemoveRange(1, LocalIdList.Count());
+                        IntegrationIdList.RemoveRange(1, IntegrationIdList.Count());
+                        LocalRecordRef.Close();
+                    end;
+                    LocalRecordRef.Open(TempCRMSynchConflictBuffer."Table ID");
+                    PrevLocalTableID := TempCRMSynchConflictBuffer."Table ID";
+                    PrevIntegrationTableID := TempCRMSynchConflictBuffer."Int. Table ID";
+                end;
+                if TempCRMSynchConflictBuffer."Record Exists" then begin
+                    if LocalRecordRef.Get(TempCRMSynchConflictBuffer."Record ID") then begin
+                        LocalId := LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value();
+                        if not IsNullGuid(LocalId) then
+                            LocalIdList.Add(LocalId);
+                    end;
+                end else begin
+                    IntegrationId := TempCRMSynchConflictBuffer."CRM ID";
+                    if TempCRMSynchConflictBuffer."Int. Record Exists" then begin
+                        if not IsNullGuid(IntegrationId) then
+                            IntegrationIdList.Add(IntegrationId);
+                    end else
+                        CRMIntegrationRecord.RemoveCouplingToCRMID(IntegrationId, PrevLocalTableID);
+                end;
             end;
         until TempCRMSynchConflictBuffer.Next() = 0;
         UncoupleLocalRecords(PrevLocalTableID, LocalIdList);
@@ -316,6 +374,14 @@ table 5374 "CRM Synch. Conflict Buffer"
 
     procedure Fill(var CRMIntegrationRecord: Record "CRM Integration Record"): Integer
     var
+        TempCRMOptionMapping: Record "CRM Option Mapping" temporary;
+    begin
+        exit(Fill(CRMIntegrationRecord, TempCRMOptionMapping));
+    end;
+
+
+    procedure Fill(var CRMIntegrationRecord: Record "CRM Integration Record"; var CRMOptionMapping: Record "CRM Option Mapping"): Integer
+    var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         cnt: Integer;
         TableIdFilter: Text;
@@ -323,10 +389,11 @@ table 5374 "CRM Synch. Conflict Buffer"
         DeleteAll();
         CRMIntegrationManagement.RepairBrokenCouplings(true);
         CRMIntegrationRecord.SetCurrentKey(Skipped, "Table ID");
+        CRMOptionMapping.SetCurrentKey(Skipped, "Table ID");
         TableIdFilter := CRMIntegrationRecord.GetFilter("Table ID");
         if TableIdFilter = '' then
             CRMIntegrationRecord.SetFilter("Table ID", '<>0');
-        if CRMIntegrationRecord.FindSet then
+        if CRMIntegrationRecord.FindSet() then
             repeat
                 cnt += 1;
                 "Entry No." += 1;
@@ -336,6 +403,17 @@ table 5374 "CRM Synch. Conflict Buffer"
                 else
                     CRMIntegrationRecord.Delete();
             until ((CRMIntegrationRecord.Next() = 0) or (cnt = 100));
+        if cnt < 100 then
+            if CRMOptionMapping.FindSet() then
+                repeat
+                    cnt += 1;
+                    "Entry No." += 1;
+                    InitFromCRMOptionMapping(CRMOptionMapping);
+                    if DoesOneRecordExist then
+                        Insert()
+                    else
+                        CRMOptionMapping.Delete();
+                until ((CRMOptionMapping.Next() = 0) or (cnt = 100));
         exit(cnt);
     end;
 
@@ -376,6 +454,15 @@ table 5374 "CRM Synch. Conflict Buffer"
         Validate("Table ID", CRMIntegrationRecord."Table ID");
         Validate("Integration ID", CRMIntegrationRecord."Integration ID");
         Validate("CRM ID", CRMIntegrationRecord."CRM ID");
+    end;
+
+    procedure InitFromCRMOptionMapping(CRMOptionMapping: Record "CRM Option Mapping")
+    begin
+        Init();
+
+        Validate("Table ID", CRMOptionMapping."Table ID");
+        Validate("Record ID", CRMOptionMapping."Record ID");
+        Validate("CRM Option Id", CRMOptionMapping."Option Value");
     end;
 
     procedure IsOneRecordDeleted(): Boolean
@@ -549,15 +636,28 @@ table 5374 "CRM Synch. Conflict Buffer"
 #endif
 
     procedure SetSelectionFilter(var CRMIntegrationRecord: Record "CRM Integration Record")
+    var
+        CRMOptionMapping: Record "CRM Option Mapping";
+    begin
+        SetSelectionFilter(CRMIntegrationRecord, CRMOptionMapping);
+    end;
+
+    procedure SetSelectionFilter(var CRMIntegrationRecord: Record "CRM Integration Record"; var CRMOptionMapping: Record "CRM Option Mapping")
     begin
         SetRange("Record Exists", true);
         SetRange("Int. Record Exists", true);
-        if FindSet then
+        if FindSet() then
             repeat
                 if CRMIntegrationRecord.Get("CRM ID", "Integration ID") then
-                    CRMIntegrationRecord.Mark(true);
+                    CRMIntegrationRecord.Mark(true)
+                else begin
+                    CRMOptionMapping.SetRange("Record ID", "Record ID");
+                    if CRMOptionMapping.FindFirst() then
+                        CRMOptionMapping.Mark(true);
+                end;
             until Next() = 0;
         CRMIntegrationRecord.MarkedOnly(true);
+        CRMOptionMapping.MarkedOnly(true);
     end;
 
     [TryFunction]
@@ -568,19 +668,37 @@ table 5374 "CRM Synch. Conflict Buffer"
 
     procedure UpdateSourceTable(var CRMIntegrationRecord: Record "CRM Integration Record"): Integer
     var
+        CRMOptionMapping: Record "CRM Option Mapping";
+    begin
+        exit(UpdateSourceTable(CRMIntegrationRecord, CRMOptionMapping));
+    end;
+
+    procedure UpdateSourceTable(var CRMIntegrationRecord: Record "CRM Integration Record"; var CRMOptionMapping: Record "CRM Option Mapping"): Integer
+    var
         TempCRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer" temporary;
     begin
-        if not CRMIntegrationRecord.Get("CRM ID", "Integration ID") then
+        CRMOptionMapping.SetRange("Record ID", "Record ID");
+        if not CRMIntegrationRecord.Get("CRM ID", "Integration ID") and not CRMOptionMapping.FindFirst() then
             Delete;
+        CRMOptionMapping.SetRange("Record ID");
         TempCRMSynchConflictBuffer.Copy(Rec, true);
         CRMIntegrationRecord.SetRange(Skipped, false);
-        if CRMIntegrationRecord.FindSet then
+        if CRMIntegrationRecord.FindSet() then
             repeat
                 TempCRMSynchConflictBuffer.SetRange("CRM ID", CRMIntegrationRecord."CRM ID");
                 TempCRMSynchConflictBuffer.SetRange("Integration ID", CRMIntegrationRecord."Integration ID");
                 TempCRMSynchConflictBuffer.DeleteAll();
             until CRMIntegrationRecord.Next() = 0;
+        TempCRMSynchConflictBuffer.Reset();
+        CRMOptionMapping.SetRange(Skipped, false);
+        if CRMOptionMapping.FindSet() then
+            repeat
+                TempCRMSynchConflictBuffer.SetRange("CRM Option Id", CRMOptionMapping."Option Value");
+                TempCRMSynchConflictBuffer.SetRange("Record ID", CRMOptionMapping."Record ID");
+                TempCRMSynchConflictBuffer.DeleteAll();
+            until CRMOptionMapping.Next() = 0;
         exit(Count);
     end;
 }
+
 

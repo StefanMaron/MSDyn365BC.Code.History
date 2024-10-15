@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 586 "XBRL G/L Map Lines"
 {
     AutoSplitKey = true;
@@ -5,6 +6,9 @@ page 586 "XBRL G/L Map Lines"
     DataCaptionExpression = GetCaption;
     PageType = List;
     SourceTable = "XBRL G/L Map Line";
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -84,6 +88,13 @@ page 586 "XBRL G/L Map Lines"
     {
     }
 
+    trigger OnOpenPage()
+    var
+        XBRLDeprecationNotification: Codeunit "XBRL Deprecation Notification";
+    begin
+        XBRLDeprecationNotification.Show();
+    end;
+
     local procedure GetCaption(): Text[250]
     var
         XBRLLine: Record "XBRL Taxonomy Line";
@@ -99,3 +110,5 @@ page 586 "XBRL G/L Map Lines"
     end;
 }
 
+
+#endif

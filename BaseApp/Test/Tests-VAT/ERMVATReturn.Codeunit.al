@@ -96,7 +96,7 @@ codeunit 134096 "ERM VAT Return"
         // [THEN] VAT Values are calculated from the VAT Entries based on the new VAT statement
         VATStatementReportLine.SetRange("VAT Report No.", VATReportHdr."No.");
         VATStatementReportLine.SetRange("VAT Report Config. Code", VATReportHdr."VAT Report Config. Code");
-        VATStatementReportLine.FindFirst;
+        VATStatementReportLine.FindFirst();
         Assert.RecordCount(VATStatementReportLine, 1);
         Assert.AreNotEqual(0, VATStatementReportLine.Amount, 'Should have a value from the VAT Entries');
     end;
@@ -154,7 +154,7 @@ codeunit 134096 "ERM VAT Return"
           VATReportHdr, Selection::Open, PeriodSelection::"Before and Within Period", VATReportHdr."Period Year", false);
         VATStatementReportLine.SetRange("VAT Report No.", VATReportHdr."No.");
         VATStatementReportLine.SetRange("VAT Report Config. Code", VATReportHdr."VAT Report Config. Code");
-        VATStatementReportLine.FindFirst;
+        VATStatementReportLine.FindFirst();
 
         // [WHEN] Line "L1" is modified
         TempDescription := LibraryUtility.GenerateRandomText(MaxStrLen(VATStatementReportLine.Description));

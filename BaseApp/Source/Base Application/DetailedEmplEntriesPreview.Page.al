@@ -149,7 +149,7 @@ page 5240 "Detailed Empl. Entries Preview"
 
     procedure Set(var TempDtldEmplLedgEntry: Record "Detailed Employee Ledger Entry" temporary)
     begin
-        if TempDtldEmplLedgEntry.FindSet then
+        if TempDtldEmplLedgEntry.FindSet() then
             repeat
                 Rec := TempDtldEmplLedgEntry;
                 Insert;

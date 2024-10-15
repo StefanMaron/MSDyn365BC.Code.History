@@ -373,8 +373,8 @@ codeunit 134627 "Graph Collect Mgt Item UT"
 
     local procedure ModifyNonKeyFieldsOnUnitOfMeasure(var UnitOfMeasure: Record "Unit of Measure")
     begin
-        UnitOfMeasure.Validate(Description, LibraryUtility.GenerateGUID);
-        UnitOfMeasure.Validate(Symbol, LibraryUtility.GenerateGUID);
+        UnitOfMeasure.Validate(Description, LibraryUtility.GenerateGUID());
+        UnitOfMeasure.Validate(Symbol, LibraryUtility.GenerateGUID());
         UnitOfMeasure.Modify(true);
     end;
 

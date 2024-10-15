@@ -173,7 +173,7 @@ codeunit 7713 "Miniform Phys.-Inventory"
             WhseJournalLine.SetRange("Journal Template Name", WhseJournalBatch."Journal Template Name");
             WhseJournalLine.SetRange("Journal Batch Name", WhseJournalBatch.Name);
             WhseJournalLine.SetRange("Location Code", WhseJournalBatch."Location Code");
-            if not WhseJournalLine.FindFirst then begin
+            if not WhseJournalLine.FindFirst() then begin
                 ADCSMgt.SendError(Text012);
                 exit;
             end;

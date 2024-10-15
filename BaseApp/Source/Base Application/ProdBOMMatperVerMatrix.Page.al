@@ -333,7 +333,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                         ProdBOMHeader.Get(Item."Production BOM No.");
                         BOMMatrixForm.Set(ProdBOMHeader);
 
-                        BOMMatrixForm.Run;
+                        BOMMatrixForm.Run();
                     end;
                 }
                 action("Where-Used")
@@ -350,7 +350,7 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
                     begin
                         Item.Get("Item No.");
                         ProdBOMWhereUsed.SetItem(Item, WorkDate);
-                        ProdBOMWhereUsed.Run;
+                        ProdBOMWhereUsed.Run();
                     end;
                 }
             }

@@ -151,7 +151,7 @@ table 5341 "CRM Account"
         }
         field(15; PaymentTermsCode; Option)
         {
-            Caption = 'Payment Terms';
+            Caption = 'Payment Terms Code';
             Description = 'Select the payment terms to indicate when the customer needs to pay the total amount.';
             ExternalName = 'paymenttermscode';
             ExternalType = 'Picklist';
@@ -165,7 +165,7 @@ table 5341 "CRM Account"
         }
         field(16; ShippingMethodCode; Option)
         {
-            Caption = 'Shipping Method';
+            Caption = 'Shipping Method Code';
             Description = 'Select a shipping method for deliveries sent to the account''s address to designate the preferred carrier or other delivery option.';
             ExternalName = 'shippingmethodcode';
             ExternalType = 'Picklist';
@@ -629,7 +629,7 @@ table 5341 "CRM Account"
         }
         field(75; Address1_FreightTermsCode; Option)
         {
-            Caption = 'Address 1: Freight Terms';
+            Caption = 'Address 1: Freight Terms Code';
             Description = 'Select the freight terms for the primary address to make sure shipping orders are processed correctly.';
             ExternalName = 'address1_freighttermscode';
             ExternalType = 'Picklist';

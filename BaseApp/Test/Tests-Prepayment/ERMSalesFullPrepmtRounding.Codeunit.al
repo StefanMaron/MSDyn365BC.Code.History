@@ -31,7 +31,7 @@
         SalesOrderLine: Record "Sales Line";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         SalesOrderHeader."Prices Including VAT" := false;
         PrepareSalesOrder(SalesOrderHeader);
         AddSpecificOrderLine100PctPrepmt(SalesOrderLine, SalesOrderHeader);
@@ -102,7 +102,7 @@
         SalesInvoiceHeader: Record "Sales Header";
         SalesOrderLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
         SalesOrderHeader."Prices Including VAT" := PricesInclVAT;
         PrepareSalesOrderWithPostedPrepmtInv(SalesOrderHeader, SalesOrderLine, 1, PositiveDiff);
 
@@ -154,7 +154,7 @@
         SalesInvoiceHeader: Record "Sales Header";
         SalesOrderLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
         SalesOrderHeader."Prices Including VAT" := PricesInclVAT;
         PrepareSalesOrderWithPostedPrepmtInv(SalesOrderHeader, SalesOrderLine, 1, PositiveDiff);
 
@@ -213,7 +213,7 @@
 
     local procedure PostPartInvFinRemoteInv(var SalesOrderHeader: Record "Sales Header"; PositiveDiff: Boolean)
     begin
-        Initialize;
+        Initialize();
         PostPartialInvoiceWithPrepmt(SalesOrderHeader, PositiveDiff);
         PostInvoiceWithShptFromOrder(SalesOrderHeader);
         VerifyZeroCustomerAccEntry;
@@ -241,7 +241,7 @@
         SalesLine: Record "Sales Line";
         PositiveDiff: Boolean;
     begin
-        Initialize;
+        Initialize();
         PositiveDiff := true;
         PrepareSOLineWithLineDisc(SalesHeader, SalesLine, PositiveDiff);
         PostSalesPrepmtInvoice(SalesHeader);
@@ -303,13 +303,13 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
         PrepareSalesOrderWithPostedPrepmtInv(SalesHeader, SalesLine, 2, PositiveDiff);
 
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Quantity Invoiced", GetQtyToShipTFS332246(PositiveDiff));
 
         VerifyZeroCustomerAccEntry;
@@ -347,7 +347,7 @@
     var
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
         SalesHeader."Prices Including VAT" := PricesInclVAT;
         PostPartialInvoiceWithPrepmt(SalesHeader, PositiveDiff);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -375,7 +375,7 @@
         SalesLine: Record "Sales Line";
         PositiveDiff: Boolean;
     begin
-        Initialize;
+        Initialize();
         PositiveDiff := true;
         SalesHeader."Prices Including VAT" := PricesInclVAT;
         PrepareSOLineWithLineDisc(SalesHeader, SalesLine, PositiveDiff);
@@ -404,7 +404,7 @@
     begin
         // [FEATURE] [Get Shipment Lines] [UI]
         // [SCENARIO 374897] Error when User tries to decrease SalesInvoiceLine.Quantity value with 100% Prepayment after Get Shipment Lines
-        Initialize;
+        Initialize();
         DisableStockoutWarning(OldStockoutWarning);
 
         // [GIVEN] Sales Order with 100% Prepayment, Line Discount and Line Amount = "X". Post Prepayment. Post Shipment.
@@ -434,7 +434,7 @@
     begin
         // [FEATURE] [Get Shipment Lines] [UI]
         // [SCENARIO 374897] Error when User tries to decrease SalesInvoiceLine."Unit Price" value with 100% Prepayment after Get Shipment Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with 100% Prepayment, Line Discount and Line Amount = "X". Post Prepayment. Post Shipment.
         PrepareSOPostPrepmtAndShip(SalesOrderHeader);
@@ -460,7 +460,7 @@
     begin
         // [FEATURE] [Get Shipment Lines] [UI]
         // [SCENARIO 374897] Error when User tries to increase SalesInvoiceLine."Unit Price" value with 100% Prepayment after Get Shipment Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with 100% Prepayment, Line Discount and Line Amount = "X". Post Prepayment. Post Shipment.
         PrepareSOPostPrepmtAndShip(SalesOrderHeader);
@@ -486,7 +486,7 @@
     begin
         // [FEATURE] [Get Shipment Lines] [UI]
         // [SCENARIO 374897] Error when User tries to decrease SalesInvoiceLine."Line Discount %" value with 100% Prepayment after Get Shipment Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with 100% Prepayment, Line Discount and Line Amount = "X". Post Prepayment. Post Shipment.
         PrepareSOPostPrepmtAndShip(SalesOrderHeader);
@@ -512,7 +512,7 @@
     begin
         // [FEATURE] [Get Shipment Lines] [UI]
         // [SCENARIO 374897] Error when User tries to increase SalesInvoiceLine."Line Discount %" value with 100% Prepayment after Get Shipment Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with 100% Prepayment, Line Discount and Line Amount = "X". Post Prepayment. Post Shipment.
         PrepareSOPostPrepmtAndShip(SalesOrderHeader);
@@ -701,7 +701,7 @@
     begin
         // [FEATURE] [FCY]
         // [SCENARIO 379324] Prepayment LCY rounding works the same way as final invoice LCY rounding in case of currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order with 100% Prepayment, Currency (Exch. Rate = 1:1000), VAT% = 10, Line Amount Excl. VAT = 100.01, Total Amount = 110.01 (VAT Amount = 10)
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 10);
@@ -832,7 +832,7 @@
         VATPostingSetup: array[2] of Record "VAT Posting Setup";
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
         CreateTwoVATPostingSetups(VATPostingSetup, 21);
 
         CreateSalesDoc(
@@ -896,7 +896,7 @@
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter(Quantity, '<>%1', 0);
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 UpdateQtysInLine(SalesLine, GetQtyToShipTFS332246(PositiveDiff), 0);
             until SalesLine.Next = 0;
@@ -921,7 +921,7 @@
         DummyGLAccount."VAT Bus. Posting Group" := VATPostingSetup[1]."VAT Bus. Posting Group";
         DummyGLAccount."VAT Prod. Posting Group" := VATPostingSetup[1]."VAT Prod. Posting Group";
         VATPostingSetup[2].Get(VATPostingSetup[1]."VAT Bus. Posting Group", LibraryERM.CreateRelatedVATPostingSetup(DummyGLAccount));
-        VATPostingSetup[2].Validate("VAT Identifier", LibraryUtility.GenerateGUID);
+        VATPostingSetup[2].Validate("VAT Identifier", LibraryUtility.GenerateGUID());
         VATPostingSetup[2].Modify(true);
 
         for i := 1 to ArrayLen(VATPostingSetup) do
@@ -1028,7 +1028,7 @@
             SetRange("Sell-to Customer No.", CustomerNo);
             SetRange("Prepayment Invoice", true);
             SetRange("Prepayment Order No.", OrderNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -1200,7 +1200,7 @@
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         with CustLedgEntry do begin
-            FindLast;
+            FindLast();
             CalcFields(Amount);
             Assert.AreEqual(0, Amount, 'Expected zero Customer Ledger Entry due to 100% prepayment.');
         end;
@@ -1232,7 +1232,7 @@
         with GLEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccountNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
             Assert.AreEqual(ExpectedVATAmount, "VAT Amount", FieldCaption("VAT Amount"));
         end;

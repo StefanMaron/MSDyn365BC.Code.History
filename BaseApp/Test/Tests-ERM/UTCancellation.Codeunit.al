@@ -33,7 +33,7 @@ codeunit 137027 "UT Cancellation"
         // [FEATURE] [Sales]
         // [SCENARIO 168492] "Cancelled Document" is created when call procedure InsertSalesInvToCrMemoCancelledDocument
 
-        Initialize;
+        Initialize();
         MockSalesInvCrMemo(SalesInvoiceHeader, SalesCrMemoHeader);
         LibraryLowerPermissions.SetSalesDocsCreate;
 
@@ -54,7 +54,7 @@ codeunit 137027 "UT Cancellation"
         // [FEATURE] [Sales]
         // [SCENARIO 168492] "Cancelled Document" is created when call InsertSalesCrMemoToInvCancelledDocument
 
-        Initialize;
+        Initialize();
         MockSalesInvCrMemo(SalesInvoiceHeader, SalesCrMemoHeader);
         MockCancelledDocument(
           CancelledDocument, DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.", SalesCrMemoHeader."No.");
@@ -80,7 +80,7 @@ codeunit 137027 "UT Cancellation"
         // [FEATURE] [Sales]
         // [SCENARIO 168492] The flow field "Cancelled" of "Sales Invoice Header" is calculated by "Cancelled Document" table
 
-        Initialize;
+        Initialize();
         MockSalesInvCrMemo(SalesInvoiceHeader, SalesCrMemoHeader);
         LibraryLowerPermissions.SetSalesDocsCreate;
         MockCancelledDocument(
@@ -101,7 +101,7 @@ codeunit 137027 "UT Cancellation"
         // [FEATURE] [Sales]
         // [SCENARIO 168492] The flow field "Cancelled" of "Sales Credit Memo Header" is calculated by "Cancelled Document" table
 
-        Initialize;
+        Initialize();
         MockSalesInvCrMemo(SalesInvoiceHeader, SalesCrMemoHeader);
         LibraryLowerPermissions.SetSalesDocsCreate;
         MockCancelledDocument(
@@ -122,7 +122,7 @@ codeunit 137027 "UT Cancellation"
         // [FEATURE] [Purchase]
         // [SCENARIO 168492] "Cancelled Document" is created when call procedure InsertPurchInvToCrMemoCancelledDocument
 
-        Initialize;
+        Initialize();
         MockPurchInvCrMemo(PurchInvHeader, PurchCrMemoHdr);
         LibraryLowerPermissions.SetPurchDocsCreate;
 
@@ -143,7 +143,7 @@ codeunit 137027 "UT Cancellation"
         // [FEATURE] [Purchase]
         // [SCENARIO 168492] "Cancelled Document" is created when call InsertPurchCrMemoToInvCancelledDocument
 
-        Initialize;
+        Initialize();
         MockPurchInvCrMemo(PurchInvHeader, PurchCrMemoHdr);
         MockCancelledDocument(
           CancelledDocument, DATABASE::"Purch. Inv. Header", PurchInvHeader."No.", PurchCrMemoHdr."No.");
@@ -169,7 +169,7 @@ codeunit 137027 "UT Cancellation"
         // [FEATURE] [Purchase]
         // [SCENARIO 168492] The flow field "Cancelled" of "Purchase Invoice Header" is calculated by "Cancelled Document" table
 
-        Initialize;
+        Initialize();
         MockPurchInvCrMemo(PurchInvHeader, PurchCrMemoHdr);
         LibraryLowerPermissions.SetPurchDocsCreate;
         MockCancelledDocument(
@@ -190,7 +190,7 @@ codeunit 137027 "UT Cancellation"
         // [FEATURE] [Purchase]
         // [SCENARIO 168492] The flow field "Cancelled" of "Purchase Credit Memo Header" is calculated by "Cancelled Document" table
 
-        Initialize;
+        Initialize();
         MockPurchInvCrMemo(PurchInvHeader, PurchCrMemoHdr);
         LibraryLowerPermissions.SetPurchDocsCreate;
         MockCancelledDocument(
@@ -205,16 +205,16 @@ codeunit 137027 "UT Cancellation"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT Cancellation");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT Cancellation");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         IsInitialized := true;
@@ -231,14 +231,14 @@ codeunit 137027 "UT Cancellation"
     local procedure MockSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
         SalesInvoiceHeader.Init();
-        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader.Insert();
     end;
 
     local procedure MockSalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
         SalesCrMemoHeader.Init();
-        SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID();
         SalesCrMemoHeader.Insert();
     end;
 
@@ -251,14 +251,14 @@ codeunit 137027 "UT Cancellation"
     local procedure MockPurchInvoice(var PurchInvHeader: Record "Purch. Inv. Header")
     begin
         PurchInvHeader.Init();
-        PurchInvHeader."No." := LibraryUtility.GenerateGUID;
+        PurchInvHeader."No." := LibraryUtility.GenerateGUID();
         PurchInvHeader.Insert();
     end;
 
     local procedure MockPurchCrMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     begin
         PurchCrMemoHdr.Init();
-        PurchCrMemoHdr."No." := LibraryUtility.GenerateGUID;
+        PurchCrMemoHdr."No." := LibraryUtility.GenerateGUID();
         PurchCrMemoHdr.Insert();
     end;
 

@@ -81,17 +81,7 @@ report 5753 "Get Source Documents"
 
                     trigger OnPreDataItem()
                     begin
-                        SetRange(Type, Type::Item);
-                        if (("Warehouse Request".Type = "Warehouse Request".Type::Outbound) and
-                            ("Warehouse Request"."Source Document" = "Warehouse Request"."Source Document"::"Sales Order")) or
-                           (("Warehouse Request".Type = "Warehouse Request".Type::Inbound) and
-                            ("Warehouse Request"."Source Document" = "Warehouse Request"."Source Document"::"Sales Return Order"))
-                        then
-                            SetFilter("Outstanding Quantity", '>0')
-                        else
-                            SetFilter("Outstanding Quantity", '<0');
-                        SetRange("Drop Shipment", false);
-                        SetRange("Job No.", '');
+                        SetSalesLineFilters("Sales Line", "Warehouse Request");
 
                         OnAfterSalesLineOnPreDataItem("Sales Line", OneHeaderCreated, WhseShptHeader, WhseReceiptHeader);
                     end;
@@ -200,17 +190,7 @@ report 5753 "Get Source Documents"
 
                     trigger OnPreDataItem()
                     begin
-                        SetRange(Type, Type::Item);
-                        if (("Warehouse Request".Type = "Warehouse Request".Type::Inbound) and
-                            ("Warehouse Request"."Source Document" = "Warehouse Request"."Source Document"::"Purchase Order")) or
-                           (("Warehouse Request".Type = "Warehouse Request".Type::Outbound) and
-                            ("Warehouse Request"."Source Document" = "Warehouse Request"."Source Document"::"Purchase Return Order"))
-                        then
-                            SetFilter("Outstanding Quantity", '>0')
-                        else
-                            SetFilter("Outstanding Quantity", '<0');
-                        SetRange("Drop Shipment", false);
-                        SetRange("Job No.", '');
+                        SetPurchLineFilters("Purchase Line", "Warehouse Request");
 
                         OnAfterPurchaseLineOnPreDataItem("Purchase Line", OneHeaderCreated, WhseShptHeader, WhseReceiptHeader);
                     end;
@@ -356,7 +336,7 @@ report 5753 "Get Source Documents"
                         if IsHandled then
                             CurrReport.Skip();
 
-                        if "Location Code" = "Warehouse Request"."Location Code" then
+                        if ("Location Code" = "Warehouse Request"."Location Code") and IsInventoriableItem() then
                             case RequestType of
                                 RequestType::Ship:
                                     if WhseActivityCreate.CheckIfFromServiceLine2ShptLin("Service Line") then begin
@@ -580,6 +560,36 @@ report 5753 "Get Source Documents"
     procedure SetDoNotFillQtytoHandle(DoNotFillQtytoHandle2: Boolean)
     begin
         DoNotFillQtytoHandle := DoNotFillQtytoHandle2;
+    end;
+
+    procedure SetSalesLineFilters(var SalesLine: Record "Sales Line"; WarehouseRequest: Record "Warehouse Request")
+    begin
+        SalesLine.SetRange(Type, "Sales Line Type"::Item);
+        if ((WarehouseRequest.Type = WarehouseRequest.Type::Outbound) and
+            (WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Sales Order")) or
+            ((WarehouseRequest.Type = "Warehouse Request".Type::Inbound) and
+            (WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Sales Return Order"))
+        then
+            SalesLine.SetFilter("Outstanding Quantity", '>0')
+        else
+            SalesLine.SetFilter("Outstanding Quantity", '<0');
+        SalesLine.SetRange("Drop Shipment", false);
+        SalesLine.SetRange("Job No.", '');
+    end;
+
+    procedure SetPurchLineFilters(var PurchLine: Record "Purchase Line"; WarehouseRequest: Record "Warehouse Request")
+    begin
+        PurchLine.SetRange(Type, "Purchase Line Type"::Item);
+        if ((WarehouseRequest.Type = WarehouseRequest.Type::Inbound) and
+            (WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Purchase Order")) or
+            ((WarehouseRequest.Type = WarehouseRequest.Type::Outbound) and
+            (WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Purchase Return Order"))
+        then
+            PurchLine.SetFilter("Outstanding Quantity", '>0')
+        else
+            PurchLine.SetFilter("Outstanding Quantity", '<0');
+        PurchLine.SetRange("Drop Shipment", false);
+        PurchLine.SetRange("Job No.", '');
     end;
 
     procedure GetLastShptHeader(var WhseShptHeader2: Record "Warehouse Shipment Header")

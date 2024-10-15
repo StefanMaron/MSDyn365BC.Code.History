@@ -82,7 +82,7 @@ report 6033 "Get Prepaid Contract Entries"
         ServLine.Reset();
         ServLine.SetRange("Document Type", ServHeader."Document Type");
         ServLine.SetRange("Document No.", ServHeader."No.");
-        if ServLine.FindLast then
+        if ServLine.FindLast() then
             NextLine := ServLine."Line No." + 10000
         else
             NextLine := 10000;

@@ -43,8 +43,8 @@ codeunit 137017 "SCM Reservations Data Driven"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Reservations Data Driven");
 
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         AssignNoSeries;
 
@@ -62,7 +62,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         AvailableQty: Decimal;
         ErrorCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Clear(Log);
@@ -163,7 +163,7 @@ codeunit 137017 "SCM Reservations Data Driven"
                     LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
                     WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
                     WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
-                    WhseShipmentLine.FindFirst;
+                    WhseShipmentLine.FindFirst();
                     TempWhseShipmentLine := WhseShipmentLine;
                     TempWhseShipmentLine.Insert();
                     if WhseShipmentLine."Bin Code" = '' then begin
@@ -185,7 +185,7 @@ codeunit 137017 "SCM Reservations Data Driven"
                         ClearLastError;
                         Bin.SetRange("Location Code", LocationCode);
                         Bin.SetFilter(Code, '<>%1', WhseShipmentLine."Bin Code");
-                        Bin.FindFirst;
+                        Bin.FindFirst();
                         WhseShipmentHeader.Get(WhseShipmentLine."No.");
                         LibraryWarehouse.ReopenWhseShipment(WhseShipmentHeader);
                         WhseShipmentLine.Validate("Bin Code", Bin.Code);
@@ -213,7 +213,7 @@ codeunit 137017 "SCM Reservations Data Driven"
                     ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
                     ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
                     ProdOrderComponent.SetRange("Item No.", ItemNo);
-                    ProdOrderComponent.FindFirst;
+                    ProdOrderComponent.FindFirst();
                     TempProdOrderComponent := ProdOrderComponent;
                     TempProdOrderComponent.Insert();
                     ProductionOrder.SetHideValidationDialog(true);
@@ -232,7 +232,7 @@ codeunit 137017 "SCM Reservations Data Driven"
                     ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
                     ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
                     ProdOrderComponent.SetRange("Item No.", ItemNo);
-                    ProdOrderComponent.FindFirst;
+                    ProdOrderComponent.FindFirst();
                     TempProdOrderComponent := ProdOrderComponent;
                     TempProdOrderComponent.Insert();
                     CreateInvtPutPick(WhseActivityLine."Source Document"::"Prod. Consumption", ProductionOrder."No.");
@@ -263,7 +263,7 @@ codeunit 137017 "SCM Reservations Data Driven"
                     LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
                     WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
                     WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
-                    WhseShipmentLine.FindFirst;
+                    WhseShipmentLine.FindFirst();
                     TempWhseShipmentLine2 := WhseShipmentLine;
                     TempWhseShipmentLine2.Insert();
                     if WhseShipmentLine."Bin Code" = '' then begin
@@ -287,7 +287,7 @@ codeunit 137017 "SCM Reservations Data Driven"
                     ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
                     ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
                     ProdOrderComponent.SetRange("Item No.", ItemNo);
-                    ProdOrderComponent.FindFirst;
+                    ProdOrderComponent.FindFirst();
                     TempProdOrderComponent2 := ProdOrderComponent;
                     TempProdOrderComponent2.Insert();
                 end;
@@ -305,14 +305,14 @@ codeunit 137017 "SCM Reservations Data Driven"
                 begin
                     SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
                     SalesLine.SetRange("Document No.", SourceDocHeaderNo);
-                    SalesLine.FindFirst;
+                    SalesLine.FindFirst();
                     CheckReservation(SalesLine."No.", SalesLine."Location Code", SourceDocHeaderNo, ExpectedQty, 37);
                 end;
             DocumentType::"Rel. Prod. Order", DocumentType::"Rel. Prod. Order - Invt.":
                 begin
                     ProdOrderComponent.SetRange("Prod. Order No.", SourceDocHeaderNo);
                     ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Released);
-                    ProdOrderComponent.FindFirst;
+                    ProdOrderComponent.FindFirst();
                     CheckReservation(ProdOrderComponent."Item No.", ProdOrderComponent."Location Code", SourceDocHeaderNo, ExpectedQty, 5407);
                 end;
         end
@@ -332,7 +332,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
         ReservationEntry.SetFilter(Quantity, '<%1', 0);
         ActualQty := 0;
-        if ReservationEntry.FindSet then
+        if ReservationEntry.FindSet() then
             repeat
                 ActualQty += Abs(ReservationEntry.Quantity);
             until ReservationEntry.Next = 0;
@@ -353,7 +353,7 @@ codeunit 137017 "SCM Reservations Data Driven"
                 begin
                     SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
                     SalesLine.SetRange("Document No.", SourceDocHeaderNo);
-                    SalesLine.FindFirst;
+                    SalesLine.FindFirst();
                     ReservationManagement.SetReservSource(SalesLine);
                     FullReservation := SalesLine.Quantity <= AvailableQty;
                     ReservationManagement.AutoReserve(FullReservation, '', SalesLine."Shipment Date",
@@ -364,7 +364,7 @@ codeunit 137017 "SCM Reservations Data Driven"
                 begin
                     ProdOrderComponent.SetRange("Prod. Order No.", SourceDocHeaderNo);
                     ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Released);
-                    ProdOrderComponent.FindFirst;
+                    ProdOrderComponent.FindFirst();
                     ReservationManagement.SetReservSource(ProdOrderComponent);
                     FullReservation := ProdOrderComponent."Expected Quantity" <= AvailableQty;
                     ReservationManagement.AutoReserve(FullReservation, '', ProdOrderComponent."Due Date",
@@ -393,7 +393,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         end
         else begin
             Location.SetRange("Directed Put-away and Pick", IsDirected);
-            Location.FindFirst;
+            Location.FindFirst();
             TempLocation := Location;
             TempLocation.Insert();
         end;
@@ -451,7 +451,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         ProductionBOMLine.SetCurrentKey(Type, "No.");
         ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
         ProductionBOMLine.SetRange("No.", ItemNo);
-        if not ProductionBOMLine.FindFirst then begin
+        if not ProductionBOMLine.FindFirst() then begin
             LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
             LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo, 1);
             ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
@@ -471,7 +471,7 @@ codeunit 137017 "SCM Reservations Data Driven"
             FullReservation := (Qty >= QtyToReserve);
             ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
             ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-            ProdOrderComponent.FindFirst;
+            ProdOrderComponent.FindFirst();
             ReservationManagement.SetReservSource(ProdOrderComponent);
             ReservationManagement.AutoReserve(FullReservation, '', ProdOrderComponent."Due Date",
               Round(QtyToReserve / ProdOrderComponent."Qty. per Unit of Measure", 0.00001), QtyToReserve);
@@ -511,7 +511,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         WhseActivityHeader.SetCurrentKey(Type, "No.");
         WhseActivityHeader.SetRange(Type, ActivityType);
         WhseActivityHeader.SetRange("No.", WhseActivityLine."No.");
-        WhseActivityHeader.FindFirst;
+        WhseActivityHeader.FindFirst();
 
         if QtyToHandle > 0 then
             if WhseActivityLine."Activity Type" in
@@ -535,7 +535,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         CreateInvtPutAwayPickMvmt.InitializeRequest(true, true, false, false, false);
         CreateInvtPutAwayPickMvmt.SetTableView(WhseRequest);
         CreateInvtPutAwayPickMvmt.UseRequestPage := false;
-        CreateInvtPutAwayPickMvmt.RunModal;
+        CreateInvtPutAwayPickMvmt.RunModal();
     end;
 
     [Normal]
@@ -552,28 +552,28 @@ codeunit 137017 "SCM Reservations Data Driven"
         DemandQty := 0;
 
         TempWhseShipmentLine.SetRange("Item No.", ItemNo);
-        if TempWhseShipmentLine.FindFirst then
+        if TempWhseShipmentLine.FindFirst() then
             DemandQty += TempWhseShipmentLine.Quantity;
 
         TempWhseShipmentLine2.SetRange("Item No.", ItemNo);
-        if TempWhseShipmentLine2.FindFirst then begin
+        if TempWhseShipmentLine2.FindFirst() then begin
             DocumentType := DocumentType::Shipment;
             SourceDocNo := TempWhseShipmentLine2."Source No.";
             WhseDocNo := TempWhseShipmentLine2."No.";
             RequestQty := TempWhseShipmentLine2.Quantity;
         end;
         TempSalesLine.SetRange("No.", ItemNo);
-        if TempSalesLine.FindFirst then
+        if TempSalesLine.FindFirst() then
             DemandQty += TempSalesLine.Quantity;
 
         TempSalesLine2.SetRange("No.", ItemNo);
-        if TempSalesLine2.FindFirst then begin
+        if TempSalesLine2.FindFirst() then begin
             TempSalesLine2.CalcFields("Reserved Quantity");
             DemandQty += TempSalesLine2."Reserved Quantity";
         end;
 
         TempSalesLine3.SetRange("No.", ItemNo);
-        if TempSalesLine3.FindFirst then begin
+        if TempSalesLine3.FindFirst() then begin
             DocumentType := DocumentType::"Sales Order";
             SourceDocNo := TempSalesLine3."Document No.";
             WhseDocNo := '';
@@ -581,11 +581,11 @@ codeunit 137017 "SCM Reservations Data Driven"
         end;
 
         TempProdOrderComponent.SetRange("Item No.", ItemNo);
-        if TempProdOrderComponent.FindFirst then
+        if TempProdOrderComponent.FindFirst() then
             DemandQty += TempProdOrderComponent."Expected Quantity";
 
         TempProdOrderComponent2.SetRange("Item No.", ItemNo);
-        if TempProdOrderComponent2.FindFirst then begin
+        if TempProdOrderComponent2.FindFirst() then begin
             Location.Get(TempProdOrderComponent2."Location Code");
             if Location."Require Shipment" then
                 DocumentType := DocumentType::"Rel. Prod. Order"
@@ -779,7 +779,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         TempLocation.SetRange("Directed Put-away and Pick", true);
-        if TempLocation.FindFirst then begin
+        if TempLocation.FindFirst() then begin
             Location.Get(TempLocation.Code);
             Location."Always Create Pick Line" := TempLocation."Always Create Pick Line";
             Location."Bin Capacity Policy" := TempLocation."Bin Capacity Policy";
@@ -812,7 +812,7 @@ codeunit 137017 "SCM Reservations Data Driven"
             LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
             WhseReceiptLine.SetRange("Source Document", WhseReceiptLine."Source Document"::"Purchase Order");
             WhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
-            WhseReceiptLine.FindFirst;
+            WhseReceiptLine.FindFirst();
 
             if Location."Bin Mandatory" and (WhseReceiptLine."Bin Code" = '') then begin
                 GetZoneAndBin(ZoneCode, BinCode, Location.Code, ItemNo, false);
@@ -823,7 +823,7 @@ codeunit 137017 "SCM Reservations Data Driven"
             WhsePostReceipt.Run(WhseReceiptLine);
             PostedWhseReceiptHeader.SetCurrentKey("Whse. Receipt No.");
             PostedWhseReceiptHeader.SetRange("Whse. Receipt No.", WhseReceiptLine."No.");
-            PostedWhseReceiptHeader.FindFirst;
+            PostedWhseReceiptHeader.FindFirst();
 
             if Location."Bin Mandatory" then
                 GetZoneAndBin(ZoneCode, BinCode, Location.Code, '', Location."Directed Put-away and Pick")
@@ -859,7 +859,7 @@ codeunit 137017 "SCM Reservations Data Driven"
 
         BinType.SetRange(Pick, true);
         BinType.SetRange("Put Away", true);
-        BinType.FindFirst;
+        BinType.FindFirst();
 
         Bin.SetRange("Location Code", LocationCode);
         Bin.SetRange("Block Movement", Bin."Block Movement"::" ");
@@ -868,13 +868,13 @@ codeunit 137017 "SCM Reservations Data Driven"
         else
             Bin.SetFilter("Bin Type Code", '<>%1', BinType.Code);
 
-        if Bin.FindSet then
+        if Bin.FindSet() then
             repeat
                 BinContent.SetRange("Location Code", LocationCode);
                 BinContent.SetRange("Bin Code", Bin.Code);
                 BinContent.SetCurrentKey("Item No.");
                 BinContent.SetRange("Item No.", ExcludedItem);
-                if not BinContent.FindFirst then begin
+                if not BinContent.FindFirst() then begin
                     ZoneCode := Bin."Zone Code";
                     BinCode := Bin.Code;
                     exit;

@@ -39,7 +39,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         // Covers TFS_TC_ID 120934,120935,120936,120939,120940,120941,120942,120943.
         // 1. Setup: Create required Sales setup.
         // Update Apply From Item Entry No.
-        Initialize;
+        Initialize();
         ExecuteConfirmHandler;
         UpdateSalesAndReceivableSetup(true);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Item."Costing Method"::Average);
@@ -54,7 +54,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // 2. Exercise: Create Sales Invoice using Copy Document of Posted Credit Memo.
-        SalesCopyDocument(SalesHeader, TempSalesLine2, SalesHeader."Document Type"::Invoice, DocumentType::"Posted Credit Memo");
+        SalesCopyDocument(SalesHeader, TempSalesLine2, SalesHeader."Document Type"::Invoice, "Sales Document Type From"::"Posted Credit Memo");
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Run Adjust Cost Batch job.
@@ -118,7 +118,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         TempSalesLine2: Record "Sales Line" temporary;
     begin
         // 1. Setup: Create required Sales Setup.
-        Initialize;
+        Initialize();
         ExecuteConfirmHandler;
         CreateSalesReturnSetup(SalesHeader, SalesLine, TempSalesLine, CostingMethod);
 
@@ -149,16 +149,15 @@ codeunit 137012 "SCM Costing Sales Returns I"
         SalesLine: Record "Sales Line";
         TempSalesLine: Record "Sales Line" temporary;
         TempSalesLine2: Record "Sales Line" temporary;
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // Covers TFS_TC_ID 120944,120946,120948,120949,120950.
         // 1. Setup: Create required Sales setup.
-        Initialize;
+        Initialize();
         ExecuteConfirmHandler;
         CreateSalesReturnSetup(SalesHeader, SalesLine, TempSalesLine, Item."Costing Method"::Average);
 
         // 2. Exercise: Create Sales Return Order using Copy Document of Posted Sales shipment.
-        SalesCopyDocument(SalesHeader, TempSalesLine2, SalesHeader."Document Type"::"Return Order", DocumentType::"Posted Shipment");
+        SalesCopyDocument(SalesHeader, TempSalesLine2, SalesHeader."Document Type"::"Return Order", "Sales Document Type From"::"Posted Shipment");
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Run Adjust Cost Batch job.
@@ -178,7 +177,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
     begin
         // Covers TFS_TC_ID 120935.
         // 1. Setup: Create required Sales setup.
-        Initialize;
+        Initialize();
         ExecuteConfirmHandler;
         UpdateSalesAndReceivableSetup(true);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", Item."Costing Method"::FIFO);
@@ -205,7 +204,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
     begin
         // Covers TFS_TC_ID 121234,121235,121236,121237,121238,121239,121240,121241,121242,121243,121244,121245,121246,121247,121248.
         // 1. Setup: Create required Sales setup.
-        Initialize;
+        Initialize();
         ExecuteConfirmHandler;
         UpdateSalesAndReceivableSetup(false);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Item."Costing Method"::FIFO);
@@ -242,7 +241,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
     begin
         // Covers TFS_TC_ID 120924,121249,121250,121251,121252,121253,121254,127822,127823,127824.
         // 1. Setup: Create required Sales setup.
-        Initialize;
+        Initialize();
         ExecuteConfirmHandler;
         UpdateSalesAndReceivableSetup(false);
         CreateCustomer(Customer);
@@ -289,7 +288,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         TempSalesLine2: Record "Sales Line" temporary;
     begin
         // 1. Setup: Create required Sales setup.
-        Initialize;
+        Initialize();
         CreateSalesReturnSetup(SalesHeader, SalesLine, TempSalesLine, CostingMethod);
 
         // 2. Exercise: Create Sales Invoice with one Charge (Item) and one or two Item line. Apply Charge on sales shipment.
@@ -318,7 +317,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
     begin
         // Covers TFS_TC_ID 120870,120872,120874.
         // 1. Setup: Create required Sales setup.
-        Initialize;
+        Initialize();
         UpdateSalesAndReceivableSetup(true);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Item."Costing Method"::FIFO);
         CreateSalesLines(SalesHeader, SalesLine, Item."Costing Method"::Average, 1, 0);
@@ -356,7 +355,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
     begin
         // Covers TFS_TC_ID 120875,120877,120878,120879,120881,120882,120883,120884,120885,120886,120887,120888,120889.
         // 1. Setup: Create required Sales setup.
-        Initialize;
+        Initialize();
         ExecuteConfirmHandler;
         CreateSalesReturnSetup(SalesHeader, SalesLine, TempSalesLine, Item."Costing Method"::FIFO);
 
@@ -390,7 +389,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
     begin
         // 1. Setup: Create Sales Order with two Item Lines. Update Quantity to ship for first line to Zero.
         // Post Sales shipment. Create Item charge line and use Get shipment to apply it.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         CreateSalesLines(SalesHeader, SalesLine, Item."Costing Method"::FIFO, 1, 1);
@@ -398,14 +397,14 @@ codeunit 137012 "SCM Costing Sales Returns I"
         CreateSalesLines(SalesHeader, SalesLine, Item."Costing Method"::FIFO, 1, 0);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         CreateItemChargeAssignmentLine(SalesLine, SalesLine."Document No.", SalesLine."No.");
 
         // 2. Exercise: Delete Sales Line of Type Charge.
         SalesHeader.Validate(Status, SalesHeader.Status::Open);
         SalesHeader.Modify(true);
         SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Delete(true);
 
         // 3. Verify: Sales Line of Type Charge does not exist.
@@ -423,10 +422,10 @@ codeunit 137012 "SCM Costing Sales Returns I"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Costing Sales Returns I");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Costing Sales Returns I");
@@ -493,21 +492,17 @@ codeunit 137012 "SCM Costing Sales Returns I"
               LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(10));
     end;
 
-    local procedure SalesHeaderCopySalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option; DocNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
+    local procedure SalesHeaderCopySalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type From"; DocNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
     var
         CopySalesDoc: Report "Copy Sales Document";
     begin
         CopySalesDoc.SetSalesHeader(SalesHeader);
-#if CLEAN17
         CopySalesDoc.SetParameters(DocType, DocNo, IncludeHeader, RecalcLines);
-#else
-        CopySalesDoc.InitializeRequest(DocType, DocNo, IncludeHeader, RecalcLines);
-#endif
         CopySalesDoc.UseRequestPage(false);
-        CopySalesDoc.RunModal;
+        CopySalesDoc.RunModal();
     end;
 
-    local procedure SalesCopyDocument(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; DocumentType: Enum "Sales Document Type"; FromDocType: Option)
+    local procedure SalesCopyDocument(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; DocumentType: Enum "Sales Document Type"; FromDocType: Enum "Sales Document Type From")
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesShipmentHeader: Record "Sales Shipment Header";
@@ -516,11 +511,11 @@ codeunit 137012 "SCM Costing Sales Returns I"
     begin
         if SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order" then begin
             SalesCrMemoHeader.SetRange("Return Order No.", SalesHeader."No.");
-            SalesCrMemoHeader.FindFirst;
+            SalesCrMemoHeader.FindFirst();
             DocumentNo := SalesCrMemoHeader."No.";
         end else begin
             SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-            SalesShipmentHeader.FindFirst;
+            SalesShipmentHeader.FindFirst();
             DocumentNo := SalesShipmentHeader."No.";
         end;
 
@@ -531,7 +526,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         SalesHeader.Find;
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         TransferSalesLineToTemp(TempSalesLine, SalesLine);
     end;
 
@@ -563,11 +558,11 @@ codeunit 137012 "SCM Costing Sales Returns I"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetFilter("Shipped Qty. Not Returned", '<0');
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         case SalesLine."Document Type" of
             SalesLine."Document Type"::"Return Order":
                 SalesLine.Validate(Quantity, Abs(ItemLedgerEntry.Quantity));
@@ -598,7 +593,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
     begin
         SalesShipmentLine.SetRange("Order No.", SalesOrderNo);
         SalesShipmentLine.SetRange("No.", ItemNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         ItemChargeAssgntSales.CreateShptChargeAssgnt(SalesShipmentLine, ItemChargeAssignmentSales);
     end;
 
@@ -608,7 +603,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
     begin
         ItemChargeAssignmentSales.SetRange("Document Type", DocumentType);
         ItemChargeAssignmentSales.SetRange("Document No.", DocumentNo);
-        ItemChargeAssignmentSales.FindFirst;
+        ItemChargeAssignmentSales.FindFirst();
         ItemChargeAssignmentSales.Validate("Qty. to Assign", QtyToAssign);
         ItemChargeAssignmentSales.Modify(true);
     end;
@@ -627,7 +622,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     [Normal]
@@ -648,11 +643,11 @@ codeunit 137012 "SCM Costing Sales Returns I"
         ExpectedSalesAmt: Decimal;
     begin
         ItemLedgerEntry.SetRange("Item No.", TempSalesLine."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Sales Amount (Actual)");
 
         TempSalesLine2.SetRange(Type, TempSalesLine2.Type::"Charge (Item)");
-        TempSalesLine2.FindFirst;
+        TempSalesLine2.FindFirst();
 
         case TempSalesLine2."Document Type" of
             TempSalesLine2."Document Type"::Invoice:

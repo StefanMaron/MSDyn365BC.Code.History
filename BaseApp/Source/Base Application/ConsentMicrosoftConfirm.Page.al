@@ -39,7 +39,7 @@ page 1822 "Consent Microsoft Confirm"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'I accept';
-                ToolTip = 'Agree with the customer consent.';
+                ToolTip = 'Agree to the terms and conditions.';
                 Image = Confirm;
                 InFooterBar = true;
 
@@ -53,7 +53,7 @@ page 1822 "Consent Microsoft Confirm"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Cancel';
-                ToolTip = 'Disagree with the customer consent.';
+                ToolTip = 'Disagree with the terms and conditions.';
                 Image = Cancel;
                 InFooterBar = true;
 

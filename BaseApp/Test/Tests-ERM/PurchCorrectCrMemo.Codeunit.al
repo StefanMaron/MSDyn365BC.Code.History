@@ -45,7 +45,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if "Pay-To Vendor No." is blocked
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo cancelled Invoice with Vendor "X"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
 
@@ -70,7 +70,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if "Pay-To Vendor No." is blocked
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo cancelled Invoice with Vendor "X"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
 
@@ -96,7 +96,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if "Posting Date" is outside of allowed posting period from General Ledger Setup
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo cancelled Invoice with "Posting Date" = 01.01
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
 
@@ -120,7 +120,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if it was already cancelled
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo cancelled Invoice
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
 
@@ -145,7 +145,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if it's not corrective document
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo
         PostCrMemo(PurchCrMemoHdr);
         LibraryLowerPermissions.SetPurchDocsPost;
@@ -167,7 +167,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if Inventory Period is closed
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo cancelled Invoice with "Posting Date" = 01.01
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
 
@@ -183,7 +183,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         Assert.ExpectedError(InvtPeriodClosedErr);
 
         // Tear down
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         InventoryPeriod.Delete();
     end;
 
@@ -197,7 +197,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if item is blocked
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo cancelled Invoice with Item = "X"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
 
@@ -223,7 +223,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel corrective Purchase Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B1" cancelled Invoice "A1"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
 
@@ -249,7 +249,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if invoice applied partially
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted unapplied Credit Memo "B" cancelled Invoice "A" with Amount = 100
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
         UnapplyDocument(VendLedgEntry."Document Type"::"Credit Memo", PurchCrMemoHdr."No.");
@@ -280,7 +280,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [UT] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if there are detailed entries applied different from "Initial Entry" and "Application"
 
-        Initialize;
+        Initialize();
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
         LibraryLowerPermissions.SetPurchDocsPost;
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, VendLedgEntry."Document Type"::"Credit Memo", PurchCrMemoHdr."No.");
@@ -301,7 +301,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     begin
         // [SCENARIO 168492] Corrective Invoice is generated when cancel Corrective Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
         LibraryLowerPermissions.SetPurchDocsPost;
@@ -341,7 +341,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [Unapplication]
         // [SCENARIO 168492] Corrective Invoice is generated when unapply corrective credit memo from invoice before the cancellation
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
 
@@ -373,7 +373,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     begin
         // [FEATURE] [Unapplication]
         // [SCENARIO 168492] Corrective Invoice is generated when there is invoice different from original fully applied and unapplied to this credit memo before cancellation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A" with Amount = 100
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
@@ -412,7 +412,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     begin
         // [SCENARIO 168492] It is possible to cancel original invoice after the corrective credit memo applied to this invoice was cancelled
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
         OrigPurchInvHeader.Get(PurchCrMemoHdr."Applies-to Doc. No.");
@@ -446,7 +446,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [Unapplication] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when there are other multiple invoices applied and unapplied fully to this credit memo before cancellation
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted unapplied Credit Memo "B" cancelled Invoice "A" with Amount = 100
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
@@ -483,7 +483,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 168492] Action "Cancel Credit Memo" on "Posted Purchase Credit Memos" page should cancel current Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
 
@@ -522,7 +522,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 168492] Action "Cancel Credit Memo" on "Posted Purchase Credit Memo" page should cancel current Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(PurchCrMemoHdr);
 
@@ -565,7 +565,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [SCM] [Cost Application] [Item Application Entry]
         // [SCENARIO 168492] Cost application posted correctly after reapply when cancel Purchase Invoice second time
 
-        Initialize;
+        Initialize();
         // [GIVEN] Positive Adjustment "A1"
         // [GIVEN] Positive Adjustment "A2"
         // [GIVEN] Invoice "I1"
@@ -606,7 +606,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [Invoice Rounding]
         // [SCENARIO 169199] Corrective Invoice is rounded according to "Inv. Rounding Precision" when cancel Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Invoice Rounding Precision" is 1.00 in "General Ledger Setup"
         LibraryERM.SetInvRoundingPrecisionLCY(1);
 
@@ -641,7 +641,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [Blocked]
         // [SCENARIO] Corrective Credit Memo fails to post if Invoice contains GLAccount, not allowed for direct posting.
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Invoice Rounding Precision" is 1.00 in "General Ledger Setup"
         LibraryERM.SetInvRoundingPrecisionLCY(1);
 
@@ -685,7 +685,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Invoice" on page "Posted Purchase Credit Memo" open Corrective Invoice when called from canceled Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemoWithFixedAmount(PurchCrMemoHdr);
 
@@ -719,7 +719,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Invoice" on page "Posted Purchase Credit Memos" open Corrective Invoice when called from canceled Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemoWithFixedAmount(PurchCrMemoHdr);
 
@@ -753,7 +753,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Credit Memo" on page "Posted Purchase Invoice" open Canceled Credit Memo when called from corrective Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemoWithFixedAmount(PurchCrMemoHdr);
 
@@ -787,7 +787,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Credit Memo" on page "Posted Purchase Invoices" open Canceled Credit Memo when called from corrective Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemoWithFixedAmount(PurchCrMemoHdr);
 
@@ -819,7 +819,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 172717] It should not be possible to cancel regular Purchase Credit Memo
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo "X"
         PostCrMemo(PurchCrMemoHdr);
@@ -844,7 +844,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [UT]
         // [SCENARIO 322909] Cassie can cancel Posted Purchase Credit Memo with Item of Type Service when COGS account is empty in General Posting Setup.
-        Initialize;
+        Initialize();
 
         CancelInvoiceByCreditMemoWithItemType(PurchCrMemoHdr, Item.Type::Service, GeneralPostingSetup);
         CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
@@ -866,7 +866,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [UT]
         // [SCENARIO 322909] Cassie can cancel Posted Purchase Credit Memo with Item of Type Non-Inventory when COGS account is empty in General Posting Setup.
-        Initialize;
+        Initialize();
 
         CancelInvoiceByCreditMemoWithItemType(PurchCrMemoHdr, Item.Type::"Non-Inventory", GeneralPostingSetup);
         CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
@@ -888,7 +888,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [UT]
         // [SCENARIO 322909] Cassie can't cancel Posted Purchase Credit Memo with Item of Type Inventory when COGS account is empty in General Posting Setup.
-        Initialize;
+        Initialize();
 
         CancelInvoiceByCreditMemoWithItemType(PurchCrMemoHdr, Item.Type::Inventory, GeneralPostingSetup);
         CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
@@ -909,16 +909,16 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Purch. Correct Cr. Memo");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Purch. Correct Cr. Memo");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
@@ -948,7 +948,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
           PurchHeader."Vendor Posting Group", PurchHeader."Gen. Bus. Posting Group");
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchHeader."No.");
-        PurchInvHeader.FindLast;
+        PurchInvHeader.FindLast();
         CancelInvoice(PurchCrMemoHdr, PurchInvHeader);
     end;
 
@@ -986,7 +986,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     begin
         PostDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
-        PurchInvHeader.FindLast;
+        PurchInvHeader.FindLast();
     end;
 
     local procedure PostCrMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
@@ -995,7 +995,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     begin
         PostDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         PurchCrMemoHdr.SetRange("Pre-Assigned No.", PurchaseHeader."No.");
-        PurchCrMemoHdr.FindLast;
+        PurchCrMemoHdr.FindLast();
     end;
 
     local procedure PostDocument(var PurchHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type")
@@ -1075,7 +1075,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     begin
         PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::Item);
         PurchCrMemoLine.SetRange("Document No.", PurchCrMemoHdr."No.");
-        PurchCrMemoLine.FindFirst;
+        PurchCrMemoLine.FindFirst();
         Item.Get(PurchCrMemoLine."No.");
         Item.Validate(Blocked, true);
         Item.Modify(true);
@@ -1134,7 +1134,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     local procedure FindLastPurchInvHeader(var PurchInvHeader: Record "Purch. Inv. Header"; VendNo: Code[20])
     begin
         PurchInvHeader.SetRange("Pay-to Vendor No.", VendNo);
-        PurchInvHeader.FindLast;
+        PurchInvHeader.FindLast();
     end;
 
     local procedure FindItemLedgEntryNo(ItemNo: Code[20]): Integer
@@ -1143,7 +1143,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
     begin
         ItemLedgEntry.SetRange("Item No.", ItemNo);
         ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Purchase);
-        ItemLedgEntry.FindLast;
+        ItemLedgEntry.FindLast();
         exit(ItemLedgEntry."Entry No.");
     end;
 
@@ -1179,7 +1179,7 @@ codeunit 137028 "Purch. Correct Cr. Memo"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.SetRange(Type, PurchInvLine.Type::" ");
         PurchInvLine.TestField(Description, StrSubstNo(CrMemoCancellationTxt, PurchInvHeader."Applies-to Doc. No."));
     end;

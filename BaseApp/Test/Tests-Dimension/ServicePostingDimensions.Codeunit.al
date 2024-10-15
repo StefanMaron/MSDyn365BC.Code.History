@@ -59,7 +59,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
         // 1. Setup: Create Customer, Salesperson, Responsibility Center, Service Order Type, Service Contract, Create Default Dimensions
         // for all and Sign the Contract.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         LibraryService.CreateResponsibilityCenter(ResponsibilityCenter);
@@ -117,7 +117,7 @@ codeunit 136118 "Service Posting - Dimensions"
         // Test Dimensions on Service Item Line.
 
         // 1. Setup: Create Customer, Service Item group, Service Item, Create Default Dimension for Service Item Group and Service Item.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         ServiceItemGroupCode := CreateServiceItemGroup;
 
@@ -151,7 +151,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         // [FEATURE] [Service] [Dimensions]
         // [SCENARIO 118320] Shortcut Dimension is updated in Service Item Line when create new line with Service Item No.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Customer and Service Order with Global Dimensions
         CustomerNo := CreateCustomerWithDefGlobalDimensions(ShortcutDimCode);
@@ -205,7 +205,7 @@ codeunit 136118 "Service Posting - Dimensions"
         // Test Dimensions on Service Line for Type Cost and Blank.
 
         // 1. Setup: Create Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateServiceCost(ServiceCost);
 
@@ -259,7 +259,7 @@ codeunit 136118 "Service Posting - Dimensions"
         // Test error occurs on Selecting Block Dimension on Service Header.
 
         // 1. Setup: Create Customer, Select Dimension and Set Blocked to True.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryDimension.FindDimension(Dimension);
         ModifyDimension(Dimension, true);
@@ -988,7 +988,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceHeader.Get(ServiceItemLine."Document Type", ServiceItemLine."Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         CreateLimitedDimItemLine(DimensionValueCombination, ServiceItemLine);
 
         // 2. Verify: Verify error occurs on Posting Service Order as Invoice with Limited Dimension Combination on Service Item Line.
@@ -1088,7 +1088,7 @@ codeunit 136118 "Service Posting - Dimensions"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         CreateLimitedDimServiceLine(DimensionValueCombination, ServiceLine);
 
         // 2. Exercise: Post Service Order as Invoice.
@@ -1192,7 +1192,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         CreateLimitedDimServiceLine(DimensionValueCombination, ServiceLine);
 
         // 2. Exercise: Post Service Order as Invoice.
@@ -1295,7 +1295,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         CreateLimitedDimServiceLine(DimensionValueCombination, ServiceLine);
 
         // 2. Exercise: Post Service Order as Invoice.
@@ -2081,11 +2081,11 @@ codeunit 136118 "Service Posting - Dimensions"
 
         // 3. Verify: Verify Dimension value Successfully updated on Service Item Line and Service Line Dimensions.
         ServiceItemLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
         VerifyDimSetEntry(ServiceItemLine."Dimension Set ID", DefaultDimension."Dimension Code", DimensionValueCode);
 
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         VerifyDimSetEntry(ServiceLine."Dimension Set ID", DefaultDimension."Dimension Code", DimensionValueCode);
     end;
 
@@ -2146,7 +2146,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
         // 3. Verify: Verify Dimension value Successfully updated on Service Line Dimensions.
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         VerifyDimSetEntry(ServiceLine."Dimension Set ID", DefaultDimension."Dimension Code", DimensionValueCode);
     end;
 
@@ -2169,7 +2169,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
         // 1. Setup: Create Customer, Responsibility Center, Create Default Dimension Priority, Service Item, Resource, Item, G/L Account
         // Cost and Create Default Dimensions for all.
-        Initialize;
+        Initialize();
         CreateDefaultDimensionPriority(DefaultDimensionPriority);
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
@@ -2210,7 +2210,7 @@ codeunit 136118 "Service Posting - Dimensions"
         // Test Dimension on Service Lines after running Get Standard Service Code.
 
         // 1. Setup: Create Customer, Service Item Group and Create Standard Service Code with Standard Service Lines having Dimensions.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateStandardServiceCodeDim(StandardServiceCode);
         ServiceItemGroupCode := CreateServiceItemGroup;
@@ -2249,7 +2249,7 @@ codeunit 136118 "Service Posting - Dimensions"
         // Test Dimension on Service Lines after running Get Standard Service Code.
 
         // 1. Setup: Create Customer, Service Item Group and Create Standard Service Code with Standard Service Lines having Dimensions.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
         LibraryService.CreateStandardServiceCode(StandardServiceCode);
@@ -2315,15 +2315,15 @@ codeunit 136118 "Service Posting - Dimensions"
         // [FEATURE] [Default Dimension Priority]
         // [SCENARIO 375456] Default Dimension with highest priority in Service Item Line should be inherited to Service Line
 
-        Initialize;
+        Initialize();
         // [GIVEN] Default Dimension Priorities: Service Item = 1, Item = 2
         SetPairedDefaultDimPriorities(DATABASE::"Service Item", DATABASE::Item);
         LibraryDimension.CreateDimension(Dimension);
 
         // [GIVEN] Default Dimension "A1" for Customer, "A2" for Item, "A3" for Service Item
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         CreateDefDimWithNewDimValue(Dimension.Code, DATABASE::Customer, CustomerNo);
         CreateDefDimWithNewDimValue(Dimension.Code, DATABASE::Item, ItemNo);
         ExpectedDimValueCode :=
@@ -2352,7 +2352,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         // [FEATURE] [Default Dimension Priority] [Production Journal]
         // [SCENARIO 378966] Default Dimension with high priority in Work Center should be inherited by Production Journal.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default Dimension Priorities are high for Work Center and low for Item.
         // [GIVEN] Item with Routing "R" for Work Center.
@@ -2382,7 +2382,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         // [FEATURE] [Default Dimension Priority] [Production Journal]
         // [SCENARIO 378966] Default Dimension with high priority in Item should be inherited by Production Journal.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default Dimension Priorities are high for Item and low for Work Center.
         // [GIVEN] Item with Routing "R" for Work Center.
@@ -2416,15 +2416,15 @@ codeunit 136118 "Service Posting - Dimensions"
         // [FEATURE] [Default Dimension Priority]
         // [SCENARIO 375456] Default Dimension with highest priority modified in Service Item Line should not be inherited to Service Line
 
-        Initialize;
+        Initialize();
         // [GIVEN] Default Dimension Priorities: Service Item = 1, Item = 2
         SetPairedDefaultDimPriorities(DATABASE::"Service Item", DATABASE::Item);
         LibraryDimension.CreateDimension(Dimension);
 
         // [GIVEN] Default Dimension "A1" for Customer, "A2" for Item, "A3" for Service Item
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup);
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         CreateDefDimWithNewDimValue(Dimension.Code, DATABASE::Customer, CustomerNo);
         ExpectedDimValueCode := CreateDefDimWithNewDimValue(Dimension.Code, DATABASE::Item, ItemNo);
         CreateDefDimWithNewDimValue(Dimension.Code, DATABASE::"Service Item", ServiceItemNo);
@@ -2456,10 +2456,10 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         // [SCENARIO 375646] Dimension from Service Item Line should be inherited to related Service Line
 
-        Initialize;
+        Initialize();
         // [GIVEN] Service Order and Service Item Line with dimension "X"
         LibraryDimension.CreateDimension(Dimension);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup);
         CreateDefDimWithNewDimValue(Dimension.Code, DATABASE::"Service Item", ServiceItemNo);
         LibraryService.CreateServiceHeader(
@@ -2489,7 +2489,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 380919] Dimension Set ID is not updated on Temporary Service Line on open Statistic page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled "Invoice Rounding" in "Sales & Receivables Setup"
         // [GIVEN] "Invoice Rounding Precision" = 1
@@ -2530,7 +2530,7 @@ codeunit 136118 "Service Posting - Dimensions"
         // [FEATURE] [Rounding]
         // [SCENARIO 204621] Dimensions are inherited from Service Header when post Service Order with Invoice Rounding Account and dimension setup "Code Mandatory"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enabled "Invoice Rounding" in "Sales & Receivables Setup"
         // [GIVEN] "Invoice Rounding Precision" = 1
@@ -2568,7 +2568,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 320423] Dimensions are inherited from Service Contract Header
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Contract Header with 'Shortcut Dimension 1 Code' = "SDC001" and 'Shortcut Dimension 2 Code' = "SDC002"
         CreateAndSignServiceContractWithGlobalDim(ServiceContractHeader);
@@ -2631,19 +2631,19 @@ codeunit 136118 "Service Posting - Dimensions"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Posting - Dimensions");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Posting - Dimensions");
 
         // Create Demonstration Database.
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -2711,7 +2711,7 @@ codeunit 136118 "Service Posting - Dimensions"
         DefaultDimension: Record "Default Dimension";
     begin
         // 1. Setup: Create Customer, Create Default Dimension for Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.CreateDefaultDimensionCustomer(
@@ -2731,7 +2731,7 @@ codeunit 136118 "Service Posting - Dimensions"
         DefaultDimension: Record "Default Dimension";
     begin
         // 1. Setup: Create Customer, Create Service Item, Create Default Dimension for Service Item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
@@ -2764,9 +2764,9 @@ codeunit 136118 "Service Posting - Dimensions"
         DimensionSetID: Integer;
     begin
         // 1. Setup: Create Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
-        DimensionValueCombination.FindFirst;
+        DimensionValueCombination.FindFirst();
 
         // 2. Exercise: Create Service Header and Document Dimension on Service Header.
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
@@ -2787,7 +2787,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceCost: Record "Service Cost";
     begin
         // 1. Setup: Create Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateServiceCost(ServiceCost);
         LibraryDimension.FindDimension(Dimension);
@@ -2806,7 +2806,7 @@ codeunit 136118 "Service Posting - Dimensions"
         DefaultDimension: Record "Default Dimension";
     begin
         // 1. Setup: Create Customer, Create G/L Account and Create Default Dimension for G/L Account.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateGLAccount(GLAccount);
         LibraryDimension.FindDimension(Dimension);
@@ -2824,7 +2824,7 @@ codeunit 136118 "Service Posting - Dimensions"
         DefaultDimension: Record "Default Dimension";
     begin
         // 1. Setup: Create Customer, Create Item, Create Default Dimension for Item.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
         LibraryDimension.FindDimension(Dimension);
@@ -2840,7 +2840,7 @@ codeunit 136118 "Service Posting - Dimensions"
         DefaultDimension: Record "Default Dimension";
     begin
         // 1. Setup: Create Customer, Create Resource, Create Default Dimension for Resource.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.CreateDefaultDimensionResource(
@@ -2858,7 +2858,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         // Create Customer, Create Item, Create Default Dimension for Item and Customer, Create Service Header, Service Item
         // Line and Service Line of Type Item.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
         LibraryDimension.FindDimension(Dimension);
@@ -2924,7 +2924,7 @@ codeunit 136118 "Service Posting - Dimensions"
         Dimension: Record Dimension;
     begin
         // Create Customer, Create Default Dimension for Customer and Create Service Header.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryDimension.FindDimension(Dimension);
         if ValuePosting = DefaultDimension."Value Posting"::"No Code" then
@@ -2968,7 +2968,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceCost: Record "Service Cost";
     begin
         // 1. Setup: Create Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateServiceCost(ServiceCost);
 
@@ -2982,7 +2982,7 @@ codeunit 136118 "Service Posting - Dimensions"
         GLAccount: Record "G/L Account";
     begin
         // 1. Setup: Create Customer, G/L Account.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateGLAccount(GLAccount);
 
@@ -3003,7 +3003,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         // Create Customer, Resource, Item, G/L Account and Assign Default Dimension for all with Value Posting "No Code",
         // Create Service Header, Service Item Line, Service Line of Type Item, Resource, G/L Account.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         ResourceNo := CreateResource;
         LibraryDimension.FindDimension(Dimension);
@@ -3033,7 +3033,7 @@ codeunit 136118 "Service Posting - Dimensions"
         Item: Record Item;
     begin
         // 1. Setup: Create Customer and Item.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
 
@@ -3046,7 +3046,7 @@ codeunit 136118 "Service Posting - Dimensions"
         Customer: Record Customer;
     begin
         // 1. Setup: Create Customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // 2. Exercise: Create Service Header, Service Item Line and Service Line of Type Resource.
@@ -3067,7 +3067,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         // Create Customer, Service Item, Item, Resource, G/L Account, Cost, assign Default Dimensions on all, Create Service Header,
         // Service Item Line and Service Line of Type Item, Resource, G/L Account and Cost as per Consume parameter.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.CreateDefaultDimensionCustomer(
@@ -3108,10 +3108,10 @@ codeunit 136118 "Service Posting - Dimensions"
         ItemNo: Code[20];
     begin
         // Create Customer, Service Item, Create Service Header, Service Item Line and Service Line.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
 
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -3211,7 +3211,7 @@ codeunit 136118 "Service Posting - Dimensions"
     var
         CustomerNo: Code[20];
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, CustomerNo);
         CreateServiceContractGlobalDimension(ServiceContractHeader);
         UpdateAndSignServiceContract(ServiceContractHeader);
@@ -3298,7 +3298,7 @@ codeunit 136118 "Service Posting - Dimensions"
         DefaultDimension: Record "Default Dimension";
     begin
         // Create Customer, Item, Resource, G/L Account and assign Default Dimension on all.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
         LibraryDimension.FindDimension(Dimension);
@@ -3336,7 +3336,7 @@ codeunit 136118 "Service Posting - Dimensions"
     var
         DimensionSetID: Integer;
     begin
-        DimensionValueCombination.FindFirst;
+        DimensionValueCombination.FindFirst();
         DimensionSetID :=
           LibraryDimension.CreateDimSet(
             ServiceItemLine."Dimension Set ID", DimensionValueCombination."Dimension 1 Code",
@@ -3353,7 +3353,7 @@ codeunit 136118 "Service Posting - Dimensions"
     var
         DimensionSetID: Integer;
     begin
-        DimensionValueCombination.FindFirst;
+        DimensionValueCombination.FindFirst();
         DimensionSetID :=
           LibraryDimension.CreateDimSet(
             ServiceLine."Dimension Set ID",
@@ -3476,7 +3476,7 @@ codeunit 136118 "Service Posting - Dimensions"
         if Type = Type::"G/L Account" then
             DefaultDimension.SetRange("Table ID", DATABASE::"G/L Account");
         DefaultDimension.SetRange("No.", No);
-        DefaultDimension.FindFirst;
+        DefaultDimension.FindFirst();
     end;
 
     local procedure FindCustLedgerEntryDimSetID(DocumentNo: Code[20]): Integer
@@ -3485,7 +3485,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         exit(CustLedgerEntry."Dimension Set ID");
     end;
 
@@ -3513,7 +3513,7 @@ codeunit 136118 "Service Posting - Dimensions"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", DocumenNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         exit(GLEntry."Dimension Set ID");
     end;
 
@@ -3524,7 +3524,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Shipment");
         ItemLedgerEntry.SetRange("Document No.", ServiceShipmentLine."Document No.");
         ItemLedgerEntry.SetRange("Document Line No.", ServiceShipmentLine."Line No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         exit(ItemLedgerEntry."Dimension Set ID");
     end;
 
@@ -3536,7 +3536,7 @@ codeunit 136118 "Service Posting - Dimensions"
             SetRange(Status, ProductionOrder.Status);
             SetRange("Prod. Order No.", ProductionOrder."No.");
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             exit("Line No.");
         end;
     end;
@@ -3548,28 +3548,28 @@ codeunit 136118 "Service Posting - Dimensions"
         ResLedgerEntry.SetRange("Resource No.", ResourceNo);
         ResLedgerEntry.SetRange("Entry Type", ResLedgerEntry."Entry Type"::Sale);
         ResLedgerEntry.SetRange("Document No.", DocumentNo);
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
         exit(ResLedgerEntry."Dimension Set ID");
     end;
 
     local procedure FindServiceShipmentHeader(var ServiceShipmentHeader: Record "Service Shipment Header"; OrderNo: Code[20])
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
     end;
 
     local procedure FindServiceShipmentLine(var ServiceShipmentLine: Record "Service Shipment Line"; ServiceLine: Record "Service Line")
     begin
         ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
         ServiceShipmentLine.SetRange("Order Line No.", ServiceLine."Line No.");
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
     end;
 
     local procedure FindServiceItemLine(var ServiceItemLine: Record "Service Item Line"; ServiceLine: Record "Service Line")
     begin
         ServiceItemLine.SetRange("Document Type", ServiceLine."Document Type");
         ServiceItemLine.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceItemLine.FindFirst;
+        ServiceItemLine.FindFirst();
     end;
 
     local procedure FindServiceLine(var ServiceLine: Record "Service Line")
@@ -3586,7 +3586,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Shipment");
         ValueEntry.SetRange("Document No.", ServiceShipmentLine."Document No.");
         ValueEntry.SetRange("Document Line No.", ServiceShipmentLine."Line No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         exit(ValueEntry."Dimension Set ID");
     end;
 
@@ -3788,7 +3788,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         DimMgt.GetDimensionSet(TempDimSetEntry, DimensionSetID);
         TempDimSetEntry.SetRange("Dimension Code", DimensionCode);
-        TempDimSetEntry.FindFirst;
+        TempDimSetEntry.FindFirst();
         LibraryDimension.CreateDimensionValue(DimValue, DimensionCode);
         TempDimSetEntry.Validate("Dimension Value Code", DimValue.Code);
         TempDimSetEntry.Modify(true);
@@ -3901,7 +3901,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::Customer, ServiceInvoiceHeader."Customer No.");
         VerifyDimSetEntry(
           FindCustLedgerEntryDimSetID(ServiceInvoiceHeader."No."), DefaultDimension."Dimension Code",
@@ -3915,11 +3915,11 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceLine: Record "Service Line";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange(Type, ServiceLine.Type::"G/L Account");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
 
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::Customer, ServiceInvoiceHeader."Customer No.");
         VerifyDimSetEntry(
@@ -3933,7 +3933,7 @@ codeunit 136118 "Service Posting - Dimensions"
         DefaultDimension: Record "Default Dimension";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::Customer, ServiceHeader."Customer No.");
         VerifyDimSetEntry(
           ServiceInvoiceHeader."Dimension Set ID", DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
@@ -3948,11 +3948,11 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceLine.SetFilter(Type, '<>%1', ServiceLine.Type::Cost);
         FindServiceLine(ServiceLine);
         ServiceInvoiceHeader.SetRange("Order No.", ServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         repeat
             ServiceInvoiceLine.SetRange("Line No.", ServiceLine."Line No.");
-            ServiceInvoiceLine.FindFirst;
+            ServiceInvoiceLine.FindFirst();
             FilterDefaultDimension(DefaultDimension, ServiceLine.Type, ServiceLine."No.");
             VerifyDimSetEntry(
               ServiceInvoiceLine."Dimension Set ID", DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
@@ -3994,7 +3994,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceLine.SetRange(Type, ServiceLine.Type::Resource);
         FindServiceLine(ServiceLine);
         ServiceInvoiceHeader.SetRange("Order No.", ServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         DimensionSetID := FindResLedgerEntryDimSetID(ServiceLine."No.", ServiceInvoiceHeader."No.");
 
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::Customer, ServiceInvoiceHeader."Customer No.");
@@ -4053,7 +4053,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         FindServiceShipmentHeader(ServiceShipmentHeader, ServiceHeader."No.");
         ServiceShipmentItemLine.SetRange("No.", ServiceShipmentHeader."No.");
-        ServiceShipmentItemLine.FindFirst;
+        ServiceShipmentItemLine.FindFirst();
 
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::Customer, ServiceHeader."Customer No.");
         VerifyDimSetEntry(
@@ -4074,7 +4074,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", ServiceLine."Line No.");
-            ServiceShipmentLine.FindFirst;
+            ServiceShipmentLine.FindFirst();
             FilterDefaultDimension(DefaultDimension, ServiceShipmentLine.Type, ServiceShipmentLine."No.");
             VerifyDimSetEntry(
               ServiceShipmentLine."Dimension Set ID", DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
@@ -4091,7 +4091,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceLine.SetRange("Document No.", OrderNo);
         repeat
             ServiceLine.SetRange("Line No.", StandardServiceLine."Line No.");
-            ServiceLine.FindFirst;
+            ServiceLine.FindFirst();
             ServiceLine.TestField("Dimension Set ID", StandardServiceLine."Dimension Set ID");
         until StandardServiceLine.Next = 0;
     end;
@@ -4106,7 +4106,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", ServiceLine."Line No.");
-            ServiceShipmentLine.FindFirst;
+            ServiceShipmentLine.FindFirst();
             VerifyDimSetEntry(
               ServiceShipmentLine."Dimension Set ID", DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
         until ServiceLine.Next = 0;
@@ -4127,7 +4127,7 @@ codeunit 136118 "Service Posting - Dimensions"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         ServiceContractHeader.SetRange("Contract No.", ServiceHeader."Contract No.");
-        ServiceContractHeader.FindFirst;
+        ServiceContractHeader.FindFirst();
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, ServiceContractHeader."Dimension Set ID");
 
         DimensionSetEntry2.SetRange("Dimension Code", DimensionSetEntry."Dimension Code");
@@ -4189,12 +4189,12 @@ codeunit 136118 "Service Posting - Dimensions"
         ServiceLine.SetFilter(Type, '<>%1', ServiceLine.Type::Cost);
         FindServiceLine(ServiceLine);
         ServiceInvoiceHeader.SetRange("Order No.", ServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         LibraryDimension.FindDefaultDimension(DefaultDimension, DATABASE::Customer, ServiceInvoiceHeader."Customer No.");
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         repeat
             ServiceInvoiceLine.SetRange("Line No.", ServiceLine."Line No.");
-            ServiceInvoiceLine.FindFirst;
+            ServiceInvoiceLine.FindFirst();
             VerifyDimSetEntry(
               ServiceInvoiceLine."Dimension Set ID", DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
         until ServiceLine.Next = 0;
@@ -4256,11 +4256,11 @@ codeunit 136118 "Service Posting - Dimensions"
         GLEntry: Record "G/L Entry";
     begin
         ServiceInvHeader.SetRange("Order No.", ServiceOrderNo);
-        ServiceInvHeader.FindFirst;
+        ServiceInvHeader.FindFirst();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", ServiceInvHeader."No.");
         GLEntry.SetRange("G/L Account No.", GLAccNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Dimension Set ID", ExpectedDimSetID);
     end;
 
@@ -4306,7 +4306,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ItemJournalLine: Record "Item Journal Line";
     begin
         ItemJournalLine.SetRange("Item No.", LibraryVariableStorage.DequeueText);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, ItemJournalLine."Dimension Set ID");
         DimensionSetEntry.TestField("Dimension Value Code", LibraryVariableStorage.DequeueText);
     end;

@@ -466,7 +466,7 @@ table 113 "Sales Invoice Line"
         {
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -479,7 +479,7 @@ table 113 "Sales Invoice Line"
             Caption = 'Unit of Measure (Cross Ref.)';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -493,7 +493,7 @@ table 113 "Sales Invoice Line"
             OptionCaption = ' ,Customer,Vendor,Bar Code';
             OptionMembers = " ",Customer,Vendor,"Bar Code";
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -505,7 +505,7 @@ table 113 "Sales Invoice Line"
         {
             Caption = 'Cross-Reference Type No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -763,7 +763,7 @@ table 113 "Sales Invoice Line"
             exit;
 
         FilterPstdDocLineValueEntries(ValueEntry);
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Sales Shipment" then
@@ -789,7 +789,7 @@ table 113 "Sales Invoice Line"
 
         RevUnitCostLCY := 0;
         GetItemLedgEntries(TempItemLedgEntry, false);
-        if TempItemLedgEntry.FindSet then
+        if TempItemLedgEntry.FindSet() then
             repeat
                 ShippedQtyNotReturned := ShippedQtyNotReturned - TempItemLedgEntry."Shipped Qty. Not Returned";
                 if ExactCostReverse then begin
@@ -838,7 +838,7 @@ table 113 "Sales Invoice Line"
 
         FilterPstdDocLineValueEntries(ValueEntry);
         ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 TempItemLedgEntry := ItemLedgEntry;

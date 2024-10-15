@@ -690,7 +690,7 @@ report 7150 "Item Dimensions - Detail"
         end;
     end;
 
-    local procedure Iteration(var FindFirst: Boolean; IterationDimCode: Text[30]; var IterationDimValCode: Code[20]; var IterationDimValName: Text[100]; IterationFilter: Text[250]): Boolean
+    local procedure Iteration(var FindFirstRec: Boolean; IterationDimCode: Text[30]; var IterationDimValCode: Code[20]; var IterationDimValName: Text[100]; IterationFilter: Text[250]): Boolean
     var
         SearchResult: Boolean;
     begin
@@ -699,7 +699,7 @@ report 7150 "Item Dimensions - Detail"
                 begin
                     TempItem.Reset();
                     TempItem.SetFilter("No.", IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempItem.Find('-')
                     else
                         if TempItem.Get(IterationDimValCode) then
@@ -713,7 +713,7 @@ report 7150 "Item Dimensions - Detail"
                 begin
                     TempLocation.Reset();
                     TempLocation.SetFilter(Code, IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempLocation.Find('-')
                     else
                         if TempLocation.Get(IterationDimValCode) then
@@ -730,7 +730,7 @@ report 7150 "Item Dimensions - Detail"
                     TempDimVal.Reset();
                     TempDimVal.SetRange("Dimension Code", IterationDimCode);
                     TempDimVal.SetFilter(Code, IterationFilter);
-                    if FindFirst then
+                    if FindFirstRec then
                         SearchResult := TempDimVal.Find('-')
                     else
                         if TempDimVal.Get(IterationDimCode, IterationDimValCode) then
@@ -745,7 +745,7 @@ report 7150 "Item Dimensions - Detail"
             IterationDimValCode := '';
             IterationDimValName := '';
         end;
-        FindFirst := false;
+        FindFirstRec := false;
         exit(SearchResult);
     end;
 

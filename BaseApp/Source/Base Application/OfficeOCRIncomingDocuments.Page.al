@@ -58,7 +58,7 @@ page 1626 "Office OCR Incoming Documents"
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then begin
             SetRange(Selected, true);
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     case InitiatedAction of
                         InitiatedAction::InitiateSendToIncomingDocuments:
@@ -88,7 +88,7 @@ page 1626 "Office OCR Incoming Documents"
 
     procedure InitializeExchangeObject(var TempExchangeObject: Record "Exchange Object" temporary)
     begin
-        if TempExchangeObject.FindSet then
+        if TempExchangeObject.FindSet() then
             repeat
                 TempExchangeObject.CalcFields(Content);
                 TransferFields(TempExchangeObject);

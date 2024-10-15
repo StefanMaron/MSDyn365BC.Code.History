@@ -131,7 +131,7 @@ page 1121 "Cost Budget Registers"
                         CostBudgetEntry.SetRange("Entry No.", "From Cost Budget Entry No.", "To Cost Budget Entry No.");
                         CostBudgetEntries.SetTableView(CostBudgetEntry);
                         CostBudgetEntries.Editable := false;
-                        CostBudgetEntries.Run;
+                        CostBudgetEntries.Run();
                     end;
                 }
             }

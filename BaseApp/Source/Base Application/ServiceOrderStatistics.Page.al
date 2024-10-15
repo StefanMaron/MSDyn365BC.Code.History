@@ -1211,7 +1211,6 @@ page 5914 "Service Order Statistics"
         PrevNo: Code[20];
         ActiveTab: Option General,Details,Shipping;
         PrevTab: Option General,Details,Shipping;
-        VATLinesFormIsEditable: Boolean;
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
         Text006: Label 'Placeholder';
@@ -1226,6 +1225,7 @@ page 5914 "Service Order Statistics"
         TotalAmount1: array[7] of Decimal;
         TotalAmount2: array[7] of Decimal;
         i: Integer;
+        VATLinesFormIsEditable: Boolean;
 
     protected procedure UpdateHeaderInfo(IndexNo: Integer; var VATAmountLine: Record "VAT Amount Line")
     var
@@ -1459,7 +1459,7 @@ page 5914 "Service Order Statistics"
           "Currency Code", AllowVATDifference, AllowVATDifference and ThisTabAllowsVATEditing,
           "Prices Including VAT", AllowInvDisc, "VAT Base Discount %");
         OnVATLinesDrillDownOnBeforeRunVATLinesForm();
-        VATLinesForm.RunModal;
+        VATLinesForm.RunModal();
         VATLinesForm.GetTempVATAmountLine(VATLinesToDrillDown);
     end;
 

@@ -126,7 +126,7 @@ table 480 "Dimension Set Entry"
         DimSetEntry.SetFilter("Dimension Code", '<>%1', '');
         DimSetEntry.SetFilter("Dimension Value Code", '<>%1', '');
 
-        if not DimSetEntry.FindSet then begin
+        if not DimSetEntry.FindSet() then begin
             DimSetEntry.Copy(DimSetEntry2);
             exit(0);
         end;
@@ -170,7 +170,7 @@ table 480 "Dimension Set Entry"
         DimSetEntry2: Record "Dimension Set Entry";
     begin
         DimSetEntry2.LockTable();
-        if DimSetEntry.FindSet then
+        if DimSetEntry.FindSet() then
             repeat
                 DimSetEntry2 := DimSetEntry;
                 DimSetEntry2."Dimension Set ID" := NewID;

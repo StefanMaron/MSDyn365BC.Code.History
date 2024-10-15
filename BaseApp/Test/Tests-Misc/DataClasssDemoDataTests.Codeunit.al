@@ -19,6 +19,7 @@ codeunit 135153 "Data Classs Demo Data Tests"
     var
         Company: Record Company;
         DataSensitivity: Record "Data Sensitivity";
+        TableMetadata: Record "Table Metadata";
         DataClassificationEvalData: Codeunit "Data Classification Eval. Data";
     begin
         // [SCENARIO] All shipped fields should have a classification
@@ -40,9 +41,11 @@ codeunit 135153 "Data Classs Demo Data Tests"
         DataSensitivity.SetRange("Data Sensitivity", DataSensitivity."Data Sensitivity"::Unclassified);
         DataSensitivity.SetFilter("Table No", '..101000|150000..160799|160803..');
         // Assert.RecordIsEmpty is not giving a helpful message
-        if DataSensitivity.FindSet then
+        if DataSensitivity.FindSet() then
             repeat
-                Error(UnclassifiedFieldsErr, DataSensitivity."Field No", DataSensitivity."Table No");
+                TableMetadata.Get(DataSensitivity."Table No");
+                if (TableMetadata.TableType <> TableMetadata.TableType::Temporary) then
+                    Error(UnclassifiedFieldsErr, DataSensitivity."Field No", DataSensitivity."Table No");
             until DataSensitivity.Next = 0;
 
         // [THEN] EUII EUPI fields are classified as Personal

@@ -99,7 +99,7 @@ table 6504 "Serial No. Information"
 
     fieldgroups
     {
-        fieldgroup(Dropdown; "Item No.", "Variant Code", "Serial No.")
+        fieldgroup(DropDown; "Item No.", "Variant Code", "Serial No.")
         {
         }
     }

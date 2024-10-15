@@ -111,6 +111,7 @@ page 99000831 "Released Production Order"
             group(Schedule)
             {
                 Caption = 'Schedule';
+#if not CLEAN17
                 field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
@@ -175,6 +176,7 @@ page 99000831 "Released Production Order"
                         CurrPage.Update(true);
                     end;
                 }
+#endif
                 field("Starting Date-Time"; "Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
@@ -354,7 +356,7 @@ page 99000831 "Released Production Order"
                         OrderPlanning: Page "Order Planning";
                     begin
                         OrderPlanning.SetProdOrder(Rec);
-                        OrderPlanning.RunModal;
+                        OrderPlanning.RunModal();
                     end;
                 }
                 action(Statistics)
@@ -537,7 +539,7 @@ page 99000831 "Released Production Order"
                     trigger OnAction()
                     begin
                         CopyProdOrderDoc.SetProdOrder(Rec);
-                        CopyProdOrderDoc.RunModal;
+                        CopyProdOrderDoc.RunModal();
                         Clear(CopyProdOrderDoc);
                     end;
                 }
@@ -587,7 +589,7 @@ page 99000831 "Released Production Order"
                     ApplicationArea = Warehouse;
                     Caption = 'Create Warehouse Pick';
                     Image = CreateWarehousePick;
-                    ToolTip = 'Prepare to create warehouse picks for the lines on the order. When you have selected options and you run the function, a warehouse pick document are created for the production order components.';
+                    ToolTip = 'Create warehouse pick documents for the production order components.';
 
                     trigger OnAction()
                     begin
@@ -662,7 +664,7 @@ page 99000831 "Released Production Order"
             }
         }
     }
-
+#if not CLEAN17
     trigger OnAfterGetRecord()
     begin
         GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
@@ -677,6 +679,7 @@ page 99000831 "Released Production Order"
     begin
         DateAndTimeFieldVisible := false;
     end;
+#endif
 
     var
         CopyProdOrderDoc: Report "Copy Production Order Document";
@@ -684,11 +687,13 @@ page 99000831 "Released Production Order"
         Text000: Label 'Inbound Whse. Requests are created.';
         Text001: Label 'No Inbound Whse. Request is created.';
         Text002: Label 'Inbound Whse. Requests have already been created.';
+#if not CLEAN17
         StartingTime: Time;
         EndingTime: Time;
         StartingDate: Date;
         EndingDate: Date;
         DateAndTimeFieldVisible: Boolean;
+#endif
 
     local procedure ShortcutDimension1CodeOnAfterV()
     begin

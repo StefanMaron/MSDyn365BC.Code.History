@@ -298,17 +298,17 @@ table 7333 "Whse. Internal Pick Header"
         with WhseInternalPickLine do begin
             if LineNo <> 0 then
                 SetFilter("Line No.", '<>%1', LineNo);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(Status::" ");
 
             SetRange(Status, Status::"Partially Picked");
-            if FindFirst then
+            if FindFirst() then
                 exit(Status);
 
             SetRange(Status, Status::"Completely Picked");
-            if FindFirst then begin
+            if FindFirst() then begin
                 SetFilter(Status, '<%1', Status::"Completely Picked");
-                if FindFirst then
+                if FindFirst() then
                     exit(Status::"Partially Picked");
 
                 exit(Status);

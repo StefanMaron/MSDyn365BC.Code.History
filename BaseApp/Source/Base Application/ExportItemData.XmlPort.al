@@ -355,7 +355,7 @@ xmlport 5801 "Export Item Data"
                     if Item.Count <> 1 then
                         Error(SingleItemExportOnlyErr, Item.GetFilters, Item.Count);
 
-                    Item.FindFirst;
+                    Item.FindFirst();
                     Item.Reset();
                     Item.SetRecFilter;
 
@@ -659,11 +659,6 @@ xmlport 5801 "Export Item Data"
                 fieldelement(ItemLedgEntry_DerivedfromBlanketOrder; ItemLedgEntry."Derived from Blanket Order")
                 {
                 }
-#if not CLEAN19
-                fieldelement(ItemLedgEntry_CrossReferenceNo; ItemLedgEntry."Cross-Reference No.")
-                {
-                }
-#endif
                 fieldelement(ItemLedgEntry_ItemReferenceNo; ItemLedgEntry."Item Reference No.")
                 {
                 }
@@ -2493,7 +2488,7 @@ xmlport 5801 "Export Item Data"
     begin
         ItemApplnEntry.SetCurrentKey("Item Ledger Entry No.");
         ItemApplnEntry.SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
-        if ItemApplnEntry.FindSet then
+        if ItemApplnEntry.FindSet() then
             repeat
                 TempItemApplnEntry := ItemApplnEntry;
                 TempItemApplnEntry.Insert();
@@ -2505,7 +2500,7 @@ xmlport 5801 "Export Item Data"
         ItemApplnEntryHistory: Record "Item Application Entry History";
     begin
         ItemApplnEntryHistory.SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
-        if ItemApplnEntryHistory.FindSet then
+        if ItemApplnEntryHistory.FindSet() then
             repeat
                 TempItemApplnEntryHistory := ItemApplnEntryHistory;
                 TempItemApplnEntryHistory.Insert();
@@ -2522,14 +2517,14 @@ xmlport 5801 "Export Item Data"
 
         ProdOrder.SetCurrentKey("No.");
         ProdOrder.SetRange("No.", ProdOrderNo);
-        if ProdOrder.FindFirst then begin
+        if ProdOrder.FindFirst() then begin
             TempProdOrder := ProdOrder;
             if TempProdOrder.Insert() then;
         end;
 
         ProdOrderLine.SetCurrentKey("Prod. Order No.");
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        if ProdOrderLine.FindSet then
+        if ProdOrderLine.FindSet() then
             repeat
                 TempProdOrderLine := ProdOrderLine;
                 if TempProdOrderLine.Insert() then;
@@ -2542,7 +2537,7 @@ xmlport 5801 "Export Item Data"
     begin
         ValueEntry.SetCurrentKey("Capacity Ledger Entry No.");
         ValueEntry.SetRange("Capacity Ledger Entry No.", CapEntryNo);
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 TempCapValueEntry := ValueEntry;
                 TempCapValueEntry.Insert();

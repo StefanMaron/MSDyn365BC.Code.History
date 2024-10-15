@@ -55,6 +55,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
         with JobJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
+            SetFilter(Quantity, '<> 0');
             OnCodeOnAfterFilterJobJnlLine(JobJnlLine);
             LockTable();
 
@@ -103,7 +104,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
 
             // Find next register no.
             JobLedgEntry.LockTable();
-            if JobLedgEntry.FindLast then;
+            if JobLedgEntry.FindLast() then;
             JobReg.LockTable();
             if JobReg.FindLast and (JobReg."To Entry No." = 0) then
                 JobRegNo := JobReg."No."
@@ -245,7 +246,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
                         JobJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
                         JobJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
                         if JobJnlTemplate."Increment Batch Name" then
-                            if not JobJnlLine3.FindLast then
+                            if not JobJnlLine3.FindLast() then
                                 if IncStr("Journal Batch Name") <> '' then begin
                                     JobJnlBatch.Delete();
                                     JobJnlBatch.Name := IncStr("Journal Batch Name");
@@ -256,7 +257,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
                         IsHandled := false;
                         OnUpdateAndDeleteLinesOnBeforeSetUpNewLine(JobJnlBatch, JobJnlLine3, IsHandled);
                         if not IsHandled then
-                            if (JobJnlBatch."No. Series" = '') and not JobJnlLine3.FindLast then begin
+                            if (JobJnlBatch."No. Series" = '') and not JobJnlLine3.FindLast() then begin
                                 JobJnlLine3.Init();
                                 JobJnlLine3."Journal Template Name" := "Journal Template Name";
                                 JobJnlLine3."Journal Batch Name" := "Journal Batch Name";

@@ -457,7 +457,7 @@ codeunit 139020 "Test Job Queue SNAP"
 
         RecordLink.LockTable();
         CODEUNIT.Run(CODEUNIT::"Job Queue - Send Notification", JobQueueEntry);
-        RecordLink.FindLast;
+        RecordLink.FindLast();
         RecordLink.TestField("Record ID", RecID);
     end;
 
@@ -1295,7 +1295,7 @@ codeunit 139020 "Test Job Queue SNAP"
 
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"Type Helper";
-        JobQueueEntry."Parameter String" := LibraryUtility.GenerateGUID;
+        JobQueueEntry."Parameter String" := LibraryUtility.GenerateGUID();
         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
         JobQueueEntry.Insert();
 
@@ -1548,7 +1548,7 @@ codeunit 139020 "Test Job Queue SNAP"
     local procedure CreateJobQueueCategory(var JobQueueCategory: Record "Job Queue Category")
     begin
         JobQueueCategory.Init();
-        JobQueueCategory.Code := LibraryUtility.GenerateGUID;
+        JobQueueCategory.Code := LibraryUtility.GenerateGUID();
         JobQueueCategory.Description := PadStr(JobQueueCategory.Code, MaxStrLen(JobQueueCategory.Description), '0');
         JobQueueCategory.Insert(true);
     end;

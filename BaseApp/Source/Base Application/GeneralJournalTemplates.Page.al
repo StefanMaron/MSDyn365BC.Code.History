@@ -1,4 +1,4 @@
-page 101 "General Journal Templates"
+﻿page 101 "General Journal Templates"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'General Journal Templates';
@@ -104,6 +104,16 @@ page 101 "General Journal Templates"
                             then
                                 Error(Text002);
                     end;
+                }
+                field("Allow Posting Date From"; "Allow Posting Date From")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the earliest date when posting to the journal template is allowed.';
+                }
+                field("Allow Posting Date To"; "Allow Posting Date To")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the last date when posting to the journal template is allowed.';
                 }
                 field("Page ID"; "Page ID")
                 {

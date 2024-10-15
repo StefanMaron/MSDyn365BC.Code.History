@@ -42,7 +42,7 @@ codeunit 135530 "Sales Quote E2E Test"
     begin
         // [SCENARIO] Create Sales Quotes and use a GET method to retrieve them
         // [GIVEN] 2 quotes in the table
-        Initialize;
+        Initialize();
         CreateSalesQuoteWithLines(SalesHeader);
         QuoteID[1] := SalesHeader."No.";
 
@@ -79,7 +79,7 @@ codeunit 135530 "Sales Quote E2E Test"
         QuoteExists: Boolean;
     begin
         // [SCENARIO] Create sales quotes JSON and use HTTP POST to create them
-        Initialize;
+        Initialize();
 
         // [GIVEN] a customer
         LibrarySales.CreateCustomer(Customer);
@@ -126,7 +126,7 @@ codeunit 135530 "Sales Quote E2E Test"
         QuoteExists: Boolean;
     begin
         // [SCENARIO] Create sales quote with specific currency set and use HTTP POST to create it
-        Initialize;
+        Initialize();
 
         // [GIVEN] a quote with a non-LCY currencyCode set
         LibrarySales.CreateCustomer(Customer);
@@ -136,7 +136,7 @@ codeunit 135530 "Sales Quote E2E Test"
         JSONManagement.GetJSONObject(JObject);
         JSONManagement.AddJPropertyToJObject(JObject, 'customerNumber', CustomerNo);
         Currency.SetFilter(Code, '<>%1', '');
-        Currency.FindFirst;
+        Currency.FindFirst();
         CurrencyCode := Currency.Code;
         JSONManagement.AddJPropertyToJObject(JObject, 'currencyCode', CurrencyCode);
         QuoteJSON := JSONManagement.WriteObjectToString;
@@ -196,7 +196,7 @@ codeunit 135530 "Sales Quote E2E Test"
     begin
         // [SCENARIO] Create sales quote, use a PATCH method to change it and then verify the changes
         // [GIVEN] a customer with address
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomerWithAddress(Customer);
 
         // [GIVEN] a salesperson
@@ -256,7 +256,7 @@ codeunit 135530 "Sales Quote E2E Test"
     begin
         // [SCENARIO] Create sales quotes and use HTTP DELETE to delete them
         // [GIVEN] 2 quotes in the table
-        Initialize;
+        Initialize();
         CreateSalesQuoteWithLines(SalesHeader);
         QuoteID[1] := SalesHeader."No.";
         ID[1] := SalesHeader.SystemId;
@@ -302,7 +302,7 @@ codeunit 135530 "Sales Quote E2E Test"
         QuoteExists: Boolean;
     begin
         // [SCENARIO] Create a quote both through the client UI and through the API and compare them. They should be the same and have the same fields autocompleted wherever needed.
-        Initialize;
+        Initialize();
         LibraryGraphDocumentTools.InitializeUIPage;
 
         // [GIVEN] a customer
@@ -356,7 +356,7 @@ codeunit 135530 "Sales Quote E2E Test"
     begin
         // [SCENARIO] When a quote is created, the GET Method should update the quote and assign a total
         // [GIVEN] a quote without totals assigned
-        Initialize;
+        Initialize();
         LibraryGraphDocumentTools.CreateDocumentWithDiscountPctPending(SalesHeader, DiscountPct, SalesHeader."Document Type"::Quote);
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
         Assert.IsTrue(SalesHeader."Recalculate Invoice Disc.", 'Setup error - recalculate Invoice disc. should be set');
@@ -386,7 +386,7 @@ codeunit 135530 "Sales Quote E2E Test"
     begin
         // [SCENARIO] When a quote is created, the GET Method should update the quote and redistribute the discount amount
         // [GIVEN] a quote with discount amount that should be redistributed
-        Initialize;
+        Initialize();
         LibraryGraphDocumentTools.CreateDocumentWithDiscountPctPending(SalesHeader, DiscountPct, SalesHeader."Document Type"::Quote);
         SalesHeader.CalcFields(Amount);
         DiscountAmt := LibraryRandom.RandDecInRange(1, Round(SalesHeader.Amount / 2, 1), 1);
@@ -422,7 +422,7 @@ codeunit 135530 "Sales Quote E2E Test"
         QuoteID: Text;
     begin
         // [SCENARIO 184721] Create Sales Quote, use a PATCH method to change it and then verify the changes
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomerWithAddress(Customer);
 
         // [GIVEN] an item with unit price and unit cost
@@ -470,7 +470,7 @@ codeunit 135530 "Sales Quote E2E Test"
         QuoteID: Text;
     begin
         // [SCENARIO 184721] Clearing manually set discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] an item with unit price and unit cost
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
@@ -530,7 +530,7 @@ codeunit 135530 "Sales Quote E2E Test"
 
     local procedure CreateQuoteThroughTestPage(var SalesQuote: TestPage "Sales Quote"; Customer: Record Customer; DocumentDate: Date)
     begin
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer No.".SetValue(Customer."No.");
         SalesQuote."Document Date".SetValue(DocumentDate);
     end;
@@ -540,7 +540,7 @@ codeunit 135530 "Sales Quote E2E Test"
         SalesLine.Reset();
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure VerifyValidPostRequest(ResponseText: Text; var QuoteNumber: Text)

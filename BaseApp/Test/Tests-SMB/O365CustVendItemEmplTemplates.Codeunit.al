@@ -2450,6 +2450,46 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Assert.ExpectedError(PaymentMethodErr);
     end;
 
+    [Test]
+    procedure ItemTemplateReorderingPolicyValidation()
+    var
+        ItemTempl: Record "Item Templ.";
+    begin
+        // [SCENARIO 430357] Item template field "Reordering Policy" validation should assign values to other fields
+        Initialize();
+
+        // [GIVEN] Item template
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+
+        // [WHEN] Validate item template field "Reordering Policy" with "Lot-for-Lot" value
+        ItemTempl.Validate("Reordering Policy", ItemTempl."Reordering Policy"::"Lot-for-Lot");
+        ItemTempl.Modify();
+
+        // [THEN] Item template field "Include Inventory" = true
+        ItemTempl.TestField("Include Inventory");
+    end;
+
+    [Test]
+    procedure ItemTemplateReorderingPolicyValidationUI()
+    var
+        ItemTempl: Record "Item Templ.";
+        ItemTemplCard: TestPage "Item Templ. Card";
+    begin
+        // [SCENARIO 430357] Item template field "Reordering Policy" validation on the page should enable other controls
+        Initialize();
+
+        // [GIVEN] Open item template via UI
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTemplCard.OpenEdit();
+        ItemTemplCard.GoToRecord(ItemTempl);
+
+        // [WHEN] Validate "Reordering Policy" with "Fixed Reorder Qty." value on the "Item Templ. Card" page
+        ItemTemplCard."Reordering Policy".SetValue('Fixed Reorder Qty.');
+
+        // [THEN] "Reorder Point" control is enabled
+        Assert.IsTrue(ItemTemplCard."Reorder Point".Enabled(), 'Control should be enabled');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Cust/Vend/Item/Empl Templates");

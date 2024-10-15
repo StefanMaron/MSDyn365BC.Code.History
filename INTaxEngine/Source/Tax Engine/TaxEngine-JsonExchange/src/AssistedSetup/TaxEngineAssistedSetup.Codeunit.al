@@ -109,23 +109,21 @@ codeunit 20366 "Tax Engine Assisted Setup"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', false, false)]
     local procedure Initialize()
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Language: Codeunit Language;
+        GuidedExperienceType: Enum "Guided Experience Type";
         CurrentGlobalLanguage: Integer;
     begin
         CurrentGlobalLanguage := GlobalLanguage;
 
-        AssistedSetup.Add(
-            GetAppId(),
-            Page::"Tax Engine Setup Wizard",
-            SetupWizardTxt,
-            "Assisted Setup Group"::GettingStarted,
-            '',
-            "Video Category"::GettingStarted,
-            '');
+        GuidedExperience.InsertAssistedSetup(
+            SetupWizardTxt, CopyStr(SetupWizardTxt, 1, 50), '', 5, ObjectType::Page,
+            Page::"Tax Engine Setup Wizard", "Assisted Setup Group"::GettingStarted,
+            '', "Video Category"::GettingStarted, '');
 
         GlobalLanguage(Language.GetDefaultApplicationLanguageId());
-        AssistedSetup.AddTranslation(Page::"Tax Engine Setup Wizard", Language.GetDefaultApplicationLanguageId(), SetupWizardTxt);
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            Page::"Tax Engine Setup Wizard", Language.GetDefaultApplicationLanguageId(), SetupWizardTxt);
         GlobalLanguage(CurrentGlobalLanguage);
     end;
 

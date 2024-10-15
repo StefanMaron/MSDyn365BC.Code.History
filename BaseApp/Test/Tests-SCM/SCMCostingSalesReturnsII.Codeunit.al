@@ -71,7 +71,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesItemQty: Decimal;
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Sales Return Order.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(false);
         CreateItemsAndCopyToTemp(TempItem, NoOfItems);
         CreateSalesSetup(TempItem, SalesHeader, SalesItemQty);
@@ -84,7 +84,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
 
         // Update Sales Return Lines with required Unit Price and required Qty.
         SelectSalesLines(SalesLine, SalesHeader."No.", SalesHeader."Document Type"::"Return Order");
-        TempItem.FindFirst;
+        TempItem.FindFirst();
         UpdateSalesLine(SalesLine, TempItem."Unit Price", 1);  // Qty Sign Factor value important for Test.
         SalesLine.Next;
         if NoOfCharges > 0 then begin
@@ -92,7 +92,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
             CreateItemChargeAssignment(SalesLine, SalesOrderNo);
         end;
         if (NoOfItems > 0) and (NoOfCharges = 0) then begin
-            TempItem.FindLast;
+            TempItem.FindLast();
             UpdateSalesLine(SalesLine, -TempItem."Unit Price", -1);  // Qty Sign Factor value important for Test.
         end;
         CopySalesLinesToTemp(TempSalesLine, SalesLine);
@@ -157,7 +157,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesOrderNo: Code[20];
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Sales Return Order.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(false);
         CreateItemsAndCopyToTemp(TempItem, NoOfItems);
 
@@ -196,7 +196,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesItemQty: Decimal;
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Credit Memo.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(false);
         CostingMethod[1] := Item."Costing Method"::FIFO;
         CostingMethod[2] := Item."Costing Method"::Average;
@@ -210,10 +210,10 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         CreateSalesLines(SalesHeader, TempItem, TempItemCharge, false, LibraryRandom.RandInt(5));
         SelectSalesLines(SalesLine, SalesHeader."No.", SalesHeader."Document Type"::"Return Order");
         SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         UpdateSalesLine(SalesLine, -LibraryRandom.RandInt(1), 1);  // Qty Sign Factor value important for Test.
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
-        TempItem.FindLast;
+        TempItem.FindLast();
         TempItem.Delete();
 
         // Create Sales Return Order for same Item with postive and negative quantity and Item Charge, and Receive only.
@@ -222,7 +222,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SelectSalesLines(SalesLine2, SalesHeader2."No.", SalesHeader."Document Type"::"Return Order");
         UpdateSalesLine(SalesLine2, TempItem."Unit Price", -1);  // Qty Sign Factor value important for Test.
         SalesLine2.SetRange(Type, SalesLine2.Type::"Charge (Item)");
-        SalesLine2.FindFirst;
+        SalesLine2.FindFirst();
         UpdateSalesLine(SalesLine2, LibraryRandom.RandInt(10), 1);  // Qty Sign Factor value important for Test.
         LibrarySales.PostSalesDocument(SalesHeader2, true, false);
 
@@ -328,7 +328,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesItemQty: Decimal;
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Credit Memo.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(false);
         CreateItemsAndCopyToTemp(TempItem, NoOfItems);
         CreateSalesSetup(TempItem, SalesHeader, SalesItemQty);
@@ -346,12 +346,12 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         if SameItemTwice then
             UpdateSalesLine(SalesLine, TempItem."Unit Price", SignFactor);
         if (NoOfItems > 0) and (NoOfCharges > 0) then begin
-            TempItem.FindFirst;
+            TempItem.FindFirst();
             UpdateSalesLine(SalesLine, SignFactor * TempItem."Unit Price", SignFactor);
             SalesLine.Next;
         end;
         if NoOfItems > 1 then begin
-            TempItem.FindFirst;
+            TempItem.FindFirst();
             UpdateSalesLine(SalesLine, SignFactor * TempItem."Unit Price", SignFactor);
         end;
         if NoOfCharges > 0 then begin
@@ -362,7 +362,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
 
         // Exercise: Post Credit Memo and Run Adjust Cost Item Entries report.
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
-        if TempItem.FindSet then
+        if TempItem.FindSet() then
             AdjustCostItemEntries(TempItem);
 
         // Verify: Verify Item Ledger Entry and Customer Ledger Entry.
@@ -410,7 +410,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesOrderNo: Code[20];
     begin
         // Setup: Create required Setups with only Items, create Item Charge required for Credit Memo.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(false);
         CreateItemsAndCopyToTemp(TempItem, NoOfItems);
 
@@ -444,7 +444,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
 
         // Update Credit Memo Lines with required Unit Price and required Qty.
         SelectSalesLines(SalesLine, SalesHeader."No.", DocumentType);
-        TempItem.FindFirst;
+        TempItem.FindFirst();
         UpdateSalesLine(SalesLine, TempItem."Unit Price", -1);  // Qty Sign Factor value important for Test.
         if NoOfCharges > 0 then begin
             SalesLine.Next;
@@ -463,12 +463,11 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesShipmentHeader: Record "Sales Shipment Header";
         TempSalesLine: Record "Sales Line" temporary;
         TempItem: Record Item temporary;
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         SalesItemQty: Decimal;
         SalesOrderNo: Code[20];
     begin
         // Setup: Create required Setups with only Item.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(false);
         CostingMethod[1] := Item."Costing Method"::FIFO;
         CreateItemsAndCopyToTemp(TempItem, 1);  // No of Item = 1
@@ -477,9 +476,9 @@ codeunit 137013 "SCM Costing Sales Returns-II"
 
         // Create Credit Memo using Copy Document of Posted Sales Shipment.
         SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
         CreateCrMemo(SalesHeader);
-        SalesHeaderCopySalesDoc(SalesHeader, DocType::"Posted Shipment", SalesShipmentHeader."No.", true, true);
+        SalesHeaderCopySalesDoc(SalesHeader, "Sales Document Type From"::"Posted Shipment", SalesShipmentHeader."No.", true, true);
 
         // Copy Sales Line to a temporary Sales Line record.
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
@@ -509,7 +508,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesItemQty: Decimal;
     begin
         // Setup: Create required Setups with only Item.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(true);
         CostingMethod[1] := Item."Costing Method"::FIFO;
         CreateItemsAndCopyToTemp(TempItem, 1);  // No of Item = 1
@@ -563,7 +562,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         // [FEATURE] [Undo Shipment] [Adjust Cost Item Entries]
         // [SCENARIO 363792] Item cost is adjusted when a shipment return entry is applied to a backdated outbound entry
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Average costing method
         LibrarySales.CreateCustomer(Customer);
@@ -664,10 +663,10 @@ codeunit 137013 "SCM Costing Sales Returns-II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Costing Sales Returns-II");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         GeneralLedgerSetup.Get();
         isInitialized := true;
         Commit();
@@ -778,7 +777,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         with ItemLedgerEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", EntryType);
-            FindFirst;
+            FindFirst();
 
             exit("Entry No.");
         end;
@@ -789,14 +788,14 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         with PurchRcptLine do begin
             SetRange(Type, Type::Item);
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
     local procedure FindReturnReceiptLine(var ReturnRcptLine: Record "Return Receipt Line"; ItemNo: Code[20])
     begin
         ReturnRcptLine.SetRange("No.", ItemNo);
-        ReturnRcptLine.FindLast;
+        ReturnRcptLine.FindLast();
     end;
 
     [Normal]
@@ -849,14 +848,14 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     var
         SalesLine: Record "Sales Line";
     begin
-        if TempItem.FindSet then
+        if TempItem.FindSet() then
             repeat
                 LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, TempItem."No.", ItemQty);
                 if SameItemTwice then
                     LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, TempItem."No.", ItemQty);
             until TempItem.Next = 0;
 
-        if TempItemCharge.FindSet then
+        if TempItemCharge.FindSet() then
             repeat
                 LibrarySales.CreateSalesLine(
                   SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", TempItemCharge."No.", LibraryRandom.RandInt(1));
@@ -878,7 +877,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine.Quantity > 0) then begin
             ItemLedgerEntry.SetRange("Item No.", SalesLine."No.");
             ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Sales Shipment");
-            ItemLedgerEntry.FindFirst;
+            ItemLedgerEntry.FindFirst();
             SalesLine.Validate("Appl.-from Item Entry", ItemLedgerEntry."Entry No.");
         end;
         SalesLine.Validate("Qty. to Ship", 0);  // Value important for Test.
@@ -908,7 +907,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         ItemChargeAssgntSales: Codeunit "Item Charge Assgnt. (Sales)";
     begin
         SalesShipmentLine.SetRange("Order No.", SalesOrderNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         ItemChargeAssgntSales.CreateShptChargeAssgnt(SalesShipmentLine, ItemChargeAssignmentSales);
     end;
 
@@ -969,10 +968,10 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     begin
         with SalesShipmentHeader do begin
             SetRange("Order No.", OrderNo);
-            FindFirst;
+            FindFirst();
             SalesShipmentLine.SetRange("Document No.", "No.");
             SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
-            FindFirst;
+            FindFirst();
         end;
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
     end;
@@ -987,7 +986,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
             ItemChargeAssignmentSales.SetRange("Document Line No.", DocLineNo);
         end else
             ItemChargeAssignmentSales.SetRange("Document Type", ItemChargeAssignmentSales."Document Type"::"Return Order");
-        ItemChargeAssignmentSales.FindFirst;
+        ItemChargeAssignmentSales.FindFirst();
         ItemChargeAssignmentSales.Validate("Qty. to Assign", QtyToAssign);
         ItemChargeAssignmentSales.Modify(true);
     end;
@@ -1021,18 +1020,14 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         SalesGetReturnReceipts.CreateInvLines(ReturnReceiptLine);
     end;
 
-    local procedure SalesHeaderCopySalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option; DocNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
+    local procedure SalesHeaderCopySalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type From"; DocNo: Code[20]; IncludeHeader: Boolean; RecalcLines: Boolean)
     var
         CopySalesDocument: Report "Copy Sales Document";
     begin
         CopySalesDocument.SetSalesHeader(SalesHeader);
-#if CLEAN17
         CopySalesDocument.SetParameters(DocType, DocNo, IncludeHeader, RecalcLines);
-#else
-        CopySalesDocument.InitializeRequest(DocType, DocNo, IncludeHeader, RecalcLines);
-#endif
         CopySalesDocument.UseRequestPage(false);
-        CopySalesDocument.RunModal;
+        CopySalesDocument.RunModal();
     end;
 
     [Normal]
@@ -1069,7 +1064,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         Clear(SalesLine);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Delete();
         SalesHeader.Delete();
     end;
@@ -1123,14 +1118,14 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     begin
         // Verify Sales Amount (Actual) from Sales Shipment line after Item Charge has been applied to it.
         SalesShipmentLine.SetRange("Order No.", SalesOrderNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         TempSalesLine.SetRange(Type, TempSalesLine.Type::"Charge (Item)");
         TempSalesLine.FindSet();
         CalcSalesAmountWithCharge :=
           SalesShipmentLine.Quantity * SalesShipmentLine."Unit Price" - TempSalesLine.Quantity * TempSalesLine."Unit Price";
 
         ItemLedgerEntry.SetRange("Document No.", SalesShipmentLine."Document No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Sales Amount (Actual)");
 
         Assert.AreNearlyEqual(CalcSalesAmountWithCharge, ItemLedgerEntry."Sales Amount (Actual)",
@@ -1148,7 +1143,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     begin
         // Verify Sales Amount (Actual) from Sales Return Receipt lines.
         ReturnReceiptHeader.SetRange("External Document No.", ExternalDocNo);
-        ReturnReceiptHeader.FindFirst;
+        ReturnReceiptHeader.FindFirst();
         ReturnReceiptLine.SetRange("Document No.", ReturnReceiptHeader."No.");
         ReturnReceiptLine.SetRange(Type, ReturnReceiptLine.Type::Item);
         ReturnReceiptLine.FindSet();
@@ -1176,9 +1171,9 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     begin
         // Verify Amount from Customer Ledger Entry.
         SalesCrMemoHeader.SetRange("External Document No.", SalesHeader."External Document No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         CustLedgerEntry.SetRange("Document No.", SalesCrMemoHeader."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount);
         Assert.AreNearlyEqual(-CalcCustCrMemoAmount(TempSalesLine), CustLedgerEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           ErrAmountsMustBeSame);

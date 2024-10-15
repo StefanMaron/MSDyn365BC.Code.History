@@ -144,7 +144,7 @@ page 2330 "BC O365 Business Info Settings"
 
     trigger OnInit()
     begin
-        Initialize;
+        Initialize();
     end;
 
     local procedure Initialize()

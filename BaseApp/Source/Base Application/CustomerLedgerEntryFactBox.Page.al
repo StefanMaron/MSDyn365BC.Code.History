@@ -66,7 +66,7 @@ page 9106 "Customer Ledger Entry FactBox"
                     AppliedCustomerEntriesList: Page "Applied Customer Entries";
                 begin
                     AppliedCustomerEntriesList.SetTempCustLedgEntry("Entry No.");
-                    AppliedCustomerEntriesList.Run;
+                    AppliedCustomerEntriesList.Run();
                 end;
             }
             field(NoOfDetailedCustomerEntries; NoOfDetailedCustomerEntries)
@@ -156,7 +156,7 @@ page 9106 "Customer Ledger Entry FactBox"
         DtldCustLedgEntry1.SetCurrentKey("Cust. Ledger Entry No.");
         DtldCustLedgEntry1.SetRange("Cust. Ledger Entry No.", CreateCustLedgEntry."Entry No.");
         DtldCustLedgEntry1.SetRange(Unapplied, false);
-        if DtldCustLedgEntry1.FindSet then
+        if DtldCustLedgEntry1.FindSet() then
             repeat
                 if DtldCustLedgEntry1."Cust. Ledger Entry No." =
                    DtldCustLedgEntry1."Applied Cust. Ledger Entry No."
@@ -174,14 +174,14 @@ page 9106 "Customer Ledger Entry FactBox"
                             then begin
                                 CustLedgerEntry.SetCurrentKey("Entry No.");
                                 CustLedgerEntry.SetRange("Entry No.", DtldCustLedgEntry2."Cust. Ledger Entry No.");
-                                if CustLedgerEntry.FindFirst then
+                                if CustLedgerEntry.FindFirst() then
                                     CustLedgerEntry.Mark(true);
                             end;
                         until DtldCustLedgEntry2.Next() = 0;
                 end else begin
                     CustLedgerEntry.SetCurrentKey("Entry No.");
                     CustLedgerEntry.SetRange("Entry No.", DtldCustLedgEntry1."Applied Cust. Ledger Entry No.");
-                    if CustLedgerEntry.FindFirst then
+                    if CustLedgerEntry.FindFirst() then
                         CustLedgerEntry.Mark(true);
                 end;
             until DtldCustLedgEntry1.Next() = 0;
@@ -196,7 +196,7 @@ page 9106 "Customer Ledger Entry FactBox"
 
         CustLedgerEntry.SetCurrentKey("Closed by Entry No.");
         CustLedgerEntry.SetRange("Closed by Entry No.", CreateCustLedgEntry."Entry No.");
-        if CustLedgerEntry.FindSet then
+        if CustLedgerEntry.FindSet() then
             repeat
                 CustLedgerEntry.Mark(true);
             until CustLedgerEntry.Next() = 0;
