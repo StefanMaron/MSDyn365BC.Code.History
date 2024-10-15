@@ -1,3 +1,4 @@
+#if not CLEAN23
 codeunit 144565 "ERM Sales Pmt. Practices"
 {
     Permissions = TableData "Cust. Ledger Entry" = id,
@@ -5,6 +6,10 @@ codeunit 144565 "ERM Sales Pmt. Practices"
                   TableData "Vendor Ledger Entry" = id,
                   TableData "Detailed Vendor Ledg. Entry" = id;
     Subtype = Test;
+
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit is obsolete. The tests will be moved to W1 App "Payment Practice"';
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -768,4 +773,4 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         PaymentPracticesReporting.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 }
-
+#endif

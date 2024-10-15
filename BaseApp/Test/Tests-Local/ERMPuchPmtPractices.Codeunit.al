@@ -1,3 +1,4 @@
+#if not CLEAN23
 codeunit 144564 "ERM Puch. Pmt. Practices"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd,
@@ -5,6 +6,10 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
                   TableData "Detailed Cust. Ledg. Entry" = rimd,
                   TableData "Detailed Vendor Ledg. Entry" = rimd;
     Subtype = Test;
+
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit is obsolete. The tests will be moved to W1 App "Payment Practice"';
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -868,4 +873,4 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         PaymentPracticesReporting.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 }
-
+#endif

@@ -1,9 +1,13 @@
+#if not CLEAN23
 report 10887 "Payment Practices Reporting"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PaymentPracticesReporting.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Payment Practices Reporting';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This report is obsolete. Replaced by W1 extension "Payment Practices".';
+    ObsoleteTag = '23.0';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -752,4 +756,4 @@ report 10887 "Payment Practices Reporting"
             Error(StartingDateLaterThanEndingDateErr);
     end;
 }
-
+#endif

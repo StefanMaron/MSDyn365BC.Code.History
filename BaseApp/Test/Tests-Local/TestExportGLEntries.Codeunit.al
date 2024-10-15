@@ -2287,6 +2287,120 @@ codeunit 144563 "Test Export G/L Entries"
         VerifySourceCodeOfExportedGLEntriesReport(ReportFileName, GLAccount."No.", SourceCode.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('ExportGLEntriesReportByTransNoHandler')]
+    [Scope('OnPrem')]
+    procedure BankGLEntriesFieldsMapping()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLRegister: Record "G/L Register";
+        ReportFileName: Text[250];
+        StartingDate: Date;
+    begin
+        // [SCENARIO 475846] Export G/L Entries - Tax Audit by transaction number for multiple documents related to bank account
+        ReportFileName := GetTempFile;
+        StartingDate := GetStartingDate;
+
+        // [GIVEN] Multiple general journal lines are posted for the bank account
+        CreateAndPostBankGenJnlLines(
+          BankAccount,
+          GenJournalLine."Account Type"::"Bank Account",
+          StartingDate);
+
+        // [WHEN] Export Tax Audit report with "Use Transaction No." = true
+        ExportReportFile(ReportFileName, StartingDate, StartingDate, '', false, true);
+
+        // [THEN] Fields 7 CompAuxNume and 8 CompAuxLib are exported as Bank Account's number and name respectively for Bank Account Posting G/L Account
+        // [THEN] All non-posting accounts have fields 7 CompAuxNume and 8 CompAuxLib with blank values
+        GLRegister.FindLast();
+        VerifyExportGLEntriesReport(
+          GLRegister,
+          ReportFileName,
+          '',
+          BankAccount."No.",
+          BankAccount.Name);
+
+        // tear down
+        Erase(ReportFileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportGLEntriesReportByTransNoHandler')]
+    [Scope('OnPrem')]
+    procedure CustomerGLEntriesFieldsMapping()
+    var
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        GLRegister: Record "G/L Register";
+        ReportFileName: Text[250];
+        StartingDate: Date;
+    begin
+        // [SCENARIO 475846] Export G/L Entries - Tax Audit by transaction number for multiple documents related to customer
+        ReportFileName := GetTempFile;
+        StartingDate := GetStartingDate;
+
+        // [GIVEN] Multiple general journal lines are posted for the customer
+        CreateAndPostCustomGenJnlLines(
+          Customer,
+          GenJournalLine."Account Type"::Customer,
+          StartingDate);
+
+        // [WHEN] Export Tax Audit report with "Use Transaction No." = true
+        ExportReportFile(ReportFileName, StartingDate, StartingDate, '', false, true); // IncludeOpeningBalancesValue = FALSE
+
+        // [THEN] Fields 7 CompAuxNume and 8 CompAuxLib are exported as Customer's number and name respectively for Customer Receivables Account
+        // [THEN] All non-posting accounts have fields 7 CompAuxNume and 8 CompAuxLib with blank values
+        GLRegister.FindLast();
+        VerifyExportGLEntriesReport(
+          GLRegister,
+          ReportFileName,
+          '',
+          Customer."No.",
+          Customer.Name);
+
+        // tear down
+        Erase(ReportFileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportGLEntriesReportByTransNoHandler')]
+    [Scope('OnPrem')]
+    procedure VendorGLEntriesFieldsMapping()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        GLRegister: Record "G/L Register";
+        ReportFileName: Text[250];
+        StartingDate: Date;
+    begin
+        // [SCENARIO 475846] Export G/L Entries - Tax Audit by transaction number for multiple documents related to vendor
+        ReportFileName := GetTempFile;
+        StartingDate := GetStartingDate;
+
+        // [GIVEN] Multiple general journal lines are posted for the vendor
+        CreateAndPostVendorGenJnlLines(
+          Vendor,
+          GenJournalLine."Document Type"::Invoice,
+          StartingDate);
+
+        // [WHEN] Export Tax Audit report with "Use Transaction No." = true
+        ExportReportFile(ReportFileName, StartingDate, StartingDate, '', false, true); // IncludeOpeningBalancesValue = FALSE
+
+        // [THEN] Fields 7 CompAuxNume and 8 CompAuxLib are exported as Vendor's number and name respectively for Vendor Payables Account
+        // [THEN] All non-posting accounts have fields 7 CompAuxNume and 8 CompAuxLib with blank values
+        GLRegister.FindLast();
+        VerifyExportGLEntriesReport(
+          GLRegister,
+          ReportFileName,
+          '',
+          Vendor."No.",
+          Vendor.Name);
+
+        // tear down
+        Erase(ReportFileName);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2496,12 +2610,44 @@ codeunit 144563 "Test Export G/L Entries"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
+    local procedure CreateAndPostMultipleGenJnlLines(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date; Amount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        SourceCode: Record "Source Code";
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, DocumentType, AccountType, AccountNo, Amount);
+        CreateSourceCodeAndDesc(SourceCode);
+        GenJournalLine.Validate("Source Code", SourceCode.Code);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify(true);
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", DocumentType, AccountType, AccountNo,
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Amount);
+        GenJournalLine.Validate("Source Code", SourceCode.Code);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
     local procedure CreateAndPostBankGenJnlLine(var BankAccount: Record "Bank Account"; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
         CreateBankAccount(BankAccount);
         CreateAndPostGenJnlLine(
+          GenJournalLine."Account Type"::"Bank Account",
+          BankAccount."No.",
+          DocumentType,
+          PostingDate,
+          -LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure CreateAndPostBankGenJnlLines(var BankAccount: Record "Bank Account"; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CreateBankAccount(BankAccount);
+        CreateAndPostMultipleGenJnlLines(
           GenJournalLine."Account Type"::"Bank Account",
           BankAccount."No.",
           DocumentType,
@@ -2522,12 +2668,38 @@ codeunit 144563 "Test Export G/L Entries"
           -LibraryRandom.RandDec(100, 2));
     end;
 
+    local procedure CreateAndPostCustomGenJnlLines(var Customer: Record Customer; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CreateCustomer(Customer);
+        CreateAndPostMultipleGenJnlLines(
+          GenJournalLine."Account Type"::Customer,
+          Customer."No.",
+          DocumentType,
+          PostingDate,
+          -LibraryRandom.RandDec(100, 2));
+    end;
+
     local procedure CreateAndPostVendorGenJnlLine(var Vendor: Record Vendor; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndPostGenJnlLine(
+          GenJournalLine."Account Type"::Vendor,
+          Vendor."No.",
+          DocumentType,
+          PostingDate,
+          -LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure CreateAndPostVendorGenJnlLines(var Vendor: Record Vendor; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateAndPostMultipleGenJnlLines(
           GenJournalLine."Account Type"::Vendor,
           Vendor."No.",
           DocumentType,
@@ -2846,6 +3018,23 @@ codeunit 144563 "Test Export G/L Entries"
         LibraryVariableStorage.Enqueue(EndingDateValue);
         LibraryVariableStorage.Enqueue(AccNoFilter);
         LibraryVariableStorage.Enqueue(IncludeOpeningBalancesValue);
+
+        ExportGLEntriesTaxAudit.Init(StartingDateValue, EndingDateValue, IncludeOpeningBalancesValue, AccNoFilter, ReportTempFilePath, '');
+        ExportGLEntriesTaxAudit.Run();
+    end;
+
+    [HandlerFunctions('MessageHandler')]
+    local procedure ExportReportFile(ReportTempFilePath: Text[250]; StartingDateValue: Date; EndingDateValue: Date; AccNoFilter: Code[250]; IncludeOpeningBalancesValue: Boolean; UseTransactionNo: Boolean)
+    var
+        ExportGLEntriesTaxAudit: Report "Export G/L Entries - Tax Audit";
+    begin
+        Commit();
+        LibraryVariableStorage.Enqueue(ReportTempFilePath);
+        LibraryVariableStorage.Enqueue(StartingDateValue);
+        LibraryVariableStorage.Enqueue(EndingDateValue);
+        LibraryVariableStorage.Enqueue(AccNoFilter);
+        LibraryVariableStorage.Enqueue(IncludeOpeningBalancesValue);
+        LibraryVariableStorage.Enqueue(UseTransactionNo);
 
         ExportGLEntriesTaxAudit.Init(StartingDateValue, EndingDateValue, IncludeOpeningBalancesValue, AccNoFilter, ReportTempFilePath, '');
         ExportGLEntriesTaxAudit.Run();
@@ -3539,6 +3728,32 @@ codeunit 144563 "Test Export G/L Entries"
         ExportGLEntriesTaxAuditPage.EndingDate.SetValue(EndingDateValue);
         ExportGLEntriesTaxAuditPage.GLAccount.SetFilter("No.", AccNoFilterValue);
         ExportGLEntriesTaxAuditPage."Include Opening Balances".SetValue(IncludeOpeningBalancesValue);
+        ExportGLEntriesTaxAuditPage.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ExportGLEntriesReportByTransNoHandler(var ExportGLEntriesTaxAuditPage: TestRequestPage "Export G/L Entries - Tax Audit")
+    var
+        ReportTempFilePath: Variant;
+        StartingDateValue: Variant;
+        EndingDateValue: Variant;
+        AccNoFilterValue: Variant;
+        IncludeOpeningBalancesValue: Variant;
+        UseTransactionNo: Boolean;
+    begin
+        LibraryVariableStorage.Dequeue(ReportTempFilePath);
+        LibraryVariableStorage.Dequeue(StartingDateValue);
+        LibraryVariableStorage.Dequeue(EndingDateValue);
+        LibraryVariableStorage.Dequeue(AccNoFilterValue);
+        LibraryVariableStorage.Dequeue(IncludeOpeningBalancesValue);
+        UseTransactionNo := LibraryVariableStorage.DequeueBoolean();
+
+        ExportGLEntriesTaxAuditPage.StartingDate.SetValue(StartingDateValue);
+        ExportGLEntriesTaxAuditPage.EndingDate.SetValue(EndingDateValue);
+        ExportGLEntriesTaxAuditPage.GLAccount.SetFilter("No.", AccNoFilterValue);
+        ExportGLEntriesTaxAuditPage."Include Opening Balances".SetValue(IncludeOpeningBalancesValue);
+        ExportGLEntriesTaxAuditPage.UseTransactionNoControl.SetValue(UseTransactionNo);
         ExportGLEntriesTaxAuditPage.OK.Invoke;
     end;
 

@@ -173,6 +173,12 @@ report 10885 "Export G/L Entries - Tax Audit"
                         TableRelation = "Source Code";
                         ToolTip = 'Specifies the source code to be used if there is no code specified in the G/L entry.';
                     }
+                    field(UseTransactionNoControl; UseTransactionNo)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Use Transaction No.';
+                        ToolTip = 'Specifies whether the transaction number is used as the progressive number in the audit file. If you select the option, the transaction number is used as the progressive number. If you do not select the option, the general ledger register number is used as the progressive number.';
+                    }
                 }
             }
         }
@@ -254,6 +260,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         OpeningBalance: Decimal;
         DetailedBalance: Decimal;
         DefaultSourceCode: Code[10];
+        UseTransactionNo: Boolean;
 
 #if not CLEAN19
     [Scope('OnPrem')]
@@ -683,6 +690,13 @@ report 10885 "Export G/L Entries - Tax Audit"
         exit(GLEntry."Source Code");
     end;
 
+    local procedure GetProgressiveNo(var GLRegister: Record "G/L Register"; var GLEntry: Record "G/L Entry"): Integer
+    begin
+        if UseTransactionNo then
+            exit(GLEntry."Transaction No.");
+        exit(GLRegister."No.");
+    end;
+
     local procedure ProcessGLEntry()
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
@@ -736,7 +750,7 @@ report 10885 "Export G/L Entries - Tax Audit"
         FindGLRegister(GLRegister, GLEntry."Entry No.");
 
         WriteGLEntryToFile(
-          GLRegister."No.",
+          GetProgressiveNo(GLRegister, GLEntry),
           GLRegister."Creation Date",
           PartyNo,
           PartyName,
@@ -788,14 +802,14 @@ report 10885 "Export G/L Entries - Tax Audit"
           '||');
     end;
 
-    local procedure WriteGLEntryToFile(GLRegisterNo: Integer; GLRegisterCreationDate: Date; PartyNo: Code[20]; PartyName: Text[100]; FCYAmount: Text[250]; CurrencyCode: Code[10]; DocNoSet: Text; DateApplied: Date)
+    local procedure WriteGLEntryToFile(ProgressiveNo: Integer; GLRegisterCreationDate: Date; PartyNo: Code[20]; PartyName: Text[100]; FCYAmount: Text[250]; CurrencyCode: Code[10]; DocNoSet: Text; DateApplied: Date)
     begin
         with GLEntry do begin
             CalcFields("G/L Account Name");
             Writer.WriteLine(
               GetSourceCode() + '|' +
               GetSourceCodeDesc(GetSourceCode()) + '|' +
-              Format(GLRegisterNo) + '|' +
+              Format(ProgressiveNo) + '|' +          
               GetFormattedDate("Posting Date") + '|' +
               "G/L Account No." + '|' +
               "G/L Account Name" + '|' +

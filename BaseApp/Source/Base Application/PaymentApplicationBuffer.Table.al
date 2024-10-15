@@ -1,6 +1,14 @@
 table 10881 "Payment Application Buffer"
 {
     Caption = 'Payment Application Buffer';
+    ObsoleteReason = 'This table is obsolete. Replaced by W1 extension "Payment Practices".';
+#if CLEAN23
+    ObsoleteState = Removed;
+    ObsoleteTag = '26.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
+#endif
 
     fields
     {
