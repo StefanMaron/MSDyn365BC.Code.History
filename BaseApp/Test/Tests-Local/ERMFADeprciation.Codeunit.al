@@ -540,7 +540,7 @@ codeunit 144143 "ERM FA Deprciation"
     [Test]
     [HandlerFunctions('DepreciationBookRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure DeprBookReportPartOfDepreciableBasisAppreciationTrue()
+    procedure DeprBookReportAppreciationPartOfDepreciableBasisFalse()
     var
         DepreciationTableLine: Record "Depreciation Table Line";
         FADepreciationBook: Record "FA Depreciation Book";
@@ -551,10 +551,10 @@ codeunit 144143 "ERM FA Deprciation"
         DepreciationPercent: Integer;
         DepreciationBasis: Decimal;
     begin
-        // [SCENARIO 373928] When in FA Posting Setup "Part of Depreciable Basis" is set to false for Apreciation, "Depreciation Book" report ignores appreciation in Depreciation % calculation.
+        // [SCENARIO 373928] When in FA Posting Setup "Part of Depreciable Basis" is set to false for Appreciation, "Depreciation Book" report ignores appreciation in Depreciation % calculation.
         Initialize();
 
-        // [GIVEN] Depreciaton Book with FA Posting Setup's "Part of Depreciable Basis" set to false for Apreciation.
+        // [GIVEN] Depreciaton Book with FA Posting Setup's "Part of Depreciable Basis" set to false for Appreciation.
         DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup();
         FAPostingTypeSetup.Get(DepreciationBookCode, FAPostingTypeSetup."FA Posting Type"::Appreciation);
         FAPostingTypeSetup.Validate("Part of Depreciable Basis", false);
@@ -567,9 +567,9 @@ codeunit 144143 "ERM FA Deprciation"
 
         // [GIVEN] Fixed Asset with Depreciation Book starting from 01.01 using Depreciation Table.
         CreateFADepreciationBookSetup(FADepreciationBook, DepreciationTableCode, CalcDate('<-CY>', WorkDate()), DepreciationBookCode);
-        DepreciationBasis := LibraryRandom.RandDecInRange(500, 600, 2);
 
         // [GIVEN] Fixed Asset is aquired for amount of 500 on 01.01.
+        DepreciationBasis := LibraryRandom.RandDecInRange(500, 600, 2);
         CreateAndPostGenJournalLine(
             FADepreciationBook, GenJournalLine."FA Posting Type"::"Acquisition Cost",
             DepreciationBasis, CalcDate('<-CY>', WorkDate()));
@@ -595,7 +595,7 @@ codeunit 144143 "ERM FA Deprciation"
     [Test]
     [HandlerFunctions('DepreciationBookRequestPageHandler')]
     [Scope('OnPrem')]
-    procedure DeprBookReportPartOfDepreciableBasisAppreciationFalse()
+    procedure DeprBookReportAppreciationPartOfDepreciableBasisTrue()
     var
         DepreciationTableLine: Record "Depreciation Table Line";
         FADepreciationBook: Record "FA Depreciation Book";
@@ -607,10 +607,10 @@ codeunit 144143 "ERM FA Deprciation"
         DepreciationBasis: Decimal;
         Appreciation: Decimal;
     begin
-        // [SCENARIO 373928] When in FA Posting Setup "Part of Depreciable Basis" is set to true for Apreciation, "Depreciation Book" report uses appreciation in Depreciation % calculation.
+        // [SCENARIO 373928] When in FA Posting Setup "Part of Depreciable Basis" is set to true for Appreciation, "Depreciation Book" report uses appreciation in Depreciation % calculation.
         Initialize();
 
-        // [GIVEN] Depreciaton Book with FA Posting Setup's "Part of Depreciable Basis" set to true for Apreciation.
+        // [GIVEN] Depreciaton Book with FA Posting Setup's "Part of Depreciable Basis" set to true for Appreciation.
         DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup();
         FAPostingTypeSetup.Get(DepreciationBookCode, FAPostingTypeSetup."FA Posting Type"::Appreciation);
         FAPostingTypeSetup.Validate("Part of Depreciable Basis", true);
@@ -640,6 +640,118 @@ codeunit 144143 "ERM FA Deprciation"
         CreateAndPostGenJournalLine(
             FADepreciationBook, GenJournalLine."FA Posting Type"::Depreciation,
             -(DepreciationBasis + Appreciation) * DepreciationPercent / 100, WorkDate());
+
+        // [WHEN] Report "Depreciation Book" is run.
+        RunDepreciationBookReport(DepreciationBookCode, FADepreciationBook."FA No.", '', true, WorkDate());
+
+        // [THEN] BasicDepreciationPerc is equal to "Period Depreciation %" = 10.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('BasicDepreciationPerc', DepreciationPercent);
+    end;
+
+    [Test]
+    [HandlerFunctions('DepreciationBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DeprBookReportWriteDownPartOfDepreciableBasisFalse()
+    var
+        DepreciationTableLine: Record "Depreciation Table Line";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FAPostingTypeSetup: Record "FA Posting Type Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        DepreciationBookCode: Code[10];
+        DepreciationTableCode: Code[10];
+        DepreciationPercent: Integer;
+        DepreciationBasis: Decimal;
+    begin
+        // [SCENARIO 373928] When in FA Posting Setup "Part of Depreciable Basis" is set to false for Write-Down, "Depreciation Book" report ignores appreciation in Depreciation % calculation.
+        Initialize();
+
+        // [GIVEN] Depreciaton Book with FA Posting Setup's "Part of Depreciable Basis" set to false for Write-Down.
+        DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup();
+        FAPostingTypeSetup.Get(DepreciationBookCode, FAPostingTypeSetup."FA Posting Type"::"Write-Down");
+        FAPostingTypeSetup.Validate("Part of Depreciable Basis", false);
+        FAPostingTypeSetup.Modify(true);
+
+        // [GIVEN] Deprection Table with Depreciation Line with "Period Depreciation %" = 10.
+        DepreciationTableCode := CreateDepreciationTableWithMultipleLines();
+        DepreciationTableLine.Get(DepreciationTableCode, 1);
+        DepreciationPercent := DepreciationTableLine."Period Depreciation %";
+
+        // [GIVEN] Fixed Asset with Depreciation Book starting from 01.01 using Depreciation Table.
+        CreateFADepreciationBookSetup(FADepreciationBook, DepreciationTableCode, CalcDate('<-CY>', WorkDate()), DepreciationBookCode);
+
+        // [GIVEN] Fixed Asset is aquired for amount of 500 on 01.01.
+        DepreciationBasis := LibraryRandom.RandDecInRange(500, 600, 2);
+        CreateAndPostGenJournalLine(
+            FADepreciationBook, GenJournalLine."FA Posting Type"::"Acquisition Cost",
+            DepreciationBasis, CalcDate('<-CY>', WorkDate()));
+
+        // [GIVEN] Write-Down for Fixed Asset for amount of 100 on 01.01.
+        CreateAndPostGenJournalLine(
+            FADepreciationBook, GenJournalLine."FA Posting Type"::"Write-Down",
+            -LibraryRandom.RandDecInRange(100, 200, 2), CalcDate('<-CY>', WorkDate()));
+
+        // [GIVEN] Fixed Asset is depreciated for amount of 50 on 01.02.
+        CreateAndPostGenJournalLine(
+            FADepreciationBook, GenJournalLine."FA Posting Type"::Depreciation,
+            -DepreciationBasis * DepreciationPercent / 100, WorkDate());
+
+        // [WHEN] Report "Depreciation Book" is run.
+        RunDepreciationBookReport(DepreciationBookCode, FADepreciationBook."FA No.", '', true, WorkDate());
+
+        // [THEN] BasicDepreciationPerc is equal to "Period Depreciation %" = 10.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('BasicDepreciationPerc', DepreciationPercent);
+    end;
+
+    [Test]
+    [HandlerFunctions('DepreciationBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DeprBookReportWriteDownPartOfDepreciableBasisTrue()
+    var
+        DepreciationTableLine: Record "Depreciation Table Line";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FAPostingTypeSetup: Record "FA Posting Type Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        DepreciationBookCode: Code[10];
+        DepreciationTableCode: Code[10];
+        DepreciationPercent: Integer;
+        DepreciationBasis: Decimal;
+        WriteDown: Decimal;
+    begin
+        // [SCENARIO 373928] When in FA Posting Setup "Part of Depreciable Basis" is set to true for Write-Down, "Depreciation Book" report uses appreciation in Depreciation % calculation.
+        Initialize();
+
+        // [GIVEN] Depreciaton Book with FA Posting Setup's "Part of Depreciable Basis" set to true for Write-Down.
+        DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup();
+        FAPostingTypeSetup.Get(DepreciationBookCode, FAPostingTypeSetup."FA Posting Type"::"Write-Down");
+        FAPostingTypeSetup.Validate("Part of Depreciable Basis", true);
+        FAPostingTypeSetup.Modify(true);
+
+        // [GIVEN] Deprection Table with Depreciation Line with "Period Depreciation %" = 10.
+        DepreciationTableCode := CreateDepreciationTableWithMultipleLines();
+        DepreciationTableLine.Get(DepreciationTableCode, 1);
+        DepreciationPercent := DepreciationTableLine."Period Depreciation %";
+
+        // [GIVEN] Fixed Asset with Depreciation Book starting from 01.01 using Depreciation Table.
+        CreateFADepreciationBookSetup(FADepreciationBook, DepreciationTableCode, CalcDate('<-CY>', WorkDate()), DepreciationBookCode);
+
+        // [GIVEN] Fixed Asset is aquired for amount of 500 on 01.01.
+        DepreciationBasis := LibraryRandom.RandDecInRange(500, 600, 2);
+        CreateAndPostGenJournalLine(
+            FADepreciationBook, GenJournalLine."FA Posting Type"::"Acquisition Cost",
+            DepreciationBasis, CalcDate('<-CY>', WorkDate()));
+
+        // [GIVEN] Write-down for Fixed Asset for amount of 100 on 01.01.
+        WriteDown := -LibraryRandom.RandDecInRange(100, 200, 2);
+        CreateAndPostGenJournalLine(
+            FADepreciationBook, GenJournalLine."FA Posting Type"::"Write-Down",
+            WriteDown, CalcDate('<-CY>', WorkDate()));
+
+        // [GIVEN] Fixed Asset is depreciated for amount of 50 on 01.02.
+        CreateAndPostGenJournalLine(
+            FADepreciationBook, GenJournalLine."FA Posting Type"::Depreciation,
+            -(DepreciationBasis + WriteDown) * DepreciationPercent / 100, WorkDate());
 
         // [WHEN] Report "Depreciation Book" is run.
         RunDepreciationBookReport(DepreciationBookCode, FADepreciationBook."FA No.", '', true, WorkDate());
@@ -1048,6 +1160,7 @@ codeunit 144143 "ERM FA Deprciation"
         DepreciationBook.Validate("G/L Integration - Depreciation", true);
         DepreciationBook.Validate("G/L Integration - Disposal", true);
         DepreciationBook.Validate("G/L Integration - Appreciation", true);
+        DepreciationBook.Validate("G/L Integration - Write-Down", true);
         DepreciationBook.Validate("Use FA Ledger Check", true);
         DepreciationBook.Validate("Use Rounding in Periodic Depr.", true);
         DepreciationBook.Validate("Use Same FA+G/L Posting Dates", true);
@@ -1179,6 +1292,7 @@ codeunit 144143 "ERM FA Deprciation"
         FAPostingGroup.Validate("Depreciation Expense Acc.", GLAccount."No.");
         FAPostingGroup.Validate("Acquisition Cost Account", GLAccount."No.");
         FAPostingGroup.Validate("Appreciation Account", GLAccount."No.");
+        FAPostingGroup.Validate("Write-Down Account", GLAccount."No.");
         FAPostingGroup.Modify(true);
         exit(GenProductPostingGroup.Code);
     end;

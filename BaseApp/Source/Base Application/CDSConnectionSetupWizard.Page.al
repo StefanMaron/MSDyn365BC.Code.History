@@ -843,7 +843,7 @@ page 7201 "CDS Connection Setup Wizard"
             Error(AdminUserShouldBesignedInErr);
 
         Window.Open('Getting things ready for you.');
-        CDSIntegrationImpl.ImportIntegrationSolution(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, false);
+        CDSIntegrationImpl.ImportIntegrationSolution(Rec, CrmHelper, AdminUserName, AdminPassword, AdminAccessToken, true);
         Window.Close();
     end;
 

@@ -3713,12 +3713,8 @@
 
         Clear(ReserveSalesLine);
         if not SalesOrderLine."Drop Shipment" then
-            if not HasSpecificTracking(SalesOrderLine."No.") and HasInvtPickLine(SalesOrderLine) then
-                ReserveSalesLine.TransferSalesLineToItemJnlLine(
-                  SalesOrderLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry, true)
-            else
-                ReserveSalesLine.TransferSalesLineToItemJnlLine(
-                  SalesOrderLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry, false)
+            ReserveSalesLine.TransferSalesLineToItemJnlLine(
+              SalesOrderLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry, false)
         else begin
             ReserveSalesLine.SetApplySpecificItemTracking(true);
             TempTrackingSpecification2.Reset();
@@ -5431,11 +5427,15 @@
                 SalesShipmentHeader."Ship-to Code",
                 SalesShipmentHeader."Sell-to Country/Region Code"));
         end;
+        if SalesHeader.IsCreditDocType() then
+            CountryRegionCode := SalesHeader."Sell-to Country/Region Code"
+        else
+            CountryRegionCode := SalesHeader."Ship-to Country/Region Code";
         exit(
           GetCountryRegionCode(
             SalesLine."Sell-to Customer No.",
             SalesHeader."Ship-to Code",
-            SalesHeader."Sell-to Country/Region Code"));
+            CountryRegionCode));
     end;
 
     local procedure GetCountryRegionCode(CustNo: Code[20]; ShipToCode: Code[10]; SellToCountryRegionCode: Code[10]): Code[10]
@@ -5597,32 +5597,6 @@
             if "Applies-to Doc. No." <> '' then
                 if "Applies-to Occurrence No." = 0 then
                     Error(SpecifyInstallmentErr, FieldCaption("Applies-to Occurrence No."));
-        end;
-    end;
-
-    local procedure HasSpecificTracking(ItemNo: Code[20]): Boolean
-    var
-        Item: Record Item;
-        ItemTrackingCode: Record "Item Tracking Code";
-    begin
-        Item.Get(ItemNo);
-        if Item."Item Tracking Code" <> '' then begin
-            ItemTrackingCode.Get(Item."Item Tracking Code");
-            exit(ItemTrackingCode."SN Specific Tracking" or ItemTrackingCode."Lot Specific Tracking");
-        end;
-    end;
-
-    local procedure HasInvtPickLine(SalesLine: Record "Sales Line"): Boolean
-    var
-        WhseActivityLine: Record "Warehouse Activity Line";
-    begin
-        with WhseActivityLine do begin
-            SetRange("Activity Type", "Activity Type"::"Invt. Pick");
-            SetRange("Source Type", DATABASE::"Sales Line");
-            SetRange("Source Subtype", SalesLine."Document Type");
-            SetRange("Source No.", SalesLine."Document No.");
-            SetRange("Source Line No.", SalesLine."Line No.");
-            exit(not IsEmpty);
         end;
     end;
 
