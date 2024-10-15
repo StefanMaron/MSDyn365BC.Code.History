@@ -474,8 +474,14 @@ page 522 "View Applied Entries"
     local procedure InsertTempEntry(EntryNo: Integer; AppliedQty: Decimal; ShowQuantity: Boolean)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
+        IsHandled: Boolean;
     begin
         ItemLedgEntry.Get(EntryNo);
+
+        IsHandled := false;
+        OnBeforeInsertTempEntry(ItemLedgEntry, AppliedQty, ShowQuantity, TotalApplied, TempItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
 
         if ShowQuantity then
             if AppliedQty * ItemLedgEntry.Quantity < 0 then
@@ -622,6 +628,11 @@ page 522 "View Applied Entries"
             exit(Text001);
 
         exit(Text002);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertTempEntry(ItemLedgEntry: Record "Item Ledger Entry"; AppliedQty: Decimal; ShowQuantity: Boolean; var TotalApplied: Decimal; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
     end;
 }
 

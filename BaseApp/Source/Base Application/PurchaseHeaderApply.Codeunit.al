@@ -10,6 +10,7 @@ codeunit 402 "Purchase Header Apply"
             VendLedgEntry.SetCurrentKey("Vendor No.", Open);
             VendLedgEntry.SetRange("Vendor No.", PayToVendorNo);
             VendLedgEntry.SetRange(Open, true);
+            OnRunOnAfterFilterVendLedgEntry(VendLedgEntry);
             if "Applies-to ID" = '' then
                 "Applies-to ID" := "No.";
             if "Applies-to ID" = '' then
@@ -29,6 +30,7 @@ codeunit 402 "Purchase Header Apply"
             VendLedgEntry.SetRange("Vendor No.", PayToVendorNo);
             VendLedgEntry.SetRange(Open, true);
             VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
+            OnRunOnBeforeVendLedgEntryFindFirst(VendLedgEntry);
             if VendLedgEntry.FindFirst then begin
                 "Applies-to Doc. Type" := 0;
                 "Applies-to Doc. No." := '';
@@ -46,5 +48,15 @@ codeunit 402 "Purchase Header Apply"
         ApplyVendEntries: Page "Apply Vendor Entries";
         PayToVendorNo: Code[20];
         OK: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterFilterVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeVendLedgEntryFindFirst(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
 }
 

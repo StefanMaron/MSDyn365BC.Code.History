@@ -57,6 +57,7 @@ page 9652 "Report Layout Selection"
                         UpdateRec;
                         Commit();
                         LookupCustomLayout;
+                        CurrPage.Update(false);
                     end;
                 }
                 field("Custom Report Layout Code"; "Custom Report Layout Code")
@@ -70,6 +71,7 @@ page 9652 "Report Layout Selection"
                     begin
                         ReportLayoutSelection.Validate("Custom Report Layout Code", ReportLayoutSelection."Custom Report Layout Code");
                         UpdateRec;
+                        CurrPage.Update(false);
                     end;
                 }
                 field(CustomLayoutDescription; CustomLayoutDescription)
@@ -237,18 +239,16 @@ page 9652 "Report Layout Selection"
     end;
 
     local procedure UpdateTempRec()
-    var
-        FromRecord: Record "Report Layout Selection";
     begin
         // Update the temporary record's field with the values from the actual record
 
-        if not FromRecord.Get(Rec."Report ID", SelectedCompany) then begin
-            FromRecord.Init();
-            FromRecord.Type := Rec.GetDefaultType(Rec."Report ID");
+        if not ReportLayoutSelection.Get(Rec."Report ID", SelectedCompany) then begin
+            ReportLayoutSelection.Init();
+            ReportLayoutSelection.Type := Rec.GetDefaultType(Rec."Report ID");
         end;
 
-        Rec.Type := FromRecord.Type;
-        Rec."Custom Report Layout Code" := FromRecord."Custom Report Layout Code";
+        Rec.Type := ReportLayoutSelection.Type;
+        Rec."Custom Report Layout Code" := ReportLayoutSelection."Custom Report Layout Code";
         Rec.CalcFields("Report Layout Description");
         CustomLayoutDescription := Rec."Report Layout Description";
     end;

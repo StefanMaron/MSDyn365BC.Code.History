@@ -60,7 +60,7 @@ codeunit 137056 "SCM Warehouse-V"
         CannotUnapplyItemLedgEntryErr: Label 'Item ledger entry %1 cannot be left unapplied';
         AdjmtBinCodeMustHaveValueErr: Label 'Adjustment Bin Code must have a value in Location';
         WrongNeededQtyErr: Label 'Incorrect %1 in %2.', Comment = '%1: FieldCaption(Qty. Needed), %2: TableCaption(Whse. Cross-Dock Opportunity)';
-        CrossDockQtyExceedsReceiptQtyErr: Label 'The sum of the Qty. to Cross-Dock and Qty. Cross-Docked (Base) fields must not exceed the value in the Qty. to Receive field on the warehouse receipt line.';
+        CrossDockQtyExceedsCrossDockQtyErr: Label 'The sum of the Qty. to Cross-Dock and Qty. Cross-Docked (Base) fields must not exceed the value in the Qty. to Cross-Dock field on the warehouse receipt line.';
 
     [Test]
     [Scope('OnPrem')]
@@ -307,7 +307,7 @@ codeunit 137056 "SCM Warehouse-V"
         CrossDockedQty: Decimal;
     begin
         // [FEATURE] [Cross-Dock]
-        // [SCENARIO 380520] Qty. to Cross-Dock in Whse. Cross-Dock Opportunity is automatically filled with the quantity of demand that is less than the quantity being received yet not cross-docked.
+        // [SCENARIO 380520] Qty. to Cross-Dock in Whse. Cross-Dock Opportunity is automatically filled with the residual qty. to cross-dock if other receipts do not fully cover the demand.
         Initialize;
         DefineSupplyAndDemandQtys(ReceiptQty, SalesQty, CrossDockedQty);
 
@@ -322,8 +322,8 @@ codeunit 137056 "SCM Warehouse-V"
         // [WHEN] Calculate Whse. Cross-Dock Opportunity for "R2" and automatically fill quantity to cross-dock.
         CalculateCrossDockOpportunityForWhseReceipt(WhseCrossDockOpportunity, WarehouseReceiptLine."No.");
 
-        // [THEN] "Qty. to Cross-Dock" in the Whse. Cross-Dock Opportunity = "SQ".
-        WhseCrossDockOpportunity.TestField("Qty. to Cross-Dock", SalesQty);
+        // [THEN] "Qty. to Cross-Dock" in the Whse. Cross-Dock Opportunity = "SQ" - "CDQ".
+        WhseCrossDockOpportunity.TestField("Qty. to Cross-Dock", SalesQty - CrossDockedQty);
     end;
 
     [Test]
@@ -337,7 +337,7 @@ codeunit 137056 "SCM Warehouse-V"
         CrossDockedQty: Decimal;
     begin
         // [FEATURE] [Cross-Dock]
-        // [SCENARIO 380520] Qty. to Cross-Dock in Whse. Cross-Dock Opportunity is automatically filled with the quantity of the receive yet not cross-docked quantity if it does not cover the demand.
+        // [SCENARIO 380520] Qty. to Cross-Dock in Whse. Cross-Dock Opportunity is automatically filled with the quantity of the receipt if it does not cover the demand together with other receipts.
         Initialize;
         DefineSupplyAndDemandQtys(ReceiptQty, SalesQty, CrossDockedQty);
         ReceiptQty := LibraryRandom.RandIntInRange(30, 50);
@@ -353,73 +353,8 @@ codeunit 137056 "SCM Warehouse-V"
         // [WHEN] Calculate Whse. Cross-Dock Opportunity for "R2" and automatically fill quantity to cross-dock.
         CalculateCrossDockOpportunityForWhseReceipt(WhseCrossDockOpportunity, WarehouseReceiptLine."No.");
 
-        // [THEN] "Qty. to Cross-Dock" in the Whse. Cross-Dock Opportunity = "RQ" - "CDQ".
-        WhseCrossDockOpportunity.TestField("Qty. to Cross-Dock", ReceiptQty - CrossDockedQty);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure AutofilledQtyToCrossDockEqualsToZeroOnSurplusCrossDocked()
-    var
-        WarehouseReceiptLine: Record "Warehouse Receipt Line";
-        WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity";
-        ReceiptQty: Decimal;
-        SalesQty: Decimal;
-        CrossDockedQty: Decimal;
-    begin
-        // [FEATURE] [Cross-Dock]
-        // [SCENARIO 380520] Qty. to Cross-Dock in Whse. Cross-Dock Opportunity is not filled automatically when receiving quantity is less than already cross-docked quantity.
-        Initialize;
-        DefineSupplyAndDemandQtys(ReceiptQty, SalesQty, CrossDockedQty);
-        ReceiptQty := LibraryRandom.RandInt(5);
-
-        // [GIVEN] WMS Location with cross-docking enabled.
-        // [GIVEN] Released Sales Order. Sales quantity = "SQ".
-        // [GIVEN] Released Purchase Order.
-        // [GIVEN] Posted Warehouse Receipt "R1". Quantity "CDQ" is set to be cross-docked to meet the Sales Order.
-        // [GIVEN] Released Purchase Order with Warehouse Receipt "R2". Receipt quantity = "RQ" which is less than "CDQ".
-        CreateWhseReceiptForCrossDockedItem(WarehouseReceiptLine, ReceiptQty, SalesQty, CrossDockedQty);
-
-        // [WHEN] Calculate Whse. Cross-Dock Opportunity for "R2" and automatically fill quantity to cross-dock.
-        CalculateCrossDockOpportunityForWhseReceipt(WhseCrossDockOpportunity, WarehouseReceiptLine."No.");
-
-        // [THEN] "Qty. to Cross-Dock" in the Whse. Cross-Dock Opportunity is not filled.
-        WhseCrossDockOpportunity.TestField("Qty. to Cross-Dock", 0);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CrossDockOpportunityIsLimitedToReceivedMinusCrossDockedQty()
-    var
-        WarehouseReceiptLine: Record "Warehouse Receipt Line";
-        WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity";
-        ReceiptQty: Decimal;
-        SalesQty: Decimal;
-        CrossDockedQty: Decimal;
-        QtyToCrossDock: Decimal;
-    begin
-        // [FEATURE] [Cross-Dock]
-        // [SCENARIO 380520] Qty. to Cross-Dock in Whse. Cross-Dock Opportunity is limited to the quantity in the Receipt minus what has already been cross-docked.
-        Initialize;
-        DefineSupplyAndDemandQtys(ReceiptQty, SalesQty, CrossDockedQty);
-
-        // [GIVEN] WMS Location with cross-docking enabled.
-        // [GIVEN] Released Sales Order. Sales quantity = "SQ".
-        // [GIVEN] Released Purchase Order.
-        // [GIVEN] Posted Warehouse Receipt "R1". Quantity "CDQ" is set to be cross-docked to meet the Sales Order.
-        // [GIVEN] Released Purchase Order with Warehouse Receipt "R2". Receipt quantity = "RQ".
-        CreateWhseReceiptForCrossDockedItem(WarehouseReceiptLine, ReceiptQty, SalesQty, CrossDockedQty);
-
-        // [GIVEN] Cross-Dock Opportunity for "R2".
-        CalculateCrossDockOpportunityForWhseReceipt(WhseCrossDockOpportunity, WarehouseReceiptLine."No.");
-
-        // [WHEN] Validate "Qty. to Cross-Dock" in Cross-Dock Opportunity to the quantity no more than "RQ" - "CDQ".
-        QtyToCrossDock := ReceiptQty - CrossDockedQty - LibraryRandom.RandIntInRange(0, 10);
-        WhseCrossDockOpportunity.Validate("Qty. to Cross-Dock", QtyToCrossDock);
-
-        // [THEN] No error is raised.
-        // [THEN] "Qty. to Cross-Dock" is updated.
-        WhseCrossDockOpportunity.TestField("Qty. to Cross-Dock", QtyToCrossDock);
+        // [THEN] "Qty. to Cross-Dock" in the Whse. Cross-Dock Opportunity = "RQ".
+        WhseCrossDockOpportunity.TestField("Qty. to Cross-Dock", ReceiptQty);
     end;
 
     [Test]
@@ -451,7 +386,7 @@ codeunit 137056 "SCM Warehouse-V"
         asserterror WhseCrossDockOpportunity.Validate("Qty. to Cross-Dock", ReceiptQty);
 
         // [THEN] Error is thrown.
-        Assert.ExpectedError(CrossDockQtyExceedsReceiptQtyErr);
+        Assert.ExpectedError(CrossDockQtyExceedsCrossDockQtyErr);
     end;
 
     [Test]
@@ -3040,6 +2975,166 @@ codeunit 137056 "SCM Warehouse-V"
         VerifyCountOfWarehouseEntry(WhseDocumentNo);
     end;
 
+    [Test]
+    [HandlerFunctions('CrossDockOpportunitiesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CrossDockOppInTwoReceiptsSupplyingTwoSalesOrders()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WarehouseReceipt: TestPage "Warehouse Receipt";
+    begin
+        // [FEATURE] [Cross-Dock] [Cross-Dock Opportunity] [Warehouse Receipt]
+        // [SCENARIO 359946] Setting cross-dock qty. after viewing cross-dock opportunities in a scenario when several sales orders are supplied by several receipts.
+        Initialize();
+
+        // [GIVEN] A location with cross-dock enabled.
+        LibraryInventory.CreateItem(Item);
+        CreateFullWarehouseSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Two sales orders, each for 15 pcs.
+        CreateAndReleaseSalesOrderWithVariant(SalesHeader, SalesLine, Item."No.", 15, Location.Code, '');
+        CreateAndReleaseSalesOrderWithVariant(SalesHeader, SalesLine, Item."No.", 15, Location.Code, '');
+
+        // [GIVEN] Purchase order 1 for 100 pcs.
+        // [GIVEN] Create warehouse receipt, set "Qty. to Receive" = 20 pcs and calculate cross-dock. "Qty. to Cross-Dock" = 20 pcs.
+        // [GIVEN] Post the warehouse receipt.
+        CreateAndReleasePurchaseOrderWithWhseReceipt(
+          PurchaseHeader, WarehouseReceiptLine, Item."No.", Location.Code, 100);
+        WarehouseReceiptLine.Validate("Qty. to Receive", 20);
+        WarehouseReceiptLine.Modify(true);
+        CalculateCrossDockSimple(WarehouseReceiptLine."No.");
+        PostWarehouseReceipt(WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
+
+        // [GIVEN] Purchase order 2 for 10 pcs.
+        // [GIVEN] Create warehouse receipt and calculate cross-dock. "Qty. to Cross-Dock" = 10 pcs.
+        CreateAndReleasePurchaseOrderWithWhseReceipt(
+          PurchaseHeader, WarehouseReceiptLine, Item."No.", Location.Code, 10);
+        WarehouseReceipt.OpenEdit();
+        WarehouseReceipt.FILTER.SetFilter("No.", WarehouseReceiptLine."No.");
+        WarehouseReceipt.CalculateCrossDock.Invoke();
+
+        // [WHEN] Open Whse. Cross-Dock Opportunity page, set "Qty. to Cross-Dock" = 5 and close the page.
+        LibraryVariableStorage.Enqueue(5);
+        WarehouseReceipt.WhseReceiptLines."Qty. to Cross-Dock".Lookup();
+
+        // [THEN] "Qty. to Cross-Dock" is updated to 5 on the warehouse receipt.
+        WarehouseReceipt.WhseReceiptLines."Qty. to Cross-Dock".AssertEquals(5);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CrossDockOppGreaterThanQtyToCrossDockError()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity";
+    begin
+        // [FEATURE] [Cross-Dock] [Cross-Dock Opportunity] [Warehouse Receipt]
+        // [SCENARIO 359946] A user cannot set Qty. to Cross-Dock in Cross-Dock Opportunity greater than Qty. to Cross Dock on the receipt line.
+        Initialize();
+
+        // [GIVEN] A location with cross-dock enabled.
+        LibraryInventory.CreateItem(Item);
+        CreateFullWarehouseSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Sales order for 15 pcs.
+        CreateAndReleaseSalesOrderWithVariant(SalesHeader, SalesLine, Item."No.", 15, Location.Code, '');
+
+        // [GIVEN] Purchase order for 100 pcs.
+        // [GIVEN] Create warehouse receipt, set "Qty. to Receive" = 30 pcs and calculate cross-dock. "Qty. to Cross-Dock" = 15 pcs.
+        CreateAndReleasePurchaseOrderWithWhseReceipt(
+          PurchaseHeader, WarehouseReceiptLine, Item."No.", Location.Code, 100);
+        WarehouseReceiptLine.Validate("Qty. to Receive", 30);
+        WarehouseReceiptLine.Modify(true);
+        CalculateCrossDockSimple(WarehouseReceiptLine."No.");
+
+        // [WHEN] Set "Qty. to Cross-Dock" = 20 on Whse. Cross-Dock Opportunity.
+        WhseCrossDockOpportunity.SetRange("Item No.", Item."No.");
+        WhseCrossDockOpportunity.FindFirst();
+        asserterror WhseCrossDockOpportunity.Validate("Qty. to Cross-Dock", 20);
+
+        // [THEN] An error is thrown. "Qty. to Cross-Dock" on the opportunity page cannot be greater than "Qty. to Cross-Dock" on the receipt line.
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(CrossDockQtyExceedsCrossDockQtyErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CrossDockOppAutofillDistributesQtyBySalesOrders()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity";
+    begin
+        // [FEATURE] [Cross-Dock] [Cross-Dock Opportunity] [Warehouse Receipt]
+        // [SCENARIO 359946] Clicking on Autofill Qty. to Cross-Dock suggests distribution of quantity among sales orders.
+        Initialize();
+
+        // [GIVEN] A location with cross-dock enabled.
+        LibraryInventory.CreateItem(Item);
+        CreateFullWarehouseSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Two sales orders "S1", "S2", each for 15 pcs.
+        CreateAndReleaseSalesOrderWithVariant(SalesHeader[1], SalesLine, Item."No.", 15, Location.Code, '');
+        CreateAndReleaseSalesOrderWithVariant(SalesHeader[2], SalesLine, Item."No.", 15, Location.Code, '');
+
+        // [GIVEN] Purchase order 1 for 100 pcs.
+        // [GIVEN] Create warehouse receipt, set "Qty. to Receive" = 20 pcs and calculate cross-dock. "Qty. to Cross-Dock" = 20 pcs.
+        // [GIVEN] Post the warehouse receipt.
+        CreateAndReleasePurchaseOrderWithWhseReceipt(
+          PurchaseHeader, WarehouseReceiptLine, Item."No.", Location.Code, 100);
+        WarehouseReceiptLine.Validate("Qty. to Receive", 20);
+        WarehouseReceiptLine.Modify(true);
+        CalculateCrossDockSimple(WarehouseReceiptLine."No.");
+        PostWarehouseReceipt(WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
+
+        // [GIVEN] Purchase order 2 for 100 pcs.
+        // [GIVEN] Create warehouse receipt and calculate cross-dock. "Qty. to Cross-Dock" = 10 pcs.
+        // [GIVEN] Increase "Qty. to Cross-Dock" on the receipt line from 10 to 20 pcs.
+        CreateAndReleasePurchaseOrderWithWhseReceipt(
+          PurchaseHeader, WarehouseReceiptLine, Item."No.", Location.Code, 100);
+        CalculateCrossDockSimple(WarehouseReceiptLine."No.");
+        WarehouseReceiptLine.Find();
+        WarehouseReceiptLine.Validate("Qty. to Cross-Dock", 20);
+        WarehouseReceiptLine.Modify(true);
+
+        // [WHEN] View Whse. Cross-Dock Opportunities and run "Autofill Qty. to Cross-Dock".
+        WhseCrossDockOpportunity.SetRange("Source Name/No.", WarehouseReceiptLine."No.");
+        WhseCrossDockOpportunity.AutoFillQtyToCrossDock(WhseCrossDockOpportunity);
+
+        // [THEN] 20 pcs is distributed among the sales orders.
+        // [THEN] 15 pcs for the sales order "S1".
+        WhseCrossDockOpportunity.SetRange("To Source No.", SalesHeader[1]."No.");
+        WhseCrossDockOpportunity.CalcSums("Qty. to Cross-Dock");
+        WhseCrossDockOpportunity.TestField("Qty. to Cross-Dock", 15);
+
+        // [THEN] 5 pcs for the sales order "S2".
+        WhseCrossDockOpportunity.SetRange("To Source No.", SalesHeader[2]."No.");
+        WhseCrossDockOpportunity.CalcSums("Qty. to Cross-Dock");
+        WhseCrossDockOpportunity.TestField("Qty. to Cross-Dock", 5);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5442,6 +5537,14 @@ codeunit 137056 "SCM Warehouse-V"
     procedure WhseSourceCreateDocumentHandler(var WhseSourceCreateDocument: TestRequestPage "Whse.-Source - Create Document")
     begin
         WhseSourceCreateDocument.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CrossDockOpportunitiesModalPageHandler(var CrossDockOpportunities: TestPage "Cross-Dock Opportunities")
+    begin
+        CrossDockOpportunities."Qty. to Cross-Dock".SetValue(LibraryVariableStorage.DequeueDecimal());
+        CrossDockOpportunities.OK.Invoke();
     end;
 
     [ConfirmHandler]

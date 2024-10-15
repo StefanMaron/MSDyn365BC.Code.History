@@ -680,37 +680,44 @@ table 114 "Sales Cr.Memo Header"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
-        DocTxt: Label 'Credit Memo';
 
     procedure SendRecords()
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        DocumentTypeTxt: Text[50];
         IsHandled: Boolean;
     begin
+        DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+
         IsHandled := false;
-        OnBeforeSendRecords(DummyReportSelections, Rec, DocTxt, IsHandled);
+        OnBeforeSendRecords(DummyReportSelections, Rec, DocumentTypeTxt, IsHandled);
         if IsHandled then
             exit;
 
         DocumentSendingProfile.SendCustomerRecords(
-          DummyReportSelections.Usage::"S.Cr.Memo", Rec, DocTxt, "Bill-to Customer No.", "No.",
+          DummyReportSelections.Usage::"S.Cr.Memo", Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
           FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        DocumentTypeTxt: Text[50];
         IsHandled: Boolean;
     begin
+        DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+
         IsHandled := false;
-        OnBeforeSendProfile(DummyReportSelections, Rec, DocTxt, IsHandled, DocumentSendingProfile);
+        OnBeforeSendProfile(DummyReportSelections, Rec, DocumentTypeTxt, IsHandled, DocumentSendingProfile);
         if IsHandled then
             exit;
 
         DocumentSendingProfile.Send(
           DummyReportSelections.Usage::"S.Cr.Memo", Rec, "No.", "Bill-to Customer No.",
-          DocTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
+          DocumentTypeTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
     procedure PrintRecords(ShowRequestPage: Boolean)
@@ -732,15 +739,20 @@ table 114 "Sales Cr.Memo Header"
     var
         DocumentSendingProfile: Record "Document Sending Profile";
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
+        DocumentTypeTxt: Text[50];
         IsHandled: Boolean;
     begin
+        DocumentTypeTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+
         IsHandled := false;
-        OnBeforeEmailRecords(DummyReportSelections, Rec, DocTxt, ShowRequestPage, IsHandled);
+        OnBeforeEmailRecords(DummyReportSelections, Rec, DocumentTypeTxt, ShowRequestPage, IsHandled);
         if IsHandled then
             exit;
 
         DocumentSendingProfile.TrySendToEMail(
-          DummyReportSelections.Usage::"S.Cr.Memo", Rec, FieldNo("No."), DocTxt, FieldNo("Bill-to Customer No."), ShowRequestPage);
+          DummyReportSelections.Usage::"S.Cr.Memo", Rec, FieldNo("No."), DocumentTypeTxt,
+          FieldNo("Bill-to Customer No."), ShowRequestPage);
     end;
 
     procedure PrintToDocumentAttachment(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")

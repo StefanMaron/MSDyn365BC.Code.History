@@ -1300,7 +1300,7 @@ table 77 "Report Selections"
     begin
         // Search for a potential email address from Custom Report Selections
         GetCustomReportSelectionByUsageOption(CustomReportSelection, AccountNo, ReportUsage, TableNo);
-        CustomReportSelection.UpdateSendtoEmail();
+        CustomReportSelection.UpdateSendtoEmail(false);
         CustomReportSelection.SetFilter("Send To Email", '<>%1', '');
         CustomReportSelection.SetRange("Email Body Layout Code", LayoutCode);
         if CustomReportSelection.FindFirst then

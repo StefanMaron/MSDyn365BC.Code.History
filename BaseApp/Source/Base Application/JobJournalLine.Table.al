@@ -253,7 +253,7 @@
                                 if "Work Type Code" <> '' then begin
                                     WorkType.Get("Work Type Code");
                                     if WorkType."Unit of Measure Code" <> '' then
-                                        TestField("Unit of Measure Code", WorkType."Unit of Measure Code");
+                                        TestUnitOfMeasureCode(WorkType);
                                 end else
                                     TestField("Work Type Code", '');
                             if "Unit of Measure Code" = '' then begin
@@ -285,6 +285,7 @@
                 if "Location Code" <> '' then
                     if IsNonInventoriableItem then
                         Item.TestField(Type, Item.Type::Inventory);
+                OnValidateLocationCodeOnBeforeGetLocation(Rec);
                 GetLocation("Location Code");
                 Location.TestField("Directed Put-away and Pick", false);
                 Validate(Quantity);
@@ -587,7 +588,13 @@
             trigger OnValidate()
             var
                 JobTask: Record "Job Task";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobTaskNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("Job Task No." = '') or (("Job Task No." <> xRec."Job Task No.") and (xRec."Job Task No." <> '')) then begin
                     Validate("No.", '');
                     exit;
@@ -911,6 +918,7 @@
                 Description := ItemVariant.Description;
                 "Description 2" := ItemVariant."Description 2";
 
+                OnValidateVariantCodeOnBeforeValidateQuantity(Rec);
                 Validate(Quantity);
             end;
         }
@@ -1106,7 +1114,7 @@
         Validate("Unit of Measure Code", Resource."Base Unit of Measure");
 
 
-        OnAfterAssignResourceValues(Rec, Resource);
+        OnAfterAssignResourceValues(Rec, Resource, CurrFieldNo);
     end;
 
     local procedure CheckResource(Resource: Record Resource)
@@ -1496,7 +1504,7 @@
 
     procedure UpdateAllAmounts()
     begin
-        OnBeforeUpdateAllAmounts(Rec, xRec);
+        OnBeforeUpdateAllAmounts(Rec, xRec, CurrFieldNo);
         InitRoundingPrecisions;
 
         UpdateUnitCost;
@@ -1602,6 +1610,34 @@
         OnAfterUpdateUnitCost(Rec, UnitAmountRoundingPrecision, CurrFieldNo);
     end;
 
+    local procedure ValidateChargeable()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateChargeable(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Chargeable <> xRec.Chargeable then
+            if not Chargeable then
+                Validate("Unit Price", 0)
+            else
+                Validate("No.");
+    end;
+
+    local procedure TestUnitOfMeasureCode(LocalWorkType: Record "Work Type")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestUnitOfMeasureCode(Rec, LocalWorkType, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField("Unit of Measure Code", WorkType."Unit of Measure Code");
+    end;
+
     local procedure RetrieveCostPrice(): Boolean
     var
         ShouldRetrieveCostPrice: Boolean;
@@ -1648,7 +1684,13 @@
     local procedure FindPriceAndDiscount(var JobJnlLine: Record "Job Journal Line"; CalledByFieldNo: Integer)
     var
         PriceType: Enum "Price Type";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindPriceAndDiscount(JobJnlLine, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if RetrieveCostPrice and ("No." <> '') then begin
             ApplyPrice(PriceType::Sale, CalledByFieldNo);
             ApplyPrice(PriceType::Purchase, CalledByFieldNo);
@@ -1698,6 +1740,7 @@
               "Posting Date", "Currency Code",
               "Unit Price", "Currency Factor"),
             UnitAmountRoundingPrecision);
+        OnAfterUpdateUnitPrice(Rec);
     end;
 
     local procedure UpdateTotalPrice()
@@ -1711,7 +1754,14 @@
     end;
 
     local procedure UpdateAmountsAndDiscounts()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateAmountsAndDiscounts(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Total Price" <> 0 then begin
             if ("Line Amount" <> xRec."Line Amount") and ("Line Discount Amount" = xRec."Line Discount Amount") then begin
                 "Line Amount" := Round("Line Amount", AmountRoundingPrecisionFCY);
@@ -1875,7 +1925,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignResourceValues(var JobJournalLine: Record "Job Journal Line"; Resource: Record Resource)
+    local procedure OnAfterAssignResourceValues(var JobJournalLine: Record "Job Journal Line"; Resource: Record Resource; CurrFieldNo: Integer)
     begin
     end;
 
@@ -1941,6 +1991,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateUnitPrice(var JobJournalLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var JobJournalLine: Record "Job Journal Line"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
@@ -1952,6 +2007,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemAvailable(var JobJournalLine: Record "Job Journal Line"; var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeFindPriceAndDiscount(var JobJournalLine: Record "Job Journal Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -1976,7 +2036,7 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeUpdateAllAmounts(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line")
+    local procedure OnBeforeUpdateAllAmounts(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; CallingFieldNo: Integer)
     begin
     end;
 
@@ -2001,6 +2061,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestUnitOfMeasureCode(var JobJournalLine: Record "Job Journal Line"; WorkType: Record "Work Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAmountsAndDiscounts(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateChargeable(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var JobJournalLine: Record "Job Journal Line"; var xJobJournalLine: Record "Job Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
@@ -2017,6 +2092,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateJobNoOnBeforeCheckJob(var JobJournalLine: Record "Job Journal Line"; xJobJournalLine: Record "Job Journal Line"; var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobTaskNo(var JobJournalLine: Record "Job Journal Line"; var xJobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLocationCodeOnBeforeGetLocation(var JobJournalLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVariantCodeOnBeforeValidateQuantity(var JobJournalLine: Record "Job Journal Line")
     begin
     end;
 }

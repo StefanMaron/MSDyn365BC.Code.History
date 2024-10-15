@@ -15,13 +15,16 @@ table 7200 "CDS Connection Setup"
             DataClassification = OrganizationIdentifiableInformation;
 
             trigger OnValidate()
+            var
+                EnvironmentInfo: Codeunit "Environment Information";
             begin
                 CDSIntegrationImpl.CheckModifyConnectionURL("Server Address");
 
-                if StrPos("Server Address", '.dynamics.com') > 0 then
-                    "Authentication Type" := "Authentication Type"::Office365
-                else
-                    "Authentication Type" := "Authentication Type"::AD;
+                if "Server Address" <> '' then
+                    if EnvironmentInfo.IsSaaS() or (StrPos("Server Address", '.dynamics.com') > 0) then
+                        "Authentication Type" := "Authentication Type"::Office365
+                    else
+                        "Authentication Type" := "Authentication Type"::AD;
                 CDSIntegrationImpl.UpdateConnectionString(Rec);
             end;
         }
@@ -323,6 +326,27 @@ table 7200 "CDS Connection Setup"
     end;
 
     [Scope('OnPrem')]
+    procedure GetAccessToken(): Text
+    begin
+        if IsTemporary() then
+            exit(TempAccessToken);
+
+        exit('');
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetAccessToken(AccessToken: Text)
+    begin
+        if IsTemporary() then begin
+            TempAccessToken := AccessToken;
+            exit;
+        end;
+
+        TempAccessToken := '';
+    end;
+
+
+    [Scope('OnPrem')]
     procedure DeletePassword()
     var
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
@@ -472,8 +496,11 @@ table 7200 "CDS Connection Setup"
         if not IsNullGuid("User Password Key") then
             exit;
 
+        EnsureCRMConnectionSetupIsDisabled();
+
         if CRMConnectionSetup.Get() then
-            if CRMConnectionSetup."Is Enabled" then begin
+            if not CRMConnectionSetup."Is Enabled" then begin
+                SendTraceTag('0000D3Q', CategoryTok, Verbosity::Normal, TransferringConnectionValuesFromCRMConnectionsetupTxt);
                 Exists := Get();
                 "Server Address" := CRMConnectionSetup."Server Address";
                 "User Name" := CRMConnectionSetup."User Name";
@@ -486,6 +513,24 @@ table 7200 "CDS Connection Setup"
                 exit;
             end;
 
+    end;
+
+    [Scope('OnPrem')]
+    procedure EnsureCRMConnectionSetupIsDisabled()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+    begin
+        if not CRMConnectionSetup.Get() then
+            exit;
+
+        if not CRMConnectionSetup.IsEnabled() then
+            exit;
+
+        if CRMConnectionSetup."Server Address" = TestServerAddressTok then
+            exit;
+
+        SendTraceTag('0000D3R', CategoryTok, Verbosity::Warning, CRMConnEnabledTelemetryErr);
+        Error(CRMConnEnabledErr);
     end;
 
     local procedure UpdateCDSJobQueueEntriesStatus()
@@ -513,10 +558,18 @@ table 7200 "CDS Connection Setup"
     var
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        [NonDebuggable]
         TempUserPassword: Text;
+        [NonDebuggable]
         TempClientSecret: Text;
+        [NonDebuggable]
+        TempAccessToken: Text;
         ProcessDialogMapTitleMsg: Label 'Synchronizing @1', Comment = '@1 Progress dialog map no.';
         CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
         CDSConnDisabledTxt: Label 'CDS connection has been disabled.', Locked = true;
         CDSConnEnabledTxt: Label 'CDS connection has been enabled.', Locked = true;
+        CRMConnEnabledErr: Label 'To set up the connection with Common Data Service, you must first disable the existing connection with Dynamics 365 Sales. Read more about it in this help topic: https://docs.microsoft.com/en-us/dynamics365/business-central/admin-upgrade-sales-to-cds';
+        CRMConnEnabledTelemetryErr: Label 'User is trying to set up the connection with Common Data Service, while the existing connection with Dynamics 365 Sales is enabled.', Locked = true;
+        TransferringConnectionValuesFromCRMConnectionsetupTxt: Label 'Transferring connection string values from Dynamics 365 sales connection setup to CDS connection setup', Locked = true;
+        TestServerAddressTok: Label '@@test@@', Locked = true;
 }
