@@ -4,11 +4,25 @@ codeunit 6154 "API Webhook Notification Send"
     // 2. Generates notifications payload per notification URL
     // 3. Sends notifications
 
+    Permissions = TableData "API Webhook Subscription" = imd,
+                  TableData "API Webhook Notification" = imd,
+                  TableData "API Webhook Notification Aggr" = imd;
 
     trigger OnRun()
+    var
+        APIWebhookSubscription: Record "API Webhook Subscription";
+        APIWebhookNotification: Record "API Webhook Notification";
+        APIWebhookNotificationAggr: Record "API Webhook Notification Aggr";
     begin
         if not IsApiSubscriptionEnabled() then begin
             Session.LogMessage('000029V', DisabledSubscriptionMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+            exit;
+        end;
+
+        if (not APIWebhookSubscription.WritePermission()) or
+           (not APIWebhookNotification.WritePermission()) or
+           (not APIWebhookNotificationAggr.WritePermission()) then begin
+            Session.LogMessage('0000DY0', NoPermissionsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
 
@@ -129,6 +143,7 @@ codeunit 6154 "API Webhook Notification Send"
         IncreaseAttemptNumberTitleTxt: Label 'Increase attempt number.', Locked = true;
         NotificationFailedTitleTxt: Label 'Notification failed.', Locked = true;
         JobFailedTitleTxt: Label 'Job failed.', Locked = true;
+        NoPermissionsTxt: Label 'No permissions.', Locked = true;
 
     local procedure Initialize()
     begin

@@ -12,6 +12,11 @@ codeunit 5350 "CRM Statistics Job"
         RecordFoundTxt: Label '%1 %2 was not found.', Comment = '%1 is a table name, e.g. Customer, %2 is a number, e.g. Customer 12344 was not found.';
         AccountStatisticsUpdatedMsg: Label 'Updated account statistics. ';
         InvoiceStatusUpdatedMsg: Label 'Updated payment status of sales invoices.';
+        StartingToRefreshCustomerStatisticsMsg: Label 'Starting to refresh customer statistics based on ledger entry and lines activity.', Locked = true;
+        StartingInitialUploadCustomerStatisticsMsg: Label 'Starting the initial upload of customer statistics.', Locked = true;
+        FinishedRefreshingCustomerStatisticsMsg: Label 'Finished refreshing customer statistics based on ledger entry and lines activity.', Locked = true;
+        FinishedInitialUploadCustomerStatisticsMsg: Label 'Finished the initial upload of customer statistics.', Locked = true;
+        TelemetryCategoryTok: Label 'AL CRM Integration';
         CRMProductName: Codeunit "CRM Product Name";
 
     local procedure UpdateStatisticsAndInvoices(JobLogEntryNo: Integer)
@@ -38,30 +43,143 @@ codeunit 5350 "CRM Statistics Job"
     local procedure UpdateAccountStatistics(JobLogEntryNo: Integer)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMSynchStatus: Record "CRM Synch Status";
+        Customer: Record Customer;
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
         RecRef: array[2] of RecordRef;
         ErrorText: Text;
         SynchActionType: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip,Delete;
+        CustomerNumbers: List of [Code[20]];
+        CRMIntegrationRecordSystemIds: List of [Guid];
+        CRMIntegrationRecordSystemId: Guid;
+        CustomerNo: Code[20];
+        NewCustomerStatisticsSynchTime: DateTime;
     begin
         IntegrationTableSynch.BeginIntegrationSynchJobLoging(
           TABLECONNECTIONTYPE::CRM, CODEUNIT::"CRM Statistics Job", JobLogEntryNo, DATABASE::Customer);
 
+        InitializeCustomerStatisticsSynchronizationTime();
+
+        // upload customer statistics for the coupled, non-skipped customers who never had them uploaded once
+        Session.LogMessage('0000DZ7', StartingInitialUploadCustomerStatisticsMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
         CRMIntegrationRecord.SetRange("Table ID", DATABASE::Customer);
         CRMIntegrationRecord.SetRange(Skipped, false);
-        if CRMIntegrationRecord.FindSet(true) then
-            repeat
-                Clear(RecRef);
-                SynchActionType := UpdateCRMAccountStatisticsForCoupledCustomer(CRMIntegrationRecord, RecRef[1], RecRef[2], ErrorText);
-                if SynchActionType = SynchActionType::Fail then begin
-                    CRMIntegrationRecord."Last Synch. CRM Job ID" := IntegrationTableSynch.LogSynchError(RecRef[1], RecRef[2], ErrorText);
-                    CRMIntegrationRecord."Last Synch. CRM Result" := CRMIntegrationRecord."Last Synch. CRM Result"::Failure;
-                    CRMIntegrationRecord.Skipped := true;
-                    CRMIntegrationRecord.Modify();
-                end else
-                    IntegrationTableSynch.IncrementSynchJobCounters(SynchActionType);
-            until CRMIntegrationRecord.Next = 0;
+        CRMIntegrationRecord.SetRange("Statistics Uploaded", false);
+        if not CRMIntegrationRecord.IsEmpty() then
+            if CRMIntegrationRecord.FindSet() then
+                repeat
+                    CRMIntegrationRecordSystemIds.Add(CRMIntegrationRecord.SystemId)
+                until CRMIntegrationRecord.Next() = 0;
+
+        foreach CRMIntegrationRecordSystemId in CRMIntegrationRecordSystemIds do begin
+            Clear(RecRef);
+            SynchActionType := UpdateCRMAccountStatisticsForCoupledCustomer(CRMIntegrationRecordSystemId, RecRef[1], RecRef[2], ErrorText);
+            CRMIntegrationRecord.GetBySystemId(CRMIntegrationRecordSystemId);
+            if SynchActionType = SynchActionType::Fail then begin
+                CRMIntegrationRecord."Last Synch. CRM Job ID" := IntegrationTableSynch.LogSynchError(RecRef[1], RecRef[2], ErrorText);
+                CRMIntegrationRecord."Last Synch. CRM Result" := CRMIntegrationRecord."Last Synch. CRM Result"::Failure;
+                CRMIntegrationRecord.Skipped := true;
+                CRMIntegrationRecord.Modify();
+            end else begin
+                CRMIntegrationRecord."Statistics Uploaded" := true;
+                CRMIntegrationRecord.Modify();
+                IntegrationTableSynch.IncrementSynchJobCounters(SynchActionType);
+            end;
+        end;
+        Session.LogMessage('0000DZ8', FinishedInitialUploadCustomerStatisticsMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+
+        // Refresh Customer Statistics based on ledger entry and lines activity
+        if CRMSynchStatus.Get() then begin
+            NewCustomerStatisticsSynchTime := CurrentDateTime();
+
+            Session.LogMessage('0000DZ9', StartingToRefreshCustomerStatisticsMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+
+            AddCustomersWithLedgerEntryActivity(CRMSynchStatus."Cust. Statistics Synch. Time", CustomerNumbers);
+            AddCustomersWithLinesActivity(CRMSynchStatus."Cust. Statistics Synch. Time", CustomerNumbers);
+            foreach CustomerNo in CustomerNumbers do
+                if Customer.Get(CustomerNo) then begin
+                    CRMIntegrationRecord.Reset();
+                    CRMIntegrationRecord.SetRange("Table ID", DATABASE::Customer);
+                    CRMIntegrationRecord.SetRange(Skipped, false);
+                    CRMIntegrationRecord.SetRange("Integration ID", Customer.SystemId);
+                    if CRMIntegrationRecord.FindFirst() then begin
+                        SynchActionType := UpdateCRMAccountStatisticsForCoupledCustomer(CRMIntegrationRecord.SystemId, RecRef[1], RecRef[2], ErrorText);
+                        if SynchActionType = SynchActionType::Fail then begin
+                            CRMIntegrationRecord."Last Synch. CRM Job ID" := IntegrationTableSynch.LogSynchError(RecRef[1], RecRef[2], ErrorText);
+                            CRMIntegrationRecord."Last Synch. CRM Result" := CRMIntegrationRecord."Last Synch. CRM Result"::Failure;
+                            CRMIntegrationRecord.Skipped := true;
+                            CRMIntegrationRecord.Modify();
+                        end else begin
+                            if CRMIntegrationRecord."Statistics Uploaded" = false then begin
+                                CRMIntegrationRecord."Statistics Uploaded" := true;
+                                CRMIntegrationRecord.Modify();
+                            end;
+                            IntegrationTableSynch.IncrementSynchJobCounters(SynchActionType);
+                        end;
+                    end;
+                end;
+
+            CRMSynchStatus."Cust. Statistics Synch. Time" := NewCustomerStatisticsSynchTime;
+            CRMSynchStatus.Modify();
+
+            Session.LogMessage('0000DZA', FinishedRefreshingCustomerStatisticsMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        end;
 
         IntegrationTableSynch.EndIntegrationSynchJobWithMsg(GetAccStatsUpdateFinalMessage);
+    end;
+
+    local procedure InitializeCustomerStatisticsSynchronizationTime()
+    var
+        CRMSynchStatus: Record "CRM Synch Status";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        if CRMSynchStatus.IsEmpty() then
+            CRMIntegrationManagement.InitializeCRMSynchStatus();
+
+        CRMSynchStatus.Get();
+        if CRMSynchStatus."Cust. Statistics Synch. Time" = 0DT then begin
+            CRMSynchStatus."Cust. Statistics Synch. Time" := CurrentDateTime();
+            CRMSynchStatus.Modify();
+            Commit();
+        end;
+    end;
+
+    local procedure AddCustomersWithLedgerEntryActivity(StartDateTime: DateTime; var CustomerNumbers: List of [Code[20]]);
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        if StartDateTime = 0DT then
+            exit;
+
+        CustLedgerEntry.SetFilter(SystemModifiedAt, '>' + Format(StartDateTime));
+        if CustLedgerEntry.FindSet() then
+            repeat
+                if not CustomerNumbers.Contains(CustLedgerEntry."Customer No.") then
+                    CustomerNumbers.Add(CustLedgerEntry."Customer No.");
+            until CustLedgerEntry.Next() = 0;
+    end;
+
+    local procedure AddCustomersWithLinesActivity(StartDateTime: DateTime; var CustomerNumbers: List of [Code[20]]);
+    var
+        SalesLine: Record "Sales Line";
+        ServiceLine: Record "Service Line";
+    begin
+        if StartDateTime = 0DT then
+            exit;
+
+        SalesLine.SetFilter(SystemModifiedAt, '>' + Format(StartDateTime));
+        if SalesLine.FindSet() then
+            repeat
+                if not CustomerNumbers.Contains(SalesLine."Sell-to Customer No.") then
+                    CustomerNumbers.Add(SalesLine."Sell-to Customer No.");
+            until SalesLine.Next() = 0;
+
+        ServiceLine.SetFilter(SystemModifiedAt, '>' + Format(StartDateTime));
+        if ServiceLine.FindSet() then
+            repeat
+                if not CustomerNumbers.Contains(ServiceLine."Customer No.") then
+                    CustomerNumbers.Add(ServiceLine."Customer No.");
+            until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateInvoices(JobLogEntryNo: Integer)
@@ -79,15 +197,17 @@ codeunit 5350 "CRM Statistics Job"
         IntegrationTableSynch.EndIntegrationSynchJobWithMsg(GetInvStatusUpdateFinalMessage);
     end;
 
-    local procedure UpdateCRMAccountStatisticsForCoupledCustomer(CRMIntegrationRecord: Record "CRM Integration Record"; var CustomerRecRef: RecordRef; var CRMAccountRecRef: RecordRef; var ErrorText: Text): Integer
+    local procedure UpdateCRMAccountStatisticsForCoupledCustomer(CRMIntegrationRecordSystemId: Guid; var CustomerRecRef: RecordRef; var CRMAccountRecRef: RecordRef; var ErrorText: Text): Integer
     var
         Customer: Record Customer;
         CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
         RecId: RecordId;
         SynchActionType: Option "None",Insert,Modify,ForceModify,IgnoreUnchanged,Fail,Skip,Delete;
         CustomerExists: Boolean;
         CRMAccountExists: Boolean;
     begin
+        CRMIntegrationRecord.GetBySystemId(CRMIntegrationRecordSystemId);
         CRMIntegrationRecord.FindRecordId(RecId);
         CustomerExists := CustomerRecRef.Get(RecId);
         if CustomerExists then
