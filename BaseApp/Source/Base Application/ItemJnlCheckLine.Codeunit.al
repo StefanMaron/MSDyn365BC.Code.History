@@ -130,13 +130,7 @@
             end else
                 CheckPhysInventory(ItemJnlLine);
 
-            if "Entry Type" <> "Entry Type"::Output then begin
-                TestField("Run Time", 0, ErrorInfo.Create());
-                TestField("Setup Time", 0, ErrorInfo.Create());
-                TestField("Stop Time", 0, ErrorInfo.Create());
-                TestField("Output Quantity", 0, ErrorInfo.Create());
-                TestField("Scrap Quantity", 0, ErrorInfo.Create());
-            end;
+            CheckOutputFields(ItemJnlLine);
 
             if "Applies-from Entry" <> 0 then begin
                 ItemLedgEntry.Get("Applies-from Entry");
@@ -194,6 +188,24 @@
         end;
 
         OnAfterCheckItemJnlLine(ItemJnlLine, CalledFromInvtPutawayPick, CalledFromAdjustment);
+    end;
+
+    local procedure CheckOutputFields(var ItemJournalLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckOutputFields(ItemJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ItemJournalLine."Entry Type" <> ItemJournalLine."Entry Type"::Output then begin
+            ItemJournalLine.TestField("Run Time", 0, ErrorInfo.Create());
+            ItemJournalLine.TestField("Setup Time", 0, ErrorInfo.Create());
+            ItemJournalLine.TestField("Stop Time", 0, ErrorInfo.Create());
+            ItemJournalLine.TestField("Output Quantity", 0, ErrorInfo.Create());
+            ItemJournalLine.TestField("Scrap Quantity", 0, ErrorInfo.Create());
+        end;
     end;
 
     local procedure CheckEmptyQuantity(ItemJnlLine: Record "Item Journal Line")
@@ -650,6 +662,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWarehouseLastOutputOperation(var ItemJournalLine: Record "Item Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckOutputFields(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

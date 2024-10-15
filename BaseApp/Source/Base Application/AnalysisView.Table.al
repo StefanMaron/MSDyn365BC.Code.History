@@ -789,7 +789,15 @@
     end;
 
     procedure CheckIfLastEntryOrDateIsSet(): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckIfLastEntryOrDateIsSet(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if "Account Source" = "Account Source"::"G/L Account" then
             exit("Last Entry No." <> 0);
 
@@ -798,6 +806,8 @@
 
     procedure SetUpdateOnPosting(NewUpdateOnPosting: Boolean)
     begin
+        OnBeforeSetUpdateOnPosting(Rec, NewUpdateOnPosting);
+
         if "Update on Posting" = NewUpdateOnPosting then
             exit;
 
@@ -901,6 +911,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBusinessUnitFilter(var Rec: Record "Analysis View"; var xRec: Record "Analysis View"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfLastEntryOrDateIsSet(var Rec: Record "Analysis View"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetUpdateOnPosting(var Rec: Record "Analysis View"; NewUpdateOnPosting: Boolean)
     begin
     end;
 }

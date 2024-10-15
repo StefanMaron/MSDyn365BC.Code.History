@@ -57,6 +57,7 @@ report 7000091 "Bill group - Export N58"
                     CustAddress[2] := Customer.Address;
                     CustAddress[3] := Customer.City;
                     CustAddress[4] := Customer."Post Code";
+#if not CLEAN22
                     if "Pmt. Address Code" <> '' then begin
                         if CustPmtAddress.Get("Account No.", "Pmt. Address Code") then begin
                             CustAddress[2] := CustPmtAddress.Address;
@@ -66,6 +67,7 @@ report 7000091 "Bill group - Export N58"
                         else
                             Error(Text1100011);
                     end;
+#endif
                     CustNoNIF := Customer."VAT Registration No.";
                     AdditionalInfo := Text1100008 + "Document No." + '/' + "No.";
                     AdditionalInfo2 := "Document No." + '/' + "No.";
@@ -417,8 +419,10 @@ report 7000091 "Bill group - Export N58"
         BankSuffix: Code[3];
         BankSuffixBankAcc: Code[20];
         Suffix: Record Suffix;
+#if not CLEAN22
         CustPmtAddress: Record "Customer Pmt. Address";
         Text1100011: Label 'The payment address does not exist';
+#endif
         ToFile: Text[1024];
         Text10701: Label 'ASC Files (*.asc)|*.asc|All Files (*.*)|*.*';
         Text10702: Label 'EFECTOS.ASC';

@@ -407,12 +407,18 @@ page 134 "Posted Sales Credit Memo"
             group(Payment)
             {
                 Caption = 'Payment';
+#if not CLEAN22
                 field("Pay-at Code"; Rec."Pay-at Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the customer''s payment address code that was on the sales header, Payments tab, when this credit memo was issued.';
+                    Visible = false;
+                    ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
                 }
+#endif
                 field("Cust. Bank Acc. Code"; Rec."Cust. Bank Acc. Code")
                 {
                     ApplicationArea = Basic, Suite;

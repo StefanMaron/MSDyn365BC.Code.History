@@ -864,6 +864,14 @@ table 112 "Sales Invoice Header"
         {
             Caption = 'Pay-at Code';
             TableRelation = "Customer Pmt. Address".Code WHERE("Customer No." = FIELD("Bill-to Customer No."));
+            ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#endif
         }
     }
 
@@ -1299,7 +1307,7 @@ table 112 "Sales Invoice Header"
     begin
         TempBlob.FromRecord(Rec, FieldNo("Work Description"));
         TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
+        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
     end;
 
     procedure GetCurrencySymbol(): Text[10]

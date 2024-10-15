@@ -755,6 +755,14 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Pay-at Code';
             TableRelation = "Customer Pmt. Address".Code WHERE("Customer No." = FIELD("Bill-to Customer No."));
+            ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#endif
         }
     }
 
@@ -969,7 +977,13 @@ table 114 "Sales Cr.Memo Header"
     local procedure DoPrintToDocumentAttachment(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; ShowNotificationAction: Boolean)
     var
         ReportSelections: Record "Report Selections";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDoPrintToDocumentAttachment(SalesCrMemoHeader, ShowNotificationAction, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesCrMemoHeader.SetRecFilter();
         ReportSelections.SaveAsDocumentAttachment(
             ReportSelections.Usage::"S.Cr.Memo".AsInteger(), SalesCrMemoHeader, SalesCrMemoHeader."No.", SalesCrMemoHeader."Bill-to Customer No.", ShowNotificationAction);
@@ -1118,7 +1132,7 @@ table 114 "Sales Cr.Memo Header"
     begin
         CalcFields("Work Description");
         "Work Description".CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
+        exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
     end;
 
     [IntegrationEvent(false, false)]
@@ -1148,6 +1162,11 @@ table 114 "Sales Cr.Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDoPrintToDocumentAttachment(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; ShowNotificationAction: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

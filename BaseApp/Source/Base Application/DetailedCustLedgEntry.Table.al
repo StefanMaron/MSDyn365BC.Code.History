@@ -1,4 +1,4 @@
-table 379 "Detailed Cust. Ledg. Entry"
+﻿table 379 "Detailed Cust. Ledg. Entry"
 {
     Caption = 'Detailed Cust. Ledg. Entry';
     DataCaptionFields = "Customer No.";
@@ -365,10 +365,17 @@ table 379 "Detailed Cust. Ledg. Entry"
     end;
 
     local procedure SetLedgerEntryAmount()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetLedgerEntryAmount(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         "Ledger Entry Amount" :=
-          not ("Entry Type" in ["Entry Type"::Application, "Entry Type"::"Appln. Rounding", "Entry Type"::Redrawal,
-                                "Entry Type"::Rejection]);
+            not ("Entry Type" in ["Entry Type"::Application, "Entry Type"::"Appln. Rounding", "Entry Type"::Redrawal,
+                                  "Entry Type"::Rejection]);
     end;
 
     procedure GetUnrealizedGainLossAmount(EntryNo: Integer): Decimal
@@ -378,6 +385,11 @@ table 379 "Detailed Cust. Ledg. Entry"
         SetRange("Entry Type", "Entry Type"::"Unrealized Loss", "Entry Type"::"Unrealized Gain");
         CalcSums("Amount (LCY)");
         exit("Amount (LCY)");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetLedgerEntryAmount(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
+    begin
     end;
 }
 

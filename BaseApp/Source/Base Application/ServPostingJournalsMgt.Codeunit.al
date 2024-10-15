@@ -801,7 +801,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateBillsOnBeforeSplitServiceInv(ServiceHeader : Record "Service Header"; CustLedgerEntry : Record "Cust. Ledger Entry"; var TotalServiceLine : Record "Service Line")
+    local procedure OnCreateBillsOnBeforeSplitServiceInv(ServiceHeader : Record "Service Header"; var CustLedgerEntry : Record "Cust. Ledger Entry"; var TotalServiceLine : Record "Service Line")
     begin
     end;
 

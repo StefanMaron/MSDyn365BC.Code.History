@@ -1,4 +1,4 @@
-codeunit 10750 "SII XML Creator"
+﻿codeunit 10750 "SII XML Creator"
 {
 
     trigger OnRun()
@@ -65,13 +65,14 @@ codeunit 10750 "SII XML Creator"
                 begin
                     RecRef.SetTable(CustLedgerEntry);
                     if UploadType = UploadTypeGlb::"Collection In Cash" then
-                        exit(CreateCollectionInCashXml(XMLDocOut, CustLedgerEntry, UploadType));
-                    exit(CreateInvoicesIssuedLedgerXml(CustLedgerEntry, XMLDocOut, UploadType, IsCreditMemoRemoval));
+                        ResultValue := CreateCollectionInCashXml(XMLDocOut, CustLedgerEntry, UploadType)
+                    else
+                        ResultValue := CreateInvoicesIssuedLedgerXml(CustLedgerEntry, XMLDocOut, UploadType, IsCreditMemoRemoval);
                 end;
             DATABASE::"Vendor Ledger Entry":
                 begin
                     RecRef.SetTable(VendorLedgerEntry);
-                    exit(CreateInvoicesReceivedLedgerXml(VendorLedgerEntry, XMLDocOut, UploadType, IsCreditMemoRemoval));
+                    ResultValue := CreateInvoicesReceivedLedgerXml(VendorLedgerEntry, XMLDocOut, UploadType, IsCreditMemoRemoval);
                 end;
             DATABASE::"Detailed Cust. Ledg. Entry":
                 begin
@@ -81,7 +82,7 @@ codeunit 10750 "SII XML Creator"
                     then
                         ErrorMsg := StrSubstNo(DetailedLedgerEntryShouldBePaymentOrRefundErr, Format(DetailedCustLedgEntry."Document Type"));
                     CustLedgerEntry.Get(DetailedCustLedgEntry."Cust. Ledger Entry No.");
-                    exit(CreateReceivedPaymentsXml(CustLedgerEntry, XMLDocOut))
+                    ResultValue := CreateReceivedPaymentsXml(CustLedgerEntry, XMLDocOut);
                 end;
             DATABASE::"Detailed Vendor Ledg. Entry":
                 begin
@@ -91,10 +92,10 @@ codeunit 10750 "SII XML Creator"
                     then
                         ErrorMsg := StrSubstNo(DetailedLedgerEntryShouldBePaymentOrRefundErr, Format(DetailedVendorLedgEntry."Document Type"));
                     VendorLedgerEntry.Get(DetailedVendorLedgEntry."Vendor Ledger Entry No.");
-                    exit(CreateEmittedPaymentsXml(VendorLedgerEntry, XMLDocOut))
+                    ResultValue := CreateEmittedPaymentsXml(VendorLedgerEntry, XMLDocOut);
                 end
             else
-                exit;
+                ResultValue := false;
         end;
 
         DotNetXMLDocumentToAL(XMLDocOut, XmlDocumentOut);
@@ -2334,17 +2335,19 @@ codeunit 10750 "SII XML Creator"
     end;
 
     local procedure ExportNonTaxableVATEntries(var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; IsService: Boolean; DomesticCustomer: Boolean; HasEntries: array[2] of Boolean; Amount: array[2] of Decimal)
+    var
+        VATXMLNode: DotNet XmlNode;
     begin
         if HasEntries[1] then
             InsertNoTaxableNode(
               TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
-              EUXMLNode, IsService, DomesticCustomer,
+              EUXMLNode, VATXMLNode, IsService, DomesticCustomer,
               'ImportePorArticulos7_14_Otros', Amount[1]);
 
         if HasEntries[2] then
             InsertNoTaxableNode(
               TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
-              EUXMLNode, IsService, DomesticCustomer,
+              EUXMLNode, VATXMLNode, IsService, DomesticCustomer,
               'ImporteTAIReglasLocalizacion', Amount[2]);
     end;
 
@@ -2475,9 +2478,7 @@ codeunit 10750 "SII XML Creator"
                          SIIDocUploadState."Sales Cr. Memo Type"::"F4 Invoice summary entry"]);
     end;
 
-    local procedure InsertNoTaxableNode(var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; EUService: Boolean; DomesticCustomer: Boolean; NodeName: Text; NonTaxableAmount: Decimal)
-    var
-        VATXMLNode: DotNet XmlNode;
+    local procedure InsertNoTaxableNode(var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; var VATXMLNode: DotNet XmlNode; EUService: Boolean; DomesticCustomer: Boolean; NodeName: Text; NonTaxableAmount: Decimal)
     begin
         AddTipoDesgloseDetailHeader(
           TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,

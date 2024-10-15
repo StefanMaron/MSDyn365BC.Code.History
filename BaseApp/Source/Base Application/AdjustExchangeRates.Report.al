@@ -945,6 +945,8 @@ report 595 "Adjust Exchange Rates"
         if TempDtldCVLedgEntryBuf.Insert() then;
         InsertExchRateAdjmtReg(
             "Exch. Rate Adjmt. Account Type"::Customer, AdjExchRateBuffer."Posting Group", AdjExchRateBuffer."Currency Code");
+        TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No." := ExchRateAdjReg."No.";
+        TempDtldCVLedgEntryBuf.Modify();
         TotalCustomersAdjusted += 1;
     end;
 
@@ -962,6 +964,8 @@ report 595 "Adjust Exchange Rates"
         if TempDtldCVLedgEntryBuf.Insert() then;
         InsertExchRateAdjmtReg(
             "Exch. Rate Adjmt. Account Type"::Vendor, AdjExchRateBuffer."Posting Group", AdjExchRateBuffer."Currency Code");
+        TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No." := ExchRateAdjReg."No.";
+        TempDtldCVLedgEntryBuf.Modify();
         TotalVendorsAdjusted += 1;
     end;
 
@@ -1145,6 +1149,7 @@ report 595 "Adjust Exchange Rates"
                 else
                     TempDtldCustLedgEntry."Transaction No." := LastTransactionNo;
                 DtldCustLedgEntry2 := TempDtldCustLedgEntry;
+                DtldCustLedgEntry2."Exch. Rate Adjmt. Reg. No." := TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No.";
                 DtldCustLedgEntry2.Insert(true);
             until TempDtldCustLedgEntry.Next() = 0;
     end;
@@ -1165,6 +1170,7 @@ report 595 "Adjust Exchange Rates"
                 else
                     TempDtldVendLedgEntry."Transaction No." := LastTransactionNo;
                 DtldVendLedgEntry2 := TempDtldVendLedgEntry;
+                DtldVendLedgEntry2."Exch. Rate Adjmt. Reg. No." := TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No.";
                 DtldVendLedgEntry2.Insert(true);
             until TempDtldVendLedgEntry.Next() = 0;
     end;

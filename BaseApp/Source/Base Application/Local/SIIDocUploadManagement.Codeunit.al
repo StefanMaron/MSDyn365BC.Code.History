@@ -551,6 +551,8 @@ codeunit 10752 "SII Doc. Upload Management"
             end;
             SIIDocUploadState.SetRange("External Document No.");
             SIIDocUploadState.SetRange("Document No.");
+            SIIDocUploadState.SetRange("First Summary Doc. No.");
+            SIIDocUploadState.SetRange("Last Summary Doc. No.");
         end;
     end;
 

@@ -1,3 +1,4 @@
+#if not CLEAN22
 page 7000039 "Customer Pmt. Address List"
 {
     Caption = 'Customer Pmt. Address List';
@@ -6,6 +7,9 @@ page 7000039 "Customer Pmt. Address List"
     Editable = false;
     PageType = List;
     SourceTable = "Customer Pmt. Address";
+    ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     layout
     {
@@ -61,3 +65,5 @@ page 7000039 "Customer Pmt. Address List"
     }
 }
 
+
+#endif

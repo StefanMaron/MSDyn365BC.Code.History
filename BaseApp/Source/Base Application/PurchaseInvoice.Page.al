@@ -474,11 +474,17 @@ page 51 "Purchase Invoice"
                 group(Payment)
                 {
                     Caption = 'Payment';
+#if not CLEAN22
                     field("Pay-at Code"; Rec."Pay-at Code")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies a code associated with a payment address, other than the vendor''s standard payment address.';
+                        Visible = false;
+                        ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
                     }
+#endif
                     field("Vendor Bank Acc. Code"; Rec."Vendor Bank Acc. Code")
                     {
                         ApplicationArea = Basic, Suite;
@@ -851,7 +857,7 @@ page 51 "Purchase Invoice"
                     {
                         ShowCaption = false;
                         Visible = "Remit-to Code" <> '';
-                        field("Remit-to Name"; RemitToAddress[1])
+                        field("Remit-to Name"; RemitAddressBuffer.Name)
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Name';
@@ -860,7 +866,7 @@ page 51 "Purchase Invoice"
                             QuickEntry = false;
                             ToolTip = 'Specifies the name of the company at the address that you want the invoice to be remitted to.';
                         }
-                        field("Remit-to Address"; RemitToAddress[2])
+                        field("Remit-to Address"; RemitAddressBuffer.Address)
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Address';
@@ -869,7 +875,7 @@ page 51 "Purchase Invoice"
                             QuickEntry = false;
                             ToolTip = 'Specifies the address that you want the items on the purchase document to be remitted to.';
                         }
-                        field("Remit-to Address 2"; RemitToAddress[3])
+                        field("Remit-to Address 2"; RemitAddressBuffer."Address 2")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Address 2';
@@ -878,7 +884,7 @@ page 51 "Purchase Invoice"
                             QuickEntry = false;
                             ToolTip = 'Specifies additional address information.';
                         }
-                        field("Remit-to City"; RemitToAddress[4])
+                        field("Remit-to City"; RemitAddressBuffer.City)
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'City';
@@ -891,7 +897,7 @@ page 51 "Purchase Invoice"
                         {
                             ShowCaption = false;
                             Visible = IsRemitToCountyVisible;
-                            field("Remit-to County"; RemitToAddress[5])
+                            field("Remit-to County"; RemitAddressBuffer.County)
                             {
                                 ApplicationArea = Basic, Suite;
                                 Caption = 'County';
@@ -901,7 +907,7 @@ page 51 "Purchase Invoice"
                                 ToolTip = 'Specifies the state, province or county of the address.';
                             }
                         }
-                        field("Remit-to Post Code"; RemitToAddress[6])
+                        field("Remit-to Post Code"; RemitAddressBuffer."Post Code")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Post Code';
@@ -910,7 +916,7 @@ page 51 "Purchase Invoice"
                             QuickEntry = false;
                             ToolTip = 'Specifies the postal code of the address that you want the items on the purchase document to be remitted to.';
                         }
-                        field("Remit-to Country/Region Code"; RemitToAddress[7])
+                        field("Remit-to Country/Region Code"; RemitAddressBuffer."Country/Region Code")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Country/Region';
@@ -919,7 +925,7 @@ page 51 "Purchase Invoice"
                             QuickEntry = false;
                             ToolTip = 'Specifies the country/region code of the address that you want the items on the purchase document to be remitted to.';
                         }
-                        field("Remit-to Contact"; RemitToAddress[8])
+                        field("Remit-to Contact"; RemitAddressBuffer.Contact)
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Contact';
@@ -1830,8 +1836,10 @@ page 51 "Purchase Invoice"
     begin
         "Responsibility Center" := UserMgt.GetPurchasesFilter();
 
-        if (not DocNoVisible) and ("No." = '') then
+        if (not DocNoVisible) and ("No." = '') then begin
             SetBuyFromVendorFromFilter();
+            SelectDefaultRemitAddress(Rec);
+        end;
 
         CalculateCurrentShippingAndPayToOption();
     end;
@@ -1878,6 +1886,7 @@ page 51 "Purchase Invoice"
         PayToContact: Record Contact;
         PurchSetup: Record "Purchases & Payables Setup";
         GLSetup: Record "General Ledger Setup";
+        RemitAddressBuffer: Record "Remit Address Buffer";
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         ReportPrint: Codeunit "Test Report-Print";
@@ -1923,7 +1932,6 @@ page 51 "Purchase Invoice"
         IsPostingGroupEditable: Boolean;
         [InDataSet]
         IsPurchaseLinesEditable: Boolean;
-        RemitToAddress: array[8] of Text[100];
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
@@ -2167,16 +2175,13 @@ page 51 "Purchase Invoice"
     local procedure FillRemitToFields()
     var
         RemitAddress: Record "Remit Address";
-        FormatAddr: Codeunit "Format Address";
     begin
-        with RemitAddress do begin
-            SetRange("Vendor No.", "Buy-from Vendor No.");
-            SetRange(Code, "Remit-to Code");
-            if not IsEmpty() then begin
-                FindFirst();
-                FormatAddr.FormatAddr(RemitToAddress, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-                CurrPage.Update();
-            end;
+        RemitAddress.SetRange("Vendor No.", "Buy-from Vendor No.");
+        RemitAddress.SetRange(Code, "Remit-to Code");
+        if not RemitAddress.IsEmpty() then begin
+            RemitAddress.FindFirst();
+            FormatAddress.VendorRemitToAddress(RemitAddress, RemitAddressBuffer);
+            CurrPage.Update();
         end;
     end;
 

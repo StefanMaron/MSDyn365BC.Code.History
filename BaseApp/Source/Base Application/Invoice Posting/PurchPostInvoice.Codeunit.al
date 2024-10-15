@@ -615,7 +615,9 @@
         GenJnlLine.CopyFromPurchHeaderPayment(PurchHeader);
 
         InitGenJnlLineAmountFieldsFromTotalLines(GenJnlLine, PurchHeader);
+#if not CLEAN22
         GenJnlLine."Pmt. Address Code" := PurchHeader."Pay-at Code";
+#endif
         GenJnlLine."Recipient Bank Account" := PurchHeader."Vendor Bank Acc. Code";
         GenJnlLine."Generate AutoInvoices" := PurchHeader."Generate Autoinvoices" or PurchHeader."Generate Autocredit Memo";
         GenJnlLine."AutoDoc. No." := InvoicePostingParameters."Auto Document No.";
@@ -851,6 +853,7 @@
                                 InvoicePostingBuffer."VAT Base Amount" := Round(InvoicePostingBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100));
                                 InvoicePostingBuffer."VAT Base Amount (ACY)" := Round(InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100));
                             end;
+                            PurchPostInvoiceEvents.RunOnCalculateVATAmountsOnReverseChargeVATOnBeforeModify(PurchHeader, CurrencyDocument, VATPostingSetup, InvoicePostingBuffer);
                             InvoicePostingBuffer.Modify();
                         end;
                     InvoicePostingBuffer."VAT Calculation Type"::"Sales Tax":
@@ -867,6 +870,7 @@
                                     CurrExchRate.ExchangeAmtLCYToFCY(
                                         PurchHeader."Posting Date", GLSetup."Additional Reporting Currency",
                                         InvoicePostingBuffer."VAT Amount", 0);
+                            InvoicePostingBuffer.Modify();
                         end;
                 end;
             until InvoicePostingBuffer.Next() = 0;

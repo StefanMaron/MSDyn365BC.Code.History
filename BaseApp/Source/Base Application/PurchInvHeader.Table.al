@@ -512,6 +512,7 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'Remit-to Code';
             Editable = false;
+            TableRelation = "Remit Address".Code WHERE("Vendor No." = FIELD("Buy-from Vendor No."));
         }
         field(1302; Closed; Boolean)
         {
@@ -682,6 +683,14 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'Pay-at Code';
             TableRelation = "Vendor Pmt. Address".Code WHERE("Vendor No." = FIELD("Pay-to Vendor No."));
+            ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#endif
         }
     }
 
@@ -802,7 +811,13 @@ table 122 "Purch. Inv. Header"
     local procedure DoPrintToDocumentAttachment(PurchInvHeaderLocal: Record "Purch. Inv. Header")
     var
         ReportSelections: Record "Report Selections";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDoPrintToDocumentAttachment(PurchInvHeaderLocal, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchInvHeaderLocal.SetRecFilter();
         ReportSelections.SaveAsDocumentAttachment(
             ReportSelections.Usage::"P.Invoice".AsInteger(), PurchInvHeaderLocal, PurchInvHeaderLocal."No.", PurchInvHeaderLocal."Buy-from Vendor No.", true);
@@ -933,6 +948,11 @@ table 122 "Purch. Inv. Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowCanceledOrCorrCrMemo(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDoPrintToDocumentAttachment(var PurchInvHeaderLocal: Record "Purch. Inv. Header"; var IsHandled: Boolean)
     begin
     end;
 

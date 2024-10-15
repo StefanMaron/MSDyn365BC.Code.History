@@ -1776,6 +1776,7 @@ table 210 "Job Journal Line"
         case Type of
             Type::Item:
                 if ("No." <> xRec."No.") or
+                    IsQuantityChangedForPrice() or
                    ("Location Code" <> xRec."Location Code") or
                    ("Variant Code" <> xRec."Variant Code") or
                    (Quantity <> xRec.Quantity) or
@@ -1785,17 +1786,33 @@ table 210 "Job Journal Line"
                     exit(true);
             Type::Resource:
                 if ("No." <> xRec."No.") or
+                    IsQuantityChangedForPrice() or
                    ("Work Type Code" <> xRec."Work Type Code") or
                    ("Unit of Measure Code" <> xRec."Unit of Measure Code")
                 then
                     exit(true);
             Type::"G/L Account":
-                if "No." <> xRec."No." then
+                if ("No." <> xRec."No.") or IsQuantityChangedForPrice() then
                     exit(true);
             else
                 exit(false);
         end;
         exit(false);
+    end;
+
+    local procedure IsQuantityChangedForPrice(): Boolean;
+#if not CLEAN21
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+#endif
+    begin
+        if Quantity = xRec.Quantity then
+            exit(false);
+#if not CLEAN21
+        exit(PriceCalculationMgt.IsExtendedPriceCalculationEnabled());
+#else
+        exit(true);
+#endif
     end;
 
     procedure UpdateTotalCost()
@@ -1959,6 +1976,10 @@ table 210 "Job Journal Line"
         OnBeforeUpdateAmountsAndDiscounts(Rec, xRec, IsHandled);
         if IsHandled then
             exit;
+
+        // Patch for fixing Edit-in-Excel issues due to dependency on xRec. 
+        if not GuiAllowed() then
+            if xRec.Get(xRec.RecordId()) then;
 
         if "Total Price" <> 0 then begin
             if ("Line Amount" <> xRec."Line Amount") and ("Line Discount Amount" = xRec."Line Discount Amount") then begin

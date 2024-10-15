@@ -1,3 +1,4 @@
+#if not CLEAN22
 page 7000043 "Vendor Pmt. Address List"
 {
     Caption = 'Vendor Pmt. Address List';
@@ -6,6 +7,9 @@ page 7000043 "Vendor Pmt. Address List"
     Editable = false;
     PageType = List;
     SourceTable = "Vendor Pmt. Address";
+    ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     layout
     {
@@ -61,3 +65,4 @@ page 7000043 "Vendor Pmt. Address List"
     }
 }
 
+#endif

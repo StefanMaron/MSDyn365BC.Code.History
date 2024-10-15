@@ -1207,7 +1207,14 @@ report 10743 "Make 340 Declaration"
         else
             VATEntry6.SetFilter("Document Type", '%1|%2|%3|%4', VATEntry6."Document Type"::Invoice, VATEntry6."Document Type"::"Credit Memo",
               VATEntry6."Document Type"::Payment, VATEntry6."Document Type"::Refund);
-        VATEntry6.SetFilter("Posting Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
+        case VATDateType of
+            VATDateType::"Posting Date":
+                VATEntry6.SetFilter("Posting Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
+            VATDateType::"Document Date":
+                VATEntry6.SetFilter("Document Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
+            VATDateType::"VAT Reporting Date":
+                VATEntry6.SetFilter("VAT Reporting Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
+        end;
         if VATEntry.GetFilter("Document No.") <> '' then
             VATEntry6.SetFilter("Document No.", VATEntry.GetFilter("Document No."));
         if VATEntry6.FindSet() then

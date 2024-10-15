@@ -62,15 +62,25 @@ table 410 "IC G/L Account"
     }
 
     trigger OnInsert()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
         if Indentation < 0 then
             Indentation := 0;
+
+        FeatureTelemetry.LogUptake('0000IKM', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
     end;
 
     trigger OnModify()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
         if Indentation < 0 then
             Indentation := 0;
+
+        FeatureTelemetry.LogUptake('0000IKN', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
     end;
 }
 

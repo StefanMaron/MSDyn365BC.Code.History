@@ -272,12 +272,17 @@ page 7000036 "Cartera Journal"
                     ToolTip = 'Specifies the bank account that the amount will be transferred to after it has been exported from the journal.';
                     Visible = false;
                 }
+#if not CLEAN22
                 field("Pmt. Address Code"; Rec."Pmt. Address Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code.';
                     Visible = false;
+                    ObsoleteReason = 'Address is taken from the fields Address, City, etc. of Customer/Vendor table.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
                 }
+#endif
                 field("Direct Debit Mandate ID"; Rec."Direct Debit Mandate ID")
                 {
                     ApplicationArea = Basic, Suite;

@@ -1,4 +1,4 @@
-codeunit 147553 "SII Batch Submission"
+﻿codeunit 147553 "SII Batch Submission"
 {
     // // [FEATURE] [SII] [Batch Submission]
 
@@ -328,7 +328,7 @@ codeunit 147553 "SII Batch Submission"
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadTypeGlb::Regular, false), '');
 
         LibrarySII.VerifyXMLSalesDocHeaderCnt(XMLDoc, 1);
-        LibrarySII.VerifyXMLSalesDocCnt(XMLDoc, 2);
+        LibrarySII.VerifyXMLSalesDocCnt(XMLDoc, 1);
         LibrarySII.VerifyXMLTipoComunicacionValue(XMLDoc, 1, 'A0');
     end;
 
@@ -350,7 +350,7 @@ codeunit 147553 "SII Batch Submission"
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadTypeGlb::Regular, false), '');
 
         LibrarySII.VerifyXMLSalesDocHeaderCnt(XMLDoc, 1);
-        LibrarySII.VerifyXMLSalesDocCnt(XMLDoc, 2);
+        LibrarySII.VerifyXMLSalesDocCnt(XMLDoc, 1);
         LibrarySII.VerifyXMLTipoComunicacionValue(XMLDoc, 1, 'A0');
     end;
 
@@ -372,7 +372,7 @@ codeunit 147553 "SII Batch Submission"
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadTypeGlb::Regular, true), '');
 
         LibrarySII.VerifyXMLSalesCrMemoRemovalHeaderCnt(XMLDoc, 1);
-        LibrarySII.VerifyXMLSalesDocCnt(XMLDoc, 2);
+        LibrarySII.VerifyXMLSalesDocCnt(XMLDoc, 1);
         LibrarySII.VerifyXMLTipoComunicacionValue(XMLDoc, 0, '');
     end;
 
@@ -394,7 +394,7 @@ codeunit 147553 "SII Batch Submission"
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadTypeGlb::Regular, false), '');
 
         LibrarySII.VerifyXMLPurchDocHeaderCnt(XMLDoc, 1);
-        LibrarySII.VerifyXMLPurchDocCnt(XMLDoc, 2);
+        LibrarySII.VerifyXMLPurchDocCnt(XMLDoc, 1);
         LibrarySII.VerifyXMLTipoComunicacionValue(XMLDoc, 1, 'A0');
     end;
 
@@ -416,7 +416,7 @@ codeunit 147553 "SII Batch Submission"
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadTypeGlb::Regular, false), '');
 
         LibrarySII.VerifyXMLPurchDocHeaderCnt(XMLDoc, 1);
-        LibrarySII.VerifyXMLPurchDocCnt(XMLDoc, 2);
+        LibrarySII.VerifyXMLPurchDocCnt(XMLDoc, 1);
         LibrarySII.VerifyXMLTipoComunicacionValue(XMLDoc, 1, 'A0');
     end;
 
@@ -438,7 +438,7 @@ codeunit 147553 "SII Batch Submission"
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadTypeGlb::Regular, true), '');
 
         LibrarySII.VerifyXMLPurchCrMemoRemovalHeaderCnt(XMLDoc, 1);
-        LibrarySII.VerifyXMLPurchDocCnt(XMLDoc, 2);
+        LibrarySII.VerifyXMLPurchDocCnt(XMLDoc, 1);
         LibrarySII.VerifyXMLTipoComunicacionValue(XMLDoc, 0, '');
     end;
 

@@ -85,7 +85,9 @@ report 7000083 "Redraw Payable Bills"
                             "Payment Method Code" := PostedDoc."Payment Method Code"
                         else
                             "Payment Method Code" := NewPmtMethod;
+#if not CLEAN22
                         "Pmt. Address Code" := PostedDoc."Pmt. Address Code";
+#endif
                         "Recipient Bank Account" := PostedDoc."Cust./Vendor Bank Acc. Code";
                     end else begin
                         ClosedDoc.Get(
@@ -94,7 +96,9 @@ report 7000083 "Redraw Payable Bills"
                             "Payment Method Code" := ClosedDoc."Payment Method Code"
                         else
                             "Payment Method Code" := NewPmtMethod;
+#if not CLEAN22
                         "Pmt. Address Code" := ClosedDoc."Pmt. Address Code";
+#endif
                         "Recipient Bank Account" := ClosedDoc."Cust./Vendor Bank Acc. Code";
                     end;
                     "Due Date" := NewDueDate;

@@ -216,7 +216,12 @@ table 413 "IC Partner"
     procedure PropagateCustomerICPartner(PreviousCustomerNo: Code[20]; NewCustomerNo: Code[20]; ICPartnerCode: Code[20])
     var
         Customer: Record Customer;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
+        FeatureTelemetry.LogUptake('0000IJ0', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
+        FeatureTelemetry.LogUsage('0000IJ2', ICMapping.GetFeatureTelemetryName(), 'Propagate Customer IC Partner');
+
         if (PreviousCustomerNo <> NewCustomerNo) and Customer.Get(PreviousCustomerNo) then begin
             Customer.Validate("IC Partner Code", '');
             Customer.Modify();
@@ -231,7 +236,12 @@ table 413 "IC Partner"
     procedure PropagateVendorICPartner(PreviousVendorNo: Code[20]; NewVendorNo: Code[20]; ICPartnerCode: Code[20])
     var
         Vendor: Record Vendor;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
+        FeatureTelemetry.LogUptake('0000IJ1', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
+        FeatureTelemetry.LogUsage('0000IJ3', ICMapping.GetFeatureTelemetryName(), 'Propagate Vendor IC Partner');
+
         if (PreviousVendorNo <> NewVendorNo) and Vendor.Get(PreviousVendorNo) then begin
             Vendor.Validate("IC Partner Code", '');
             Vendor.Modify();

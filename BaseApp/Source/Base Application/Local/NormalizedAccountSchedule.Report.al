@@ -419,6 +419,11 @@ report 10717 "Normalized Account Schedule"
     }
 
     trigger OnPreReport()
+#if CLEAN22
+    var
+        FinancialReport: Record "Financial Report";
+        LocalColumnLayoutName: Record "Column Layout Name";
+#endif
     begin
         if GeneralIdData and (CloseDate = 0D) then
             Error(Text1100000);
@@ -427,8 +432,16 @@ report 10717 "Normalized Account Schedule"
         SplitCompanyName(CompanyInfo, CompName);
 
         "Acc. Schedule Name".Find('-');
+#if not CLEAN22
         "Acc. Schedule Name".TestField("Default Column Layout");
         ColumnLayoutName := "Acc. Schedule Name"."Default Column Layout";
+#else
+        if FinancialReport.Get("Acc. Schedule Name"."Acc. Schedule Name") then
+            ColumnLayoutName := FinancialReport."Financial Report Column Group"
+        else
+            if LocalColumnLayoutName.FindFirst() then
+                ColumnLayoutName := LocalColumnLayoutName.Name;
+#endif
         // AccSchedManagement.SetAccSchedName(PrintAmountsInAddCurrency);
         InitAccSched();
         GLSetup.Get();

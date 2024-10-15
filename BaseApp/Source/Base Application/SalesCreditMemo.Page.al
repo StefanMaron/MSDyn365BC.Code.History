@@ -473,11 +473,17 @@ page 44 "Sales Credit Memo"
             group(Payment)
             {
                 Caption = 'Payment';
+#if not CLEAN22
                 field("Pay-at Code"; Rec."Pay-at Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code associated with a payment address other than the customer''s standard payment address.';
+                    Visible = false;
+                    ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
                 }
+#endif
                 field("Cust. Bank Acc. Code"; Rec."Cust. Bank Acc. Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1744,8 +1750,11 @@ page 44 "Sales Credit Memo"
 
         if OfficeMgt.IsAvailable() then begin
             SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-            if SalesCrMemoHeader.FindFirst() then
-                PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+            IsHandled := false;
+            OnPostDocumentOnBeforeOpenPage(SalesCrMemoHeader, IsHandled);
+            if not IsHandled then
+                if SalesCrMemoHeader.FindFirst() then
+                    PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
         end else
             if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
                 ShowPostedConfirmationMessage(PreAssignedNo);
@@ -1851,13 +1860,18 @@ page 44 "Sales Credit Memo"
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        IsHandled: Boolean;
     begin
         SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         if SalesCrMemoHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesCrMemoQst, SalesCrMemoHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())
-            then
-                InstructionMgt.ShowPostedDocument(SalesCrMemoHeader, Page::"Sales Credit Memo");
+            then begin
+                IsHandled := false;
+                OnShowPostedConfirmationMessageOnBeforeShowPostedDocument(SalesCrMemoHeader, IsHandled);
+                if not IsHandled then
+                    InstructionMgt.ShowPostedDocument(SalesCrMemoHeader, Page::"Sales Credit Memo");
+            end;
     end;
 
     local procedure UpdateDocHasRegimeCode()
@@ -1903,6 +1917,16 @@ page 44 "Sales Credit Memo"
 
     [IntegrationEvent(true, false)]
     local procedure OnPostDocumentBeforeNavigateAfterPosting(var SalesHeader: Record "Sales Header"; var PostingCodeunitID: Integer; DocumentIsPosted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowPostedConfirmationMessageOnBeforeShowPostedDocument(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDocumentOnBeforeOpenPage(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: boolean)
     begin
     end;
 }

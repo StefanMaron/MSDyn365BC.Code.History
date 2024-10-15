@@ -85,18 +85,18 @@
     begin
         if not GeneralLedgerSetup.Get() then
             exit(false);
-        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Balance Sheet");
-        if (FinancialReport."Financial Report Row Group" = ScheduleName) then
-            exit(true);
-        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt");
-        if (FinancialReport."Financial Report Row Group" = ScheduleName) then
-            exit(true);
-        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Income Stmt.");
-        if (FinancialReport."Financial Report Row Group" = ScheduleName) then
-            exit(true);
-        FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Retained Earn.");
-        if (FinancialReport."Financial Report Row Group" = ScheduleName) then
-            exit(true);
+        if FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Balance Sheet") then
+            if (FinancialReport."Financial Report Row Group" = ScheduleName) then
+                exit(true);
+        if FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt") then
+            if (FinancialReport."Financial Report Row Group" = ScheduleName) then
+                exit(true);
+        if FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Income Stmt.") then
+            if (FinancialReport."Financial Report Row Group" = ScheduleName) then
+                exit(true);
+        if FinancialReport.Get(GeneralLedgerSetup."Fin. Rep. for Retained Earn.") then
+            if (FinancialReport."Financial Report Row Group" = ScheduleName) then
+                exit(true);
         exit(false);
     end;
 
@@ -229,6 +229,11 @@
 
         EntrdColumnName := ColumnLayoutName.Name;
         exit(true);
+    end;
+
+    procedure SetAnalysisViewRead(Value: Boolean)
+    begin
+        AnalysisViewRead := Value;
     end;
 
     procedure CheckAnalysisView(CurrentSchedName: Code[10]; CurrentColumnName: Code[10]; TestColumnName: Boolean)
@@ -1286,6 +1291,8 @@
               GetDimTotalingFilter(4, ColumnLayout."Dimension 4 Totaling"));
             FilterGroup(0);
         end;
+
+        OnAfterSetCFAnalysisViewEntryFilters(AnalysisViewEntry, AccSchedLine, ColumnLayout);
     end;
 
     procedure ApplyOperator(LeftResult: Decimal; RightResult: Decimal; Operator: Char; var DivisionError: Boolean) Result: Decimal
@@ -2453,6 +2460,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetCFAccRowFilter(var CashFlowAccount: Record "Cash Flow Account"; var AccScheduleLine: Record "Acc. Schedule Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCFAnalysisViewEntryFilters(var AnalysisViewEntry: Record "Analysis View Entry"; var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
     begin
     end;
 

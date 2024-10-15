@@ -402,7 +402,7 @@
 
         SelectedDim.GetSelectedDim(UserId, 3, REPORT::"Close Income Statement", '', TempSelectedDim);
         IsHandled := false;
-        OnPreReportOnBeforeCheckDimPostingRules(IsHandled, TempSelectedDim);
+        OnPreReportOnBeforeCheckDimPostingRules(IsHandled, TempSelectedDim, GenJnlLine);
         if not IsHandled then begin
             s := CheckDimPostingRules(TempSelectedDim);
             if s <> '' then
@@ -767,7 +767,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPreReportOnBeforeCheckDimPostingRules(var IsHandled: Boolean; var TempSelectedDim: Record "Selected Dimension" temporary)
+    local procedure OnPreReportOnBeforeCheckDimPostingRules(var IsHandled: Boolean; var TempSelectedDim: Record "Selected Dimension" temporary; GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 

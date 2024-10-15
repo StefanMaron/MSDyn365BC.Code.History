@@ -130,8 +130,10 @@ table 560 "VAT Clause"
         if Result <> '' then
             exit(Result);
 
-        if GetDocumentTypeAndLanguageCode(RecRelatedVariant, DocumentType, LanguageCode) then
+        if GetDocumentTypeAndLanguageCode(RecRelatedVariant, DocumentType, LanguageCode) then begin
+            TranslateDescription(LanguageCode);
             exit(Description + ' ' + "Description 2");
+        end;
 
         if TryFindDescriptionByDocumentType(DocumentType, LanguageCode) then begin
             TranslateDescription(LanguageCode);
@@ -165,7 +167,7 @@ table 560 "VAT Clause"
         ExtendedTextHeader.SetRange("No.", Code);
 
         IsHandled := false;
-        OnFilterExtendedTextHeaderFromDoc(RecRelatedVariant, ExtendedTextHeader, IsHandled);
+        OnFilterExtendedTextHeaderFromDoc(RecRelatedVariant, ExtendedTextHeader, IsHandled, LanguageCode, DocDate);
         if not IsHandled then
             case RecRef.Number of
                 DATABASE::"Sales Header":
@@ -288,10 +290,10 @@ table 560 "VAT Clause"
                     exit(true);
                 end;
             else begin
-                    IsHandled := false;
-                    OnGetDocumentTypeAndLanguageCode(Rec, RecRelatedVariant, DocumentType, LanguageCode, IsHandled);
-                    exit(IsHandled);
-                end;
+                IsHandled := false;
+                OnGetDocumentTypeAndLanguageCode(Rec, RecRelatedVariant, DocumentType, LanguageCode, IsHandled);
+                exit(IsHandled);
+            end;
         end;
     end;
 
@@ -314,7 +316,7 @@ table 560 "VAT Clause"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFilterExtendedTextHeaderFromDoc(RecRelatedVariant: Variant; var ExtendedTextHeader: Record "Extended Text Header"; var IsHandled: Boolean)
+    local procedure OnFilterExtendedTextHeaderFromDoc(RecRelatedVariant: Variant; var ExtendedTextHeader: Record "Extended Text Header"; var IsHandled: Boolean; var LanguageCode: Code[10]; var DocDate: Date)
     begin
     end;
 }

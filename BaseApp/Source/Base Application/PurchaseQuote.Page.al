@@ -312,11 +312,17 @@ page 49 "Purchase Quote"
             group(Payment)
             {
                 Caption = 'Payment';
+#if not CLEAN22
                 field("Pay-at Code"; Rec."Pay-at Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code associated with a payment address, other than the vendor''s standard payment address.';
+                    Visible = false;
+                    ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
                 }
+#endif
                 field("Vendor Bank Acc. Code"; Rec."Vendor Bank Acc. Code")
                 {
                     ApplicationArea = Basic, Suite;

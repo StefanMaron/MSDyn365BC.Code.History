@@ -626,6 +626,15 @@
       <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM VAT Sales/Purchase - NamedType VATDifferenceErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 70057887 - Method 3820826509 - NamedType 3381531655" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unrealized VAT Type must be "Percentage" in VAT Posting Setup.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Sales/Purchase - Method VerifyUnrealizedVATEntryMustBePercentage - NamedType UnrealizedVATErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2108261457 - NamedType 3420941840" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount must be %1 in %2.]]></Val>

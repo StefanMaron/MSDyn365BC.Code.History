@@ -114,8 +114,18 @@ page 9084 "Customer Details FactBox"
         StyleTxt: Text;
 
     local procedure ShowDetails()
+    var
+        IsHandled: Boolean;
     begin
-        PAGE.Run(PAGE::"Customer Card", Rec);
+        IsHandled := false;
+        OnBeforeShowDetails(Rec, IsHandled);
+        if not IsHandled then
+            PAGE.Run(PAGE::"Customer Card", Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDetails(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
     end;
 }
 

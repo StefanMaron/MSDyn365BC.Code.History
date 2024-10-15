@@ -174,7 +174,9 @@ codeunit 7000006 "Document-Post"
         PaymentMethod: Record "Payment Method";
         CompanyInfo: Record "Company Information";
         CustBankAcc: Record "Customer Bank Account";
+#if not CLEAN22
         CustPmtAddress: Record "Customer Pmt. Address";
+#endif
         Cust: Record Customer;
     begin
         with GenJnlLine do begin
@@ -195,7 +197,9 @@ codeunit 7000006 "Document-Post"
             CarteraDoc."Currency Code" := "Currency Code";
             CarteraDoc."Cust./Vendor Bank Acc. Code" :=
               CopyStr("Recipient Bank Account", 1, MaxStrLen(CarteraDoc."Cust./Vendor Bank Acc. Code"));
+#if not CLEAN22
             CarteraDoc."Pmt. Address Code" := "Pmt. Address Code";
+#endif
             CarteraDoc."Global Dimension 1 Code" := "Shortcut Dimension 1 Code";
             CarteraDoc."Global Dimension 2 Code" := "Shortcut Dimension 2 Code";
             CarteraDoc."Dimension Set ID" := "Dimension Set ID";
@@ -215,11 +219,13 @@ codeunit 7000006 "Document-Post"
                     CarteraDoc.Place := CompanyInfo."Post Code" = CustBankAcc."Post Code";
                     exit;
                 end;
+#if not CLEAN22
                 if "Pmt. Address Code" <> '' then begin
                     CustPmtAddress.Get("Account No.", "Pmt. Address Code");
                     CarteraDoc.Place := CompanyInfo."Post Code" = CustPmtAddress."Post Code";
                     exit;
                 end;
+#endif
                 Cust.Get("Account No.");
                 CarteraDoc.Place := CompanyInfo."Post Code" = Cust."Post Code";
             end;

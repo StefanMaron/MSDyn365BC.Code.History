@@ -769,7 +769,7 @@
 
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
 
-                OnAfterLookupPostCode(Rec, PostCode);
+                OnAfterLookupPostCode(Rec, xRec, PostCode);
             end;
 
             trigger OnValidate()
@@ -1766,9 +1766,11 @@
         StdCustSalesCode.SetRange("Customer No.", "No.");
         StdCustSalesCode.DeleteAll(true);
 
+#if not CLEAN22
         CustPmtAddress.SetRange("Customer No.", "No.");
         if CustPmtAddress.FindFirst() then
             CustPmtAddress.DeleteAll();
+#endif
 
         CheckIfSalesOrderLinesExist();
 
@@ -1900,7 +1902,9 @@
         ServiceItem: Record "Service Item";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CustomizedCalendarChange: Record "Customized Calendar Change";
+#if not CLEAN22
         CustPmtAddress: Record "Customer Pmt. Address";
+#endif
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         MoveEntries: Codeunit MoveEntries;
@@ -3312,7 +3316,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterLookupPostCode(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    local procedure OnAfterLookupPostCode(var Customer: Record Customer; xCustomer: Record Customer; var PostCodeRec: Record "Post Code")
     begin
     end;
 

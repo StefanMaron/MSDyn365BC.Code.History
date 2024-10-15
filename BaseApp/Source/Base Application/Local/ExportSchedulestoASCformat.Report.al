@@ -590,6 +590,10 @@
     local procedure ExportAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line")
     var
         AccScheduleName: Record "Acc. Schedule Name";
+#if CLEAN22
+        FinancialReport: Record "Financial Report";
+#endif
+        CheckColumnLayout: Boolean;
     begin
         ok := false;
         if AccScheduleLine.Totaling = '' then
@@ -597,8 +601,16 @@
         else begin
             b := 0;
             AccScheduleName.Get(AccScheduleLine."Schedule Name");
+            CheckColumnLayout := true;
+#if not CLEAN22
             ColumnLayout.SetRange("Column Layout Name", AccScheduleName."Default Column Layout");
-            if ColumnLayout.Find('-') then
+#else
+            if FinancialReport.Get(AccScheduleLine."Schedule Name") then
+                ColumnLayout.SetRange("Column Layout Name", FinancialReport."Financial Report Column Group")
+            else
+                CheckColumnLayout := false;
+#endif
+            if CheckColumnLayout and ColumnLayout.Find('-') then
                 repeat
                     b := b + 1;
                     ColumnValue := 100 * AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, false);

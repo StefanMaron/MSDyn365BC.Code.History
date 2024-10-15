@@ -660,6 +660,14 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             Caption = 'Pay-at Code';
             TableRelation = "Vendor Pmt. Address".Code WHERE("Vendor No." = FIELD("Pay-to Vendor No."));
+            ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#endif
         }
     }
 
@@ -767,7 +775,13 @@ table 124 "Purch. Cr. Memo Hdr."
     local procedure DoPrintToDocumentAttachment(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     var
         ReportSelections: Record "Report Selections";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDoPrintToDocumentAttachment(PurchCrMemoHdr, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchCrMemoHdr.SetRecFilter();
         ReportSelections.SaveAsDocumentAttachment(
             ReportSelections.Usage::"P.Cr.Memo".AsInteger(), PurchCrMemoHdr, PurchCrMemoHdr."No.", PurchCrMemoHdr."Buy-from Vendor No.", true);
@@ -818,6 +832,7 @@ table 124 "Purch. Cr. Memo Hdr."
     var
         CancelledDocument: Record "Cancelled Document";
         PurchInvHeader: Record "Purch. Inv. Header";
+        IsHandled: Boolean;
     begin
         CalcFields(Cancelled);
         if not Cancelled then
@@ -825,7 +840,10 @@ table 124 "Purch. Cr. Memo Hdr."
 
         if CancelledDocument.FindPurchCancelledCrMemo("No.") then begin
             PurchInvHeader.Get(CancelledDocument."Cancelled By Doc. No.");
-            PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
+            IsHandled := false;
+            OnShowCorrectiveInvoiceOnBeforeOpenPage(PurchInvHeader, IsHandled);
+            if not IsHandled then
+                PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
         end;
     end;
 
@@ -833,6 +851,7 @@ table 124 "Purch. Cr. Memo Hdr."
     var
         CancelledDocument: Record "Cancelled Document";
         PurchInvHeader: Record "Purch. Inv. Header";
+        IsHandled: Boolean;
     begin
         CalcFields(Corrective);
         if not Corrective then
@@ -840,7 +859,10 @@ table 124 "Purch. Cr. Memo Hdr."
 
         if CancelledDocument.FindPurchCorrectiveCrMemo("No.") then begin
             PurchInvHeader.Get(CancelledDocument."Cancelled Doc. No.");
-            PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
+            IsHandled := false;
+            OnShowCancelledInvoiceOnBeforeOpenPage(PurchInvHeader, IsHandled);
+            if not IsHandled then
+                PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
         end;
     end;
 
@@ -858,5 +880,19 @@ table 124 "Purch. Cr. Memo Hdr."
     local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDoPrintToDocumentAttachment(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowCorrectiveInvoiceOnBeforeOpenPage(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowCancelledInvoiceOnBeforeOpenPage(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+}

@@ -334,6 +334,8 @@
         "Global Dimension 2 Code" := PrepmtInvLineBuf."Global Dimension 2 Code";
         "Dimension Set ID" := PrepmtInvLineBuf."Dimension Set ID";
         Description := PrepmtInvLineBuf.Description;
+
+        OnAfterFillAdjInvLineBuffer(PrepmtInvLineBuf, Rec);
     end;
 
     procedure FillFromGLAcc(CompressPrepayment: Boolean)
@@ -431,6 +433,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillFromGLAcc(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; GLAccount: Record "G/L Account"; CompressPayment: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillAdjInvLineBuffer(PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; var PrepaymentInvLineBufferRec: Record "Prepayment Inv. Line Buffer")
     begin
     end;
 

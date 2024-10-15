@@ -216,16 +216,6 @@ page 27 "Vendor List"
         }
         area(factboxes)
         {
-#if not CLEAN21
-            part("Power BI Report FactBox"; "Power BI Report FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                Visible = false;
-                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
-                ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
-            }
-#endif
             part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
             {
                 ApplicationArea = Basic, Suite;
@@ -275,6 +265,16 @@ page 27 "Vendor List"
                 SubPageLink = "No." = FIELD("No.");
                 Visible = true;
             }
+#if not CLEAN21
+            part("Power BI Report FactBox"; "Power BI Report FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
+                ObsoleteState = Pending;
+                ObsoleteTag = '21.0';
+            }
+#endif
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -362,6 +362,7 @@ page 27 "Vendor List"
                     RunPageLink = "Vendor No." = FIELD("No.");
                     ToolTip = 'View or edit alternate addresses for the vendor.';
                 }
+#if not CLEAN22
                 action("Payment A&ddresses")
                 {
                     ApplicationArea = Basic, Suite;
@@ -370,6 +371,20 @@ page 27 "Vendor List"
                     RunObject = Page "Vendor Pmt. Address List";
                     RunPageLink = "Vendor No." = FIELD("No.");
                     ToolTip = 'View or edit customers'' payment address. If necessary, you can assign more than one payment address to a customer record. The payment addresses are listed by customer number.';
+                    Visible = false;
+                    ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
+                }
+#endif
+                action(RemitAddresses)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Remit Addresses';
+                    Image = Addresses;
+                    RunObject = Page "Remit Address List";
+                    RunPageLink = "Vendor No." = FIELD("No.");
+                    ToolTip = 'View or edit alternate remit addresses for the vendor.';
                 }
                 action("Co&mments")
                 {

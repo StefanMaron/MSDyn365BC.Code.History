@@ -19,7 +19,16 @@ report 7318 "Whse.-Shipment - Create Pick"
                     trigger OnAfterGetRecord()
                     var
                         WMSMgt: Codeunit "WMS Management";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnAssemblyLineDataItemOnBeforeOnAfterGetRecord("Warehouse Shipment Line", "Assembly Line", IsHandled);
+                        if IsHandled then
+                            CurrReport.Skip();
+
+                        if not "Assembly Line".IsInventoriableItem() then
+                            CurrReport.Skip();
+
                         WMSMgt.CheckInboundBlockedBin("Location Code", "Bin Code", "No.", "Variant Code", "Unit of Measure Code");
 
                         WhseWkshLine.SetRange("Source Line No.", "Line No.");
@@ -422,6 +431,11 @@ report 7318 "Whse.-Shipment - Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetWhseShipmentLine(WhseShptLine: Record "Warehouse Shipment Line"; WhseShptHeader: Record "Warehouse Shipment Header"; var SortActivity: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssemblyLineDataItemOnBeforeOnAfterGetRecord(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var AssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
     begin
     end;
 }
