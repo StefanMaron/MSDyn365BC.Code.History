@@ -544,11 +544,11 @@ table 302 "Finance Charge Memo Header"
     end;
 
     trigger OnInsert()
-#if not CLEAN24
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        IsHandled: Boolean;
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;                
 #endif    
+        IsHandled: Boolean;
     begin
         SalesSetup.GetRecordOnce();
         if "No." = '' then begin
@@ -568,11 +568,15 @@ table 302 "Finance Charge Memo Header"
 
         end;
         "Posting Description" := StrSubstNo(Text000, "No.");
-        if ("No. Series" <> '') and
-           (SalesSetup."Fin. Chrg. Memo Nos." = GetIssuingNoSeriesCode())
-        then
-            "Issuing No. Series" := "No. Series"
-        else
+
+        IsHandled := false;
+        OnInsertOnBeforeInitNoSeries(Rec, xRec, IsHandled);
+        if not IsHandled then
+            if ("No. Series" <> '') and
+               (SalesSetup."Fin. Chrg. Memo Nos." = GetIssuingNoSeriesCode())
+            then
+                "Issuing No. Series" := "No. Series"
+            else
 #if CLEAN24
             if NoSeries.IsAutomatic(GetIssuingNoSeriesCode()) then
                 "Issuing No. Series" := GetIssuingNoSeriesCode();
@@ -1265,6 +1269,11 @@ table 302 "Finance Charge Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertLinesOnAfterFinChrgTermsGet(var FinChargeMemoHeader: Record "Finance Charge Memo Header"; var FinChrgTerms: Record "Finance Charge Terms")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInsertOnBeforeInitNoSeries(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var xFinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var IsHandled: Boolean)
     begin
     end;
 }

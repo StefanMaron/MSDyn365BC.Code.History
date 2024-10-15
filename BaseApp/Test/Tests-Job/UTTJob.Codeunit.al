@@ -1607,6 +1607,72 @@ codeunit 136350 "UT T Job"
         Assert.AreEqual(JobPlanningLine."Bin Code", Bin.Code, StrSubstNo(BinCodeNotMatchedErr, JobPlanningLine."Bin Code", Bin.Code));
     end;
 
+    [Test]
+    procedure BinCodeIsPulledFromJobTaskOnValidateLocationOnJobPlanningLineWithSameLocationCode()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        Locations: array[2] of Record Location;
+        Bins: array[2] of Record Bin;
+    begin
+        // [SCENARIO 522482] Verify Bin Code is pulled from Job Task on validate Location on Job Planning Line with same Location Code
+        Initialize();
+
+        // [GIVEN] Create Job
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Create Job Task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create Location with mandatory Bin
+        LibraryWarehouse.CreateLocationWMS(Locations[1], true, false, false, false, false);
+
+        // [GIVEN] Create Location without mandatory Bin
+        LibraryWarehouse.CreateLocationWMS(Locations[2], false, false, false, false, false);
+
+        // [GIVEN] Create two Bins for Locations
+        LibraryWarehouse.CreateBin(Bins[1], Locations[1].Code, LibraryUtility.GenerateRandomCode(Bins[1].FieldNo(Code), Database::Bin), '', '');
+        LibraryWarehouse.CreateBin(Bins[2], Locations[1].Code, LibraryUtility.GenerateRandomCode(Bins[2].FieldNo(Code), Database::Bin), '', '');
+
+        // [GIVEN] Set Bin to To-Project Bin Code on Location
+        Locations[1].Validate("To-Job Bin Code", Bins[1].Code);
+        Locations[1].Modify(true);
+
+        // [WHEN] Set Location on Job Task
+        JobTask.Validate("Location Code", Locations[1].Code);
+        JobTask.Modify(true);
+
+        // [THEN] Verify results
+        Assert.AreEqual(JobTask."Bin Code", Bins[1].Code, StrSubstNo(BinCodeNotMatchedErr, JobTask."Bin Code", Bins[1].Code));
+
+        // [GIVEN] Change Bin Code on Job Task
+        JobTask.Validate("Bin Code", Bins[2].Code);
+        JobTask.Modify(true);
+
+        // [WHEN] Create Job Planning Line
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", LibraryInventory.CreateItemNo());
+        JobPlanningLine.Modify(true);
+
+        // [THEN] Verify results
+        Assert.AreEqual(JobPlanningLine."Location Code", Locations[1].Code, StrSubstNo(LocationCodeNotMatchedErr, JobPlanningLine."Location Code", Locations[1].Code));
+        Assert.AreEqual(JobPlanningLine."Bin Code", Bins[2].Code, StrSubstNo(BinCodeNotMatchedErr, JobPlanningLine."Bin Code", Bins[2].Code));
+
+        // [GIVEN] Change Location on Job Planning Line
+        JobPlanningLine.Validate("Location Code", Locations[2].Code);
+        JobPlanningLine.Modify(true);
+
+        // [THEN] Verify results
+        Assert.AreEqual(JobPlanningLine."Bin Code", '', StrSubstNo(BinCodeNotMatchedErr, JobPlanningLine."Bin Code", ''));
+
+        // [GIVEN] Change Location on Job Planning Line
+        JobPlanningLine.Validate("Location Code", Locations[1].Code);
+        JobPlanningLine.Modify(true);
+
+        // [THEN] Verify results
+        Assert.AreEqual(JobPlanningLine."Bin Code", Bins[2].Code, StrSubstNo(BinCodeNotMatchedErr, JobPlanningLine."Bin Code", Bins[2].Code));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

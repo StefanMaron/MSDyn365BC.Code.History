@@ -181,6 +181,7 @@ report 99003802 "Copy Production Order Document"
 
         FromProdOrderLine.SetRange(Status, StatusType);
         FromProdOrderLine.SetRange("Prod. Order No.", DocNo);
+        OnCopyProdLinesOnAfterFilterFromProdOrderLine(FromProdOrderLine, StatusType, DocNo);
         if FromProdOrderLine.Find('-') then
             repeat
                 ToProdOrderLine."Line No." := LineNo;
@@ -244,6 +245,11 @@ report 99003802 "Copy Production Order Document"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeToProdOrderLineInsert(var ToProdOrderLine: Record "Prod. Order Line"; FromProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCopyProdLinesOnAfterFilterFromProdOrderLine(var FromProdOrderLine: Record "Prod. Order Line"; StatusType: Enum "Production Order Status"; DocNo: Code[20])
     begin
     end;
 }

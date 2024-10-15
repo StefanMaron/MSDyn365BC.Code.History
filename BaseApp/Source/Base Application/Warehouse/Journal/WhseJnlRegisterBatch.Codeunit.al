@@ -166,8 +166,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         // Update/delete lines
         UpdateDeleteLines();
 
-        if WhseJnlBatch."No. Series" <> '' then
-            NoSeriesBatch.SaveState();
+        NoSeriesBatch.SaveState();
 
         if PhysInvtCount then
             PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount();

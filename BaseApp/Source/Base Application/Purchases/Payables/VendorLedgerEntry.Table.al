@@ -1012,58 +1012,66 @@ table 25 "Vendor Ledger Entry"
     procedure RecalculateAmounts(FromCurrencyCode: Code[10]; ToCurrencyCode: Code[10]; PostingDate: Date)
     var
         CurrExchRate: Record "Currency Exchange Rate";
+        IsHandled: Boolean;
     begin
-        if ToCurrencyCode = FromCurrencyCode then
-            exit;
+        IsHandled := false;
+        OnBeforeRecalculateAmounts(Rec, FromCurrencyCode, ToCurrencyCode, PostingDate, IsHandled);
+        if not IsHandled then begin
+            if ToCurrencyCode = FromCurrencyCode then
+                exit;
 
-        "Remaining Amount" :=
-          CurrExchRate.ExchangeAmount("Remaining Amount", FromCurrencyCode, ToCurrencyCode, PostingDate);
-        "Remaining Pmt. Disc. Possible" :=
-          CurrExchRate.ExchangeAmount("Remaining Pmt. Disc. Possible", FromCurrencyCode, ToCurrencyCode, PostingDate);
-        "Accepted Payment Tolerance" :=
-          CurrExchRate.ExchangeAmount("Accepted Payment Tolerance", FromCurrencyCode, ToCurrencyCode, PostingDate);
-        "Amount to Apply" :=
-          CurrExchRate.ExchangeAmount("Amount to Apply", FromCurrencyCode, ToCurrencyCode, PostingDate);
-
+            "Remaining Amount" :=
+              CurrExchRate.ExchangeAmount("Remaining Amount", FromCurrencyCode, ToCurrencyCode, PostingDate);
+            "Remaining Pmt. Disc. Possible" :=
+              CurrExchRate.ExchangeAmount("Remaining Pmt. Disc. Possible", FromCurrencyCode, ToCurrencyCode, PostingDate);
+            "Accepted Payment Tolerance" :=
+              CurrExchRate.ExchangeAmount("Accepted Payment Tolerance", FromCurrencyCode, ToCurrencyCode, PostingDate);
+            "Amount to Apply" :=
+              CurrExchRate.ExchangeAmount("Amount to Apply", FromCurrencyCode, ToCurrencyCode, PostingDate);
+        end;
         OnAfterRecalculateAmounts(Rec, FromCurrencyCode, ToCurrencyCode, PostingDate);
     end;
 
     procedure UpdateAmountsForApplication(ApplnDate: Date; ApplnCurrencyCode: Code[10]; RoundAmounts: Boolean; UpdateMaxPaymentTolerance: Boolean)
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
+        IsHandled: Boolean;
     begin
-        if "Currency Code" = ApplnCurrencyCode then
-            exit;
-        if RoundAmounts then begin
-            "Remaining Amount" :=
-                CurrencyExchangeRate.ExchangeAmount(
-                    "Remaining Amount", "Currency Code", ApplnCurrencyCode, ApplnDate);
-            "Remaining Pmt. Disc. Possible" :=
-                CurrencyExchangeRate.ExchangeAmount(
-                    "Remaining Pmt. Disc. Possible", "Currency Code", ApplnCurrencyCode, ApplnDate);
-            if UpdateMaxPaymentTolerance then
-                "Max. Payment Tolerance" :=
+        IsHandled := false;
+        OnBeforeUpdateAmountsForApplication(Rec, ApplnDate, ApplnCurrencyCode, RoundAmounts, UpdateMaxPaymentTolerance, IsHandled);
+        if not IsHandled then begin
+            if "Currency Code" = ApplnCurrencyCode then
+                exit;
+            if RoundAmounts then begin
+                "Remaining Amount" :=
                     CurrencyExchangeRate.ExchangeAmount(
-                        "Max. Payment Tolerance", "Currency Code", ApplnCurrencyCode, ApplnDate);
-            "Amount to Apply" :=
-                CurrencyExchangeRate.ExchangeAmount(
-                    "Amount to Apply", "Currency Code", ApplnCurrencyCode, ApplnDate);
-        end else begin
-            "Remaining Amount" :=
-                CurrencyExchangeRate.ExchangeAmtFCYToFCY(
-                    ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Amount");
-            "Remaining Pmt. Disc. Possible" :=
-                CurrencyExchangeRate.ExchangeAmtFCYToFCY(
-                    ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Pmt. Disc. Possible");
-            if UpdateMaxPaymentTolerance then
-                "Max. Payment Tolerance" :=
+                        "Remaining Amount", "Currency Code", ApplnCurrencyCode, ApplnDate);
+                "Remaining Pmt. Disc. Possible" :=
+                    CurrencyExchangeRate.ExchangeAmount(
+                        "Remaining Pmt. Disc. Possible", "Currency Code", ApplnCurrencyCode, ApplnDate);
+                if UpdateMaxPaymentTolerance then
+                    "Max. Payment Tolerance" :=
+                        CurrencyExchangeRate.ExchangeAmount(
+                            "Max. Payment Tolerance", "Currency Code", ApplnCurrencyCode, ApplnDate);
+                "Amount to Apply" :=
+                    CurrencyExchangeRate.ExchangeAmount(
+                        "Amount to Apply", "Currency Code", ApplnCurrencyCode, ApplnDate);
+            end else begin
+                "Remaining Amount" :=
                     CurrencyExchangeRate.ExchangeAmtFCYToFCY(
-                        ApplnDate, "Currency Code", ApplnCurrencyCode, "Max. Payment Tolerance");
-            "Amount to Apply" :=
-                CurrencyExchangeRate.ExchangeAmtFCYToFCY(
-                    ApplnDate, "Currency Code", ApplnCurrencyCode, "Amount to Apply");
+                        ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Amount");
+                "Remaining Pmt. Disc. Possible" :=
+                    CurrencyExchangeRate.ExchangeAmtFCYToFCY(
+                        ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Pmt. Disc. Possible");
+                if UpdateMaxPaymentTolerance then
+                    "Max. Payment Tolerance" :=
+                        CurrencyExchangeRate.ExchangeAmtFCYToFCY(
+                            ApplnDate, "Currency Code", ApplnCurrencyCode, "Max. Payment Tolerance");
+                "Amount to Apply" :=
+                    CurrencyExchangeRate.ExchangeAmtFCYToFCY(
+                        ApplnDate, "Currency Code", ApplnCurrencyCode, "Amount to Apply");
+            end;
         end;
-
         OnAfterUpdateAmountsForApplication(Rec, ApplnDate, ApplnCurrencyCode, RoundAmounts, UpdateMaxPaymentTolerance);
     end;
 
@@ -1146,6 +1154,16 @@ table 25 "Vendor Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRemainingPmtDiscPossible(VendorLedgerEntry: Record "Vendor Ledger Entry"; ReferenceDate: Date; var RemainingPmtDiscPossible: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecalculateAmounts(var VendorLedgerEntry: Record "Vendor Ledger Entry"; FromCurrencyCode: Code[10]; ToCurrencyCode: Code[10]; PostingDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAmountsForApplication(var VendorLedgerEntry: Record "Vendor Ledger Entry"; ApplnDate: Date; ApplnCurrencyCode: Code[10]; RoundAmounts: Boolean; UpdateMaxPaymentTolerance: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

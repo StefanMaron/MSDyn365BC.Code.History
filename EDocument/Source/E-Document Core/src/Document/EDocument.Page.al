@@ -329,16 +329,17 @@ page 6121 "E-Document"
 #endif
                 action(MatchToOrderCopilotEnabled)
                 {
-                    Caption = 'Match Purchase Order';
+                    Caption = 'Match Purchase Order With Copilot';
                     ToolTip = 'Match E-document lines to Purchase Order.';
                     Image = SparkleFilled;
-                    Visible = ShowMapToOrder and CopilotEnabled;
+                    Visible = ShowMapToOrder and CopilotVisible;
+                    Enabled = CopilotEnabled;
 
                     trigger OnAction()
                     var
                         EDocOrderMatch: Codeunit "E-Doc. Line Matching";
                     begin
-                        EDocOrderMatch.RunMatching(Rec);
+                        EDocOrderMatch.RunMatching(Rec, true);
                     end;
                 }
                 action(MatchToOrder)
@@ -346,7 +347,7 @@ page 6121 "E-Document"
                     Caption = 'Match Purchase Order';
                     ToolTip = 'Match E-document lines to Purchase Order.';
                     Image = Reconcile;
-                    Visible = ShowMapToOrder and (not CopilotEnabled);
+                    Visible = ShowMapToOrder;
 
                     trigger OnAction()
                     var
@@ -481,6 +482,7 @@ page 6121 "E-Document"
         HasErrors := false;
         IsProcessed := false;
         CopilotEnabled := EDocPOMatching.IsCopilotEnabled();
+        CopilotVisible := EDocPOMatching.IsCopilotVisible();
     end;
 
     trigger OnAfterGetRecord()
@@ -578,7 +580,7 @@ page 6121 "E-Document"
         EDocumentHelper: Codeunit "E-Document Processing";
         ErrorsAndWarningsNotification: Notification;
         RecordLinkTxt, StyleStatusTxt : Text;
-        ShowRelink, ShowMapToOrder, HasErrorsOrWarnings, HasErrors, IsIncomingDoc, IsProcessed, CopilotEnabled : Boolean;
+        ShowRelink, ShowMapToOrder, HasErrorsOrWarnings, HasErrors, IsIncomingDoc, IsProcessed, CopilotEnabled, CopilotVisible : Boolean;
         EDocHasErrorOrWarningMsg: Label 'Errors or warnings found for E-Document. Please review below in "Error Messages" section.';
         DocNotCreatedMsg: Label 'Failed to create new %1 from E-Document. Please review errors below.', Comment = '%1 - E-Document Document Type';
 

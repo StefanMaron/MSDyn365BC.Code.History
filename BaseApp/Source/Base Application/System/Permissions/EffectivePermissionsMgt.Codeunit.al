@@ -177,11 +177,12 @@ codeunit 9852 "Effective Permissions Mgt."
         PermissionConflictsOverview.Reset();
         PermissionConflictsOverview.DeleteAll();
 
+        MetadataPermissionSet.SetRange(Assignable, true);
         if MetadataPermissionSet.FindSet() then
             repeat
                 CurrentPermissionSet += 1;
                 ProgressBar.Update(StrSubstNo(ProgressLbl, CurrentPermissionSet, TotalPermissionSets));
-                PermissionConflictsOverview.PermissionSetID := MetadataPermissionSet."Role ID";
+                PermissionConflictsOverview.PermissionSetID := CopyStr(MetadataPermissionSet."Role ID", 1, 20); // Assignable permission sets are always limited to length 20 
                 PermissionConflictsOverview.Type := PermissionConflictsOverview.Type::System;
                 if PlansExist.ContainsKey(PlanIds.GetBasicPlanId()) then
                     PermissionConflictsOverview.Basic := IsPermissionSetCoveredByLicense(PlanOrRole::Basic, MetadataPermissionSet."Role ID", PermissionConflictsOverview.Type::System);

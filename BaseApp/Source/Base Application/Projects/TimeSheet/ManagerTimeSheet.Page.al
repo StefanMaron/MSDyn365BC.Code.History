@@ -647,12 +647,12 @@ page 952 "Manager Time Sheet"
         end;
     end;
 
-    local procedure GetDialogText(ActionType: Option Approve,Reopen,Reject): Text[100]
+    local procedure GetDialogText(ActionType: Option Approve,Reopen,Reject): Text
     var
         TimeSheetLine: Record "Time Sheet Line";
     begin
         FilterAllLines(TimeSheetLine, ActionType);
-        exit(TimeSheetApprovalMgt.GetManagerTimeSheetDialogText(ActionType, TimeSheetLine.Count()));
+        exit(TimeSheetApprovalMgt.GetManagerTimeSheetActionDialogText(ActionType, TimeSheetLine.Count()));
     end;
 
     local procedure FilterAllLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Approve,Reopen,Reject)
@@ -675,7 +675,7 @@ page 952 "Manager Time Sheet"
 
     local procedure ShowDialog(ActionType: Option Approve,Reopen,Reject): Integer
     begin
-        exit(StrMenu(GetDialogText(ActionType), 2, TimeSheetApprovalMgt.GetManagerTimeSheetDialogInstruction(ActionType)));
+        exit(StrMenu(GetDialogText(ActionType), 2, TimeSheetApprovalMgt.GetManagerTimeSheetActionDialogInstruction(ActionType)));
     end;
 
     [IntegrationEvent(false, false)]

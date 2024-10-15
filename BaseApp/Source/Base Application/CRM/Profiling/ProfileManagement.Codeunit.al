@@ -33,6 +33,7 @@ codeunit 5059 ProfileManagement
         ProfileQuestnHeader.Reset();
         if ProfileQuestnHeader.Find('-') then
             repeat
+                OnFindLegalProfileQuestionnaireOnBeforeLoopProfileQuestnHeader(ProfileQuestnHeader, Cont);
                 Valid := true;
                 if (ProfileQuestnHeader."Contact Type" = ProfileQuestnHeader."Contact Type"::Companies) and
                    (Cont.Type <> Cont.Type::Company)
@@ -89,7 +90,13 @@ codeunit 5059 ProfileManagement
     var
         ProfileQuestnLine: Record "Profile Questionnaire Line";
         ContProfileAnswers: Page "Contact Profile Answers";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowContactQuestionnaireCard(Cont, ProfileQuestnLineCode, ProfileQuestnLineLineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         Cont.CheckIfMinorForProfiles();
         ContProfileAnswers.SetParameters(Cont, ProfileQuestionnaireAllowed(Cont, ''), ProfileQuestnLineCode, ProfileQuestnLineLineNo);
         if TempProfileQuestionnaireHeader.Get(ProfileQuestnLineCode) then begin
@@ -135,6 +142,16 @@ codeunit 5059 ProfileManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindLegalProfileQuestionnaire(var TempProfileQuestionnaireHeader: Record "Profile Questionnaire Header" temporary; Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowContactQuestionnaireCard(Contact: Record Contact; ProfileQuestnLineCode: Code[20]; ProfileQuestnLineLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindLegalProfileQuestionnaireOnBeforeLoopProfileQuestnHeader(ProfileQuestnHeader: Record "Profile Questionnaire Header"; Contact: Record Contact)
     begin
     end;
 }

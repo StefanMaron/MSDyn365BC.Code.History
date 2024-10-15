@@ -158,6 +158,15 @@
       <Cmt Name="Dev"><![CDATA[Normal translation]D;]A;(LookupHint=Codeunit ERM KPI Web Service - NamedType LiquidityTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2933273639 - Method 3632952882 - NamedType 3868031329" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Last G/L Entry Included must be reset when the web service is unpublished.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM KPI Web Service - Method LastUpdatedEntryResetOnDeletingService - NamedType LastEntryNoMustBeResetErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2500339208 - NamedType 1040381870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The Api Uri must be a valid Uri for Cognitive Services.]]></Val>

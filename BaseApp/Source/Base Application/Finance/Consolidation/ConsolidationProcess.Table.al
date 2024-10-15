@@ -57,6 +57,11 @@ table 1830 "Consolidation Process"
             Caption = 'Dimensions to Transfer';
             DataClassification = CustomerContent;
         }
+        field(10; "Error"; Text[2048])
+        {
+            Caption = 'Error';
+            DataClassification = SystemMetadata;
+        }
     }
     keys
     {

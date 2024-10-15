@@ -752,6 +752,51 @@ codeunit 136322 "Jobs - Assemble-to Order"
         Assert.RecordIsNotEmpty(PostedATOLink);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    procedure PostUsageFromJournalWhenJournalLineIsManuallyCreatedForAssemblyItem()
+    var
+        ParentItem, CompItem1, CompItem2 : Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        PostedATOLink: Record "Posted Assemble-to-Order Link";
+        ItemJournalLine: Record "Item Journal Line";
+        JobJournalLine: Record "Job Journal Line";
+    begin
+        // [SCENARIO 504541] Verify post usage from journal when journal line is manually created for assembly item
+        Initialize();
+
+        // [GIVEN] Create an assembly item with 2 components.
+        CreateAssemblyItemWithBOM(ParentItem, CompItem1, CompItem2);
+
+        // [GIVEN] Add components to inventory
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", CompItem1."No.");
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", CompItem2."No.");
+
+        // [GIVEN] Create Job and Job Task
+        CreateJobAndJobTask(Job, JobTask);
+
+        // [GIVEN] Create Job Planning Line
+        CreateSimpleJobPlanningLineWithAssemblyItem(JobPlanningLine, JobTask, ParentItem."No.");
+
+        // [GIVEN] Validate Quantity on Job Planning Line
+        JobPlanningLine.Validate("Quantity", LibraryRandom.RandInt(10));
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Create Job Journal Line
+        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, "Job Line Type"::Budget, 1, JobJournalLine);
+        JobJournalLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        JobJournalLine.Modify(true);
+
+        // [WHEN] Post usage from Job Journal
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [THEN] Verify results
+        SetFiltersToPostedATOLink(JobTask, JobPlanningLine, PostedATOLink);
+        Assert.RecordIsNotEmpty(PostedATOLink);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Jobs - Assemble-to Order");

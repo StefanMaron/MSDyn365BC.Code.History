@@ -243,7 +243,9 @@ codeunit 5814 "Undo Return Shipment Line"
         ItemJnlLine."Document Date" := ReturnShptHeader."Document Date";
         ItemJnlLine."Unit of Measure Code" := ReturnShptLine."Unit of Measure Code";
 
-        OnAfterCopyItemJnlLineFromReturnShpt(ItemJnlLine, ReturnShptHeader, ReturnShptLine, WhseUndoQty);
+        OnAfterCopyItemJnlLineFromReturnShpt(ItemJnlLine, ReturnShptHeader, ReturnShptLine, WhseUndoQty, ItemLedgEntryNo, TempWhseJnlLine, NextLineNo, TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, IsHandled);
+        if IsHandled then
+            exit(ItemLedgEntryNo);
 
         WhseUndoQty.InsertTempWhseJnlLine(
             ItemJnlLine,
@@ -334,7 +336,7 @@ codeunit 5814 "Undo Return Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromReturnShpt(var ItemJournalLine: Record "Item Journal Line"; ReturnShipmentHeader: Record "Return Shipment Header"; ReturnShipmentLine: Record "Return Shipment Line"; var WhseUndoQty: Codeunit "Whse. Undo Quantity")
+    local procedure OnAfterCopyItemJnlLineFromReturnShpt(var ItemJournalLine: Record "Item Journal Line"; ReturnShipmentHeader: Record "Return Shipment Header"; ReturnShipmentLine: Record "Return Shipment Line"; var WhseUndoQty: Codeunit "Whse. Undo Quantity"; var ItemLedgEntryNo: Integer; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var NextLineNo: Integer; var TempGlobalItemLedgerEntry: Record "Item Ledger Entry" temporary; var TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary; var IsHandled: Boolean)
     begin
     end;
 
