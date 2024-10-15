@@ -313,6 +313,13 @@ page 3010541 "DTA Setup"
         }
     }
 
+    trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        FeatureTelemetry.LogUsage('0000KEE', 'DTA Local CH Functionality', 'DTA Setup page open');
+    end;
+
     var
         Mail: Codeunit Mail;
 }

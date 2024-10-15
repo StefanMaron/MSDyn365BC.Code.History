@@ -1,4 +1,4 @@
-codeunit 17 "Gen. Jnl.-Post Reverse"
+﻿codeunit 17 "Gen. Jnl.-Post Reverse"
 {
     Permissions = TableData "G/L Entry" = rm,
                   TableData "Cust. Ledger Entry" = rimd,
@@ -20,6 +20,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
     var
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         ReversalMismatchErr: Label 'Reversal found a %1 without a matching general ledger entry.';
         CannotReverseErr: Label 'You cannot reverse the transaction, because it has already been reversed.';
         DimCombBlockedErr: Label 'The combination of dimensions used in general ledger entry %1 is blocked. %2.';
@@ -72,6 +73,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                 until ReversalEntry2.Next() = 0;
         end;
 
+        OnReverseOnBeforeGetTransactionKey(ReversalEntry2, TempRevertTransactionNo);
         TransactionKey := GetTransactionKey();
         SaveReversalEntries(ReversalEntry2, TransactionKey);
 
@@ -79,14 +81,17 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         GenJnlLine."Source Code" := SourceCodeSetup.Reversal;
         GenJnlLine."Journal Template Name" := GLEntry2."Journal Templ. Name";
 
-        OnReverseOnBeforeStartPosting(GenJnlLine, ReversalEntry2, GLEntry2);
+        OnReverseOnBeforeStartPosting(GenJnlLine, ReversalEntry2, GLEntry2, GenJnlPostLine);
 
         if GenJnlPostLine.GetNextEntryNo() = 0 then
             GenJnlPostLine.StartPosting(GenJnlLine)
         else
             GenJnlPostLine.ContinuePosting(GenJnlLine);
 
+#if not CLEAN23
         OnAfterPostReverse(GenJnlLine);
+#endif
+        OnReverseOnAfterStartPosting(GenJnlLine, GenJnlPostLine, GLReg, GLReg2);
 
         GenJnlPostLine.SetGLRegReverse(GLReg);
 
@@ -99,17 +104,20 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         repeat
             if ReversalEntry2."Reversal Type" = ReversalEntry2."Reversal Type"::Transaction then
                 GLEntry2.SetRange("Transaction No.", TempRevertTransactionNo.Number);
-            OnReverseOnBeforeReverseGLEntry(ReversalEntry2, GenJnlPostLine, GenJnlLine, TempRevertTransactionNo);
+            OnReverseOnBeforeReverseGLEntry(ReversalEntry2, GenJnlPostLine, GenJnlLine, TempRevertTransactionNo, GLEntry2, GLReg);
             ReverseGLEntry(
               GLEntry2, GenJnlLine, TempCustLedgEntry,
               TempVendLedgEntry, TempEmployeeLedgerEntry, TempBankAccLedgEntry, NextDtldCustLedgEntryEntryNo, NextDtldVendLedgEntryEntryNo,
               NextDtldEmplLedgEntryNo, FAInsertLedgEntry);
         until TempRevertTransactionNo.Next() = 0;
 
-        if FALedgEntry.FindSet() then
-            repeat
-                FAInsertLedgEntry.CheckFAReverseEntry(FALedgEntry)
-            until FALedgEntry.Next() = 0;
+        IsHandled := false;
+        OnReverseOnBeforeCheckFAReverseEntry(FALedgEntry, FAInsertLedgEntry, ReversalEntry2, GenJnlPostLine, IsHandled);
+        if not IsHandled then
+            if FALedgEntry.FindSet() then
+                repeat
+                    FAInsertLedgEntry.CheckFAReverseEntry(FALedgEntry)
+                until FALedgEntry.Next() = 0;
 
         if MaintenanceLedgEntry.FindFirst() then
             repeat
@@ -131,6 +139,8 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
         GenJnlPostLine.FinishPosting(GenJnlLine);
 
+        OnReverseOnAfterFinishPosting(ReversalEntry2, GenJnlPostLine, GLReg, GLReg2);
+
         if GLReg2."No." <> 0 then
             if GLReg2.Find() then begin
                 GLReg2.Reversed := true;
@@ -139,16 +149,18 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
         DeleteReversalEntries(TransactionKey);
 
-        UpdateAnalysisView.UpdateAll(0, true);
+        IsHandled := false;
+        OnReverseOnBeforeUpdateAnalysisView(IsHandled);
+        if not IsHandled then
+            UpdateAnalysisView.UpdateAll(0, true);
 
-        OnAfterReverse(GLReg);
+        OnAfterReverse(GLReg, GLReg2);
     end;
 
     local procedure ReverseGLEntry(var GLEntry2: Record "G/L Entry"; var GenJnlLine: Record "Gen. Journal Line"; var TempCustLedgEntry: Record "Cust. Ledger Entry" temporary; var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; var TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary; var TempBankAccLedgEntry: Record "Bank Account Ledger Entry" temporary; var NextDtldCustLedgEntryEntryNo: Integer; var NextDtldVendLedgEntryEntryNo: Integer; var NextDtldEmplLedgEntryNo: Integer; FAInsertLedgerEntry: Codeunit "FA Insert Ledger Entry")
     var
         GLEntry: Record "G/L Entry";
         ReversedGLEntry: Record "G/L Entry";
-        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
     begin
         with GLEntry2 do
             if Find('+') then
@@ -195,7 +207,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                     "Reversed by Entry No." := GLEntry."Entry No.";
                     Reversed := true;
                     Modify();
-                    OnReverseGLEntryOnBeforeInsertGLEntry(GLEntry, GenJnlLine, GLEntry2);
+                    OnReverseGLEntryOnBeforeInsertGLEntry(GLEntry, GenJnlLine, GLEntry2, GenJnlPostLine);
                     GenJnlPostLine.InsertGLEntry(GenJnlLine, GLEntry, false);
                     OnReverseGLEntryOnAfterInsertGLEntry(GLEntry, GenJnlLine, GLEntry2, GenJnlPostLine);
 
@@ -208,6 +220,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                                 ReverseCustLedgEntry(
                                   TempCustLedgEntry, GLEntry."Entry No.", GenJnlLine.Correction, GenJnlLine."Source Code",
                                   NextDtldCustLedgEntryEntryNo);
+                                OnReverseGLEntryOnAfterReverseCustLedgEntry(TempCustLedgEntry, GLEntry, GLEntry2);
                                 TempCustLedgEntry.Delete();
                             end;
                         TempVendLedgEntry.Get("Entry No."):
@@ -218,6 +231,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                                 ReverseVendLedgEntry(
                                   TempVendLedgEntry, GLEntry."Entry No.", GenJnlLine.Correction, GenJnlLine."Source Code",
                                   NextDtldVendLedgEntryEntryNo);
+                                OnReverseGLEntryOnAfterReverseVendLedgEntry(TempVendLedgEntry, GLEntry, GLEntry2);
                                 TempVendLedgEntry.Delete();
                             end;
                         TempEmployeeLedgerEntry.Get("Entry No."):
@@ -237,10 +251,11 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                                 TempBankAccLedgEntry.Delete();
                             end;
                         else
-                            OnReverseGLEntryOnCaseElse(GLEntry2, GLEntry, GenJnlLine, GenJnlPostLine);
+                            OnReverseGLEntryOnCaseElse(GLEntry2, GLEntry, GenJnlLine, GenJnlPostLine, TempBankAccLedgEntry);
                     end;
 
                     ReverseVAT(GLEntry, GenJnlLine."Source Code");
+                    OnReverseGLEntryOnAfterReverseVAT(GLEntry2, GLEntry, GenJnlPostLine);
                 until Next(-1) = 0;
 
         OnAfterReverseGLEntry(GLEntry);
@@ -318,6 +333,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                 OnReverseCustLedgEntryOnBeforeInsertDtldCustLedgEntry(NewDtldCustLedgEntry, DtldCustLedgEntry, IsHandled, NewCustLedgEntry);
                 if not IsHandled then
                     NewDtldCustLedgEntry.Insert(true);
+                OnReverseCustLedgEntryOnAfterInsertDtldCustLedgEntry(NewDtldCustLedgEntry);
             until DtldCustLedgEntry.Next() = 0;
 
             ApplyCustLedgEntryByReversal(
@@ -398,6 +414,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                 OnReverseVendLedgEntryOnBeforeInsertDtldVendLedgEntry(NewDtldVendLedgEntry, DtldVendLedgEntry, IsHandled, NewVendLedgEntry);
                 if not IsHandled then
                     NewDtldVendLedgEntry.Insert(true);
+                OnReverseVendLedgEntryOnAfterInsertDtldVendLedgEntry(NewDtldVendLedgEntry, DtldVendLedgEntry);
             until DtldVendLedgEntry.Next() = 0;
 
             ApplyVendLedgEntryByReversal(
@@ -542,6 +559,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                     "Add.-Curr. Rem. Unreal. Base" := -"Add.-Curr. Rem. Unreal. Base";
                     "VAT Difference" := -"VAT Difference";
                     "Add.-Curr. VAT Difference" := -"Add.-Curr. VAT Difference";
+                    NonDeductibleVAT.Reverse(NewVATEntry);
                     "Transaction No." := GenJnlPostLine.GetNextTransactionNo();
                     "Source Code" := SourceCode;
                     "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
@@ -598,6 +616,8 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         OnApplyCustLedgEntryByReversalOnBeforeInsertDtldCustLedgEntry(NewDtldCustLedgEntry, DtldCustLedgEntry2, IsHandled, GenJnlPostLine);
         if not IsHandled then
             NewDtldCustLedgEntry.Insert(true);
+
+        OnApplyCustLedgEntryByReversalOnAfterInsertDtldCustLedgEntry(NewDtldCustLedgEntry, CustLedgEntry2);
     end;
 
     local procedure ApplyVendLedgEntryByReversal(VendLedgEntry: Record "Vendor Ledger Entry"; VendLedgEntry2: Record "Vendor Ledger Entry"; DtldVendLedgEntry2: Record "Detailed Vendor Ledg. Entry"; AppliedEntryNo: Integer; var NextDtldVendLedgEntryEntryNo: Integer)
@@ -628,6 +648,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         OnApplyVendLedgEntryByReversalOnBeforeInsertDtldVendLedgEntry(NewDtldVendLedgEntry, DtldVendLedgEntry2, IsHandled, GenJnlPostLine);
         if not IsHandled then
             NewDtldVendLedgEntry.Insert(true);
+        OnApplyVendLedgEntryByReversalOnAfterInsertDtldVendLedgEntry(NewDtldVendLedgEntry, VendLedgEntry2);
     end;
 
     local procedure ApplyEmplLedgEntryByReversal(EmployeeLedgerEntry: Record "Employee Ledger Entry"; EmployeeLedgerEntry2: Record "Employee Ledger Entry"; DetailedEmployeeLedgerEntry2: Record "Detailed Employee Ledger Entry"; AppliedEntryNo: Integer; var NextDtldEmplLedgEntryNo: Integer)
@@ -662,20 +683,21 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckDimComb(EntryNo, DimSetID, TableID1, AccNo1, TableID2, AccNo2, IsHandled);
-        if IsHandled then
-            exit;
+        OnBeforeCheckDimComb(EntryNo, DimSetID, TableID1, AccNo1, TableID2, AccNo2, IsHandled, DimMgt);
+        if not IsHandled then begin
+            if not DimMgt.CheckDimIDComb(DimSetID) then
+                Error(DimCombBlockedErr, EntryNo, DimMgt.GetDimCombErr());
+            Clear(TableID);
+            Clear(AccNo);
+            TableID[1] := TableID1;
+            AccNo[1] := AccNo1;
+            TableID[2] := TableID2;
+            AccNo[2] := AccNo2;
+            if not DimMgt.CheckDimValuePosting(TableID, AccNo, DimSetID) then
+                Error(DimMgt.GetDimValuePostingErr());
+        end;
 
-        if not DimMgt.CheckDimIDComb(DimSetID) then
-            Error(DimCombBlockedErr, EntryNo, DimMgt.GetDimCombErr());
-        Clear(TableID);
-        Clear(AccNo);
-        TableID[1] := TableID1;
-        AccNo[1] := AccNo1;
-        TableID[2] := TableID2;
-        AccNo[2] := AccNo2;
-        if not DimMgt.CheckDimValuePosting(TableID, AccNo, DimSetID) then
-            Error(DimMgt.GetDimValuePostingErr());
+        OnAfterCheckDimComb(DimMgt);
     end;
 
     local procedure CopyCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; var TempCustLedgEntry: Record "Cust. Ledger Entry" temporary)
@@ -814,7 +836,13 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     local procedure SaveReversalEntries(var TempReversalEntry: Record "Reversal Entry" temporary; TransactionKey: Integer)
     var
         ReversalEntry: Record "Reversal Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSaveReversalEntries(IsHandled);
+        if IsHandled then
+            exit;
+
         if TempReversalEntry.FindSet() then
             repeat
                 ReversalEntry := TempReversalEntry;
@@ -826,7 +854,12 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     local procedure DeleteReversalEntries(TransactionKey: Integer)
     var
         ReversalEntry: Record "Reversal Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteReversalEntries(IsHandled);
+        if IsHandled then
+            exit;
         ReversalEntry.SetRange("Transaction No.", TransactionKey);
         ReversalEntry.DeleteAll();
     end;
@@ -836,13 +869,21 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     begin
     end;
 
+#if not CLEAN23
+    [Obsolete('Replaced by event OnReverseOnAfterStartPosting', '23.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostReverse(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
+#endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnReverseOnAfterStartPosting(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var GLRegister: Record "G/L Register"; var GLRegister2: Record "G/L Register")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterReverse(GLRegister: Record "G/L Register")
+    local procedure OnAfterReverse(GLRegister: Record "G/L Register"; var GLRegister2: Record "G/L Register")
     begin
     end;
 
@@ -857,7 +898,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDimComb(EntryNo: Integer; DimSetID: Integer; TableID1: Integer; AccNo1: Code[20]; TableID2: Integer; AccNo2: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeCheckDimComb(EntryNo: Integer; DimSetID: Integer; TableID1: Integer; AccNo1: Code[20]; TableID2: Integer; AccNo2: Code[20]; var IsHandled: Boolean; var DimensionManagement: Codeunit DimensionManagement)
     begin
     end;
 
@@ -867,7 +908,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReverseGLEntryOnBeforeInsertGLEntry(var GLEntry: Record "G/L Entry"; GenJnlLine: Record "Gen. Journal Line"; GLEntry2: Record "G/L Entry")
+    local procedure OnReverseGLEntryOnBeforeInsertGLEntry(var GLEntry: Record "G/L Entry"; GenJnlLine: Record "Gen. Journal Line"; GLEntry2: Record "G/L Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
@@ -877,7 +918,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReverseGLEntryOnCaseElse(GLEntry2: Record "G/L Entry"; GLEntry: Record "G/L Entry"; GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnReverseGLEntryOnCaseElse(GLEntry2: Record "G/L Entry"; GLEntry: Record "G/L Entry"; GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary)
     begin
     end;
 
@@ -957,12 +998,12 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReverseOnBeforeStartPosting(var GenJournalLine: Record "Gen. Journal Line"; var ReversalEntry: Record "Reversal Entry"; var GLEntry: Record "G/L Entry")
+    local procedure OnReverseOnBeforeStartPosting(var GenJournalLine: Record "Gen. Journal Line"; var ReversalEntry: Record "Reversal Entry"; var GLEntry: Record "G/L Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReverseOnBeforeReverseGLEntry(var ReversalEntry2: Record "Reversal Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var GenJournalLine: Record "Gen. Journal Line"; TempRevertTransactionNo: record "Integer")
+    local procedure OnReverseOnBeforeReverseGLEntry(var ReversalEntry2: Record "Reversal Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var GenJournalLine: Record "Gen. Journal Line"; TempRevertTransactionNo: record "Integer"; var GLEntry2: Record "G/L Entry"; GLRegister: Record "G/L Register")
     begin
     end;
 
@@ -988,6 +1029,76 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyEmplLedgEntryByReversalOnBeforeInsertDtldEmplLedgEntry(var NewDetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry"; DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseOnAfterFinishPosting(var ReversalEntry2: Record "Reversal Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var GLRegister: Record "G/L Register"; GLRegister2: Record "G/L Register")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseOnBeforeCheckFAReverseEntry(var FALedgerEntry: Record "FA Ledger Entry"; var FAInsertLedgerEntry: Codeunit "FA Insert Ledger Entry"; var ReversalEntry2: Record "Reversal Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseVendLedgEntryOnAfterInsertDtldVendLedgEntry(var NewDetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseOnBeforeGetTransactionKey(var ReversalEntry2: Record "Reversal Entry"; var TempIntegerAsRevertTransactionNo: Record "Integer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseGLEntryOnAfterReverseVendLedgEntry(var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; var GLEntry: Record "G/L Entry"; GLEntry2: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseOnBeforeUpdateAnalysisView(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseGLEntryOnAfterReverseVAT(GLEntry2: Record "G/L Entry"; GLEntry: Record "G/L Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseGLEntryOnAfterReverseCustLedgEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var GLEntry: Record "G/L Entry"; GLEntry2: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseCustLedgEntryOnAfterInsertDtldCustLedgEntry(var NewDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyCustLedgEntryByReversalOnAfterInsertDtldCustLedgEntry(var NewDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgerEntry2: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckDimComb(var DimensionManagement: Codeunit DimensionManagement)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveReversalEntries(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteReversalEntries(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyVendLedgEntryByReversalOnAfterInsertDtldVendLedgEntry(var NewDetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorLedgerEntry2: Record "Vendor Ledger Entry")
     begin
     end;
 }

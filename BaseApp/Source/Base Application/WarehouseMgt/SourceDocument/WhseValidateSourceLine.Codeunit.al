@@ -240,7 +240,7 @@ codeunit 5777 "Whse. Validate Source Line"
                 FieldError("Unit of Measure Code", StrSubstNo(Text000, TableCaptionValue, TableCaption));
 
             IsHandled := false;
-            OnTransLineCommonVerificationOnBeforeQuantityCheck(NewTransLine, OldTransLine, IsHandled);
+            OnTransLineCommonVerificationOnBeforeQuantityCheck(OldTransLine, NewTransLine, IsHandled);
             if not IsHandled then
                 if Quantity <> OldTransLine.Quantity then
                     FieldError(Quantity, StrSubstNo(Text000, TableCaptionValue, TableCaption));
@@ -293,11 +293,12 @@ codeunit 5777 "Whse. Validate Source Line"
            ((SourceType = DATABASE::"Service Line") and (SourceSubType = 1))
         then begin
             WhseShptLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
-            OnWhseLinesExistOnAfterWhseShptLineSetFilters(WhseShptLine, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceQty);
-            if not WhseShptLine.IsEmpty() then begin
-                TableCaptionValue := WhseShptLine.TableCaption();
-                exit(true);
-            end;
+            OnWhseLinesExistOnAfterWhseShptLineSetFilters(WhseShptLine, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceQty, IsHandled);
+            if not IsHandled then
+                if not WhseShptLine.IsEmpty() then begin
+                    TableCaptionValue := WhseShptLine.TableCaption();
+                    exit(true);
+                end;
         end;
 
         WhseActivLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSublineNo, true);
@@ -595,7 +596,7 @@ codeunit 5777 "Whse. Validate Source Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckQtyRemainingToBePickedForConsumption(NewItemJnlLine, OldItemJnlLine, IsHandled, ProdOrderComp);
+        OnBeforeCheckQtyRemainingToBePickedForConsumption(NewItemJnlLine, OldItemJnlLine, IsHandled, ProdOrderComp, QtyRemainingToBePicked);
         if IsHandled then
             exit;
 
@@ -817,7 +818,7 @@ codeunit 5777 "Whse. Validate Source Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckQtyRemainingToBePickedForConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean; ProdOrderComp: Record "Prod. Order Component")
+    local procedure OnBeforeCheckQtyRemainingToBePickedForConsumption(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean; ProdOrderComp: Record "Prod. Order Component"; QtyRemainingToBePicked: Decimal)
     begin
     end;
 
@@ -872,7 +873,7 @@ codeunit 5777 "Whse. Validate Source Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnWhseLinesExistOnAfterWhseShptLineSetFilters(var WhseShptLine: Record "Warehouse Shipment Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceQty: Decimal)
+    local procedure OnWhseLinesExistOnAfterWhseShptLineSetFilters(var WhseShptLine: Record "Warehouse Shipment Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 

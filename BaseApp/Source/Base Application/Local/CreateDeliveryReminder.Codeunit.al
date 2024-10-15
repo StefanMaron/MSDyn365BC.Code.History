@@ -164,7 +164,12 @@
         DeliveryReminderTerms: Record "Delivery Reminder Term";
         DeliveryReminderLevel: Record "Delivery Reminder Level";
         DateOfTheCurrentDay: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSuggestLines(DeliveryReminderHeader, IsHandled);
+        if IsHandled then
+            exit;
         DeliveryReminderHeader.TestField("Vendor No.");
         DeliveryReminderHeader.TestField("Reminder Terms Code");
         DeliveryReminderTerms.Get(DeliveryReminderHeader."Reminder Terms Code");
@@ -338,6 +343,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRemindOnAfterDelivReminLedgerEntriesSetFilters(var DelivReminLedgerEntries: Record "Delivery Reminder Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSuggestLines(var DeliveryReminderHeader: Record "Delivery Reminder Header"; var IsHandled: Boolean);
     begin
     end;
 }

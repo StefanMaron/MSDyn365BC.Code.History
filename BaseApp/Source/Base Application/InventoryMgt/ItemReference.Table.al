@@ -157,7 +157,14 @@ table 5777 "Item Reference"
     end;
 
     local procedure DeleteItemVendor(ItemReference: Record "Item Reference")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteItemVendor(ItemReference, IsHandled);
+        if IsHandled then
+            exit;
+
         if not MultipleItemReferencesExist(ItemReference) then
             if ItemVend.Get(ItemReference."Reference Type No.", ItemReference."Item No.", ItemReference."Variant Code") then
                 if UpperCase(DelChr(ItemVend."Vendor Item No.", '<', ' ')) = ItemReference."Reference No." then begin
@@ -216,7 +223,7 @@ table 5777 "Item Reference"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFindItemDescription(ItemDescription, ItemDescription2, ItemNo, VariantCode, UnitOfMeasureCode, ReferenceType, ReferenceTypeNo, Result, IsHandled);
+        OnBeforeFindItemDescription(ItemDescription, ItemDescription2, ItemNo, VariantCode, UnitOfMeasureCode, ReferenceType, ReferenceTypeNo, Result, IsHandled, ItemReference);
         if IsHandled then
             exit(Result);
 
@@ -264,7 +271,7 @@ table 5777 "Item Reference"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindItemDescription(var ItemDescription: Text[100]; var ItemDescription2: Text[50]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeFindItemDescription(var ItemDescription: Text[100]; var ItemDescription2: Text[50]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[20]; var Result: Boolean; var IsHandled: Boolean; var ItemReference: Record "Item Reference")
     begin
     end;
 
@@ -285,6 +292,11 @@ table 5777 "Item Reference"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTriggerOnBeforeCreateItemVendor(var Rec: Record "Item Reference"; xRec: Record "Item Reference"; Item: Record "Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteItemVendor(var ItemReference: Record "Item Reference"; var IsHandled: Boolean)
     begin
     end;
 }

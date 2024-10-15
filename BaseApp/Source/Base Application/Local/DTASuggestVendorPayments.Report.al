@@ -267,7 +267,11 @@ report 3010546 "DTA Suggest Vendor Payments"
     }
 
     trigger OnPostReport()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUsage('0000KEF', 'DTA Local CH Functionality', 'DTA Suggest Vendor Payments report');
+
         Commit();
         if not VendorLedgEntryTemp.IsEmpty() then
             if Confirm(Text029) then

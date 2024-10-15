@@ -1480,7 +1480,7 @@ page 41 "Sales Quote"
                 }
                 action("Rec&alculate Lines")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Rec&alculate Lines';
                     Image = Recalculate;
                     ShortCutKey = 'Ctrl+F11';
@@ -1764,6 +1764,7 @@ page 41 "Sales Quote"
         UpdateShipToBillToGroupVisibility();
         SellToContact.GetOrClear("Sell-to Contact No.");
         BillToContact.GetOrClear("Bill-to Contact No.");
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId);
     end;
 
     trigger OnDeleteRecord(): Boolean

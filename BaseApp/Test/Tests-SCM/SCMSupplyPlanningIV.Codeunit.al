@@ -3767,6 +3767,467 @@ codeunit 137077 "SCM Supply Planning -IV"
         RequisitionLine.TestField(Quantity, Item."Qty. on Component Lines");
     end;
 
+    [Test]
+    [HandlerFunctions('GenericMessageHandler')]
+    [Scope('OnPrem')]
+    procedure S465262_DueDatesForProductionOrdersCreatedFromSalesOrderAreEqualToShipmentDates()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Location: Record Location;
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        ChildItem: Record Item;
+        Item: array[5] of Record Item;
+        ItemVariant: array[3] of Record "Item Variant";
+        StockkeepingUnit: array[3] of Record "Stockkeeping Unit";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ProductionOrder: Record "Production Order";
+        DateFormulaAsDateFormula: DateFormula;
+    begin
+        // [FEATURE] [Manufacturing] [Item] [Item Variant] [Stockkeeping Unit] [Safety Lead Time]
+        // [SCENARIO 465262] Due dates for production orders created from sales order are equal to shipment dates.
+        // [SCENARIO 465263] Create items with variants and various "Safety Lead Time" setup and then create production order from sales order.
+        Initialize();
+
+        // [GIVEN] Set "Default Safety Lead Time" = <1D> in Manufacturing Setup.
+        Evaluate(DateFormulaAsDateFormula, '<1D>');
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Default Safety Lead Time", DateFormulaAsDateFormula);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Routing.
+        CreateRoutingSetup(WorkCenter, RoutingHeader);
+
+        // [GIVEN] Create Production BOM.
+        LibraryInventory.CreateItem(ChildItem);
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ChildItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ChildItem."No.", LibraryRandom.RandInt(10));
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Create Item[1] with "Safety Lead Time" = blank and then Variants for Item[1].
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("Base Unit of Measure", ChildItem."Base Unit of Measure");
+        Item[1].Validate("Replenishment System", Item[1]."Replenishment System"::"Prod. Order");
+        Item[1].Validate("Manufacturing Policy", Item[1]."Manufacturing Policy"::"Make-to-Stock");
+        Item[1].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[1].Validate("Routing No.", RoutingHeader."No.");
+        Item[1].Validate("Reordering Policy", Item[1]."Reordering Policy"::"Lot-for-Lot");
+        Evaluate(DateFormulaAsDateFormula, '');
+        Item[1].Validate("Safety Lead Time", DateFormulaAsDateFormula);
+        Evaluate(DateFormulaAsDateFormula, '<2W>');
+        Item[1].Validate("Lot Accumulation Period", DateFormulaAsDateFormula);
+        Item[1].Modify(true);
+
+        // [GIVEN] Create 3 Variants for Item[1].
+        LibraryInventory.CreateVariant(ItemVariant[1], Item[1]);
+        LibraryInventory.CreateVariant(ItemVariant[2], Item[1]);
+        LibraryInventory.CreateVariant(ItemVariant[3], Item[1]);
+
+        // [GIVEN] Create Stockkeeping Unit[1] for (Item[1], Item Variant[1], Location) with "Safety Lead Time" = <0D>.
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit[1], Location.Code, Item[1]."No.", ItemVariant[1]."Code");
+        Evaluate(DateFormulaAsDateFormula, '<0D>');
+        StockkeepingUnit[1].Validate("Safety Lead Time", DateFormulaAsDateFormula);
+        StockkeepingUnit[1].Modify(true);
+
+        // [GIVEN] Create Stockkeeping Unit[2] for (Item[1], Item Variant[2], Location) with "Safety Lead Time" = <3D>.
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit[2], Location.Code, Item[1]."No.", ItemVariant[2]."Code");
+        Evaluate(DateFormulaAsDateFormula, '<3D>');
+        StockkeepingUnit[2].Validate("Safety Lead Time", DateFormulaAsDateFormula);
+        StockkeepingUnit[2].Modify(true);
+
+        // [GIVEN] Create Stockkeeping Unit[3] for (Item[1], Item Variant[3], Location) with "Safety Lead Time" = <5D>.
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit[3], Location.Code, Item[1]."No.", ItemVariant[3]."Code");
+        Evaluate(DateFormulaAsDateFormula, '<5D>');
+        StockkeepingUnit[3].Validate("Safety Lead Time", DateFormulaAsDateFormula);
+        StockkeepingUnit[3].Modify(true);
+
+        // [GIVEN] Create Item[2] with "Safety Lead Time" = blank and then Variants for this Item.
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("Base Unit of Measure", ChildItem."Base Unit of Measure");
+        Item[2].Validate("Replenishment System", Item[2]."Replenishment System"::"Prod. Order");
+        Item[2].Validate("Manufacturing Policy", Item[2]."Manufacturing Policy"::"Make-to-Stock");
+        Item[2].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[2].Validate("Routing No.", RoutingHeader."No.");
+        Item[2].Validate("Reordering Policy", Item[2]."Reordering Policy"::"Lot-for-Lot");
+        Evaluate(DateFormulaAsDateFormula, '');
+        Item[2].Validate("Safety Lead Time", DateFormulaAsDateFormula);
+        Evaluate(DateFormulaAsDateFormula, '<2W>');
+        Item[2].Validate("Lot Accumulation Period", DateFormulaAsDateFormula);
+        Item[2].Modify(true);
+
+        // [GIVEN] Create Item[3] with "Safety Lead Time" = <3D> and then Variants for this Item.
+        LibraryInventory.CreateItem(Item[3]);
+        Item[3].Validate("Base Unit of Measure", ChildItem."Base Unit of Measure");
+        Item[3].Validate("Replenishment System", Item[3]."Replenishment System"::"Prod. Order");
+        Item[3].Validate("Manufacturing Policy", Item[3]."Manufacturing Policy"::"Make-to-Stock");
+        Item[3].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[3].Validate("Routing No.", RoutingHeader."No.");
+        Item[3].Validate("Reordering Policy", Item[3]."Reordering Policy"::"Lot-for-Lot");
+        Evaluate(DateFormulaAsDateFormula, '<3D>');
+        Item[3].Validate("Safety Lead Time", DateFormulaAsDateFormula);
+        Evaluate(DateFormulaAsDateFormula, '<2W>');
+        Item[3].Validate("Lot Accumulation Period", DateFormulaAsDateFormula);
+        Item[3].Modify(true);
+
+        // [GIVEN] Create Item[4] with "Safety Lead Time" = <5D> and then Variants for this Item.
+        LibraryInventory.CreateItem(Item[4]);
+        Item[4].Validate("Base Unit of Measure", ChildItem."Base Unit of Measure");
+        Item[4].Validate("Replenishment System", Item[4]."Replenishment System"::"Prod. Order");
+        Item[4].Validate("Manufacturing Policy", Item[4]."Manufacturing Policy"::"Make-to-Stock");
+        Item[4].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[4].Validate("Routing No.", RoutingHeader."No.");
+        Item[4].Validate("Reordering Policy", Item[4]."Reordering Policy"::"Lot-for-Lot");
+        Evaluate(DateFormulaAsDateFormula, '<3D>');
+        Item[4].Validate("Safety Lead Time", DateFormulaAsDateFormula);
+        Evaluate(DateFormulaAsDateFormula, '<2W>');
+        Item[4].Validate("Lot Accumulation Period", DateFormulaAsDateFormula);
+        Item[4].Modify(true);
+
+        // [GIVEN] Create Item[5] with "Safety Lead Time" = <0D> and then Variants for this Item.
+        LibraryInventory.CreateItem(Item[5]);
+        Item[5].Validate("Base Unit of Measure", ChildItem."Base Unit of Measure");
+        Item[5].Validate("Replenishment System", Item[5]."Replenishment System"::"Prod. Order");
+        Item[5].Validate("Manufacturing Policy", Item[5]."Manufacturing Policy"::"Make-to-Stock");
+        Item[5].Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item[5].Validate("Routing No.", RoutingHeader."No.");
+        Item[5].Validate("Reordering Policy", Item[5]."Reordering Policy"::"Lot-for-Lot");
+        Evaluate(DateFormulaAsDateFormula, '<0D>');
+        Item[5].Validate("Safety Lead Time", DateFormulaAsDateFormula);
+        Evaluate(DateFormulaAsDateFormula, '<2W>');
+        Item[5].Validate("Lot Accumulation Period", DateFormulaAsDateFormula);
+        Item[5].Modify(true);
+
+        // [GIVEN] Create Sales Order Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+
+        // [GIVEN] Create Sales Order Line for Item[1] without variant with "Shipment Date" = WorkDate + 1M.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[1]."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Shipment Date", CalcDate('<1M>', WorkDate()));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create Sales Order Line for Item[1] with Item Variant[1] with "Shipment Date" = WorkDate + 1M + 1D.
+        Clear(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[1]."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Variant Code", ItemVariant[1]."Code");
+        SalesLine.Validate("Shipment Date", CalcDate('<1M + 1D>', WorkDate()));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create Sales Order Line for Item[1] with Item Variant[2] with "Shipment Date" = WorkDate + 1M + 2D.
+        Clear(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[1]."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Variant Code", ItemVariant[2]."Code");
+        SalesLine.Validate("Shipment Date", CalcDate('<1M + 2D>', WorkDate()));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create Sales Order Line for Item[1] with Item Variant[3] with "Shipment Date" = WorkDate + 1M + 3D.
+        Clear(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[1]."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Variant Code", ItemVariant[3]."Code");
+        SalesLine.Validate("Shipment Date", CalcDate('<1M + 3D>', WorkDate()));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create Sales Order Line for Item[2] with "Shipment Date" = WorkDate + 1M + 4D.
+        Clear(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[2]."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Shipment Date", CalcDate('<1M + 4D>', WorkDate()));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create Sales Order Line for Item[3] with "Shipment Date" = WorkDate + 1M + 5D.
+        Clear(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[3]."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Shipment Date", CalcDate('<1M + 5D>', WorkDate()));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create Sales Order Line for Item[4] with "Shipment Date" = WorkDate + 1M + 6D.
+        Clear(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[4]."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Shipment Date", CalcDate('<1M + 6D>', WorkDate()));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create Sales Order Line for Item[5] with "Shipment Date" = WorkDate + 1M + 7D.
+        Clear(SalesLine);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[5]."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Shipment Date", CalcDate('<1M + 7D>', WorkDate()));
+        SalesLine.Modify(true);
+
+        // [WHEN] Create Firm Planned Production Orders from Sales Order.
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, "Production Order Status"::"Firm Planned", "Create Production Order Type"::ItemOrder); // Uses GenericMessageHandler.
+
+        // [THEN] Verify 8 Firm Planned Production Orders are created from Sales Order Lines with "Due Date" = WorkDate + 1M + XD.
+        ProductionOrder.Reset();
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
+        ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
+        ProductionOrder.SetRange("Source No.", Item[1]."No.");
+        ProductionOrder.SetRange("Variant Code", '');
+        ProductionOrder.FindFirst();
+        ProductionOrder.TestField("Due Date", CalcDate('<1M>', WorkDate()));
+
+        ProductionOrder.Reset();
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
+        ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
+        ProductionOrder.SetRange("Source No.", Item[1]."No.");
+        ProductionOrder.SetRange("Variant Code", ItemVariant[1]."Code");
+        ProductionOrder.FindFirst();
+        ProductionOrder.TestField("Due Date", CalcDate('<1M + 1D>', WorkDate()));
+
+        ProductionOrder.Reset();
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
+        ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
+        ProductionOrder.SetRange("Source No.", Item[1]."No.");
+        ProductionOrder.SetRange("Variant Code", ItemVariant[2]."Code");
+        ProductionOrder.FindFirst();
+        ProductionOrder.TestField("Due Date", CalcDate('<1M + 2D>', WorkDate()));
+
+        ProductionOrder.Reset();
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
+        ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
+        ProductionOrder.SetRange("Source No.", Item[1]."No.");
+        ProductionOrder.SetRange("Variant Code", ItemVariant[3]."Code");
+        ProductionOrder.FindFirst();
+        ProductionOrder.TestField("Due Date", CalcDate('<1M + 3D>', WorkDate()));
+
+        ProductionOrder.Reset();
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
+        ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
+        ProductionOrder.SetRange("Source No.", Item[2]."No.");
+        ProductionOrder.FindFirst();
+        ProductionOrder.TestField("Due Date", CalcDate('<1M + 4D>', WorkDate()));
+
+        ProductionOrder.Reset();
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
+        ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
+        ProductionOrder.SetRange("Source No.", Item[3]."No.");
+        ProductionOrder.FindFirst();
+        ProductionOrder.TestField("Due Date", CalcDate('<1M + 5D>', WorkDate()));
+
+        ProductionOrder.Reset();
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
+        ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
+        ProductionOrder.SetRange("Source No.", Item[4]."No.");
+        ProductionOrder.FindFirst();
+        ProductionOrder.TestField("Due Date", CalcDate('<1M + 6D>', WorkDate()));
+
+        ProductionOrder.Reset();
+        ProductionOrder.SetRange(Status, ProductionOrder.Status::"Firm Planned");
+        ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
+        ProductionOrder.SetRange("Source No.", Item[5]."No.");
+        ProductionOrder.FindFirst();
+        ProductionOrder.TestField("Due Date", CalcDate('<1M + 7D>', WorkDate()));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,GenericMessageHandler')]
+    procedure S464697_PostPartialWarehouseShipmentForTransferOrderReplenishedViaProduction_WithReservations()
+    var
+        Location: Record Location;
+        ComponentStoringBin: Record Bin;
+        ToProductionBin: Record Bin;
+        FromProductionBin: Record Bin;
+        PickBin: Record Bin;
+        ShipmentBin: Record Bin;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ComponentItem: Record Item;
+        ProducedItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        PrevComponentsAtLocation: Code[10];
+        ToLocation: Record Location;
+        InTransitLocation: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: array[2] of Record "Transfer Line";
+        RequisitionLine: Record "Requisition Line";
+        InternalMovementHeader: Record "Internal Movement Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [FEATURE] [Components at Location] [Planning Worksheet] [Calculate Regenerative Plan] [Production BOM] [Released Production Order] [Warehouse Pick] [Inventory Movement] [Transfer Order] [Warehouse Shipment]
+        // [SCENARIO 464697] Create Transfer Order and replenish via Production Orders. Create Warehouse Shipment for Transfer Order and post partial Shipment.
+        Initialize();
+
+        // [GIVEN] Create and setup Location with basic WMS.
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+        Location.Validate("Default Bin Selection", Location."Default Bin Selection"::"Fixed Bin");
+
+        // [GIVEN] Create Bin "Shipment Bin" and set it as "Shipment Bin Code" at Location.
+        LibraryWarehouse.CreateBin(ShipmentBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("Shipment Bin Code", ShipmentBin.Code);
+
+        // [GIVEN] Create Bin "To-Production Bin" and set it as "To-Production Bin Code" at Location.
+        LibraryWarehouse.CreateBin(ToProductionBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("To-Production Bin Code", ToProductionBin.Code);
+
+        // [GIVEN] Create Bin "From-Production Bin" and set it as "From-Production Bin Code" at Location.
+        LibraryWarehouse.CreateBin(FromProductionBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("From-Production Bin Code", FromProductionBin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Bin "Pick Bin".
+        LibraryWarehouse.CreateBin(PickBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Create Bin "Component Storing Bin".
+        LibraryWarehouse.CreateBin(ComponentStoringBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Set Warehouse Employee for Location as default.
+        WarehouseEmployee.SetRange("User ID", UserId());
+        WarehouseEmployee.DeleteAll();
+        WarehouseEmployee.Reset();
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create Component Item.
+        LibraryInventory.CreateItem(ComponentItem);
+        ComponentItem.Validate("Replenishment System", ComponentItem."Replenishment System"::"Purchase");
+        ComponentItem.Validate("Manufacturing Policy", ComponentItem."Manufacturing Policy"::"Make-to-Stock");
+        ComponentItem.Modify(true);
+
+        // [GIVEN] Create Produced Item.
+        LibraryInventory.CreateItem(ProducedItem);
+        ProducedItem.Validate("Replenishment System", ProducedItem."Replenishment System"::"Prod. Order");
+        ProducedItem.Validate("Manufacturing Policy", ProducedItem."Manufacturing Policy"::"Make-to-Order");
+        ProducedItem.Validate("Reordering Policy", ProducedItem."Reordering Policy"::Order);
+        ProducedItem.Validate("Reserve", ProducedItem."Reserve"::Always);
+        ProducedItem.Modify(true);
+
+        // [GIVEN] Create and setup Routing and assign to Produced Item.
+        CreateRoutingSetup(WorkCenter, RoutingHeader);
+        UpdateItemRoutingNo(ProducedItem, RoutingHeader."No.");
+        WorkCenter.Validate("Subcontractor No.", '');
+        WorkCenter.Modify(true);
+
+        // [GIVEN] Create and cerfity production BOM with Component Item in lines.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProducedItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem."No.", 1);
+        ProductionBOMLine.Validate("Unit of Measure Code", ComponentItem."Base Unit of Measure");
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Assign Prod. BOM No. to Produced Item.
+        ProducedItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProducedItem.Modify(true);
+
+        // [GIVEN] Post a Positive Adjustment for "Component Item".
+        CreateItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", ComponentItem."No.", 3);
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Validate("Bin Code", ComponentStoringBin.Code);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Set "Manufacturing Setup"."Components at Location" to Location.
+        PrevComponentsAtLocation := UpdManufSetupComponentsAtLocation(Location.Code);
+
+        // [GIVEN] Create other locations for Transfer Order.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+
+        // [GIVEN] Create Transfer Order with two Produced Item Lines with "Shipment Date" to one day after Work Date and End of Month.
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, Location.Code, ToLocation.Code, InTransitLocation.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine[1], ProducedItem."No.", 1);
+        TransferLine[1].Validate("Shipment Date", CalcDate('<+1D>', WorkDate()));
+        TransferLine[1].Modify(true);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine[2], ProducedItem."No.", 2);
+        TransferLine[2].Validate("Shipment Date", CalcDate('<+1D+CM>', WorkDate()));
+        TransferLine[2].Modify(true);
+
+        // [GIVEN] Calculate Regenerative Plan for Produced Item and Location.
+        ProducedItem.SetRange("No.", ProducedItem."No.");
+        ProducedItem.SetFilter("Location Filter", '%1', Location.Code);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ProducedItem, WorkDate(), CalcDate('<+1D+CM>', WorkDate()));
+        ProducedItem.SetRange("No.");
+        ProducedItem.SetRange("Location Filter");
+
+        // [GIVEN] Carry out Action Message to create two Firm Planned Production Orders.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", ProducedItem."No.");
+        if RequisitionLine.FindSet() then
+            repeat
+                if RequisitionLine."Action Message" <> RequisitionLine."Action Message"::New then begin
+                    RequisitionLine.Validate("Action Message", RequisitionLine."Action Message"::New);
+                    RequisitionLine.Modify(true);
+                end;
+                if not RequisitionLine."Accept Action Message" then begin
+                    RequisitionLine.Validate("Accept Action Message", true);
+                    RequisitionLine.Modify(true);
+                end;
+            until RequisitionLine.Next() = 0;
+        RequisitionLine.FindFirst();
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [GIVEN] Find first Firm Planned Production Order for Produced Item.
+        FindProductionOrderNo(ProductionOrder, ProductionOrder."Source Type"::Item, ProducedItem."No.", 1);
+
+        // [GIVEN] Move Production Order from Firm Planned to Released.
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate(), false);
+        FindProductionOrderNo(ProductionOrder, ProductionOrder."Source Type"::Item, ProducedItem."No.", 1);
+
+        // [GIVEN] Create Warehouse Pick for Released Production Order to move Component Item from ComponentStoringBin to ToProductionBin.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+
+        // [GIVEN] Register create Warehouse Pick.
+        RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [GIVEN] Post Consumption and Output.
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+        PostProductionOrderConsumption(ProdOrderLine, ComponentItem, Location.Code, ToProductionBin.Code, '', 1, WorkDate(), 0);
+        PostProductionOrderOutput(ProdOrderLine, 1, WorkDate(), 0);
+
+        // [GIVEN] Move Production Order from Released to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [GIVEN] Create Internal Movement of one Produced Item from Production Bin to Pick Bin.
+        CreateInternalMovement(InternalMovementHeader, Location, PickBin, ProducedItem, FromProductionBin, 1);
+
+        // [GIVEN] Create Inventory Movement for Internal Movement.
+        LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader); // Uses handler ConfirmHandlerYes and GenericMessageHandler.
+
+        // [GIVEN] Auto Fill Qty. to Handle.
+        WarehouseActivityHeader.SetCurrentKey("Location Code");
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindLast();
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Register created Inventory Movement.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Release Transfer Order.
+        LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+
+        // [GIVEN] Create Warehouse Shipment for Transfer Order.
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, Location.Code);
+
+        // [GIVEN] Create Warehouse Pick for Warehouse Shipment.
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [GIVEN] Register Warehouse Pick.
+        RegisterWarehouseActivity(TransferHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [WHEN] Post Warehouse Shipment for the first picked line.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] Verify last Item Ledger Entry moved to In-Transit Location.
+        ItemLedgerEntry.FindLast();
+        ItemLedgerEntry.TestField("Location Code", InTransitLocation.Code);
+        ItemLedgerEntry.TestField("Entry Type", ItemLedgerEntry."Entry Type"::"Transfer");
+        ItemLedgerEntry.TestField(Quantity, 1);
+
+        // Teardown: Return "Manufacturing Setup"."Components at Location".
+        UpdManufSetupComponentsAtLocation(PrevComponentsAtLocation);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -5178,6 +5639,136 @@ codeunit 137077 "SCM Supply Planning -IV"
         Assert.AreEqual(ExpectedAvailableInventory, AvailableInventory, 'Unexpected Available Inventory value');
     end;
 
+    local procedure PostProductionOrderConsumption(ProdOrderLine: Record "Prod. Order Line"; ComponentItem: Record Item; LocationCode: Code[10]; BinCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        EntryType: Enum "Item Ledger Entry Type";
+    begin
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Consumption);
+        EntryType := ItemJournalLine."Entry Type"::"Negative Adjmt.";
+        if ComponentItem.IsNonInventoriableType() then
+            EntryType := ItemJournalLine."Entry Type"::Consumption;
+
+        LibraryInventory.MakeItemJournalLine(ItemJournalLine, ItemJournalBatch, ComponentItem, PostingDate, EntryType, Qty);
+        ItemJournalLine."Variant Code" := VariantCode;
+        ItemJournalLine.Insert();
+
+        ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::Consumption);
+        ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.Validate("Order No.", ProdOrderLine."Prod. Order No.");
+        ItemJournalLine.Validate("Order Line No.", ProdOrderLine."Line No.");
+        if ItemJournalLine."Location Code" <> LocationCode then
+            ItemJournalLine.Validate("Location Code", LocationCode);
+        if BinCode <> '' then
+            ItemJournalLine.Validate("Bin Code", BinCode);
+        ItemJournalLine.Validate("Unit Cost", UnitCost);
+        ItemJournalLine.Modify(true);
+
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    local procedure PostProductionOrderOutput(ProdOrderLine: Record "Prod. Order Line"; Qty: Decimal; PostingDate: Date; UnitCost: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        RoutingLine: Record "Routing Line";
+    begin
+        Item.Get(ProdOrderLine."Item No.");
+
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Output);
+        LibraryInventory.MakeItemJournalLine(ItemJournalLine, ItemJournalBatch, Item, PostingDate, ItemJournalLine."Entry Type"::"Positive Adjmt.", Qty);
+        ItemJournalLine."Location Code" := ProdOrderLine."Location Code";
+        ItemJournalLine."Variant Code" := ProdOrderLine."Variant Code";
+        ItemJournalLine.Insert();
+
+        ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::Output);
+        ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.Validate("Order No.", ProdOrderLine."Prod. Order No.");
+        ItemJournalLine.Validate("Order Line No.", ProdOrderLine."Line No.");
+        ItemJournalLine.Validate("Item No.", ProdOrderLine."Item No.");
+        if ProdOrderLine."Bin Code" <> '' then
+            ItemJournalLine.Validate("Bin Code", ProdOrderLine."Bin Code");
+        RoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+        if RoutingLine.FindFirst() then
+            ItemJournalLine.Validate("Operation No.", RoutingLine."Operation No.");
+        ItemJournalLine.Validate("Output Quantity", Qty);
+        ItemJournalLine.Validate("Unit Cost", UnitCost);
+        ItemJournalLine.Modify();
+
+        LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
+    end;
+
+    local procedure FindProductionOrderNo(var ProductionOrder: Record "Production Order"; ProdOrderSourceType: Enum "Prod. Order Source Type"; ItemNo: Code[20]; QtyToFind: Decimal)
+    var
+        SearchProductionOrder: Record "Production Order";
+    begin
+        SearchProductionOrder.SetRange("Source Type", ProdOrderSourceType);
+        SearchProductionOrder.SetRange("Source No.", ItemNo);
+        SearchProductionOrder.SetRange(Quantity, QtyToFind);
+        SearchProductionOrder.FindFirst();
+        ProductionOrder.Get(SearchProductionOrder.Status, SearchProductionOrder."No.");
+    end;
+
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Enum "Warehouse Activity Type")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, Type);
+        WarehouseActivityHeader.Get(Type, WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    begin
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindFirst();
+    end;
+
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Enum "Warehouse Action Type")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        FindWarehouseActivityHeader(WarehouseActivityHeader, SourceNo, SourceDocument, ActionType);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Enum "Warehouse Action Type")
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceNo, SourceDocument, ActionType);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+    end;
+
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Enum "Warehouse Action Type")
+    begin
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.FindSet();
+    end;
+
+    local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LocationCode: Code[10])
+    begin
+        WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
+        WarehouseShipmentHeader.FindFirst();
+    end;
+
+    local procedure CreateInternalMovement(var InternalMovementHeader: Record "Internal Movement Header"; Location: Record Location; ToBin: Record Bin; Item: Record Item; FromBin: Record Bin; Quantity: Decimal)
+    var
+        InternalMovementLine: Record "Internal Movement Line";
+    begin
+        LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, Location.Code, ToBin.Code);
+        LibraryWarehouse.CreateInternalMovementLine(InternalMovementHeader, InternalMovementLine, Item."No.", FromBin.Code, ToBin.Code, Quantity);
+        InternalMovementLine.Validate("From Bin Code", FromBin.Code);
+        InternalMovementLine.Validate("To Bin Code", ToBin.Code);
+        InternalMovementLine.Modify(true);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CalcRegenPlanReqPageHandler(var CalculatePlanPlanWksh: TestRequestPage "Calculate Plan - Plan. Wksh.")
@@ -5278,6 +5869,13 @@ codeunit 137077 "SCM Supply Planning -IV"
     begin
         LibraryVariableStorage.Dequeue(ExpectedMessage);
         Assert.IsTrue(AreSameMessages(ConfirmMessage, ExpectedMessage), ConfirmMessage);
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
         Reply := true;
     end;
 

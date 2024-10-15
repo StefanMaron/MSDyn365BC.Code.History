@@ -91,6 +91,25 @@ table 1228 "Payment Jnl. Export Error Text"
             DeleteAll();
     end;
 
+    procedure DeleteJnlLineErrorsWhenRecDeleted(GenJnlLine: Record "Gen. Journal Line")
+    begin
+        if JnlLineHasErrorsWhenRecDeleted(GenJnlLine) then
+            DeleteAll();
+    end;
+
+    procedure JnlLineHasErrorsWhenRecDeleted(GenJnlLine: Record "Gen. Journal Line"): Boolean
+    begin
+        SetLineFiltersWhenRecDeleted(GenJnlLine);
+        exit(not IsEmpty);
+    end;
+
+    local procedure SetLineFiltersWhenRecDeleted(GenJnlLine: Record "Gen. Journal Line")
+    begin
+        SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        SetRange("Journal Line No.", GenJnlLine."Line No.");
+    end;
+
     local procedure SetBatchFilters(GenJnlLine: Record "Gen. Journal Line")
     begin
         SetRange("Journal Template Name", GenJnlLine."Journal Template Name");

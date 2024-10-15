@@ -269,6 +269,8 @@
             if WhsePosting then
                 PostWhseJnlLines(TempWhseJnlLine, TempTrackingSpecification);
 
+            OnAfterPostItemJnlLine(ServiceHeader, ItemJnlLine, TempHandlingSpecification);
+
             exit("Item Shpt. Entry No.");
         end;
     end;
@@ -534,6 +536,7 @@
 
             OnBeforeResJnlPostLine(ResJnlLine, ServiceHeader, ServiceLine);
             ResJnlPostLine.RunWithCheck(ResJnlLine);
+            OnAfterPostResJnlLine(ServiceHeader, ResJnlLine);
         end;
     end;
 
@@ -808,6 +811,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostResJnlLineOnAfterResJnlLineInit(var ResJnlLine: Record "Res. Journal Line"; EntryType: Enum "Res. Journal Line Entry Type"; Qty: Decimal)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostItemJnlLine(ServiceHeader: Record "Service Header"; var ItemJournalLine: Record "Item Journal Line"; var TempHandlingTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostResJnlLine(ServiceHeader: Record "Service Header"; var ResJournalLine: Record "Res. Journal Line")
     begin
     end;
 }

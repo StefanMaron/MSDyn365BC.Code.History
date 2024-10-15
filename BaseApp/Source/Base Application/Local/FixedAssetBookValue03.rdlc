@@ -19,7 +19,7 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>1.65cm</Width>
+                  <Width>2.3cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>3.8cm</Width>
@@ -1547,6 +1547,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="Fixed_Asset__No__">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
@@ -3111,14 +3112,14 @@ Fields!Fixed_Asset_FA_Posting_Group.Value)</GroupExpression>
             </TablixRowHierarchy>
             <DataSetName>DataSet_Result</DataSetName>
             <Height>6.768cm</Height>
-            <Width>24.95cm</Width>
+            <Width>25.6cm</Width>
             <Style />
           </Tablix>
         </ReportItems>
         <Height>6.768cm</Height>
         <Style />
       </Body>
-      <Width>24.95cm</Width>
+      <Width>25.6cm</Width>
       <Page>
         <PageHeader>
           <Height>1.692cm</Height>
@@ -3303,7 +3304,7 @@ Fields!Fixed_Asset_FA_Posting_Group.Value)</GroupExpression>
         <PageWidth>29.7cm</PageWidth>
         <InteractiveHeight>11in</InteractiveHeight>
         <InteractiveWidth>8.5in</InteractiveWidth>
-        <LeftMargin>1.5cm</LeftMargin>
+        <LeftMargin>1.2cm</LeftMargin>
         <TopMargin>2cm</TopMargin>
         <BottomMargin>2cm</BottomMargin>
         <Style />

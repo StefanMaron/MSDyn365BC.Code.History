@@ -620,11 +620,6 @@ page 9227 "Sales Analysis by Dim Matrix"
         }
     }
 
-    trigger OnAfterGetCurrRecord()
-    begin
-        CalcAmounts();
-    end;
-
     trigger OnAfterGetRecord()
     begin
         CalcAmounts();

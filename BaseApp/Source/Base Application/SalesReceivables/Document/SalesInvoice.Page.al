@@ -1030,7 +1030,7 @@ page 43 "Sales Invoice"
                 }
                 action(Recalculate)
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Recalculate';
                     Image = Recalculate;
                     ShortCutKey = 'Ctrl+F11';
@@ -1825,6 +1825,7 @@ page 43 "Sales Invoice"
         UpdateShipToBillToGroupVisibility();
         SellToContact.GetOrClear("Sell-to Contact No.");
         BillToContact.GetOrClear("Bill-to Contact No.");
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;

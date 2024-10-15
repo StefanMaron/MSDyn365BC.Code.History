@@ -1132,6 +1132,7 @@
             SalesHeader.AddLink(GetURL(), Description);
         SalesHeader."Incoming Document Entry No." := "Entry No.";
         SalesHeader.Modify();
+        OnCreateSalesDocOnAfterModifySalesHeader(Rec, SalesHeader);
         "Document No." := SalesHeader."No.";
         Modify(true);
         Commit();
@@ -1168,6 +1169,7 @@
             PurchHeader.AddLink(GetURL(), Description);
         PurchHeader."Incoming Document Entry No." := "Entry No.";
         PurchHeader.Modify();
+        OnCreatePurchDocOnAfterModifyPurchaseHeader(Rec, PurchHeader);
         "Document No." := PurchHeader."No.";
         Modify(true);
         Commit();
@@ -1584,10 +1586,16 @@
     begin
         if not DataExchangeType.Get("Data Exchange Type") then
             exit('');
+
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchangeType."Data Exch. Def. Code");
         DataExchLineDef.SetRange("Parent Code", '');
         if not DataExchLineDef.FindFirst() then
             exit('');
+
+        OnGetDataExchangePathOnBeforeCase(DataExchLineDef, FieldNumber, DataExchangePath);
+        if DataExchangePath <> '' then
+            exit(DataExchangePath);
+
         case FieldNumber of
             FieldNo("Vendor Name"):
                 exit(DataExchLineDef.GetPath(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor Name")));
@@ -1786,7 +1794,13 @@
     var
         RecRef: RecordRef;
         NavRecordVariant: Variant;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRemoveReferencedRecords(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Posted then
             UndoPostedDocFields()
         else begin
@@ -2106,6 +2120,8 @@
     procedure FindByDocumentNoAndPostingDate(var IncomingDocument: Record "Incoming Document"; DocumentNo: Text; PostingDateText: Text): Boolean
     var
         PostingDate: Date;
+        IsFound: Boolean;
+        IsHandled: Boolean;
     begin
         if (DocumentNo = '') or (PostingDateText = '') then
             exit(false);
@@ -2113,9 +2129,13 @@
         if not Evaluate(PostingDate, PostingDateText) then
             exit(false);
 
+        IsHandled := false;
+        OnFindByDocumentNoAndPostingDateOnBeforeFind(IncomingDocument, DocumentNo, PostingDate, IsFound, IsHandled);
+        if IsHandled then
+            exit(IsFound);
+
         IncomingDocument.SetRange("Document No.", DocumentNo);
         IncomingDocument.SetRange("Posting Date", PostingDate);
-
         exit(IncomingDocument.FindFirst());
     end;
 
@@ -2353,6 +2373,31 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearRelatedRecords(IncomingRelatedDocumentType: Enum "Incoming Related Document Type"; EntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDataExchangePathOnBeforeCase(DataExchLineDef: Record "Data Exch. Line Def"; FieldNumber: Integer; DataExchangePath: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRemoveReferencedRecords(var IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindByDocumentNoAndPostingDateOnBeforeFind(var IncomingDocument: Record "Incoming Document"; DocumentNo: Text; PostingDate: Date; var IsFound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesDocOnAfterModifySalesHeader(var IncomingDocument: Record "Incoming Document"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchDocOnAfterModifyPurchaseHeader(var IncomingDocument: Record "Incoming Document"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

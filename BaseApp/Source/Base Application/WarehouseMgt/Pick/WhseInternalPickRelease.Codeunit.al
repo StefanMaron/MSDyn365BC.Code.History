@@ -20,6 +20,8 @@ codeunit 7315 "Whse. Internal Pick Release"
             if Status = Status::Released then
                 exit;
 
+            OnBeforeRelease(WhsePickHeader);
+
             WhsePickLine.SetRange("No.", "No.");
             WhsePickLine.SetFilter(Quantity, '<>0');
             if not WhsePickLine.Find('-') then
@@ -40,8 +42,12 @@ codeunit 7315 "Whse. Internal Pick Release"
                     WhsePickLine.TestField("To Bin Code");
             until WhsePickLine.Next() = 0;
 
+            OnAfterTestWhsePickLine(WhsePickHeader, WhsePickLine);
+
             Status := Status::Released;
             Modify();
+
+            OnAfterReleaseWarehousePick(WhsePickHeader);
 
             CreateWhsePickRqst(WhsePickHeader);
 
@@ -53,6 +59,8 @@ codeunit 7315 "Whse. Internal Pick Release"
 
             Commit();
         end;
+
+        OnAfterRelease(WhsePickHeader, WhsePickLine);
     end;
 
     procedure Reopen(WhsePickHeader: Record "Whse. Internal Pick Header")
@@ -60,9 +68,15 @@ codeunit 7315 "Whse. Internal Pick Release"
         WhsePickRqst: Record "Whse. Pick Request";
         PickWkshLine: Record "Whse. Worksheet Line";
         WhseActivLine: Record "Warehouse Activity Line";
+        IsHandled: Boolean;
     begin
         with WhsePickHeader do begin
             if Status = Status::Open then
+                exit;
+
+            IsHandled := false;
+            OnBeforeReopen(WhsePickHeader, IsHandled);
+            if IsHandled then
                 exit;
 
             PickWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.");
@@ -87,6 +101,8 @@ codeunit 7315 "Whse. Internal Pick Release"
             Status := Status::Open;
             Modify();
         end;
+
+        OnAfterReopen(WhsePickHeader);
     end;
 
     local procedure CreateWhsePickRqst(var WhsePickHeader: Record "Whse. Internal Pick Header")
@@ -108,6 +124,36 @@ codeunit 7315 "Whse. Internal Pick Release"
                 if not WhsePickRqst.Insert() then
                     WhsePickRqst.Modify();
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRelease(var WhseInternalPickHeader: Record "Whse. Internal Pick Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRelease(var WhseInternalPickHeader: Record "Whse. Internal Pick Header"; var WhseInternalPickLine: Record "Whse. Internal Pick Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReopen(var WhseInternalPickHeader: Record "Whse. Internal Pick Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReopen(var WhseInternalPickHeader: Record "Whse. Internal Pick Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTestWhsePickLine(var WhseInternalPickHeader: Record "Whse. Internal Pick Header"; var WhseInternalPickLine: Record "Whse. Internal Pick Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReleaseWarehousePick(var WhseInternalPickHeader: Record "Whse. Internal Pick Header")
+    begin
     end;
 }
 

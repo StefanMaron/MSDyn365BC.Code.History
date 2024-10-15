@@ -130,7 +130,10 @@ report 3010542 "EZAG File"
     }
 
     trigger OnPostReport()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUsage('0000KEG', 'DTA Local CH Functionality', 'EZAG File report');
         Filename.Close();
 
         if DtaSetup."File Format" = DtaSetup."File Format"::"Without CR/LF" then

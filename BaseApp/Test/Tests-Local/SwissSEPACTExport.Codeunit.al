@@ -2892,6 +2892,58 @@ codeunit 144352 "Swiss SEPA CT Export"
         Assert.AreEqual('{!@#}', VendorLedgerEntries."Payment Reference".Value, '');
     end;
 
+    [Test]
+    procedure IsSwissSEPACTExportWhenEmptyBalAccInBatch()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        CHMgt: Codeunit CHMgt;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 470690] Run IsSwissSEPACTExport() of codeunit 11503 CHMgt when Bal. Account is empty in batch and not empty in Gen. Journal Line.
+
+        // [GIVEN] Gen. Journal Batch with empty Bal. Account No.
+        CreateGenJournalBatch(GenJournalBatch, '');
+
+        // [GIVEN] Gen. Journal Line with non-empty Bal. Account No.
+        GenJournalLine.Init();
+        GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
+        GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
+        GenJournalLine."Bal. Account No." := CreateBankAccount(FindSwissSEPACTBankExpImpCode());
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+
+        // [WHEN] Run IsSwissSEPACTExport() of codeunit 11503 CHMgt.
+        // [THEN] The function returns true.
+        Assert.IsTrue(CHMgt.IsSwissSEPACTExport(GenJournalLine), '');
+    end;
+
+    [Test]
+    procedure IsSwissSEPACTExportWhenEmptyBalAccInBatchAndLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        CHMgt: Codeunit CHMgt;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 470690] Run IsSwissSEPACTExport() of codeunit 11503 CHMgt when Bal. Account is empty in batch and empty in Gen. Journal Line.
+
+        // [GIVEN] Gen. Journal Batch with empty Bal. Account No.
+        CreateGenJournalBatch(GenJournalBatch, '');
+
+        // [GIVEN] Gen. Journal Line with empty Bal. Account No.
+        GenJournalLine.Init();
+        GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
+        GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
+        GenJournalLine."Bal. Account No." := '';
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+
+        // [WHEN] Run IsSwissSEPACTExport() of codeunit 11503 CHMgt.
+        // [THEN] The function returns false.
+        Assert.IsFalse(CHMgt.IsSwissSEPACTExport(GenJournalLine), '');
+    end;
+
     local procedure Initialize()
     var
         GLSetup: Record "General Ledger Setup";

@@ -805,6 +805,7 @@ page 9277 "FA Posting Types Overv. Matrix"
             FALedgerEntry.SetRange("Depreciation Book Code");
         FALedgerEntry.SetFilter("FA Posting Date", DateFilter);
         FALedgerEntry.SetRange("FA No.", "FA No.");
+        OnBeforeMATRIX_OnDrillDown(FALedgerEntry);
 
         case MatrixRecords[MATRIX_ColumnOrdinal]."Entry No." of
             1:// 'Book Value'
@@ -871,6 +872,7 @@ page 9277 "FA Posting Types Overv. Matrix"
             SetFilter("FA Posting Date Filter", DateFilter);
             SetRange("FA No.", Rec."FA No.");
             SetRange("Depreciation Book Code", Rec."Depreciation Book Code");
+            OnBeforeMATRIX_OnAfterGetRecord(FADeprBook);
             case MatrixRecords[MATRIX_ColumnOrdinal]."Entry No." of
                 1:// 'Book Value'
                     begin
@@ -989,6 +991,16 @@ page 9277 "FA Posting Types Overv. Matrix"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMATRIX_OnAfterGetRecord(var MATRIX_CellData: array[32] of Decimal; MATRIX_ColumnOrdinal: Integer; RoundingFactor: Enum "Analysis Rounding Factor"; MatrixRecords: array[32] of Record "FA Matrix Posting Type"; FADepreciationBook: Record "FA Depreciation Book")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMATRIX_OnAfterGetRecord(var FADepreciationBook: Record "FA Depreciation Book")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMATRIX_OnDrillDown(var FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
 }

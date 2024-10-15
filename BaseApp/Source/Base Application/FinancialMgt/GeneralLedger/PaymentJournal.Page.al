@@ -701,7 +701,7 @@ page 256 "Payment Journal"
         {
             group("&DTA")
             {
-                Caption = '&DTA';
+                Caption = '&Other';
                 action("DTA &Suggest Vendor Payment")
                 {
                     ApplicationArea = Advanced;
@@ -710,15 +710,17 @@ page 256 "Payment Journal"
                     ToolTip = 'Transfers overdue invoices into the journal. On the Vendor FastTab, you can select the individual vendors.';
 
                     trigger OnAction()
+                    var
+                        DTASuggestVendorPayments: Report "DTA Suggest Vendor Payments";
                     begin
-                        Clear(DtaSuggestVendPmt);
-                        DtaSuggestVendPmt.DefineJournalName(Rec);
-                        DtaSuggestVendPmt.RunModal();
+                        FeatureTelemetry.LogUsage('0000KE8', DTAFeatureUsageTxt, 'DTA Suggest Vendor Payment action.');
+                        DTASuggestVendorPayments.DefineJournalName(Rec);
+                        DTASuggestVendorPayments.RunModal();
                     end;
                 }
                 action("Print Payment Journal")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Print Payment Journal';
                     Image = "Report";
                     ToolTip = 'View the payments in a report.';
@@ -736,10 +738,11 @@ page 256 "Payment Journal"
                     ToolTip = 'View or print all the payments for each vendor from the current log. A total is shown for each currency and page. At the end of the report, the total of payments are printed. This vendor payment advice has to be sent or transmitted together with the DTA or EZAG file to the bank or post finance.';
 
                     trigger OnAction()
+                    var
+                        SRVendorPaymentAdvice: Report "SR Vendor Payment Advice";
                     begin
-                        Clear(VendPmtAdvice);
-                        VendPmtAdvice.DefineJourBatch(Rec);
-                        VendPmtAdvice.RunModal();
+                        SRVendorPaymentAdvice.DefineJourBatch(Rec);
+                        SRVendorPaymentAdvice.RunModal();
                     end;
                 }
                 action("Show &Open Invoices")
@@ -769,7 +772,7 @@ page 256 "Payment Journal"
 
                     trigger OnAction()
                     begin
-                        if IsExportedToPaymentFile then
+                        if IsExportedToPaymentFile() then
                             if not Confirm(ExportAgainQst) then
                                 exit;
                         RunReportWithCurrentRec(REPORT::"DTA File");
@@ -799,12 +802,13 @@ page 256 "Payment Journal"
 
                     trigger OnAction()
                     begin
-                        if IsExportedToPaymentFile then
+                        if IsExportedToPaymentFile() then
                             if not Confirm(ExportAgainQst) then
                                 exit;
                         RunReportWithCurrentRec(REPORT::"EZAG File");
                     end;
                 }
+
                 action("E&ZAG Payment Order")
                 {
                     ApplicationArea = Advanced;
@@ -826,7 +830,8 @@ page 256 "Payment Journal"
 
                     trigger OnAction()
                     begin
-                        DtaMgt.StartYellownet;
+                        FeatureTelemetry.LogUsage('0000KE9', DTAFeatureUsageTxt, 'Start Yellownet action.');
+                        DtaMgt.StartYellownet();
                     end;
                 }
                 separator(Action1150113)
@@ -841,6 +846,7 @@ page 256 "Payment Journal"
 
                     trigger OnAction()
                     begin
+                        FeatureTelemetry.LogUsage('0000KEA', DTAFeatureUsageTxt, 'Modify Document No action.');
                         DtaMgt.ModifyDocNo(Rec);
                     end;
                 }
@@ -852,8 +858,11 @@ page 256 "Payment Journal"
                     ToolTip = 'Update the balance account on journal lines.';
 
                     trigger OnAction()
+                    var
+                        DTASuggestVendorPayments: Report "DTA Suggest Vendor Payments";
                     begin
-                        DtaSuggestVendPmt.WriteBalAccountLine(Rec);
+                        FeatureTelemetry.LogUsage('0000KEB', DTAFeatureUsageTxt, 'Update Balance Account Lines action.');
+                        DTASuggestVendorPayments.WriteBalAccountLine(Rec);
                     end;
                 }
             }
@@ -1856,7 +1865,7 @@ page 256 "Payment Journal"
             }
             group(Category_Category12)
             {
-                Caption = 'DTA', Comment = 'Generated from the PromotedActionCategories property index 11.';
+                Caption = 'Other', Comment = 'Generated from the PromotedActionCategories property index 11.';
 
                 actionref("DTA &Suggest Vendor Payment_Promoted"; "DTA &Suggest Vendor Payment")
                 {
@@ -2002,8 +2011,7 @@ page 256 "Payment Journal"
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         DtaMgt: Codeunit DtaMgt;
         ChangeExchangeRate: Page "Change Exchange Rate";
-        DtaSuggestVendPmt: Report "DTA Suggest Vendor Payments";
-        VendPmtAdvice: Report "SR Vendor Payment Advice";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         CurrentJnlBatchName: Code[10];
         AccName: Text[100];
         BalAccName: Text[100];
@@ -2056,6 +2064,8 @@ page 256 "Payment Journal"
         VoidCheckQst: Label 'Void Check %1?', Comment = '%1 - check number';
         VoidAllPrintedChecksQst: Label 'Void all printed checks?';
         GeneratingPaymentsMsg: Label 'Generating Payment file...';
+        DTAFeatureUsageTxt: Label 'DTA Local CH Functionality', Locked = true;
+        RunReportUsageTxt: Label 'RunReportWithCurrentRec, REPID=%1', Locked = true;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -2114,6 +2124,7 @@ page 256 "Payment Journal"
     var
         TempGenJnlLine: Record "Gen. Journal Line";
     begin
+        FeatureTelemetry.LogUsage('0000KEC', DTAFeatureUsageTxt, StrSubstNo(RunReportUsageTxt, ReportID));
         TempGenJnlLine.Copy(Rec);
         TempGenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         TempGenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
