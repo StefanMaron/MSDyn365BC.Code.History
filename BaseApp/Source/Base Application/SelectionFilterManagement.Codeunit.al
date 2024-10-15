@@ -5,6 +5,13 @@ codeunit 46 SelectionFilterManagement
     begin
     end;
 
+    /// <summary>
+    /// Get a filter for the selected field from a provided record. Ranges will be used inside the filter were possible.
+    /// </summary>
+    /// <param name="TempRecRef">Record used to determine the field filter.</param>
+    /// <param name="SelectionFieldID">The field for which the filter will be constructed.</param>
+    /// <returns>The filter for the provided field ID. For example, '1..3|6'.</returns>
+    /// <remarks>This method queries the database intensively, can cause perfomance issues and even cause database server exceptions. Consider using <seealso cref="GetSimpleSelectionFilter"/>.</remarks>
     procedure GetSelectionFilter(var TempRecRef: RecordRef; SelectionFieldID: Integer): Text
     var
         RecRef: RecordRef;
@@ -117,11 +124,21 @@ codeunit 46 SelectionFilterManagement
         exit(SelectionFilter);
     end;
 
-    procedure AddQuotes(inString: Text[1024]): Text
+    procedure AddQuotes(inString: Text): Text
     begin
+        inString := ReplaceString(inString, '''', '''''');
         if DelChr(inString, '=', ' &|()*@<>=.') = inString then
             exit(inString);
         exit('''' + inString + '''');
+    end;
+
+    procedure ReplaceString(String: Text; FindWhat: Text; ReplaceWith: Text) NewString: Text
+    begin
+        while STRPOS(String, FindWhat) > 0 do begin
+            NewString := NewString + DELSTR(String, STRPOS(String, FindWhat)) + ReplaceWith;
+            String := COPYSTR(String, STRPOS(String, FindWhat) + STRLEN(FindWhat));
+        end;
+        NewString := NewString + String;
     end;
 
     procedure GetSelectionFilterForItem(var Item: Record Item): Text
@@ -410,6 +427,99 @@ codeunit 46 SelectionFilterManagement
     begin
         RecRef.GetTable(AggregatePermissionSet);
         exit(GetSelectionFilter(RecRef, AggregatePermissionSet.FieldNo("Role ID")));
+    end;
+
+    /// <summary>
+    /// Get a filter for the selected field from a provided record. Ranges will be used inside the filter were possible.
+    /// The values in the selected field must be unique and sorted in ascending order.
+    /// </summary>
+    /// <param name="SourceRecRef">Record used to determine the field filter.</param>
+    /// <param name="SelectionFieldID">The field for which the filter will be constructed.</param>
+    /// <param name="ComputeRangesUsingRecords">Specify if the computations should be performed on records, or in-memory structures.
+    /// If the parameter is false, the database load is greatly reduced, but the memory footprint is bigger</param>
+    /// <returns>The filter for the provided field ID. For example, '1..3|6'.</returns>
+    procedure GetSelectionFilter(var SourceRecRef: RecordRef; SelectionFieldID: Integer; ComputeRangesUsingRecords: Boolean): Text
+    var
+        NoFiltersRecRef: RecordRef;
+        SelectedValues: List of [Text];
+        AllValues: List of [Text];
+        Ranges: List of [Text];
+        Range: Text;
+        SelectionFilter: Text;
+    begin
+        if ComputeRangesUsingRecords then
+            exit(GetSelectionFilter(SourceRecRef, SelectionFieldID));
+
+        GetRecordRefWithoutFilters(SourceRecRef, NoFiltersRecRef);
+        GetFieldValues(SourceRecRef, SelectionFieldID, SelectedValues);
+        GetFieldValues(NoFiltersRecRef, SelectionFieldID, AllValues);
+        ComputeRanges(SelectedValues, AllValues, Ranges);
+
+        foreach Range in Ranges do
+            SelectionFilter += Range + '|';
+        exit(SelectionFilter.TrimEnd('|'));
+    end;
+
+    // Optimize the filter to make use of ranges.
+    local procedure ComputeRanges(var SelectedValues: List of [Text]; var AllValues: List of [Text]; var Ranges: List Of [Text])
+    var
+        CurrentRangeLength: Integer;
+        i: Integer;
+    begin
+        if SelectedValues.Count() < 3 then begin
+            Ranges.AddRange(SelectedValues);
+            exit;
+        end;
+
+        CurrentRangeLength := 1;
+
+        for i := 2 to SelectedValues.Count() do
+            if not AreSelectedValuesConsecutive(SelectedValues.Get(i - 1), SelectedValues.Get(i), AllValues) then begin
+                // If the range contains only one element, add it into the list.
+                if (CurrentRangeLength = 1) then
+                    Ranges.Add(SelectedValues.Get(i - CurrentRangeLength))
+                else
+                    // Build the range ending at the previous element.
+                    Ranges.Add(SelectedValues.Get(i - CurrentRangeLength) + '..' + SelectedValues.Get(i - 1));
+
+                // After finding the a range, initialize the length by 1 to build the next range.
+                CurrentRangeLength := 1;
+            end else
+                CurrentRangeLength += 1;
+
+        // Handle the last element.
+        if (CurrentRangeLength = 1) then
+            Ranges.Add(SelectedValues.Get(i))
+        else
+            Ranges.Add(SelectedValues.Get(i - CurrentRangeLength + 1) + '..' + SelectedValues.Get(i));
+    end;
+
+    // A comparer used to determine if subsequent selected values are also subsequent within all values. AllValues is passed by var to save up memory.
+    local procedure AreSelectedValuesConsecutive(FirstSelectedValue: Text; SecondSelectedValue: Text; var AllValues: List of [Text]): Boolean
+    begin
+        exit((AllValues.IndexOf(SecondSelectedValue) - AllValues.IndexOf(FirstSelectedValue)) = 1);
+    end;
+
+    local procedure GetFieldValues(var ValuesRecRef: RecordRef; SelectionFieldID: Integer; var FoundValues: List of [Text])
+    var
+        SelectionFieldRef: FieldRef;
+        SelectionFieldValue: Text;
+    begin
+        if ValuesRecRef.FindSet() then
+            repeat
+                SelectionFieldRef := ValuesRecRef.Field(SelectionFieldID);
+                SelectionFieldValue := Format(SelectionFieldRef.Value);
+                FoundValues.Add(AddQuotes(SelectionFieldValue));
+            until ValuesRecRef.Next() = 0;
+    end;
+
+    local procedure GetRecordRefWithoutFilters(var FilteredRecRef: RecordRef; var NoFiltersRecRef: RecordRef)
+    begin
+        if FilteredRecRef.IsTemporary() then begin
+            NoFiltersRecRef := FilteredRecRef.Duplicate();
+            NoFiltersRecRef.Reset();
+        end else
+            NoFiltersRecRef.Open(FilteredRecRef.Number);
     end;
 }
 

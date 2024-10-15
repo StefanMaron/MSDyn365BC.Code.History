@@ -1346,6 +1346,8 @@ page 344 Navigate
         SourceTypeEnable := SourceType2 <> 0;
         SourceNoEnable := SourceType2 <> 0;
         SourceNameEnable := SourceType2 <> 0;
+
+        OnAfterSetSource(SourceType2, SourceType, SourceNo, SourceName);
     end;
 
     local procedure SetSourceForPurchase()
@@ -2076,6 +2078,11 @@ page 344 Navigate
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetSourceForPurchase()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetSource(SourceType2: Integer; var SourceType: Text[30]; SourceNo: Code[20]; var SourceName: Text[100])
     begin
     end;
 

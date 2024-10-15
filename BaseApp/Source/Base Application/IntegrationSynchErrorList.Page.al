@@ -145,6 +145,28 @@ page 5339 "Integration Synch. Error List"
                         ForceSynchronizeDataIntegration(LocalRecordID, SynchronizeHandled);
                     end;
                 }
+                action(DataIntegrationExceptionDetails)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Show Error Call Stack';
+                    Enabled = HasRecords;
+                    Image = StepInto;
+                    ToolTip = 'Shows the call stack for the error.';
+                    Visible = ShowDataIntegrationActions;
+
+                    trigger OnAction()
+                    var
+                        TypeHelper: Codeunit "Type Helper";
+                        CallStackInStream: InStream;
+                    begin
+                        if IsEmpty() then
+                            exit;
+
+                        CalcFields("Exception Detail");
+                        "Exception Detail".CreateInStream(CallStackInStream, TEXTENCODING::Windows);
+                        Message(TypeHelper.ReadAsTextWithSeparator(CallStackInStream, TypeHelper.LFSeparator()));
+                    end;
+                }
                 group(Coupling)
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';

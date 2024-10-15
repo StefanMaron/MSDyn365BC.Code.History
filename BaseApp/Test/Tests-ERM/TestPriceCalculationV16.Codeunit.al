@@ -30,6 +30,10 @@ codeunit 134159 "Test Price Calculation - V16"
         AllowLineDiscErr: Label 'Allow Line Disc. must have a value in Sales Line';
         PickedWrongMinQtyErr: Label 'The quantity in the line is below the minimum quantity of the picked price list line.';
         CampaignActivatedMsg: Label 'Campaign %1 is now activated.';
+        GetPriceOutOfDateErr: Label 'The selected price line is not valid on the document date %1.',
+            Comment = '%1 - a date value';
+        GetPriceFieldMismatchErr: Label 'The %1 in the selected price line must be %2.',
+            Comment = '%1 - a field caption, %2 - a value of the field';
 
     [Test]
     procedure T001_SalesLineAddsActivatedCampaignOnHeaderAsSource()
@@ -2077,6 +2081,180 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
+    procedure T175_CardPriceRestoredInSalesLineBelowMinQuantity()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Price] [Minimum Quantity]
+        // [SCENARIO] Price is taken from the Item card if the Quantity is below "Minimum Quantity" of the price list line
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is No
+        CreateCustomerAllowingLineDisc(Customer, false);
+        // [GIVEN] Item 'I', where "Unit Price" is 'X'
+        LibraryInventory.CreateItem(Item);
+        Item."Unit Price" := LibraryRandom.RandDec(100, 2);
+        Item.Modify();
+
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'C, "Minimum Quantity" is 10, "Unit Price" is 'Y'
+        CreatePriceLine(PriceListLine, Customer, Item, false);
+        PriceListLine."Minimum Quantity" := 5 + LibraryRandom.RandInt(100);
+        PriceListLine.Modify();
+        // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I', where Quantity is 10, giving "Unit Price" as 'Y'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", PriceListLine."Minimum Quantity");
+        Assert.AreEqual(PriceListLine."Unit Price", SalesLine."Unit Price", 'Unit Price in Sales Line for Minimum Quantity');
+
+        // [WHEN] Change Quantity in Sales Line to 9 (below "Minimum Quantity")
+        SalesLine.Validate(Quantity, SalesLine.Quantity - 1);
+
+        // [THEN] Sales Line, where "Unit Price" is 'X' (from the Item card)
+        SalesLine.TestField("Unit Price", Item."Unit Price");
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetPriceLinePriceModalPageHandler')]
+    procedure T176_PickPriceSalesLineOutOfDateStartindDate()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Price]
+        // [SCENARIO] Cannot pick price line for the sales line if "Starting Date" is later than "Order Date".
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is No
+        CreateCustomerAllowingLineDisc(Customer, false);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Sales Order for Customer 'C' selling Item 'I', where "Order Date" is '010120'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Starting Date" is 020120, "Ending Date" is 0D
+        CreatePriceLine(PriceListLine, Customer, Item, false);
+        PriceListLine."Starting Date" := SalesHeader."Order Date" + 1;
+        PriceListLine."Ending Date" := 0D;
+        PriceListLine.Modify();
+
+        // [WHEN] PickPrice
+        asserterror SalesLine.PickPrice();
+
+        // [THEN] Error message: "The selected price line is not valid..."
+        Assert.ExpectedError(StrSubstNo(GetPriceOutOfDateErr, SalesHeader."Order Date"));
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetPriceLinePriceModalPageHandler')]
+    procedure T177_PickPriceSalesLineWrongUnitOfMeasure()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ItemUnitofMeasure: array[2] of Record "Item Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        UnitofMeasure: array[2] of Record "Unit of Measure";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Price]
+        // [SCENARIO] Cannot pick price line for the sales line if "Unit of Measure" does not match.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is No
+        CreateCustomerAllowingLineDisc(Customer, false);
+        // [GIVEN] Item 'I' with twou unit of measures 'PCS' and 'BOX'
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure[1]);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitofMeasure[1], Item."No.", UnitofMeasure[1].Code, 1);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitofMeasure[2]);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitofMeasure[1], Item."No.", UnitofMeasure[2].Code, 5);
+
+        // [GIVEN] Sales Order for Customer 'C' selling , where "Order Date" is '100120'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        // [GIVEN] Sales Line, whre Item 'I' and "Unit Of Measure" 'PCS'
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit of Measure", UnitofMeasure[1].Code);
+        SalesLine.Modify();
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Unit Of Measure Code" 'BOX'
+        CreatePriceLine(PriceListLine, Customer, Item, false);
+        PriceListLine."Unit of Measure Code" := UnitofMeasure[2].Code;
+        PriceListLine.Modify();
+
+        // [WHEN] PickPrice
+        asserterror SalesLine.PickPrice();
+
+        // [THEN] Error message: "The Unit of Measure Code in the selected price line must be PCS."
+        Assert.ExpectedError(
+            StrSubstNo(GetPriceFieldMismatchErr,
+            PriceListLine.FieldCaption("Unit of Measure Code"), SalesLine."Unit of Measure Code"));
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetPriceLinePriceModalPageHandler')]
+    procedure T178_PickPriceSalesLineWrongCurrencyCode()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        Currency: array[2] of Record Currency;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PriceListLine: Record "Price List Line";
+        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        OldHandler: enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Price]
+        // [SCENARIO] Cannot pick price line for the sales line if "Currency Code" does not match.
+        Initialize();
+        // [GIVEN] Price Calculation Setup, where "V16" is the default handler for selling all assets.
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Customer 'C', where "Allow Line Disc." is No
+        CreateCustomerAllowingLineDisc(Customer, false);
+        // [GIVEN] Item 'I'
+        LibraryInventory.CreateItem(Item);
+        Currency[1].Code := LibraryERM.CreateCurrencyWithRandomExchRates();
+        LibraryERM.CreateCurrency(Currency[2]);
+
+        // [GIVEN] Sales Order for Customer 'C' selling , where "Order Date" is '100120', "Currency Code" 'USD'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Currency Code", Currency[1].Code);
+        SalesHeader.Modify();
+        // [GIVEN] Sales Line, whrere Item 'I' and "Currency Code" 'USD'
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Currency Code" 'EUR'
+        CreatePriceLine(PriceListLine, Customer, Item, false);
+        PriceListLine."Currency Code" := Currency[2].Code;
+        PriceListLine.Modify();
+
+        // [WHEN] PickPrice
+        asserterror SalesLine.PickPrice();
+
+        // [THEN] Error message: "The Currency Code in the selected price line must be USD."
+        Assert.ExpectedError(
+            StrSubstNo(GetPriceFieldMismatchErr,
+            PriceListLine.FieldCaption("Currency Code"), SalesLine."Currency Code"));
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler')]
     procedure T180_ActivateCampaignIfPriceExists()
     var
@@ -2561,6 +2739,135 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceSource.SetRange("Source Type", "Price Source Type"::Campaign);
         TempPriceSource.SetRange("Source No.", Campaign."No.");
         Assert.RecordCount(TempPriceSource, 1);
+    end;
+
+    [Test]
+    procedure T245_SalesLineMinQtyPriceForResource()
+    var
+        Customer: Record Customer;
+        PriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        OldHandler: Enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Sales] [Resource] [UT]
+        Initialize();
+        PriceListLine.DeleteAll();
+        // [GIVEN] Default price calculation is 'V16'
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Customer 'A' 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Resource 'X', where "Unit Price" is '100'
+        LibraryResource.CreateResource(Resource, Customer."VAT Bus. Posting Group");
+        Resource."Unit Price" := 100 + LibraryRandom.RandDec(100, 2);
+        Resource.Modify();
+        // [GIVEN] Price list line for Resource 'X', where "Minimum Quantity" is 10, "Unit Price" is 50
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLine."Minimum Quantity" := 10 + LibraryRandom.RandInt(20);
+        PriceListLine."Unit Price" := Resource."Unit Price" / 2;
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+
+        // [GIVEN] Order for customer 'A' with one line with "Type" = 'Resource' and "No." = 'X', "Quantity" = 1
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::Resource, Resource."No.", 1);
+        // [GIVEN] Sales Line, where "Unit Price" is 100 (from Resource card)
+        SalesLine.TestField("Unit Price", Resource."Unit Price");
+
+        // [WHEN] Change "Quantity" to 10
+        SalesLine.Validate(Quantity, PriceListLine."Minimum Quantity");
+
+        // [THEN] Sales Line, where "Unit Price" is 50 (from Price line)
+        SalesLine.TestField("Unit Price", PriceListLine."Unit Price");
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure T246_ServiceLineMinQtyPriceForResource()
+    var
+        Customer: Record Customer;
+        PriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        OldHandler: Enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Service] [Resource] [UT]
+        Initialize();
+        PriceListLine.DeleteAll();
+        // [GIVEN] Default price calculation is 'V16'
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Customer 'A' 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Resource 'X', where "Unit Price" is '100'
+        LibraryResource.CreateResource(Resource, Customer."VAT Bus. Posting Group");
+        Resource."Unit Price" := 100 + LibraryRandom.RandDec(100, 2);
+        Resource.Modify();
+        // [GIVEN] Price list line for Resource 'X', where "Minimum Quantity" is 10, "Unit Price" is 50
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLine."Minimum Quantity" := 10 + LibraryRandom.RandInt(20);
+        PriceListLine."Unit Price" := Resource."Unit Price" / 2;
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+
+        // [GIVEN] Service Order for customer 'A' with one line with "Type" = 'Resource' and "No." = 'X', "Quantity" = 1
+        LibraryService.CreateServiceHeader(ServiceHeader, "Sales Document Type"::Order, Customer."No.");
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, "Service Line Type"::Resource, Resource."No.");
+        // [GIVEN] Service Line, where "Unit Price" is 100 (from Resource card)
+        ServiceLine.TestField("Unit Price", Resource."Unit Price");
+
+        // [WHEN] Change "Quantity" to 10
+        ServiceLine.Validate(Quantity, PriceListLine."Minimum Quantity");
+
+        // [THEN] Service Line, where "Unit Price" is 50 (from Price line)
+        ServiceLine.TestField("Unit Price", PriceListLine."Unit Price");
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
+    end;
+
+    [Test]
+    procedure T247_PurchaseLineMinQtyPriceForResource()
+    var
+        PriceListLine: Record "Price List Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
+        Vendor: Record Vendor;
+        OldHandler: Enum "Price Calculation Handler";
+    begin
+        // [FEATURE] [Purchase] [Resource] [UT]
+        Initialize();
+        PriceListLine.DeleteAll();
+        // [GIVEN] Default price calculation is 'V16'
+        OldHandler := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
+        // [GIVEN] Vendor 'V'
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Resource 'X', where "Unit Cost" is '100'
+        LibraryResource.CreateResource(Resource, Vendor."VAT Bus. Posting Group");
+        Resource."Direct Unit Cost" := 100 + LibraryRandom.RandDec(100, 2);
+        Resource.Modify();
+        // [GIVEN] Price list line for Resource 'X', where "Minimum Quantity" is 10, "Direct Unit Price" is 50
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Vendors", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLine."Minimum Quantity" := 10 + LibraryRandom.RandInt(20);
+        PriceListLine."Direct Unit Cost" := Resource."Direct Unit Cost" / 2;
+        PriceListLine."Unit Cost" := Resource."Direct Unit Cost" / 4;
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+        // [GIVEN] Order for Vendor 'V', with one line, where "Type" is 'Resource', "No." is 'X'
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", 1);
+        // [GIVEN] Service Line, where "Unit Cost" is 100 (from Resource card)
+        PurchaseLine.TestField("Direct Unit Cost", Resource."Direct Unit Cost");
+
+        // [WHEN] Change "Quantity" to 10
+        PurchaseLine.Validate(Quantity, PriceListLine."Minimum Quantity");
+
+        // [THEN] Service Line, where "Direct Unit Price" is 50 (from Price line)
+        PurchaseLine.TestField("Direct Unit Cost", PriceListLine."Direct Unit Cost");
+        LibraryPriceCalculation.SetupDefaultHandler(OldHandler);
     end;
 
     [Test]
