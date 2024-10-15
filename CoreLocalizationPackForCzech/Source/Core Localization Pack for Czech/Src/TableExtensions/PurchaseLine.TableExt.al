@@ -103,7 +103,11 @@ tableextension 11754 "Purchase Line CZL" extends "Purchase Line"
     procedure CheckIntrastatMandatoryFieldsCZL(PurchaseHeader: Record "Purchase Header")
     var
         StatutoryReportingSetupCZL: Record "Statutory Reporting Setup CZL";
+        FeatureMgtFacade: Codeunit "Feature Management Facade";
+        IntrastatFeatureKeyIdTok: Label 'ReplaceIntrastat', Locked = true;
     begin
+        if FeatureMgtFacade.IsEnabled(IntrastatFeatureKeyIdTok) then
+            exit;
         if Type <> Type::Item then
             exit;
         if ("Qty. to Receive" = 0) and ("Return Qty. to Ship" = 0) then

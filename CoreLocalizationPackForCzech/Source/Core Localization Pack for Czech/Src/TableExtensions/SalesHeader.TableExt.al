@@ -404,7 +404,11 @@ tableextension 11703 "Sales Header CZL" extends "Sales Header"
     procedure CheckIntrastatMandatoryFieldsCZL()
     var
         StatutoryReportingSetupCZL: Record "Statutory Reporting Setup CZL";
+        FeatureMgtFacade: Codeunit "Feature Management Facade";
+        IntrastatFeatureKeyIdTok: Label 'ReplaceIntrastat', Locked = true;
     begin
+        if FeatureMgtFacade.IsEnabled(IntrastatFeatureKeyIdTok) then
+            exit;
         if not (Ship or Receive) then
             exit;
         if IsIntrastatTransactionCZL() and ShipOrReceiveInventoriableTypeItemsCZL() then begin

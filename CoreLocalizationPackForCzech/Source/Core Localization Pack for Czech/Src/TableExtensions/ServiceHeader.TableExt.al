@@ -335,7 +335,13 @@ tableextension 11734 "Service Header CZL" extends "Service Header"
     procedure IsIntrastatTransactionCZL(): Boolean
     var
         CountryRegion: Record "Country/Region";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        OnBeforeIsIntrastatTransactionCZL(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if "EU 3-Party Trade" then
             exit(false);
 #if not CLEAN22
@@ -372,6 +378,11 @@ tableextension 11734 "Service Header CZL" extends "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaulBankAccountNoCZL(var ServiceHeader: Record "Service Header"; var BankAccountNo: Code[20]; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeIsIntrastatTransactionCZL(ServiceHeader: Record "Service Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

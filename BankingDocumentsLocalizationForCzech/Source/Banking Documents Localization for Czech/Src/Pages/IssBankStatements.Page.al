@@ -60,6 +60,11 @@ page 31257 "Iss. Bank Statements CZB"
                     ToolTip = 'Specifies the name and address of bank statement file uploaded from bank.';
                     Visible = false;
                 }
+                field("Payment Journal Status"; Rec."Payment Journal Status")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the posting status of the payment journal.';
+                }
             }
         }
         area(FactBoxes)

@@ -194,6 +194,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets - NamedType DateConfirmMessage)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 893927009 - NamedType 1385365256" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Depreciation Book Code must match.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets - NamedType DepreciationBookCodeMustMatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 893927009 - NamedType 886298852" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The %1 does not exist.]]></Val>

@@ -1,4 +1,6 @@
-page 5280 "SAF-T Setup Wizard"
+#pragma warning disable AS0030
+page 5280 "SAF-T Wizard"
+#pragma warning restore AS0030
 {
     Caption = 'SAF-T Setup Guide';
     PageType = NavigatePage;
@@ -192,10 +194,10 @@ page 5280 "SAF-T Setup Wizard"
 
                         trigger OnDrillDown()
                         var
-                            GLAccountMappingCard: Page "G/L Account Mapping Card";
+                            GLAccMappingCard: Page "G/L Acc. Mapping Card";
                         begin
-                            GLAccountMappingCard.SetTableView(Rec);
-                            GLAccountMappingCard.RunModal();
+                            GLAccMappingCard.SetTableView(Rec);
+                            GLAccMappingCard.RunModal();
                             UpdateGLAccountsMappedInfo();
                         end;
                     }

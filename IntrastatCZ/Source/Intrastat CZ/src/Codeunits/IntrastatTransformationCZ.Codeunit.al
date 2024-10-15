@@ -8,8 +8,9 @@ codeunit 31303 "Intrastat Transformation CZ"
     var
         IntrastatArrivalDispatchDescTxt: Label 'Transforming intrastat "Receipt" type to letter ''A'' and "Shipment" type to letter ''D''.';
         IntrastatArrivalDispatchTxt: Label 'INT_ARRIVALDISPATCH', Locked = true;
-        IntrastatDeliveryGroupDescTxt: Label 'Lookup intrastat delivery group code from shipment method.';
+#if not CLEAN24
         IntrastatDeliveryGroupTxt: Label 'INT_DELIV_GROUP', Locked = true;
+#endif
         IntrastatRoundToIntDescTxt: Label 'Round to integer and take into account the rounding direction setting in intrastat report setup.';
         IntrastatRoundToIntTxt: Label 'INT_ROUNDTOINT', Locked = true;
         IntrastatRoundToIntGreaterThanOneDescTxt: Label 'Round to integer when the decimal is greater than 1.';
@@ -39,7 +40,6 @@ codeunit 31303 "Intrastat Transformation CZ"
     [EventSubscriber(ObjectType::Table, Database::"Transformation Rule", 'OnCreateTransformationRules', '', false, false)]
     local procedure InsertIntrastatTransformationRulesOnCreateTransformationRules()
     var
-        ShipmentMethod: Record "Shipment Method";
         TransformationRule: Record "Transformation Rule";
     begin
         TransformationRule.InsertRec(GetIntrastatStatisticsMonthCode(), IntrastatStatisticsMonthDescTxt, TransformationRule."Transformation Type"::Substring.AsInteger(), 3, 2, '', '');
@@ -48,17 +48,6 @@ codeunit 31303 "Intrastat Transformation CZ"
         TransformationRule.InsertRec(GetIntrastatRoundToIntCode(), IntrastatRoundToIntDescTxt, TransformationRule."Transformation Type"::Custom.AsInteger(), 0, 0, '', '');
         TransformationRule.InsertRec(GetIntrastatRoundToIntGreaterThanOneCode(),
             IntrastatRoundToIntGreaterThanOneDescTxt, TransformationRule."Transformation Type"::Custom.AsInteger(), 0, 0, '', '');
-
-        if not TransformationRule.Get(GetIntrastatDeliveryGroupCode()) then begin
-            TransformationRule.Init();
-            TransformationRule.Validate(Code, GetIntrastatDeliveryGroupCode());
-            TransformationRule.Validate(Description, IntrastatDeliveryGroupDescTxt);
-            TransformationRule.Validate("Transformation Type", Enum::"Transformation Rule Type"::"Field Lookup");
-            TransformationRule.Validate("Table ID", Database::"Shipment Method");
-            TransformationRule.Validate("Source Field ID", ShipmentMethod.FieldNo(Code));
-            TransformationRule.Validate("Target Field ID", ShipmentMethod.FieldNo("Intrastat Deliv. Grp. Code CZ"));
-            TransformationRule.Insert();
-        end;
     end;
 
     local procedure TransformStatisticsPeriod(InputText: Text): Integer
@@ -113,11 +102,13 @@ codeunit 31303 "Intrastat Transformation CZ"
     begin
         exit(IntrastatArrivalDispatchTxt);
     end;
-
+#if not CLEAN24
+    [Obsolete('The rule is no longer used.', '24.0')]
     procedure GetIntrastatDeliveryGroupCode(): Code[20]
     begin
         exit(IntrastatDeliveryGroupTxt);
     end;
+#endif
 
     procedure GetIntrastatRoundToIntCode(): Code[20]
     begin

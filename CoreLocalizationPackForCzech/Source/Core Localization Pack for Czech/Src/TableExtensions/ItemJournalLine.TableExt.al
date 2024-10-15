@@ -172,8 +172,12 @@ tableextension 11709 "Item Journal Line CZL" extends "Item Journal Line"
     var
         StatutoryReportingSetupCZL: Record "Statutory Reporting Setup CZL";
         Item: Record Item;
+        FeatureMgtFacade: Codeunit "Feature Management Facade";
         MandatoryFieldErr: Label '%1 is required for Item %2.', Comment = '%1 = fieldcaption, %2 = No. of inventoriable item';
+        IntrastatFeatureKeyIdTok: Label 'ReplaceIntrastat', Locked = true;
     begin
+        if FeatureMgtFacade.IsEnabled(IntrastatFeatureKeyIdTok) then
+            exit;
         Item.Get("Item No.");
         if "Intrastat Transaction CZL" and Item.IsInventoriableType() then begin
             StatutoryReportingSetupCZL.Get();

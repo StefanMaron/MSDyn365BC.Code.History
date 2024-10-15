@@ -18,7 +18,7 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>1.29801cm</Width>
+                  <Width>1.8543cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>4.80464cm</Width>
@@ -27,28 +27,28 @@
                   <Width>0.17639cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>2.69972cm</Width>
+                  <Width>2.49972cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>3.05442cm</Width>
+                  <Width>3.03442cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>3.05442cm</Width>
+                  <Width>3.03442cm</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>0.17639cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>2.69972cm</Width>
+                  <Width>2.49972cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>3.05442cm</Width>
+                  <Width>3.03442cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>3.05442cm</Width>
+                  <Width>3.03442cm</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>3.05442cm</Width>
+                  <Width>3.03442cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -1930,6 +1930,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="CustNo">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>

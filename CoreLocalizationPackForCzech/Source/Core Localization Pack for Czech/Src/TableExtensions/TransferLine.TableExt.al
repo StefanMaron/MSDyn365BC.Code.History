@@ -51,7 +51,11 @@ tableextension 31011 "Transfer Line CZL" extends "Transfer Line"
     procedure CheckIntrastatMandatoryFieldsCZL()
     var
         StatutoryReportingSetupCZL: Record "Statutory Reporting Setup CZL";
+        FeatureMgtFacade: Codeunit "Feature Management Facade";
+        IntrastatFeatureKeyIdTok: Label 'ReplaceIntrastat', Locked = true;
     begin
+        if FeatureMgtFacade.IsEnabled(IntrastatFeatureKeyIdTok) then
+            exit;
         StatutoryReportingSetupCZL.Get();
         if StatutoryReportingSetupCZL."Tariff No. Mandatory" then
             TestField("Tariff No. CZL");

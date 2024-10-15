@@ -1,4 +1,4 @@
-codeunit 11746 "Gen. Journal Line Handler CZL"
+﻿codeunit 11746 "Gen. Journal Line Handler CZL"
 {
     Permissions = tabledata "VAT Entry" = d,
                   tabledata "G/L Entry - VAT Entry Link" = d;
@@ -45,12 +45,12 @@ codeunit 11746 "Gen. Journal Line Handler CZL"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterSetUpNewLine', '', false, false)]
-    local procedure UpdateVatDateOnAfterGenJnlLineSetUpNewLine(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line")
+    local procedure UpdateVatDateOnAfterGenJnlLineSetUpNewLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
 #if not CLEAN22
 #pragma warning disable AL0432
         if not GenJournalLine.IsReplaceVATDateEnabled() then begin
-            GenJournalLine.Validate("VAT Date CZL", LastGenJournalLine."VAT Date CZL");
+            GenJournalLine."VAT Date CZL" := GenJournalLine."Posting Date";
             if GenJournalLine."VAT Date CZL" = 0D then
                 GenJournalLine.Validate("VAT Date CZL", WorkDate());
             GenJournalLine."Original Doc. VAT Date CZL" := GenJournalLine."VAT Date CZL";

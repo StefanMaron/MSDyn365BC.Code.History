@@ -34,6 +34,12 @@ tableextension 31285 "Gen. Journal Line CZB" extends "Gen. Journal Line"
             DataClassification = CustomerContent;
             Editable = false;
         }
+        field(11730; "Bank Statement No. CZB"; Code[20])
+        {
+            Caption = 'Bank Statement No.';
+            DataClassification = CustomerContent;
+            Editable = false;
+        }
     }
 
     var

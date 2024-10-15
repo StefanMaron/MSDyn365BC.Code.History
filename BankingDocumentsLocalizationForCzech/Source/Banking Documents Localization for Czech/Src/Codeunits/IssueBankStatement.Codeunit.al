@@ -45,8 +45,10 @@ codeunit 31357 "Issue Bank Statement CZB"
         IssBankStatementHeaderCZB.Init();
         IssBankStatementHeaderCZB.TransferFields(Rec);
         BankAccount.TestField("Issued Bank Statement Nos. CZB");
-        if BankAccount."Issued Bank Statement Nos. CZB" <> Rec."No. Series" then
+        if (BankAccount."Issued Bank Statement Nos. CZB" <> Rec."No. Series") and (Rec."No. Series" <> '') then
             IssBankStatementHeaderCZB."No." := NoSeriesManagement.GetNextNo(BankAccount."Issued Bank Statement Nos. CZB", Rec."Document Date", true);
+        if IssBankStatementHeaderCZB."No." = '' then
+            IssBankStatementHeaderCZB."No." := Rec."No.";
 
         Rec."Last Issuing No." := IssBankStatementHeaderCZB."No.";
 

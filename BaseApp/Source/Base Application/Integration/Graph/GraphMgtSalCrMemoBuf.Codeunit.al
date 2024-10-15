@@ -609,7 +609,8 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         if CheckUpdatesDisabled(SalesCrMemoEntityBuffer.SystemId) then
             exit;
 
-        SalesCrMemoHeader.Get(SalesCrMemoEntityBuffer."No.");
+        if not SalesCrMemoHeader.Get(SalesCrMemoEntityBuffer."No.") then
+            exit;
         CurrentStatus := SalesCrMemoEntityBuffer.Status;
 
         SetStatusOptionFromSalesCreditMemoHeader(SalesCrMemoHeader, SalesCrMemoEntityBuffer);

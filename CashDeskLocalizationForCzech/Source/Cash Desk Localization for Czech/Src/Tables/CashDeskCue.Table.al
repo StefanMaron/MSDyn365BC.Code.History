@@ -11,21 +11,21 @@ table 11747 "Cash Desk Cue CZP"
         }
         field(10; "Open Documents"; Integer)
         {
-            CalcFormula = Count("Cash Document Header CZP" where("Cash Desk No." = field("Cash Desk Filter"), Status = const(Open)));
+            CalcFormula = count("Cash Document Header CZP" where("Cash Desk No." = field("Cash Desk Filter"), Status = const(Open)));
             Caption = 'Open Documents';
             Editable = false;
             FieldClass = FlowField;
         }
         field(11; "Released Documents"; Integer)
         {
-            CalcFormula = Count("Cash Document Header CZP" where("Cash Desk No." = field("Cash Desk Filter"), Status = const(Released)));
+            CalcFormula = count("Cash Document Header CZP" where("Cash Desk No." = field("Cash Desk Filter"), Status = const(Released)));
             Caption = 'Released Documents';
             Editable = false;
             FieldClass = FlowField;
         }
         field(15; "Posted Documents"; Integer)
         {
-            CalcFormula = Count("Posted Cash Document Hdr. CZP" where("Cash Desk No." = field("Cash Desk Filter"), "Posting Date" = field("Date Filter")));
+            CalcFormula = count("Posted Cash Document Hdr. CZP" where("Cash Desk No." = field("Cash Desk Filter"), "Posting Date" = field("Date Filter")));
             Caption = 'Posted Documents';
             Editable = false;
             FieldClass = FlowField;

@@ -3735,6 +3735,100 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue,GetSpecificLineFromTemlateListHandler')]
+    procedure CheckRemovedAppliesToIDWhenPaymentBySuggestVendorPayment()
+    var
+        Vendor: Record Vendor;
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GeneralJournalTemplate: Record "Gen. Journal Template";
+        SuggestVendorPayments: Report "Suggest Vendor Payments";
+        PaymentJournal: TestPage "Payment Journal";
+        PaymentAmount: Decimal;
+        PageIDUpdated: Integer;
+    begin
+        // [FEATURE] [Payment Journal], [Vendor Ledger Entry], [Applied-to ID]
+        // [SCENARIO 467514] When posting a Payment Journal the Applies-to ID, is not removed when a partial Amount is posted
+        Initialize();
+
+        // [GIVEN] set new vendor, batch and posting amounts
+        Vendor.Get(CreateVendor('', Vendor."Application Method"::Manual));
+        CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
+
+        // [GIVEN] Create and Post General Journal Lines with Document Type as Invoice
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, WorkDate(), Vendor."No.", GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandDec(1000, 2));
+        PaymentAmount := -GenJournalLine.Amount;
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        Clear(GenJournalLine);
+
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, WorkDate(), Vendor."No.", GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandDec(1000, 2));
+        if -GenJournalLine.Amount < PaymentAmount then
+            PaymentAmount := -GenJournalLine.Amount;
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] prepare payment amount which is lower then smallest amount from invoices
+        PaymentAmount := PaymentAmount * LibraryUtility.GenerateRandomFraction();
+
+        // [GIVEN] Suggest Vendor Payments
+        CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
+        GenJournalLine.Init();
+        GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
+
+        Vendor.SetRange("No.", Vendor."No.");
+        SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
+        SuggestVendorPayments.SetTableView(Vendor);
+        SuggestVendorPayments.UseRequestPage(false);
+        SuggestVendorPayments.InitializeRequest(WorkDate(), false, 0, true, WorkDate(), LibraryRandom.RandText(5), true, GenJournalLine."Bal. Account Type", GenJournalLine."Bal. Account No.", GenJournalLine."Bank Payment Type");
+        SuggestVendorPayments.RunModal();
+
+        GeneralJournalTemplate.SetRange(Name, GenJournalBatch."Journal Template Name");
+        GeneralJournalTemplate.FindFirst();
+        if GeneralJournalTemplate."Page ID" <> 256 then begin
+            PageIDUpdated := GeneralJournalTemplate."Page ID";
+            GeneralJournalTemplate."Page ID" := 256;
+            GeneralJournalTemplate.Modify();
+        end;
+
+        // [WHEN] Open Payment Journal
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        PaymentJournal.Last();
+
+        // [THEN] Vendor Ledger entries should have "Applies-to ID" set
+        VendorLedgerEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
+        VendorLedgerEntry.SetRange("Vendor No.", PaymentJournal."Account No.".Value);
+        VendorLedgerEntry.SetRange("Applies-to ID", PaymentJournal."Document No.".Value);
+        Assert.AreEqual(false, VendorLedgerEntry.IsEmpty(), 'Applied-to ID is not set on Vendor Ledger Entry');
+
+        // [WHEN] Update amount on payment line (to be lower)
+        PaymentJournal.Amount.SetValue(PaymentAmount);
+        PaymentJournal.Close();
+
+        // [THEN] System should remove "Applies-to ID" from all VendLedgerEntries
+        Assert.AreEqual(true, VendorLedgerEntry.IsEmpty(), 'Applied-to ID is not removed on Vendor Ledger Entry');
+
+        if PageIDUpdated <> 0 then begin
+            GeneralJournalTemplate.Get(GenJournalBatch."Journal Template Name");
+            GeneralJournalTemplate."Page ID" := PageIDUpdated;
+            GeneralJournalTemplate.Modify();
+        end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetSpecificLineFromTemlateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.Filter.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.Last();
+        GeneralJournalTemplateList.OK.Invoke();
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])

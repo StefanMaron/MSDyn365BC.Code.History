@@ -47,8 +47,8 @@ report 31287 "Create General Journal CZB"
             begin
                 CheckGeneralJournalExists();
                 GetBankAccount("Iss. Bank Statement Header CZB");
+                DeleteGeneralJournalLines("Iss. Bank Statement Header CZB");
                 LastLineNo := GetLastLineNo();
-                UpdatePaymentJournalStatus("Payment Journal Status"::Opened);
             end;
 
             trigger OnPostDataItem()
@@ -137,7 +137,7 @@ report 31287 "Create General Journal CZB"
         VariableSymbolToExtDocNo := BankAccount."Variable S. to Ext.Doc.No. CZB";
     end;
 
-    local Procedure GetBankAccount(IssBankStatementHeaderCZB: Record "Iss. Bank Statement Header CZB")
+    local procedure GetBankAccount(IssBankStatementHeaderCZB: Record "Iss. Bank Statement Header CZB")
     begin
         IssBankStatementHeaderCZB.TestField("Bank Account No.");
         if BankAccount."No." <> IssBankStatementHeaderCZB."Bank Account No." then begin
@@ -158,6 +158,17 @@ report 31287 "Create General Journal CZB"
             exit(CurrentGenJournalLine."Line No.");
     end;
 
+    local procedure DeleteGeneralJournalLines(IssBankStatementHeaderCZB: Record "Iss. Bank Statement Header CZB")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.SetRange("Journal Template Name", BankAccount."Payment Jnl. Template Name CZB");
+        GenJournalLine.SetRange("Journal Batch Name", BankAccount."Payment Jnl. Batch Name CZB");
+        GenJournalLine.SetRange("Document No.", IssBankStatementHeaderCZB."No.");
+        GenJournalLine.SetRange(Amount, 0);
+        GenJournalLine.DeleteAll(true);
+    end;
+
     local procedure CreateGeneralJournalLine(IssBankStatementHeaderCZB: Record "Iss. Bank Statement Header CZB"; IssBankStatementLineCZB: Record "Iss. Bank Statement Line CZB")
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -169,18 +180,12 @@ report 31287 "Create General Journal CZB"
         if IsHandled then
             exit;
 
-        GenJournalLine.SetRange("Journal Template Name", BankAccount."Payment Jnl. Template Name CZB");
-        GenJournalLine.SetRange("Journal Batch Name", BankAccount."Payment Jnl. Batch Name CZB");
-        GenJournalLine.SetRange("Document No.", IssBankStatementHeaderCZB."No.");
-        GenJournalLine.SetRange(Amount, 0);
-        GenJournalLine.DeleteAll(true);
-        GenJournalLine.Reset();
-
         GenJournalLine.SetSuppressCommit(true);
         GenJournalLine.Init();
         GenJournalLine."Journal Template Name" := BankAccount."Payment Jnl. Template Name CZB";
         GenJournalLine."Journal Batch Name" := BankAccount."Payment Jnl. Batch Name CZB";
         GenJournalLine."Line No." := LastLineNo + IssBankStatementLineCZB."Line No.";
+        GenJournalLine."Bank Statement No. CZB" := IssBankStatementLineCZB."Bank Statement No.";
         GenJournalTemplate.Get(GenJournalLine."Journal Template Name");
         GenJournalLine."Source Code" := GenJournalTemplate."Source Code";
 

@@ -109,8 +109,12 @@ tableextension 11710 "Job Journal Line CZL" extends "Job Journal Line"
     procedure CheckIntrastatCZL()
     var
         StatutoryReportingSetupCZL: Record "Statutory Reporting Setup CZL";
+        FeatureMgtFacade: Codeunit "Feature Management Facade";
         MandatoryFieldErr: Label '%1 is required for Item %2.', Comment = '%1 = fieldcaption, %2 = No. of inventoriable item';
+        IntrastatFeatureKeyIdTok: Label 'ReplaceIntrastat', Locked = true;
     begin
+        if FeatureMgtFacade.IsEnabled(IntrastatFeatureKeyIdTok) then
+            exit;
         if "Intrastat Transaction CZL" and (IsInventoriableItem()) then begin
             StatutoryReportingSetupCZL.Get();
             if StatutoryReportingSetupCZL."Transaction Type Mandatory" and ("Transaction Type" = '') then

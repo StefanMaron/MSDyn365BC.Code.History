@@ -47,12 +47,6 @@ codeunit 11729 "Cash Document-Post CZP"
             CashDocumentReleaseCZP.CheckCashDocument(Rec);
         OnRunOnAfterCheckCashDocument(CashDocumentHeaderCZP, NoCheckCashDocument);
 
-        if CashDocumentHeaderCZP.RecordLevelLocking then begin
-            CashDocumentLineCZP.LockTable();
-            GLEntry.LockTable();
-            if GLEntry.FindLast() then;
-        end;
-
         WindowDialog.Open(DialogMsg);
         // Insert posted cash document header
         WindowDialog.Update(1, StrSubstNo(ThreePlaceholdersTok, CashDocumentHeaderCZP."Cash Desk No.", CashDocumentHeaderCZP."Document Type", CashDocumentHeaderCZP."No."));
@@ -79,7 +73,6 @@ codeunit 11729 "Cash Document-Post CZP"
         PostedCashDocumentHdrCZP: Record "Posted Cash Document Hdr. CZP";
         PostedCashDocumentLineCZP: Record "Posted Cash Document Line CZP";
         SourceCodeSetup: Record "Source Code Setup";
-        GLEntry: Record "G/L Entry";
         CashDeskManagementCZP: Codeunit "Cash Desk Management CZP";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";

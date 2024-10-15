@@ -54,8 +54,10 @@ codeunit 31353 "Issue Payment Order CZB"
         IsHandled := false;
         OnIssuePaymentOrderCZBOnBeforeGetNextNo(PaymentOrderHeaderCZB, IssPaymentOrderHeaderCZB, IsHandled);
         if not IsHandled then
-            if BankAccount."Issued Payment Order Nos. CZB" <> IssPaymentOrderHeaderCZB."No. Series" then
+            if (BankAccount."Issued Payment Order Nos. CZB" <> IssPaymentOrderHeaderCZB."No. Series") and (IssPaymentOrderHeaderCZB."No. Series" <> '') then
                 IssPaymentOrderHeaderCZB."No." := NoSeriesManagement.GetNextNo(BankAccount."Issued Payment Order Nos. CZB", IssPaymentOrderHeaderCZB."Document Date", true);
+        if IssPaymentOrderHeaderCZB."No." = '' then
+            IssPaymentOrderHeaderCZB."No." := PaymentOrderHeaderCZB."No.";
 
         PaymentOrderHeaderCZB."Last Issuing No." := IssPaymentOrderHeaderCZB."No.";
 

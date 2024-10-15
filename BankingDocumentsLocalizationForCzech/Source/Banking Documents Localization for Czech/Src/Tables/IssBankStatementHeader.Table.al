@@ -203,6 +203,7 @@ table 31254 "Iss. Bank Statement Header CZB"
         field(101; "Payment Journal Status"; Enum "Journal Status CZB")
         {
             Caption = 'Payment Journal Status';
+            Editable = false;
             DataClassification = CustomerContent;
         }
         field(110; "Search Rule Code"; Code[10])

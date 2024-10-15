@@ -78,7 +78,6 @@ page 31258 "Iss. Bank Statement CZB"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting status of the payment journal.';
-                    Visible = false;
                 }
                 field("Payment Reconciliation Status"; Rec."Payment Reconciliation Status")
                 {

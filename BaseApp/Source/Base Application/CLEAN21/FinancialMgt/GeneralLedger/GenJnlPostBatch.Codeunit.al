@@ -1,4 +1,4 @@
-﻿#if CLEAN21
+#if CLEAN21
 codeunit 13 "Gen. Jnl.-Post Batch"
 {
     Permissions = TableData "Gen. Journal Batch" = rimd;
@@ -316,7 +316,9 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         OnBeforeProcessBalanceOfLines(GenJnlLine, GenJnlBatch, GenJnlTemplate, IsProcessingKeySet);
         if not IsProcessingKeySet then
             if GenJnlTemplate."Force Doc. Balance" then
-                GenJnlLine.SetCurrentKey("Document No.", "Posting Date");
+                GenJnlLine.SetCurrentKey("Document No.", "Posting Date")
+            else
+                GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Bal. Account No.");
         LineCount := 0;
         LastDate := 0D;
         LastDocType := LastDocType::" ";

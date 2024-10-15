@@ -679,8 +679,12 @@ codeunit 31039 "Purchase Posting Handler CZL"
     local procedure CheckIntrastatMandatoryFieldsOnAfterCheckPurchaseDoc(PurchaseHeader: Record "Purchase Header"; var ErrorCounter: Integer; var ErrorText: array[99] of Text[250])
     var
         StatutoryReportingSetupCZL: Record "Statutory Reporting Setup CZL";
+        FeatureMgtFacade: Codeunit "Feature Management Facade";
         MustBeSpecifiedLbl: Label '%1 must be specified.', Comment = '%1 = FieldCaption';
+        IntrastatFeatureKeyIdTok: Label 'ReplaceIntrastat', Locked = true;
     begin
+        if FeatureMgtFacade.IsEnabled(IntrastatFeatureKeyIdTok) then
+            exit;
         if not (PurchaseHeader.Ship or PurchaseHeader.Receive) then
             exit;
         if PurchaseHeader.IsIntrastatTransactionCZL() and PurchaseHeader.ShipOrReceiveInventoriableTypeItemsCZL() then begin

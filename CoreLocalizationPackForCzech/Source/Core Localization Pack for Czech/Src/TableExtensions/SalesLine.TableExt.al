@@ -96,7 +96,11 @@ tableextension 11755 "Sales Line CZL" extends "Sales Line"
     procedure CheckIntrastatMandatoryFieldsCZL(SalesHeader: Record "Sales Header")
     var
         StatutoryReportingSetupCZL: Record "Statutory Reporting Setup CZL";
+        FeatureMgtFacade: Codeunit "Feature Management Facade";
+        IntrastatFeatureKeyIdTok: Label 'ReplaceIntrastat', Locked = true;
     begin
+        if FeatureMgtFacade.IsEnabled(IntrastatFeatureKeyIdTok) then
+            exit;
         if Type <> Type::Item then
             exit;
         if ("Qty. to Ship" = 0) and ("Return Qty. to Receive" = 0) then
