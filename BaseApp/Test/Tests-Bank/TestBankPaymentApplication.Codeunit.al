@@ -20,6 +20,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryJournals: Codeunit "Library - Journals";
         Initialized: Boolean;
         ExcessiveAmtErr: Label 'You must apply the excessive amount of %1 %2 manually.', Comment = '%1 a decimal number, %2 currency code';
         WrongStmEndBalanceErr: Label '%1 must be equal to Total Balance.', Comment = '%1 is a field caption';
@@ -1698,6 +1699,72 @@ codeunit 134263 "Test Bank Payment Application"
         Assert.IsTrue(CopyStr(GetLastErrorText(), 1, StrLen(ExpectedErr)) = ExpectedErr, 'The error shown should be that the entry has been applied in another journal.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BankAccountAsAccountNoWithSameCurrencyCodeAsLocalCurrency()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 540188] Issue with Currency Code in the Bank Accounts when using the same currency code as the local currency
+        Initialize();
+
+        // [GIVEN] Create Currency Code X with Exchange Rate and set as local currency
+        CurrencyCode := CreateCurrencyAndExchangeRate(LibraryRandom.RandDecInRange(1, 1, 0));
+        UpdateCurrencyCodeOnGLSetup(CurrencyCode);
+
+        // [WHEN] Create Bank Account and update Currency Code X
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Currency Code", CurrencyCode);
+        BankAccount.Modify(true);
+
+        // [WHEN] Create Payment Line for Bank when Account Type: Bank Account
+        CreateBankPayment(
+            GenJournalLine, GenJournalLine."Account Type"::"Bank Account", BankAccount."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDecInRange(100, 200, 2));
+
+        // [WHEN] Validating Bal. Account No. has been validated without any error
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJournalLine.Modify(true);
+
+        // [THEN] Verify: The Currency Code is equal to initial currency code as per bank
+        Assert.AreEqual(BankAccount."Currency Code", GenJournalLine."Currency Code", GenJournalLine.FieldCaption("Currency Code"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BankAccountAsBalAccountNoWithSameCurrencyCodeAsLocalCurrency()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 540188] Issue with Currency Code in the Bank Accounts when using the same currency code as the local currency
+        Initialize();
+
+        // [GIVEN] Create Currency Code X with Exchange Rate and set as local currency
+        CurrencyCode := CreateCurrencyAndExchangeRate(LibraryRandom.RandDecInRange(1, 1, 0));
+        UpdateCurrencyCodeOnGLSetup(CurrencyCode);
+
+        // [WHEN] Create Bank Account and update Currency Code X
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Currency Code", CurrencyCode);
+        BankAccount.Modify(true);
+
+        // [WHEN] Create Payment Line for Bank when Account Type: G/L Account
+        CreateBankPayment(
+            GenJournalLine, GenJournalLine."Account Type"::"G/L Account", '',
+            GenJournalLine."Bal. Account Type"::"Bank Account", BankAccount."No.", LibraryRandom.RandDecInRange(100, 200, 2));
+
+        // [WHEN] Validating Bal. Account No. has been validated without any error
+        GenJournalLine.Validate("Account No.", LibraryERM.CreateGLAccountNo());
+        GenJournalLine.Modify(true);
+
+        // [THEN] Verify: The Currency Code is equal to initial currency code as per bank
+        Assert.AreEqual(BankAccount."Currency Code", GenJournalLine."Currency Code", GenJournalLine.FieldCaption("Currency Code"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1999,6 +2066,70 @@ codeunit 134263 "Test Bank Payment Application"
     begin
         BankAccRecon.Validate("Statement Ending Balance", NewStmEndingBalance);
         BankAccRecon.Modify();
+    end;
+
+    local procedure CreateCurrencyAndExchangeRate(ExchangeRateAmt: Decimal): Code[10]
+    var
+        Currency: Record Currency;
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        Currency.Validate("Residual Gains Account", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Residual Losses Account", Currency."Residual Gains Account");
+        Currency.Validate("Realized G/L Gains Account", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Realized G/L Losses Account", Currency."Realized G/L Gains Account");
+        Currency.Modify(true);
+
+        CreateRandomExchangeRate(Currency.Code, WorkDate(), ExchangeRateAmt);
+        exit(Currency.Code);
+    end;
+
+    local procedure CreateRandomExchangeRate(CurrencyCode: Code[10]; StartingDate: Date; ExchangeRateAmt: Decimal)
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        if not CurrencyExchangeRate.Get(CurrencyCode, StartingDate) then begin
+            CurrencyExchangeRate.Init();
+            CurrencyExchangeRate.Validate("Currency Code", CurrencyCode);
+            CurrencyExchangeRate.Validate("Starting Date", StartingDate);
+            CurrencyExchangeRate.Insert(true);
+
+            CurrencyExchangeRate.Validate("Exchange Rate Amount", ExchangeRateAmt);
+            CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
+
+            CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
+            CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
+            CurrencyExchangeRate.Modify(true);
+        end;
+    end;
+
+    local procedure UpdateCurrencyCodeOnGLSetup(CurrencyCode: Code[10])
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        GLSetup.Get();
+        GLSetup.Validate("LCY Code", CurrencyCode);
+        GLSetup.Modify(true);
+    end;
+
+    local procedure CreateBankPayment(
+        var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
+        BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; LineAmount: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        CreatePaymentGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine2(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+            AccountType, AccountNo, BalAccountType, BalAccountNo, LineAmount);
+    end;
+
+    local procedure CreatePaymentGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
     [ConfirmHandler]
