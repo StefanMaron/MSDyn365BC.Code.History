@@ -192,7 +192,11 @@ page 26550 "Statutory Reports"
                         StatutoryReportMgt: Codeunit "Statutory Report Management";
                         FileName: Text;
                     begin
+#if not CLEAN17
                         FileName := FileMgt.OpenFileDialog(Text007, '.xml', FileName);
+#else
+                        FileName := FileMgt.UploadFile(Text007, '.xml');
+#endif
 
                         if FileName <> '' then
                             StatutoryReportMgt.ImportReportSettings(FileName);

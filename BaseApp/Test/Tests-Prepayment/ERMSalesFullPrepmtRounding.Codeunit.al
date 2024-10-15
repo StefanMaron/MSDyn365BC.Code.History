@@ -546,6 +546,8 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         InvoiceNo := TwoDocLinesPrepmt100Pct_Case376958(true, true, '');
         VerifyGLEntryBalance(InvoiceNo, 0, 0);
         VerifyVATEntryBalance(InvoiceNo, 0, 0);
+        VerifyZeroPostedInvoiceAmounts(InvoiceNo);
+        VerifyZeroCustomerAccEntry();
     end;
 
     [Test]
@@ -567,6 +569,8 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         InvoiceNo := TwoDocLinesPrepmt100Pct_Case376958(false, true, '');
         VerifyGLEntryBalance(InvoiceNo, 0, 0);
         VerifyVATEntryBalance(InvoiceNo, 0, 0);
+        VerifyZeroPostedInvoiceAmounts(InvoiceNo);
+        VerifyZeroCustomerAccEntry();
     end;
 
     [Test]
@@ -589,6 +593,8 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         InvoiceNo := TwoDocLinesPrepmt100Pct_Case376958(true, false, '');
         VerifyGLEntryBalance(InvoiceNo, 0, 0);
         VerifyVATEntryBalance(InvoiceNo, 0, 0);
+        VerifyZeroPostedInvoiceAmounts(InvoiceNo);
+        VerifyZeroCustomerAccEntry();
     end;
 
     [Test]
@@ -610,6 +616,8 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         InvoiceNo := TwoDocLinesPrepmt100Pct_Case376958(false, false, '');
         VerifyGLEntryBalance(InvoiceNo, 0, 0);
         VerifyVATEntryBalance(InvoiceNo, 0, 0);
+        VerifyZeroPostedInvoiceAmounts(InvoiceNo);
+        VerifyZeroCustomerAccEntry();
     end;
 
     [Test]
@@ -804,8 +812,10 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         VerifyGLEntryAmount(InvoiceNo, GetCustomerPostingGroupRecAccNo(SalesHeader."Sell-to Customer No."), 0, 0);
-        VerifyGLEntryCount(InvoiceNo, 7);
-        VerifyVATEntryCount(InvoiceNo, 3);
+        VerifyGLEntryCount(InvoiceNo, 9); // 2 (prepmt + deduct) x 2 lines x 2(amount + VAT) + zero total balance
+        VerifyVATEntryCount(InvoiceNo, 4); // 2 (prepmt + deduct) x 2 lines VAT
+        VerifyZeroPostedInvoiceAmounts(InvoiceNo);
+        VerifyZeroCustomerAccEntry();
     end;
 
     local procedure DisableStockoutWarning(var OldStockoutWarning: Boolean)
@@ -976,7 +986,7 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         AddSalesOrderLineWithPrepmtVATProdGroup(
           SalesLine, SalesHeader, VATPostingSetup[1]."VAT Prod. Posting Group", VATPostingSetup[1]."VAT Prod. Posting Group", 1, 0.055);
         AddSalesOrderLineWithPrepmtVATProdGroup(
-          SalesLine, SalesHeader, VATProdPostingGroupCode2, VATPostingSetup[1]."VAT Prod. Posting Group", 1, 95.3);
+          SalesLine, SalesHeader, VATProdPostingGroupCode2, VATProdPostingGroupCode2, 1, 95.3);
     end;
 
     local procedure FindPrepmtInvoice(CustomerNo: Code[20]; OrderNo: Code[20]): Code[20]
@@ -1065,24 +1075,29 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
         end;
     end;
 
-    local procedure UpdateGenPostingSetupPrepmtAccounts(SalesLine: Record "Sales Line"; PrepmtAccVATProdPostingGroup: Code[20])
+    local procedure UpdateGenPostingSetupPrepmtAccounts(var SalesLine: Record "Sales Line"; PrepmtAccVATProdPostingGroup: Code[20])
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GeneralPostingSetup: Record "General Posting Setup";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
         GLAccount: Record "G/L Account";
     begin
         VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
-        if GeneralPostingSetup."Sales Prepayments Account" = '' then begin
-            GeneralPostingSetup.Validate("Sales Prepayments Account",
-              LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
-            GeneralPostingSetup.Modify(true);
-        end else begin
-            GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
-            GLAccount.Validate("Gen. Prod. Posting Group", SalesLine."Gen. Prod. Posting Group");
-            GLAccount.Validate("VAT Prod. Posting Group", PrepmtAccVATProdPostingGroup);
-            GLAccount.Modify(true);
-        end;
+        GeneralPostingSetup."Gen. Prod. Posting Group" := GenProductPostingGroup.Code;
+        GeneralPostingSetup."Sales Prepayments Account" :=
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
+        GeneralPostingSetup.Insert();
+
+        SalesLine."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
+        SalesLine.Modify();
+
+        GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", PrepmtAccVATProdPostingGroup);
+        GLAccount.Modify();
     end;
 
     local procedure UpdateCustomerInvoiceRoundingAccount(CustomerPostingGroupCode: Code[20]; VATBusPostingGroupCode: Code[20])
@@ -1130,6 +1145,16 @@ codeunit 134108 "ERM Sales Full Prepmt Rounding"
             CalcFields(Amount);
             Assert.AreEqual(0, Amount, 'Expected zero Customer Ledger Entry due to 100% prepayment.');
         end;
+    end;
+
+    local procedure VerifyZeroPostedInvoiceAmounts(DocumentNo: Code[20])
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        SalesInvoiceHeader.Get(DocumentNo);
+        SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
+        SalesInvoiceHeader.TestField(Amount, 0);
+        SalesInvoiceHeader.TestField("Amount Including VAT", 0);
     end;
 
     local procedure VerifyLineAmountExpectedError(ErrorTemplate: Text; ExpectedLineAmount: Decimal)

@@ -465,7 +465,11 @@ report 17430 "Export Form 2-NDFL to XML"
                 Clear(XMLDoc);
 
                 if not TestMode then begin
+#if not CLEAN17
                     FileMgt.DownloadToFile(ServerFileName, FileName);
+#else
+                    FileMgt.DownloadHandler(ServerFileName, '', '', '', FileName);
+#endif
                     Message(Text006);
                 end;
 
@@ -534,7 +538,11 @@ report 17430 "Export Form 2-NDFL to XML"
 
                         trigger OnAssistEdit()
                         begin
+#if not CLEAN17
                             FileName := FileMgt.SaveFileDialog(Text002, '.xml', '');
+#else
+                            FileName := '';
+#endif
                         end;
                     }
                     field(CreateRegister; CreateRegister)

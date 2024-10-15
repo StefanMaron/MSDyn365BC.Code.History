@@ -119,8 +119,11 @@ table 26569 "Statutory Report Setup"
 
     var
         CompanyAddress: Record "Company Address";
+#if not CLEAN17
         FileMgt: Codeunit "File Management";
+#endif
         CompanyAddressList: Page "Company Address List";
+#if not CLEAN17
         SelectFolderTxt: Label 'Select %1', Comment = '%1 = folder name';
         FolderDoesNotExistErr: Label 'Folder %1 does not exist.', Comment = '%1 = folder name';
 
@@ -140,5 +143,7 @@ table 26569 "Statutory Report Setup"
         DefaultFolderName := FileMgt.BrowseForFolderDialog(WindowTitleText, FolderName, true);
         exit(CopyStr(DefaultFolderName, 1, FolderMaxStrLength));
     end;
+#endif
+
 }
 

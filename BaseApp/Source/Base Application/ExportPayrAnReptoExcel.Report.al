@@ -130,7 +130,11 @@ report 14964 "Export Payr. An. Rep. to Excel"
                 Window.Close;
 
                 if Option = Option::"Update Workbook" then begin
+#if not CLEAN17
                     FileName := FileMgt.OpenFileDialog(Text002, FileName, '');
+#else
+                    FileName := FileMgt.UploadFile(Text002, FileName);
+#endif
                     SheetName := TempExcelBuffer.SelectSheetsName(FileName);
                     TempExcelBuffer.UpdateBook(FileName, SheetName);
                     TempExcelBuffer.WriteSheet('', CompanyName, UserId);

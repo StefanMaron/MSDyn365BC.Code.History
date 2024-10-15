@@ -29,11 +29,15 @@ codeunit 26550 "Statutory Report Management"
         FileName: Text;
         PathName: Text;
         SelectFileName: Text;
+#if not CLEAN17
         WebClient: Boolean;
+#endif
     begin
+#if not CLEAN17
         // If there is a WebClient then zip all files on a server and then download it to client
         WebClient := not FileMgt.IsLocalFileSystemAccessible;
         if WebClient then
+#endif
             DataCompression.CreateZipArchive;
 
         if ServerFileName = '' then
@@ -52,6 +56,7 @@ codeunit 26550 "Statutory Report Management"
 
         FileMgt.BLOBImportFromServerFile(TempBlob, ServerFileName);
         TempBlob.CreateInStream(ServerTempFileInStream);
+#if not CLEAN17
         if WebClient then
             DataCompression.AddEntry(ServerTempFileInStream, DefaultFileNameTxt + '.xml')
         else begin
@@ -61,6 +66,9 @@ codeunit 26550 "Statutory Report Management"
             DownloadFromStream(ServerTempFileInStream, SelectFileName, PathName, '', FileName);
             PathName := FileMgt.GetDirectoryName(ServerFileName);
         end;
+#else
+        DataCompression.AddEntry(ServerTempFileInStream, DefaultFileNameTxt + '.xml');
+#endif
 
         if StatutoryReport.FindSet then
             repeat
@@ -90,6 +98,7 @@ codeunit 26550 "Statutory Report Management"
                 end;
             until StatutoryReport.Next = 0;
 
+#if not CLEAN17
         if WebClient then begin
             FileName := DefaultFileNameTxt + '.zip';
             ZipTempBlob.CreateOutStream(ZipOutStream);
@@ -98,6 +107,14 @@ codeunit 26550 "Statutory Report Management"
             ZipTempBlob.CreateInStream(ZipInStream);
             DownloadFromStream(ZipInStream, SelectFileNameTxt, PathName, '', FileName);
         end;
+#else
+        FileName := DefaultFileNameTxt + '.zip';
+        ZipTempBlob.CreateOutStream(ZipOutStream);
+        DataCompression.SaveZipArchive(ZipOutStream);
+        DataCompression.CloseZipArchive();
+        ZipTempBlob.CreateInStream(ZipInStream);
+        DownloadFromStream(ZipInStream, SelectFileNameTxt, PathName, '', FileName);
+#endif
     end;
 
     [Scope('OnPrem')]

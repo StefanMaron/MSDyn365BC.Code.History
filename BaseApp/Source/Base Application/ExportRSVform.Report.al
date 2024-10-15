@@ -134,12 +134,14 @@ report 17470 "Export RSV form"
                         Caption = 'Folder Name';
                         Editable = FolderNameEditable;
 
+#if not CLEAN17
                         trigger OnAssistEdit()
                         var
                             FileMgt: Codeunit "File Management";
                         begin
                             FolderName := FileMgt.BrowseForFolderDialog(SelectExportFolderTxt, '', true);
                         end;
+#endif
                     }
                 }
             }

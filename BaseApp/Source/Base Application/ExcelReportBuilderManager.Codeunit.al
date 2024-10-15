@@ -197,7 +197,11 @@ codeunit 14930 "Excel Report Builder Manager"
     [Scope('OnPrem')]
     procedure ExportDataToClientFile(ClientFileName: Text)
     begin
+#if not CLEAN17
         FileMgt.DownloadToFile(ExportDataToServerFile, ClientFileName);
+#else
+        FileMgt.DownloadHandler(ExportDataToServerFile, '', '', '', ClientFileName);
+#endif
     end;
 
     [Scope('OnPrem')]

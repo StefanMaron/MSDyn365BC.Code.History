@@ -64,7 +64,9 @@ page 17246 "Tax Reg. Norm Jurisdictions"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(NormJurisdiction);
+                        #if not CLEAN17
                         ExportSettings(NormJurisdiction);
+                        #endif
                     end;
                 }
                 action("&Import Settings")

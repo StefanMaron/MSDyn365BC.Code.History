@@ -15,6 +15,7 @@ codeunit 135060 "Document Mailing Tests"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
+        CannotSendEmailErr: Label 'You cannot send the email.\Verify that the email settings are correct.', Locked = true;
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue')]
@@ -62,7 +63,6 @@ codeunit 135060 "Document Mailing Tests"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestEmailHtmlFromStream()
@@ -85,7 +85,8 @@ codeunit 135060 "Document Mailing Tests"
 
         // [WHEN] The function EmailFileFromStream is called
         Clear(DocumentMailing);
-        DocumentMailing.EmailHtmlFromStream(InStream, 'someone@somewhere.com', 'a nice subject', true, 0);
+        asserterror DocumentMailing.EmailHtmlFromStream(InStream, 'someone@somewhere.com', 'a nice subject', true, 0);
+        Assert.AreEqual(GetLastErrorText, CannotSendEmailErr, 'Error was expected.');
 
         // [THEN] A temp file with the stream content is created
         DocumentMailingTests.GetLibraryVariableStorage(LibraryVariableStorage);

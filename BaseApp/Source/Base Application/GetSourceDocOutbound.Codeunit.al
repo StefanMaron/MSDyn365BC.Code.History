@@ -397,7 +397,13 @@
     local procedure OpenWarehouseShipmentPage()
     var
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenWarehouseShipmentPage(GetSourceDocuments, IsHandled);
+        if IsHandled then
+            exit;
+
         GetSourceDocuments.GetLastShptHeader(WarehouseShipmentHeader);
         PAGE.Run(PAGE::"Warehouse Shipment", WarehouseShipmentHeader);
     end;
@@ -594,6 +600,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var Rusult: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenWarehouseShipmentPage(var GetSourceDocuments: Report "Get Source Documents"; var IsHandled: Boolean)
     begin
     end;
 

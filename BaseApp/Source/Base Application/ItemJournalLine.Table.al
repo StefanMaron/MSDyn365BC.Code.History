@@ -1642,7 +1642,7 @@
                 TestField("Order No.");
                 TestField("Item No.");
 
-                ConfirmOutputOnFinishedOperation;
+                CheckConfirmOutputOnFinishedOperation;
                 GetProdOrderRtngLine(ProdOrderRtngLine);
 
                 case ProdOrderRtngLine.Type of
@@ -1711,7 +1711,7 @@
                 if SubcontractingWorkCenterUsed and ("Output Quantity" <> 0) then
                     Error(SubcontractedErr, FieldCaption("Output Quantity"), "Line No.");
 
-                ConfirmOutputOnFinishedOperation;
+                CheckConfirmOutputOnFinishedOperation;
 
                 if LastOutputOperation(Rec) then
                     WhseValidateSourceLine.ItemLineVerifyChange(Rec, xRec);
@@ -3226,8 +3226,6 @@
 
     protected procedure RetrieveCosts()
     var
-        SKU: Record "Stockkeeping Unit";
-        InventorySetup: Record "Inventory Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3243,14 +3241,7 @@
         ReadGLSetup;
         GetItem;
 
-        InventorySetup.Get();
-        if InventorySetup."Average Cost Calc. Type" = InventorySetup."Average Cost Calc. Type"::Item then
-            UnitCost := Item."Unit Cost"
-        else
-            if SKU.Get("Location Code", "Item No.", "Variant Code") then
-                UnitCost := SKU."Unit Cost"
-            else
-                UnitCost := Item."Unit Cost";
+        UnitCost := FindUnitCost();
 
         OnRetrieveCostsOnAfterSetUnitCost(Rec, UnitCost, Item);
 
@@ -3259,6 +3250,27 @@
         else
             if Item."Costing Method" <> Item."Costing Method"::Standard then
                 UnitCost := Round(UnitCost, GLSetup."Unit-Amount Rounding Precision");
+    end;
+
+    local procedure FindUnitCost() UnitCost: Decimal
+    var
+        SKU: Record "Stockkeeping Unit";
+        InventorySetup: Record "Inventory Setup";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindUnitCost(Rec, UnitCost, IsHandled);
+        if IsHandled then
+            exit;
+
+        InventorySetup.Get();
+        if InventorySetup."Average Cost Calc. Type" = InventorySetup."Average Cost Calc. Type"::Item then
+            UnitCost := Item."Unit Cost"
+        else
+            if SKU.Get("Location Code", "Item No.", "Variant Code") then
+                UnitCost := SKU."Unit Cost"
+            else
+                UnitCost := Item."Unit Cost";
     end;
 
     local procedure CalcUnitCost(ItemLedgEntry: Record "Item Ledger Entry"): Decimal
@@ -4254,6 +4266,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmOutputOnFinishedOperation(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromMachineCenter(var ItemJournalLine: Record "Item Journal Line"; var MachineCenter: Record "Machine Center"; var IsHandled: Boolean)
     begin
     end;
@@ -4265,6 +4282,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDisplayErrorIfItemIsBlocked(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindUnitCost(var ItemJournalLine: Record "Item Journal Line"; var UnitCost: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -4318,7 +4340,7 @@
     begin
     end;
 
-    local procedure ConfirmOutputOnFinishedOperation()
+    local procedure CheckConfirmOutputOnFinishedOperation()
     var
         ProdOrderRtngLine: Record "Prod. Order Routing Line";
     begin
@@ -4331,6 +4353,18 @@
             exit;
 
         if ProdOrderRtngLine."Routing Status" <> ProdOrderRtngLine."Routing Status"::Finished then
+            exit;
+
+        ConfirmOutputOnFinishedOperation();
+    end;
+
+    local procedure ConfirmOutputOnFinishedOperation()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmOutputOnFinishedOperation(Rec, IsHandled);
+        if IsHandled then
             exit;
 
         if not Confirm(FinishedOutputQst) then

@@ -626,7 +626,7 @@
 
         DocumentContent := '';
         if ServerEmailBodyFilePath <> '' then
-            DocumentContent := FileManagement.GetFileContent(ServerEmailBodyFilePath);
+            DocumentContent := FileManagement.GetFileContents(ServerEmailBodyFilePath);
     end;
 
     [Obsolete('Replaced by GetHtmlreportForCust().', '17.0')]

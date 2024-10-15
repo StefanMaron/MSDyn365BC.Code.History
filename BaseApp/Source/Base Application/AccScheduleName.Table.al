@@ -27,7 +27,7 @@ table 84 "Acc. Schedule Name"
         }
         field(12400; "Used in Statutory Report"; Boolean)
         {
-            CalcFormula = Exist ("Stat. Report Table Mapping" WHERE("Int. Source Type" = CONST("Acc. Schedule"),
+            CalcFormula = Exist("Stat. Report Table Mapping" WHERE("Int. Source Type" = CONST("Acc. Schedule"),
                                                                     "Int. Source No." = FIELD(Name)));
             Caption = 'Used in Statutory Report';
             Editable = false;
@@ -82,12 +82,16 @@ table 84 "Acc. Schedule Name"
         OutputFile.Close;
         Clear(OutStr);
 
+#if not CLEAN17
         if not FileMgt.IsLocalFileSystemAccessible then
             Download(ServerFileName, '', '', '', ClientFileName)
         else begin
             ClientFileName := FileMgt.SaveFileDialog(Text26551, ClientFileName, FileMgt.GetToFilterText('', '.xml'));
             FileMgt.DownloadToFile(ServerFileName, ClientFileName);
         end;
+#else
+        Download(ServerFileName, '', '', '', ClientFileName)
+#endif
     end;
 
     [Scope('OnPrem')]

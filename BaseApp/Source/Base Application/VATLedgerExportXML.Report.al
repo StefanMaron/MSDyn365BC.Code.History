@@ -773,9 +773,11 @@ report 12461 "VAT Ledger Export XML"
           Encoding.GetEncoding('windows-1251'));
 
         FileId += '.xml';
+#if not CLEAN17
         if FileManagement.IsLocalFileSystemAccessible then
             FileManagement.DownloadToFile(ServerFileNameWindows1251, FileName)
         else
+#endif
             Download(ServerFileNameWindows1251, '', '', '(*.xml)|*.xml', FileId);
 
         FileManagement.DeleteServerFile(ServerFileNameUTF8);

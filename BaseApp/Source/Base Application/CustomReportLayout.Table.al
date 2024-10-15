@@ -4,6 +4,7 @@ table 9650 "Custom Report Layout"
     DataPerCompany = false;
     DrillDownPageID = "Custom Report Layouts";
     LookupPageID = "Custom Report Layouts";
+    Permissions = TableData "Custom Report Layout" = rimd;
 
     fields
     {
@@ -184,7 +185,8 @@ table 9650 "Custom Report Layout"
         end;
 
         CustomReportLayout.SetDefaultCustomXmlPart;
-        SetLayoutLastUpdated();
+        CustomReportLayout.SetLayoutLastUpdated();
+
         exit(CustomReportLayout.Code);
     end;
 
@@ -370,9 +372,9 @@ table 9650 "Custom Report Layout"
             "File Extension" := FileExtension;
         SetDefaultCustomXmlPart;
         Modify(true);
+        SetLayoutLastUpdated();
         Commit();
 
-        SetLayoutLastUpdated();
         if ErrorMessage <> '' then
             Message(ErrorMessage);
     end;
@@ -438,12 +440,14 @@ table 9650 "Custom Report Layout"
         exit(true);
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by UpdateReportLayout()', '17.0')]
     [Scope('OnPrem')]
     procedure UpdateLayout(ContinueOnError: Boolean; IgnoreDelete: Boolean) LayoutUpdated: Boolean
     begin
         exit(UpdateReportLayout(ContinueOnError, IgnoreDelete));
     end;
+#endif
 
     procedure UpdateReportLayout(ContinueOnError: Boolean; IgnoreDelete: Boolean) LayoutUpdated: Boolean
     var
@@ -518,6 +522,7 @@ table 9650 "Custom Report Layout"
             SetLayoutBlob(OutTempBlob);
 
         SetLayoutLastUpdated();
+
         exit(ErrorMessage);
     end;
 
@@ -546,6 +551,7 @@ table 9650 "Custom Report Layout"
             exit(FileMgt.BLOBExport(TempBlob, DefaultFileName, ShowFileDialog));
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by EditReportLayout()', '17.0')]
     [Scope('OnPrem')]
     procedure EditLayout()
@@ -553,6 +559,7 @@ table 9650 "Custom Report Layout"
         EditReportLayout();
     end;
 
+    [Obsolete('The codeunits run in this procedure are being removed as they use .NET which do not work on the web client. The procedure will be removed.', '17.3')]
     procedure EditReportLayout()
     begin
         if CanBeModified then begin
@@ -566,6 +573,7 @@ table 9650 "Custom Report Layout"
             end;
         end;
     end;
+#endif
 
     local procedure GetFileExtension() FileExt: Text[4]
     begin
@@ -1022,13 +1030,17 @@ table 9650 "Custom Report Layout"
             "Custom XML Part".CreateOutStream(OutStr, TEXTENCODING::UTF16);
             OutStr.Write(Content);
         end;
+
         if CanModify then
             Modify;
     end;
 
-    local procedure SetLayoutLastUpdated()
+    internal procedure SetLayoutLastUpdated()
     begin
         "Layout Last Updated" := RoundDateTime(CurrentDateTime);
+
+        if CanModify() then
+            Rec.Modify();
     end;
 
     [IntegrationEvent(false, false)]

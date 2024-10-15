@@ -1412,6 +1412,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntryA: Record "Job Queue Entry";
         JobQueueEntryB: Record "Job Queue Entry";
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
     begin
         // [FEATURE] [UT] [Job Queue Category]
         // [SCENARIO 259790] System is able to reschedule job queue with category code having running another job queue(s) with the same category code
@@ -1421,7 +1422,8 @@ codeunit 139020 "Test Job Queue SNAP"
         CreateRecurringJobQueueEntryWithStatus(JobQueueEntryA, JobQueueEntryA.Status::"In Process", JobQueueCategory.Code);
         CreateRecurringJobQueueEntryWithStatus(JobQueueEntryB, JobQueueEntryB.Status::"In Process", JobQueueCategory.Code);
 
-        CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntryB);
+        JobQueueDispatcher.MockTaskScheduler();
+        JobQueueDispatcher.Run(JobQueueEntryB);
 
         JobQueueEntryB.TestField(Status, JobQueueEntryB.Status::Ready);
     end;
