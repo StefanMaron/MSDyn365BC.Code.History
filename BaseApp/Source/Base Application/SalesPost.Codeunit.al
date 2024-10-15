@@ -1717,7 +1717,10 @@
                                 ItemJnlLine2.Amount := PreciseTotalChargeAmt - RoundedPrevTotalChargeAmt;
                             end;
 
-                            RoundedPrevTotalChargeAmt += Round(ItemJnlLine2.Amount, GLSetup."Amount Rounding Precision");
+                            ItemJnlLine2.Amount :=
+                                Round(ItemJnlLine2.Amount, GLSetup."Amount Rounding Precision");
+
+                            RoundedPrevTotalChargeAmt += ItemJnlLine2.Amount;
 
                             ItemJnlLine2."Discount Amount" :=
                               Round(OriginalDiscountAmt * Factor, GLSetup."Amount Rounding Precision");
@@ -7154,7 +7157,7 @@
 
         with SalesHeader do
             if "IC Direction" = "IC Direction"::Incoming then begin
-                HandledICInboxTrans.SetRange("Document No.", "External Document No.");
+                HandledICInboxTrans.SetRange("Document No.", "IC Reference Document No.");
                 Customer.Get("Sell-to Customer No.");
                 HandledICInboxTrans.SetRange("IC Partner Code", Customer."IC Partner Code");
                 HandledICInboxTrans.LockTable();

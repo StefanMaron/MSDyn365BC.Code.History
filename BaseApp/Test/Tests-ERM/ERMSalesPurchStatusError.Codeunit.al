@@ -1954,7 +1954,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure CanChangeOrderDateOnReleasedPurchOrderHeader()
     var
@@ -2681,6 +2681,13 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text)
     begin
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

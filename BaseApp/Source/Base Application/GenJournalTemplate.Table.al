@@ -305,7 +305,7 @@
         }
         field(11300; "Allow Posting From"; Date)
         {
-            Caption = 'Allow Posting From';
+            Caption = 'Allow Posting From (Obsoleted)';
             ObsoleteReason = 'Replaced by W1 field Allow Posting Date From';
 #if not CLEAN20
             ObsoleteState = Pending;
@@ -317,7 +317,7 @@
         }
         field(11301; "Allow Posting To"; Date)
         {
-            Caption = 'Allow Posting To';
+            Caption = 'Allow Posting To (Obsoleted)';
             ObsoleteReason = 'Replaced by W1 field Allow Posting Date To';
 #if not CLEAN20
             ObsoleteState = Pending;

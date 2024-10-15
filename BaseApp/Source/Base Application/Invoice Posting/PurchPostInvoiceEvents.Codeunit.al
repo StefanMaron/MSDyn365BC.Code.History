@@ -22,6 +22,16 @@
     begin
     end;
 
+    procedure RunOnBeforeCreatePostedDeferralSchedule(PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeCreatePostedDeferralSchedule(PurchLine, IsHandled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePostedDeferralSchedule(var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
     procedure RunOnAfterCreatePostedDeferralSchedule(PurchLine: Record "Purchase Line"; var PostedDeferralHeader: Record "Posted Deferral Header")
     begin
         OnAfterCreatePostedDeferralSchedule(PurchLine, PostedDeferralHeader);

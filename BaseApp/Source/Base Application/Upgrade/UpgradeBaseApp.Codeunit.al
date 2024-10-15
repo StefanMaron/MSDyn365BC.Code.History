@@ -109,6 +109,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeCustLedgEntryPmtDiscountPossible();
         UpgradeVendLedgEntryPmtDiscountPossible();
         UpgradeGenJournalLinePmtDiscountPossible();
+        UpdatePurchaserOnRequisitionLines();
     end;
 
     local procedure ClearTemporaryTables()
@@ -2684,7 +2685,7 @@ codeunit 104000 "Upgrade - BaseApp"
 
         if not GeneralLedgerSetup.Get() then
             exit;
-            
+
         GeneralLedgerSetup."Bank Acc. Recon. Template Name" := GeneralLedgerSetup."Payment Recon. Template Name";
         GeneralLedgerSetup."Apply Jnl. Template Name" := GeneralLedgerSetup."Jnl. Templ. Name for Applying";
         GeneralLedgerSetup."Apply Jnl. Batch Name" := GeneralLedgerSetup."Jnl. Batch Name for Applying";
@@ -3015,5 +3016,43 @@ codeunit 104000 "Upgrade - BaseApp"
             '0000G46', StrSubstNo(NoOfRecordsInTableMsg, TableNo, NoOfRecords),
             Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', 'AL SaaS Upgrade');
         exit(NoOfRecords > GetSafeRecordCountForSaaSUpgrade());
+    end;
+
+    local procedure UpdatePurchaserOnRequisitionLines()
+    var
+        RequisitionLine: Record "Requisition Line";
+        Vendor: Record Vendor;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        PurchaserCodeToAssign: Code[20];
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaserOnRequisitionLineUpdateTag()) then
+            exit;
+
+        RequisitionLine.SetFilter("Vendor No.", '<>%1', '');
+        if RequisitionLine.FindSet(true) then
+            repeat
+                if Vendor.Get(RequisitionLine."Vendor No.") and (Vendor."Purchaser Code" <> '') then
+                    if ReturnPurchaserCode(Vendor."Purchaser Code", PurchaserCodeToAssign) then begin
+                        RequisitionLine.Validate("Purchaser Code", PurchaserCodeToAssign);
+                        RequisitionLine.Modify();
+                    end;
+            until RequisitionLine.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaserOnRequisitionLineUpdateTag());
+    end;
+
+    local procedure ReturnPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20]): Boolean
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+    begin
+        if SalespersonPurchaser.Get(PurchaserCodeToCheck) then begin
+            if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
+                PurchaserCodeToAssign := ''
+            else
+                PurchaserCodeToAssign := PurchaserCodeToCheck;
+        end else
+            PurchaserCodeToAssign := '';
+        exit(PurchaserCodeToAssign <> '');
     end;
 }

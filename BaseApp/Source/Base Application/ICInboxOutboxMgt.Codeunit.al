@@ -757,6 +757,7 @@
             if SalesHeader."Bill-to Customer No." <> "Bill-to Customer No." then
                 SalesHeader.Validate("Bill-to Customer No.", "Bill-to Customer No.");
             SalesHeader."External Document No." := "No.";
+            SalesHeader."IC Reference Document No." := "No.";
             SalesHeader."Ship-to Name" := "Ship-to Name";
             SalesHeader."Ship-to Address" := "Ship-to Address";
             SalesHeader."Ship-to Address 2" := "Ship-to Address 2";
