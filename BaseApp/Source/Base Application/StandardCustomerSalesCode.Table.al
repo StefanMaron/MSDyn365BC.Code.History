@@ -119,7 +119,13 @@ table 172 "Standard Customer Sales Code"
     procedure CreateSalesInvoice(OrderDate: Date; PostingDate: Date)
     var
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateSalesInvoice(Rec, OrderDate, PostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField(Blocked, false);
         SalesHeader.Init();
         SalesHeader."No." := '';
@@ -347,6 +353,11 @@ table 172 "Standard Customer Sales Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApplyStdCodesToSalesLinesLoop(var StdSalesLine: Record "Standard Sales Line"; var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; StdSalesCode: Record "Standard Sales Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSalesInvoice(var StandardCustomerSalesCode: Record "Standard Customer Sales Code"; OrderDate: Date; PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 

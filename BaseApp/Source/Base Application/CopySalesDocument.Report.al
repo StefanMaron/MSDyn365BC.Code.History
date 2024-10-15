@@ -219,7 +219,7 @@ report 292 "Copy Sales Document"
           IncludeHeader, RecalculateLines, false, false, false, ExactCostReversingMandatory, false);
         CopyDocMgt.SetArchDocVal(FromDocNoOccurrence, FromDocVersionNo);
 
-        OnPreReportOnBeforeCopySalesDoc(CopyDocMgt, FromDocType.AsInteger(), FromDocNo, SalesHeader);
+        OnPreReportOnBeforeCopySalesDoc(CopyDocMgt, FromDocType.AsInteger(), FromDocNo, SalesHeader, CurrReport.UseRequestPage(), IncludeHeader, RecalculateLines, ExactCostReversingMandatory, ReplacePostDate, ReplaceDocDate, PostingDate);
 
         CopyDocMgt.CopySalesDoc(FromDocType, FromDocNo, SalesHeader);
 
@@ -633,7 +633,7 @@ report 292 "Copy Sales Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPreReportOnBeforeCopySalesDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt."; DocType: Integer; DocNo: Code[20]; SalesHeader: Record "Sales Header")
+    local procedure OnPreReportOnBeforeCopySalesDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt."; DocType: Integer; DocNo: Code[20]; SalesHeader: Record "Sales Header"; CurrReportUseRequestPage: Boolean; IncludeHeader: Boolean; RecalculateLines: Boolean; ExactCostReversingMandatory: Boolean; var ReplacePostDate: Boolean; var ReplaceDocDate: Boolean; var PostingDate: Date)
     begin
     end;
 

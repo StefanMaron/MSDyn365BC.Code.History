@@ -244,6 +244,7 @@
         Item: Record Item;
         TransactionNo: Integer;
         RoundingLineNo: Integer;
+        IsCommentType: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -293,12 +294,12 @@
         with ICOutBoxSalesLine do begin
             SalesInvLine.Reset();
             SalesInvLine.SetRange("Document No.", SalesInvHdr."No.");
-            SalesInvLine.SetFilter(Quantity, '<>%1', 0);
             if RoundingLineNo <> 0 then
                 SalesInvLine.SetRange("Line No.", 0, RoundingLineNo - 1);
             if SalesInvLine.FindSet then
                 repeat
-                    if (SalesInvLine.Type = SalesInvLine.Type::" ") or (SalesInvLine."No." <> '') then begin
+                    IsCommentType := (SalesInvLine.Type = SalesInvLine.Type::" ");
+                    if IsCommentType or ((SalesInvLine."No." <> '') and (SalesInvLine.Quantity <> 0)) then begin
                         Init;
                         TransferFields(SalesInvLine);
                         "Document Type" := "Document Type"::Invoice;
@@ -359,6 +360,7 @@
         ICDocDim: Record "IC Document Dimension";
         TransactionNo: Integer;
         RoundingLineNo: Integer;
+        IsCommentType: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -408,12 +410,12 @@
         with ICOutBoxSalesLine do begin
             SalesCrMemoLine.Reset();
             SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHdr."No.");
-            SalesCrMemoLine.SetFilter(Quantity, '<>%1', 0);
             if RoundingLineNo <> 0 then
                 SalesCrMemoLine.SetRange("Line No.", 0, RoundingLineNo - 1);
             if SalesCrMemoLine.FindSet then
                 repeat
-                    if (SalesCrMemoLine.Type = SalesCrMemoLine.Type::" ") or (SalesCrMemoLine."No." <> '') then begin
+                    IsCommentType := (SalesCrMemoLine.Type = SalesCrMemoLine.Type::" ");
+                    if IsCommentType or ((SalesCrMemoLine."No." <> '') and (SalesCrMemoLine.Quantity <> 0)) then begin
                         Init;
                         TransferFields(SalesCrMemoLine);
                         "Document Type" := "Document Type"::"Credit Memo";

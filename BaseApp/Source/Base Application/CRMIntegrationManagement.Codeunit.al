@@ -1194,6 +1194,7 @@ codeunit 5330 "CRM Integration Management"
 
     local procedure GetIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; TableID: Integer)
     begin
+        OnBeforeGetIntegrationTableMapping(IntegrationTableMapping, TableId);
         IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         if IsCRMTable(TableID) then
@@ -1974,6 +1975,7 @@ codeunit 5330 "CRM Integration Management"
         AllowedDirection: Integer;
         RecommendedDirection: Integer;
         SelectedDirection: Integer;
+        IsHandled: Boolean;
     begin
         AllowedDirection := IntegrationTableMapping.Direction;
         RecommendedDirection := AllowedDirection;
@@ -1990,6 +1992,11 @@ codeunit 5330 "CRM Integration Management"
             else
                 SynchronizeNowQuestion := StrSubstNo(UpdateMultipleNowToCRMQst, CRMProductName.CDSServiceName());
         end;
+
+        IsHandled := false;
+        OnBeforeSynchronyzeNowQuestion(AllowedDirection, IsHandled);
+        if IsHandled then
+            exit(AllowedDirection);
 
         if Confirm(SynchronizeNowQuestion, true) then
             exit(AllowedDirection);
@@ -3293,7 +3300,8 @@ codeunit 5330 "CRM Integration Management"
         end;
     end;
 
-    local procedure UserCanRescheduleJob(): Boolean
+    [Scope('OnPrem')]
+    procedure UserCanRescheduleJob(): Boolean
     var
         JobQueueEntry: Record "Job Queue Entry";
         DummyErrorMessageRegister: Record "Error Message Register";
@@ -3457,7 +3465,17 @@ codeunit 5330 "CRM Integration Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; TableID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleCustomIntegrationTableMapping(var IsHandled: Boolean; IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSynchronyzeNowQuestion(var AllowedDirection: Integer; var IsHandled: Boolean)
     begin
     end;
 

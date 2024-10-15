@@ -126,6 +126,7 @@ codeunit 441 "Prepayment Mgt."
         if IsHandled then
             exit(TestResult);
 
+        SalesLine.SetLoadFields("Prepmt. Line Amount", "Prepmt. Amt. Inv.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         if SalesLine.FindSet then
@@ -148,6 +149,7 @@ codeunit 441 "Prepayment Mgt."
         if IsHandled then
             exit(TestResult);
 
+        PurchaseLine.SetLoadFields("Prepmt. Amt. Inv.", "Prepmt. Line Amount");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetFilter("Prepmt. Line Amount", '<>%1', 0);
@@ -187,6 +189,7 @@ codeunit 441 "Prepayment Mgt."
             exit(Result);
 
         SalesInvHeader.SetCurrentKey("Prepayment Order No.", "Prepayment Invoice");
+        SalesInvHeader.SetLoadFields("No.");
         SalesInvHeader.SetRange("Prepayment Order No.", SalesHeader."No.");
         SalesInvHeader.SetRange("Prepayment Invoice", true);
         if SalesInvHeader.FindSet then
@@ -220,6 +223,7 @@ codeunit 441 "Prepayment Mgt."
             exit(Result);
 
         PurchInvHeader.SetCurrentKey("Prepayment Order No.", "Prepayment Invoice");
+        PurchInvHeader.SetLoadFields("No.");
         PurchInvHeader.SetRange("Prepayment Order No.", PurchaseHeader."No.");
         PurchInvHeader.SetRange("Prepayment Invoice", true);
         if PurchInvHeader.FindSet then

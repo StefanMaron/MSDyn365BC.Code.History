@@ -677,7 +677,13 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         DimMgt: Codeunit DimensionManagement;
         TableID: array[10] of Integer;
         AccNo: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDimComb(EntryNo, DimSetID, TableID1, AccNo1, TableID2, AccNo2, IsHandled);
+        if IsHandled then
+            exit;
+
         if not DimMgt.CheckDimIDComb(DimSetID) then
             Error(DimCombBlockedErr, EntryNo, DimMgt.GetDimCombErr);
         Clear(TableID);
@@ -976,6 +982,11 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReverse(var ReversalEntry: Record "Reversal Entry"; var ReversalEntry2: Record "Reversal Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimComb(EntryNo: Integer; DimSetID: Integer; TableID1: Integer; AccNo1: Code[20]; TableID2: Integer; AccNo2: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

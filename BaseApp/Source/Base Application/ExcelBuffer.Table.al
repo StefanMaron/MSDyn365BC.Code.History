@@ -509,7 +509,7 @@ table 370 "Excel Buffer"
                     Error(Text035)
                 end;
                 if ExcelBuffer.Formula = '' then
-                    WriteCellValue(ExcelBuffer)
+                    WriteCellValueInternal(ExcelBuffer)
                 else
                     WriteCellFormula(ExcelBuffer)
             until ExcelBuffer.Next() = 0;
@@ -517,9 +517,14 @@ table 370 "Excel Buffer"
     end;
 
     procedure WriteCellValue(ExcelBuffer: Record "Excel Buffer")
+    begin
+        WriteCellValueInternal(ExcelBuffer);
+    end;
+
+    local procedure WriteCellValueInternal(var ExcelBuffer: Record "Excel Buffer")
     var
         Decorator: DotNet CellDecorator;
-        InStream: Instream;
+        RecInStream: Instream;
         CellTextValue: Text;
     begin
         with ExcelBuffer do begin
@@ -527,8 +532,9 @@ table 370 "Excel Buffer"
 
             CellTextValue := "Cell Value as Text";
             if "Cell Value as Blob".HasValue then begin
-                "Cell Value as Blob".CreateInStream(InStream, TextEncoding::Windows);
-                InStream.Read(CellTextValue);
+                CalcFields("Cell Value as Blob");
+                "Cell Value as Blob".CreateInStream(RecInStream, TextEncoding::Windows);
+                RecInStream.ReadText(CellTextValue);
             end;
 
             OnWriteCellValueOnBeforeSetCellValue(Rec, CellTextValue);
@@ -1120,14 +1126,20 @@ table 370 "Excel Buffer"
         FileManagement.DownloadHandler(FileNameServer, '', '', Text034, FileName);
     end;
 
-    local procedure OpenUsingDocumentService(FileName: Text): Boolean
+    local procedure OpenUsingDocumentService(FileName: Text) Result: Boolean
     var
         DocumentServiceMgt: Codeunit "Document Service Management";
         FileMgt: Codeunit "File Management";
         PathHelper: DotNet Path;
         DialogWindow: Dialog;
         DocumentUrl: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenUsingDocumentService(FileNameServer, Filename, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not Exists(FileNameServer) then
             Error(Text003, FileNameServer);
 
@@ -1252,6 +1264,11 @@ table 370 "Excel Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddColumnToBuffer(var ExcelBuffer: Record "Excel Buffer"; Value: Variant; IsFormula: Boolean; CommentText: Text; IsBold: Boolean; IsItalics: Boolean; IsUnderline: Boolean; NumFormat: Text[30]; CellType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenUsingDocumentService(FileNameServer: Text; FileName: Text; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

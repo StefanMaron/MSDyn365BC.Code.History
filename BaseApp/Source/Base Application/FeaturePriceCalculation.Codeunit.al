@@ -84,6 +84,8 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         StartDateTime := CurrentDateTime;
         CopyFromToPriceListLine.CopyFrom(ResourcePrice, PriceListLine);
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, ResourcePrice.TableCaption(), StartDateTime);
+
+        UpdateAmountTypeOnHeaders();
     end;
 
     procedure GetTaskDescription() TaskDescription: Text;
@@ -272,6 +274,17 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         DefineDefaultPriceList("Price Type"::Purchase, "Price Source Group"::Vendor);
         DefineDefaultPriceList("Price Type"::Sale, "Price Source Group"::Job);
         DefineDefaultPriceList("Price Type"::Purchase, "Price Source Group"::Job);
+    end;
+
+    local procedure UpdateAmountTypeOnHeaders()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        PriceListHeader.SetLoadFields("Amount Type");
+        if PriceListHeader.FindSet(true) then
+            repeat
+                PriceListHeader.UpdateAmountType();
+            until PriceListHeader.Next() = 0;
     end;
 
     procedure DefineDefaultPriceList(PriceType: Enum "Price Type"; SourceGroup: Enum "Price Source Group") DefaultPriceListCode: Code[20];

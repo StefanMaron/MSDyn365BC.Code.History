@@ -17,7 +17,13 @@ report 491 "Delete Invd Blnkt Purch Orders"
             trigger OnAfterGetRecord()
             var
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforePurchaseHeaderOnAfterGetRecord("Purchase Header", IsHandled);
+                if IsHandled then
+                    CurrReport.Skip();
+
                 Window.Update(1, "No.");
 
                 PurchLine.Reset();
@@ -118,6 +124,11 @@ report 491 "Delete Invd Blnkt Purch Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeletePurchLines(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseHeaderOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

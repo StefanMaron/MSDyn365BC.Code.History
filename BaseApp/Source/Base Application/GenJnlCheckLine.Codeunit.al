@@ -1,4 +1,4 @@
-codeunit 11 "Gen. Jnl.-Check Line"
+﻿codeunit 11 "Gen. Jnl.-Check Line"
 {
     Permissions = TableData "General Posting Setup" = rimd;
     TableNo = "Gen. Journal Line";
@@ -774,7 +774,13 @@ codeunit 11 "Gen. Jnl.-Check Line"
     var
         RecRef: RecordRef;
         FldRef: FieldRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLogTestField(SourceVariant, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         RecRef.GetTable(SourceVariant);
         FldRef := RecRef.Field(FieldNo);
         if LogErrorMode then
@@ -787,7 +793,13 @@ codeunit 11 "Gen. Jnl.-Check Line"
     var
         RecRef: RecordRef;
         FldRef: FieldRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLogTestField(SourceVariant, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         RecRef.GetTable(SourceVariant);
         FldRef := RecRef.Field(FieldNo);
         if LogErrorMode then
@@ -958,6 +970,11 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeIsVendorPaymentToCrMemo(GenJnlLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLogTestField(SourceVariant: Variant; FieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

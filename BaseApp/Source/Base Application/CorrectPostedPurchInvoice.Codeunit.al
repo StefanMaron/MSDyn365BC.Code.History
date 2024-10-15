@@ -305,7 +305,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
                     end;
 
                     TestGenPostingSetup(PurchInvLine);
-                    TestVendorPostingGroup(PurchInvLine, PurchInvHeader."Vendor Posting Group");
+                    TestVendorPostingGroup(PurchInvHeader);
                     TestVATPostingSetup(PurchInvLine);
 
                     if not DimensionManagement.CheckDimIDComb(PurchInvLine."Dimension Set ID") then
@@ -335,8 +335,35 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         end;
     end;
 
-    local procedure TestIfInvoiceIsPaid(PurchInvHeader: Record "Purch. Inv. Header")
+    local procedure TestGLAccount(AccountNo: Code[20]; PurchInvHeader: Record "Purch. Inv. Header")
+    var
+        GLAccount: Record "G/L Account";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        DimensionManagement: Codeunit DimensionManagement;
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
     begin
+        GLAccount.Get(AccountNo);
+        if GLAccount.Blocked then
+            ErrorHelperAccount(ErrorType::AccountBlocked, AccountNo, GLAccount.TableCaption, '', '');
+        TableID[1] := DATABASE::"G/L Account";
+        No[1] := AccountNo;
+
+        if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchInvHeader."Dimension Set ID") then
+            ErrorHelperAccount(
+                ErrorType::DimErr, AccountNo, GLAccount.TableCaption,
+                PurchInvHeader."Vendor Posting Group", VendorPostingGroup.TableCaption);
+    end;
+
+    local procedure TestIfInvoiceIsPaid(PurchInvHeader: Record "Purch. Inv. Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestIfInvoiceIsPaid(PurchInvHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchInvHeader.CalcFields("Amount Including VAT");
         PurchInvHeader.CalcFields("Remaining Amount");
         if PurchInvHeader."Amount Including VAT" <> PurchInvHeader."Remaining Amount" then
@@ -439,14 +466,14 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         end;
     end;
 
-    local procedure TestVendorPostingGroup(PurchInvLine: Record "Purch. Inv. Line"; VendorPostingGr: Code[20])
+    local procedure TestVendorPostingGroup(PurchInvHeader: Record "Purch. Inv. Header")
     var
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
         with VendorPostingGroup do begin
-            Get(VendorPostingGr);
+            Get(PurchInvHeader."Vendor Posting Group");
             TestField("Payables Account");
-            TestGLAccount("Payables Account", PurchInvLine);
+            TestGLAccount("Payables Account", PurchInvHeader);
         end;
     end;
 
@@ -774,6 +801,11 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestCorrectInvoiceIsAllowed(var PurchInvHeader: Record "Purch. Inv. Header"; Cancelling: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestIfInvoiceIsPaid(var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
     begin
     end;
 

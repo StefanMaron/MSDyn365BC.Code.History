@@ -19,7 +19,13 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                 PostPurchDelete: Codeunit "PostPurch-Delete";
                 PostCodeCheck: Codeunit "Post Code Check";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforePurchaseHeaderOnAfterGetRecord("Purchase Header", IsHandled);
+                if IsHandled then
+                    CurrReport.Skip();
+
                 Window.Update(1, "No.");
 
                 AllLinesDeleted := true;
@@ -155,6 +161,11 @@ report 6661 "Delete Invd Purch. Ret. Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeletePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseHeaderOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

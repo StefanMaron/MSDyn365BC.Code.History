@@ -773,7 +773,7 @@
                 VATEntry.Insert(true);
                 TempGLEntryVATEntryLink.InsertLinkSelf(TempGLEntryBuf."Entry No.", VATEntry."Entry No.");
                 NextVATEntryNo := NextVATEntryNo + 1;
-                OnAfterInsertVATEntry(GenJnlLine, VATEntry, TempGLEntryBuf."Entry No.", NextVATEntryNo);
+                OnAfterInsertVATEntry(GenJnlLine, VATEntry, TempGLEntryBuf."Entry No.", NextVATEntryNo, TempGLEntryVATEntryLink);
             end;
 
             // VAT for G/L entry/entries
@@ -897,6 +897,19 @@
         NextConnectionNo := NextConnectionNo + 1;
     end;
 
+    local procedure CheckDescriptionForGL(GLAccount: Record "G/L Account"; Description: Text[100])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        if GLAccount."Omit Default Descr. in Jnl." then
+            if DelChr(Description, '=', ' ') = '' then
+                Error(
+                    DescriptionMustNotBeBlankErr,
+                    GLAccount.FieldCaption("Omit Default Descr. in Jnl."),
+                    GLAccount."No.",
+                    GLEntry.FieldCaption(Description));
+    end;
+
     local procedure PostGLAcc(GenJnlLine: Record "Gen. Journal Line"; Balancing: Boolean)
     var
         GLAcc: Record "G/L Account";
@@ -920,13 +933,7 @@
                   "Account No.", "Amount (LCY)" + WHTAmountLCY,
                   "Source Currency Amount" + WHTAmountLCY, true, "System-Created Entry");
                 CheckGLAccDirectPosting(GenJnlLine, GLAcc);
-                if GLAcc."Omit Default Descr. in Jnl." then
-                    if DelChr(Description, '=', ' ') = '' then
-                        Error(
-                          DescriptionMustNotBeBlankErr,
-                          GLAcc.FieldCaption("Omit Default Descr. in Jnl."),
-                          GLAcc."No.",
-                          FieldCaption(Description));
+                CheckDescriptionForGL(GLAcc, Description);
                 GLEntry."Gen. Posting Type" := "Gen. Posting Type";
                 GLEntry."Bal. Account Type" := "Bal. Account Type";
                 GLEntry."Bal. Account No." := "Bal. Account No.";
@@ -970,6 +977,7 @@
         WHTAmountLCY: Decimal;
         ReceivablesAccount: Code[20];
         DtldLedgEntryInserted: Boolean;
+        ShouldCheckDocNo: Boolean;
     begin
         SalesSetup.Get();
         with GenJnlLine do begin
@@ -1023,11 +1031,14 @@
             OnPostCustOnAfterAssignCurrencyFactors(CVLedgEntryBuf, GenJnlLine);
 
             // Check the document no.
-            if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
-                if IsNotPayment("Document Type") then begin
+            if "Recurring Method" = "Gen. Journal Recurring Method"::" " then begin
+                ShouldCheckDocNo := IsNotPayment("Document Type");
+                OnPostCustOnAfterCalcShouldCheckDocNo(GenJnlLine, ShouldCheckDocNo);
+                if ShouldCheckDocNo then begin
                     GenJnlCheckLine.CheckSalesDocNoIsNotUsed(GenJnlLine);
                     CheckSalesExtDocNo(GenJnlLine);
                 end;
+            end;
 
             // Post application
             ApplyCustLedgEntry(CVLedgEntryBuf, TempDtldCVLedgEntryBuf, GenJnlLine, Cust);
@@ -8675,14 +8686,14 @@
             InitGLEntry(
               GenJournalLine, GLEntry, AccountNo,
               -DeferralHeader."Amount to Defer (LCY)", -DeferralHeader."Amount to Defer", true, true);
-            GLEntry.Description := SetDeferralDescription(GenJournalLine, DeferralLine);
+            GLEntry.Description := SetDeferralDescription(GenJournalLine, DeferralLine, AccountNo);
             OnPostDeferralOnBeforeInsertGLEntryForGLAccount(GenJournalLine, DeferralLine, GLEntry);
             InsertGLEntry(GenJournalLine, GLEntry, true);
 
             InitGLEntry(
               GenJournalLine, GLEntry, DeferralTemplate."Deferral Account",
               DeferralHeader."Amount to Defer (LCY)", DeferralHeader."Amount to Defer", true, true);
-            GLEntry.Description := SetDeferralDescription(GenJournalLine, DeferralLine);
+            GLEntry.Description := SetDeferralDescription(GenJournalLine, DeferralLine, DeferralTemplate."Deferral Account");
             OnPostDeferralOnBeforeInsertGLEntryForDeferralAccount(GenJournalLine, DeferralLine, GLEntry);
             InsertGLEntry(GenJournalLine, GLEntry, true);
 
@@ -8697,7 +8708,7 @@
                       GenJournalLine, GLEntry, AccountNo,
                       DeferralLine."Amount (LCY)", DeferralLine.Amount, true, true);
                     GLEntry."Posting Date" := PerPostDate;
-                    GLEntry.Description := DeferralLine.Description;
+                    GLEntry.Description := SetDeferralDescriptionFromDeferralLine(DeferralLine, AccountNo);
                     OnPostDeferralOnBeforeInsertGLEntryDeferralLineForGLAccount(GenJournalLine, DeferralLine, GLEntry);
                     InsertGLEntry(GenJournalLine, GLEntry, true);
 
@@ -8705,7 +8716,7 @@
                       GenJournalLine, GLEntry, DeferralTemplate."Deferral Account",
                       -DeferralLine."Amount (LCY)", -DeferralLine.Amount, true, true);
                     GLEntry."Posting Date" := PerPostDate;
-                    GLEntry.Description := DeferralLine.Description;
+                    GLEntry.Description := SetDeferralDescriptionFromDeferralLine(DeferralLine, DeferralTemplate."Deferral Account");
                     OnPostDeferralOnBeforeInsertGLEntryDeferralLineForDeferralAccount(GenJournalLine, DeferralLine, GLEntry);
                     InsertGLEntry(GenJournalLine, GLEntry, true);
                     PeriodicCount := PeriodicCount + 1;
@@ -8762,7 +8773,7 @@
                           DeferralPostBuffer."Sales/Purch Amount",
                           true, true);
                         GLEntry."Posting Date" := PostDate;
-                        GLEntry.Description := DeferralPostBuffer.Description;
+                        GLEntry.Description := SetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostBuffer, DeferralPostBuffer."G/L Account");
                         GLEntry.CopyFromDeferralPostBuffer(DeferralPostBuffer);
                         OnPostDeferralPostBufferOnBeforeInsertGLEntryForGLAccount(GenJournalLine, DeferralPostBuffer, GLEntry);
                         InsertGLEntry(GenJournalLine, GLEntry, true);
@@ -8775,7 +8786,7 @@
                           -DeferralPostBuffer.Amount,
                           true, true);
                         GLEntry."Posting Date" := PostDate;
-                        GLEntry.Description := DeferralPostBuffer.Description;
+                        GLEntry.Description := SetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostBuffer, DeferralPostBuffer."Deferral Account");
                         OnPostDeferralPostBufferOnBeforeInsertGLEntryForDeferralAccount(GenJournalLine, DeferralPostBuffer, GLEntry);
                         InsertGLEntry(GenJournalLine, GLEntry, true);
                     end;
@@ -8827,17 +8838,58 @@
                     PostDeferral(GenJournalLine, AccountNo);
     end;
 
-    local procedure SetDeferralDescription(GenJournalLine: Record "Gen. Journal Line"; DeferralLine: Record "Deferral Line"): Text[100]
+    local procedure SetDeferralDescription(GenJournalLine: Record "Gen. Journal Line"; DeferralLine: Record "Deferral Line"; GLAccountNo: Code[20]): Text[100]
     var
+        GLAccount: Record "G/L Account";
         DeferralDescription: Text[100];
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetDeferralDescription(GenJournalLine, DeferralLine, DeferralDescription, IsHandled);
+        OnBeforeSetDeferralDescription(GenJournalLine, DeferralLine, DeferralDescription, IsHandled, GLAccountNo);
         if IsHandled then
             exit(DeferralDescription);
 
-        exit(GenJournalLine.Description);
+        DeferralDescription := GenJournalLine.Description;
+        GLAccount.Get(GLAccountNo);
+        CheckDescriptionForGL(GLAccount, DeferralDescription);
+
+        exit(DeferralDescription);
+    end;
+
+    local procedure SetDeferralDescriptionFromDeferralLine(DeferralLine: Record "Deferral Line"; GLAccountNo: Code[20]): Text[100]
+    var
+        GLAccount: Record "G/L Account";
+        DeferralDescription: Text[100];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDeferralDescriptionFromDeferralLine(DeferralLine, DeferralDescription, IsHandled, GLAccountNo);
+        if IsHandled then
+            exit(DeferralDescription);
+
+        DeferralDescription := DeferralLine.Description;
+        GLAccount.Get(GLAccountNo);
+        CheckDescriptionForGL(GLAccount, DeferralDescription);
+
+        exit(DeferralDescription);
+    end;
+
+    local procedure SetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostingBuffer: Record "Deferral Posting Buffer"; GLAccountNo: Code[20]): Text[100]
+    var
+        GLAccount: Record "G/L Account";
+        DeferralDescription: Text[100];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostingBuffer, DeferralDescription, IsHandled, GLAccountNo);
+        if IsHandled then
+            exit(DeferralDescription);
+
+        DeferralDescription := DeferralPostingBuffer.Description;
+        GLAccount.Get(GLAccountNo);
+        CheckDescriptionForGL(GLAccount, DeferralDescription);
+
+        exit(DeferralDescription);
     end;
 
     local procedure GetPostingAccountNo(VATPostingSetup: Record "VAT Posting Setup"; VATEntry: Record "VAT Entry"; UnrealizedVAT: Boolean): Code[20]
@@ -9119,7 +9171,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertVATEntry(GenJnlLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry"; GLEntryNo: Integer; var NextEntryNo: Integer)
+    local procedure OnAfterInsertVATEntry(GenJnlLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry"; GLEntryNo: Integer; var NextEntryNo: Integer; var TempGLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link" temporary)
     begin
     end;
 
@@ -9773,7 +9825,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetDeferralDescription(GenJournalLine: Record "Gen. Journal Line"; DeferralLine: Record "Deferral Line"; var DeferralDescription: Text[100]; var IsHandled: Boolean)
+    local procedure OnBeforeSetDeferralDescription(GenJournalLine: Record "Gen. Journal Line"; DeferralLine: Record "Deferral Line"; var DeferralDescription: Text[100]; var IsHandled: Boolean; GLAccountNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDeferralDescriptionFromDeferralLine(DeferralLine: Record "Deferral Line"; var DeferralDescription: Text[100]; var IsHandled: Boolean; GLAccountNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostingBuffer: Record "Deferral Posting Buffer"; var DeferralDescription: Text[100]; var IsHandled: Boolean; GLAccountNo: Code[20])
     begin
     end;
 
@@ -9967,6 +10029,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnPostCustOnAfterInitCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry"; Cust: Record Customer; CustPostingGr: Record "Customer Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostCustOnAfterCalcShouldCheckDocNo(var GenJournalLine: Record "Gen. Journal Line"; var ShouldCheckDocNo: Boolean)
     begin
     end;
 

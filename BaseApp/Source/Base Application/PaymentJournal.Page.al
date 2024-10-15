@@ -1,4 +1,4 @@
-page 256 "Payment Journal"
+﻿page 256 "Payment Journal"
 {
     AdditionalSearchTerms = 'print check,payment file export,electronic payment';
     ApplicationArea = Basic, Suite;
@@ -856,6 +856,7 @@ page 256 "Payment Journal"
                         GenJnlLine.Reset();
                         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
+                        OnPrintRemittanceAdvanceOnAfterSetFilters(GenJnlLine, ReportSelections);
                         ReportSelections.SetRange(Usage, ReportSelections.Usage::"V.Remittance");
                         if not ReportSelections.IsEmpty() then
                             ReportSelections.PrintReport(ReportSelections.Usage::"V.Remittance", GenJnlLine)
@@ -1971,6 +1972,11 @@ page 256 "Payment Journal"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateBalance()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPrintRemittanceAdvanceOnAfterSetFilters(var GenJnlLine: Record "Gen. Journal Line"; var ReportSelections: Record "Report Selections")
     begin
     end;
 }
