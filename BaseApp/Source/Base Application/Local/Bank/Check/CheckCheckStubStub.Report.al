@@ -366,7 +366,7 @@ report 10412 "Check (Check/Stub/Stub)"
                         Stub2LineDiscount[Stub2LineNo] := LineDiscount;
                         Stub2PostingDesc[Stub2LineNo] := PostingDesc;
 
-                        OnAfterGetRecordOfPrintSettledLoop(GenJnlLine2, TotalLineAmount, CurrentLineAmount, TotalLineDiscount, LineDiscount, BalancingType, ApplyMethod);
+                        OnAfterGetRecordOfPrintSettledLoop(GenJnlLine2, TotalLineAmount, CurrentLineAmount, TotalLineDiscount, LineDiscount, BalancingType, ApplyMethod, OneCheckPrVendor);
                     end;
 
                     trigger OnPreDataItem()
@@ -1290,7 +1290,7 @@ report 10412 "Check (Check/Stub/Stub)"
                         CheckDateText := Text010Txt;
                 end;
 
-                OnAfterOnAfterGetRecordOfGenJnlLine(GenJnlLine, RemitAddress, CheckToAddr, BalancingType, ApplyMethod);
+                OnAfterOnAfterGetRecordOfGenJnlLine(GenJnlLine, RemitAddress, CheckToAddr, BalancingType, ApplyMethod, OneCheckPrVendor);
             end;
 
             trigger OnPreDataItem()
@@ -1936,7 +1936,7 @@ report 10412 "Check (Check/Stub/Stub)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetRecordOfPrintSettledLoop(GenJournalLine2: Record "Gen. Journal Line"; var TotalLineAmount: Decimal; var CurrentLineAmount: Decimal; var TotalLineDiscount: Decimal; var LineDiscount: Decimal; BalancingType: Enum "Gen. Journal Account Type"; ApplyMethod: Option)
+    local procedure OnAfterGetRecordOfPrintSettledLoop(GenJournalLine2: Record "Gen. Journal Line"; var TotalLineAmount: Decimal; var CurrentLineAmount: Decimal; var TotalLineDiscount: Decimal; var LineDiscount: Decimal; BalancingType: Enum "Gen. Journal Account Type"; ApplyMethod: Option; var OneCheckPrVendor: Boolean)
     begin
     end;
 
@@ -1956,7 +1956,7 @@ report 10412 "Check (Check/Stub/Stub)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOnAfterGetRecordOfGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var RemitAddress: Record "Remit Address"; var CheckToAddr: array[8] of Text[100]; BalancingType: Enum "Gen. Journal Account Type"; ApplyMethod: Option Payment,OneLineOneEntry,OneLineID,MoreLinesOneEntry)
+    local procedure OnAfterOnAfterGetRecordOfGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var RemitAddress: Record "Remit Address"; var CheckToAddr: array[8] of Text[100]; BalancingType: Enum "Gen. Journal Account Type"; ApplyMethod: Option Payment,OneLineOneEntry,OneLineID,MoreLinesOneEntry; var OneCheckPrVendor: Boolean)
     begin
     end;
 }

@@ -552,7 +552,7 @@ report 1307 "Standard Sales - Credit Memo"
                     column(DocumentNo_ShipmentLine; "Document No.")
                     {
                     }
-                    column(PostingDate_ShipmentLine; "Posting Date")
+                    column(PostingDate_ShipmentLine; Format("Posting Date"))
                     {
                     }
                     column(PostingDate_ShipmentLine_Lbl; FieldCaption("Posting Date"))
@@ -568,6 +568,9 @@ report 1307 "Standard Sales - Credit Memo"
 
                     trigger OnPreDataItem()
                     begin
+                        if not DisplayShipmentInformation then
+                            CurrReport.Break();
+
                         SetRange("Line No.", Line."Line No.");
                     end;
                 }
@@ -1279,39 +1282,32 @@ report 1307 "Standard Sales - Credit Memo"
         LogInteraction := SegManagement.FindInteractionTemplateCode(Enum::"Interaction Log Entry Document Type"::"Sales Cr. Memo") <> '';
     end;
 
-    local procedure InitializeSalesShipmentLine(): Date
+    local procedure InitializeSalesShipmentLine()
     var
         ReturnReceiptHeader: Record "Return Receipt Header";
-        SalesShipmentBuffer2: Record "Sales Shipment Buffer";
     begin
+        if not DisplayShipmentInformation then
+            exit;
+
         if Line."Return Receipt No." <> '' then
             if ReturnReceiptHeader.Get(Line."Return Receipt No.") then
-                exit(ReturnReceiptHeader."Posting Date");
+                exit;
         if Header."Return Order No." = '' then
-            exit(Header."Posting Date");
+            exit;
         if Line.Type = Line.Type::" " then
-            exit(0D);
+            exit;
 
         ShipmentLine.GetLinesForSalesCreditMemoLine(Line, Header);
 
         ShipmentLine.Reset();
         ShipmentLine.SetRange("Line No.", Line."Line No.");
-        if ShipmentLine.Find('-') then begin
-            SalesShipmentBuffer2 := ShipmentLine;
-            if not DisplayShipmentInformation then
-                if ShipmentLine.Next() = 0 then begin
-                    ShipmentLine.Get(
-                      SalesShipmentBuffer2."Document No.", SalesShipmentBuffer2."Line No.", SalesShipmentBuffer2."Entry No.");
-                    ShipmentLine.Delete();
-                    exit(SalesShipmentBuffer2."Posting Date");
-                end;
+        if not ShipmentLine.IsEmpty() then begin
             ShipmentLine.CalcSums(Quantity);
             if ShipmentLine.Quantity <> Line.Quantity then begin
                 ShipmentLine.DeleteAll();
-                exit(Header."Posting Date");
+                exit;
             end;
         end;
-        exit(Header."Posting Date");
     end;
 
     protected procedure IsReportInPreviewMode(): Boolean

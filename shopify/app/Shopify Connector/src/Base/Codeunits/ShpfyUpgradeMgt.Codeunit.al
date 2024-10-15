@@ -351,24 +351,6 @@ codeunit 30106 "Shpfy Upgrade Mgt."
         UpgradeTag.SetUpgradeTag(GetAutoReleaseSalesOrderTag());
     end;
 
-    internal procedure SetB2BEnabled()
-    var
-        Shop: Record "Shpfy Shop";
-        UpgradeTag: Codeunit "Upgrade Tag";
-    begin
-        if UpgradeTag.HasUpgradeTag(GetShopifyB2BEnabledUpgradeTag()) then
-            exit;
-
-        Shop.SetRange(Enabled, true);
-        if Shop.FindSet() then
-            repeat
-                Shop."B2B Enabled" := Shop.GetB2BEnabled();
-                Shop.Modify();
-            until Shop.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(GetShopifyB2BEnabledUpgradeTag());
-    end;
-
     local procedure SendShippingConfirmationUpgrade()
     var
         Shop: Record "Shpfy Shop";
@@ -447,11 +429,6 @@ codeunit 30106 "Shpfy Upgrade Mgt."
         RefundLineDataTransfer.AddConstantValue(true, RefundLine.FieldNo("Can Create Credit Memo"));
         RefundLineDataTransfer.UpdateAuditFields(false);
         RefundLineDataTransfer.CopyFields();
-    end;
-
-    local procedure GetShopifyB2BEnabledUpgradeTag(): Code[250]
-    begin
-        exit('MS-490178-ShopifyB2B-20231101');
     end;
 
     internal procedure GetAllowOutgoingRequestseUpgradeTag(): Code[250]

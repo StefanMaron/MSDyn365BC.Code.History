@@ -939,6 +939,8 @@ table 210 "Job Journal Line"
 
                     Validate("Remaining Qty.", CalcQtyFromBaseQty(JobPlanningLine."Remaining Qty. (Base)" - "Quantity (Base)"));
 
+                    "Assemble to Order" := JobPlanningLine."Assemble to Order";
+
                     if Quantity > 0 then
                         WhseValidateSourceLine.JobJnlLineVerifyChangeForWhsePick(Rec, xRec);
                 end else
@@ -2068,7 +2070,7 @@ table 210 "Job Journal Line"
             if ("Line Amount" <> xRec."Line Amount") and ("Line Discount Amount" = xRec."Line Discount Amount") then begin
                 "Line Amount" := Round("Line Amount", AmountRoundingPrecisionFCY);
                 "Line Discount Amount" := "Total Price" - "Line Amount";
-                "Line Amount (LCY)" := Round("Line Amount (LCY)", AmountRoundingPrecision);
+                "Line Amount (LCY)" := ConvertAmountToLCY("Line Amount", AmountRoundingPrecision);
                 "Line Discount Amount (LCY)" := "Total Price (LCY)" - "Line Amount (LCY)";
                 "Line Discount %" := Round("Line Discount Amount" / "Total Price" * 100, 0.00001);
             end else

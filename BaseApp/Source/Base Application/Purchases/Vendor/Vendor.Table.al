@@ -2374,7 +2374,9 @@ table 23 Vendor
     local procedure CreateNewVendor(VendorName: Text[100]; ShowVendorCard: Boolean) Result: Code[20]
     var
         Vendor: Record Vendor;
+        xRecVendor: Record Vendor;
         VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+        WorkflowEventHandling: Codeunit "Workflow Event Handling";
         VendorCard: Page "Vendor Card";
         IsHandled: Boolean;
     begin
@@ -2388,6 +2390,9 @@ table 23 Vendor
 
         Vendor.Name := VendorName;
         Vendor.Modify(true);
+
+        WorkflowEventHandling.RunWorkflowOnVendorChanged(Vendor, xRecVendor, false);
+
         Commit();
         if not ShowVendorCard then
             exit(Vendor."No.");

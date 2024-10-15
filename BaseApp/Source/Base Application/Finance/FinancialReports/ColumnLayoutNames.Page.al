@@ -2,9 +2,11 @@ namespace Microsoft.Finance.FinancialReports;
 
 page 488 "Column Layout Names"
 {
+    ApplicationArea = All;
     Caption = 'Column Definitions';
     PageType = List;
     SourceTable = "Column Layout Name";
+    UsageCategory = Lists;
 
     layout
     {
@@ -81,6 +83,33 @@ page 488 "Column Layout Names"
                     Report.RunModal(Report::"Copy Column Layout", true, true, ColumnLayoutName);
                 end;
             }
+            action(ImportColumnDefinition)
+            {
+                ApplicationArea = All;
+                Caption = 'Import Column Definition';
+                Image = Import;
+                Scope = Repeater;
+                ToolTip = 'Import a RapidStart configuration package that contains settings for a set of column definitions. Importing column definitions lets you share them, for example, with another business unit. This requires that the column definition has been exported.';
+
+                trigger OnAction()
+                begin
+                    Rec.XMLExchangeImport();
+                end;
+
+            }
+            action(ExportColumnDefinition)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Export Column Definition';
+                Image = Export;
+                Scope = Repeater;
+                ToolTip = 'Export settings for the selected column definition to a RapidStart configuration package. Exporting a column definition lets you share it with another business unit.';
+
+                trigger OnAction()
+                begin
+                    Rec.XmlExchangeExport();
+                end;
+            }
         }
         area(Promoted)
         {
@@ -92,6 +121,12 @@ page 488 "Column Layout Names"
                 {
                 }
                 actionref(CopyColumnLayout_Promoted; CopyColumnLayout)
+                {
+                }
+                actionref(ImportColumnDefinition_Promoted; ImportColumnDefinition)
+                {
+                }
+                actionref(ExportColumnDefinition_Promoted; ExportColumnDefinition)
                 {
                 }
             }

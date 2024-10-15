@@ -83,7 +83,7 @@ report 10480 "Electronic Carta Porte MX"
             column(LocationFromAddress; LocationFrom.GetSATAddress())
             {
             }
-            column(LocationToAddress; LocationFrom.GetSATAddress())
+            column(LocationToAddress; LocationTo.GetSATAddress())
             {
             }
             column(IDUbicacionOrigen; LocationFrom."ID Ubicacion")
@@ -234,7 +234,7 @@ report 10480 "Electronic Carta Porte MX"
                     UnitOfMeasure.Get("Unit of Measure Code");
                     SATUnitOfMeasure.Get(UnitOfMeasure."SAT UofM Classification");
                     if Item."SAT Hazardous Material" <> '' then begin
-                        MaterialPeligroso := 'S�';
+                        MaterialPeligroso := 'Sí';
                         SATPackagingType.Get(Item."SAT Packaging Type");
                     end;
                 end;
@@ -343,9 +343,13 @@ report 10480 "Electronic Carta Porte MX"
 
                 if "Foreign Trade" then begin
                     LocationFrom.Get("Transit-from Location");
-                    LocationTo.Get("Transit-to Location");
+                    if not LocationTo.Get("Transit-to Location") then begin
+                        LocationTo.Init();
+                        LocationTo."SAT Address ID" := "SAT Address ID";
+                        LocationTo.Address := "Bill-to/Pay-To Address";
+                    end;
                 end;
-                FixedAssetVehicle.Get("Vehicle Code");
+                if FixedAssetVehicle.Get("Vehicle Code") then;
                 if FixedAssetTrailer1.Get("Trailer 1") then
                     SATTrailerType1.Get(FixedAssetTrailer1."SAT Trailer Type");
                 if FixedAssetTrailer2.Get("Trailer 2") then
@@ -422,7 +426,7 @@ report 10480 "Electronic Carta Porte MX"
         SATTipoRelacion: Text[100];
         SATFolioFiscal: Text[100];
         TransferRFCNoLbl: Label 'XAXX010101000', Comment = 'Locked';
-        FiscalRegimeLbl: Label 'R�gimen fiscal', Comment = 'Locked';
+        FiscalRegimeLbl: Label 'Régimen fiscal', Comment = 'Locked';
         ClientCartaPorteLbl: Label 'Cliente Extranjero carta porte', Comment = 'Locked';
         UsoCFDILbl: Label 'Uso de CFDI';
         UsoCFDDescriptionLbl: Label 'P01 - Por definir';

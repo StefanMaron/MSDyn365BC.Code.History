@@ -52,6 +52,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
         FeatureTelemetry: Codeunit "Feature Telemetry";
         Window: Dialog;
         ItemApplicationChain: Dictionary of [Integer, List of [Integer]];
+        ItemLedgerEntryTypesUsed: Dictionary of [Enum "Item Ledger Entry Type", Boolean];
         WindowUpdateDateTime: DateTime;
         PostingDateForClosedPeriod: Date;
         LevelNo: array[3] of Integer;
@@ -233,6 +234,8 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
                 Item := TheItem;
                 GetItem(Item."No.");
                 UpDateWindow(WindowAdjmtLevel, Item."No.", WindowAdjust, WindowFWLevel, WindowEntry, 0);
+
+                CollectItemLedgerEntryTypesUsed(Item."No.");
 
                 OnMakeSingleLevelAdjmtOnBeforeCollectAvgCostAdjmtEntryPointToUpdate(TheItem);
                 CollectAvgCostAdjmtEntryPointToUpdate(TempAvgCostAdjmtEntryPoint, TheItem."No.");
@@ -606,6 +609,9 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     var
         ItemApplnEntry: Record "Item Application Entry";
     begin
+        if not ItemLedgerEntryTypeIsUsed("Item Ledger Entry Type"::Transfer) then
+            exit;
+
         if ItemApplnEntry.AppliedInbndTransEntryExists(ItemLedgEntryNo, true) then
             repeat
                 AdjustAppliedInbndTransEntries(ItemApplnEntry, Recursion);
@@ -2729,6 +2735,21 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
             TempItemLedgerEntry.SetRange("Variant Code", ValueEntry."Variant Code");
         end;
         exit(not TempItemLedgerEntry.IsEmpty());
+    end;
+
+    local procedure CollectItemLedgerEntryTypesUsed(ItemNo: Code[20])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.CollectItemLedgerEntryTypesUsed(ItemLedgerEntryTypesUsed, ItemNo);
+    end;
+
+    local procedure ItemLedgerEntryTypeIsUsed(ItemLedgerEntryType: Enum "Item Ledger Entry Type"): Boolean
+    begin
+        if not ItemLedgerEntryTypesUsed.ContainsKey(ItemLedgerEntryType) then
+            exit(true);
+
+        exit(ItemLedgerEntryTypesUsed.Get(ItemLedgerEntryType));
     end;
 
     // Extension interface for local procedures

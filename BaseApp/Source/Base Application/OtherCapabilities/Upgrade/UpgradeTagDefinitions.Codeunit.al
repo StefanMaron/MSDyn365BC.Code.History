@@ -201,7 +201,6 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerDatabaseUpgradeTags.Add(GetBCUserGroupUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetRenderWordReportsInPlatformFeatureKeyUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetRegisterBankAccRecCopilotCapabilityUpgradeTag());
-        PerDatabaseUpgradeTags.Add(GetUpgradePlatformReportLayoutsUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Data Upgrade", 'OnGetAPIUpgradeTags', '', false, false)]
@@ -730,11 +729,6 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetPowerBIDisplayedElementUpgradeTag(): Code[250]
     begin
         exit('MS-460555-PowerBIDisplayedElement-20230824');
-    end;
-
-    internal procedure GetUpgradePlatformReportLayoutsUpgradeTag(): Code[250]
-    begin
-        exit('MS-505006-PlatformReportLayouts-20240312');
     end;
 
     internal procedure GetUpgradeMonitorNotificationUpgradeTag(): Code[250]

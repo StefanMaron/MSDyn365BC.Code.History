@@ -192,6 +192,8 @@ report 99000754 "Rolled-up Cost Shares"
 
                     NextIndex := Index;
 
+                    OnOnAfterGetRecordOnBOMLoopOnBeforeCalcCompItemQtyBase(Item, ProdBOMLine[Index], CalculateDate);
+
                     CompItemQtyBase :=
                       CostCalcMgt.CalcCompItemQtyBase(
                         ProdBOMLine[Index], CalculateDate, MfgItemQtyBase[Index], MfgItem."Routing No.",
@@ -381,6 +383,11 @@ report 99000754 "Rolled-up Cost Shares"
         exit(
           CostCalcMgt.CalcQtyAdjdForBOMScrap(LotSize, Item."Scrap %") /
           UOMMgt.GetQtyPerUnitOfMeasure(Item, VersionMgt.GetBOMUnitOfMeasure(Item."Production BOM No.", VersionCode)));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnAfterGetRecordOnBOMLoopOnBeforeCalcCompItemQtyBase(var Item: Record Item; var ProductionBOMLine: Record "Production BOM Line"; CalculationDate: Date)
+    begin
     end;
 }
 

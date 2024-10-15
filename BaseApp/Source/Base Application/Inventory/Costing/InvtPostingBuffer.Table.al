@@ -86,7 +86,7 @@ table 48 "Invt. Posting Buffer"
         }
         field(15; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             DataClassification = SystemMetadata;
         }
         field(480; "Dimension Set ID"; Integer)

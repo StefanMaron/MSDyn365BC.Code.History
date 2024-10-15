@@ -10,14 +10,13 @@ codeunit 137220 "SCM CreateWarehouseLocation"
     end;
 
     var
-        ItemJournalTemplate: Record "Item Journal Template";
-        ItemJournalBatch: Record "Item Journal Batch";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         IsInitialized: Boolean;
         UnexpectedMessage: Label 'Unexpected : "%1". Expected: "%2"';
         ErrEnterLocationCode: Label 'Enter a location code.';
@@ -37,7 +36,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM CreateWarehouseLocation");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
+        // ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
@@ -79,7 +78,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         Location: Record Location;
     begin
         Initialize();
-        CreateLocationAndBin(Location, Bin);
+        CreateLocationBinItem(Location, Bin);
 
         ConvertLocationWithErrorTest('', Bin.Code, ErrEnterLocationCode);
     end;
@@ -92,7 +91,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         Location: Record Location;
     begin
         Initialize();
-        CreateLocationAndBin(Location, Bin);
+        CreateLocationBinItem(Location, Bin);
 
         ConvertLocationWithErrorTest(Location.Code, '', ErrEnterAdjCode);
     end;
@@ -109,7 +108,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         Initialize();
         NotExistingBinCode := CopyStr(LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin),
             1, LibraryUtility.GetFieldLength(DATABASE::Bin, Bin.FieldNo(Code)));
-        CreateLocationAndBin(Location, Bin);
+        CreateLocationBinItem(Location, Bin);
 
         ItemLedgEntry.FindFirst();
         if ItemLedgEntry.SetCurrentKey("Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.") then
@@ -128,7 +127,7 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         CreateWarehouseLocation: Report "Create Warehouse Location";
     begin
         Initialize();
-        CreateLocationAndBin(Location, Bin);
+        CreateLocationBinItem(Location, Bin);
 
         ItemLedgEntry.FindFirst();
         if ItemLedgEntry.SetCurrentKey("Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.") then begin
@@ -197,9 +196,174 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         NotExistingLocationCode := CopyStr(LibraryUtility.GenerateRandomCode(Location.FieldNo(Code), DATABASE::Location),
             1, LibraryUtility.GetFieldLength(DATABASE::Location, Location.FieldNo(Code)));
 
-        CreateLocationAndBin(Location, Bin);
+        CreateLocationBinItem(Location, Bin);
 
         ConvertLocationWithErrorTest(NotExistingLocationCode, Bin.Code, StrSubstNo(ErrNothingToConvert, NotExistingLocationCode));
+    end;
+
+    [Test]
+    procedure CreateWarehouseLocation_VerifyWarehouseEntries()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        WarehouseEntry: Record "Warehouse Entry";
+        PostingCombinations: Dictionary of [Text, Decimal];
+        Combination: Text;
+        LotNo: Code[50];
+        Qty: Decimal;
+        i, j, k, l : Integer;
+    begin
+        // [FEATURE] [Create Warehouse Location]
+        // [SCENARIO 500812] Verify warehouse entries are created when a location is converted to a warehouse location.
+        Initialize();
+
+        // [GIVEN] Location and bin.
+        CreateLocationBin(Location, Bin);
+
+        // [GIVEN] 3 items, 3 variants for each item, 3 lots for each variant, 3 journal lines for each lot.
+        for i := 1 to 3 do begin
+            LibraryItemTracking.CreateLotItem(Item);
+
+            for j := 1 to 3 do begin
+                LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+                for k := 1 to 3 do begin
+                    LotNo := LibraryUtility.GenerateGUID();
+                    Combination := Item."No." + ',' + ItemVariant.Code + ',' + LotNo;
+                    PostingCombinations.Add(Combination, 0);
+
+                    for l := 1 to 3 do begin
+                        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', LibraryRandom.RandInt(100));
+                        ItemJournalLine.Validate("Variant Code", ItemVariant.Code);
+                        ItemJournalLine.Modify(true);
+                        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo, ItemJournalLine.Quantity);
+                        Qty := PostingCombinations.Get(Combination);
+                        PostingCombinations.Set(Combination, Qty + ItemJournalLine.Quantity);
+                    end;
+                end;
+            end;
+        end;
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] Convert the location to warehouse location.
+        ConvertToWarehouseLocation(Location.Code, Bin.Code);
+
+        // [THEN] Check that warehouse entries match each item's inventory by location, variant, and lot.
+        foreach Combination in PostingCombinations.Keys() do begin
+            Item.Get(Combination.Split(',').Get(1));
+            Item.SetFilter("Variant Filter", Combination.Split(',').Get(2));
+            Item.SetFilter("Lot No. Filter", Combination.Split(',').Get(3));
+            Item.CalcFields(Inventory);
+
+            WarehouseEntry.SetRange("Item No.", Item."No.");
+            WarehouseEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+            WarehouseEntry.SetFilter("Lot No.", Item.GetFilter("Lot No. Filter"));
+            WarehouseEntry.CalcSums(Quantity);
+
+            Item.TestField(Inventory, WarehouseEntry.Quantity);
+        end;
+    end;
+
+    [Test]
+    procedure CreateWarehouseLocation_UnitsOfMeasure()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemJournalLine: Record "Item Journal Line";
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        // [FEATURE] [Create Warehouse Location] [Unit of Measure]
+        // [SCENARIO 500812] Create Warehouse Location creates warehouse entries with consideration of units of measure.
+        Initialize();
+
+        // [GIVEN] Location and bin.
+        CreateLocationBin(Location, Bin);
+
+        // [GIVEN] Item with 2 units of measure - 'PCS' and 'BOX'. 1 'BOX' = 10 'PCS'.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 10);
+
+        // [GIVEN] Item journal line for 50 'PCS'.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', 50);
+
+        // [GIVEN] Item journal line for 5 'BOX'.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', 5);
+        ItemJournalLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post both journal lines.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] Convert the location to warehouse location.
+        ConvertToWarehouseLocation(Location.Code, Bin.Code);
+
+        // [THEN] Warehouse entries are created with correct quantities in both units of measure.
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.SetRange("Unit of Measure Code", Item."Base Unit of Measure");
+        WarehouseEntry.CalcSums(Quantity);
+        WarehouseEntry.TestField(Quantity, 50);
+
+        WarehouseEntry.SetRange("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        WarehouseEntry.CalcSums(Quantity);
+        WarehouseEntry.TestField(Quantity, 5);
+
+        WarehouseEntry.SetRange("Unit of Measure Code");
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        WarehouseEntry.TestField("Qty. (Base)", 100);
+    end;
+
+    [Test]
+    procedure CreateWarehouseLocation_ErrorOnNegativeInventory()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        // [FEATURE] [Create Warehouse Location]
+        // [SCENARIO 500812] Error is shown when converting location to warehouse location if at least one item has negative inventory.
+        Initialize();
+
+        // [GIVEN] Location and bin.
+        CreateLocationBin(Location, Bin);
+
+        // [GIVEN] Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Post item journal line for -10 qty.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', -10);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] Convert the location to warehouse location.
+        ConvertLocationWithErrorTest(Location.Code, Bin.Code, Format(Item."No."));
+
+        // [THEN] Error is shown.
+
+        // [THEN] After you make the inventory positive, the location can be converted successfully.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', 15);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        ConvertToWarehouseLocation(Location.Code, Bin.Code);
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.CalcSums(Quantity);
+        WarehouseEntry.TestField(Quantity, 5);
+    end;
+
+    local procedure ConvertToWarehouseLocation(LocationCode: Code[10]; BinCode: Code[20])
+    var
+        CreateWarehouseLocation: Report "Create Warehouse Location";
+    begin
+        CreateWarehouseLocation.SetHideValidationDialog(true);
+        CreateWarehouseLocation.InitializeRequest(LocationCode, BinCode);
+        CreateWarehouseLocation.UseRequestPage(false);
+        Commit();
+        CreateWarehouseLocation.RunModal();
     end;
 
     local procedure ConvertLocationWithErrorTest(LocationCode: Code[10]; BinCode: Code[20]; ExpectedErrorMessage: Text[1024])
@@ -219,51 +383,34 @@ codeunit 137220 "SCM CreateWarehouseLocation"
         Clear(CreateWarehouseLocation);
     end;
 
-    local procedure CreateLocationAndBin(var Location: Record Location; var Bin: Record Bin)
+    local procedure CreateLocationBin(var Location: Record Location; var Bin: Record Bin)
     var
-        Item: Record Item;
         WarehouseEmployee: Record "Warehouse Employee";
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
-        LibraryWarehouse.CreateBin
-        (Bin,
-          Location.Code,
-          CopyStr
-          (
-            LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin)
-            , 1, LibraryUtility.GetFieldLength(DATABASE::Bin, Bin.FieldNo(Code))),
-          '', '');
-
-        LibraryInventory.CreateItem(Item);
-        AddInventoryNonDirectLocation(Item, Location.Code);
+        LibraryWarehouse.CreateBin(
+          Bin, Location.Code,
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin),
+            1, LibraryUtility.GetFieldLength(DATABASE::Bin, Bin.FieldNo(Code))), '', '');
     end;
 
-    [Normal]
-    local procedure ItemJournalSetup(var ItemJournalTemplate: Record "Item Journal Template"; var ItemJournalBatch: Record "Item Journal Batch")
+    local procedure CreateLocationBinItem(var Location: Record Location; var Bin: Record Bin)
+    var
+        Item: Record Item;
     begin
-        Clear(ItemJournalTemplate);
-        ItemJournalTemplate.Init();
-        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
-        ItemJournalTemplate.Modify(true);
-
-        Clear(ItemJournalBatch);
-        ItemJournalBatch.Init();
-        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
-        ItemJournalBatch.Modify(true);
+        CreateLocationBin(Location, Bin);
+        LibraryInventory.CreateItem(Item);
+        AddInventoryNonDirectLocation(Item, Location.Code);
     end;
 
     local procedure AddInventoryNonDirectLocation(Item: Record Item; LocationCode: Code[10])
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
-          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandInt(10));
-        ItemJournalLine.Validate("Location Code", LocationCode);
-        ItemJournalLine.Modify(true);
-        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationCode, '', LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 }
 

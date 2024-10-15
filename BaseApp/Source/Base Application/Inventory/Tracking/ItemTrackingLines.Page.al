@@ -40,7 +40,6 @@ page 6510 "Item Tracking Lines"
         {
             usercontrol(BarcodeControl; CameraBarcodeScannerProviderAddIn)
             {
-
                 ApplicationArea = All;
 
                 trigger ControlAddInReady(IsSupported: Boolean)
@@ -1368,26 +1367,36 @@ page 6510 "Item Tracking Lines"
     var
         ItemLedgerEntryType: Enum "Item Ledger Entry Type";
     begin
+        if InboundIsSet then
+            exit(Inbound);
+
         case Rec."Source Type" of
             Database::"Item Journal Line":
                 case Rec."Source Subtype" of
-                    ItemLedgerEntryType::Purchase.AsInteger(), ItemLedgerEntryType::"Positive Adjmt.".AsInteger():
-                        exit(true);
-                    ItemLedgerEntryType::Sale.AsInteger(), ItemLedgerEntryType::"Negative Adjmt.".AsInteger():
-                        exit(false);
+                    ItemLedgerEntryType::Purchase.AsInteger(), ItemLedgerEntryType::"Positive Adjmt.".AsInteger(), ItemLedgerEntryType::Output.AsInteger(), ItemLedgerEntryType::"Assembly Output".AsInteger():
+                        exit(not (Rec."Qty. to Handle (Base)" < 0));
+                    ItemLedgerEntryType::Sale.AsInteger(), ItemLedgerEntryType::"Negative Adjmt.".AsInteger(), ItemLedgerEntryType::Consumption.AsInteger(), ItemLedgerEntryType::"Assembly Consumption".AsInteger():
+                        exit(Rec."Qty. to Handle (Base)" < 0)
                     else
                         Error(ItemTrackingSubTypeErr);
                 end;
             Database::"Sales Line":
-                if Rec."Source Subtype" = Enum::"Sales Document Type"::Order.AsInteger() then
-                    exit(false)
+                if Rec."Source Subtype" in [Enum::"Sales Document Type"::"Credit Memo".AsInteger(), Enum::"Sales Document Type"::"Return Order".AsInteger()] then
+                    exit(not (Rec."Qty. to Handle (Base)" < 0))
                 else
-                    Error(ItemTrackingSubTypeErr);
+                    exit(Rec."Qty. to Handle (Base)" < 0);
             Database::"Purchase Line":
-                if Rec."Source Subtype" = Enum::"Purchase Document Type"::Order.AsInteger() then
-                    exit(true)
+                if Rec."Source Subtype" in [Enum::"Purchase Document Type"::"Credit Memo".AsInteger(), Enum::"Purchase Document Type"::"Return Order".AsInteger()] then
+                    exit(Rec."Qty. to Handle (Base)" < 0)
                 else
-                    Error(ItemTrackingSubTypeErr);
+                    exit(not (Rec."Qty. to Handle (Base)" < 0));
+            Database::"Prod. Order Line":
+                exit(not (Rec."Qty. to Handle (Base)" < 0));
+            Database::"Assembly Line":
+                if Rec."Source Subtype" in [Enum::"Assembly Document Type"::Order.AsInteger(), Enum::"Assembly Document Type"::Quote.AsInteger(), Enum::"Assembly Document Type"::"Blanket Order".AsInteger()] then
+                    exit(Rec."Quantity (Base)" < 0)
+                else
+                    exit(false);
             else
                 Error(ItemTrackingTypeErr);
         end;

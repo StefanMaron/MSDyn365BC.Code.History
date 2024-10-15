@@ -388,6 +388,7 @@ page 20 "General Ledger Entries"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
+                UpdatePropagation = Both;
                 SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
             }
             part(GLEntriesPart; "G/L Entries Part")

@@ -460,6 +460,7 @@ codeunit 1351 "Telemetry Subscribers"
         Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
         Dimensions.Add('JobQueueMaxNumberOfAttemptsToRun', Format(JobQueueEntry."Maximum No. of Attempts to Run"));
         Dimensions.Add('JobQueueNumberOfAttemptsToRun', Format(JobQueueEntry."No. of Attempts to Run"));
+        Dimensions.Add('JobQueueCategory', Format(JobQueueEntry."Job Queue Category Code"));
     end;
 
     internal procedure SetJobQueueTelemetryDimensions(var JobQueueLogEntry: Record "Job Queue Log Entry"; var Dimensions: Dictionary of [Text, Text])
@@ -475,6 +476,7 @@ codeunit 1351 "Telemetry Subscribers"
         Dimensions.Add('JobQueueEarliestStartDateTime', Format(JobQueueLogEntry."Start Date/Time", 0, 9)); // UTC time
         Dimensions.Add('JobQueueCompanyName', JobQueueLogEntry.CurrentCompany());
         Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueLogEntry."System Task ID", 0, 4));
+        Dimensions.Add('JobQueueCategory', Format(JobQueueLogEntry."Job Queue Category Code"));
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Undo Sales Shipment Line", 'OnAfterCode', '', false, false)]

@@ -70,11 +70,13 @@ table 30106 "Shpfy Customer Address"
             Caption = 'Country/Region Name';
             DataClassification = CustomerContent;
         }
-        field(12; "Province Code"; Code[2])
+#pragma warning disable AS0086
+        field(12; "Province Code"; Code[10])
         {
             Caption = 'Province Code';
             DataClassification = CustomerContent;
         }
+#pragma warning restore AS0086
         field(13; "Province Name"; Text[50])
         {
             Caption = 'Province Name';

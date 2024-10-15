@@ -230,6 +230,7 @@ page 7018 "Purchase Price List"
                             trigger OnValidate()
                             begin
                                 CurrPage.Lines.Page.SetHeader(Rec);
+                                CurrPage.Update(true);
                             end;
                         }
                         field(AllowInvoiceDisc; Rec."Allow Invoice Disc.")

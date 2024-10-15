@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
-using Microsoft.Bank.BankAccount;
 using Microsoft.Foundation.Company;
 using Microsoft.Purchases.Vendor;
 
@@ -54,16 +53,16 @@ report 10032 "IRS 1099 Print"
                 column(Vendor_Country; "Country/Region Code") { }
                 column(Vendor_Post_Code; "Post Code") { }
                 column(Vendor_FederalID; ProcessVendorTIN("Federal ID No.")) { }
-                column(Vendor_BankAccountNo; BankAccountName) { }
+                column(Vendor_BankAccountNo; BankAccountNo) { }
                 column(Vendor_FATCA_Requirment; FATCARequirementText) { }
 
                 trigger OnAfterGetRecord()
                 var
-                    BankAccount: Record "Bank Account";
+                    VendorBankAccount: Record "Vendor Bank Account";
                 begin
                     if Vendor."Preferred Bank Account Code" <> '' then
-                        BankAccount.Get(Vendor."Preferred Bank Account Code");
-                    BankAccountName := BankAccount.Name;
+                        VendorBankAccount.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
+                    BankAccountNo := VendorBankAccount."Bank Account No.";
                     if Vendor."FATCA Requirement" then
                         FATCARequirementText := 'Yes'
                     else
@@ -143,7 +142,7 @@ report 10032 "IRS 1099 Print"
     var
         CompanyInformation: Record "Company Information";
         IRS1099FormReportType: Enum "IRS 1099 Form Report Type";
-        BankAccountName: Text;
+        BankAccountNo: Text;
         FATCARequirementText: Text;
         ReportYear: Integer;
 

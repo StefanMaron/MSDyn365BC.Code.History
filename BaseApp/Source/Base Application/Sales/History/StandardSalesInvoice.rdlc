@@ -3895,12 +3895,28 @@
                                             <KeepWithGroup>After</KeepWithGroup>
                                           </TablixMember>
                                           <TablixMember>
-                                            <Visibility>
-                                              <Hidden>=Fields!Quantity_ShipmentLine.Value = 0</Hidden>
-                                            </Visibility>
-                                          </TablixMember>
-                                          <TablixMember>
                                             <TablixMembers>
+                                              <TablixMember>
+                                                <Group Name="DocumentNo_ShipmentLine">
+                                                  <GroupExpressions>
+                                                    <GroupExpression>=Fields!DocumentNo_ShipmentLine.Value</GroupExpression>
+                                                  </GroupExpressions>
+                                                  <Filters>
+                                                    <Filter>
+                                                      <FilterExpression>=CStr(Fields!Quantity_ShipmentLine.Value) = String.Empty</FilterExpression>
+                                                      <Operator>Equal</Operator>
+                                                      <FilterValues>
+                                                        <FilterValue DataType="Boolean">=false</FilterValue>
+                                                      </FilterValues>
+                                                    </Filter>
+                                                  </Filters>
+                                                </Group>
+                                                <SortExpressions>
+                                                  <SortExpression>
+                                                    <Value>=Fields!DocumentNo_ShipmentLine.Value</Value>
+                                                  </SortExpression>
+                                                </SortExpressions>
+                                              </TablixMember>
                                               <TablixMember>
                                                 <Group Name="LineNo_AssemblyLine">
                                                   <GroupExpressions>

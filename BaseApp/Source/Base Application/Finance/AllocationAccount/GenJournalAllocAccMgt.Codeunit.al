@@ -4,6 +4,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Posting;
+using Microsoft.Finance.GeneralLedger.Account;
 
 codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
 {
@@ -235,6 +236,7 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
 
         AllocationAccountGenJournalLine.ReadIsolation := IsolationLevel::UpdLock;
         AllocationAccountGenJournalLine.FindSet();
+
         repeat
             CreateLinesFromAllocationAccountLine(AllocationAccountGenJournalLine);
         until AllocationAccountGenJournalLine.Next() = 0;
@@ -254,6 +256,7 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
         NextJournalLineNo: Integer;
         LastJournalLineNo: Integer;
         Increment: Integer;
+        DescriptionChanged: Boolean;
     begin
         VerifyAccountsMustMatchIfBothAccountTypeAndBalancingAccountTypeAreAllocationAccounts(AllocationAccountGenJournalLine);
 
@@ -286,9 +289,9 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
         ExistingAccountGenJournalLine.ReadIsolation := IsolationLevel::ReadUncommitted;
         ExistingAccountGenJournalLine.SetAutoCalcFields("Alloc. Acc. Modified by User");
         ExistingAccountGenJournalLine.GetBySystemId(AllocationAccountGenJournalLine.SystemId);
-
+        DescriptionChanged := GetDescriptionChanged(ExistingAccountGenJournalLine.Description, ExistingAccountGenJournalLine."Account Type", ExistingAccountGenJournalLine."Account No.");
         repeat
-            CreateGLLine(ExistingAccountGenJournalLine, AllocationLine, LastJournalLineNo, Increment);
+            CreateGLLine(ExistingAccountGenJournalLine, AllocationLine, LastJournalLineNo, Increment, DescriptionChanged);
         until AllocationLine.Next() = 0;
 
         AllocAccManualOverride.SetRange("Parent System Id", AllocationAccountGenJournalLine.SystemId);
@@ -326,7 +329,7 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
         end;
     end;
 
-    local procedure CreateGLLine(var AllocationAccountGenJournalLine: Record "Gen. Journal Line"; var AllocationLine: Record "Allocation Line"; var LastJournalLineNo: Integer; Increment: Integer)
+    local procedure CreateGLLine(var AllocationAccountGenJournalLine: Record "Gen. Journal Line"; var AllocationLine: Record "Allocation Line"; var LastJournalLineNo: Integer; Increment: Integer; DescriptionChanged: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -334,11 +337,13 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
         GenJournalLine."Journal Batch Name" := AllocationAccountGenJournalLine."Journal Batch Name";
         GenJournalLine."Journal Template Name" := AllocationAccountGenJournalLine."Journal Template Name";
         GenJournalLine."Line No." := LastJournalLineNo + Increment;
-
         UpdateAccountNumbersAndTypesOnGenJournalLine(AllocationAccountGenJournalLine, GenJournalLine, AllocationLine);
 
         GenJournalLine.Validate(Amount, AllocationLine.Amount);
         TransferDimensionSetID(GenJournalLine, AllocationLine, AllocationAccountGenJournalLine."Alloc. Acc. Modified by User");
+        if DescriptionChanged and (AllocationAccountGenJournalLine.Description <> '') then
+            GenJournalLine.Description := AllocationAccountGenJournalLine.Description;
+
         OnBeforeCreateGeneralJournalLine(GenJournalLine, AllocationLine, AllocationAccountGenJournalLine);
         GenJournalLine.Insert(true);
         LastJournalLineNo := GenJournalLine."Line No.";
@@ -414,6 +419,33 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
         exit(AllocationAccountGenJournalLine."Line No.");
     end;
 
+    local procedure GetDescriptionChanged(ExistingDescription: Text; AccountType: Enum "Gen. Journal Account Type"; AccountValue: Code[20]): Boolean
+    var
+        GLAccount: Record "G/L Account";
+        AllocationAccount: Record "Allocation Account";
+        ExpectedDescription: Text;
+    begin
+        case AccountType of
+            AccountType::"G/L Account":
+                begin
+                    if not GLAccount.Get(AccountValue) then
+                        exit(false);
+
+                    ExpectedDescription := GLAccount.Name;
+                end;
+            AccountType::"Allocation Account":
+                begin
+                    if not AllocationAccount.Get(AccountValue) then
+                        exit(false);
+
+                    ExpectedDescription := AllocationAccount.Name;
+                end;
+            else
+                exit(false);
+        end;
+
+        exit(ExistingDescription <> ExpectedDescription);
+    end;
 
     local procedure GetLineIncrement(CurrentLineNo: Integer; NextLineNo: Integer; LinesToInsert: Integer): Integer
     var
