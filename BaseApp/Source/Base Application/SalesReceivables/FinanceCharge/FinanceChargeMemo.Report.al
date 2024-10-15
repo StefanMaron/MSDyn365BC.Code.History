@@ -89,6 +89,9 @@ report 118 "Finance Charge Memo"
                 column(CompanyInfoBankAccountNo; CompanyBankAccount."Bank Account No.")
                 {
                 }
+                column(CompanyInfoIBAN; CompanyBankAccount.IBAN)
+                {
+                }
                 column(CustNo_IssFinChrgMemoHdr; "Issued Fin. Charge Memo Header"."Customer No.")
                 {
                 }
@@ -174,6 +177,9 @@ report 118 "Finance Charge Memo"
                 {
                 }
                 column(CompanyInfoBankAccountNoCaption; Text013)
+                {
+                }
+                column(IBANCaption; IBANCaptionLbl)
                 {
                 }
                 column(CompanyInfoBankNameCaption; Text014)
@@ -721,6 +727,7 @@ report 118 "Finance Charge Memo"
         Text025: Label 'Amount Including VAT';
         Text026: Label 'VAT Amount Specification';
         Text027: Label 'VAT %';
+        IBANCaptionLbl: Label 'IBAN';
         VATBaseCaptionLbl: Label 'VAT Base';
         VATPercentageCaptionLbl: Label 'VAT %';
         TotalCaptionLbl: Label 'Total';

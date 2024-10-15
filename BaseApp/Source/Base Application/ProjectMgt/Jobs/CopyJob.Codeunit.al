@@ -162,8 +162,8 @@ codeunit 1006 "Copy Job"
                         NextPlanningLineNo += 10000;
                         Validate("Line No.", NextPlanningLineNo);
                         TransferFields(SourceJobPlanningLine, false);
-                    if not CopyPrices then
-                        UpdateAllAmounts();
+                        if not CopyPrices then
+                            UpdateAllAmounts();
 
                         "Remaining Qty." := 0;
                         "Remaining Qty. (Base)" := 0;
@@ -398,7 +398,7 @@ codeunit 1006 "Copy Job"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCopyJob(SourceJob: Record Job; TargetJobNo: Code[20]; TargetJobDescription: Text[100]; TargetJobSellToCustomer: Code[20]; TargetJobBillToCustomer: Code[20]; CopyDimensions: Boolean; CopyPrices: Boolean; var IsHandled: Boolean)
     begin
     end;

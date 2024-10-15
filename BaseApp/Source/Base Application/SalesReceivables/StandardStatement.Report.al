@@ -326,6 +326,7 @@ report 1316 "Standard Statement"
                                     NumberOfCustLedgerEntryLines += 1;
                                     CustBalance := CustBalance + Amount;
                                     IsNewCustCurrencyGroup := IsFirstPrintLine;
+                                    IsFirstPrintLine := false;
                                     ClearCompanyPicture();
                                 end;
                             end;

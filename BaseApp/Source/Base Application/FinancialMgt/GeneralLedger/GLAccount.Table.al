@@ -1010,16 +1010,35 @@ table 15 "G/L Account"
     end;
 
     local procedure CheckOrdersPrepmtToDeduct(FldCaption: Text)
+    begin
+        CheckPurchaseOrdersPrepmtToDeduct(FldCaption);
+        CheckSalesOrdersPrepmtToDeduct(FldCaption);
+    end;
+
+    local procedure CheckSalesOrdersPrepmtToDeduct(FldCaption: Text)
     var
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         GeneralPostingSetup.SetLoadFields("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
         GeneralPostingSetup.FilterGroup(-1);
         GeneralPostingSetup.SetRange("Sales Prepayments Account", "No.");
-        GeneralPostingSetup.SetRange("Purch. Prepayments Account", "No.");
-        if GeneralPostingSetup.Find('-') then
+        if GeneralPostingSetup.FindSet() then
             repeat
-                GeneralPostingSetup.CheckOrdersPrepmtToDeduct(
+                GeneralPostingSetup.CheckPrepmtSalesLinesToDeduct(
+                    StrSubstNo(CannotChangeSetupOnPrepmtAccErr, '%1', FldCaption, "No."));
+            until GeneralPostingSetup.Next() = 0;
+    end;
+
+    local procedure CheckPurchaseOrdersPrepmtToDeduct(FldCaption: Text)
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralPostingSetup.SetLoadFields("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
+        GeneralPostingSetup.FilterGroup(-1);
+        GeneralPostingSetup.SetRange("Purch. Prepayments Account", "No.");
+        if GeneralPostingSetup.FindSet() then
+            repeat
+                GeneralPostingSetup.CheckPrepmtPurchLinesToDeduct(
                     StrSubstNo(CannotChangeSetupOnPrepmtAccErr, '%1', FldCaption, "No."));
             until GeneralPostingSetup.Next() = 0;
     end;

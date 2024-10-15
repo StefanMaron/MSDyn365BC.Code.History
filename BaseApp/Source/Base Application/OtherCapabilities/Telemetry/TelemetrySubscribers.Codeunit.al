@@ -658,7 +658,7 @@ codeunit 1351 "Telemetry Subscribers"
     begin
         Codeunit.Run(Codeunit::"Emit Database Wait Statistics");
         OnboardingSignal.CheckAndEmitOnboardingSignals();
-#if not CLEAN21
+#if not CLEAN22
         Codeunit.Run(Codeunit::"Emit Enabled Features Signal");
 #endif
     end;

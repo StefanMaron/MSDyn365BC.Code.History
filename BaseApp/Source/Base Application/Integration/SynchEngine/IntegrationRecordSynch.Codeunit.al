@@ -122,7 +122,15 @@ codeunit 5336 "Integration Record Synch."
     end;
 
     local procedure IsFieldModified(var SourceFieldRef: FieldRef; var DestinationFieldRef: FieldRef): Boolean
+    var
+        IsHandled, Result : Boolean;
     begin
+        IsHandled := false;
+        Result := false;
+        OnBeforeIsFieldModified(SourceFieldRef, DestinationFieldRef, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if DestinationFieldRef.Type = FieldType::Code then
             exit(Format(DestinationFieldRef.Value) <> UpperCase(DelChr(Format(SourceFieldRef.Value), '<>')));
 
@@ -573,6 +581,11 @@ codeunit 5336 "Integration Record Synch."
 
     [IntegrationEvent(false, false)]
     local procedure OnGetMaxNumberOfConditions(var Handled: Boolean; var Value: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsFieldModified(var SourceFieldRef: FieldRef; var DestinationFieldRef: FieldRef; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -505,6 +505,7 @@ table 273 "Bank Acc. Reconciliation"
         DataExch: Record "Data Exch.";
         ProcessBankAccRecLines: Codeunit "Process Bank Acc. Rec Lines";
     begin
+        CreateBankAccountReconcillation();
         if BankAccountCouldBeUsedForImport() then begin
             DataExch.Init();
             ProcessBankAccRecLines.ImportBankStatement(Rec, DataExch);
@@ -979,6 +980,20 @@ table 273 "Bank Acc. Reconciliation"
         CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
     end;
 #endif
+
+    procedure CreateBankAccountReconcillation()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+    begin
+        if not BankAccReconciliation.Get(
+            Rec."Statement Type",
+            Rec."Bank Account No.",
+            Rec."Statement No.") and
+            (Rec."Bank Account No." <> '') and
+            (Rec."Statement Type" = Rec."Statement Type"::"Bank Reconciliation")
+        then
+            Rec.Insert(true);
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
