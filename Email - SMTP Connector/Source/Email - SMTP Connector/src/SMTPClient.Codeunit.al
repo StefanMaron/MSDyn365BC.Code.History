@@ -3,18 +3,18 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
-codeunit 4511 "SMTP Client" implements "SMTP Client"
+codeunit 4511 "Connector SMTP Client" implements "SMTP Client"
 {
     Access = Internal;
 
     var
         SMTPAccount: Record "SMTP Account";
-        SMTPMessage: Codeunit "SMTP Message";
+        SMTPMessage: Codeunit "Connector SMTP Message";
         SmtpClient: DotNet SmtpClient;
         CancellationToken: DotNet CancellationToken;
         ITransferProgress: Dotnet ITransferProgress;
 
-    procedure Initialize(Account: Record "SMTP Account"; Message: Codeunit "SMTP Message")
+    procedure Initialize(Account: Record "SMTP Account"; Message: Codeunit "Connector SMTP Message")
     begin
         SMTPAccount := Account;
         SMTPMessage := Message;

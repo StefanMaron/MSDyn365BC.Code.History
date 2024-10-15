@@ -1203,7 +1203,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 SupplyInvtProfile.SetRange("Primary Order No.", DemandInvtProfile."Primary Order No.");
                 SupplyInvtProfile.SetRange("Primary Order Line", DemandInvtProfile."Primary Order Line");
                 SupplyInvtProfile.SetRange("Source Prod. Order Line");
-                if (DemandInvtProfile."Ref. Order Type" = DemandInvtProfile."Ref. Order Type"::Assembly) and
+                if ((DemandInvtProfile."Ref. Order Type" = DemandInvtProfile."Ref. Order Type"::Assembly) or
+                    ((DemandInvtProfile."Ref. Order Type" = DemandInvtProfile."Ref. Order Type"::"Prod. Order") and
+                     (DemandInvtProfile."Source Type" = DATABASE::"Planning Component"))) and
                    (DemandInvtProfile.Binding = DemandInvtProfile.Binding::"Order-to-Order") and
                    (DemandInvtProfile."Primary Order No." = '')
                 then
@@ -5499,7 +5501,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterMaintainPlanningLine(ReqLine: Record "Requisition Line")
+    local procedure OnAfterMaintainPlanningLine(var ReqLine: Record "Requisition Line")
     begin
     end;
 

@@ -151,6 +151,7 @@ codeunit 5836 "Cost Calculation Management"
             ProdOrderComp.SetRange(Status, Status);
             ProdOrderComp.SetRange("Prod. Order No.", "Prod. Order No.");
             ProdOrderComp.SetRange("Prod. Order Line No.", "Line No.");
+            OnCalcProdOrderLineExpCostOnAfterProdOrderCompSetFilters(ProdOrderComp, ProdOrderLine);
             if ProdOrderComp.Find('-') then
                 repeat
                     ExpMatCost := ExpMatCost + ProdOrderComp."Cost Amount";
@@ -160,6 +161,7 @@ codeunit 5836 "Cost Calculation Management"
             ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
             ProdOrderRtngLine.SetRange("Routing No.", "Routing No.");
             ProdOrderRtngLine.SetRange("Routing Reference No.", "Routing Reference No.");
+            OnCalcProdOrderLineExpCostOnAfterProdOrderRtngLineSetFilters(ProdOrderRtngLine, ProdOrderLine);
             if ProdOrderRtngLine.Find('-') then
                 repeat
                     ExpOperCost :=
@@ -187,6 +189,8 @@ codeunit 5836 "Cost Calculation Management"
             ExpMfgOvhdCost := ExpOvhdCost +
               Round(CalcOvhdCost(ExpMfgDirCost, "Indirect Cost %", 0, 0));
         end;
+
+        OnAfterCalcProdOrderLineExpCost(ProdOrderLine, ShareOfTotalCapCost, ExpMatCost, ExpCapDirCost, ExpSubDirCost, ExpCapOvhdCost, ExpMfgOvhdCost);
     end;
 
     procedure CalcProdOrderLineActCost(ProdOrderLine: Record "Prod. Order Line"; var ActMatCost: Decimal; var ActCapDirCost: Decimal; var ActSubDirCost: Decimal; var ActCapOvhdCost: Decimal; var ActMfgOvhdCost: Decimal; var ActMatCostCostACY: Decimal; var ActCapDirCostACY: Decimal; var ActSubDirCostACY: Decimal; var ActCapOvhdCostACY: Decimal; var ActMfgOvhdCostACY: Decimal)
@@ -1256,6 +1260,11 @@ codeunit 5836 "Cost Calculation Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcProdOrderLineExpCost(var ProdOrderLine: Record "Prod. Order Line"; var ShareOfTotalCapCost: Decimal; var ExpMatCost: Decimal; var ExpCapDirCost: Decimal; var ExpSubDirCost: Decimal; var ExpCapOvhdCost: Decimal; var ExpMfgOvhdCost: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcActNeededQtyBase(var OutputQtyBase: Decimal; ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -1342,6 +1351,16 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcProdOrderExpCapNeedOnBeforeMarkNotFinishedProdOrderRtngLine(ProdOrderRtngLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var ExpectedCapNeed: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderLineExpCostOnAfterProdOrderCompSetFilters(var ProdOrderComp: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderLineExpCostOnAfterProdOrderRtngLineSetFilters(var ProdOrderRtngLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 
