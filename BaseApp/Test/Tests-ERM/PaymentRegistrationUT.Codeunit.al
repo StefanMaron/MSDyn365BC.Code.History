@@ -212,10 +212,15 @@ codeunit 134700 "Payment Registration UT"
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Customer: Record Customer;
+        PaymentMethod: Record "Payment Method";
     begin
+        // [SCENARIO 412300] "Payment Method Code" must be filled if "Cust. Ledger Entry"."Payment Method Code" has value
         Initialize;
 
         CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, true);
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        CustLedgerEntry."Payment Method Code" := PaymentMethod.Code;
+        CustLedgerEntry.Modify();
         CreateDetailedCustomerLedgerEntry(CustLedgerEntry."Entry No.");
 
         TempPaymentRegistrationBuffer.PopulateTable;
@@ -232,6 +237,7 @@ codeunit 134700 "Payment Registration UT"
         TempPaymentRegistrationBuffer.TestField("Pmt. Discount Date", CustLedgerEntry."Pmt. Discount Date");
         TempPaymentRegistrationBuffer.TestField("Rem. Amt. after Discount",
           CustLedgerEntry."Remaining Amount" - CustLedgerEntry."Remaining Pmt. Disc. Possible");
+        TempPaymentRegistrationBuffer.TestField("Payment Method Code", PaymentMethod.Code);
     end;
 
     [Test]
@@ -2002,6 +2008,8 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     local procedure CreateCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; IsOpen: Boolean): Integer
+    var
+        PaymentMethod: Record "Payment Method";
     begin
         with CustLedgerEntry do begin
             if FindLast then;
@@ -2013,13 +2021,13 @@ codeunit 134700 "Payment Registration UT"
             if IsOpen then
                 "Remaining Amount" := LibraryRandom.RandDec(100, 2);
             "Document No." :=
-              LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
+                LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
             Description :=
-              LibraryUtility.GenerateRandomCode(FieldNo(Description), DATABASE::"Cust. Ledger Entry");
+                LibraryUtility.GenerateRandomCode(FieldNo(Description), DATABASE::"Cust. Ledger Entry");
             "Due Date" := LibraryUtility.GenerateRandomDate(WorkDate, WorkDate + LibraryRandom.RandInt(10));
             "Remaining Pmt. Disc. Possible" := LibraryRandom.RandDec(MaxPaymentDiscountAmount, 2);
             "Pmt. Discount Date" :=
-              LibraryUtility.GenerateRandomDate(WorkDate - LibraryRandom.RandInt(10), WorkDate);
+                LibraryUtility.GenerateRandomDate(WorkDate - LibraryRandom.RandInt(10), WorkDate);
             Insert;
 
             exit("Entry No.");

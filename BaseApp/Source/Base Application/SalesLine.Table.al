@@ -1553,7 +1553,7 @@
                     SalesLine2.TestField("No.", "No.");
                     SalesLine2.TestField("Bill-to Customer No.", "Bill-to Customer No.");
                     SalesLine2.TestField("Sell-to Customer No.", "Sell-to Customer No.");
-                    if "Drop Shipment" then begin
+                    if "Drop Shipment" or "Special Order" then begin
                         SalesLine2.TestField("Variant Code", "Variant Code");
                         SalesLine2.TestField("Location Code", "Location Code");
                         SalesLine2.TestField("Unit of Measure Code", "Unit of Measure Code");
