@@ -51,6 +51,7 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
         AddingInformationForAnExistingUserTxt: Label 'Adding changes for an existing user [%1].', Comment = '%1 = user display name (text)', Locked = true;
         AddingInformationForARemovedUserTxt: Label 'Adding changes for a user removed / de-licensed in Office with user name [%1].', Comment = '%1 = User name', Locked = true;
         PlanNamesPerUserFromGraphTxt: Label 'User with AAD Object ID [%1] has plans [%2].', Comment = '%1 = authentication object ID (guid); %2 = list of plans for the user (text)', Locked = true;
+        ProcessingUserTxt: Label 'Procesing the user %1.', Comment = '%1 - Display name', Locked = true;
         DelimiterTxt: Label '|', Locked = true;
 
     procedure Run(ForUserSecurityId: Guid)
@@ -67,6 +68,9 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
         if not UserLoginTimeTracker.IsFirstLogin(ForUserSecurityId) then
             exit;
 
+        // Licenses are assigned to users in Office 365 and synchronized to Business Central from the Users page.
+        // Permissions in licenses enable features for users, and not all tasks are available to all users.
+        // RefreshUserPlans is used only when a user signs in while new user information in Office 365 has not been synchronized in Business Central.
         if AzureADPlan.DoesUserHavePlans(ForUserSecurityId) then
             exit;
 
@@ -94,6 +98,7 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
         if GuiAllowed() then
             Window.Open(ProgressDlgMsg);
 
+        i := 0;
         repeat
             foreach GraphUser in GraphUserPage.CurrentPage() do
                 if not AzureADGraphUser.GetUser(GraphUser.ObjectId(), User) then begin
@@ -102,7 +107,7 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
                         Window.Update(2, Format(GraphUser.DisplayName()));
                     end;
 
-                    SendTraceTag('00009L4', UserSetupCategoryTxt, Verbosity::Normal, StrSubstNo('Procesing User %1', Format(GraphUser.DisplayName())),
+                    SendTraceTag('00009L4', UserSetupCategoryTxt, Verbosity::Normal, StrSubstNo(ProcessingUserTxt, Format(GraphUser.DisplayName())),
                         DataClassification::CustomerContent);
 
                     if CreateNewUserFromGraphUser(GraphUser) then
@@ -506,10 +511,16 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
             CurrentUpdateEntity := Enum::"Azure AD User Update Entity".FromInteger(UserUpdateEntities.Get(Counter));
             ValueFromGraph := GetUpdateEntityFromGraph(CurrentUpdateEntity, GraphUser);
             ValueFromUserTable := GetUpdateEntityFromUser(CurrentUpdateEntity, User);
-            if CurrentUpdateEntity = CurrentUpdateEntity::Plan then
-                ChangesDetected := AzureADPlan.CheckIfPlansDifferent(GraphUser, User."User Security ID")
-            else
-                ChangesDetected := LowerCase(ValueFromGraph) <> LowerCase(ValueFromUserTable);
+
+            case CurrentUpdateEntity of
+                CurrentUpdateEntity::Plan:
+                    ChangesDetected := AzureADPlan.CheckIfPlansDifferent(GraphUser, User."User Security ID");
+                CurrentUpdateEntity::"Language ID":
+                    // Do not override BC language with blank value if it's not defined in Office
+                    ChangesDetected := (ValueFromGraph <> '') and (LowerCase(ValueFromGraph) <> LowerCase(ValueFromUserTable));
+                else
+                    ChangesDetected := LowerCase(ValueFromGraph) <> LowerCase(ValueFromUserTable);
+            end;
 
             if ChangesDetected then begin
                 AzureADUserUpdate.Init();
@@ -545,7 +556,7 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
     local procedure GetUpdateEntityFromUser(UpdateEntity: Enum "Azure AD User Update Entity"; User: Record User): Text
     var
         UserPersonalization: Record "User Personalization";
-        Language: Codeunit Language;
+        LanguageId: Integer;
         PlanNames: List of [Text];
     begin
         case UpdateEntity of
@@ -558,9 +569,12 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
             Enum::"Azure AD User Update Entity"::"Language ID":
                 begin
                     if UserPersonalization.Get(User."User Security ID") then
-                        exit(Format(UserPersonalization."Language ID"));
-                    // Fallback in case "User Personalization" was not created while updating the plan for the current user.
-                    exit(Format(Language.GetDefaultApplicationLanguageId()));
+                        LanguageId := UserPersonalization."Language ID";
+
+                    if LanguageId <> 0 then
+                        exit(Format(LanguageId));
+
+                    exit('');
                 end;
             Enum::"Azure AD User Update Entity"::Plan:
                 begin
@@ -573,6 +587,7 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
     local procedure GetUpdateEntityFromGraph(UpdateEntity: Enum "Azure AD User Update Entity"; GraphUser: DotNet UserInfo): Text
     var
         PlanNames: List of [Text];
+        LanguageId: Integer;
     begin
         case UpdateEntity of
             Enum::"Azure AD User Update Entity"::"Authentication Email":
@@ -582,7 +597,14 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
             Enum::"Azure AD User Update Entity"::"Full Name":
                 exit(AzureADGraphUser.GetFullName(GraphUser));
             Enum::"Azure AD User Update Entity"::"Language ID":
-                exit(Format(AzureADGraphUser.GetPreferredLanguageID(GraphUser)));
+                begin
+                    LanguageId := AzureADGraphUser.GetPreferredLanguageID(GraphUser);
+
+                    if LanguageId = 0 then
+                        exit('');
+
+                    exit(Format(LanguageId));
+                end;
             Enum::"Azure AD User Update Entity"::Plan:
                 begin
                     AzureADPlan.GetPlanNames(GraphUser, PlanNames);

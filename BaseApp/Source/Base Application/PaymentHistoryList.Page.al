@@ -177,6 +177,7 @@ page 11000007 "Payment History List"
                         PaymHist.SetRange("Export Protocol", "Export Protocol");
                         PaymHist.SetRange("Our Bank", "Our Bank");
                         PaymHist.SetRange("Print Docket", true);
+                        OnPrintDocketOnAfterPaymHistSetFilters(Rec, SentProtocol, PaymHist);
                         REPORT.RunModal(SentProtocol."Docket ID", true, true, PaymHist);
 
                         CurrPage.Update;
@@ -239,6 +240,11 @@ page 11000007 "Payment History List"
         PaymentCard.SetTableView(Rec);
         PaymentCard.SetRecord(Rec);
         PaymentCard.Run;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrintDocketOnAfterPaymHistSetFilters(Rec: Record "Payment History"; var SentProtocol: Record "Export Protocol"; var PaymHist: Record "Payment History")
+    begin
     end;
 }
 

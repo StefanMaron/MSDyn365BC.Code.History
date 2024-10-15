@@ -491,6 +491,8 @@
                                             IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
                                         end;
                                 end;
+
+                                OnAfterValidateShippingOptions(Rec, ShipToOptions);
                             end;
                         }
                         group(Control4)
@@ -2401,6 +2403,11 @@
             exit(LocationsQuery.Read);
         end;
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateShippingOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

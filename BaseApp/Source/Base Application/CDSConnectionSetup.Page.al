@@ -63,7 +63,7 @@ page 7200 "CDS Connection Setup"
                     Editable = IsEditable;
                     Visible = IsUserNamePasswordVisible;
                     ExtendedDatatype = Masked;
-                    ToolTip = 'Specifies the password of the user that will be used to connect to the Common Data ServiceS environment and synchronize data.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
+                    ToolTip = 'Specifies the password of the user that will be used to connect to the Common Data Service environment and synchronize data.', Comment = 'Common Data Service is the name of a Microsoft Service and should not be translated.';
 
                     trigger OnValidate()
                     begin

@@ -102,7 +102,7 @@ codeunit 7201 "CDS Integration Impl."
         OwnerDiffersFromExpectedTxt: Label 'Owner differs from the expected one.', Locked = true;
         SynchronizeCompanyTxt: Label 'Synchronize company entity.', Locked = true;
         CompanySynchronizedTxt: Label 'Company has been synchronized.', Locked = true;
-        RoleAssignedToTeamTxt: Label 'Role isassigned to team.', Locked = true;
+        RoleAssignedToTeamTxt: Label 'Role is assigned to team.', Locked = true;
         RoleAssignedToUserTxt: Label 'Role is assigned to user.', Locked = true;
         UserAddedToTeamTxt: Label 'User is added to team.', Locked = true;
         CannotCreateBusinessUnitTxt: Label 'Cannot create business unit.', Locked = true;
@@ -200,7 +200,7 @@ codeunit 7201 "CDS Integration Impl."
         ConnectionStringFormatTok: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5', Locked = true;
         ConnectionBrokenMsg: Label 'The connection to Common Data Service is disabled due to the following error: %1.\\Please contact your system administrator.', Comment = '%1 = Error text received from Common Data Service';
         ConnectionDisabledNotificationMsg: Label 'Connection to Common Data Service is broken and that it has been disabled due to an error: %1', Comment = '%1 = Error text received from Common Data Service';
-        SetupConnectionTxt: Label 'Set up Common Data Service Base Integration connection';
+        SetupConnectionTxt: Label 'Set up Common Data Service connection';
         BaseIntegrationSolutionNotInstalledErr: Label 'Base Common Data Service integration solution %1 is not installed.', Comment = '%1 = Common Data Service solution name';
         SolutionVersionErr: Label 'Version of the base Common Data Service integration solution %1 is not the last one.', Comment = '%1 = solution version';
         SystemAdminErr: Label 'User %1 has the %2 role on server %3.\\You must choose a user that does not have the %2 role.', Comment = '%1 = user name, %2 = security role name, %3 = server address';

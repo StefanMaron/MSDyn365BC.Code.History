@@ -245,10 +245,8 @@ codeunit 8612 "Config. Template Management"
     procedure UpdateConfigTemplateAndLines("Code": Code[10]; Description: Text[100]; TableID: Integer; DefaultValuesFieldRefArray: array[100] of FieldRef)
     var
         ConfigTemplateHeader: Record "Config. Template Header";
-        ConfigTemplateLine: Record "Config. Template Line";
         FieldRef: FieldRef;
         I: Integer;
-        Value: Text[250];
     begin
         ConfigTemplateHeader.Get(Code);
         ConfigTemplateHeader.Description := Description;
@@ -256,20 +254,7 @@ codeunit 8612 "Config. Template Management"
 
         for I := 1 to ArrayLen(DefaultValuesFieldRefArray) do begin
             FieldRef := DefaultValuesFieldRefArray[I];
-            ConfigTemplateLine.SetFilter("Data Template Code", Code);
-            ConfigTemplateLine.SetFilter(Type, '=%1', ConfigTemplateLine.Type::Field);
-            ConfigTemplateLine.SetFilter("Field ID", '=%1', FieldRef.Number);
-            ConfigTemplateLine.SetFilter("Table ID", '=%1', TableID);
-
-            if ConfigTemplateLine.FindLast then begin
-                Value := Format(FieldRef.Value);
-                if Value <> ConfigTemplateLine."Default Value" then begin
-                    ConfigTemplateLine."Default Value" := Value;
-                    ConfigTemplateLine."Language ID" := GlobalLanguage;
-                    ConfigTemplateLine.Modify(true);
-                end;
-            end else
-                InsertConfigTemplateLineFromField(Code, FieldRef, TableID);
+            UpdateConfigTemplateLines(Code, FieldRef, TableID);
         end;
     end;
 
@@ -384,6 +369,9 @@ codeunit 8612 "Config. Template Management"
     var
         DummyConfigTemplateLine: Record "Config. Template Line";
     begin
+        if IsNotInitializedFieldRef(FieldRef) then
+            exit;
+
         DummyConfigTemplateLine."Default Value" := FieldRef.Value;
         InsertConfigTemplateLine(ConfigTemplateHeaderCode, FieldRef.Number, DummyConfigTemplateLine."Default Value", TableID);
     end;
@@ -511,6 +499,55 @@ codeunit 8612 "Config. Template Management"
                       TypeHelper.GetOptionNo(ConfigTemplateLine."Default Value", FieldRef.OptionMembers));
             until ConfigTemplateLine.Next = 0;
         end;
+    end;
+
+    local procedure UpdateConfigTemplateLines(Code: Code[10]; FieldRef: FieldRef; TableID: Integer)
+    var
+        ConfigTemplateLine: Record "Config. Template Line";
+        Value: Text[250];
+    begin
+        if IsNotInitializedFieldRef(FieldRef) then
+            exit;
+
+        ConfigTemplateLine.SetFilter("Data Template Code", Code);
+        ConfigTemplateLine.SetFilter(Type, '=%1', ConfigTemplateLine.Type::Field);
+        ConfigTemplateLine.SetFilter("Field ID", '=%1', FieldRef.Number);
+        ConfigTemplateLine.SetFilter("Table ID", '=%1', TableID);
+
+        if ConfigTemplateLine.FindLast then begin
+            Value := Format(FieldRef.Value);
+            if Value <> ConfigTemplateLine."Default Value" then begin
+                ConfigTemplateLine."Default Value" := Value;
+                ConfigTemplateLine."Language ID" := GlobalLanguage;
+                ConfigTemplateLine.Modify(true);
+            end;
+        end else
+            InsertConfigTemplateLineFromField(Code, FieldRef, TableID);
+    end;
+
+    local procedure IsNotInitializedFieldRef(FieldRef: FieldRef) Resul: Boolean
+    var
+        LastErrorCode: Text;
+    begin
+        if not TryGetFieldNumberFromFieldRef(FieldRef) then begin
+            LastErrorCode := GetLastErrorCode;
+            Resul := LastErrorCode = 'NotInitialized';
+        end;
+
+        OnAfterIsNotInitializedFieldRef(FieldRef, Resul);
+    end;
+
+    [TryFunction]
+    local procedure TryGetFieldNumberFromFieldRef(FieldRef: FieldRef)
+    var
+        FieldNumber: Integer;
+    begin
+        FieldNumber := FieldRef.Number;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsNotInitializedFieldRef(FieldRef: FieldRef; var Resul: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
