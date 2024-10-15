@@ -1281,9 +1281,9 @@ report 393 "Suggest Vendor Payments"
 
     local procedure IsNotAppliedEntry(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"): Boolean
     begin
-        exit(
-          IsNotAppliedToCurrentBatchLine(GenJournalLine, VendorLedgerEntry) and
-          IsNotAppliedToOtherBatchLine(GenJournalLine, VendorLedgerEntry));
+        if not IsNotAppliedToCurrentBatchLine(GenJournalLine, VendorLedgerEntry) then
+            exit(false);
+        exit(IsNotAppliedToOtherBatchLine(GenJournalLine, VendorLedgerEntry));
     end;
 
     local procedure IsNotAppliedToCurrentBatchLine(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"): Boolean
