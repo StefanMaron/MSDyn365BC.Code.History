@@ -1,4 +1,4 @@
-#if not CLEAN20
+﻿#if not CLEAN20
 table 246 "Requisition Line"
 {
     Caption = 'Requisition Line';
@@ -211,6 +211,7 @@ table 246 "Requisition Line"
 
                 GetLocationCode();
                 OnValidateVendorNoOnAfterGetLocationCode(Rec);
+                GetDefaultBinCode();
 
                 if (Type = Type::Item) and ("No." <> '') and ("Prod. Order No." = '') then begin
                     if ItemVend.Get("Vendor No.", "No.", "Variant Code") then begin
@@ -3390,6 +3391,19 @@ table 246 "Requisition Line"
             ShouldGetDefaultBin := ("Bin Code" = '') and Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
             OnBeforeGetDefaultBin(Rec, ShouldGetDefaultBin);
             if ShouldGetDefaultBin then
+                WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
+        end;
+    end;
+    
+    local procedure GetDefaultBinCode()
+    begin
+        if Rec."Replenishment System" <> Rec."Replenishment System"::Purchase then
+            exit;
+        if (Rec."Sales Order No." <> '') and Rec."Drop Shipment" then
+            exit;
+        if ("Location Code" <> '') and ("No." <> '') then begin
+            GetLocation("Location Code");
+            if ("Bin Code" = '') and Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
                 WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
         end;
     end;

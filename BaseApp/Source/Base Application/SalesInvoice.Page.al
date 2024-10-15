@@ -2059,10 +2059,14 @@ page 43 "Sales Invoice"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         OfficeMgt: Codeunit "Office Management";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        PreAssignedNo: Code[20];
+        xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
         LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
+        PreAssignedNo := Rec."No.";
+        xLastPostingNo := Rec."Last Posting No.";
 
         SendToPosting(PostingCodeunitID);
 
@@ -2083,14 +2087,19 @@ page 43 "Sales Invoice"
             exit;
 
         if OfficeMgt.IsAvailable() then begin
-            SalesInvoiceHeader.SetRange("No.", Rec."Last Posting No.");
+            if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+                SalesInvoiceHeader.SetRange("No.", Rec."Last Posting No.")
+            else begin
+                SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
+                SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+            end;
             if SalesInvoiceHeader.FindFirst() then
                 PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
         end else
             case Navigate of
                 "Navigate After Posting"::"Posted Document":
                     if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
-                        ShowPostedConfirmationMessage();
+                        ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
                 "Navigate After Posting"::"New Document":
                     if DocumentIsPosted then begin
                         SalesHeader.Init();
@@ -2116,12 +2125,17 @@ page 43 "Sales Invoice"
         CurrPage.Update(false);
     end;
 
-    local procedure ShowPostedConfirmationMessage()
+    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20]; xLastPostingNo: Code[20])
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        SalesInvoiceHeader.SetRange("No.", Rec."Last Posting No.");
+        if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+            SalesInvoiceHeader.SetRange("No.", Rec."Last Posting No.")
+        else begin
+            SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
+            SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
+        end;
         if SalesInvoiceHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesInvQst, SalesInvoiceHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())

@@ -55,6 +55,7 @@ permissionset 3602 "Payables Journals - Post"
                   tabledata "VAT Posting Setup" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
+                  tabledata "VAT Reporting Code" = R,
                   tabledata "VAT Setup Posting Groups" = R,
                   tabledata Vendor = r,
                   tabledata "Vendor Bank Account" = R,

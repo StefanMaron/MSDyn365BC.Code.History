@@ -549,7 +549,7 @@
         CheckPrepmtSalesLinesToDeduct(ErrorMsg);
     end;
 
-    local procedure CheckPrepmtSalesLinesToDeduct(ErrorMsg: Text)
+    internal procedure CheckPrepmtSalesLinesToDeduct(ErrorMsg: Text)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -564,7 +564,7 @@
         end;
     end;
 
-    local procedure CheckPrepmtPurchLinesToDeduct(ErrorMsg: Text)
+    internal procedure CheckPrepmtPurchLinesToDeduct(ErrorMsg: Text)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";

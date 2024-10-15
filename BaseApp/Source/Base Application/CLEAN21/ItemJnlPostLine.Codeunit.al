@@ -1,4 +1,4 @@
-﻿#if CLEAN21
+#if CLEAN21
 codeunit 22 "Item Jnl.-Post Line"
 {
     Permissions = TableData Item = imd,
@@ -357,6 +357,9 @@ codeunit 22 "Item Jnl.-Post Line"
             SetRange("Item No.", ItemJnlLine."Item No.");
             if ItemJnlLine."Prod. Order Comp. Line No." <> 0 then
                 SetRange("Line No.", ItemJnlLine."Prod. Order Comp. Line No.");
+            if ItemJnlLine."Variant Code" <> '' then
+                SetRange("Variant Code", ItemJnlLine."Variant Code");
+
             LockTable();
 
             RemQtyToPost := ItemJnlLine.Quantity;

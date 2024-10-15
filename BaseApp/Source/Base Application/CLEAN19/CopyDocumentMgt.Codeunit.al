@@ -1,4 +1,4 @@
-﻿#if CLEAN19
+#if CLEAN19
 codeunit 6620 "Copy Document Mgt."
 {
 
@@ -78,6 +78,7 @@ codeunit 6620 "Copy Document Mgt."
         CopyExtText: Boolean;
         CopyJobData: Boolean;
         SkipWarningNotification: Boolean;
+        SkipOldInvoiceDesc: Boolean;
         IsBlockedErr: Label '%1 %2 is blocked.', Comment = '%1 - type of entity, e.g. Item; %2 - entity''s No.';
         IsSalesBlockedItemErr: Label 'You cannot sell item %1 because the Sales Blocked check box is selected on the item card.', Comment = '%1 - Item No.';
         IsPurchBlockedItemErr: Label 'You cannot purchase item %1 because the Purchasing Blocked check box is selected on the item card.', Comment = '%1 - Item No.';
@@ -3094,6 +3095,9 @@ codeunit 6620 "Copy Document Mgt."
                           FromSalesHeader, FromSalesLine, FromSalesLine2, TempSalesLineBuf,
                           ToSalesHeader, TempDocSalesLine, "Document No.", NextLineNo);
 
+                    if TempSalesLineBuf."Shipment Line No." <> 0 then
+                        SkipOldInvoiceDescription(true);
+
                     OnAfterCopySalesInvLine(TempDocSalesLine, ToSalesHeader, TempSalesLineBuf, FromSalesInvLine);
                 until Next() = 0;
 
@@ -3990,6 +3994,9 @@ codeunit 6620 "Copy Document Mgt."
                         CopyPurchLinesToBuffer(
                           FromPurchHeader, FromPurchLine, FromPurchLine2, FromPurchLineBuf, ToPurchHeader, TempDocPurchaseLine,
                           "Document No.", NextLineNo);
+
+                    if FromPurchLineBuf."Receipt Line No." <> 0 then
+                        SkipOldInvoiceDescription(true);
 
                     OnAfterCopyPurchInvLines(TempDocPurchaseLine, ToPurchHeader, FromPurchLineBuf, FromPurchInvLine);
                 until Next() = 0;
@@ -8037,6 +8044,18 @@ codeunit 6620 "Copy Document Mgt."
         OnCopyPurchLineOnBeforeCheckVATBusGroup(ToPurchLine, CheckVATBusGroup);
         if CheckVATBusGroup then
             ToPurchLine.TestField("VAT Bus. Posting Group", ToPurchHeader."VAT Bus. Posting Group");
+    end;
+
+    procedure SetPropertiesForCorrectiveCreditMemo(NewSkipCopyFromDescription: Boolean)
+    begin
+        SetProperties(true, false, false, false, true, true, false);
+        SkipOldInvoiceDesc := NewSkipCopyFromDescription;
+    end;
+
+    local procedure SkipOldInvoiceDescription(RcptOrShipLineExist: Boolean)
+    begin
+        if SkipOldInvoiceDesc and RcptOrShipLineExist then
+            SkipCopyFromDescription := true;
     end;
 
     [IntegrationEvent(false, false)]
