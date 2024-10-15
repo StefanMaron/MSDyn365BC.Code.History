@@ -267,6 +267,8 @@ codeunit 1034 "Job Planning Line - Calendar"
             Evaluate(StartTime, Format(8));
 
         StartDateTime := Format(CreateDateTime(StartDate, StartTime), 0, DateTimeFormatTxt);
+
+        OnAfterGetStartDate(JobPlanningLine, StartDateTime);
     end;
 
     local procedure GetEndDate() EndDateTime: Text
@@ -284,6 +286,8 @@ codeunit 1034 "Job Planning Line - Calendar"
             Days := Round(Duration / 24, 1, '>');
 
         EndDateTime := Format(CreateDateTime(StartDate + Days, EndTime), 0, DateTimeFormatTxt);
+
+        OnAfterGetEndDate(JobPlanningLine, EndDateTime);
     end;
 
     local procedure GetResourceEmail(ResourceNo: Code[20]): Text[80]
@@ -337,6 +341,16 @@ codeunit 1034 "Job Planning Line - Calendar"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPlanningLine(NewJobPlanningLine: Record "Job Planning Line"; var ProjectManagerResource: Record Resource)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetStartDate(JobPlanningLine: Record "Job Planning Line"; var StartDateTime: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetEndDate(JobPlanningLine: Record "Job Planning Line"; var EndDateTime: Text)
     begin
     end;
 }

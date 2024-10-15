@@ -988,7 +988,7 @@ codeunit 426 "Payment Tolerance Management"
     begin
         IsHandled := false;
         OnBeforeCallPmtDiscTolWarning(
-            PostingDate, No, DocNo, CurrencyCode, Amount, AppliedAmount, PmtDiscAmount, RemainingAmountTest, AccountType.AsInteger(), ActionType, Result, IsHandled);
+            PostingDate, No, DocNo, CurrencyCode, Amount, AppliedAmount, PmtDiscAmount, RemainingAmountTest, AccountType.AsInteger(), ActionType, Result, IsHandled, SuppressCommit);
         if IsHandled then
             exit(Result);
 
@@ -2341,7 +2341,7 @@ codeunit 426 "Payment Tolerance Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCallPmtDiscTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; AppliedAmount: Decimal; PmtDiscAmount: Decimal; var RemainingAmountTest: Boolean; AccountType: Option Customer,Vendor; var ActionType: Integer; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCallPmtDiscTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; AppliedAmount: Decimal; PmtDiscAmount: Decimal; var RemainingAmountTest: Boolean; AccountType: Option Customer,Vendor; var ActionType: Integer; var Result: Boolean; var IsHandled: Boolean; SuppressCommit: Boolean)
     begin
     end;
 
