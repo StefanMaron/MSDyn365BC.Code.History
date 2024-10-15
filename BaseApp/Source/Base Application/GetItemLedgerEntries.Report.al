@@ -320,6 +320,7 @@ report 594 "Get Item Ledger Entries"
             Area := "Item Ledger Entry".Area;
             "Transaction Specification" := "Item Ledger Entry"."Transaction Specification";
             "Shpt. Method Code" := "Item Ledger Entry"."Shpt. Method Code";
+            "Location Code" := "Item Ledger Entry"."Location Code";
             Amount := Round(Abs(TotalAmt), 1);
             if AmountInclItemCharges then
                 Amount := Abs(Round(TotalAmt, 1) + Round(TotalIndirectCost, 1))
@@ -378,6 +379,7 @@ report 594 "Get Item Ledger Entries"
             Area := "Job Ledger Entry".Area;
             "Transaction Specification" := "Job Ledger Entry"."Transaction Specification";
             "Shpt. Method Code" := "Job Ledger Entry"."Shpt. Method Code";
+            "Location Code" := "Job Ledger Entry"."Location Code";
 
             if IntrastatJnlBatch."Amounts in Add. Currency" then
                 Amount := Round(Abs(Amount), Currency."Amount Rounding Precision")
@@ -563,6 +565,7 @@ report 594 "Get Item Ledger Entries"
             "Entry/Exit Point" := "Item Ledger Entry"."Entry/Exit Point";
             Area := "Item Ledger Entry".Area;
             "Transaction Specification" := "Item Ledger Entry"."Transaction Specification";
+            "Location Code" := "Item Ledger Entry"."Location Code";
             Amount := Round(Abs("Value Entry"."Sales Amount (Actual)"), 1);
 
             SetJnlLineType(IntrastatJnlLine, "Value Entry"."Document Type");

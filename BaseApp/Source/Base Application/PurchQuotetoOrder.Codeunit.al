@@ -158,6 +158,7 @@ codeunit 96 "Purch.-Quote to Order"
                     PurchOrderLine."Shortcut Dimension 1 Code" := PurchQuoteLine."Shortcut Dimension 1 Code";
                     PurchOrderLine."Shortcut Dimension 2 Code" := PurchQuoteLine."Shortcut Dimension 2 Code";
                     PurchOrderLine."Dimension Set ID" := PurchQuoteLine."Dimension Set ID";
+                    PurchOrderLine."Transaction Type" := PurchOrderHeader."Transaction Type";
                     if Vend."Prepayment %" <> 0 then
                         PurchOrderLine."Prepayment %" := Vend."Prepayment %";
                     PrepmtMgt.SetPurchPrepaymentPct(PurchOrderLine, PurchOrderHeader."Posting Date");
