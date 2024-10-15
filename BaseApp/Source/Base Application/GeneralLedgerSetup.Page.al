@@ -220,7 +220,8 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you are posting US or CA sales tax and do not want to have to set up posting groups on G/L accounts.';
                 }
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
                 field("Bank Recon. with Auto. Match"; Rec."Bank Recon. with Auto. Match")
                 {
                     ApplicationArea = Basic, Suite;
@@ -228,7 +229,7 @@ page 118 "General Ledger Setup"
                     Visible = BankReconWithAutoMatchVisible;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'This setting is also controlled by Feature Management.';
-                    ObsoleteTag = '20.0';
+                    ObsoleteTag = '21.0';
                     trigger OnValidate()
                     begin
                         Rec.Validate("Bank Recon. with Auto. Match", xRec."Bank Recon. with Auto. Match");
@@ -237,6 +238,7 @@ page 118 "General Ledger Setup"
                     end;
                 }
 #endif
+#pragma warning restore AS0074
                 field("Show Amounts"; Rec."Show Amounts")
                 {
                     ApplicationArea = Basic, Suite;
@@ -909,11 +911,11 @@ page 118 "General Ledger Setup"
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         MXInvoiceTok: Label 'MX Electronic Invoice', Locked = true;
-#if not CLEAN20
+#if not CLEAN21
         DeprecatedFeatureMsg: Label 'This configuration is now configured through the "Standardized Bank Reconciliation and Deposits" capability in the Feature Management page. Do you want to open that page now?';
 #endif
         xGeneralLedgerSetup: Record "General Ledger Setup";
-#if not CLEAN20        
+#if not CLEAN21        
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         [InDataSet]
         BackgroundValidationEnabled: Boolean;

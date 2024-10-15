@@ -341,7 +341,7 @@ codeunit 1371 "Sales Batch Post Mgt."
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeRunBatch(var SalesHeader: Record "Sales Header"; var ReplacePostingDate: Boolean; PostingDate: Date; ReplaceDocumentDate: Boolean; Ship: Boolean; Invoice: Boolean)
+    local procedure OnBeforeRunBatch(var SalesHeader: Record "Sales Header"; var ReplacePostingDate: Boolean; var PostingDate: Date; var ReplaceDocumentDate: Boolean; var Ship: Boolean; var Invoice: Boolean)
     begin
     end;
 

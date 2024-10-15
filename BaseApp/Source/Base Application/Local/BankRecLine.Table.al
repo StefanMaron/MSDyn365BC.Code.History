@@ -1,18 +1,20 @@
 ﻿table 10121 "Bank Rec. Line"
 {
     Caption = 'Bank Rec. Line';
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
     DrillDownPageID = "Bank Rec. Lines";
     LookupPageID = "Bank Rec. Lines";
 #endif
     ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
-#if not CLEAN20
+#if not CLEAN21
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
+    ObsoleteTag = '21.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '23.0';
+    ObsoleteTag = '24.0';
 #endif
+#pragma warning restore AS0074
 
     fields
     {

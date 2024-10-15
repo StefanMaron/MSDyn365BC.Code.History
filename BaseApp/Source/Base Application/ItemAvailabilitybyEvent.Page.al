@@ -458,7 +458,7 @@ page 5530 "Item Availability by Event"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        OnBeforeOnOpenPage(IncludeBlanketOrders);
+        OnBeforeOnOpenPage(IncludeBlanketOrders, PeriodType);
         if ItemIsSet() then
             InitAndCalculatePeriodEntries()
         else
@@ -527,9 +527,14 @@ page 5530 "Item Availability by Event"
     end;
 
     local procedure Initialize()
+    var
+        IsHandled: Boolean;
     begin
         Item.SetRange("Drop Shipment Filter", false);
-        CalcInventoryPageData.Initialize(Item, ForecastName, IncludeBlanketOrders, 0D, IncludePlanningSuggestions);
+        IsHandled := false;
+        OnBeforeInitialize(Item, ForecastName, IncludeBlanketOrders, IncludePlanningSuggestions, IsHandled);
+        If not IsHandled then
+            CalcInventoryPageData.Initialize(Item, ForecastName, IncludeBlanketOrders, 0D, IncludePlanningSuggestions);
         LastUpdateTime := CurrentDateTime;
     end;
 
@@ -640,7 +645,12 @@ page 5530 "Item Availability by Event"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnOpenPage(var IncludeBlanketOrders: Boolean)
+    local procedure OnBeforeOnOpenPage(var IncludeBlanketOrders: Boolean; var PeriodType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitialize(var Item: Record Item; var ForecastName: Code[10]; var IncludeBlanketOrders: Boolean; var IncludePlanningSuggestions: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

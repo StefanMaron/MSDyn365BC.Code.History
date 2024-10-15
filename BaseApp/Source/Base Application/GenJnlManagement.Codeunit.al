@@ -18,7 +18,7 @@
         Text003: Label 'Recurring General Journal';
         Text004: Label 'DEFAULT';
         Text005: Label 'Default Journal';
-#if not CLEAN20
+#if not CLEAN21
         USText000: Label 'Deposit Document';
 #endif
 
@@ -491,7 +491,7 @@
                         if TemplateType = GenJnlTemplate.Type::Assets then
                             GenJnlTemplate.Description := Text000
                         else
-#if not CLEAN20
+#if not CLEAN21
                             if TemplateType = GenJnlTemplate.Type::Deposits then
                                 GenJnlTemplate.Description := USText000
                             else

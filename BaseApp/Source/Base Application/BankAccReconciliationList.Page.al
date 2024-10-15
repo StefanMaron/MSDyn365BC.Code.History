@@ -163,7 +163,7 @@ page 388 "Bank Acc. Reconciliation List"
                         BankReconciliationMgt.Post(
                             Rec,
                             CODEUNIT::"Bank Acc. Recon. Post (Yes/No)",
-#if not CLEAN20
+#if not CLEAN21
                             CODEUNIT::"Bank Rec.-Post (Yes/No)"
 #else
                             CODEUNIT::"Bank Acc. Recon. Post (Yes/No)"
@@ -187,7 +187,7 @@ page 388 "Bank Acc. Reconciliation List"
                         BankReconciliationMgt.Post(
                             Rec,
                             CODEUNIT::"Bank Acc. Recon. Post+Print",
-#if not CLEAN20
+#if not CLEAN21
                             CODEUNIT::"Bank Rec.-Post + Print"
 #else
                             CODEUNIT::"Bank Acc. Recon. Post+Print"

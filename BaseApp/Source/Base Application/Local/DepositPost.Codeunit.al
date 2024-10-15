@@ -1,4 +1,5 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 codeunit 10140 "Deposit-Post"
 {
     Permissions = TableData "Cust. Ledger Entry" = r,
@@ -9,8 +10,8 @@ codeunit 10140 "Deposit-Post"
     TableNo = "Deposit Header";
     ObsoleteReason = 'Replaced by new Bank Deposits extension';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
-
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0074
     trigger OnRun()
     var
         GLEntry: Record "G/L Entry";

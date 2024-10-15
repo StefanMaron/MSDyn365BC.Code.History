@@ -5,7 +5,7 @@ table 273 "Bank Acc. Reconciliation"
     LookupPageID = "Bank Acc. Reconciliation List";
     Permissions = TableData "Bank Account" = rm,
                   TableData "Data Exch." = rimd,
-#if not CLEAN20
+#if not CLEAN21
                   TableData "Bank Rec. Header" = r,
 #endif
                   TableData "Bank Account Ledger Entry" = rm,
@@ -351,16 +351,7 @@ table 273 "Bank Acc. Reconciliation"
     }
 
     trigger OnDelete()
-    var
-        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-        CheckLedgerEntry: Record "Check Ledger Entry";
     begin
-        // we must only reset the ledger entries for bank reconciliations
-        if ("Bank Account No." <> '') and ("Statement No." <> '') then begin
-            BankAccountLedgerEntry.ResetStatementFields("Bank Account No.", "Statement No.", "Statement Type");
-            CheckLedgerEntry.ResetStatementFields("Bank Account No.", "Statement No.", "Statement Type");
-        end;
-
         if BankAccReconLine.LinesExist(Rec) then
             BankAccReconLine.DeleteAll(true);
     end;
@@ -857,8 +848,9 @@ table 273 "Bank Acc. Reconciliation"
         until Next() = 0;
     end;
 
-#if not CLEAN20
-    [Obsolete('NA Bank Rec. Header deprecated in favor of W1 bank reconciliation. Remove references to "Bank Rec. Header" and use GetTempCopy instead', '20.0')]
+#pragma warning disable AS0074
+#if not CLEAN21
+    [Obsolete('NA Bank Rec. Header deprecated in favor of W1 bank reconciliation. Remove references to "Bank Rec. Header" and use GetTempCopy instead', '21.0')]
     procedure GetTempCopyFromBankRecHeader(var BankAccReconciliation: Record "Bank Acc. Reconciliation")
     var
         BankRecHeader: Record "Bank Rec. Header";
@@ -884,6 +876,7 @@ table 273 "Bank Acc. Reconciliation"
         until BankRecHeader.Next() = 0;
     end;
 #endif
+#pragma warning restore AS0074
 
     procedure InsertRec(StatementType: Option; BankAccountNo: Code[20])
     begin

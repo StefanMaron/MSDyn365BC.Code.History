@@ -1,4 +1,4 @@
-page 233 "Apply Vendor Entries"
+﻿page 233 "Apply Vendor Entries"
 {
     Caption = 'Apply Vendor Entries';
     DataCaptionFields = "Vendor No.";
@@ -281,6 +281,13 @@ page 233 "Apply Vendor Entries"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies if the entry to be applied is positive.';
+                }
+                field("Remit-to Code"; Rec."Remit-to Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the address for the remit-to code.';
+                    Visible = true;
+                    TableRelation = "Remit Address".Code WHERE("Vendor No." = FIELD("Vendor No."));
                 }
                 field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
@@ -636,30 +643,6 @@ page 233 "Apply Vendor Entries"
         exit(false);
     end;
 
-    trigger OnFindRecord(Which: Text) Found: Boolean
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeOnFindRecord(Rec, Which, Found, IsHandled);
-        if IsHandled then
-            exit(Found);
-
-        exit(Rec.Find(Which));
-    end;
-
-    trigger OnNextRecord(Steps: Integer) ActualSteps: Integer
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeOnNextRecord(Rec, Steps, ActualSteps, IsHandled);
-        if IsHandled then
-            exit(ActualSteps);
-
-        exit(Rec.Next(Steps));
-    end;
-
     trigger OnOpenPage()
     var
         OfficeMgt: Codeunit "Office Management";
@@ -864,75 +847,91 @@ page 233 "Apply Vendor Entries"
     end;
 
     procedure SetApplyingVendLedgEntry()
-    var
-        Vendor: Record Vendor;
     begin
         OnBeforeSetApplyingVendLedgEntry(TempApplyingVendLedgEntry, GenJnlLine, PurchHeader, CalcType);
 
         case CalcType of
             CalcType::"Purchase Header":
-                begin
-                    TempApplyingVendLedgEntry."Posting Date" := PurchHeader."Posting Date";
-                    if PurchHeader."Document Type" = PurchHeader."Document Type"::"Return Order" then
-                        TempApplyingVendLedgEntry."Document Type" := TempApplyingVendLedgEntry."Document Type"::"Credit Memo"
-                    else
-                        TempApplyingVendLedgEntry."Document Type" := TempApplyingVendLedgEntry."Document Type"::Invoice;
-                    TempApplyingVendLedgEntry."Document No." := PurchHeader."No.";
-                    TempApplyingVendLedgEntry."Vendor No." := PurchHeader."Pay-to Vendor No.";
-                    TempApplyingVendLedgEntry.Description := PurchHeader."Posting Description";
-                    TempApplyingVendLedgEntry."Currency Code" := PurchHeader."Currency Code";
-                    if TempApplyingVendLedgEntry."Document Type" = TempApplyingVendLedgEntry."Document Type"::"Credit Memo" then begin
-                        TempApplyingVendLedgEntry.Amount := TotalPurchLine."Amount Including VAT";
-                        TempApplyingVendLedgEntry."Remaining Amount" := TotalPurchLine."Amount Including VAT";
-                    end else begin
-                        TempApplyingVendLedgEntry.Amount := -TotalPurchLine."Amount Including VAT";
-                        TempApplyingVendLedgEntry."Remaining Amount" := -TotalPurchLine."Amount Including VAT";
-                    end;
-                    CalcApplnAmount();
-                end;
-            CalcType::Direct:
-                begin
-                    if Rec."Applying Entry" then begin
-                        if TempApplyingVendLedgEntry."Entry No." <> 0 then
-                            VendLedgEntry := TempApplyingVendLedgEntry;
-                        CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", Rec);
-                        if Rec."Applies-to ID" = '' then
-                            SetVendApplId(false);
-                        Rec.CalcFields(Amount);
-                        TempApplyingVendLedgEntry := Rec;
-                        if VendLedgEntry."Entry No." <> 0 then begin
-                            Rec := VendLedgEntry;
-                            Rec."Applying Entry" := false;
-                            SetVendApplId(false);
-                        end;
-                        Rec.SetFilter("Entry No.", '<> %1', TempApplyingVendLedgEntry."Entry No.");
-                        ApplyingAmount := TempApplyingVendLedgEntry."Remaining Amount";
-                        ApplnDate := TempApplyingVendLedgEntry."Posting Date";
-                        ApplnCurrencyCode := TempApplyingVendLedgEntry."Currency Code";
-                    end;
-                    OnSetApplyingVendLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(ApplyingAmount, TempApplyingVendLedgEntry);
-                    CalcApplnAmount();
-                end;
+                SetApplyingVendLedgEntryPurchaseHeader();
             CalcType::"Gen. Jnl. Line":
-                begin
-                    TempApplyingVendLedgEntry."Posting Date" := GenJnlLine."Posting Date";
-                    TempApplyingVendLedgEntry."Document Type" := GenJnlLine."Document Type";
-                    TempApplyingVendLedgEntry."Document No." := GenJnlLine."Document No.";
-                    if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor then begin
-                        TempApplyingVendLedgEntry."Vendor No." := GenJnlLine."Bal. Account No.";
-                        Vendor.Get(TempApplyingVendLedgEntry."Vendor No.");
-                        TempApplyingVendLedgEntry.Description := Vendor.Name;
-                    end else begin
-                        TempApplyingVendLedgEntry."Vendor No." := GenJnlLine."Account No.";
-                        TempApplyingVendLedgEntry.Description := GenJnlLine.Description;
-                    end;
-                    TempApplyingVendLedgEntry."Currency Code" := GenJnlLine."Currency Code";
-                    TempApplyingVendLedgEntry.Amount := GenJnlLine.Amount;
-                    TempApplyingVendLedgEntry."Remaining Amount" := GenJnlLine.Amount;
-                    CalcApplnAmount();
-                end;
+                SetApplyingVendLedgEntryGenJnlLine();
+            CalcType::Direct:
+                SetApplyingVendLedgEntryDirect();
         end;
+
+        CalcApplnAmount();
+
         OnAfterSetApplyingVendLedgEntry(TempApplyingVendLedgEntry, GenJnlLine, PurchHeader, CalcType);
+    end;
+
+    local procedure SetApplyingVendLedgEntryPurchaseHeader()
+    begin
+        TempApplyingVendLedgEntry."Posting Date" := PurchHeader."Posting Date";
+        if PurchHeader."Document Type" = PurchHeader."Document Type"::"Return Order" then
+            TempApplyingVendLedgEntry."Document Type" := TempApplyingVendLedgEntry."Document Type"::"Credit Memo"
+        else
+            TempApplyingVendLedgEntry."Document Type" := TempApplyingVendLedgEntry."Document Type"::Invoice;
+        TempApplyingVendLedgEntry."Document No." := PurchHeader."No.";
+        TempApplyingVendLedgEntry."Vendor No." := PurchHeader."Pay-to Vendor No.";
+        TempApplyingVendLedgEntry.Description := PurchHeader."Posting Description";
+        TempApplyingVendLedgEntry."Currency Code" := PurchHeader."Currency Code";
+        if TempApplyingVendLedgEntry."Document Type" = TempApplyingVendLedgEntry."Document Type"::"Credit Memo" then begin
+            TempApplyingVendLedgEntry.Amount := TotalPurchLine."Amount Including VAT";
+            TempApplyingVendLedgEntry."Remaining Amount" := TotalPurchLine."Amount Including VAT";
+        end else begin
+            TempApplyingVendLedgEntry.Amount := -TotalPurchLine."Amount Including VAT";
+            TempApplyingVendLedgEntry."Remaining Amount" := -TotalPurchLine."Amount Including VAT";
+        end;
+        TempApplyingVendLedgEntry."Remit-to Code" := PurchHeader."Remit-to Code";
+
+        OnAfterSetApplyingVendLedgEntryPurchaseHeader(TempApplyingVendLedgEntry, PurchHeader);
+    end;
+
+    local procedure SetApplyingVendLedgEntryGenJnlLine()
+    var
+        Vendor: Record Vendor;
+    begin
+        TempApplyingVendLedgEntry."Posting Date" := GenJnlLine."Posting Date";
+        TempApplyingVendLedgEntry."Document Type" := GenJnlLine."Document Type";
+        TempApplyingVendLedgEntry."Document No." := GenJnlLine."Document No.";
+        if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor then begin
+            TempApplyingVendLedgEntry."Vendor No." := GenJnlLine."Bal. Account No.";
+            Vendor.Get(TempApplyingVendLedgEntry."Vendor No.");
+            TempApplyingVendLedgEntry.Description := Vendor.Name;
+        end else begin
+            TempApplyingVendLedgEntry."Vendor No." := GenJnlLine."Account No.";
+            TempApplyingVendLedgEntry.Description := GenJnlLine.Description;
+        end;
+        TempApplyingVendLedgEntry."Currency Code" := GenJnlLine."Currency Code";
+        TempApplyingVendLedgEntry.Amount := GenJnlLine.Amount;
+        TempApplyingVendLedgEntry."Remaining Amount" := GenJnlLine.Amount;
+        TempApplyingVendLedgEntry."Remit-to Code" := GenJnlLine."Remit-to Code";
+
+        OnAfterSetApplyingVendLedgEntryGenJnlLine(TempApplyingVendLedgEntry, GenJnlLine);
+    end;
+
+    local procedure SetApplyingVendLedgEntryDirect()
+    begin
+        if Rec."Applying Entry" then begin
+            if TempApplyingVendLedgEntry."Entry No." <> 0 then
+                VendLedgEntry := TempApplyingVendLedgEntry;
+            CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", Rec);
+            if Rec."Applies-to ID" = '' then
+                SetVendApplId(false);
+            Rec.CalcFields(Amount);
+            TempApplyingVendLedgEntry := Rec;
+            if VendLedgEntry."Entry No." <> 0 then begin
+                Rec := VendLedgEntry;
+                Rec."Applying Entry" := false;
+                SetVendApplId(false);
+            end;
+            Rec.SetFilter("Entry No.", '<> %1', TempApplyingVendLedgEntry."Entry No.");
+            ApplyingAmount := TempApplyingVendLedgEntry."Remaining Amount";
+            ApplnDate := TempApplyingVendLedgEntry."Posting Date";
+            ApplnCurrencyCode := TempApplyingVendLedgEntry."Currency Code";
+            "Remit-to Code" := TempApplyingVendLedgEntry."Remit-to Code";
+        end;
+        OnSetApplyingVendLedgEntryOnBeforeCalcTypeDirectCalcApplnAmount(ApplyingAmount, TempApplyingVendLedgEntry);
     end;
 
     procedure SetVendApplId(CurrentRec: Boolean)
@@ -1563,16 +1562,6 @@ page 233 "Apply Vendor Entries"
     begin
     end;
 
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeOnFindRecord(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Which: Text; var Found: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeOnNextRecord(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Steps: Integer; var ActualSteps: Integer; var IsHandled: Boolean)
-    begin
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostDirectApplication(var VendorLedgerEntry: Record "Vendor Ledger Entry"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
@@ -1617,5 +1606,14 @@ page 233 "Apply Vendor Entries"
     local procedure OnSetVendApplIdOnAfterCheckAgainstApplnCurrency(var VendorLedgerEntry: Record "Vendor Ledger Entry"; CalcType: Option Direct,GenJnlLine,PurchHeader; GenJnlLine: Record "Gen. Journal Line"; PurchHeader: Record "Purchase Header"; ApplyingVendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetApplyingVendLedgEntryPurchaseHeader(var TempApplyingVendLedgEntry: Record "Vendor Ledger Entry" temporary; var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetApplyingVendLedgEntryGenJnlLine(var TempApplyingVendLedgEntry: Record "Vendor Ledger Entry" temporary; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+}

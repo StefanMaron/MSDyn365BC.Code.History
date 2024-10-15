@@ -48,8 +48,8 @@ page 10129 "Posted Bank Rec. List"
             }
         }
     }
-
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
     actions
     {
         area(reporting)
@@ -58,7 +58,7 @@ page 10129 "Posted Bank Rec. List"
             {
                 ObsoleteReason = 'Use the reports for W1 Bank Reconciliation instead. For example: Test Report, or Bank Statement Report';
                 ObsoleteState = Pending;
-                ObsoleteTag = '20.0';
+                ObsoleteTag = '21.0';
                 ApplicationArea = Basic, Suite;
                 Caption = 'Bank Reconciliation';
                 Image = Worksheet;
@@ -73,5 +73,6 @@ page 10129 "Posted Bank Rec. List"
         }
     }
 #endif
+#pragma warning restore AS0074
 }
 

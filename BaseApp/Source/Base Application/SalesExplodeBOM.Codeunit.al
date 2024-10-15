@@ -4,6 +4,7 @@ codeunit 63 "Sales-Explode BOM"
 
     trigger OnRun()
     var
+        AssembleToOrderLink: Record "Assemble-to-Order Link";
         HideDialog: Boolean;
         IsHandled: Boolean;
     begin
@@ -85,6 +86,9 @@ codeunit 63 "Sales-Explode BOM"
             BOMItemNo := "No."
         else
             BOMItemNo := "BOM Item No.";
+
+        if Type = Type::Item then
+            AssembleToOrderLink.DeleteAsmFromSalesLine(Rec);
 
         ToSalesLine := Rec;
         ToSalesLine.Init();

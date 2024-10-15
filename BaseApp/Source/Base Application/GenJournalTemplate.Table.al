@@ -94,7 +94,7 @@
                     Type::"Payroll Accrual":
                         begin
                         end;
-#if not CLEAN20
+#if not CLEAN21
                     Type::Deposits:
                         begin
                             "Source Code" := SourceCodeSetup.Deposits;
@@ -348,7 +348,7 @@
         GenJnlLine.DeleteAll(true);
         GenJnlBatch.SetRange("Journal Template Name", Name);
         GenJnlBatch.DeleteAll();
-#if not CLEAN20
+#if not CLEAN21
         DepositHeader.SetCurrentKey("Journal Template Name", "Journal Batch Name");
         DepositHeader.SetRange("Journal Template Name", Name);
         DepositHeader.DeleteAll(true);
@@ -365,7 +365,7 @@
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlAlloc: Record "Gen. Jnl. Allocation";
         SourceCodeSetup: Record "Source Code Setup";
-#if not CLEAN20
+#if not CLEAN21
         DepositHeader: Record "Deposit Header";
         USText000: Label 'If the %1 is %2, then the %3 must be %4.';
 #endif

@@ -1,4 +1,5 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 codeunit 10120 "Bank Rec.-Post"
 {
     Permissions = TableData "Bank Account" = rm,
@@ -12,7 +13,8 @@ codeunit 10120 "Bank Rec.-Post"
     TableNo = "Bank Rec. Header";
     ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0074
 
     trigger OnRun()
     begin

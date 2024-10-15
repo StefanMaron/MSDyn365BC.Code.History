@@ -1581,7 +1581,6 @@ codeunit 137080 "SCM Planning And Manufacturing"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
-        PlanningErrorLog: Record "Planning Error Log";
         Quantity: array[2] of Decimal;
         OrderMultipleQuantity: Decimal;
         i: Integer;
@@ -1619,9 +1618,6 @@ codeunit 137080 "SCM Planning And Manufacturing"
         // [THEN] The requisition line for "I2" with quantity "Q2" exists.
         FindRequisitionLine(RequisitionLine, Item[2]."No.");
         RequisitionLine.TestField(Quantity, Quantity[2]);
-
-        // Tear down.
-        PlanningErrorLog.DeleteAll();
     end;
 
     [Test]
@@ -2105,8 +2101,64 @@ codeunit 137080 "SCM Planning And Manufacturing"
         RequisitionLine.TestField(Quantity, ProductionForecastEntry."Forecast Quantity" - SalesLine.Quantity);
     end;
 
+    [Test]
+    procedure SecondPlanningRunForMakeToOrderProductionOrder()
+    var
+        FinalItem: Record Item;
+        SemiItem: Record Item;
+        CompItem: Record Item;
+        PlanningItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Planning] [Planning Component] [Make-to-Order]
+        // [SCENARIO 437740] No error on the second planning run for make-to-order production order.
+        Initialize();
+
+        // [GIVEN] Component item.
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Semi-production item with Make-to-Order manufacturing policy.
+        LibraryInventory.CreateItem(SemiItem);
+        SemiItem.Validate("Replenishment System", SemiItem."Replenishment System"::"Prod. Order");
+        SemiItem.Validate("Manufacturing Policy", SemiItem."Manufacturing Policy"::"Make-to-Order");
+        SemiItem.Validate("Reordering Policy", SemiItem."Reordering Policy"::"Lot-for-Lot");
+        SemiItem.Modify(true);
+
+        // [GIVEN] Create production BOM containing both the component item and the semi-production item.
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, CompItem."No.", SemiItem."No.", 1);
+
+        // [GIVEN] Finished item with Make-to-Order manufacturing policy.
+        LibraryInventory.CreateItem(FinalItem);
+        FinalItem.Validate("Replenishment System", SemiItem."Replenishment System"::"Prod. Order");
+        FinalItem.Validate("Manufacturing Policy", SemiItem."Manufacturing Policy"::"Make-to-Order");
+        FinalItem.Validate("Reordering Policy", SemiItem."Reordering Policy"::"Maximum Qty.");
+        FinalItem.Validate("Maximum Inventory", LibraryRandom.RandIntInRange(50, 100));
+        FinalItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        FinalItem.Modify(true);
+
+        // [GIVEN] Calculate regenerative plan for all new items.
+        PlanningItem.SetFilter("No.", '%1|%2|%3', CompItem."No.", SemiItem."No.", FinalItem."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(PlanningItem, WorkDate(), CalcDate('<CY>', WorkDate()));
+
+        // [GIVEN] Carry out action message to create make-to-order production order and a purchase order.
+        PlanningItem.CopyFilter("No.", RequisitionLine."No.");
+        RequisitionLine.FindSet();
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [WHEN] Calculate regenerative plan again.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(PlanningItem, WorkDate, CalcDate('<CY>', WorkDate()));
+
+        // [THEN] No errors occured during planning.
+        // [THEN] No planning lines created.
+        RequisitionLine.Reset();
+        PlanningItem.CopyFilter("No.", RequisitionLine."No.");
+        Assert.RecordIsEmpty(RequisitionLine);
+    end;
+
     local procedure Initialize()
     var
+        PlanningErrorLog: Record "Planning Error Log";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning And Manufacturing");
@@ -2114,6 +2166,8 @@ codeunit 137080 "SCM Planning And Manufacturing"
         LibrarySetupStorage.Restore();
 
         LibraryApplicationArea.EnablePremiumSetup;
+
+        PlanningErrorLog.DeleteAll();
 
         // Lazy Setup.
         if isInitialized then

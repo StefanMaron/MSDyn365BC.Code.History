@@ -107,25 +107,27 @@ table 5054 "Contact Business Relation"
     var
         ContBusRel: Record "Contact Business Relation";
         Cont: Record Contact;
+        IsHandled: Boolean;
     begin
-        if "No." <> '' then begin
-            if ContBusRel.FindByContact("Link to Table", "Contact No.") then
-                Error(
-                  Text000,
-                  Cont.TableCaption(), "Contact No.", TableCaption(), "Link to Table", ContBusRel."No.");
+        if "No." = '' then
+            exit;
 
+        if ContBusRel.FindByContact("Link to Table", "Contact No.") then
+            Error(Text000, Cont.TableCaption(), "Contact No.", TableCaption(), "Link to Table", ContBusRel."No.");
+
+
+        IsHandled := false;
+        OnInsertOnBeforeFindByRelation(Rec, IsHandled);
+        if not IsHandled then
             if ContBusRel.FindByRelation("Link to Table", "No.") then
                 if GetContactBusinessRelation(ContBusRel) then
-                    Error(
-                      Text000,
-                      "Link to Table", "No.", TableCaption(), Cont.TableCaption(), ContBusRel."Contact No.");
+                    Error(Text000, "Link to Table", "No.", TableCaption(), Cont.TableCaption(), ContBusRel."Contact No.");
 
-            ContBusRel.Reset();
-            ContBusRel.SetRange("Contact No.", "Contact No.");
-            ContBusRel.SetRange("Business Relation Code", "Business Relation Code");
-            ContBusRel.SetRange("No.", '');
-            ContBusRel.DeleteAll();
-        end;
+        ContBusRel.Reset();
+        ContBusRel.SetRange("Contact No.", "Contact No.");
+        ContBusRel.SetRange("Business Relation Code", "Business Relation Code");
+        ContBusRel.SetRange("No.", '');
+        ContBusRel.DeleteAll();
     end;
 
     var
@@ -462,5 +464,9 @@ table 5054 "Contact Business Relation"
     local procedure OnShowRelatedCardPageCaseElse(ContactBusinessRelation: Record "Contact Business Relation")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeFindByRelation(ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+}

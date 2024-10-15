@@ -1,4 +1,5 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 page 10146 "Deposit List"
 {
     Caption = 'Deposit List';
@@ -7,8 +8,8 @@ page 10146 "Deposit List"
     SourceTable = "Deposit Header";
     ObsoleteReason = 'Replaced by new Bank Deposits extension';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
-
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0074
     layout
     {
         area(content)

@@ -34,6 +34,7 @@
         LibraryResource: Codeunit "Library - Resource";
         LibraryTemplates: Codeunit "Library - Templates";
         LibraryItemReference: Codeunit "Library - Item Reference";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         isInitialized: Boolean;
         FieldError: Label 'Number of Lines for %1 and %2  must be Equal.';
         CurrencyError: Label '%1 must be Equal in %2.';
@@ -83,6 +84,9 @@
         DisposedErr: Label '%1 is disposed.';
         RoundingTo0Err: Label 'Rounding of the field';
         ItemRefrenceNoErr: Label 'Item Reference No. should be %1.', Comment = '%1 - old reference no.';
+        RemitToCodeShouldNotBeEditableErr: Label 'Remit-to code should not be editable when vendor is not selected.';
+        RemitToCodeShouldBeEditableErr: Label 'Remit-to code should be editable when vendor is selected.';
+        PrePaymentPerErr: Label 'Prepayment% are not equal on Purchase Header and Purchase Line';
 
     [Test]
     [Scope('OnPrem')]
@@ -6819,6 +6823,119 @@
         Assert.AreEqual(ItemRefNoBefore, ItemReferenceNoAfter, StrSubstNo(ItemRefrenceNoErr, ItemRefNoBefore));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderRemitToNotEditableBeforeVendorSelected()
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [UI]
+        // [Scenario] Remit-to code Field on Purchase Order Page not editable if no vendor selected
+        // [Given]
+        Initialize();
+        // [WHEN] Purchase Order page is opened
+        PurchaseOrder.OpenNew();
+        // [THEN] Field is not editable
+        Assert.IsFalse(PurchaseOrder."Remit-to Code".Editable, RemitToCodeShouldNotBeEditableErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure PurchaseOrderRemitToEditableAfterVendorSelected()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [UI]
+        // [Scenario] Remit-to code Field on Purchase Order Page  editable if vendor selected
+        // [Given]
+        Initialize();
+        // [Given] A sample Purchase Order
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+        PurchaseOrder."Buy-from Vendor No.".SetValue(VendorNo);
+        // [THEN] Remit-to code Field is editable
+        Assert.IsTrue(PurchaseOrder."Remit-to Code".Editable, RemitToCodeShouldBeEditableErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseDocumentTestRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderReportVerifyRemit()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RemitAddress: Record "Remit Address";
+        PurchaseOrderPage: TestPage "Purchase Order";
+        VendorNo: Code[20];
+        PurchaseHeaderNo: Code[20];
+        RequestPageXML: Text;
+    begin
+        // [SCENARIO] Create a Purchase Order with Negative quanity, try to post and then delete.
+        Initialize();
+        // [GIVEN] Create a new Remit-to address
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreateRemitToAddress(RemitAddress, VendorNo);
+        // [GIVEN] Purchase Order with one Item
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        PurchaseHeaderNo := PurchaseHeader."No.";
+        PurchaseHeader.Validate("Remit-to Code", RemitAddress.Code);
+        PurchaseHeader.Modify(true);
+        PurchaseOrderPage.OpenEdit;
+        PurchaseOrderPage.GotoRecord(PurchaseHeader);
+        Commit;
+        // [WHEN] Run report "Purchase - Order"
+        RequestPageXML := REPORT.RunRequestPage(REPORT::"Purchase Document - Test", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(REPORT::"Purchase Document - Test", PurchaseHeader, RequestPageXML);
+        // [THEN] TotalBalOnBankAccount has value 200
+        LibraryReportDataset.AssertElementWithValueExists('RemitToAddress_Name', RemitAddress.Name);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyGLPurchaseLineInsertedWhenPreaymentOnVendor()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        GLSetup: Record "General Ledger Setup";
+        GLAcc: Record "G/L Account";
+        PrepPayPer: Decimal;
+    begin
+        // [SCENARIO 436714] Gen. Prod. Posting Group validation error when G/L account is inserted using prepayments in Purchase Orders.
+        Initialize();
+
+        // [GIVEN] Create Vendor and update Prepayment %
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Prepayment %", LibraryRandom.RandDecInRange(1, 100, 2));
+        Vendor.Modify();
+
+        // [GIVEN] Get General Ledger Setup and update Vat In Use to false.
+        GLSetup.Get();
+        GLSetup.Validate("VAT in Use", false);
+        GLSetup.Modify();
+
+        // [GIVEN] Create G/l Account and blank Gen. Prod. Posting Group
+        GlAcc.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+        GLAcc."Gen. Prod. Posting Group" := '';
+        GLAcc.Modify();
+
+        // [THEN] Create Purchase Order with G/l account in purchase line.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchLine, PurchaseHeader, PurchLine.Type::"G/L Account", GLAcc."No.", 2);
+
+        // [VERIFY] Without any error Prepayment % update on purchase line.
+        Assert.AreEqual(PurchaseHeader."Prepayment %", PurchLine."Prepayment %", PrePaymentPerErr);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -10145,6 +10262,13 @@
     procedure ExplodeBOMHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
     begin
         Choice := 1;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseDocumentTestRequestPageHandler(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
+    begin
+        // Close handler
     end;
 }
 

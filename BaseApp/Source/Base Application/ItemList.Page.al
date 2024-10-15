@@ -273,16 +273,6 @@
         }
         area(factboxes)
         {
-#if not CLEAN21
-            part("Power BI Report FactBox"; "Power BI Report FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                Visible = false;
-                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
-                ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
-            }
-#endif
             part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
             {
                 ApplicationArea = Basic, Suite;
@@ -350,6 +340,16 @@
             {
                 ApplicationArea = Basic, Suite;
             }
+#if not CLEAN21
+            part("Power BI Report FactBox"; "Power BI Report FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
+                ObsoleteState = Pending;
+                ObsoleteTag = '21.0';
+            }
+#endif
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -365,223 +365,23 @@
     {
         area(processing)
         {
+#if not CLEAN22
             group(Item)
             {
                 Caption = 'Item';
                 Image = DataEntry;
-                action("&Units of Measure")
-                {
-                    ApplicationArea = Suite;
-                    Caption = '&Units of Measure';
-                    Image = UnitOfMeasure;
-                    RunObject = Page "Item Units of Measure";
-                    RunPageLink = "Item No." = FIELD("No.");
-                    Scope = Repeater;
-                    ToolTip = 'Set up the different units that the item can be traded in, such as piece, box, or hour.';
-                }
-                action(Attributes)
-                {
-                    AccessByPermission = TableData "Item Attribute" = R;
-                    ApplicationArea = Suite;
-                    Caption = 'Attributes';
-                    Image = Category;
-                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                    //PromotedCategory = Category4;
-                    Scope = Repeater;
-                    ToolTip = 'View or edit the item''s attributes, such as color, size, or other characteristics that help to describe the item.';
-
-                    trigger OnAction()
-                    begin
-                        PAGE.RunModal(PAGE::"Item Attribute Value Editor", Rec);
-                        CurrPage.SaveRecord();
-                        CurrPage.ItemAttributesFactBox.PAGE.LoadItemAttributesData("No.");
-                    end;
-                }
-                action(FilterByAttributes)
-                {
-                    AccessByPermission = TableData "Item Attribute" = R;
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Filter by Attributes';
-                    Image = EditFilter;
-                    ToolTip = 'Find items that match specific attributes. To make sure you include recent changes made by other users, clear the filter and then reset it.';
-
-                    trigger OnAction()
-                    var
-                        ItemAttributeManagement: Codeunit "Item Attribute Management";
-                        TypeHelper: Codeunit "Type Helper";
-                        CloseAction: Action;
-                        FilterText: Text;
-                        FilterPageID: Integer;
-                        ParameterCount: Integer;
-                    begin
-                        FilterPageID := PAGE::"Filter Items by Attribute";
-                        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone then
-                            FilterPageID := PAGE::"Filter Items by Att. Phone";
-
-                        CloseAction := PAGE.RunModal(FilterPageID, TempFilterItemAttributesBuffer);
-                        if (ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Phone) and (CloseAction <> ACTION::LookupOK) then
-                            exit;
-
-                        if TempFilterItemAttributesBuffer.IsEmpty() then begin
-                            ClearAttributesFilter();
-                            exit;
-                        end;
-                        TempItemFilteredFromAttributes.Reset();
-                        TempItemFilteredFromAttributes.DeleteAll();
-                        ItemAttributeManagement.FindItemsByAttributes(TempFilterItemAttributesBuffer, TempItemFilteredFromAttributes);
-                        FilterText := ItemAttributeManagement.GetItemNoFilterText(TempItemFilteredFromAttributes, ParameterCount);
-
-                        if ParameterCount < TypeHelper.GetMaxNumberOfParametersInSQLQuery() - 100 then begin
-                            FilterGroup(0);
-                            MarkedOnly(false);
-                            SetFilter("No.", FilterText);
-                        end else begin
-                            RunOnTempRec := true;
-                            ClearMarks();
-                            Reset();
-                        end;
-                    end;
-                }
-                action(ClearAttributes)
-                {
-                    AccessByPermission = TableData "Item Attribute" = R;
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Clear Attributes Filter';
-                    Image = RemoveFilterLines;
-                    ToolTip = 'Remove the filter for specific item attributes.';
-
-                    trigger OnAction()
-                    begin
-                        ClearAttributesFilter();
-                        TempItemFilteredFromAttributes.Reset();
-                        TempItemFilteredFromAttributes.DeleteAll();
-                        RunOnTempRec := false;
-
-                        RestoreTempItemFilteredFromAttributes();
-                    end;
-                }
-                action("Va&riants")
-                {
-                    ApplicationArea = Planning;
-                    Caption = 'Va&riants';
-                    Image = ItemVariant;
-                    RunObject = Page "Item Variants";
-                    RunPageLink = "Item No." = FIELD("No.");
-                    ToolTip = 'View how the inventory level of an item will develop over time according to the variant that you select.';
-                }
-                action("Substituti&ons")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Substituti&ons';
-                    Image = ItemSubstitution;
-                    RunObject = Page "Item Substitution Entry";
-                    RunPageLink = Type = CONST(Item),
-                                  "No." = FIELD("No.");
-                    ToolTip = 'View substitute items that are set up to be sold instead of the item.';
-                }
-                action(Identifiers)
-                {
-                    ApplicationArea = Warehouse;
-                    Caption = 'Identifiers';
-                    Image = BarCode;
-                    RunObject = Page "Item Identifiers";
-                    RunPageLink = "Item No." = FIELD("No.");
-                    RunPageView = SORTING("Item No.", "Variant Code", "Unit of Measure Code");
-                    ToolTip = 'View a unique identifier for each item that you want warehouse employees to keep track of within the warehouse when using handheld devices. The item identifier can include the item number, the variant code and the unit of measure.';
-                }
-                action("Item Refe&rences")
-                {
-                    AccessByPermission = TableData "Item Reference" = R;
-                    ApplicationArea = Suite, ItemReferences;
-                    Caption = 'Item References';
-                    Image = Change;
-                    RunObject = Page "Item Reference Entries";
-                    RunPageLink = "Item No." = FIELD("No.");
-                    Scope = Repeater;
-                    ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. References to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
-                }
-                action("E&xtended Texts")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'E&xtended Texts';
-                    Image = Text;
-                    RunObject = Page "Extended Text List";
-                    RunPageLink = "Table Name" = CONST(Item),
-                                  "No." = FIELD("No.");
-                    RunPageView = SORTING("Table Name", "No.", "Language Code", "All Language Codes", "Starting Date", "Ending Date");
-                    Scope = Repeater;
-                    ToolTip = 'Select or set up additional text for the description of the item. Extended text can be inserted under the Description field on document lines for the item.';
-                }
-                action(Translations)
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Translations';
-                    Image = Translations;
-                    RunObject = Page "Item Translations";
-                    RunPageLink = "Item No." = FIELD("No."),
-                                  "Variant Code" = CONST('');
-                    Scope = Repeater;
-                    ToolTip = 'Set up translated item descriptions for the selected item. Translated item descriptions are automatically inserted on documents according to the language code.';
-                }
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The contents of this group has been moved to the Navigation->Item and Processing (root).';
+                ObsoleteTag = '22.0';
                 group(Action145)
                 {
                     Visible = IsFoundationEnabled;
-                    action(AdjustInventory)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Adjust Inventory';
-                        Enabled = IsInventoriable;
-                        Image = InventoryCalculation;
-                        Scope = Repeater;
-                        ToolTip = 'Increase or decrease the item''s inventory quantity manually by entering a new quantity. Adjusting the inventory quantity manually may be relevant after a physical count or if you do not record purchased quantities.';
-                        Visible = IsFoundationEnabled;
-
-                        trigger OnAction()
-                        var
-                            AdjustInventory: Page "Adjust Inventory";
-                        begin
-                            Commit();
-                            AdjustInventory.SetItem("No.");
-                            AdjustInventory.RunModal();
-                        end;
-                    }
-                }
-                group(Dimensions)
-                {
-                    Caption = 'Dimensions';
-                    Image = Dimensions;
-                    action(DimensionsSingle)
-                    {
-                        ApplicationArea = Dimensions;
-                        Caption = 'Dimensions-Single';
-                        Image = Dimensions;
-                        RunObject = Page "Default Dimensions";
-                        RunPageLink = "Table ID" = CONST(27),
-                                      "No." = FIELD("No.");
-                        Scope = Repeater;
-                        ShortCutKey = 'Alt+D';
-                        ToolTip = 'View or edit the single set of dimensions that are set up for the selected record.';
-                    }
-                    action(DimensionsMultiple)
-                    {
-                        AccessByPermission = TableData Dimension = R;
-                        ApplicationArea = Dimensions;
-                        Caption = 'Dimensions-&Multiple';
-                        Image = DimensionSets;
-                        ToolTip = 'View or edit dimensions for a group of records. You can assign dimension codes to transactions to distribute costs and analyze historical information.';
-
-                        trigger OnAction()
-                        var
-                            Item: Record Item;
-                            DefaultDimMultiple: Page "Default Dimensions-Multiple";
-                        begin
-                            CurrPage.SetSelectionFilter(Item);
-                            DefaultDimMultiple.SetMultiRecord(Item, FieldNo("No."));
-                            DefaultDimMultiple.RunModal();
-                        end;
-                    }
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The contents of this group has been moved to the Navigation->Item and Processing (root).';
+                    ObsoleteTag = '22.0';
                 }
             }
+#endif
             group(History)
             {
                 Caption = 'History';
@@ -1025,6 +825,88 @@
                         CODEUNIT.Run(CODEUNIT::"Copy Item", Rec);
                     end;
                 }
+                action(AdjustInventory)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Adjust Inventory';
+                    Enabled = IsInventoriable;
+                    Image = InventoryCalculation;
+                    Scope = Repeater;
+                    ToolTip = 'Increase or decrease the item''s inventory quantity manually by entering a new quantity. Adjusting the inventory quantity manually may be relevant after a physical count or if you do not record purchased quantities.';
+                    Visible = IsFoundationEnabled;
+
+                    trigger OnAction()
+                    var
+                        AdjustInventory: Page "Adjust Inventory";
+                    begin
+                        Commit();
+                        AdjustInventory.SetItem("No.");
+                        AdjustInventory.RunModal();
+                    end;
+                }
+            }
+            action(FilterByAttributes)
+            {
+                AccessByPermission = TableData "Item Attribute" = R;
+                ApplicationArea = Basic, Suite;
+                Caption = 'Filter by Attributes';
+                Image = EditFilter;
+                ToolTip = 'Find items that match specific attributes. To make sure you include recent changes made by other users, clear the filter and then reset it.';
+
+                trigger OnAction()
+                var
+                    ItemAttributeManagement: Codeunit "Item Attribute Management";
+                    TypeHelper: Codeunit "Type Helper";
+                    CloseAction: Action;
+                    FilterText: Text;
+                    FilterPageID: Integer;
+                    ParameterCount: Integer;
+                begin
+                    FilterPageID := PAGE::"Filter Items by Attribute";
+                    if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone then
+                        FilterPageID := PAGE::"Filter Items by Att. Phone";
+
+                    CloseAction := PAGE.RunModal(FilterPageID, TempFilterItemAttributesBuffer);
+                    if (ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Phone) and (CloseAction <> ACTION::LookupOK) then
+                        exit;
+
+                    if TempFilterItemAttributesBuffer.IsEmpty() then begin
+                        ClearAttributesFilter();
+                        exit;
+                    end;
+                    TempItemFilteredFromAttributes.Reset();
+                    TempItemFilteredFromAttributes.DeleteAll();
+                    ItemAttributeManagement.FindItemsByAttributes(TempFilterItemAttributesBuffer, TempItemFilteredFromAttributes);
+                    FilterText := ItemAttributeManagement.GetItemNoFilterText(TempItemFilteredFromAttributes, ParameterCount);
+
+                    if ParameterCount < TypeHelper.GetMaxNumberOfParametersInSQLQuery() - 100 then begin
+                        FilterGroup(0);
+                        MarkedOnly(false);
+                        SetFilter("No.", FilterText);
+                    end else begin
+                        RunOnTempRec := true;
+                        ClearMarks();
+                        Reset();
+                    end;
+                end;
+            }
+            action(ClearAttributes)
+            {
+                AccessByPermission = TableData "Item Attribute" = R;
+                ApplicationArea = Basic, Suite;
+                Caption = 'Clear Attributes Filter';
+                Image = RemoveFilterLines;
+                ToolTip = 'Remove the filter for specific item attributes.';
+
+                trigger OnAction()
+                begin
+                    ClearAttributesFilter();
+                    TempItemFilteredFromAttributes.Reset();
+                    TempItemFilteredFromAttributes.DeleteAll();
+                    RunOnTempRec := false;
+
+                    RestoreTempItemFilteredFromAttributes();
+                end;
             }
             action("Requisition Worksheet")
             {
@@ -1537,6 +1419,133 @@
                     begin
                         ApprovalsMgmt.OpenApprovalEntriesPage(RecordId);
                     end;
+                }
+                
+                action(Attributes)
+                {
+                    AccessByPermission = TableData "Item Attribute" = R;
+                    ApplicationArea = Suite;
+                    Caption = 'Attributes';
+                    Image = Category;
+                    //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
+                    //PromotedCategory = Category4;
+                    Scope = Repeater;
+                    ToolTip = 'View or edit the item''s attributes, such as color, size, or other characteristics that help to describe the item.';
+
+                    trigger OnAction()
+                    begin
+                        PAGE.RunModal(PAGE::"Item Attribute Value Editor", Rec);
+                        CurrPage.SaveRecord();
+                        CurrPage.ItemAttributesFactBox.PAGE.LoadItemAttributesData("No.");
+                    end;
+                }
+                action("Va&riants")
+                {
+                    ApplicationArea = Planning;
+                    Caption = 'Va&riants';
+                    Image = ItemVariant;
+                    RunObject = Page "Item Variants";
+                    RunPageLink = "Item No." = FIELD("No.");
+                    ToolTip = 'View how the inventory level of an item will develop over time according to the variant that you select.';
+                }
+                action(Identifiers)
+                {
+                    ApplicationArea = Warehouse;
+                    Caption = 'Identifiers';
+                    Image = BarCode;
+                    RunObject = Page "Item Identifiers";
+                    RunPageLink = "Item No." = FIELD("No.");
+                    RunPageView = SORTING("Item No.", "Variant Code", "Unit of Measure Code");
+                    ToolTip = 'View a unique identifier for each item that you want warehouse employees to keep track of within the warehouse when using handheld devices. The item identifier can include the item number, the variant code and the unit of measure.';
+                }
+                group(Dimensions)
+                {
+                    Caption = 'Dimensions';
+                    Image = Dimensions;
+                    action(DimensionsSingle)
+                    {
+                        ApplicationArea = Dimensions;
+                        Caption = 'Dimensions-Single';
+                        Image = Dimensions;
+                        RunObject = Page "Default Dimensions";
+                        RunPageLink = "Table ID" = CONST(27),
+                                      "No." = FIELD("No.");
+                        Scope = Repeater;
+                        ShortCutKey = 'Alt+D';
+                        ToolTip = 'View or edit the single set of dimensions that are set up for the selected record.';
+                    }
+                    action(DimensionsMultiple)
+                    {
+                        AccessByPermission = TableData Dimension = R;
+                        ApplicationArea = Dimensions;
+                        Caption = 'Dimensions-&Multiple';
+                        Image = DimensionSets;
+                        ToolTip = 'View or edit dimensions for a group of records. You can assign dimension codes to transactions to distribute costs and analyze historical information.';
+
+                        trigger OnAction()
+                        var
+                            Item: Record Item;
+                            DefaultDimMultiple: Page "Default Dimensions-Multiple";
+                        begin
+                            CurrPage.SetSelectionFilter(Item);
+                            DefaultDimMultiple.SetMultiRecord(Item, FieldNo("No."));
+                            DefaultDimMultiple.RunModal();
+                        end;
+                    }
+                }
+                action("Item Refe&rences")
+                {
+                    AccessByPermission = TableData "Item Reference" = R;
+                    ApplicationArea = Suite, ItemReferences;
+                    Caption = 'Item References';
+                    Image = Change;
+                    RunObject = Page "Item Reference Entries";
+                    RunPageLink = "Item No." = FIELD("No.");
+                    Scope = Repeater;
+                    ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. References to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                }
+                action("&Units of Measure")
+                {
+                    ApplicationArea = Suite;
+                    Caption = '&Units of Measure';
+                    Image = UnitOfMeasure;
+                    RunObject = Page "Item Units of Measure";
+                    RunPageLink = "Item No." = FIELD("No.");
+                    Scope = Repeater;
+                    ToolTip = 'Set up the different units that the item can be traded in, such as piece, box, or hour.';
+                }
+                action("E&xtended Texts")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'E&xtended Texts';
+                    Image = Text;
+                    RunObject = Page "Extended Text List";
+                    RunPageLink = "Table Name" = CONST(Item),
+                                  "No." = FIELD("No.");
+                    RunPageView = SORTING("Table Name", "No.", "Language Code", "All Language Codes", "Starting Date", "Ending Date");
+                    Scope = Repeater;
+                    ToolTip = 'Select or set up additional text for the description of the item. Extended text can be inserted under the Description field on document lines for the item.';
+                }
+                action(Translations)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Translations';
+                    Image = Translations;
+                    RunObject = Page "Item Translations";
+                    RunPageLink = "Item No." = FIELD("No."),
+                                  "Variant Code" = CONST('');
+                    Scope = Repeater;
+                    ToolTip = 'Set up translated item descriptions for the selected item. Translated item descriptions are automatically inserted on documents according to the language code.';
+                }
+                action("Substituti&ons")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Substituti&ons';
+                    Image = ItemSubstitution;
+                    RunObject = Page "Item Substitution Entry";
+                    RunPageLink = Type = CONST(Item),
+                                  "No." = FIELD("No.");
+                    ToolTip = 'View substitute items that are set up to be sold instead of the item.';
                 }
             }
             group(Availability)

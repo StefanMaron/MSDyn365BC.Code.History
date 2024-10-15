@@ -1,5 +1,9 @@
+#if not CLEAN22
 page 9840 "Tenant Permissions FactBox"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced with Expanded Permissions Factbox in System Application';
+    ObsoleteTag = '22.0';
     Caption = 'Tenant Permissions';
     Editable = false;
     PageType = ListPart;
@@ -40,4 +44,4 @@ page 9840 "Tenant Permissions FactBox"
     {
     }
 }
-
+#endif

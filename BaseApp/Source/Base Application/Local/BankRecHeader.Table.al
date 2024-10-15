@@ -1,20 +1,22 @@
 table 10120 "Bank Rec. Header"
 {
     Caption = 'Bank Rec. Header';
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
     DrillDownPageID = "Bank Rec. List";
     LookupPageID = "Bank Rec. List";
 #endif
     Permissions = TableData "Bank Account" = rm;
     DataCaptionFields = "Bank Account No.", "Statement No.", "Statement Date";
     ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
-#if not CLEAN20
+#if not CLEAN21
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
+    ObsoleteTag = '21.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '23.0';
+    ObsoleteTag = '24.0';
 #endif
+#pragma warning restore AS0074
 
     fields
     {

@@ -178,7 +178,7 @@ table 9054 "Finance Cue"
         }
         field(10120; "Bank Reconciliations to Post"; Integer)
         {
-#if not CLEAN20
+#if not CLEAN21
             CalcFormula = Count("Bank Rec. Header");
 #else
             CalcFormula = Count("Bank Acc. Reconciliation" WHERE("Statement Type" = CONST("Bank Reconciliation")));
@@ -192,19 +192,21 @@ table 9054 "Finance Cue"
             Caption = 'Bank Acc. Reconciliations';
             FieldClass = FlowField;
         }
+#pragma warning disable AS0074
         field(10140; "Deposits to Post"; Integer)
         {
             CalcFormula = Count("Deposit Header" WHERE("Total Deposit Lines" = FILTER(<> 0)));
             Caption = 'Deposits to Post';
             FieldClass = FlowField;
             ObsoleteReason = 'Replaced by new Bank Deposits extension';
-#if not CLEAN20
+#if not CLEAN21
             ObsoleteState = Pending;
-            ObsoleteTag = '20.0';
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
+            ObsoleteTag = '24.0';
 #endif
+#pragma warning restore AS0074
         }
     }
 

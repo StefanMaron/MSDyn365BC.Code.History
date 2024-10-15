@@ -134,7 +134,7 @@ codeunit 6400 "Flow Service Management"
     procedure GetFlowTemplateDestinationNew(): Text
     begin
         // This value asks flow to embed the full flow creation experience from template into the iframe, see:
-        //   https://docs.microsoft.com/en-us/power-automate/developer/embed-flow-dev
+        //   https://go.microsoft.com/fwlink/?linkid=2206517
         // Currently, this is broken from Flow (see BUG 34364), so we load the Details experience instead
 
         exit(FlowTemplateDestinationNewTxt);
@@ -143,7 +143,7 @@ codeunit 6400 "Flow Service Management"
     procedure GetFlowTemplateDestinationDetails(): Text
     begin
         // This value asks flow to embed only the template list in the iframe, and on template click open the experience in a new tab, see:
-        //   https://docs.microsoft.com/en-us/power-automate/developer/embed-flow-dev
+        //   https://go.microsoft.com/fwlink/?linkid=2206173
 
         exit(FlowTemplateDestinationDetailsTxt);
     end;

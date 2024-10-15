@@ -1,4 +1,5 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 page 36722 "Bank Rec. Dep. Lines - Dyn."
 {
     Caption = 'Bank Rec. Dep. Lines';
@@ -10,7 +11,8 @@ page 36722 "Bank Rec. Dep. Lines - Dyn."
                       WHERE("Record Type" = CONST(Deposit));
     ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0074
 
     layout
     {

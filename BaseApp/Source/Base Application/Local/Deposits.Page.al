@@ -1,4 +1,5 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 page 36646 Deposits
 {
     ApplicationArea = Basic, Suite;
@@ -10,8 +11,9 @@ page 36646 Deposits
     UsageCategory = Lists;
     ObsoleteReason = 'Replaced by new Bank Deposits extension';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
+    ObsoleteTag = '21.0';
 
+#pragma warning restore AS0074
     layout
     {
         area(content)

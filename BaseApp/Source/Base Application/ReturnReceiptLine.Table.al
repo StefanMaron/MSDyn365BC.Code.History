@@ -608,6 +608,8 @@ table 6661 "Return Receipt Line"
         if SalesHeader."No." <> TempSalesLine."Document No." then
             SalesHeader.Get(TempSalesLine."Document Type", TempSalesLine."Document No.");
 
+        OnInsertInvLineFromRetRcptLineOnAfterSalesHeaderGet(Rec, SalesHeader, SalesLine);
+
         if SalesLine."Return Receipt No." <> "Document No." then begin
             OnInsertInvLineFromRetRcptLineOnBeforeInitSalesLine(Rec, SalesLine);
             SalesLine.Init();
@@ -639,8 +641,10 @@ table 6661 "Return Receipt Line"
                     SalesOrderLine."Line No." := "Return Order Line No.";
                     SalesOrderLine.Description := Description;
                     SalesOrderLine."Description 2" := "Description 2";
-                end else
+                end else begin
+                    OnInsertInvLineFromRetRcptLineOnBeforeNoExtTextLineError(Rec);
                     Error(Text001);
+                end
             end else begin
                 if (SalesHeader2."Document Type" <> SalesOrderLine."Document Type"::"Return Order") or
                    (SalesHeader2."No." <> SalesOrderLine."Document No.")
@@ -662,6 +666,8 @@ table 6661 "Return Receipt Line"
                             SalesOrderLine."Unit Price" / (1 + SalesOrderLine."VAT %" / 100),
                             Currency."Unit-Amount Rounding Precision");
             end;
+            OnInsertInvLineFromRetRcptLineOnAfterCalcUnitPrice(Rec, SalesHeader, SalesHeader2, SalesLine, SalesOrderLine, Currency);
+
             SalesLine := SalesOrderLine;
             SalesLine."Line No." := NextLineNo;
             SalesLine."Document Type" := TempSalesLine."Document Type";
@@ -703,19 +709,24 @@ table 6661 "Return Receipt Line"
             SalesLine."Dimension Set ID" := SalesOrderLine."Dimension Set ID";
 
             IsHandled := false;
-            OnBeforeInsertInvLineFromRetRcptLine(SalesLine, SalesOrderLine, Rec, IsHandled);
+            OnBeforeInsertInvLineFromRetRcptLine(SalesLine, SalesOrderLine, Rec, IsHandled, NextLineNo);
             if not IsHandled then
                 SalesLine.Insert();
-            OnAftertInsertInvLineFromRetRcptLine(SalesLine, SalesOrderLine, Rec);
-
-            ItemTrackingMgt.CopyHandledItemTrkgToInvLine(SalesOrderLine, SalesLine);
+            IsHandled := false;
+            OnAftertInsertInvLineFromRetRcptLine(SalesLine, SalesOrderLine, Rec, IsHandled);
+            if not IsHandled then
+                ItemTrackingMgt.CopyHandledItemTrkgToInvLine(SalesOrderLine, SalesLine);
 
             NextLineNo := NextLineNo + 10000;
             if "Attached to Line No." = 0 then
                 SetRange("Attached to Line No.", "Line No.");
 
         until (Next() = 0) or ("Attached to Line No." = 0);
-        OnInsertInvLineFromRetRcptLineOnAfterInsertAllLines(Rec, SalesLine);
+
+        IsHandled := false;
+        OnInsertInvLineFromRetRcptLineOnAfterInsertAllLines(Rec, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
 
         if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Return Order No.") then begin
             SalesOrderHeader."Get Shipment Used" := true;
@@ -861,7 +872,7 @@ table 6661 "Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAftertInsertInvLineFromRetRcptLine(var SalesLine: Record "Sales Line"; var SalesOrderLine: Record "Sales Line"; var ReturnReceiptLine: Record "Return Receipt Line")
+    local procedure OnAftertInsertInvLineFromRetRcptLine(var SalesLine: Record "Sales Line"; var SalesOrderLine: Record "Sales Line"; var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -871,7 +882,7 @@ table 6661 "Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertInvLineFromRetRcptLine(var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean)
+    local procedure OnBeforeInsertInvLineFromRetRcptLine(var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean; NextLineNo: Integer)
     begin
     end;
 
@@ -886,7 +897,7 @@ table 6661 "Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertInvLineFromRetRcptLineOnAfterInsertAllLines(ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line")
+    local procedure OnInsertInvLineFromRetRcptLineOnAfterInsertAllLines(ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -907,6 +918,21 @@ table 6661 "Return Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnOnInsertInvLineFromRetRcptLineOnAfterCopySalesLinePriceAndDiscount(var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; ReturnReceiptLine: Record "Return Receipt Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRetRcptLineOnAfterSalesHeaderGet(var ReturnReceiptLine: Record "Return Receipt Line"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRetRcptLineOnBeforeNoExtTextLineError(var ReturnReceiptLine: Record "Return Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRetRcptLineOnAfterCalcUnitPrice(var ReturnReceiptLine: Record "Return Receipt Line"; SalesHeader: Record "Sales Header"; SalesHeader2: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesOrderLine: Record "Sales Line"; Currency: Record Currency)
     begin
     end;
 }

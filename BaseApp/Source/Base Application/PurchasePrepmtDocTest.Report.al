@@ -908,8 +908,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                 No[4] := "Campaign No.";
                 TableID[5] := DATABASE::"Responsibility Center";
                 No[5] := "Responsibility Center";
-                if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                    AddError(DimMgt.GetDimValuePostingErr());
+                CheckDimValuePosting(TableID, No, "Purchase Header");
             end;
         }
     }
@@ -1088,6 +1087,13 @@ report 412 "Purchase Prepmt. Doc. - Test"
         end;
     end;
 
+    local procedure CheckDimValuePosting(var TableID: array[10] of Integer; var No: array[10] of Code[20]; PurchaseHeader: Record "Purchase Header")
+    begin
+        OnBeforeCheckDimValuePosting(TableID, No, PurchaseHeader);
+        if not DimMgt.CheckDimValuePosting(TableID, No, PurchaseHeader."Dimension Set ID") then
+            AddError(DimMgt.GetDimValuePostingErr());
+    end;
+
     local procedure MergeText(DimSetEntry: Record "Dimension Set Entry"): Boolean
     begin
         if (StrLen(DimText) + StrLen(StrSubstNo('%1 - %2', DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code")) + 2) >
@@ -1107,6 +1113,11 @@ report 412 "Purchase Prepmt. Doc. - Test"
     begin
         DocumentType := NewDocumentType;
         ShowDim := NewShowDim;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValuePosting(var TableID: array[10] of Integer; var No: array[10] of Code[20]; PurchaseHeader: Record "Purchase Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -216,16 +216,6 @@
         }
         area(factboxes)
         {
-#if not CLEAN21
-            part("Power BI Report FactBox"; "Power BI Report FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                Visible = false;
-                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
-                ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
-            }
-#endif
             part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
             {
                 ApplicationArea = Basic, Suite;
@@ -269,6 +259,16 @@
                               "Global Dimension 2 Filter" = FIELD("Global Dimension 2 Filter");
                 Visible = false;
             }
+#if not CLEAN21
+            part("Power BI Report FactBox"; "Power BI Report FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
+                ObsoleteState = Pending;
+                ObsoleteTag = '21.0';
+            }
+#endif
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -363,6 +363,15 @@
                     RunObject = Page "Vendor Locations";
                     RunPageLink = "Vendor No." = FIELD("No.");
                     ToolTip = 'View the locations for the vendors.';
+                }
+                action(RemitAddresses)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Remit Addresses';
+                    Image = Addresses;
+                    RunObject = Page "Remit Address List";
+                    RunPageLink = "Vendor No." = FIELD("No.");
+                    ToolTip = 'View or edit alternate remit addresses for the vendor.';
                 }
                 action("Co&mments")
                 {

@@ -1324,6 +1324,8 @@
             ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
             VATNoText := FormatDocument.SetText("VAT Registration No." <> '', FieldCaption("VAT Registration No."));
         end;
+
+        OnAfterFormatDocumentFields(PurchaseHeader);
     end;
 
     local procedure InitLogInteraction()
@@ -1343,6 +1345,11 @@
             BreakdownTextAmount := '';
 
         exit(BreakdownTextAmount);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFormatDocumentFields(var PurchaseHeader: Record "Purchase Header")
+    begin
     end;
 }
 

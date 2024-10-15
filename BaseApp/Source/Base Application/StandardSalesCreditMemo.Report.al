@@ -1310,6 +1310,8 @@
 
             AppliesToText :=
               FormatDocument.SetText("Applies-to Doc. No." <> '', StrSubstNo('%1 %2', Format("Applies-to Doc. Type"), "Applies-to Doc. No."));
+
+            OnAfterFormatDocumentFields(SalesCrMemoHeader);
         end;
     end;
 
@@ -1367,6 +1369,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatLineValues(SalesCrMemoLine: Record "Sales Cr.Memo Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFormatDocumentFields(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 }

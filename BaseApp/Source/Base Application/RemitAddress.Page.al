@@ -68,6 +68,21 @@ page 2368 "Remit Address"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you do business with this vendor at this address.';
                 }
+                field(Default; Default)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Use as default';
+                    ToolTip = 'Specifies if this address is used by default for this vendor. Only one address can be set as the default.';
+
+                    trigger OnValidate()
+                    begin
+                        if Rec.Default then
+                            if Confirm(SelectCurrentRemitAddressAsDefaultQst, false) then
+                                SetOtherAddressesAsNonDefault(Rec.Code)
+                            else
+                                Rec.Default := false;
+                    end;
+                }
             }
             group(Communication)
             {
@@ -96,19 +111,6 @@ page 2368 "Remit Address"
                 }
             }
         }
-        // area(factboxes)
-        // {
-        //     systempart(Control1900383207; Links)
-        //     {
-        //         ApplicationArea = RecordLinks;
-        //         Visible = false;
-        //     }
-        //     systempart(Control1905767507; Notes)
-        //     {
-        //         ApplicationArea = Notes;
-        //         Visible = false;
-        //     }
-        // }
     }
 
     actions
@@ -146,5 +148,17 @@ page 2368 "Remit Address"
     var
         FormatAddress: Codeunit "Format Address";
         IsCountyVisible: Boolean;
+        SelectCurrentRemitAddressAsDefaultQst: Label 'As a default address, this address will be autocompleted on new purchase orders and purchase invoices created for this vendor. This address will take the place of any other default address you have chosen.\\Do you want to continue?';
+
+    local procedure SetOtherAddressesAsNonDefault(CodeToIgnore: Code[10])
+    var
+        OtherAllRemitAddresses: Record "Remit Address";
+    begin
+        OtherAllRemitAddresses.SetRange("Vendor No.", Rec."Vendor No.");
+        OtherAllRemitAddresses.SetFilter("Code", '<>%1', CodeToIgnore);
+
+        if not OtherAllRemitAddresses.IsEmpty() then
+            OtherAllRemitAddresses.ModifyAll(Default,false);
+    end;
 }
 

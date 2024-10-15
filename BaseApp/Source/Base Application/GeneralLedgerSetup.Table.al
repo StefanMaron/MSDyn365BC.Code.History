@@ -578,12 +578,13 @@
             Caption = 'Account Schedule for Balance Sheet';
             TableRelation = "Acc. Schedule Name";
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
-#if CLEAN21
+#pragma warning disable AS0074
+#if CLEAN22
             ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
+            ObsoleteTag = '25.0';
 #else
             ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
+            ObsoleteTag = '22.0';
 #endif
             trigger OnValidate()
             begin
@@ -595,12 +596,12 @@
             Caption = 'Account Schedule for Income Stmt.';
             TableRelation = "Acc. Schedule Name";
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
-#if CLEAN21
+#if CLEAN22
             ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
+            ObsoleteTag = '25.0';
 #else
             ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
+            ObsoleteTag = '22.0';
 #endif
             trigger OnValidate()
             begin
@@ -612,12 +613,12 @@
             Caption = 'Account Schedule for Cash Flow Stmt';
             TableRelation = "Acc. Schedule Name";
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
-#if CLEAN21
+#if CLEAN22
             ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
+            ObsoleteTag = '25.0';
 #else
             ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
+            ObsoleteTag = '22.0';
 #endif
             trigger OnValidate()
             begin
@@ -629,13 +630,14 @@
             Caption = 'Account Schedule for Retained Earn.';
             TableRelation = "Acc. Schedule Name";
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
-#if CLEAN21
+#if CLEAN22
             ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
+            ObsoleteTag = '25.0';
 #else
             ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
+            ObsoleteTag = '22.0';
 #endif
+#pragma warning restore AS0074
             trigger OnValidate()
             begin
                 Error(AccSchedObsoleteErr);
@@ -900,7 +902,7 @@
             begin
                 if "Bank Recon. with Auto. Match" then
                     CheckSelectedReports(REPORT::"Bank Account Statement", REPORT::"Bank Acc. Recon. - Test")
-#if not CLEAN20
+#if not CLEAN21
                 else
                     CheckSelectedReports(REPORT::"Bank Reconciliation", REPORT::"Bank Rec. Test Report");
 #endif
@@ -965,7 +967,7 @@
         TooManyReportsAreSelectedTxt: Label 'One or more reports selected for bank reconciliation may not be compatible with the current setup of %1. Make sure the report %2 is selected for %3.', Comment = '%1=FieldCaption,%2=ReportNumber,%3=OptionValue';
         ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
         AccSchedObsoleteErr: Label 'This field is obsolete and it has been replaced by Table 88 Financial Report';
-    
+
     procedure CheckDecimalPlacesFormat(var DecimalPlaces: Text[5])
     var
         OK: Boolean;
@@ -1049,13 +1051,13 @@
     procedure GetVATDate(PostingDate: Date; DocumentDate: Date): Date
     begin
         Get();
-        case "VAT Reporting Date" of 
+        case "VAT Reporting Date" of
             Enum::"VAT Reporting Date"::"Posting Date": exit(PostingDate);
             Enum::"VAT Reporting Date"::"Document Date": exit(DocumentDate);
         end;
         exit(PostingDate);
     end;
-    
+
     procedure CheckRoundingError(NameOfField: Text[100])
     begin
         ErrorMessage := false;

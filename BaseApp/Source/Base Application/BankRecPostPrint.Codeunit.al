@@ -1,10 +1,11 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 codeunit 10122 "Bank Rec.-Post + Print"
 {
     TableNo = "Bank Rec. Header";
     ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
+    ObsoleteTag = '21.0';
 
 
     trigger OnRun()
@@ -31,3 +32,4 @@ codeunit 10122 "Bank Rec.-Post + Print"
 }
 
 #endif
+#pragma warning restore AS0074

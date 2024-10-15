@@ -1,4 +1,5 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 page 10141 "Deposit Subform"
 {
     AutoSplitKey = true;
@@ -8,8 +9,8 @@ page 10141 "Deposit Subform"
     SourceTable = "Gen. Journal Line";
     ObsoleteReason = 'Replaced by new Bank Deposits extension';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
-
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0074
     layout
     {
         area(content)

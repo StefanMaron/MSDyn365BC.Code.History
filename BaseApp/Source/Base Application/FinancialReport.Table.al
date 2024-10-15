@@ -83,12 +83,21 @@ table 88 "Financial Report"
             Caption = 'Financial Report Row Group';
             TableRelation = "Acc. Schedule Name";
             DataClassification = SystemMetadata;
+            trigger OnValidate()
+            begin
+                AccSchedManagement.CheckAnalysisView(Rec."Financial Report Row Group", Rec."Financial Report Column Group", true);
+            end;
         }
         field(52; "Financial Report Column Group"; Code[10])
         {
             Caption = 'Financial Report Column Group';
             TableRelation = "Column Layout Name";
             DataClassification = SystemMetadata;
+            trigger OnValidate()
+            begin
+                AccSchedManagement.CheckAnalysisView(Rec."Financial Report Row Group", Rec."Financial Report Column Group", true);
+            end;
+
         }
     }
     keys
@@ -98,4 +107,13 @@ table 88 "Financial Report"
             Clustered = true;
         }
     }
+
+    var
+        AccSchedManagement: Codeunit AccSchedManagement;
+
+    trigger OnInsert()
+    begin
+        AccSchedManagement.CheckAnalysisView(Rec."Financial Report Row Group", Rec."Financial Report Column Group", true);
+    end;
+
 }

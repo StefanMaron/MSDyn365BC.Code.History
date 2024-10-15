@@ -327,9 +327,9 @@ page 1131 "Cost Budget per Period Matrix"
 
                     trigger OnAction()
                     begin
-                        CopyFilter("Budget Filter", CostBudgetEntry."Budget Name");
-                        CopyFilter("Cost Center Filter", CostBudgetEntry."Cost Center Code");
-                        CopyFilter("Cost Object Filter", CostBudgetEntry."Cost Object Code");
+                        Rec.CopyFilter("Budget Filter", CostBudgetEntry."Budget Name");
+                        Rec.CopyFilter("Cost Center Filter", CostBudgetEntry."Cost Center Code");
+                        Rec.CopyFilter("Cost Object Filter", CostBudgetEntry."Cost Object Code");
                         REPORT.RunModal(REPORT::"Copy Cost Budget", true, false, CostBudgetEntry);
                     end;
                 }
@@ -352,9 +352,9 @@ page 1131 "Cost Budget per Period Matrix"
 
                     trigger OnAction()
                     begin
-                        CopyFilter("Budget Filter", CostBudgetEntry."Budget Name");
-                        CopyFilter("Cost Center Filter", CostBudgetEntry."Cost Center Code");
-                        CopyFilter("Cost Object Filter", CostBudgetEntry."Cost Object Code");
+                        Rec.CopyFilter("Budget Filter", CostBudgetEntry."Budget Name");
+                        Rec.CopyFilter("Cost Center Filter", CostBudgetEntry."Cost Center Code");
+                        Rec.CopyFilter("Cost Object Filter", CostBudgetEntry."Cost Object Code");
                         REPORT.RunModal(REPORT::"Copy Cost Acctg. Budget to G/L", true, false, CostBudgetEntry);
                     end;
                 }
@@ -369,7 +369,7 @@ page 1131 "Cost Budget per Period Matrix"
 
                     trigger OnAction()
                     begin
-                        CostBudgetEntry.CompressBudgetEntries(GetFilter("Budget Filter"));
+                        CostBudgetEntry.CompressBudgetEntries(Rec.GetFilter("Budget Filter"));
                     end;
                 }
             }
@@ -382,8 +382,8 @@ page 1131 "Cost Budget per Period Matrix"
     begin
         for MATRIX_CurrentColumnOrdinal := 1 to CurrentNoOfMatrixColumn do
             MATRIX_OnAfterGetRecord(MATRIX_CurrentColumnOrdinal);
-        NameIndent := Indentation;
-        Emphasize := Type <> Type::"Cost Type";
+        NameIndent := Rec.Indentation;
+        Emphasize := Rec.Type <> Rec.Type::"Cost Type";
     end;
 
     var
@@ -411,11 +411,11 @@ page 1131 "Cost Budget per Period Matrix"
     begin
         if AmtType = AmtType::"Net Change" then
             if MatrixRecords[MATRIX_ColumnOrdinal]."Period Start" = MatrixRecords[MATRIX_ColumnOrdinal]."Period End" then
-                SetRange("Date Filter", MatrixRecords[MATRIX_ColumnOrdinal]."Period Start")
+                Rec.SetRange("Date Filter", MatrixRecords[MATRIX_ColumnOrdinal]."Period Start")
             else
-                SetRange("Date Filter", MatrixRecords[MATRIX_ColumnOrdinal]."Period Start", MatrixRecords[MATRIX_ColumnOrdinal]."Period End")
+                Rec.SetRange("Date Filter", MatrixRecords[MATRIX_ColumnOrdinal]."Period Start", MatrixRecords[MATRIX_ColumnOrdinal]."Period End")
         else
-            SetRange("Date Filter", 0D, MatrixRecords[MATRIX_ColumnOrdinal]."Period End");
+            Rec.SetRange("Date Filter", 0D, MatrixRecords[MATRIX_ColumnOrdinal]."Period End");
     end;
 
 #if not CLEAN19
@@ -459,16 +459,18 @@ page 1131 "Cost Budget per Period Matrix"
     var
         CostBudgetEntries: Page "Cost Budget Entries";
     begin
+        OnBeforeMATRIX_OnDrillDown(CostBudgetEntry);
+
         SetDateFilter(ColumnID);
         CostBudgetEntry.SetCurrentKey("Budget Name", "Cost Type No.", "Cost Center Code", "Cost Object Code", Date);
-        if Type in [Type::Total, Type::"End-Total"] then
+        if Rec.Type in [Rec.Type::Total, Rec.Type::"End-Total"] then
             CostBudgetEntry.SetFilter("Cost Type No.", Totaling)
         else
             CostBudgetEntry.SetRange("Cost Type No.", "No.");
         CostBudgetEntry.SetFilter("Cost Center Code", CostCenterFilter);
         CostBudgetEntry.SetFilter("Cost Object Code", CostObjectFilter);
         CostBudgetEntry.SetFilter("Budget Name", BudgetFilter);
-        CostBudgetEntry.SetFilter(Date, GetFilter("Date Filter"));
+        CostBudgetEntry.SetFilter(Date, Rec.GetFilter("Date Filter"));
         CostBudgetEntry.FilterGroup(26);
         CostBudgetEntry.SetFilter(Date, '..%1|%1..', MatrixRecords[ColumnID]."Period Start");
         CostBudgetEntry.FilterGroup(0);
@@ -482,9 +484,11 @@ page 1131 "Cost Budget per Period Matrix"
 
     local procedure MATRIX_OnAfterGetRecord(ColumnID: Integer)
     begin
-        SetFilters(ColumnID);
-        CalcFields("Budget Amount");
-        MATRIX_CellData[ColumnID] := MatrixMgt.RoundAmount("Budget Amount", RoundingFactor);
+        SetRecordFilters(ColumnID);
+        Rec.CalcFields("Budget Amount");
+        MATRIX_CellData[ColumnID] := MatrixMgt.RoundAmount(Rec."Budget Amount", RoundingFactor);
+
+        OnAfterMATRIX_OnAfterGetRecord(Rec, MATRIX_CellData, ColumnID, RoundingFactor);
     end;
 
     local procedure UpdateAmount(ColumnID: Integer)
@@ -493,20 +497,23 @@ page 1131 "Cost Budget per Period Matrix"
             Error(Text000);
 
         if (CostCenterFilter = '') and (CostObjectFilter = '') then
-            Error(Text001, FieldCaption("Cost Center Filter"), FieldCaption("Cost Object Filter"));
+            Error(Text001, Rec.FieldCaption("Cost Center Filter"), Rec.FieldCaption("Cost Object Filter"));
 
-        SetFilters(ColumnID);
-        CalcFields("Budget Amount");
+        SetRecordFilters(ColumnID);
+        Rec.CalcFields("Budget Amount");
         InsertMatrixCostBudgetEntry(CurrRegNo, ColumnID);
+        OnUpdateAmountOnBeforeUpdatePage(Rec);
         CurrPage.Update(false);
     end;
 
-    local procedure SetFilters(ColumnID: Integer)
+    local procedure SetRecordFilters(ColumnID: Integer)
     begin
         SetDateFilter(ColumnID);
-        SetFilter("Cost Center Filter", CostCenterFilter);
-        SetFilter("Cost Object Filter", CostObjectFilter);
-        SetFilter("Budget Filter", BudgetFilter);
+        Rec.SetFilter("Cost Center Filter", CostCenterFilter);
+        Rec.SetFilter("Cost Object Filter", CostObjectFilter);
+        Rec.SetFilter("Budget Filter", BudgetFilter);
+
+        OnAfterSetRecordFilters(Rec);
     end;
 
     local procedure InsertMatrixCostBudgetEntry(var RegNo: Integer; ColumnID: Integer)
@@ -516,11 +523,12 @@ page 1131 "Cost Budget per Period Matrix"
         MatrixCostBudgetEntry.SetCostBudgetRegNo(RegNo);
         MatrixCostBudgetEntry.Init();
         MatrixCostBudgetEntry."Budget Name" := BudgetFilter;
-        MatrixCostBudgetEntry."Cost Type No." := "No.";
+        MatrixCostBudgetEntry."Cost Type No." := Rec."No.";
         MatrixCostBudgetEntry.Date := MatrixRecords[ColumnID]."Period Start";
         MatrixCostBudgetEntry."Cost Center Code" := CostCenterFilter;
         MatrixCostBudgetEntry."Cost Object Code" := CostObjectFilter;
-        MatrixCostBudgetEntry.Amount := MATRIX_CellData[ColumnID] - "Budget Amount";
+        MatrixCostBudgetEntry.Amount := MATRIX_CellData[ColumnID] - Rec."Budget Amount";
+        OnBeforeMatrixCostBudgetEntryInsert(MatrixCostBudgetEntry, Rec);
         MatrixCostBudgetEntry.Insert(true);
         RegNo := MatrixCostBudgetEntry.GetCostBudgetRegNo();
     end;
@@ -528,6 +536,31 @@ page 1131 "Cost Budget per Period Matrix"
     local procedure FormatStr(): Text
     begin
         exit(RoundingFactorFormatString);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetRecordFilters(var CostType: Record "Cost Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMatrixCostBudgetEntryInsert(var MatrixCostBudgetEntry: Record "Cost Budget Entry"; var CostType: Record "Cost Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMATRIX_OnDrillDown(var CostBudgetEntry: Record "Cost Budget Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAmountOnBeforeUpdatePage(var CostType: Record "Cost Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMATRIX_OnAfterGetRecord(var CostType: Record "Cost Type"; var MATRIX_CellData: array[12] of Decimal; ColumnID: Integer; RoundingFactor: Enum "Analysis Rounding Factor")
+    begin
     end;
 }
 

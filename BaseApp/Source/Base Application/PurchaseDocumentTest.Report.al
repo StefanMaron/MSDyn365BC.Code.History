@@ -521,28 +521,28 @@
                 column(RemitToAddressCaption; Remit_toCaptionLbl)
                 {
                 }
-                column(RemitToAddress_Name; RemitToAddress[1])
+                column(RemitToAddress_Name; RemitAddressBuffer.Name)
                 {
                 }
-                column(RemitToAddress_Name2; RemitToAddress[2])
+                column(RemitToAddress_Name2; RemitAddressBuffer.Address)
                 {
                 }
-                column(RemitToAddress_Contact; RemitToAddress[3])
+                column(RemitToAddress_Contact; RemitAddressBuffer."Address 2")
                 {
                 }
-                column(RemitToAddress_Address; RemitToAddress[4])
+                column(RemitToAddress_Address; RemitAddressBuffer.City)
                 {
                 }
-                column(RemitToAddress_Address2; RemitToAddress[5])
+                column(RemitToAddress_Address2; RemitAddressBuffer.County)
                 {
                 }
-                column(RemitToAddress_City; RemitToAddress[6])
+                column(RemitToAddress_City; RemitAddressBuffer."Post Code")
                 {
                 }
-                column(RemitToAddress_PostCode; RemitToAddress[7])
+                column(RemitToAddress_PostCode; RemitAddressBuffer."Country/Region Code")
                 {
                 }
-                column(RemitToAddress_County; RemitToAddress[8])
+                column(RemitToAddress_County; RemitAddressBuffer.Contact)
                 {
                 }
                 dataitem(DimensionLoop1; "Integer")
@@ -900,6 +900,8 @@
                             else
                                 TempPurchLine.Next();
                             "Purchase Line" := TempPurchLine;
+
+                            OnRoundLoopOnBeforeAfterGetRecord("Purchase Line", ErrorCounter, ErrorText);
 
                             with "Purchase Line" do begin
                                 if SalesTax and not HeaderTaxArea."Use External Tax Engine" then begin
@@ -1631,7 +1633,7 @@
                 FormatAddr.PurchHeaderPayTo(PayToAddr, "Purchase Header");
                 FormatAddr.PurchHeaderBuyFrom(BuyFromAddr, "Purchase Header");
                 FormatAddr.PurchHeaderShipTo(ShipToAddr, "Purchase Header");
-                FormatAddr.PurchHeaderRemitTo(RemitToAddress, "Purchase Header");
+                FormatAddr.PurchHeaderRemitTo(RemitAddressBuffer, "Purchase Header");
                 if "Currency Code" = '' then begin
                     GLSetup.TestField("LCY Code");
                     TotalText := StrSubstNo(Text004, GLSetup."LCY Code");
@@ -2047,6 +2049,7 @@
         InvtPeriod: Record "Inventory Period";
         HeaderTaxArea: Record "Tax Area";
         Purchaser: Record "Salesperson/Purchaser";
+        RemitAddressBuffer: Record "Remit Address Buffer";
         FormatAddr: Codeunit "Format Address";
         DimMgt: Codeunit DimensionManagement;
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
@@ -2055,7 +2058,6 @@
         PayToAddr: array[8] of Text[100];
         BuyFromAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
-        RemitToAddress: array[8] of Text[100];
         PurchHeaderFilter: Text;
         ErrorText: array[99] of Text[250];
         DimText: Text[120];
@@ -2209,7 +2211,7 @@
                                       StrSubstNo(
                                         MustBeForErr,
                                         GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "No."));
-                                if not GLAcc."Direct Posting" and ("Line No." <= OrigMaxLineNo) then
+                                if (not GLAcc."Direct Posting") and (not "System-Created Entry") and ("Line No." <= OrigMaxLineNo) then
                                     AddError(
                                       StrSubstNo(
                                         MustBeForErr,
@@ -2665,6 +2667,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckPurchLineCaseTypeElse(LineType: Option; "No.": Code[20]; var ErrorText: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRoundLoopOnBeforeAfterGetRecord(var PurchaseLine: Record "Purchase Line"; var ErrorCounter: Integer; var ErrorText: array[99] of Text[250])
     begin
     end;
 }

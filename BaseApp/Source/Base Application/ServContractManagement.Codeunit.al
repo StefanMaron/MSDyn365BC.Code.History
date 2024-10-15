@@ -788,7 +788,7 @@ codeunit 5940 ServContractManagement
         end;
         ServMgtSetup.TestField("Contract Credit Memo Nos.");
         IsHandled := false;
-        OnCreateOrGetCreditHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup, IsHandled);
+        OnCreateOrGetCreditHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup, IsHandled, ServContract);
         if not IsHandled then
             NoSeriesMgt.InitSeries(
                 ServMgtSetup."Contract Credit Memo Nos.", ServHeader2."No. Series", 0D,
@@ -1751,15 +1751,20 @@ codeunit 5940 ServContractManagement
                   "Ship-to Post Code", "Ship-to City", "Ship-to County", "Ship-to Country/Region Code");
         end;
 
-        OnAfterProcessShiptoCodeChange(ServContractHeader);
+        OnAfterProcessShiptoCodeChange(ServContractHeader, NewShipToCode);
     end;
 
     procedure ChangeCustNoOnServItem(NewCustomertNo: Code[20]; NewShipToCode: Code[10]; ServItem: Record "Service Item")
     var
         OldServItem: Record "Service Item";
         ServLogMgt: Codeunit ServLogManagement;
+        IsHandled: Boolean;
     begin
-        OnBeforeChangeCustNoOnServItem(ServItem, NewCustomertNo);
+        IsHandled := false;
+        OnBeforeChangeCustNoOnServItem(ServItem, NewCustomertNo, IsHandled);
+        if IsHandled then
+            exit;
+
         OldServItem := ServItem;
         ServItem."Customer No." := NewCustomertNo;
         ServItem."Ship-to Code" := NewShipToCode;
@@ -2456,7 +2461,7 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterProcessShiptoCodeChange(var ServiceContractHeader: Record "Service Contract Header")
+    local procedure OnAfterProcessShiptoCodeChange(var ServiceContractHeader: Record "Service Contract Header"; NewShipToCode: Code[10])
     begin
     end;
 
@@ -2466,7 +2471,7 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeChangeCustNoOnServItem(var ServiceItem: Record "Service Item"; NewCustomerNo: Code[20])
+    local procedure OnBeforeChangeCustNoOnServItem(var ServiceItem: Record "Service Item"; NewCustomerNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -2561,7 +2566,7 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateOrGetCreditHeaderOnBeforeInitSeries(var ServiceHeader: Record "Service Header"; ServMgtSetup: Record "Service Mgt. Setup"; var IsHandled: Boolean)
+    local procedure OnCreateOrGetCreditHeaderOnBeforeInitSeries(var ServiceHeader: Record "Service Header"; ServMgtSetup: Record "Service Mgt. Setup"; var IsHandled: Boolean; ServiceContract: Record "Service Contract Header")
     begin
     end;
 
