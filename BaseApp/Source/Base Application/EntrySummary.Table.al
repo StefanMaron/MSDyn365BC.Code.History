@@ -282,6 +282,19 @@ table 338 "Entry Summary"
         OnAfterSetTrackingFilterFromItemTrackingSetup(Rec, ItemTrackingSetup);
     end;
 
+    procedure SetTrackingFilterFromItemTrackingSetupIfRequired(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        SetRange("Serial No.");
+        if ItemTrackingSetup."Serial No. Required" then
+            SetRange("Serial No.", ItemTrackingSetup."Serial No.");
+
+        SetRange("Lot No.");
+        if ItemTrackingSetup."Lot No. Required" then
+            SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(Rec, ItemTrackingSetup);
+    end;
+
     procedure SetTrackingFilterFromReservEntry(ReservationEntry: Record "Reservation Entry")
     begin
         SetRange("Serial No.", ReservationEntry."Serial No.");
@@ -345,6 +358,11 @@ table 338 "Entry Summary"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilterFromItemTrackingSetup(var ToEntrySummary: Record "Entry Summary"; ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemTrackingSetupIfRequired(var ToEntrySummary: Record "Entry Summary"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

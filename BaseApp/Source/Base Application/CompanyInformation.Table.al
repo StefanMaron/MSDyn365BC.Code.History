@@ -1,4 +1,4 @@
-table 79 "Company Information"
+﻿table 79 "Company Information"
 {
     Caption = 'Company Information';
 
@@ -576,6 +576,15 @@ table 79 "Company Information"
         field(27001; "SAT Postal Code"; Code[10])
         {
             Caption = 'SAT Postal Code';
+        }
+        field(27002; "SCT Permission Type"; Code[10])
+        {
+            Caption = 'SCT Permission Type';
+            TableRelation = "SAT Permission Type";
+        }
+        field(27003; "SCT Permission Number"; Code[20])
+        {
+            Caption = 'SCT Permission Number';
         }
     }
 

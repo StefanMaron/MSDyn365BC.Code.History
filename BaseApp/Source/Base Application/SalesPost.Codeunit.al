@@ -1557,8 +1557,19 @@
                             ItemJnlLine2."Quantity (Base)" := -"Quantity (Base)";
                             ItemJnlLine2."Invoiced Qty. (Base)" := ItemJnlLine2."Quantity (Base)";
 
-                            PreciseTotalChargeAmt += OriginalAmt * Factor;
-                            ItemJnlLine2.Amount := PreciseTotalChargeAmt - RoundedPrevTotalChargeAmt;
+                            if SalesHeader."Currency Code" <> '' then begin
+                                PreciseTotalChargeAmt +=
+                                  CurrExchRate.ExchangeAmtLCYToFCY(
+                                    UseDate, SalesHeader."Currency Code", OriginalAmt * Factor, SalesHeader."Currency Factor");
+                                ItemJnlLine2.Amount :=
+                                  CurrExchRate.ExchangeAmtFCYToLCY(
+                                    UseDate, SalesHeader."Currency Code", PreciseTotalChargeAmt + TotalSalesLine.Amount, SalesHeader."Currency Factor") -
+                                  RoundedPrevTotalChargeAmt - TotalSalesLineLCY.Amount;
+                            end else begin
+                                PreciseTotalChargeAmt += OriginalAmt * Factor;
+                                ItemJnlLine2.Amount := PreciseTotalChargeAmt - RoundedPrevTotalChargeAmt;
+                            end;
+
                             RoundedPrevTotalChargeAmt += Round(ItemJnlLine2.Amount, GLSetup."Amount Rounding Precision");
 
                             ItemJnlLine2."Discount Amount" :=
@@ -2475,6 +2486,7 @@
             WarehouseRequest.DeleteRequest(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
 
             EInvoiceMgt.DeleteCFDIRelationsAfterPosting(SalesHeader);
+            EInvoiceMgt.DeleteCFDITransportOperatorsAfterPosting(DATABASE::"Sales Header", "Document Type", "No.");
         end;
 
         OnAfterDeleteAfterPosting(SalesHeader, SalesInvHeader, SalesCrMemoHeader, SuppressCommit);
@@ -6615,6 +6627,7 @@
     var
         SalesCommentLine: Record "Sales Comment Line";
         RecordLinkManagement: Codeunit "Record Link Management";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         with SalesHeader do begin
             SalesShptHeader.Init();
@@ -6651,6 +6664,7 @@
                 OnBeforeCreatePostedWhseRcptHeader(PostedWhseRcptHeader, WhseRcptHeader, SalesHeader);
                 WhsePostRcpt.CreatePostedRcptHeader(PostedWhseRcptHeader, WhseRcptHeader, "Shipping No.", "Posting Date");
             end;
+            EInvoiceMgt.InsertSalesShipmentCFDITransportOperators(SalesHeader, SalesShptHeader."No.");
         end;
     end;
 
