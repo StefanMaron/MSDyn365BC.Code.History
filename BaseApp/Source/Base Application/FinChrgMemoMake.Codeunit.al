@@ -151,6 +151,7 @@ codeunit 394 "FinChrgMemo-Make"
                 CustLedgEntry.SetRange("On Hold", '');
                 CustLedgEntry.SetRange(Positive, true);
                 CustLedgEntry.SetRange("Currency Code", CurrencyCode);
+                OnMakeLinesOnBeforeMakeLinesOpenEntries(CustLedgEntry, CurrencyCode, Checking);
                 MakeLines2(CurrencyCode, Checking);
             end;
             if FinChrgTerms."Interest Calculation" in
@@ -165,6 +166,7 @@ codeunit 394 "FinChrgMemo-Make"
                 CustLedgEntry.SetRange(Positive, true);
                 CustLedgEntry.SetRange("Currency Code", CurrencyCode);
                 CustLedgEntry.SetRange("Calculate Interest", true);
+                OnMakeLinesOnBeforeMakeLinesClosedEntries(CustLedgEntry, CurrencyCode, Checking);
                 MakeLines2(CurrencyCode, Checking);
                 CustLedgEntry.SetRange("Calculate Interest");
             end;
@@ -220,6 +222,16 @@ codeunit 394 "FinChrgMemo-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinChrgMemoLineCreated(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; Checking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeLinesOnBeforeMakeLinesClosedEntries(var CustLedgEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10]; Checking: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeLinesOnBeforeMakeLinesOpenEntries(var CustLedgEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10]; Checking: Boolean)
     begin
     end;
 }

@@ -1188,8 +1188,9 @@
             UnitofMeasureCodeIsChangeable := false;
 
         IsCommentLine := Type = Type::" ";
+        IsBlankNumber := IsCommentLine;
+
         CurrPageIsEditable := CurrPage.Editable;
-        IsBlankNumber := ("No." = '') or IsCommentLine;
         InvDiscAmountEditable := CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount";
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);

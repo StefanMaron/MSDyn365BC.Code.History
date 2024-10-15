@@ -449,6 +449,7 @@ report 2000004 "Payment Journal Post"
                 "Source Code" := PaymentJnlLine."Source Code";
                 "Source No." := PaymentJnlLine."Account No.";
                 UpdateDimSetID("Dimension Set ID", PaymentJnlLine);
+                Validate("Dimension Set ID");
                 OnBeforeGenJnlLineInsert(GenJnlLine, PaymentJnlLine);
                 Insert;
 

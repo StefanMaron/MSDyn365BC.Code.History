@@ -13,8 +13,10 @@ codeunit 1620 "PEPPOL Validation"
         EmptyUnitOfMeasureErr: Label 'You must specify a valid International Standard Code for the Unit of Measure for %1.', Comment = 'Parameter 1 - document type (Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order), 2 - document number';
         MissingDescriptionErr: Label 'Description field is empty. \Field must be filled if you want to send the posted document as an electronic document.', Comment = 'Parameter 1 - document type (), 2 - document number';
         PEPPOLManagement: Codeunit "PEPPOL Management";
+        ConfirmManagement: Codeunit "Confirm Management";	
         MissingCompInfGLNOrVATRegNoOrEnterpNoErr: Label 'You must fill in either the GLN, VAT Registration No., or Enterprise No. field in the Company Information window.';
         MissingCustGLNOrVATRegNoOrEnterpNoErr: Label 'You must fill in either the GLN, VAT Registration No., or Enterprise No. field for customer %1.', Comment = '%1 - Customer No.';
+        NegativeUnitPriceErr: Label 'The unit price is negative in %1. It cannot be negative if you want to send the posted document as an electronic document. \\Do you want to continue?', Comment = '%1 - record ID';
 
     local procedure CheckSalesDocument(SalesHeader: Record "Sales Header")
     var
@@ -115,6 +117,9 @@ codeunit 1620 "PEPPOL Validation"
                     TestField("VAT Prod. Posting Group");
                 VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                 VATPostingSetup.TestField("Tax Category");
+                if (Type = Type::Item) and ("Unit Price" < 0) then
+                    if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(NegativeUnitPriceErr, RecordId), false) then
+                        Error('');
             end;
         end;
     end;

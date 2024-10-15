@@ -591,6 +591,7 @@ table 123 "Purch. Inv. Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(6608; "Return Reason Code"; Code[10])
         {
@@ -603,6 +604,7 @@ table 123 "Purch. Inv. Line"
             Editable = false;
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(11305; "Non Deductible VAT %"; Decimal)
         {

@@ -97,12 +97,14 @@ table 9 "Country/Region"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(2000000; "ISO Country/Region Code"; Code[2])
         {
             Caption = 'ISO Country/Region Code';
             ObsoleteReason = 'replaced by W1 field ISO Code';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(2000001; "IBAN Country/Region"; Boolean)
         {

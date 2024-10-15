@@ -6,6 +6,7 @@ page 1910 "Camera Interaction"
     PageType = Card;
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced woth page 1908 Camera';
+    ObsoleteTag = '15.3';
 
     layout
     {

@@ -818,7 +818,7 @@ page 11300 "Financial Journal"
             Error(Text11300, -(Total - StatementEndingBalance + BalanceLastStatement));
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure UpdateStatementAmounts()
     begin
         FilterGroup(2);

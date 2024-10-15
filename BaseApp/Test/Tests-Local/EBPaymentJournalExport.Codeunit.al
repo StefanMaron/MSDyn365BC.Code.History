@@ -1875,10 +1875,49 @@ codeunit 144008 "EB - Payment Journal Export"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsReportHandler,FileSEPAPaymentsRequestPageHandlerWithGlobalDim1Code')]
+    [Scope('OnPrem')]
+    procedure ExportPaymentLinesWithModifiedDimensionValue()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DimensionValue: Record "Dimension Value";
+        GenJournalLine: Record "Gen. Journal Line";
+        FileName: Text;
+        CountryCode: Code[10];
+        VendorNo: Code[20];
+        ExportProtocol: Code[20];
+        Swift: Code[20];
+    begin
+        // [SCENARIO 338020] "Export Payment Lines" must consider modified dimension values in paymenyt journal line
+        Initialize();
+
+        VendorNo := CreateVendorForExportSuggestedPayment(CountryCode, ExportProtocol);
+        CreateDimensionValueForGlobalDim1Code(DimensionValue);
+
+        CreateAndPostPurchInv(VendorNo, true);
+        FindVendLedgEntry(VendorLedgerEntry, VendorNo, VendorLedgerEntry."Document Type"::Invoice);
+        VendorLedgerEntry.CalcFields(Amount);
+        CreateAndPostPurchCreditMemo(
+            VendorNo, true, -VendorLedgerEntry.Amount / LibraryRandom.RandIntInRange(2, 5));
+
+        Swift := GenerateBankAccSwiftCode;
+
+        MockSelectedDimensionFileSEPAPaymentsReport();
+
+        ExportSuggestedPaymentWithGlobalDim1ValueCode(
+           FileName, CountryCode, StrSubstNo('%1', VendorNo), ExportProtocol, Swift, BankIbanTxt, '',
+           false, false, InterbankClearingCodeOptionRef::" ", DimensionValue.Code);
+
+        GenJournalLine.SetRange("Account No.", VendorNo);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Shortcut Dimension 1 Code", DimensionValue.Code);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"EB - Payment Journal Export");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LastBankAccount);
         Clear(ErrorMessage);
         CreateForeignCurrency(ForeignCurrencyCode, ForeignCurrencyIso);
@@ -1891,7 +1930,7 @@ codeunit 144008 "EB - Payment Journal Export"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"EB - Payment Journal Export");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"EB - Payment Journal Export");
     end;
 
@@ -1927,7 +1966,7 @@ codeunit 144008 "EB - Payment Journal Export"
         ElectronicBankingSetup: Record "Electronic Banking Setup";
     begin
         with ElectronicBankingSetup do begin
-            Get;
+            Get();
             "IBS Version" := "IBS Version"::"6";
             "Notification E-mail address" :=
               LibraryUtility.GenerateRandomCode(FieldNo("Notification E-mail address"), DATABASE::"Electronic Banking Setup");
@@ -1936,7 +1975,7 @@ codeunit 144008 "EB - Payment Journal Export"
             "IBS Log Upload Nos." := CreateNoSeries;
             "IBS Request ID" := CreateNoSeries;
             "IBS Service Version" := '1';
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1991,10 +2030,16 @@ codeunit 144008 "EB - Payment Journal Export"
         end;
     end;
 
-    local procedure ExportSuggestedPayment(var FileName: Text; CountryCode: Code[10]; VendorNoFilter: Text; ExportProtocol: Code[20]; Swift: Code[20]; Iban: Code[50]; BankCurrency: Code[10]; PaymentMsg: Boolean; SeparateLine: Boolean; InterbankClearingCodeOption: Option)
+    local procedure ExportSuggestedPayment(var FileName: Text; CountryCode: Code[10]; VendorNoFilter: Text; ExportProtocol: Code[20]; Swift: Code[20]; Iban: Code[50]; BankCurrency: Code[10]; PaymentMsg: Boolean; SeparateLine: Boolean; InterbankClearingCodeOption: Option DimensionValue)
     begin
         LastBankAccount := CreateBankAccount(CountryCode, Swift, Iban, BankCurrency, InterbankClearingCodeOption);
-        SuggestAndExportPayments(VendorNoFilter, LastBankAccount, ExportProtocol, FileName, PaymentMsg, SeparateLine);
+        SuggestAndExportPayments(VendorNoFilter, LastBankAccount, ExportProtocol, FileName, PaymentMsg, SeparateLine, '');
+    end;
+
+    local procedure ExportSuggestedPaymentWithGlobalDim1ValueCode(var FileName: Text; CountryCode: Code[10]; VendorNoFilter: Text; ExportProtocol: Code[20]; Swift: Code[20]; Iban: Code[50]; BankCurrency: Code[10]; PaymentMsg: Boolean; SeparateLine: Boolean; InterbankClearingCodeOption: Option DimensionValue; GlobalDim1ValueCode: Code[20])
+    begin
+        LastBankAccount := CreateBankAccount(CountryCode, Swift, Iban, BankCurrency, InterbankClearingCodeOption);
+        SuggestAndExportPayments(VendorNoFilter, LastBankAccount, ExportProtocol, FileName, PaymentMsg, SeparateLine, GlobalDim1ValueCode);
     end;
 
     local procedure FindCountryRegion(): Code[10]
@@ -2013,7 +2058,7 @@ codeunit 144008 "EB - Payment Journal Export"
             "SEPA Allowed" := true;
             ISOCountryCode := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(2, 0), 1, 2);
             Validate("ISO Code", ISOCountryCode);
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
@@ -2037,7 +2082,7 @@ codeunit 144008 "EB - Payment Journal Export"
             Validate("Preferred Bank Account Code",
               CreateVendorBankAccount("No.", CountryCode, ExportProtocolCode, VendorSwift, VendorIban, ''));
 
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
@@ -2197,13 +2242,14 @@ codeunit 144008 "EB - Payment Journal Export"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure SuggestAndExportPayments(VendorNo: Text; BankAccountCode: Code[20]; ExportProtocol: Code[20]; var FileName: Text; PaymentMsg: Boolean; SeparateLine: Boolean)
+    local procedure SuggestAndExportPayments(VendorNo: Text; BankAccountCode: Code[20]; ExportProtocol: Code[20]; var FileName: Text; PaymentMsg: Boolean; SeparateLine: Boolean; GlobalDim1ValueCode: Code[20])
     var
         PaymJnlBatch: Record "Paym. Journal Batch";
     begin
         CreatePaymentJnlBatch(PaymJnlBatch);
         SuggestPayments(PaymJnlBatch, VendorNo);
-        ExportPayments(FileName, PaymJnlBatch, BankAccountCode, ExportProtocol, PaymentMsg, SeparateLine, false);
+        ExportPayments(
+            FileName, PaymJnlBatch, BankAccountCode, ExportProtocol, PaymentMsg, SeparateLine, false, GlobalDim1ValueCode);
     end;
 
     local procedure SuggestPayments(PaymJnlBatch: Record "Paym. Journal Batch"; VendorNo: Text)
@@ -2212,17 +2258,18 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         LibraryVariableStorage.Enqueue(VendorNo);
         EBPaymentJournalPage.OpenEdit;
-        Commit;
+        Commit();
         EBPaymentJournalPage.CurrentJnlBatchName.Value(PaymJnlBatch.Name);
         EBPaymentJournalPage.SuggestVendorPayments.Invoke;
     end;
 
-    local procedure ExportPayments(var FileName: Text; PaymJournalBatch: Record "Paym. Journal Batch"; BankAccountCode: Code[20]; ExportProtocol: Code[20]; PaymentMsg: Boolean; SeparateLine: Boolean; AutomaticPosting: Boolean)
+    local procedure ExportPayments(var FileName: Text; PaymJournalBatch: Record "Paym. Journal Batch"; BankAccountCode: Code[20]; ExportProtocol: Code[20]; PaymentMsg: Boolean; SeparateLine: Boolean; AutomaticPosting: Boolean; GlobalDim1ValueCode: Code[20])
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         EBPaymentJournalPage: TestPage "EB Payment Journal";
     begin
-        UpdatePaymenJnlLines(PaymJournalBatch."Journal Template Name", PaymJournalBatch.Name, BankAccountCode, PaymentMsg, SeparateLine);
+        UpdatePaymenJnlLines(
+            PaymJournalBatch."Journal Template Name", PaymJournalBatch.Name, BankAccountCode, PaymentMsg, SeparateLine, GlobalDim1ValueCode);
 
         CreateGenJnlBatch(GenJnlBatch);
         LibraryVariableStorage.Enqueue(GenJnlBatch."Journal Template Name");
@@ -2231,13 +2278,14 @@ codeunit 144008 "EB - Payment Journal Export"
         LibraryVariableStorage.Enqueue(FileName);
         LibraryVariableStorage.Enqueue(AutomaticPosting);
 
-        Commit;
-        EBPaymentJournalPage.OpenEdit;
+        Commit();
+        EBPaymentJournalPage.OpenEdit();
         EBPaymentJournalPage.CurrentJnlBatchName.Value(PaymJournalBatch.Name);
         EBPaymentJournalPage.ExportProtocolCode.Value(ExportProtocol);
         if UseCheckPaymentLine then
-            EBPaymentJournalPage.CheckPaymentLines.Invoke;
-        EBPaymentJournalPage.ExportPaymentLines.Invoke;
+            EBPaymentJournalPage.CheckPaymentLines.Invoke();
+        EBPaymentJournalPage.ExportPaymentLines.Invoke();
+        EBPaymentJournalPage.Close();
     end;
 
     local procedure ExportPaymentLines(var FileName: Text; PaymJournalBatch: Record "Paym. Journal Batch"; CountryCode: Code[10]; ExportProtocol: Code[20]; AutomaticPosting: Boolean; InterbankClearingCodeOption: Option)
@@ -2245,7 +2293,7 @@ codeunit 144008 "EB - Payment Journal Export"
         ExportPayments(
           FileName, PaymJournalBatch,
           CreateBankAccount(CountryCode, GenerateBankAccSwiftCode, BankIbanTxt, '', InterbankClearingCodeOption),
-          ExportProtocol, false, false, AutomaticPosting);
+          ExportProtocol, false, false, AutomaticPosting, '');
     end;
 
     local procedure CheckPaymentLines(VendorNo: Text; ExportProtocol: Code[20])
@@ -2285,7 +2333,7 @@ codeunit 144008 "EB - Payment Journal Export"
         LibraryBEHelper.CreatePaymentJournalBatch(PaymJournalBatch, PaymentJournalTemplate.Name);
     end;
 
-    local procedure UpdatePaymenJnlLines(PaymJnlTemplateName: Code[10]; PaymJnlBatchName: Code[10]; BankAccountNo: Code[20]; PaymentMsg: Boolean; SeparateLine: Boolean)
+    local procedure UpdatePaymenJnlLines(PaymJnlTemplateName: Code[10]; PaymJnlBatchName: Code[10]; BankAccountNo: Code[20]; PaymentMsg: Boolean; SeparateLine: Boolean; GlobalDim1Code: Code[20])
     var
         PaymentJournalLine: Record "Payment Journal Line";
     begin
@@ -2301,6 +2349,8 @@ codeunit 144008 "EB - Payment Journal Export"
                     Validate("Separate Line", true);
                 if BlankPaymentJournalBankAccount then
                     Validate("Bank Account", '');
+                if GlobalDim1Code <> '' then
+                    Validate("Shortcut Dimension 1 Code", GlobalDim1Code);
                 Modify(true);
             until Next = 0;
         end;
@@ -2360,6 +2410,14 @@ codeunit 144008 "EB - Payment Journal Export"
             Modify(true);
             exit(Amount);
         end;
+    end;
+
+    local procedure CreateDimensionValueForGlobalDim1Code(var DimensionValue: Record "Dimension Value")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
     end;
 
     local procedure FindVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Option)
@@ -2467,6 +2525,26 @@ codeunit 144008 "EB - Payment Journal Export"
         end;
     end;
 
+    local procedure MockSelectedDimensionFileSEPAPaymentsReport()
+    var
+        GLSetup: Record "General Ledger Setup";
+        DimensionSelectionBuffer: Record "Dimension Selection Buffer";
+        TempDimensionSelectionBuffer: Record "Dimension Selection Buffer" temporary;
+        SelectedDim: Record "Selected Dimension";
+        IncludeDimText: Text[250];
+    begin
+        GLSetup.Get();
+        IncludeDimText := GLSetup."Global Dimension 1 Code";
+
+        TempDimensionSelectionBuffer.Init();
+        TempDimensionSelectionBuffer.Code := GLSetup."Global Dimension 1 Code";
+        TempDimensionSelectionBuffer.Selected := true;
+        TempDimensionSelectionBuffer.Insert();
+
+        DimensionSelectionBuffer.SetDimSelection(3, REPORT::"File SEPA Payments", '', IncludeDimText, TempDimensionSelectionBuffer);
+    end;
+
+
     local procedure RunFileSEPAPaymentReport(var PaymentJournalLine: Record "Payment Journal Line"; FileName: Text)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -2476,7 +2554,7 @@ codeunit 144008 "EB - Payment Journal Export"
         LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
         LibraryVariableStorage.Enqueue(FileName);
         LibraryVariableStorage.Enqueue(false);
-        Commit;
+        Commit();
 
         REPORT.Run(REPORT::"File SEPA Payments", true, false, PaymentJournalLine);
     end;
@@ -2534,7 +2612,7 @@ codeunit 144008 "EB - Payment Journal Export"
         XmlNode: DotNet XmlNode;
     begin
         LibraryXMLRead.Initialize(FileName);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         LibraryXMLRead.GetNodeListByElementName('Ctry', XmlNodeList);
 
         Assert.AreEqual(12, XmlNodeList.Count, NodeQuantityDoesNotMatchErr);
@@ -2744,10 +2822,11 @@ codeunit 144008 "EB - Payment Journal Export"
     [Scope('OnPrem')]
     procedure FileSEPAPaymentsReportHandler(var FileSEPAPayments: TestRequestPage "File SEPA Payments")
     begin
-        FileSEPAPayments.JournalTemplateName.SetValue(LibraryVariableStorage.DequeueText);
-        FileSEPAPayments.JournalBatch.SetValue(LibraryVariableStorage.DequeueText);
-        FileSEPAPayments.FileName.SetValue(LibraryVariableStorage.DequeueText);
-        FileSEPAPayments.AutomaticPosting.SetValue(LibraryVariableStorage.DequeueBoolean);
+        FileSEPAPayments.JournalTemplateName.SetValue(LibraryVariableStorage.DequeueText());
+        FileSEPAPayments.JournalBatch.SetValue(LibraryVariableStorage.DequeueText());
+        FileSEPAPayments.FileName.SetValue(LibraryVariableStorage.DequeueText());
+        FileSEPAPayments.AutomaticPosting.SetValue(LibraryVariableStorage.DequeueBoolean());
+        FileSEPAPayments.IncludeDimText.SetValue(DimensionCode);
         FileSEPAPayments.ExecutionDate.SetValue(WorkDate);
         FileSEPAPayments.OK.Invoke;
     end;
@@ -2755,19 +2834,23 @@ codeunit 144008 "EB - Payment Journal Export"
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure FileSEPAPaymentsReportHandlerNonEuro(var FileSEPAPayments: TestRequestPage "File Non Euro SEPA Payments")
-    var
-        JnlTemplateName: Variant;
-        JnlBatchName: Variant;
-        FileName: Variant;
     begin
-        LibraryVariableStorage.Dequeue(JnlTemplateName);
-        LibraryVariableStorage.Dequeue(JnlBatchName);
-        LibraryVariableStorage.Dequeue(FileName);
-        FileSEPAPayments."GenJnlLine.""Journal Template Name""".Value(JnlTemplateName);
-        FileSEPAPayments."GenJnlLine.""Journal Batch Name""".Value(JnlBatchName);
-        FileSEPAPayments.FileName.Value(FileName);
-        FileSEPAPayments.IncludeDimText.Value(DimensionCode);
-        FileSEPAPayments.AutomaticPosting.SetValue(LibraryVariableStorage.DequeueBoolean);
+        FileSEPAPayments."GenJnlLine.""Journal Template Name""".Value(LibraryVariableStorage.DequeueText());
+        FileSEPAPayments."GenJnlLine.""Journal Batch Name""".Value(LibraryVariableStorage.DequeueText());
+        FileSEPAPayments.FileName.Value(LibraryVariableStorage.DequeueText());
+        FileSEPAPayments.AutomaticPosting.SetValue(LibraryVariableStorage.DequeueBoolean());
+        FileSEPAPayments.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure FileSEPAPaymentsRequestPageHandlerWithGlobalDim1Code(var FileSEPAPayments: TestRequestPage "File SEPA Payments")
+    begin
+        FileSEPAPayments.JournalTemplateName.SetValue(LibraryVariableStorage.DequeueText());
+        FileSEPAPayments.JournalBatch.SetValue(LibraryVariableStorage.DequeueText());
+        FileSEPAPayments.FileName.SetValue(LibraryVariableStorage.DequeueText());
+        FileSEPAPayments.AutomaticPosting.SetValue(LibraryVariableStorage.DequeueBoolean());
+        FileSEPAPayments.ExecutionDate.SetValue(WorkDate());
         FileSEPAPayments.OK.Invoke;
     end;
 

@@ -185,7 +185,7 @@ codeunit 700 "Page Management"
         IsHandled := false;
         OnBeforeGetConditionalListPageID(RecRef, PageID, IsHandled);
         if IsHandled then
-            exit;
+            exit(PageID);
 
         case RecRef.Number of
             DATABASE::"Sales Header":

@@ -115,50 +115,8 @@ page 5793 "Source Documents"
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
 
                     trigger OnAction()
-                    var
-                        PurchHeader: Record "Purchase Header";
-                        SalesHeader: Record "Sales Header";
-                        TransHeader: Record "Transfer Header";
-                        ProdOrder: Record "Production Order";
-                        ServiceHeader: Record "Service Header";
                     begin
-                        case "Source Document" of
-                            "Source Document"::"Purchase Order":
-                                begin
-                                    PurchHeader.Get("Source Subtype", "Source No.");
-                                    PAGE.Run(PAGE::"Purchase Order", PurchHeader);
-                                end;
-                            "Source Document"::"Purchase Return Order":
-                                begin
-                                    PurchHeader.Get("Source Subtype", "Source No.");
-                                    PAGE.Run(PAGE::"Purchase Return Order", PurchHeader);
-                                end;
-                            "Source Document"::"Sales Order":
-                                begin
-                                    SalesHeader.Get("Source Subtype", "Source No.");
-                                    PAGE.Run(PAGE::"Sales Order", SalesHeader);
-                                end;
-                            "Source Document"::"Sales Return Order":
-                                begin
-                                    SalesHeader.Get("Source Subtype", "Source No.");
-                                    PAGE.Run(PAGE::"Sales Return Order", SalesHeader);
-                                end;
-                            "Source Document"::"Inbound Transfer", "Source Document"::"Outbound Transfer":
-                                begin
-                                    TransHeader.Get("Source No.");
-                                    PAGE.Run(PAGE::"Transfer Order", TransHeader);
-                                end;
-                            "Source Document"::"Prod. Consumption", "Source Document"::"Prod. Output":
-                                begin
-                                    ProdOrder.Get("Source Subtype", "Source No.");
-                                    PAGE.Run(PAGE::"Released Production Order", ProdOrder);
-                                end;
-                            "Source Document"::"Service Order":
-                                begin
-                                    ServiceHeader.Get("Source Subtype", "Source No.");
-                                    PAGE.Run(PAGE::"Service Order", ServiceHeader);
-                                end;
-                        end;
+                        ShowSourceDocumentCard();
                     end;
                 }
             }
@@ -167,7 +125,7 @@ page 5793 "Source Documents"
 
     trigger OnAfterGetRecord()
     begin
-        UpdateVisible;
+        UpdateVisible();
     end;
 
     trigger OnInit()
@@ -192,5 +150,6 @@ page 5793 "Source Documents"
         ExpectedReceiptDateVisible := Type = Type::Inbound;
         ShipmentDateVisible := Type = Type::Outbound;
     end;
+
 }
 

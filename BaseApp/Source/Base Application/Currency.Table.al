@@ -465,12 +465,14 @@ table 4 Currency
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(2000000; "ISO Currency Code"; Code[3])
         {
             Caption = 'ISO Currency Code';
             ObsoleteReason = 'replaced by W1 field ISO Code';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
     }
 

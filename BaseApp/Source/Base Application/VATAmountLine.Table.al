@@ -142,6 +142,7 @@ table 290 "VAT Amount Line"
             Editable = false;
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

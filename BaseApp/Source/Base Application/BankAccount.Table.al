@@ -305,6 +305,7 @@ table 270 "Bank Account"
             ObsoleteReason = 'Replaced by Image field';
             ObsoleteState = Pending;
             SubType = Bitmap;
+            ObsoleteTag = '15.0';
         }
         field(91; "Post Code"; Code[20])
         {
@@ -553,6 +554,7 @@ table 270 "Bank Account"
             Caption = 'Bank Name - Data Conversion';
             ObsoleteState = Removed;
             ObsoleteReason = 'Changed to AMC Banking 365 Fundamentals Extension';
+            ObsoleteTag = '15.0';
         }
         field(1250; "Match Tolerance Type"; Option)
         {

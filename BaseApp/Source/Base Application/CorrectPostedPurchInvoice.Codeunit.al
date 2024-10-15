@@ -399,11 +399,20 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     local procedure TestInventoryPostingClosed(PurchInvHeader: Record "Purch. Inv. Header")
     var
         InventoryPeriod: Record "Inventory Period";
+        PurchInvLine: Record "Purch. Inv. Line";
+        DocumentHasLineWithRestrictedType: Boolean;
     begin
-        InventoryPeriod.SetRange(Closed, true);
-        InventoryPeriod.SetFilter("Ending Date", '>=%1', PurchInvHeader."Posting Date");
-        if InventoryPeriod.FindFirst then
-            ErrorHelperHeader(ErrorType::InventoryPostClosed, PurchInvHeader);
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.SetFilter(Quantity, '<>%1', 0);
+        PurchInvLine.SetFilter(Type, '%1|%2', PurchInvLine.Type::Item, PurchInvLine.Type::"Charge (Item)");
+        DocumentHasLineWithRestrictedType := not PurchInvLine.IsEmpty;
+
+        if DocumentHasLineWithRestrictedType then begin
+            InventoryPeriod.SetRange(Closed, true);
+            InventoryPeriod.SetFilter("Ending Date", '>=%1', PurchInvHeader."Posting Date");
+            if InventoryPeriod.FindFirst then
+                ErrorHelperHeader(ErrorType::InventoryPostClosed, PurchInvHeader);
+        end;
     end;
 
     local procedure TestGenPostingSetup(PurchInvLine: Record "Purch. Inv. Line")

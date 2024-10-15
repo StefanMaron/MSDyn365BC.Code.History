@@ -420,6 +420,7 @@ table 254 "VAT Entry"
             Caption = 'Base Before Pmt. Disc. (Old)';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(11310; "Enterprise No."; Text[50])
         {

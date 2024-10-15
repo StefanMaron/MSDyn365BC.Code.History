@@ -20,6 +20,8 @@ codeunit 8611 "Config. Package Management"
         UpdatingDimSetsMsg: Label 'Updating dimension sets';
         TempConfigRecordForProcessing: Record "Config. Record For Processing" temporary;
         TempAppliedConfigPackageRecord: Record "Config. Package Record" temporary;
+        TempConfigPackageFieldCache: Record "Config. Package Field" temporary;
+        TempConfigPackageFieldOrdered: Record "Config. Package Field" temporary;
         ConfigProgressBar: Codeunit "Config. Progress Bar";
         ConfigValidateMgt: Codeunit "Config. Validate Management";
         ConfigMgt: Codeunit "Config. Management";
@@ -321,8 +323,6 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageTable: Record "Config. Package Table";
         ConfigPackageError: Record "Config. Package Error";
         ConfigQuestionnaireMgt: Codeunit "Questionnaire Management";
-        FieldRef: FieldRef;
-        IsTemplate: Boolean;
     begin
         ConfigPackageField.Reset;
         ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
@@ -348,30 +348,8 @@ codeunit 8611 "Config. Package Management"
                     then
                         exit;
 
-                if ConfigPackageData.Get(
-                     ConfigPackageRecord."Package Code", ConfigPackageRecord."Table ID", ConfigPackageRecord."No.",
-                     ConfigPackageField."Field ID")
-                then
-                    if not (ConfigPackageField."Primary Key" or ConfigPackageField.AutoIncrement) then begin
-                        IsTemplate := IsTemplateField(ConfigPackageTable."Data Template", ConfigPackageField."Field ID");
-                        if not IsTemplate or (IsTemplate and (ConfigPackageData.Value <> '')) then begin
-                            FieldRef := RecRef.Field(ConfigPackageField."Field ID");
-                            UpdateValueUsingMapping(ConfigPackageData, ConfigPackageField, ConfigPackageRecord."Package Code");
-
-                            case true of
-                                IsBLOBField(ConfigPackageData."Table ID", ConfigPackageData."Field ID"):
-                                    EvaluateBLOBToFieldRef(ConfigPackageData, FieldRef);
-                                IsMediaSetField(ConfigPackageData."Table ID", ConfigPackageData."Field ID"):
-                                    ImportMediaSetFiles(ConfigPackageData, FieldRef, DoModify);
-                                IsMediaField(ConfigPackageData."Table ID", ConfigPackageData."Field ID"):
-                                    ImportMediaFiles(ConfigPackageData, FieldRef, DoModify);
-                                else
-                                    ConfigValidateMgt.EvaluateTextToFieldRef(
-                                      ConfigPackageData.Value, FieldRef,
-                                      ConfigPackageField."Validate Field" and ((ApplyMode = ApplyMode::NonKeyFields) or DelayedInsert));
-                            end;
-                        end;
-                    end;
+                ModifyRecordDataField(
+                  ConfigPackageRecord, ConfigPackageField, ConfigPackageData, ConfigPackageTable, RecRef, DoModify, DelayedInsert, true);
             until ConfigPackageField.Next = 0;
 
         if DoModify then begin
@@ -390,6 +368,41 @@ codeunit 8611 "Config. Package Management"
             SetFieldFilter(Field, ConfigQuestion."Table ID", ConfigQuestion."Field ID");
             if Field.FindFirst then
                 ConfigQuestionnaireMgt.ModifyConfigQuestionAnswer(ConfigQuestion, Field);
+        end;
+    end;
+
+    local procedure ModifyRecordDataField(var ConfigPackageRecord: Record "Config. Package Record"; var ConfigPackageField: Record "Config. Package Field"; var ConfigPackageData: Record "Config. Package Data"; var ConfigPackageTable: Record "Config. Package Table"; var RecRef: RecordRef; DoModify: Boolean; DelayInsert: Boolean; ReadConfigPackageData: Boolean)
+    var
+        FieldRef: FieldRef;
+        IsTemplate: Boolean;
+    begin
+        if ConfigPackageField."Primary Key" or ConfigPackageField.AutoIncrement then
+            exit;
+
+        if ReadConfigPackageData then
+            if not ConfigPackageData.Get(
+                 ConfigPackageRecord."Package Code", ConfigPackageRecord."Table ID", ConfigPackageRecord."No.", ConfigPackageField."Field ID")
+            then
+                exit;
+
+        IsTemplate := IsTemplateField(ConfigPackageTable."Data Template", ConfigPackageField."Field ID");
+        if not IsTemplate or (IsTemplate and (ConfigPackageData.Value <> '')) then begin
+            FieldRef := RecRef.Field(ConfigPackageField."Field ID");
+            UpdateValueUsingMapping(ConfigPackageData, ConfigPackageField, ConfigPackageRecord."Package Code");
+
+            GetCachedConfigPackageField(ConfigPackageData);
+            case true of
+                IsBLOBFieldInternal(TempConfigPackageFieldCache."Processing Order"):
+                    EvaluateBLOBToFieldRef(ConfigPackageData, FieldRef);
+                IsMediaSetFieldInternal(TempConfigPackageFieldCache."Processing Order"):
+                    ImportMediaSetFiles(ConfigPackageData, FieldRef, DoModify);
+                IsMediaFieldInternal(TempConfigPackageFieldCache."Processing Order"):
+                    ImportMediaFiles(ConfigPackageData, FieldRef, DoModify);
+                else
+                    ConfigValidateMgt.EvaluateTextToFieldRef(
+                      ConfigPackageData.Value, FieldRef,
+                      ConfigPackageField."Validate Field" and ((ApplyMode = ApplyMode::NonKeyFields) or DelayInsert));
+            end;
         end;
     end;
 
@@ -581,34 +594,34 @@ codeunit 8611 "Config. Package Management"
             // Dimension Value ID: ERROR message
             DATABASE::"Dimension Value":
                 exit(FieldID = 12);
-            // Default Dimension: multi-relations
+                // Default Dimension: multi-relations
             DATABASE::"Default Dimension":
                 exit(FieldID = 2);
-            // VAT %: CheckVATIdentifier
+                // VAT %: CheckVATIdentifier
             DATABASE::"VAT Posting Setup":
                 exit(FieldID = 4);
-            // Table ID - OnValidate
+                // Table ID - OnValidate
             DATABASE::"Config. Template Header":
                 exit(FieldID = 3);
-            // Field ID relation
+                // Field ID relation
             DATABASE::"Config. Template Line":
                 exit(FieldID in [4, 8, 12]);
-            // Dimensions as Columns
+                // Dimensions as Columns
             DATABASE::"Config. Line":
                 exit(FieldID = 12);
-            // Customer : Contact OnValidate
+                // Customer : Contact OnValidate
             DATABASE::Customer:
                 exit(FieldID = 8);
-            // Vendor : Contact OnValidate
+                // Vendor : Contact OnValidate
             DATABASE::Vendor:
                 exit(FieldID = 8);
-            // Item : Base Unit of Measure OnValidate
+                // Item : Base Unit of Measure OnValidate
             DATABASE::Item:
                 exit(FieldID = 8);
-            // "No." to pass not manual No. Series
+                // "No." to pass not manual No. Series
             DATABASE::"Sales Header", DATABASE::"Purchase Header":
                 exit(FieldID = 3);
-            // "Document No." conditional relation
+                // "Document No." conditional relation
             DATABASE::"Sales Line", DATABASE::"Purchase Line":
                 exit(FieldID = 3);
         end;
@@ -631,8 +644,9 @@ codeunit 8611 "Config. Package Management"
 
     local procedure ValidateFieldRelationAgainstCompanyData(ConfigPackageData: Record "Config. Package Data"): Text[250]
     var
-        TempConfigPackageField: Record "Config. Package Field" temporary;
         ConfigPackageRecord: Record "Config. Package Record";
+        ConfigPackageField: Record "Config. Package Field";
+        ConfigPackageTable: Record "Config. Package Table";
         RecRef: RecordRef;
         FieldRef: FieldRef;
         DelayedInsert: Boolean;
@@ -640,13 +654,17 @@ codeunit 8611 "Config. Package Management"
         RecRef.Open(ConfigPackageData."Table ID");
         ConfigPackageRecord.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."No.");
         InsertPrimaryKeyFields(RecRef, ConfigPackageRecord, false, DelayedInsert);
-        ModifyRecordDataFields(RecRef, ConfigPackageRecord, false, false);
+        ConfigPackageField.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."Field ID");
+        ConfigPackageTable.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID");
+        ModifyRecordDataField(ConfigPackageRecord, ConfigPackageField, ConfigPackageData, ConfigPackageTable, RecRef, false, false, false);
 
         FieldRef := RecRef.Field(ConfigPackageData."Field ID");
         ConfigValidateMgt.EvaluateValue(FieldRef, ConfigPackageData.Value, false);
 
-        GetFieldsOrder(RecRef, ConfigPackageRecord."Package Code", TempConfigPackageField);
-        exit(ValidateFieldRefRelationAgainstCompanyData(FieldRef, TempConfigPackageField));
+        GetFieldsOrderInternal(RecRef, ConfigPackageRecord."Package Code");
+        exit(
+            ValidateFieldRefRelationAgainstCompanyDataAndPackage(
+                FieldRef, TempConfigPackageFieldOrdered, ConfigPackageRecord."Package Code"));
     end;
 
     local procedure ValidateFieldRelationAgainstPackageData(ConfigPackageData: Record "Config. Package Data"; var ValidatedConfigPackageTable: Record "Config. Package Table"; RelationTableNo: Integer; RelationFieldNo: Integer): Boolean
@@ -1205,7 +1223,7 @@ codeunit 8611 "Config. Package Management"
                     "Processing Order" += 1;
                 DATABASE::"Custom Report Layout": // Moving Layouts to be on the top
                     "Processing Order" := 0;
-                // Moving Jobs tables down so contacts table can be processed first
+                    // Moving Jobs tables down so contacts table can be processed first
                 DATABASE::Job, DATABASE::"Job Task", DATABASE::"Job Planning Line", DATABASE::"Job Journal Line",
               DATABASE::"Job Journal Batch", DATABASE::"Job Posting Group", DATABASE::"Job Journal Template",
               DATABASE::"Job Responsibility":
@@ -1709,6 +1727,17 @@ codeunit 8611 "Config. Package Management"
         end;
     end;
 
+    local procedure GetFieldsOrderInternal(RecRef: RecordRef; PackageCode: Code[20])
+    begin
+        TempConfigPackageFieldOrdered.Reset;
+        TempConfigPackageFieldOrdered.SetRange("Package Code", PackageCode);
+        TempConfigPackageFieldOrdered.SetRange("Table ID", RecRef.Number);
+        if not TempConfigPackageFieldOrdered.IsEmpty then
+            exit;
+
+        GetFieldsOrder(RecRef, PackageCode, TempConfigPackageFieldOrdered);
+    end;
+
     local procedure IsRecordErrorsExists(ConfigPackageRecord: Record "Config. Package Record"): Boolean
     var
         ConfigPackageError: Record "Config. Package Error";
@@ -1945,6 +1974,13 @@ codeunit 8611 "Config. Package Management"
         exit(false);
     end;
 
+    local procedure IsBLOBFieldInternal(FieldType: Integer): Boolean
+    var
+        "Field": Record "Field";
+    begin
+        exit(FieldType = Field.Type::BLOB);
+    end;
+
     local procedure EvaluateBLOBToFieldRef(var ConfigPackageData: Record "Config. Package Data"; var FieldRef: FieldRef)
     begin
         ConfigPackageData.CalcFields("BLOB Value");
@@ -1958,6 +1994,13 @@ codeunit 8611 "Config. Package Management"
         if TypeHelper.GetField(TableId, FieldId, Field) then
             exit(Field.Type = Field.Type::MediaSet);
         exit(false);
+    end;
+
+    local procedure IsMediaSetFieldInternal(FieldType: Integer): Boolean
+    var
+        "Field": Record "Field";
+    begin
+        exit(FieldType = Field.Type::MediaSet);
     end;
 
     local procedure ImportMediaSetFiles(var ConfigPackageData: Record "Config. Package Data"; var FieldRef: FieldRef; DoModify: Boolean)
@@ -2002,6 +2045,29 @@ codeunit 8611 "Config. Package Management"
         if TypeHelper.GetField(TableId, FieldId, Field) then
             exit(Field.Type = Field.Type::Media);
         exit(false);
+    end;
+
+    local procedure IsMediaFieldInternal(FieldType: Integer): Boolean
+    var
+        "Field": Record "Field";
+    begin
+        exit(FieldType = Field.Type::Media);
+    end;
+
+    local procedure GetCachedConfigPackageField(ConfigPackageData: Record "Config. Package Data")
+    var
+        "Field": Record "Field";
+    begin
+        with TempConfigPackageFieldCache do
+            if not Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."Field ID") then begin
+                Init;
+                "Package Code" := ConfigPackageData."Package Code";
+                "Table ID" := ConfigPackageData."Table ID";
+                "Field ID" := ConfigPackageData."Field ID";
+                if TypeHelper.GetField("Table ID", "Field ID", Field) then
+                    "Processing Order" := Field.Type;
+                Insert;
+            end;
     end;
 
     local procedure ImportMediaFiles(var ConfigPackageData: Record "Config. Package Data"; var FieldRef: FieldRef; DoModify: Boolean)
@@ -2118,6 +2184,11 @@ codeunit 8611 "Config. Package Management"
     end;
 
     procedure ValidateFieldRefRelationAgainstCompanyData(FieldRef: FieldRef; var ConfigPackageFieldOrder: Record "Config. Package Field"): Text[250]
+    begin
+        exit(ValidateFieldRefRelationAgainstCompanyDataAndPackage(FieldRef,ConfigPackageFieldOrder,''));
+    end;
+
+    local procedure ValidateFieldRefRelationAgainstCompanyDataAndPackage(FieldRef: FieldRef; var ConfigPackageFieldOrder: Record "Config. Package Field"; PackageCode : Code[20]) : Text[250];
     var
         ConfigTryValidate: Codeunit "Config. Try Validate";
         RecRef: RecordRef;
@@ -2127,35 +2198,38 @@ codeunit 8611 "Config. Package Management"
         RecRef := FieldRef.Record;
 
         RecRef2.Open(RecRef.Number, true);
-        CopyRecRefFields(RecRef2, RecRef, FieldRef, ConfigPackageFieldOrder);
-        RecRef2.Insert;
+        CopyRecRefFields(PackageCode, RecRef2, RecRef, FieldRef, ConfigPackageFieldOrder);
+        RecRef2.Insert();
 
         FieldRef2 := RecRef2.Field(FieldRef.Number);
 
         ConfigTryValidate.SetValidateParameters(FieldRef2, FieldRef.Value);
 
-        Commit;
+        Commit();
         if not ConfigTryValidate.Run then
             exit(CopyStr(GetLastErrorText, 1, 250));
 
         exit('');
     end;
 
-    local procedure CopyRecRefFields(RecRef: RecordRef; SourceRecRef: RecordRef; FieldRefToExclude: FieldRef; var ConfigPackageFieldOrder: Record "Config. Package Field")
+    local procedure CopyRecRefFields(PackageCode : Code[20]; RecRef: RecordRef; SourceRecRef: RecordRef; FieldRefToExclude: FieldRef; var ConfigPackageFieldOrder: Record "Config. Package Field")
     var
         FieldRef: FieldRef;
         SourceFieldRef: FieldRef;
     begin
-        ConfigPackageFieldOrder.Reset;
+        ConfigPackageFieldOrder.Reset();
         ConfigPackageFieldOrder.SetCurrentKey("Package Code", "Table ID", "Processing Order");
-        if ConfigPackageFieldOrder.FindSet then
+        IF PackageCode <> '' THEN
+            ConfigPackageFieldOrder.SetRange("Package Code", PackageCode);
+        ConfigPackageFieldOrder.SetRange("Table ID", RecRef.Number);
+        if ConfigPackageFieldOrder.FindSet() then
             repeat
                 SourceFieldRef := SourceRecRef.Field(ConfigPackageFieldOrder."Field ID");
                 if FieldRefToExclude.Name = SourceFieldRef.Name then
                     exit;
                 FieldRef := RecRef.Field(ConfigPackageFieldOrder."Field ID");
                 FieldRef.Value := SourceFieldRef.Value;
-            until ConfigPackageFieldOrder.Next = 0;
+            until ConfigPackageFieldOrder.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

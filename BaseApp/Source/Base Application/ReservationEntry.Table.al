@@ -665,10 +665,16 @@ table 337 "Reservation Entry"
     end;
 
     procedure TestItemFields(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
+    var
+        IsHandled: Boolean;
     begin
-        TestField("Item No.", ItemNo);
-        TestField("Variant Code", VariantCode);
-        TestField("Location Code", LocationCode);
+        IsHandled := false;
+        OnBeforeTestItemFields(Rec, ItemNo, VariantCode, LocationCode, IsHandled);
+        if not IsHandled then begin
+            TestField("Item No.", ItemNo);
+            TestField("Variant Code", VariantCode);
+            TestField("Location Code", LocationCode);
+        end;
     end;
 
     procedure TrackingExists(): Boolean
@@ -772,6 +778,11 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSummEntryNo(ReservationEntry: Record "Reservation Entry"; var ReturnValue: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestItemFields(ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -25,12 +25,14 @@ table 11306 "Electronic Banking Setup"
             ObsoleteState = Pending;
             OptionCaption = ' ,1,2,3,4,5,6';
             OptionMembers = " ","1","2","3","4","5","6";
+            ObsoleteTag = '15.0';
         }
         field(22; "Notification E-mail address"; Text[30])
         {
             Caption = 'Notification E-mail address';
             ObsoleteReason = 'Legacy ISABEL';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(23; Language; Option)
         {
@@ -39,6 +41,7 @@ table 11306 "Electronic Banking Setup"
             ObsoleteState = Pending;
             OptionCaption = 'EN,FR,NL,DE';
             OptionMembers = EN,FR,NL,DE;
+            ObsoleteTag = '15.0';
         }
         field(24; "Upload Integration Mode"; Option)
         {
@@ -47,6 +50,7 @@ table 11306 "Electronic Banking Setup"
             ObsoleteState = Pending;
             OptionCaption = 'Manual,Attended';
             OptionMembers = Manual,Attended;
+            ObsoleteTag = '15.0';
 
             trigger OnValidate()
             begin
@@ -61,6 +65,7 @@ table 11306 "Electronic Banking Setup"
             Caption = 'Upload Path';
             ObsoleteReason = 'Legacy ISABEL';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(26; "Download Integration Mode"; Option)
         {
@@ -69,6 +74,7 @@ table 11306 "Electronic Banking Setup"
             ObsoleteState = Pending;
             OptionCaption = 'Manual,Attended';
             OptionMembers = Manual,Attended;
+            ObsoleteTag = '15.0';
 
             trigger OnValidate()
             begin
@@ -83,6 +89,7 @@ table 11306 "Electronic Banking Setup"
             Caption = 'Download Path';
             ObsoleteReason = 'Legacy ISABEL';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(28; "IBS Log Upload Nos."; Code[20])
         {
@@ -90,6 +97,7 @@ table 11306 "Electronic Banking Setup"
             ObsoleteReason = 'Legacy ISABEL';
             ObsoleteState = Pending;
             TableRelation = "No. Series";
+            ObsoleteTag = '15.0';
         }
         field(29; "IBS Log Download Nos."; Code[20])
         {
@@ -97,6 +105,7 @@ table 11306 "Electronic Banking Setup"
             ObsoleteReason = 'Legacy ISABEL';
             ObsoleteState = Pending;
             TableRelation = "No. Series";
+            ObsoleteTag = '15.0';
         }
         field(30; "IBS Request ID"; Code[20])
         {
@@ -104,18 +113,21 @@ table 11306 "Electronic Banking Setup"
             ObsoleteReason = 'Legacy ISABEL';
             ObsoleteState = Pending;
             TableRelation = "No. Series";
+            ObsoleteTag = '15.0';
         }
         field(31; "IBS Service Version"; Code[10])
         {
             Caption = 'IBS Service Version';
             ObsoleteReason = 'Legacy ISABEL';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(40; "Test Environment"; Boolean)
         {
             Caption = 'Test Environment';
             ObsoleteReason = 'Legacy ISABEL';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
     }
 

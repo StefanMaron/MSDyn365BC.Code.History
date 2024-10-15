@@ -3,6 +3,7 @@ table 2000010 "IBS Log"
     Caption = 'IBS Log';
     ObsoleteReason = 'Legacy ISABEL';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

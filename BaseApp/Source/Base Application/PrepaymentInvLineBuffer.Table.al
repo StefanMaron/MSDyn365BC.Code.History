@@ -189,6 +189,7 @@ table 461 "Prepayment Inv. Line Buffer"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

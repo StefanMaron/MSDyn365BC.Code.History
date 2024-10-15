@@ -190,7 +190,7 @@ table 9500 "Email Item"
         BodyText.Write(DataStream);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure GetBodyText() Value: Text
     var
         TempBlob: Codeunit "Temp Blob";

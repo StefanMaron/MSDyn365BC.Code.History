@@ -504,6 +504,7 @@ table 113 "Sales Invoice Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5811; "Appl.-from Item Entry"; Integer)
         {
@@ -536,6 +537,7 @@ table 113 "Sales Invoice Line"
             Editable = false;
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

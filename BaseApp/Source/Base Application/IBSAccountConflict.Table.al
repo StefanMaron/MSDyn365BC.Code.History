@@ -3,6 +3,7 @@ table 2000013 "IBS Account Conflict"
     Caption = 'IBS Account Conflict';
     ObsoleteReason = 'Legacy ISABEL';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

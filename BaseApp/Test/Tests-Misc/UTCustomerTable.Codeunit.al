@@ -600,6 +600,106 @@ codeunit 134825 "UT Customer Table"
         Assert.AreEqual(Customer[4]."No.", Customer[1].GetCustNo(RandomText2), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateEmailFieldMultipleEmailAddressesWithSemicolon()
+    var
+        Customer: Record Customer;
+    begin
+        // [SCENARIO 341841] Validate E-Mail field of Customer table in case it contains multiple e-mail addresses, separated by ;
+
+        // [WHEN] Validate E-Mail field of Customer table, when it contains multiple email addresses in cases, separated by ;
+        Customer.Validate("E-Mail", 'test1@test.com; test2@test.com; test3@test.com');
+
+        // [THEN] String is validated without errors.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateEmailFieldOnEmptyEmailAddress()
+    var
+        Customer: Record Customer;
+    begin
+        // [SCENARIO 341841] Validate E-Mail field of Customer table in case it's empty.
+
+        // [WHEN] Validate E-Mail field of Customer table on empty value.
+        Customer.Validate("E-Mail", '');
+
+        // [THEN] String is validated without errors.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateEmailFieldMultipleEmailAddressesWithComma()
+    var
+        Customer: Record Customer;
+        MultipleAddressesTxt: Text;
+    begin
+        // [SCENARIO 341841] Validate E-Mail field of Customer table in case it contains multiple e-mail addresses, separated by ,
+        MultipleAddressesTxt := 'test1@test.com, test2@test.com, test3@test.com';
+
+        // [WHEN] Validate E-Mail field of Customer table, when it contains multiple email addresses, separated by ,
+        asserterror Customer.Validate("E-Mail", MultipleAddressesTxt);
+
+        // [THEN] The error "The email address is not valid." is thrown.
+        Assert.ExpectedError(StrSubstNo('The email address "%1" is not valid.', MultipleAddressesTxt));
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateEmailFieldMultipleEmailAddressesWithVerticalBar()
+    var
+        Customer: Record Customer;
+        MultipleAddressesTxt: Text;
+    begin
+        // [SCENARIO 341841] Validate E-Mail field of Customer table in case it contains multiple e-mail addresses, separated by |
+        MultipleAddressesTxt := 'test1@test.com| test2@test.com| test3@test.com';
+
+        // [WHEN] Validate E-Mail field of Customer table, when it contains multiple email addresses, separated by |
+        asserterror Customer.Validate("E-Mail", MultipleAddressesTxt);
+
+        // [THEN] The error "The email address is not valid." is thrown.
+        Assert.ExpectedError(StrSubstNo('The email address "%1" is not valid.', MultipleAddressesTxt));
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateEmailFieldMultipleEmailAddressesWithSpace()
+    var
+        Customer: Record Customer;
+        MultipleAddressesTxt: Text;
+    begin
+        // [SCENARIO 341841] Validate E-Mail field of Customer table in case it contains multiple e-mail addresses, separated by space.
+        MultipleAddressesTxt := 'test1@test.com test2@test.com test3@test.com';
+
+        // [WHEN] Validate E-Mail field of Customer table, when it contains multiple email addresses, separated by space.
+        asserterror Customer.Validate("E-Mail", MultipleAddressesTxt);
+
+        // [THEN] The error "The email address is not valid." is thrown.
+        Assert.ExpectedError(StrSubstNo('The email address "%1" is not valid.', MultipleAddressesTxt));
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateEmailFieldMultipleEmailAddressesWithInvalidEmail()
+    var
+        Customer: Record Customer;
+        MultipleAddressesTxt: Text;
+    begin
+        // [SCENARIO 341841] Validate E-Mail field of Customer table in case it contains multiple e-mail addresses; one of them is not valid.
+        MultipleAddressesTxt := 'test1@test.com; test2.com; test3@test.com';
+
+        // [WHEN] Validate E-Mail field of Customer table, when it contains multiple email addresses, one of them is not a valid email address.
+        asserterror Customer.Validate("E-Mail", MultipleAddressesTxt);
+
+        // [THEN] The error "The email address is not valid." is thrown.
+        Assert.ExpectedError('The email address "test2.com" is not valid.');
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
     local procedure Initialize()
     var
         Customer: Record Customer;

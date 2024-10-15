@@ -87,9 +87,9 @@ table 246 "Requisition Line"
                 TestField(Type);
                 case Type of
                     Type::"G/L Account":
-                        CopyFromGLAcc;
+                        CopyFromGLAcc();
                     Type::Item:
-                        CopyFromItem;
+                        CopyFromItem();
                 end;
 
                 if "Planning Line Origin" <> "Planning Line Origin"::"Order Planning" then
@@ -825,6 +825,7 @@ table 246 "Requisition Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5706; "Transfer-from Code"; Code[10])
         {
@@ -1654,7 +1655,7 @@ table 246 "Requisition Line"
     local procedure CopyFromItem()
     begin
         GetItem;
-        OnBeforeCopyFromItem(Rec, Item, xRec, CurrFieldNo);
+        OnBeforeCopyFromItem(Rec, Item, xRec, CurrFieldNo, TempPlanningErrorLog, PlanningResiliency);
 
         if PlanningResiliency and Item.Blocked then
             TempPlanningErrorLog.SetError(
@@ -1673,7 +1674,7 @@ table 246 "Requisition Line"
               DATABASE::Item, Item.GetPosition);
         Item.TestField("Base Unit of Measure");
         "Indirect Cost %" := Item."Indirect Cost %";
-        UpdateReplenishmentSystem;
+        UpdateReplenishmentSystem();
         "Accept Action Message" := true;
         GetDirectCost(FieldNo("No."));
         SetFromBinCode;
@@ -3277,7 +3278,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyFromItem(var RequisitionLine: Record "Requisition Line"; Item: Record Item; xRequisitionLine: Record "Requisition Line"; FieldNo: Integer)
+    local procedure OnBeforeCopyFromItem(var RequisitionLine: Record "Requisition Line"; Item: Record Item; xRequisitionLine: Record "Requisition Line"; FieldNo: Integer; var TempPlanningErrorLog: Record "Planning Error Log" temporary; PlanningResiliency: Boolean)
     begin
     end;
 
