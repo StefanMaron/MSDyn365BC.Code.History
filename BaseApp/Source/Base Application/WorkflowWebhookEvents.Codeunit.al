@@ -167,7 +167,7 @@ codeunit 1541 "Workflow Webhook Events"
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
     begin
         // Handles the scenario when a General Journal Batch is deleted after it's been sent approval
-        WorkflowWebhookManagement.FindAndCancel(GenJournalBatch.RecordId);
+        WorkflowWebhookManagement.FindAndCancel(GenJournalBatch.RecordId, true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelGeneralJournalLineApprovalRequest', '', false, false)]
@@ -176,7 +176,7 @@ codeunit 1541 "Workflow Webhook Events"
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
     begin
         // Handles the scenario when a General Journal Line is deleted after it's been sent approval
-        WorkflowWebhookManagement.FindAndCancel(GenJournalLine.RecordId);
+        WorkflowWebhookManagement.FindAndCancel(GenJournalLine.RecordId, true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelVendorApprovalRequest', '', false, false)]

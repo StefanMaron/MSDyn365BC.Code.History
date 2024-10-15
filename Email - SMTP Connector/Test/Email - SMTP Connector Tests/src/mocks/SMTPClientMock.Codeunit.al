@@ -21,7 +21,7 @@ codeunit 139757 "SMTP Client Mock"
         FailOnSendMessageVar := false;
     end;
 
-    procedure InitializeClient(Account: Record "SMTP Account"; Message: Codeunit "SMTP Message"; var SMTPClient: Interface "SMTP Client")
+    procedure InitializeClient(Account: Record "SMTP Account"; Message: Codeunit "Connector SMTP Message"; var SMTPClient: Interface "SMTP Client")
     var
         TestSMTPClient: Codeunit "Test SMTP Client";
     begin

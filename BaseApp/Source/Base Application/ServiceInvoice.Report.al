@@ -424,7 +424,8 @@ report 5911 "Service - Invoice"
                                 AccNo := "No.";
                                 "No." := "Service Item No.";
                                 ServiceItemSerialNo := GetServiceItemSerialNo("Service Item No.");
-                            end;
+                            end else
+                                ServiceItemSerialNo := "Service Item Serial No.";
 
                             VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "VAT Identifier";

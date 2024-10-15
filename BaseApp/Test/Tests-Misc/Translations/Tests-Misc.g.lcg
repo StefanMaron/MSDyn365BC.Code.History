@@ -1546,11 +1546,11 @@
   </Item>
   <Item ItemId=";Codeunit 205634720 - NamedType 1320827926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Dimension Value for %1 is missing.]]></Val>
+      <Val><![CDATA[Dimension Value %1 - %2 is missing.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Check Dimensions On Posting - NamedType DimValueMissingErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Dim Code, %2 = Dim Value]D;]A;(LookupHint=Codeunit Check Dimensions On Posting - NamedType DimValueMissingErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 205634720 - NamedType 1593687149" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

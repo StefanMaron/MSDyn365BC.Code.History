@@ -2033,6 +2033,46 @@ codeunit 136900 "Service Reports"
         VerifySerialNoInServiceInvoiceReport(SerialNo);
     end;
 
+    [Test]
+    [HandlerFunctions('ServiceInvoiceToExcelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceReportServiceItemSerialNo()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ServiceItem: Record "Service Item";
+        ServiceLine: Record "Service Line";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        SerialNo: Code[50];
+    begin
+        // [FEATURE] [Service Contract]
+        // [SCENARIO 428308] "Service Item Serial No." printed for posted service invoice
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+        SerialNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Service Order with Service Item "SI", that has "Serial No." = "SN".
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceDocumentForCustomerNo(ServiceHeader, "Service Document Type"::Order, Customer."No.");
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        ServiceItem.Validate("Serial No.", SerialNo);
+        ServiceItem.Modify();
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, ServiceItem."No.");
+        ServiceLine.TestField("Service Item Serial No.", SerialNo);
+
+        // [GIVEN] Post Service Order
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [WHEN] Run report "Service - Invoice" for Service Invoice, save report output to Excel file.
+        ServiceInvoiceHeader.SetRange("Customer No.", Customer."No.");
+        Report.Run(Report::"Service - Invoice", true, false, ServiceInvoiceHeader);
+
+        // [THEN] "Serial No." "SN" is printed in column "Serial No." for Service Invoice Line with "No." = "SI".
+        VerifySerialNoInServiceInvoiceReport(SerialNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

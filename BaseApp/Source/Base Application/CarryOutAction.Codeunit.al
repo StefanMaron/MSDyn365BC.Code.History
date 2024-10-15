@@ -863,8 +863,6 @@ codeunit 99000813 "Carry Out Action"
             TransHeader.Validate("Transfer-to Code", "Location Code");
             TransHeader."Receipt Date" := "Due Date";
             TransHeader."Shipment Date" := "Transfer Shipment Date";
-            TransHeader."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
-            TransHeader."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
             OnBeforeTransHeaderInsert(TransHeader, ReqLine);
             OnInsertTransHeaderOnBeforeTransHeaderModify(TransHeader, ReqLine);
             TransHeader.Modify();

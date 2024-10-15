@@ -645,12 +645,12 @@
         field(27027; "SAT Municipality Code"; Code[10])
         {
             Caption = 'SAT Municipality Code';
-            TableRelation = "SAT Municipality" WHERE (State = FIELD ("SAT State Code"));
+            TableRelation = "SAT Municipality" WHERE(State = FIELD("SAT State Code"));
         }
         field(27028; "SAT Locality Code"; Code[10])
         {
             Caption = 'SAT Locality Code';
-            TableRelation = "SAT Locality" WHERE (State = FIELD ("SAT State Code"));
+            TableRelation = "SAT Locality" WHERE(State = FIELD("SAT State Code"));
         }
         field(27029; "SAT Suburb ID"; Integer)
         {
@@ -1013,6 +1013,14 @@
             LocationAddress += ' ' + SATLocality.Description;
         if SATSuburb.Get("SAT Suburb ID") then
             LocationAddress += ' ' + SATSuburb.Description;
+    end;
+
+    procedure GetSATPostalCode(): Code[20];
+    var
+        SATSuburb: Record "SAT Suburb";
+    begin
+        SATSuburb.GET("SAT Suburb ID");
+        exit(SATSuburb."Postal Code");
     end;
 
     [IntegrationEvent(false, false)]

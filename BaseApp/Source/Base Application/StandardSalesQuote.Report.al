@@ -860,11 +860,19 @@
                 column(AmountExemptFromSalesTaxLbl; AmtExemptfromSalesTaxLbl)
                 {
                 }
+                column(CurrencyCode; CurrCode)
+                {
+                }
+                column(CurrencySymbol; CurrSymbol)
+                {
+                }
             }
 
             trigger OnAfterGetRecord()
             var
                 CurrencyExchangeRate: Record "Currency Exchange Rate";
+                Currency: Record Currency;
+                GeneralLedgerSetup: Record "General Ledger Setup";
                 ArchiveManagement: Codeunit ArchiveManagement;
                 SalesPost: Codeunit "Sales-Post";
             begin
@@ -899,7 +907,14 @@
                     CalculatedExchRate :=
                       Round(1 / "Currency Factor" * CurrencyExchangeRate."Exchange Rate Amount", 0.000001);
                     ExchangeRateText := StrSubstNo(ExchangeRateTxt, CalculatedExchRate, CurrencyExchangeRate."Exchange Rate Amount");
-                end;
+                    CurrCode := "Currency Code";
+                    if Currency.Get("Currency Code") then
+                        CurrSymbol := Currency.GetCurrencySymbol();
+                end else
+                    if GeneralLedgerSetup.Get() then begin
+                        CurrCode := GeneralLedgerSetup."LCY Code";
+                        CurrSymbol := GeneralLedgerSetup.GetCurrencySymbol();
+                    end;
 
                 FormatDocumentFields(Header);
                 if SellToContact.Get("Sell-to Contact No.") then;
@@ -1144,6 +1159,8 @@
         UnitPriceLbl: Label 'Unit Price';
         LineAmountLbl: Label 'Line Amount';
         SalespersonLbl2: Label 'Salesperson';
+        CurrCode: Text[10];
+        CurrSymbol: Text[10];
 
     local procedure InitLogInteraction()
     begin
