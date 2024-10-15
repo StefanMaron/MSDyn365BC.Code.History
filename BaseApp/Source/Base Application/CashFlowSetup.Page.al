@@ -21,6 +21,13 @@ page 846 "Cash Flow Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the automatic update frequency of the cash flow forecast. The Cash Flow Forecast with "Show in Chart on Role Center" set will be used for the automatic update.';
+                    trigger OnValidate();
+                    var
+                        CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                    begin
+                        if not xRec."Azure AI Enabled" and Rec."Azure AI Enabled" then
+                            Rec."Azure AI Enabled" := CustomerConsentMgt.ConfirmUserConsentToMicrosoftService();
+                    end;
                 }
             }
             group(Accounts)
