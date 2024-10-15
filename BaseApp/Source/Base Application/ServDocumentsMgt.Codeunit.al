@@ -1091,7 +1091,7 @@
                         then
                             Error(Text1100001);
                 end;
-                if "Corrected Invoice No." <> '' then
+                if ("Corrected Invoice No." <> '') and ("Posting Description" = '') then
                     "Posting Description" := Format(Text1100002) + ' ' + "No."
             end;
 

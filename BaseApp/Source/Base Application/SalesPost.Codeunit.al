@@ -1674,7 +1674,7 @@
             exit;
 
         with SalesLine do begin
-            if "Line Discount %" <> 100 then
+            if ("Line Discount %" <> 100) and (("Inv. Discount Amount" - "Line Amount") <> 0) then
                 TestField(Amount);
             TestField("Job No.", '');
             TestField("Job Contract Entry No.", 0);
@@ -8139,7 +8139,7 @@
                     if not ConfirmManagement.GetResponseOrDefault(Text1100000, true) then
                         Error(Text1100011);
             end;
-            if SalesHeader."Corrected Invoice No." <> '' then
+            if (SalesHeader."Corrected Invoice No." <> '') and (SalesHeader."Posting Description" = '') then
                 SalesHeader."Posting Description" := Format(Text1100104) + ' ' + SalesHeader."No."
         end;
     end;

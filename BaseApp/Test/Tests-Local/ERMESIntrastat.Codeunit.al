@@ -92,7 +92,7 @@ codeunit 144055 "ERM ES Intrastat"
         Amount := Round(SalesLine.Amount * (1 + Item."Cost Regulation %" / 100), 1);  // Round to nearest whole value.
 
         // Exercise: Get Entries on Intrastat Journal.
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal;  // Opens GetItemLedgerEntriesRequestPageHandler.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(false);  // Opens GetItemLedgerEntriesRequestPageHandler.
 
         // Verify: Verify Statistical System is editable on Intrastat Journal and Intrastat Journal Line is created with taking Cost regulation % in consideration.
         VerifyIntrastatJournalStatisticalSystemEditable(IntrastatJnlBatchName, Item."No.");
@@ -135,7 +135,7 @@ codeunit 144055 "ERM ES Intrastat"
         PostSalesInvoice(SalesLine."Document No.");
 
         // Exercise: Get Entries on Intrastat Journal.
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal;  // Opens GetItemLedgerEntriesRequestPageHandler.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(false);  // Opens GetItemLedgerEntriesRequestPageHandler.
 
         // Verify: Verify Amount and Statistical Value on Intrastat Journal Line.
         VerifyFirstIntrastatJnlLine(IntrastatJnlBatchName, SalesLine."No.", Item."Tariff No.", SalesLine.Amount, SalesLine.Amount);
@@ -160,7 +160,7 @@ codeunit 144055 "ERM ES Intrastat"
         PostSalesInvoice(SalesLine."Document No.");
 
         // Exercise: Get Entries on Intrastat Journal.
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal;  // Opens GetItemLedgerEntriesRequestPageHandler.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(false);  // Opens GetItemLedgerEntriesRequestPageHandler.
 
         // Verify: Verify Amount and Statistical Value with Item Charge consideration on Intrastat Journal Line.
         VerifyFirstIntrastatJnlLine(
@@ -190,7 +190,7 @@ codeunit 144055 "ERM ES Intrastat"
         PostSalesInvoice(SalesLine."Document No.");
 
         // Exercise: Get Entries on Intrastat Journal.
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal;  // Opens GetItemLedgerEntriesRequestPageHandler.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(false);  // Opens GetItemLedgerEntriesRequestPageHandler.
 
         // Verify: Verify Amount and Statistical Value with Item Charge consideration on Intrastat Journal Line.
         VerifyFirstIntrastatJnlLine(
@@ -221,7 +221,7 @@ codeunit 144055 "ERM ES Intrastat"
         PostPurchaseInvoice(PurchaseLine."Document No.");
 
         // Exercise: Get Entries on Intrastat Journal.
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal;  // Opens GetItemLedgerEntriesRequestPageHandler.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(false);  // Opens GetItemLedgerEntriesRequestPageHandler.
 
         // Verify: Verify Amount and Statistical Value with Item Charge consideration on Intrastat Journal Line.
         VerifyFirstIntrastatJnlLine(
@@ -248,7 +248,7 @@ codeunit 144055 "ERM ES Intrastat"
         PostPurchaseInvoice(PurchaseLine."Document No.");
 
         // Exercise: Get Entries on Intrastat Journal.
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal;  // Opens GetItemLedgerEntriesRequestPageHandler.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(false);  // Opens GetItemLedgerEntriesRequestPageHandler.
 
         // Verify: Verify Amount and Statistical Value on Intrastat Journal Line.
         VerifyFirstIntrastatJnlLine(IntrastatJnlBatchName, PurchaseLine."No.", Item."Tariff No.", PurchaseLine.Amount, PurchaseLine.Amount);
@@ -273,7 +273,7 @@ codeunit 144055 "ERM ES Intrastat"
         PostPurchaseInvoice(PurchaseLine."Document No.");
 
         // Exercise: Get Entries on Intrastat Journal.
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal;  // Opens GetItemLedgerEntriesRequestPageHandler.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(false);  // Opens GetItemLedgerEntriesRequestPageHandler.
 
         // Verify: Verify Amount and Statistical Value with Item Charge consideration on Intrastat Journal Line.
         VerifyFirstIntrastatJnlLine(
@@ -296,7 +296,7 @@ codeunit 144055 "ERM ES Intrastat"
         CreateItem(Item);
         CreateSalesInvoice(SalesLine, Item."No.", 0);  // Unit Price - 0.
         PostSalesInvoice(SalesLine."Document No.");
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal;
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(false);
         UpdateIntrastatJnlLine(IntrastatJnlBatchName, Item."No.");
 
         // Exercise: Invoke Make Declaration from Intrastat Journal
@@ -331,7 +331,7 @@ codeunit 144055 "ERM ES Intrastat"
             ItemChargeNo, PurchaseLine."Document Type"::Order, DocumentNo, PurchaseLine."Document No.");
 
         // Exercise: Get Entries on Intrastat Journal.
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal;  // Opens GetItemLedgerEntriesRequestPageHandler.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(false);  // Opens GetItemLedgerEntriesRequestPageHandler.
 
         // Verify: Verify Amount and Statistical value on Intrastat Journal for different Items and Value Entries for different Items.
         Item.Get(PurchaseLine."No.");
@@ -370,7 +370,7 @@ codeunit 144055 "ERM ES Intrastat"
             ItemChargeNo, PurchaseLine."Document Type"::"Return Order", DocumentNo, PurchaseLine."Document No.");
 
         // Exercise: Get Entries on Intrastat Journal.
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal;  // Opens GetItemLedgerEntriesRequestPageHandler.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(false);  // Opens GetItemLedgerEntriesRequestPageHandler.
 
         // Verify: Verify Amount and Statistical value on Intrastat Journal for different Items and Value Entries for different Items.
         Item.Get(PurchaseLine."No.");
@@ -430,7 +430,7 @@ codeunit 144055 "ERM ES Intrastat"
         CalculateInvoiceDiscAndPostSalesDocument(DocumentType, DocumentNo);
 
         // Exercise: Get Entries on Intrastat Journal.
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal;  // Opens GetItemLedgerEntriesRequestPageHandler.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(false);  // Opens GetItemLedgerEntriesRequestPageHandler.
 
         // Verify: Verify Amount and Statistical value on Intrastat Journal for different Items and Value Entries for different Items for Sales Amount (Actual).
         VerifyFirstIntrastatJnlLine(
@@ -728,6 +728,65 @@ codeunit 144055 "ERM ES Intrastat"
 
         // [THEN] Value of "Total Weight" in the table are equal - "1,236"
         IntrastatJnlLine.TestField("Total Weight", 1.236);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure IntrastatJournalGetItemLedgerEntriesShippedNotInvoicedSkipNotInvoiced()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        IntrastatJnlBatchName: Code[10];
+    begin
+        // [SCENARIO 387998] Run Get Item Ledger Entries for shipped but not invoiced order with 'Skip not invoiced entries'
+        Initialize();
+
+        // [GIVEN] Sales order is shipped but not invoiced
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateItem(Item);
+        CreateSalesLine(
+          SalesLine, SalesLine."Document Type"::Order, SalesHeader."No.",
+          SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1000, 2000));
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Get Entries on Intrastat Journal with 'Skip not invoiced entries' option
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(true);
+
+        // [THEN] Intrastat Jnl. Line is not created
+        FilterIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatchName, Item."No.");
+        Assert.RecordIsEmpty(IntrastatJnlLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure IntrastatJournalGetItemLedgerEntriesShippedAndInvoicedSkipNotInvoiced()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        IntrastatJnlBatchName: Code[10];
+    begin
+        // [SCENARIO 387998] Run Get Item Ledger Entries for shipped and invoiced order with 'Skip not invoiced entries'
+        Initialize();
+
+        // [GIVEN] Sales order is shipped and invoiced
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        CreateItem(Item);
+        CreateSalesLine(
+          SalesLine, SalesLine."Document Type"::Order, SalesHeader."No.",
+          SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1000, 2000));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Get Entries on Intrastat Journal with 'Skip not invoiced entries' option
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(true);
+
+        // [THEN] Intrastat Jnl. Line is created for relevant sales document
+        VerifyFirstIntrastatJnlLine(
+          IntrastatJnlBatchName, SalesLine."No.", Item."Tariff No.", SalesLine.Amount, SalesLine.Amount);
     end;
 
     local procedure Initialize()
@@ -1072,10 +1131,11 @@ codeunit 144055 "ERM ES Intrastat"
         exit(SalesLine."No.");
     end;
 
-    local procedure GetEntriesIntrastatJournal() IntrastatJnlBatchName: Code[10]
+    local procedure GetEntriesIntrastatJournal(SkipNotInvoices: Boolean) IntrastatJnlBatchName: Code[10]
     var
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
+        LibraryVariableStorage.Enqueue(SkipNotInvoices);
         IntrastatJnlBatchName := CreateIntrastatJournalBatch;
         Commit();  // Commit required.
         IntrastatJournal.OpenEdit;
@@ -1344,6 +1404,7 @@ codeunit 144055 "ERM ES Intrastat"
     [Scope('OnPrem')]
     procedure GetItemLedgerEntriesRequestPageHandler(var GetItemLedgerEntries: TestRequestPage "Get Item Ledger Entries")
     begin
+        GetItemLedgerEntries.SkipNotInvoiced.SetValue(LibraryVariableStorage.DequeueBoolean);
         GetItemLedgerEntries.OK.Invoke;
     end;
 

@@ -359,7 +359,8 @@
                 OnValidateShipToCodeOnBeforeDleereLines(Rec, IsHandled);
                 if not IsHandled then
                     if ("Ship-to Code" <> xRec."Ship-to Code") and
-                    ("Customer No." = xRec."Customer No.")
+                       ("Customer No." = xRec."Customer No.") and
+                       ServItemLineExists()
                     then begin
                         Modify(true);
                         ServLine.LockTable();

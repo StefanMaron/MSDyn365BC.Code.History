@@ -40,6 +40,8 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SII Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SII Doc. Upload State");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SII Session");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SII Sales Document Scheme Code");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SII Purch. Doc. Scheme Code");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cartera Doc.");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Cartera Doc.");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Closed Cartera Doc.");
