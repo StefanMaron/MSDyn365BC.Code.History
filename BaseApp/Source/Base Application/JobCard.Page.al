@@ -41,13 +41,27 @@ page 88 "Job Card"
 
                     trigger OnValidate()
                     begin
-                        BilltoCustomerNoOnAfterValidat;
+                        BilltoCustomerNoOnAfterValidate();
                     end;
                 }
                 field("Bill-to Contact No."; "Bill-to Contact No.")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number of the contact person at the customer''s billing address.';
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        if not BilltoContactLookup() then
+                            exit(false);
+                        BilltoCustomerNoOnAfterValidate();
+                        exit(true);
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        if xRec."Bill-to Contact No." <> Rec."Bill-to Contact No." then
+                            BilltoCustomerNoOnAfterValidate();
+                    end;
                 }
                 field("Bill-to Name"; "Bill-to Name")
                 {
@@ -1175,7 +1189,7 @@ page 88 "Job Card"
         IsCountyVisible: Boolean;
         ExtendedPriceEnabled: Boolean;
 
-    local procedure BilltoCustomerNoOnAfterValidat()
+    local procedure BilltoCustomerNoOnAfterValidate()
     begin
         CurrPage.Update();
     end;

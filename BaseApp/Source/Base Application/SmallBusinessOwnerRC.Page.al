@@ -128,7 +128,12 @@ page 9020 "Small Business Owner RC"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'List Price Sheet';
-                RunObject = Report "List Price Sheet";
+#if not CLEAN19
+                RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(10148)); // "List Price Sheet"
+                RunObject = Page "Role Center Page Dispatcher";
+#else
+                RunObject = Report "List Price Sheet V16";
+#endif
                 ToolTip = 'View a list of your items and their prices, for example, to send to customers. You can create the list for specific customers, campaigns, currencies, or other criteria.';
             }
             separator(Action93)
@@ -1037,12 +1042,14 @@ page 9020 "Small Business Owner RC"
                 RunObject = Page "Purchase Journal";
                 ToolTip = 'Open the list of purchase journals where you can batch post purchase transactions to G/L, bank, customer, vendor and fixed assets accounts.';
             }
+#if not CLEAN19
             action("Sales Price &Worksheet")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Sales Price &Worksheet';
                 Image = PriceWorksheet;
-                RunObject = Page "Sales Price Worksheet";
+                RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(7023)); // "Sales Price Worksheet";
+                RunObject = Page "Role Center Page Dispatcher";
                 ToolTip = 'Manage sales prices for individual customers, for a group of customers, for all customers, or for a campaign.';
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -1053,7 +1060,8 @@ page 9020 "Small Business Owner RC"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Sales P&rices';
                 Image = SalesPrices;
-                RunObject = Page "Sales Prices";
+                RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(7002)); // "Sales Prices";
+                RunObject = Page "Role Center Page Dispatcher";
                 ToolTip = 'View or edit special sales prices that you grant when certain conditions are met, such as customer, quantity, or ending date. The price agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -1064,12 +1072,31 @@ page 9020 "Small Business Owner RC"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Sales &Line Discounts';
                 Image = SalesLineDisc;
-                RunObject = Page "Sales Line Discounts";
+                RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(7004)); // "Sales Line Discounts";
+                RunObject = Page "Role Center Page Dispatcher";
                 ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                 ObsoleteTag = '17.0';
             }
+#else
+            action("Sales Price &Worksheet")
+            {
+                ApplicationArea = RelationshipMgmt;
+                Caption = 'Sales Price &Worksheet';
+                Image = PriceWorksheet;
+                RunObject = Page "Price Worksheet";
+                ToolTip = 'Manage sales prices for individual customers, for a group of customers, for all customers, or for a campaign.';
+            }
+            action("Price Lists")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = '&Prices';
+                Image = SalesPrices;
+                RunObject = Page "Sales Price Lists";
+                ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+            }
+#endif
             separator(Action19)
             {
             }

@@ -12,32 +12,31 @@ page 9177 "Allowed Companies"
         {
             repeater(Group)
             {
-                field(CompanyDisplayName; CompanyDisplayName)
+                field(CompanyDisplayName; Rec."Display Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Name';
                     StyleExpr = NameStyleExpr;
                     ToolTip = 'Specifies the display name that is defined for the company. If a display name is not defined, then the company name is used.';
                 }
-                field("Evaluation Company"; "Evaluation Company")
+                field("Evaluation Company"; Rec."Evaluation Company")
                 {
                     ApplicationArea = All;
                     Caption = 'Evaluation Company';
                     Editable = false;
                     ToolTip = 'Specifies that the company is for trial purposes only, and that a subscription has not been purchased.';
                 }
-                field(SetupStatus; SetupStatus)
+                field(SetupStatus; CompanySetupStatuses.Get(Rec.Name))
                 {
                     ApplicationArea = All;
                     Caption = 'Setup Status';
-                    OptionCaption = ' ,Completed,In Progress,Error';
                     ToolTip = 'Specifies the setup status of the company.';
 
                     trigger OnDrillDown()
                     var
                         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
                     begin
-                        AssistedCompanySetupStatus.DrillDownSetupStatus(Name);
+                        AssistedCompanySetupStatus.DrillDownSetupStatus(Rec.Name);
                     end;
                 }
             }
@@ -65,50 +64,38 @@ page 9177 "Allowed Companies"
                 begin
                     // Action invoked through event subscriber to avoid hard coupling to other objects,
                     // as this page is part of the Cloud Manager.
-                    Initialize;
+                    Initialize();
                 end;
             }
         }
     }
 
-    trigger OnAfterGetCurrRecord()
-    var
-        CompanyInformationMgt: Codeunit "Company Information Mgt.";
-    begin
-        CompanyDisplayName := CompanyInformationMgt.GetCompanyDisplayNameDefaulted(Rec);
-    end;
-
     trigger OnAfterGetRecord()
-    var
-        AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
-        CompanyInformationMgt: Codeunit "Company Information Mgt.";
     begin
-        CompanyDisplayName := CompanyInformationMgt.GetCompanyDisplayNameDefaulted(Rec);
-        SetupStatus := AssistedCompanySetupStatus.GetCompanySetupStatus(Name);
-        if SetupStatus = SetupStatus::"In Progress" then
+        if CompanySetupStatuses.Get(Rec.Name) = Enum::"Company Setup Status"::"In Progress" then
             NameStyleExpr := 'Subordinate'
         else
             NameStyleExpr := '';
     end;
 
-    trigger OnInit()
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
-    begin
-        SoftwareAsAService := EnvironmentInfo.IsSaaS;
-    end;
-
-    var
-        CompanyDisplayName: Text[250];
-        SoftwareAsAService: Boolean;
-        SetupStatus: Option " ",Completed,"In Progress",Error;
-        NameStyleExpr: Text;
-
     procedure Initialize()
     var
-        AssistedCompanySetup: Codeunit "Assisted Company Setup";
+        AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
+        Company: Record Company;
+        EnvironmentInfo: Codeunit "Environment Information";
+        CompanyInformationMgt: Codeunit "Company Information Mgt.";
+        UserAccountHelper: DotNet NavUserAccountHelper;
+        CompanyName: Text;
     begin
-        AssistedCompanySetup.GetAllowedCompaniesForCurrnetUser(Rec);
+        SoftwareAsAService := EnvironmentInfo.IsSaaS();
+
+        foreach CompanyName in UserAccountHelper.GetAllowedCompanies() do
+            if Company.Get(CompanyName) then begin
+                Rec := Company;
+                Rec."Display Name" := CompanyInformationMgt.GetCompanyDisplayNameDefaulted(Rec);
+                CompanySetupStatuses.Set(Rec.Name, AssistedCompanySetupStatus.GetCompanySetupStatusValue(Rec.Name));
+                Rec.Insert();
+            end;
     end;
 
     [Obsolete('Function moved to codeunit Company Information Management', '17.0')]
@@ -118,5 +105,10 @@ page 9177 "Allowed Companies"
     begin
         Exit(CompanyInformationMgt.GetCompanyDisplayNameDefaulted(Company));
     end;
+
+    var
+        CompanySetupStatuses: Dictionary of [Text, Enum "Company Setup Status"];
+        NameStyleExpr: Text;
+        SoftwareAsAService: Boolean;
 }
 

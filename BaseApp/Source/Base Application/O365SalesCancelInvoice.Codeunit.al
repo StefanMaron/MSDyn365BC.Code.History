@@ -82,6 +82,7 @@ codeunit 2103 "O365 Sales Cancel Invoice"
     procedure SendInvoiceCancelationEmail(SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         ReportSelections: Record "Report Selections";
+        Customer: Record "Customer";
         DocumentMailing: Codeunit "Document-Mailing";
         TempBlob: Codeunit "Temp Blob";
         SourceReference: RecordRef;
@@ -90,6 +91,8 @@ codeunit 2103 "O365 Sales Cancel Invoice"
         ServerEmailBodyFilePath: Text[250];
         EmailBodyTxt: Text;
         AttachmentStream: InStream;
+        SourceTableIDs, SourceRelationTypes : List of [Integer];
+        SourceIDs: List of [Guid];
     begin
         if not IsInvoiceCanceled(SalesInvoiceHeader) then
             exit;
@@ -103,9 +106,20 @@ codeunit 2103 "O365 Sales Cancel Invoice"
 
         TempBlob.CreateInStream(AttachmentStream);
         SourceReference := RecordVariant;
+
+        SourceTableIDs.Add(SourceReference.Number());
+        SourceIDs.Add(SourceReference.Field(SourceReference.SystemIdNo).Value());
+        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Primary Source".AsInteger());
+
+        if Customer.Get(SalesInvoiceHeader."Sell-to Customer No.") then begin
+            SourceTableIDs.Add(Database::Customer);
+            SourceIDs.Add(Customer.SystemId);
+            SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+        end;
+
         DocumentMailing.EmailFileWithSubjectAndReportUsage(
           AttachmentStream, '', ServerEmailBodyFilePath, EmailSubjectTxt, SalesInvoiceHeader."No.", CustomerAddress,
-          SalesInvoiceHeader.GetDocTypeTxt, true, 2, SourceReference);
+          SalesInvoiceHeader.GetDocTypeTxt, true, 2, SourceTableIDs, SourceIDs, SourceRelationTypes);
     end;
 
     local procedure SendInvoiceCancelationEmailFromJobQueue(JobQueueEntry: Record "Job Queue Entry")

@@ -230,6 +230,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Electronic Funds Transfer - NamedType NoOfRecordsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 784540059 - NamedType 1106504963" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Remittance Advice file has not been found]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Electronic Funds Transfer - NamedType RemitAdvFileNotFoundTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 784540059 - NamedType 2808142347" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[.\]]></Val>

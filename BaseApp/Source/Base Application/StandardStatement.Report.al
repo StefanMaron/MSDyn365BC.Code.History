@@ -2,7 +2,7 @@ report 1316 "Standard Statement"
 {
     RDLCLayout = './StandardStatement.rdlc';
     WordLayout = './StandardStatement.docx';
-    Caption = 'Standard Statement';
+    Caption = 'Customer Statement';
     DefaultLayout = Word;
 
     dataset

@@ -4688,6 +4688,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
             PurchaseLine.Get(PurchaseLine."Document Type"::Order, "Ref. Order No.", "Ref. Line No.");
             TransferFromPurchaseLine(PurchaseLine);
         end;
+
+        OnAfterSetPurchase(PurchaseLine, ReqLine, InventoryProfile);
     end;
 
     local procedure SetProdOrder(var ProdOrderLine: Record "Prod. Order Line"; var InventoryProfile: Record "Inventory Profile")
@@ -4872,6 +4874,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetProdOrder(var ReqLine: Record "Requisition Line"; var ProdOrderLine: Record "Prod. Order Line"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPurchase(var PurchaseLine: Record "Purchase Line"; ReqLine: Record "Requisition Line"; var InventoryProfile: Record "Inventory Profile")
     begin
     end;
 

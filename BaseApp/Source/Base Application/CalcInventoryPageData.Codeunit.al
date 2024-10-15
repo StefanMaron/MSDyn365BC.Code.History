@@ -165,7 +165,7 @@ codeunit 5531 "Calc. Inventory Page Data"
                     end;
             end;
         end;
-        OnAfterTransferToPeriodDetails(InventoryPageData, FromInvtEventBuf);
+        OnAfterTransferToPeriodDetails(InventoryPageData, FromInvtEventBuf, SourceType, SourceSubtype);
     end;
 
     local procedure TransferInventory(InventoryEventBuffer: Record "Inventory Event Buffer"; var InventoryPageData: Record "Inventory Page Data")
@@ -497,6 +497,8 @@ codeunit 5531 "Calc. Inventory Page Data"
                 else
                     InvtPageData."Projected Inventory" += "Remaining Quantity (Base)";
         end;
+
+        OnAfterUpdateInventory(InvtPageData, InvtEventBuf);
     end;
 
     local procedure NextPageLineNo(): Integer
@@ -528,7 +530,12 @@ codeunit 5531 "Calc. Inventory Page Data"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferToPeriodDetails(var InventoryPageData: Record "Inventory Page Data"; var InventoryEventBuffer: Record "Inventory Event Buffer")
+    local procedure OnAfterTransferToPeriodDetails(var InventoryPageData: Record "Inventory Page Data"; var InventoryEventBuffer: Record "Inventory Event Buffer"; SourceType: Integer; SourceSubtype: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateInventory(var InvtPageData: Record "Inventory Page Data"; var InvtEventBuf: Record "Inventory Event Buffer")
     begin
     end;
 

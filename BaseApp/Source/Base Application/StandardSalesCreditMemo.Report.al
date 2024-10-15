@@ -878,31 +878,23 @@ report 1307 "Standard Sales - Credit Memo"
             dataitem(Totals; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                column(TotalNetAmount; TotalAmount)
+                column(TotalNetAmount; Format(TotalAmount, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
-                    AutoFormatExpression = Header."Currency Code";
-                    AutoFormatType = 1;
                 }
                 column(TotalVATBaseLCY; TotalVATBaseLCY)
                 {
                 }
-                column(TotalAmountIncludingVAT; TotalAmountInclVAT)
+                column(TotalAmountIncludingVAT; Format(TotalAmountInclVAT, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
-                    AutoFormatExpression = Header."Currency Code";
-                    AutoFormatType = 1;
                 }
-                column(TotalVATAmount; TotalAmountVAT)
+                column(TotalVATAmount; Format(TotalAmountVAT, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
-                    AutoFormatExpression = Header."Currency Code";
-                    AutoFormatType = 1;
                 }
                 column(TotalVATAmountLCY; TotalVATAmountLCY)
                 {
                 }
-                column(TotalInvoiceDiscountAmount; TotalInvDiscAmount)
+                column(TotalInvoiceDiscountAmount; Format(TotalInvDiscAmount, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
-                    AutoFormatExpression = Header."Currency Code";
-                    AutoFormatType = 1;
                 }
                 column(TotalPaymentDiscountOnVAT; TotalPaymentDiscOnVAT)
                 {
@@ -916,12 +908,10 @@ report 1307 "Standard Sales - Credit Memo"
                 column(TotalIncludingVATText; TotalInclVATText)
                 {
                 }
-                column(TotalSubTotal; TotalSubTotal)
+                column(TotalSubTotal; Format(TotalSubTotal, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
-                    AutoFormatExpression = Header."Currency Code";
-                    AutoFormatType = 1;
                 }
-                column(TotalSubTotalMinusInvoiceDiscount; TotalSubTotal + TotalInvDiscAmount)
+                column(TotalSubTotalMinusInvoiceDiscount; Format(TotalSubTotal + TotalInvDiscAmount, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, Header."Currency Code")))
                 {
                 }
                 column(TotalText; TotalText)
@@ -1129,6 +1119,7 @@ report 1307 "Standard Sales - Credit Memo"
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
+        AutoFormat: Codeunit "Auto Format";
         WorkDescriptionInstream: InStream;
         WorkDescriptionLine: Text;
         CustAddr: array[8] of Text[100];

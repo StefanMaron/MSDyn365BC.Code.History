@@ -221,14 +221,20 @@ page 10140 Deposit
 
     trigger OnOpenPage()
     begin
-        CurrentJnlBatchName := "Journal Batch Name";
-        GenJnlManagement.TemplateSelection(PAGE::Deposit, "Gen. Journal Template Type"::Deposits, false, GenJnlLine, JnlSelected);
-        if not JnlSelected then
-            Error('');
-        if GenJnlLine.GetRangeMax("Journal Template Name") <> "Journal Template Name" then
+        CurrentJnlBatchName := Rec."Journal Batch Name";
+        if Rec."Journal Template Name" <> '' then begin
+            GenJnlLine.FilterGroup(2);
+            GenJnlLine.SetRange("Journal Template Name", Rec."Journal Template Name");
+            GenJnlLine.FilterGroup(0);
+        end else begin
+            GenJnlManagement.TemplateSelection(Page::Deposit, "Gen. Journal Template Type"::Deposits, false, GenJnlLine, JnlSelected);
+            if not JnlSelected then
+                Error('');
+        end;
+        if GenJnlLine.GetRangeMax("Journal Template Name") <> Rec."Journal Template Name" then
             CurrentJnlBatchName := '';
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, GenJnlLine);
-        SyncFormWithJournal;
+        SyncFormWithJournal();
     end;
 
     var

@@ -489,13 +489,13 @@ report 1408 "Bank Acc. Recon. - Test"
 
                 BankAccReconLine.FilterBankRecLines("Bank Acc. Reconciliation");
                 BankAccReconLine.CalcSums("Statement Amount", Difference);
-
-                if BankAccReconLine."Statement Amount" <> "Statement Ending Balance" - "Balance Last Statement" then begin
-                    AddError(
-                      StrSubstNo(
-                        StatementBalanceErr, FieldCaption("Statement Ending Balance")));
-                    HeaderError1 := StrSubstNo(StatementBalanceErr, FieldCaption("Statement Ending Balance"));
-                end;
+                if "Statement Type" = "Statement Type"::"Bank Reconciliation" then
+                    if BankAccReconLine."Statement Amount" <> "Statement Ending Balance" - "Balance Last Statement" then begin
+                        AddError(
+                        StrSubstNo(
+                            StatementBalanceErr, FieldCaption("Statement Ending Balance")));
+                        HeaderError1 := StrSubstNo(StatementBalanceErr, FieldCaption("Statement Ending Balance"));
+                    end;
 
                 if BankAcc.Get("Bank Account No.") then begin
                     CurrencyCode := BankAcc."Currency Code";

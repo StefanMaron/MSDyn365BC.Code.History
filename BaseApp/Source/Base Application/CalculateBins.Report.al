@@ -1,4 +1,4 @@
-report 7310 "Calculate Bins"
+﻿report 7310 "Calculate Bins"
 {
     Caption = 'Calculate Bins';
     ProcessingOnly = true;
@@ -24,6 +24,7 @@ report 7310 "Calculate Bins"
                         if StrLen(Level) > StrLen(ToLevel) then
                             CurrReport.Break();
 
+                        OnLevel2OnAfterGetRecordOnBeforeBinCreateWksh(Level);
                         BinCreateWksh;
 
                         Level := IncStr(Level);
@@ -363,6 +364,11 @@ report 7310 "Calculate Bins"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBinCreateWksh(var BinCreationWorksheetLine: Record "Bin Creation Worksheet Line"; BinTemplate: Record "Bin Template")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLevel2OnAfterGetRecordOnBeforeBinCreateWksh(var Level: Code[20])
     begin
     end;
 }

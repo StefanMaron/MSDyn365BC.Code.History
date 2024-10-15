@@ -1300,7 +1300,12 @@ page 31 "Item List"
                     Promoted = true;
                     PromotedCategory = Category9;
                     PromotedOnly = true;
-                    RunObject = Report "List Price Sheet";
+#if not CLEAN19
+                    RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(10148)); // "List Price Sheet"
+                    RunObject = Page "Role Center Page Dispatcher";
+#else
+                    RunObject = Page "List Price Sheet V16";
+#endif
                     ToolTip = 'View, print, or save a list of your items and their prices, for example, to send to customers. You can create the list for specific customers, campaigns, currencies, or other criteria.';
                 }
                 action("Inventory Cost and Price List")

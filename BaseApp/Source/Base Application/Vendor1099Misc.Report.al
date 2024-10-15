@@ -147,7 +147,7 @@ report 10112 "Vendor 1099 Misc"
                     // Check through all payments during calendar year
                     IRS1099Management.ProcessVendorInvoices(Amounts, "No.", PeriodDate, Codes, LastLineNo, 'MISC*');
 
-                    PrintThis := IRS1099Management.AnyCodeHasAmountExceedMinimum(Codes, Amounts, LastLineNo);
+                    PrintThis := IRS1099Management.AnyCodeWithUpdatedAmountExceedMinimum(Codes, Amounts, LastLineNo);
                     if not PrintThis then
                         CurrReport.Skip();
 

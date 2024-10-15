@@ -2606,6 +2606,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType ConfirmOpeningNewOrderAfterQuoteToOrder)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2785749549 - NamedType 240843257" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to delete the attachments for this document?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Document Attachment Tests - NamedType DeleteAttachmentsConfirmQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2785749549 - NamedType 624188174" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This file is already attached to the document. Please choose another file.]]></Val>

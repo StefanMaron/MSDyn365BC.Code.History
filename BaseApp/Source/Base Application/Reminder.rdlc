@@ -7,7 +7,6 @@
         <DataProvider>SQL</DataProvider>
         <ConnectString />
       </ConnectionProperties>
-      <rd:SecurityType>None</rd:SecurityType>
       <rd:DataSourceID>d56a4d20-e547-49b8-bb8d-f3c0b8b8dab8</rd:DataSourceID>
     </DataSource>
   </DataSources>
@@ -98,6 +97,63 @@
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
+                                  <TablixRow>
+                                    <Height>0.13889in</Height>
+                                    <TablixCells>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox6">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!Desc_IssuedReminderLine.Value</Value>
+                                                    <Style>
+                                                      <FontStyle>Normal</FontStyle>
+                                                      <FontFamily>Segoe UI</FontFamily>
+                                                      <FontSize>8pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Left</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox6</rd:DefaultName>
+                                            <Style>
+                                              <Border />
+                                              <VerticalAlign>Bottom</VerticalAlign>
+                                              <PaddingRight>5pt</PaddingRight>
+                                            </Style>
+                                          </Textbox>
+                                          <ColSpan>21</ColSpan>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                      <TablixCell />
+                                    </TablixCells>
+                                  </TablixRow>
                                   <TablixRow>
                                     <Height>0.13889in</Height>
                                     <TablixCells>
@@ -409,62 +465,6 @@
                                               </TopBorder>
                                               <VerticalAlign>Bottom</VerticalAlign>
                                               <PaddingRight>0.0625in</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                          <ColSpan>21</ColSpan>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                      <TablixCell />
-                                    </TablixCells>
-                                  </TablixRow>
-                                  <TablixRow>
-                                    <Height>0.13889in</Height>
-                                    <TablixCells>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="IssuedReminderLineDescription">
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!Desc_IssuedReminderLine.Value</Value>
-                                                    <Style>
-                                                      <FontStyle>Normal</FontStyle>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <ZIndex>134</ZIndex>
-                                            <Style>
-                                              <Border />
-                                              <VerticalAlign>Top</VerticalAlign>
-                                              <PaddingRight>5pt</PaddingRight>
                                             </Style>
                                           </Textbox>
                                           <ColSpan>21</ColSpan>
@@ -2018,6 +2018,13 @@
                                             <TablixMembers>
                                               <TablixMember>
                                                 <Visibility>
+                                                  <Hidden>=iif(Fields!Type_IssuedReminderLine.Value = "0",FALSE,TRUE)</Hidden>
+                                                </Visibility>
+                                                <KeepWithGroup>After</KeepWithGroup>
+                                                <RepeatOnNewPage>true</RepeatOnNewPage>
+                                              </TablixMember>
+                                              <TablixMember>
+                                                <Visibility>
                                                   <Hidden>=iif(Fields!DocNoCaption_IssuedReminderLine.Value&lt;&gt;"",FALSE,TRUE)</Hidden>
                                                 </Visibility>
                                                 <KeepWithGroup>After</KeepWithGroup>
@@ -2043,11 +2050,6 @@
                                                   <DataElementName>Detail</DataElementName>
                                                 </Group>
                                                 <TablixMembers>
-                                                  <TablixMember>
-                                                    <Visibility>
-                                                      <Hidden>=iif(Fields!Type_IssuedReminderLine.Value = "0",FALSE,TRUE)</Hidden>
-                                                    </Visibility>
-                                                  </TablixMember>
                                                   <TablixMember>
                                                     <Visibility>
                                                       <Hidden>=iif(((Fields!Type_IssuedReminderLine.Value="2") AND (Fields!MIREntry_IssuedReminderLine.Value ) AND (Fields!ShowMIRLines.Value)),FALSE,TRUE)</Hidden>
@@ -2351,7 +2353,7 @@
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
-                              <Top>1.87018in</Top>
+                              <Top>2.99518in</Top>
                               <Left>0.00004in</Left>
                               <Height>0.13889in</Height>
                               <Width>7.00952in</Width>
@@ -5208,7 +5210,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>5.49934in</Left>
               <Height>11pt</Height>
               <Width>1.49982in</Width>
-              <ZIndex>19</ZIndex>
+              <ZIndex>18</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5237,7 +5239,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>4.22863in</Left>
               <Height>11pt</Height>
               <Width>1.27071in</Width>
-              <ZIndex>20</ZIndex>
+              <ZIndex>19</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5265,7 +5267,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>5.49934in</Left>
               <Height>11pt</Height>
               <Width>1.49982in</Width>
-              <ZIndex>21</ZIndex>
+              <ZIndex>20</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5294,7 +5296,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>4.22863in</Left>
               <Height>11pt</Height>
               <Width>1.27071in</Width>
-              <ZIndex>22</ZIndex>
+              <ZIndex>21</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5322,7 +5324,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>5.49934in</Left>
               <Height>11pt</Height>
               <Width>1.49982in</Width>
-              <ZIndex>23</ZIndex>
+              <ZIndex>22</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5351,7 +5353,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>4.22863in</Left>
               <Height>11pt</Height>
               <Width>1.27071in</Width>
-              <ZIndex>24</ZIndex>
+              <ZIndex>23</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5379,7 +5381,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>5.49934in</Left>
               <Height>11pt</Height>
               <Width>1.49982in</Width>
-              <ZIndex>25</ZIndex>
+              <ZIndex>24</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5409,7 +5411,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>1.24985in</Left>
               <Height>11pt</Height>
               <Width>2.95794in</Width>
-              <ZIndex>26</ZIndex>
+              <ZIndex>25</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5437,7 +5439,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Top>3.24973in</Top>
               <Height>11pt</Height>
               <Width>1.24985in</Width>
-              <ZIndex>27</ZIndex>
+              <ZIndex>26</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5465,7 +5467,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>1.24985in</Left>
               <Height>11pt</Height>
               <Width>2.95794in</Width>
-              <ZIndex>28</ZIndex>
+              <ZIndex>27</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5493,7 +5495,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Top>3.40973in</Top>
               <Height>11pt</Height>
               <Width>1.24985in</Width>
-              <ZIndex>29</ZIndex>
+              <ZIndex>28</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5523,7 +5525,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>1.24985in</Left>
               <Height>11pt</Height>
               <Width>2.95794in</Width>
-              <ZIndex>30</ZIndex>
+              <ZIndex>29</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5551,7 +5553,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Top>3.56973in</Top>
               <Height>11pt</Height>
               <Width>1.24985in</Width>
-              <ZIndex>31</ZIndex>
+              <ZIndex>30</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5581,7 +5583,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>1.24985in</Left>
               <Height>11pt</Height>
               <Width>2.95794in</Width>
-              <ZIndex>32</ZIndex>
+              <ZIndex>31</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5609,7 +5611,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Top>2.45056in</Top>
               <Height>11pt</Height>
               <Width>1.24985in</Width>
-              <ZIndex>33</ZIndex>
+              <ZIndex>32</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5637,7 +5639,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>1.24985in</Left>
               <Height>11pt</Height>
               <Width>2.95794in</Width>
-              <ZIndex>34</ZIndex>
+              <ZIndex>33</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5664,7 +5666,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Top>2.61056in</Top>
               <Height>11pt</Height>
               <Width>1.24985in</Width>
-              <ZIndex>35</ZIndex>
+              <ZIndex>34</ZIndex>
               <Style>
                 <Border />
                 <VerticalAlign>Top</VerticalAlign>
@@ -5693,7 +5695,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>1.24985in</Left>
               <Height>11pt</Height>
               <Width>2.95794in</Width>
-              <ZIndex>36</ZIndex>
+              <ZIndex>35</ZIndex>
               <Style>
                 <Border />
                 <VerticalAlign>Top</VerticalAlign>
@@ -5721,7 +5723,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Top>2.77056in</Top>
               <Height>11pt</Height>
               <Width>1.24985in</Width>
-              <ZIndex>37</ZIndex>
+              <ZIndex>36</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5749,7 +5751,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>1.24985in</Left>
               <Height>11pt</Height>
               <Width>2.95794in</Width>
-              <ZIndex>38</ZIndex>
+              <ZIndex>37</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5776,7 +5778,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Top>2.93056in</Top>
               <Height>11pt</Height>
               <Width>1.24985in</Width>
-              <ZIndex>39</ZIndex>
+              <ZIndex>38</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5804,7 +5806,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>1.24985in</Left>
               <Height>11pt</Height>
               <Width>2.95794in</Width>
-              <ZIndex>40</ZIndex>
+              <ZIndex>39</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5827,7 +5829,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>4.22863in</Left>
               <Height>10pt</Height>
               <Width>2.77053in</Width>
-              <ZIndex>41</ZIndex>
+              <ZIndex>40</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5862,7 +5864,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>4.22878in</Left>
               <Height>11pt</Height>
               <Width>1.27071in</Width>
-              <ZIndex>42</ZIndex>
+              <ZIndex>41</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5893,7 +5895,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>5.49949in</Left>
               <Height>11pt</Height>
               <Width>1.49982in</Width>
-              <ZIndex>43</ZIndex>
+              <ZIndex>42</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5924,7 +5926,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>5.49949in</Left>
               <Height>11pt</Height>
               <Width>1.49982in</Width>
-              <ZIndex>44</ZIndex>
+              <ZIndex>43</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5955,7 +5957,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>4.22878in</Left>
               <Height>11pt</Height>
               <Width>1.27071in</Width>
-              <ZIndex>45</ZIndex>
+              <ZIndex>44</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5980,7 +5982,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Top>2.28807in</Top>
               <Height>10pt</Height>
               <Width>4.20779in</Width>
-              <ZIndex>46</ZIndex>
+              <ZIndex>45</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -6015,7 +6017,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Top>3.09056in</Top>
               <Height>11pt</Height>
               <Width>1.24985in</Width>
-              <ZIndex>47</ZIndex>
+              <ZIndex>46</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -6041,7 +6043,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Top>3.87514in</Top>
               <Height>10pt</Height>
               <Width>6.99931in</Width>
-              <ZIndex>48</ZIndex>
+              <ZIndex>47</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -6070,7 +6072,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Top>3.72375in</Top>
               <Height>10pt</Height>
               <Width>6.99916in</Width>
-              <ZIndex>49</ZIndex>
+              <ZIndex>48</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -6088,7 +6090,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Sizing>FitProportional</Sizing>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>50</ZIndex>
+              <ZIndex>49</ZIndex>
               <Visibility>
                 <Hidden>=iif(IsNothing(Fields!CompanyInfo3Picture.Value) = TRUE,TRUE,FALSE)</Hidden>
               </Visibility>
@@ -6106,7 +6108,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>6cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>51</ZIndex>
+              <ZIndex>50</ZIndex>
               <Visibility>
                 <Hidden>=iif(IsNothing(Fields!CompanyInfo1Picture.Value) = TRUE,TRUE,FALSE)</Hidden>
               </Visibility>
@@ -6124,7 +6126,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Left>12cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>52</ZIndex>
+              <ZIndex>51</ZIndex>
               <Visibility>
                 <Hidden>=iif(IsNothing(Fields!CompanyInfo2Picture.Value) = TRUE,TRUE,FALSE)</Hidden>
               </Visibility>
@@ -6152,7 +6154,7 @@ Cstr(Fields!DocDateCaption.Value)
               <Top>0.57083in</Top>
               <Height>10pt</Height>
               <Width>6.99916in</Width>
-              <ZIndex>53</ZIndex>
+              <ZIndex>52</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>

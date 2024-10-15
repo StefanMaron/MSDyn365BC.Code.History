@@ -20,6 +20,7 @@ report 790 "Calculate Inventory"
                     ByBin: Boolean;
                     ExecuteLoop: Boolean;
                     InsertTempSKU: Boolean;
+                    IsHandled: Boolean;
                 begin
                     if not GetLocation("Location Code") then
                         CurrReport.Skip();
@@ -30,7 +31,10 @@ report 790 "Calculate Inventory"
                     if not "Drop Shipment" then
                         ByBin := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
 
-                    OnAfterGetRecordItemLedgEntryOnBeforeUpdateBuffer(Item, "Item Ledger Entry", ByBin);
+                    IsHandled := false;
+                    OnAfterGetRecordItemLedgEntryOnBeforeUpdateBuffer(Item, "Item Ledger Entry", ByBin, IsHandled);
+                    if IsHandled then
+                        CurrReport.Skip();
 
                     if not SkipCycleSKU("Location Code", "Item No.", "Variant Code") then
                         if ByBin then begin
@@ -684,9 +688,11 @@ report 790 "Calculate Inventory"
             end;
             if RetrieveBuffer(BinCode, DimEntryNo) then begin
                 Quantity := Quantity + NewQuantity;
+                OnUpdateBufferOnBeforeModify(QuantityOnHandBuffer);
                 Modify;
             end else begin
                 Quantity := NewQuantity;
+                OnUpdateBufferOnBeforeInsert(QuantityOnHandBuffer);
                 Insert;
             end;
         end;
@@ -799,6 +805,7 @@ report 790 "Calculate Inventory"
                         NegQty := 0;
                     end;
 
+                    OnCalcPhysInvQtyAndInsertItemJnlLineOnBeforeCheckIfInsertNeeded(QuantityOnHandBuffer);
                     if (PosQty = 0) and (NegQty = 0) and not AdjustPosQty then
                         InsertItemJnlLine(
                           "Item No.", "Variant Code", "Dimension Entry No.",
@@ -841,7 +848,7 @@ report 790 "Calculate Inventory"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetRecordItemLedgEntryOnBeforeUpdateBuffer(var Item: Record Item; ItemLedgEntry: Record "Item Ledger Entry"; var ByBin: Boolean)
+    local procedure OnAfterGetRecordItemLedgEntryOnBeforeUpdateBuffer(var Item: Record Item; ItemLedgEntry: Record "Item Ledger Entry"; var ByBin: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -891,6 +898,11 @@ report 790 "Calculate Inventory"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcPhysInvQtyAndInsertItemJnlLineOnBeforeCheckIfInsertNeeded(InventoryBuffer: Record "Inventory Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcWhseQtyOnAfterLotRequiredWhseEntryClearFilters(var WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
@@ -912,6 +924,16 @@ report 790 "Calculate Inventory"
 
     [IntegrationEvent(false, false)]
     local procedure OnReserveWarehouseOnAfterWhseEntry2SetFilters(var ItemJnlLine: Record "Item Journal Line"; var WhseEntry: Record "Warehouse Entry"; var WhseEntry2: Record "Warehouse Entry"; EntryType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBufferOnBeforeInsert(var InventoryBuffer: Record "Inventory Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBufferOnBeforeModify(var InventoryBuffer: Record "Inventory Buffer")
     begin
     end;
 }

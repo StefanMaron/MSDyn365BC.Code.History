@@ -1,20 +1,22 @@
 permissionset 2073 "D365 COSTACC, EDIT"
 {
     Assignable = true;
-
     Caption = 'Dyn. 365 Edit Cost Accounting';
-    Permissions = tabledata "Cost Allocation Source" = RIMD,
-                  tabledata "Cost Allocation Target" = RIMD,
-                  tabledata "Cost Budget Buffer" = Rimd,
-                  tabledata "Cost Budget Entry" = RIMD,
-                  tabledata "Cost Budget Name" = RIMD,
-                  tabledata "Cost Budget Register" = RIMD,
-                  tabledata "Cost Center" = RIMD,
-                  tabledata "Cost Entry" = RIMD,
-                  tabledata "Cost Journal Batch" = RIMD,
-                  tabledata "Cost Journal Line" = RIMD,
-                  tabledata "Cost Journal Template" = RIMD,
-                  tabledata "Cost Object" = RIMD,
-                  tabledata "Cost Register" = RIMD,
-                  tabledata "Cost Type" = RIMD;
+
+    IncludedPermissionSets = "D365 COSTACC, VIEW";
+
+    Permissions = tabledata "Cost Allocation Source" = IMD,
+                  tabledata "Cost Allocation Target" = IMD,
+                  tabledata "Cost Budget Buffer" = imd,
+                  tabledata "Cost Budget Entry" = IMD,
+                  tabledata "Cost Budget Name" = IMD,
+                  tabledata "Cost Budget Register" = IMD,
+                  tabledata "Cost Center" = IMD,
+                  tabledata "Cost Entry" = IMD,
+                  tabledata "Cost Journal Batch" = IMD,
+                  tabledata "Cost Journal Line" = IMD,
+                  tabledata "Cost Journal Template" = IMD,
+                  tabledata "Cost Object" = IMD,
+                  tabledata "Cost Register" = IMD,
+                  tabledata "Cost Type" = IMD;
 }
