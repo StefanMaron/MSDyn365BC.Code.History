@@ -17,6 +17,7 @@ codeunit 134274 "Transformation Rules Tests"
         EUR_DKKTxt: Label 'EURDKK', Comment = 'A sample example representing a concatenation of two currency codes';
         FindReplaceTxt: Label 'abaabbaaabbbaaaabbbb';
         REPLACEATxt: Label 'REPLACEA', Comment = 'TransformationRule.Code for replacing all a characters to b';
+        ROUNDTxt: Label 'ROUND', Comment = 'TransformationRule.Code for rounding';
         LibraryUtility: Codeunit "Library - Utility";
         FindValueErr: Label 'Find Value must have a value in Transformation Rule';
 
@@ -657,6 +658,23 @@ codeunit 134274 "Transformation Rules Tests"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestRound()
+    var
+        TransformationRule: Record "Transformation Rule";
+        InputText: Text;
+    begin
+        Iniatialize();
+        TransformationRule.InsertRec(ROUNDTxt, ROUNDTxt, TransformationRule."Transformation Type"::Round.AsInteger(), 0, 0, '', '');
+        TransformationRule.Get(ROUNDTxt);
+        TransformationRule.Precision := 0.00001;
+        TransformationRule.Direction := '=';
+
+        InputText := '12.3456789';
+        Assert.AreEqual('12.34568', TransformationRule.TransformText(InputText), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure DateFormattingStaysWithTheDateInputEast()
     var
         TransformationRule: Record "Transformation Rule";
@@ -995,7 +1013,7 @@ codeunit 134274 "Transformation Rules Tests"
         TransformationRule: Record "Transformation Rule";
     begin
         TransformationRule.DeleteAll();
-        TransformationRule.CreateDefaultTransformations;
+        TransformationRule.CreateDefaultTransformations();
     end;
 
     local procedure XmlFormat(): Integer
@@ -1017,4 +1035,3 @@ codeunit 134274 "Transformation Rules Tests"
         isHandled := true;
     end;
 }
-

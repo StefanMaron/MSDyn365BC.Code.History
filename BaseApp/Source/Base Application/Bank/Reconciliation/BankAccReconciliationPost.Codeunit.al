@@ -293,9 +293,15 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         TelemetryCategories.Add('Category', BankAccountRecCategoryLbl);
         TelemetryCategories.Add('MatchedWithAI', Format(MatchedWithAI));
         TelemetryCategories.Add('NumberOfLines', Format(LineCount));
-        DurationUntilPosting := CurrentDateTime() - CreationDateTime;
-        Session.LogMessage('0000LHY', Format(DurationUntilPosting), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryCategories);
+        if TryCalculateDurationToPost(DurationUntilPosting, CreationDateTime) then
+            Session.LogMessage('0000LHY', Format(DurationUntilPosting), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryCategories);
         OnAfterFinalizePost(BankAccRecon);
+    end;
+
+    [TryFunction]
+    local procedure TryCalculateDurationToPost(var DurationUntilPosting: BigInteger; CreationDateTime: DateTime)
+    begin
+        DurationUntilPosting := CurrentDateTime() - CreationDateTime;
     end;
 
     local procedure AIMatchProposalsExist(var BankAccReconciliation: Record "Bank Acc. Reconciliation"): Boolean

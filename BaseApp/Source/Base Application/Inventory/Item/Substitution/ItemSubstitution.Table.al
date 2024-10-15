@@ -304,6 +304,7 @@ table 5715 "Item Substitution"
         ItemSubstitution."Substitute Variant Code" := "Variant Code";
         SetDescription(Type.AsInteger(), "No.", ItemSubstitution.Description);
         ItemSubstitution.Interchangeable := true;
+        OnCreateInterchangeableItemOnBeforeInsertOrModifyItemSubstitution(Rec, xRec, ItemSubstitution);
         if ItemSubstitution.Find() then
             ItemSubstitution.Modify()
         else
@@ -405,6 +406,11 @@ table 5715 "Item Substitution"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmDeletion(var ItemSubstitution: Record "Item Substitution"; xItemSubstitution: Record "Item Substitution"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInterchangeableItemOnBeforeInsertOrModifyItemSubstitution(var RecItemSubstitution: Record "Item Substitution"; xRecItemSubstitution: Record "Item Substitution"; var ItemSubstitution: Record "Item Substitution")
     begin
     end;
 }

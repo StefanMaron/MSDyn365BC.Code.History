@@ -4,7 +4,7 @@ page 99000844 "Prod. Order Routing Tools"
 {
     AutoSplitKey = true;
     Caption = 'Prod. Order Routing Tools';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     MultipleNewLines = true;
     PageType = List;
     SourceTable = "Prod. Order Routing Tool";

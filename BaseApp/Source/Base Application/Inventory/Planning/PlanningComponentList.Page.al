@@ -3,7 +3,7 @@ namespace Microsoft.Inventory.Planning;
 page 99000861 "Planning Component List"
 {
     Caption = 'Planning Component List';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     Editable = false;
     PageType = List;
     SourceTable = "Planning Component";
@@ -178,7 +178,7 @@ page 99000861 "Planning Component List"
                     ApplicationArea = Planning;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()

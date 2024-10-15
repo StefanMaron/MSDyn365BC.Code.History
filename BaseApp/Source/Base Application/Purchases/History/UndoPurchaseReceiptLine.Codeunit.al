@@ -471,8 +471,10 @@ codeunit 5813 "Undo Purchase Receipt Line"
     begin
         if PurchRcptLine.Type = PurchRcptLine.Type::Item then begin
             ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Purchase Receipt");
+            ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Purchase");
             ItemLedgerEntry.SetRange("Document No.", PurchRcptLine."Document No.");
             ItemLedgerEntry.SetRange("Document Line No.", PurchRcptLine."Line No.");
+            ItemLedgerEntry.SetLoadFields("Invoiced Quantity", "Entry No.");
             ItemLedgerEntry.FindSet();
             repeat
                 InvoicedQuantity += ItemLedgerEntry."Invoiced Quantity";

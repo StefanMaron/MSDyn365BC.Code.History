@@ -2399,7 +2399,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeAutoCreatePickOrMove(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LineCreated: Boolean; var IsHandled: Boolean; var HideDialog: Boolean; IsInvtMovement: Boolean; IsBlankInvtMovement: Boolean; var CompleteShipment: Boolean)
     begin
     end;
@@ -2409,7 +2409,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCreatePickOrMoveLines(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LinesCreated: Boolean; var IsHandled: Boolean; var HideDialog: Boolean; IsInvtMovement: Boolean; IsBlankInvtMovement: Boolean; var CompleteShipment: Boolean)
     begin
     end;

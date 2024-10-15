@@ -145,6 +145,7 @@ report 5850 "Copy Invt. Document"
         CopyInvtDocMgt.CopyAsCorrection(CopyAsCorrection);
         CopyInvtDocMgt.SetCopyItemTracking(CopyItemTracking);
         CopyInvtDocMgt.CopyItemDoc(DocType, DocNo, InvtDocHeader);
+        OnAfterOnPreReport(InvtDocHeader, DocType, DocNo);
     end;
 
     var
@@ -312,6 +313,11 @@ report 5850 "Copy Invt. Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnConvertInvtDocumentTypeFromOnCaseElse(InvtDocDocumentTypeFrom: Enum "Invt. Doc. Document Type From"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreReport(var InvtDocumentHeader: Record "Invt. Document Header"; DocType: Enum "Invt. Doc. Document Type From"; DocNo: Code[20])
     begin
     end;
 }

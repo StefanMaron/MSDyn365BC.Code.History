@@ -17,6 +17,7 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryPlainTextFile: Codeunit "Library - Plain Text File";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryPurchase: Codeunit "Library - Purchase";
         UnexpecteFileNameNoErr: Label 'Unexpected number of stored file names.';
 
     [Test]
@@ -279,6 +280,59 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('YesConfirmHandler')]
+    procedure AttachIncomingDocFilesShouldNotGiveErrorWhenCreatePurchDocUsingRecurringLines()
+    var
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATBusPostingGroup: Record "VAT Business Posting Group";
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+        StandardPurchaseCode: Record "Standard Purchase Code";
+        VendorCard: TestPage "Vendor Card";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [GIVEN] Create VAT Business Posting Group.
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
+
+        // [GIVEN] Create VAT Product Posting Group.
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
+
+        // [GIVEN] Create VAT Posting Setup.
+        CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup, VATProdPostingGroup);
+
+        // [GIVEN] Create Vendor and Validate VAT Bus. Posting Group.
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup.Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Create GL Account and Validate VAT Prod. Posting Group.
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProdPostingGroup.Code);
+        GLAccount.Modify(true);
+
+        // [GIVEN] Create Standard Purchase Code.
+        CreateStandardPurchaseCode(StandardPurchaseCode, GLAccount, Vendor);
+
+        // [GIVEN] Open Vendor Card.
+        VendorCard.OpenEdit();
+        VendorCard.GotoRecord(Vendor);
+
+        // [GIVEN] Run New Purchase Invoice action from Vendor Card.
+        PurchaseInvoice.Trap();
+        VendorCard.NewPurchaseInvoice.Invoke();
+
+        // [WHEN] Assign Vendor Invoice No. in created Purchase Invoice.
+        PurchaseInvoice."Vendor Invoice No.".Activate();
+        Commit();
+
+        // [VERIFY] Verify no error is thrown when run Import New action from Incoming Doc Attach FactBox.
+        PurchaseInvoice.IncomingDocAttachFactBox.ImportNew.Invoke();
+        PurchaseInvoice.Close();
+    end;
+
     local procedure CreateGeneralJournalBatch(var GenJournalLine: Record "Gen. Journal Line"; GenJournalTemplateType: Enum "Gen. Journal Template Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -319,6 +373,45 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
 
         LibraryVariableStorage.Enqueue(FileManagement.GetFileNameWithoutExtension(FileName));
         Commit();
+    end;
+
+    local procedure CreateVATPostingSetup(
+      var VATPostingSetup: Record "VAT Posting Setup";
+      VATBusPostingGroup: Record "VAT Business Posting Group";
+      VATProdPostingGroup: Record "VAT Product Posting Group")
+    begin
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateStandardPurchaseCode(
+        var StandardPurchaseCode: Record "Standard Purchase Code";
+        GLAccount: Record "G/L Account";
+        Vendor: Record Vendor)
+    var
+        StandardPurchaseLine: Record "Standard Purchase Line";
+        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+    begin
+        LibraryPurchase.CreateStandardPurchaseCode(StandardPurchaseCode);
+
+        LibraryPurchase.CreateStandardPurchaseLine(StandardPurchaseLine, StandardPurchaseCode.Code);
+        StandardPurchaseLine.Validate(Type, StandardPurchaseLine.Type::"G/L Account");
+        StandardPurchaseLine.Validate("No.", GLAccount."No.");
+        StandardPurchaseLine.Modify(true);
+
+        LibraryPurchase.CreateVendorPurchaseCode(StandardVendorPurchaseCode, Vendor."No.", StandardPurchaseCode.Code);
+        StandardVendorPurchaseCode.Validate("Insert Rec. Lines On Invoices", StandardVendorPurchaseCode."Insert Rec. Lines On Invoices"::Automatic);
+        StandardVendorPurchaseCode.Modify(true);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure YesConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

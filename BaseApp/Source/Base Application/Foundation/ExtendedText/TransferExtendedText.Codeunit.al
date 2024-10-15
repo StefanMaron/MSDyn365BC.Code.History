@@ -432,7 +432,7 @@ codeunit 378 "Transfer Extended Text"
         ToPurchLine: Record "Purchase Line";
         IsHandled: Boolean;
     begin
-        OnBeforeInsertPurchExtText(PurchLine, TempExtTextLine, IsHandled, MakeUpdateRequired);
+        OnBeforeInsertPurchExtText(PurchLine, TempExtTextLine, IsHandled, MakeUpdateRequired, LastInsertedPurchLine);
         if IsHandled then
             exit;
 
@@ -863,7 +863,7 @@ codeunit 378 "Transfer Extended Text"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertPurchExtText(var PurchLine: Record "Purchase Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean; var MakeUpdateRequired: Boolean)
+    local procedure OnBeforeInsertPurchExtText(var PurchLine: Record "Purchase Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean; var MakeUpdateRequired: Boolean; var LastInsertedPurchLine: Record "Purchase Line")
     begin
     end;
 
