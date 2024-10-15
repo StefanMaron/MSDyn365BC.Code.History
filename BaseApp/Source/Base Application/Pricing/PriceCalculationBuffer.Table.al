@@ -110,6 +110,10 @@ table 7007 "Price Calculation Buffer"
         {
             DataClassification = CustomerContent;
         }
+        field(27; "Calculation in LCY"; Boolean)
+        {
+            DataClassification = CustomerContent;
+        }
     }
     keys
     {

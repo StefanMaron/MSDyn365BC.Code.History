@@ -127,6 +127,12 @@ page 1042 "Copy Job Planning Lines"
                     Caption = 'Copy Quantity';
                     ToolTip = 'Specifies that the quantities will be copied to the new job.';
                 }
+                field(CopyJobPrices; CopyJobPrices)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Copy Job Prices';
+                    ToolTip = 'Specifies that item prices, resource prices, and G/L prices will be copied from the job that you specified on the Copy From FastTab.';
+                }
             }
         }
     }
@@ -140,6 +146,7 @@ page 1042 "Copy Job Planning Lines"
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then begin
             ValidateUserInput();
             CopyJob.SetCopyQuantity(CopyQuantity);
+            CopyJob.SetCopyPrices(CopyJobPrices);
             CopyJob.SetCopyJobPlanningLineType(PlanningLineType);
             CopyJob.SetJobTaskDateRange(FromDate, ToDate);
             OnQueryClosePageOnBeforeCopyJobPlanningLines(SourceJobNo, SourceJobTaskNo, PlanningLineType, FromDate, ToDate, TargetJobNo, TargetJobTaskNo, CopyQuantity);
@@ -163,6 +170,7 @@ page 1042 "Copy Job Planning Lines"
         FromDate: Date;
         ToDate: Date;
         CopyQuantity: Boolean;
+        CopyJobPrices: Boolean;
         Text004: Label 'Provide a valid source %1.';
         Text005: Label 'Provide a valid target %1.';
 
