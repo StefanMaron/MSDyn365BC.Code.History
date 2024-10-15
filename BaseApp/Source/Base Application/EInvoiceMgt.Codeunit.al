@@ -4513,6 +4513,7 @@ codeunit 10145 "E-Invoice Mgt."
     var
         TempErrorMessage: Record "Error Message" temporary;
     begin
+        ClearLastError();
         CheckGLSetup(TempErrorMessage);
         CheckCompanyInfo(TempErrorMessage);
         CheckSATCatalogs(TempErrorMessage);

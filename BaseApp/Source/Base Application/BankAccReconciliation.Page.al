@@ -366,6 +366,15 @@ page 379 "Bank Acc. Reconciliation"
         RecallEmptyListNotification();
     end;
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        if UpdatedBankAccountLESystemId <> Rec.SystemId then begin
+            UpdateBankAccountLedgerEntrySubpage(Rec."Statement Date");
+            UpdatedBankAccountLESubpageStementDate := Rec."Statement Date";
+            UpdatedBankAccountLESystemId := Rec.SystemId;
+        end;
+    end;
+
     local procedure GetImportBankStatementNotificatoinId(): Guid
     begin
         exit('aa54bf06-b8b9-420d-a4a8-1f55a3da3e2a');
@@ -410,21 +419,24 @@ page 379 "Bank Acc. Reconciliation"
 
     local procedure CheckStatementDate()
     var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
         BankAccReconciliationLine.SetFilter("Bank Account No.", Rec."Bank Account No.");
         BankAccReconciliationLine.SetFilter("Statement No.", Rec."Statement No.");
         BankAccReconciliationLine.SetCurrentKey("Transaction Date");
         BankAccReconciliationLine.Ascending := false;
-        if BankAccReconciliationLine.FindFirst() then
-            if Rec."Statement Date" = 0D then begin
+        if BankAccReconciliationLine.FindFirst() then begin
+            BankAccReconciliation.GetBySystemId(Rec.SystemId);
+            if BankAccReconciliation."Statement Date" = 0D then begin
                 if Confirm(StrSubstNo(StatementDateEmptyMsg, Format(BankAccReconciliationLine."Transaction Date"))) then begin
                     Rec."Statement Date" := BankAccReconciliationLine."Transaction Date";
                     Rec.Modify();
                 end;
             end else
-                if Rec."Statement Date" < BankAccReconciliationLine."Transaction Date" then
+                if BankAccReconciliation."Statement Date" < BankAccReconciliationLine."Transaction Date" then
                     Message(ImportedLinesAfterStatementDateMsg);
+        end;
     end;
 
     local procedure UpdateBankAccountLedgerEntrySubpage(StatementDate: Date)
@@ -441,10 +453,9 @@ page 379 "Bank Acc. Reconciliation"
             FilterDate := StatementDate;
         if FilterDate <> 0D then
             BankAccountLedgerEntry.SetFilter("Posting Date", StrSubstNo('<=%1', FilterDate));
-        if BankAccountLedgerEntry.FindSet() then begin
-            CurrPage.ApplyBankLedgerEntries.Page.SetTableView(BankAccountLedgerEntry);
-            CurrPage.ApplyBankLedgerEntries.Page.Update();
-        end;
+        if BankAccountLedgerEntry.FindSet() then;
+        CurrPage.ApplyBankLedgerEntries.Page.SetTableView(BankAccountLedgerEntry);
+        CurrPage.ApplyBankLedgerEntries.Page.Update();
     end;
 
     var
@@ -455,4 +466,6 @@ page 379 "Bank Acc. Reconciliation"
         ListEmptyMsg: Label 'No bank statement lines exist. Choose the Import Bank Statement action to fill in the lines from a file, or enter lines manually.';
         ImportedLinesAfterStatementDateMsg: Label 'Imported bank statement has lines dated after the statement date.';
         StatementDateEmptyMsg: Label 'Statement date is empty. The latest bank statement line is %1. Do you want to set the statement date to this date?', Comment = '%1 - statement date';
+        UpdatedBankAccountLESubpageStementDate: Date;
+        UpdatedBankAccountLESystemId: Guid;
 }

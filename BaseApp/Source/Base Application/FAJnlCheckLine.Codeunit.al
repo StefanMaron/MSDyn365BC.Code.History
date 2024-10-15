@@ -16,72 +16,10 @@ codeunit 5631 "FA Jnl.-Check Line"
               Text001,
               FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), "Account Type");
         if "Account No." <> '' then
-            if "Account Type" = "Account Type"::"Fixed Asset" then begin
-                if "FA Posting Type" in
-                   ["FA Posting Type"::"Acquisition Cost",
-                    "FA Posting Type"::Appreciation,
-                    "FA Posting Type"::Disposal,
-                    "FA Posting Type"::Maintenance]
-                then begin
-                    if ("Gen. Bus. Posting Group" <> '') or ("Gen. Prod. Posting Group" <> '') or
-                       ("VAT Bus. Posting Group" <> '') or ("VAT Prod. Posting Group" <> '')
-                    then
-                        TestField("Gen. Posting Type");
-                    if ("Gen. Posting Type" <> "Gen. Posting Type"::" ") and
-                       ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
-                    then begin
-                        if "VAT Amount" + "VAT Base Amount" <> Amount then
-                            Error(
-                              Text016, FieldCaption("VAT Amount"), FieldCaption("VAT Base Amount"),
-                              FieldCaption(Amount));
-                        if "Currency Code" <> '' then
-                            if "VAT Amount (LCY)" + "VAT Base Amount (LCY)" <> "Amount (LCY)" then
-                                Error(
-                                  Text016, FieldCaption("VAT Amount (LCY)"),
-                                  FieldCaption("VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)"));
-                    end;
-                end else begin
-                    TestField("Gen. Posting Type", 0);
-                    TestField("Gen. Bus. Posting Group", '');
-                    TestField("Gen. Prod. Posting Group", '');
-                    TestField("VAT Bus. Posting Group", '');
-                    TestField("VAT Prod. Posting Group", '');
-                end;
-                FANo := "Account No.";
-            end;
+            CheckAccountNo(Rec);
+
         if "Bal. Account No." <> '' then
-            if "Bal. Account Type" = "Bal. Account Type"::"Fixed Asset" then begin
-                if "FA Posting Type" in
-                   ["FA Posting Type"::"Acquisition Cost",
-                    "FA Posting Type"::Disposal,
-                    "FA Posting Type"::Maintenance]
-                then begin
-                    if ("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') or
-                       ("Bal. VAT Bus. Posting Group" <> '') or ("Bal. VAT Prod. Posting Group" <> '')
-                    then
-                        TestField("Bal. Gen. Posting Type");
-                    if ("Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" ") and
-                       ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
-                    then begin
-                        if "Bal. VAT Amount" + "Bal. VAT Base Amount" <> -Amount then
-                            Error(
-                              Text017, FieldCaption("Bal. VAT Amount"), FieldCaption("Bal. VAT Base Amount"),
-                              FieldCaption(Amount));
-                        if "Currency Code" <> '' then
-                            if "Bal. VAT Amount (LCY)" + "Bal. VAT Base Amount (LCY)" <> -"Amount (LCY)" then
-                                Error(
-                                  Text017, FieldCaption("Bal. VAT Amount (LCY)"),
-                                  FieldCaption("Bal. VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)"));
-                    end;
-                end else begin
-                    TestField("Bal. Gen. Posting Type", 0);
-                    TestField("Bal. Gen. Bus. Posting Group", '');
-                    TestField("Bal. Gen. Prod. Posting Group", '');
-                    TestField("Bal. VAT Bus. Posting Group", '');
-                    TestField("Bal. VAT Prod. Posting Group", '');
-                end;
-                FANo := "Bal. Account No.";
-            end;
+            CheckBalAccountNo(Rec);
 
         if "Recurring Method".AsInteger() > "Recurring Method"::"V  Variable".AsInteger() then begin
             GenJnlline2."Account Type" := GenJnlline2."Account Type"::"Fixed Asset";
@@ -190,6 +128,95 @@ codeunit 5631 "FA Jnl.-Check Line"
         CheckJnlLine;
 
         OnAfterCheckFAJnlLine(FAJnlLine2);
+    end;
+
+    local procedure CheckAccountNo(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAccountNo(GenJournalLine, FANo, IsHandled);
+        if IsHandled then
+            exit;
+
+        with GenJournalLine do
+            if "Account Type" = "Account Type"::"Fixed Asset" then begin
+                if "FA Posting Type" in
+                   ["FA Posting Type"::"Acquisition Cost",
+                    "FA Posting Type"::Appreciation,
+                    "FA Posting Type"::Disposal,
+                    "FA Posting Type"::Maintenance]
+                then begin
+                    if ("Gen. Bus. Posting Group" <> '') or ("Gen. Prod. Posting Group" <> '') or
+                       ("VAT Bus. Posting Group" <> '') or ("VAT Prod. Posting Group" <> '')
+                    then
+                        TestField("Gen. Posting Type");
+                    if ("Gen. Posting Type" <> "Gen. Posting Type"::" ") and
+                       ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
+                    then begin
+                        if "VAT Amount" + "VAT Base Amount" <> Amount then
+                            Error(
+                              Text016, FieldCaption("VAT Amount"), FieldCaption("VAT Base Amount"),
+                              FieldCaption(Amount));
+                        if "Currency Code" <> '' then
+                            if "VAT Amount (LCY)" + "VAT Base Amount (LCY)" <> "Amount (LCY)" then
+                                Error(
+                                  Text016, FieldCaption("VAT Amount (LCY)"),
+                                  FieldCaption("VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)"));
+                    end;
+                end else begin
+                    TestField("Gen. Posting Type", 0);
+                    TestField("Gen. Bus. Posting Group", '');
+                    TestField("Gen. Prod. Posting Group", '');
+                    TestField("VAT Bus. Posting Group", '');
+                    TestField("VAT Prod. Posting Group", '');
+                end;
+                FANo := "Account No.";
+            end;
+    end;
+
+    local procedure CheckBalAccountNo(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBalAccountNo(GenJournalLine, FANo, IsHandled);
+        if IsHandled then
+            exit;
+
+        with GenJournalLine do
+            if "Bal. Account Type" = "Bal. Account Type"::"Fixed Asset" then begin
+                if "FA Posting Type" in
+                   ["FA Posting Type"::"Acquisition Cost",
+                    "FA Posting Type"::Disposal,
+                    "FA Posting Type"::Maintenance]
+                then begin
+                    if ("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') or
+                       ("Bal. VAT Bus. Posting Group" <> '') or ("Bal. VAT Prod. Posting Group" <> '')
+                    then
+                        TestField("Bal. Gen. Posting Type");
+                    if ("Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" ") and
+                       ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
+                    then begin
+                        if "Bal. VAT Amount" + "Bal. VAT Base Amount" <> -Amount then
+                            Error(
+                              Text017, FieldCaption("Bal. VAT Amount"), FieldCaption("Bal. VAT Base Amount"),
+                              FieldCaption(Amount));
+                        if "Currency Code" <> '' then
+                            if "Bal. VAT Amount (LCY)" + "Bal. VAT Base Amount (LCY)" <> -"Amount (LCY)" then
+                                Error(
+                                  Text017, FieldCaption("Bal. VAT Amount (LCY)"),
+                                  FieldCaption("Bal. VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)"));
+                    end;
+                end else begin
+                    TestField("Bal. Gen. Posting Type", 0);
+                    TestField("Bal. Gen. Bus. Posting Group", '');
+                    TestField("Bal. Gen. Prod. Posting Group", '');
+                    TestField("Bal. VAT Bus. Posting Group", '');
+                    TestField("Bal. VAT Prod. Posting Group", '');
+                end;
+                FANo := "Bal. Account No.";
+            end;
     end;
 
     local procedure CheckJnlLine()
@@ -591,6 +618,16 @@ codeunit 5631 "FA Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckJobNo(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAccountNo(var GenJournalLine: Record "Gen. Journal Line"; var FANo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBalAccountNo(var GenJournalLine: Record "Gen. Journal Line"; var FANo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

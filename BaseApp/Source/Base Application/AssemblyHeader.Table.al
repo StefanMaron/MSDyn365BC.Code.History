@@ -662,6 +662,7 @@
         StockkeepingUnit: Record "Stockkeeping Unit";
         AssemblyHeaderReserve: Codeunit "Assembly Header-Reserve";
         AssemblyLineMgt: Codeunit "Assembly Line Management";
+        ConfirmManagement: Codeunit "Confirm Management";
         GLSetupRead: Boolean;
         Text005: Label 'Changing %1 or %2 is not allowed when %3 is %4.';
         Text007: Label 'Nothing to handle.';
@@ -1255,82 +1256,125 @@
         if IsHandled then
             exit;
 
+        CalculateNewDates(FieldNumToCalculateFrom, NewDueDate, NewEndDate, NewStartDate);
+        if DoNotValidateButJustAssign then
+            AssignNewDates(FieldNumToCalculateFrom, NewDueDate, NewEndDate, NewStartDate)
+        else
+            DoValidateDates(FieldNumToCalculateFrom, NewDueDate, NewEndDate, NewStartDate);
+
+        if "Due Date" < "Ending Date" then
+            Error(Text015, FieldCaption("Due Date"), "Due Date", FieldCaption("Ending Date"), "Ending Date");
+        if "Ending Date" < "Starting Date" then
+            Error(Text015, FieldCaption("Ending Date"), "Ending Date", FieldCaption("Starting Date"), "Starting Date");
+    end;
+
+    local procedure CalculateNewDates(FieldNumToCalculateFrom: Integer; var NewDueDate: Date; var NewEndDate: Date; var NewStartDate: Date)
+    begin
         case FieldNumToCalculateFrom of
             FieldNo("Due Date"):
                 begin
                     NewEndDate := CalcEndDateFromDueDate("Due Date");
                     NewStartDate := CalcStartDateFromEndDate(NewEndDate);
-                    if DoNotValidateButJustAssign then begin
-                        "Ending Date" := NewEndDate;
-                        "Starting Date" := NewStartDate;
-                    end else begin
-                        ValidateEndDate(NewEndDate, false);
-                        ValidateStartDate(NewStartDate, false);
-                    end;
                 end;
             FieldNo("Ending Date"):
                 begin
                     NewDueDate := CalcDueDateFromEndDate("Ending Date");
                     NewStartDate := CalcStartDateFromEndDate("Ending Date");
-                    if DoNotValidateButJustAssign then begin
-                        "Due Date" := NewDueDate;
-                        "Starting Date" := NewStartDate;
-                    end else begin
-                        ValidateStartDate(NewStartDate, false);
-                        if not IsAsmToOrder then begin
-                            if "Due Date" <> NewDueDate then
-                                if GuiAllowed and
-                                   Confirm(StrSubstNo(Text012,
-                                       StrSubstNo(Text010,
-                                         StrSubstNo(Text011, FieldCaption("Ending Date"), xRec."Ending Date", "Ending Date")),
-                                       StrSubstNo(Text013,
-                                         StrSubstNo(Text011, FieldCaption("Due Date"), "Due Date", NewDueDate))),
-                                     true)
-                                then
-                                    ValidateDueDate(NewDueDate, false);
-                        end;
-                    end;
                 end;
             FieldNo("Starting Date"):
                 begin
                     NewEndDate := CalcEndDateFromStartDate("Starting Date");
                     NewDueDate := CalcDueDateFromEndDate(NewEndDate);
-                    if DoNotValidateButJustAssign then begin
-                        "Ending Date" := NewEndDate;
-                        "Due Date" := NewDueDate;
-                    end else
-                        if IsAsmToOrder then begin
-                            if "Ending Date" <> NewEndDate then
-                                if GuiAllowed and
-                                   Confirm(StrSubstNo(Text012,
-                                       StrSubstNo(Text010,
-                                         StrSubstNo(Text011, FieldCaption("Starting Date"), xRec."Starting Date", "Starting Date")),
-                                       StrSubstNo(Text013,
-                                         StrSubstNo(Text011, FieldCaption("Ending Date"), "Ending Date", NewEndDate))),
-                                     true)
-                                then
-                                    ValidateEndDate(NewEndDate, false);
-                        end else
-                            if ("Ending Date" <> NewEndDate) or ("Due Date" <> NewDueDate) then
-                                if GuiAllowed and
-                                   Confirm(StrSubstNo(Text012,
-                                       StrSubstNo(Text010,
-                                         StrSubstNo(Text011, FieldCaption("Starting Date"), xRec."Starting Date", "Starting Date")),
-                                       StrSubstNo(Text013,
-                                         StrSubstNo(Text014,
-                                           StrSubstNo(Text011, FieldCaption("Ending Date"), "Ending Date", NewEndDate),
-                                           StrSubstNo(Text011, FieldCaption("Due Date"), "Due Date", NewDueDate)))),
-                                     true)
-                                then begin
-                                    ValidateEndDate(NewEndDate, false);
-                                    ValidateDueDate(NewDueDate, false);
-                                end;
                 end;
         end;
-        if "Due Date" < "Ending Date" then
-            Error(Text015, FieldCaption("Due Date"), "Due Date", FieldCaption("Ending Date"), "Ending Date");
-        if "Ending Date" < "Starting Date" then
-            Error(Text015, FieldCaption("Ending Date"), "Ending Date", FieldCaption("Starting Date"), "Starting Date");
+    end;
+
+    local procedure DoValidateDates(FieldNumToCalculateFrom: Integer; NewDueDate: Date; NewEndDate: Date; NewStartDate: Date)
+    var
+        ValidateConfirmed: Boolean;
+    begin
+        ValidateConfirmed := false;
+        OnBeforeDoValidateDates(Rec, xRec, FieldNumToCalculateFrom, NewDueDate, NewEndDate, NewStartDate, ValidateConfirmed);
+
+        case FieldNumToCalculateFrom of
+            FieldNo("Due Date"):
+                begin
+                    ValidateEndDate(NewEndDate, false);
+                    ValidateStartDate(NewStartDate, false);
+                end;
+            FieldNo("Ending Date"):
+                begin
+                    ValidateStartDate(NewStartDate, false);
+                    if not IsAsmToOrder then
+                        if "Due Date" <> NewDueDate then begin
+                            if not ValidateConfirmed then
+                                ValidateConfirmed :=
+                                    ConfirmManagement.GetResponse(
+                                        StrSubstNo(Text012,
+                                            StrSubstNo(Text010,
+                                                StrSubstNo(Text011, FieldCaption("Ending Date"), xRec."Ending Date", "Ending Date")),
+                                            StrSubstNo(Text013,
+                                                StrSubstNo(Text011, FieldCaption("Due Date"), "Due Date", NewDueDate))),
+                                        true);
+                            if ValidateConfirmed then
+                                ValidateDueDate(NewDueDate, false);
+                        end;
+                end;
+            FieldNo("Starting Date"):
+                if IsAsmToOrder then begin
+                    if "Ending Date" <> NewEndDate then begin
+                        if not ValidateConfirmed then
+                            ValidateConfirmed :=
+                                ConfirmManagement.GetResponse(
+                                    StrSubstNo(Text012,
+                                        StrSubstNo(Text010,
+                                            StrSubstNo(Text011, FieldCaption("Starting Date"), xRec."Starting Date", "Starting Date")),
+                                        StrSubstNo(Text013,
+                                            StrSubstNo(Text011, FieldCaption("Ending Date"), "Ending Date", NewEndDate))),
+                                    true);
+                        if ValidateConfirmed then
+                            ValidateEndDate(NewEndDate, false);
+                    end;
+                end else
+                    if ("Ending Date" <> NewEndDate) or ("Due Date" <> NewDueDate) then begin
+                        if not ValidateConfirmed then
+                            ValidateConfirmed :=
+                                ConfirmManagement.GetResponse(
+                                    StrSubstNo(Text012,
+                                        StrSubstNo(Text010,
+                                            StrSubstNo(Text011, FieldCaption("Starting Date"), xRec."Starting Date", "Starting Date")),
+                                        StrSubstNo(Text013,
+                                            StrSubstNo(Text014,
+                                            StrSubstNo(Text011, FieldCaption("Ending Date"), "Ending Date", NewEndDate),
+                                            StrSubstNo(Text011, FieldCaption("Due Date"), "Due Date", NewDueDate)))),
+                                    true);
+                        if ValidateConfirmed then begin
+                            ValidateEndDate(NewEndDate, false);
+                            ValidateDueDate(NewDueDate, false);
+                        end;
+                    end
+        end;
+    end;
+
+    local procedure AssignNewDates(FieldNumToCalculateFrom: Integer; NewDueDate: Date; NewEndDate: Date; NewStartDate: Date)
+    begin
+        case FieldNumToCalculateFrom of
+            FieldNo("Due Date"):
+                begin
+                    "Ending Date" := NewEndDate;
+                    "Starting Date" := NewStartDate;
+                end;
+            FieldNo("Ending Date"):
+                begin
+                    "Due Date" := NewDueDate;
+                    "Starting Date" := NewStartDate;
+                end;
+            FieldNo("Starting Date"):
+                begin
+                    "Ending Date" := NewEndDate;
+                    "Due Date" := NewDueDate;
+                end;
+        end;
     end;
 
     local procedure ValidateDueDate(NewDueDate: Date; CallValidateOnOtherDates: Boolean)
@@ -1480,7 +1524,13 @@
     var
         WhseRequest: Record "Warehouse Request";
         CreateInvtPutAwayPickMvmt: Report "Create Invt Put-away/Pick/Mvmt";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateInvtMovement(Rec, MakeATOInvtMvmt, PrintDocumentForATOMvmt, ShowErrorForATOMvmt, ATOMovementsCreated, ATOTotalMovementsToBeCreated, IsHandled); 
+        if IsHandled then
+            exit;
+
         TestField(Status, Status::Released);
 
         WhseRequest.Reset();
@@ -1760,6 +1810,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDoValidateDates(var AssemblyHeader: Record "Assembly Header"; var xAssemblyHeader: Record "Assembly Header"; FieldNumToCalculateFrom: Integer; NewDueDate: Date; NewEndDate: Date; NewStartDate: Date; var ValidateConfirmed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeReplaceLinesFromBOM(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; var ReturnValue: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -1769,6 +1824,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateInvtMovement(var AssemblyHeader: Record "Assembly Header"; MakeATOInvtMvmt: Boolean; PrintDocumentForATOMvmt: Boolean; ShowErrorForATOMvmt: Boolean; var ATOMovementsCreated: Integer; var ATOTotalMovementsToBeCreated: Integer; var IsHandled: Boolean)
+    begin
+    end;
+    
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterGetDefaultBin(var AssemblyHeader: Record "Assembly Header"; Item: Record Item)
     begin

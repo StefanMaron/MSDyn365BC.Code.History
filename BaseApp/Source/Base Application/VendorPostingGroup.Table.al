@@ -391,8 +391,13 @@ table 93 "Vendor Posting Group"
     end;
 
     procedure GetInvRoundingAccount(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
     begin
-        if "Invoice Rounding Account" = '' then
+        if "Invoice Rounding Account" <> '' then begin
+            GLAccount.Get("Invoice Rounding Account");
+            GLAccount.CheckGenProdPostingGroup();
+        end else
             PostingSetupMgt.SendVendPostingGroupNotification(Rec, FieldCaption("Invoice Rounding Account"));
         TestField("Invoice Rounding Account");
         exit("Invoice Rounding Account");

@@ -79,10 +79,10 @@ page 1560 "Report Settings"
 
                     trigger OnValidate()
                     begin
-                        if "User Name" = '' then
-                            "User Name" := "Created By"
+                        if "Public Visible" then
+                            "User Name" := ''
                         else
-                            "User Name" := '';
+                            "User Name" := "Created By";
                     end;
                 }
                 field("Company Name"; "Company Name")

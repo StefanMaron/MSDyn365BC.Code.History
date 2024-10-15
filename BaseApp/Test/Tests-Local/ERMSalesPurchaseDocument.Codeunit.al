@@ -23,9 +23,10 @@ codeunit 142053 "ERM Sales/Purchase Document"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         EditableErr: Label '%1 should not be editable.';
         SalesCommentLineErr: Label 'The Sales Comment Line does not exist. Identification fields and value';
-        PackageTrackingNoErr: Label 'Assert.IsTrue failed. No row found where Field ''PackageTrackingNoText''';
+        PackageTrackingNoErr: Label 'No row found where Field ''PackageTrackingNoText''';
         PackageTrackingNoTextCapTxt: Label 'PackageTrackingNoText';
         SalesLineErr: Label 'There is no Sales Line within the filter.';
         SalesInvoiceLineErr: Label 'There is no Sales Invoice Line within the filter.';
@@ -33,7 +34,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         QuantityNotSufficientErr: Label 'Quantity (Base) is not sufficient to complete this action. The quantity in the bin is 0. %1 units are not available in Bin Content Location Code=''%2'',Bin Code=''%3'',Item No.=''%4'',Variant Code='''',Unit of Measure Code=''BOX''.';
         isInitialized: Boolean;
-        GenProdPostingGroupErr: Label 'Gen. Prod. Posting Group must have a value in %1 Line: Document Type=Order, Document No.=%2, Line No.=%3. It cannot be zero or empty.';
+        GenProdPostingGroupErr: Label 'Gen. Prod. Posting Group must have a value in Item Charge: No.=%1. It cannot be zero or empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1247,7 +1248,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
 
         // [THEN] Post fails on checking "Gen. Prod. Posting Group" on Item Charge Purchase Line
         Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(StrSubstNo(GenProdPostingGroupErr, 'Purchase', PurchaseLine."Document No.", PurchaseLine."Line No."));
+        Assert.ExpectedError(StrSubstNo(GenProdPostingGroupErr, ItemCharge."No."));
     end;
 
     [Test]
@@ -1284,7 +1285,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
 
         // [THEN] Post fails on checking "Gen. Prod. Posting Group" on Item Charge Purchase Line
         Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(StrSubstNo(GenProdPostingGroupErr, 'Sales', SalesLine."Document No.", SalesLine."Line No."));
+        Assert.ExpectedError(StrSubstNo(GenProdPostingGroupErr, ItemCharge."No."));
     end;
 
     [Test]
@@ -2081,9 +2082,45 @@ codeunit 142053 "ERM Sales/Purchase Document"
         LibraryReportDataset.AssertCurrentRowValueEquals('TempSalesLineNo', SalesLine[2]."No.");
     end;
 
+    [Test]
+    procedure RestrictSalesOrderPostingWhenOnHoldIsSet()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Order] [UT]
+        // [SCENARIO 395885] System restricts posting of the Sales Order when Stan has specified a value in "On Hold" field of the sales header
+
+        Initialize();
+
+        LibrarySales.CreateSalesOrder(SalesHeader);
+
+        SalesHeader.Validate("On Hold", 'X');
+        SalesHeader.Modify(true);
+
+        Commit();
+
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        Assert.ExpectedError(StrSubstNo('%1 must be equal to ''''', SalesHeader.FieldCaption("On Hold")));
+
+        SalesHeader.Validate("On Hold", '');
+        SalesHeader.Modify(true);
+
+        Commit();
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+    end;
+
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
+
         if isInitialized then
             exit;
 
@@ -2091,11 +2128,23 @@ codeunit 142053 "ERM Sales/Purchase Document"
         LibraryApplicationArea.EnableFoundationSetup;
         LibrarySales.SetStockoutWarning(false);
 
+        SetVatInUseInGeneralLedgerSetup(false);
         UpdateUseVendorsTaxAreaCodeOnPurchasePayableSetup;
         CreateSalesTaxVATPostingSetup;
 
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+
         Commit();
         isInitialized := true;
+    end;
+
+    local procedure SetVatInUseInGeneralLedgerSetup(NewValue: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.GetRecordOnce();
+        GeneralLedgerSetup.Validate("VAT in Use", NewValue);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure PostPurchaseCreditMemoAfterGetShipmentLines(TaxAreaCode: Code[20]; VendorNo: Code[20]): Code[20]

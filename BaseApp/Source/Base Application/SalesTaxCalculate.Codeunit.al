@@ -1141,6 +1141,7 @@ codeunit 398 "Sales Tax Calculate"
         LastTaxAreaCode: Code[20];
         LastTaxType: Integer;
         LastTaxGroupCode: Code[20];
+        LastPositive: Boolean;
         RoundTax: Option "To Nearest",Up,Down;
         IsHandled: Boolean;
     begin
@@ -1191,6 +1192,7 @@ codeunit 398 "Sales Tax Calculate"
                     TempTaxAmountDifference.SetRange(Positive, Positive);
                     if TempTaxAmountDifference.FindFirst then begin
                         "Tax Difference" := TempTaxAmountDifference."Tax Difference";
+                        OnEndSalesTaxCalculationOnBeforeTempSalesTaxLineModify(TempSalesTaxAmountLine);
                         Modify;
                     end;
                 until Next() = 0;
@@ -1220,9 +1222,10 @@ codeunit 398 "Sales Tax Calculate"
                         TaxBaseAmt := "Tax Base Amount"
                     else
                         TaxBaseAmt := Quantity;
-                    if LastCalculationOrder = "Calculation Order" then
+                    if (LastCalculationOrder = "Calculation Order") and (LastPositive = Positive) then
                         CalculationOrderViolation := true;
                     LastCalculationOrder := "Calculation Order";
+                    LastPositive := Positive;
 
                     SetTaxDetailFilter(TaxDetail, "Tax Jurisdiction Code", "Tax Group Code", Date);
                     TaxDetail.SetRange("Tax Type", "Tax Type");
@@ -1250,6 +1253,7 @@ codeunit 398 "Sales Tax Calculate"
                                 AddedTaxAmount :=
                                   (MaxAmount * TaxDetail."Tax Below Maximum") +
                                   ((TaxBaseAmt - MaxAmount) * TaxDetail."Tax Above Maximum");
+                                OnEndSalesTaxCalculationOnAfterCalculateMaxAmount(TempSalesTaxAmountLine, TaxDetail, MaxAmount, AddedTaxAmount, TaxBaseAmt);
                             end;
                             if "Tax Type" = "Tax Type"::"Sales and Use Tax" then
                                 AddedTaxAmount := AddedTaxAmount / 100.0;
@@ -2277,6 +2281,16 @@ codeunit 398 "Sales Tax Calculate"
 
     [IntegrationEvent(false, false)]
     local procedure OnEndSalesTaxCalculationOnBeforeSalesTaxAmountLine2Insert(var SalesTaxAmountLine2: Record "Sales Tax Amount Line" temporary; var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEndSalesTaxCalculationOnBeforeTempSalesTaxLineModify(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEndSalesTaxCalculationOnAfterCalculateMaxAmount(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; TaxDetail: Record "Tax Detail"; var MaxAmount : Decimal; var AddedTaxAmount : Decimal; TaxBaseAmt : Decimal);
     begin
     end;
 
