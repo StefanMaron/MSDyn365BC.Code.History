@@ -34,12 +34,16 @@ codeunit 132 "Release Incoming Document"
         CanReleasedIfStatusErr: Label 'It is only possible to release the document when the status is %1, %2 or %3.', Comment = '%1 = status released, %2 = status pending approval';
 
     procedure Reopen(var IncomingDocument: Record "Incoming Document")
+    var
+        RelatedRecord: Variant;
     begin
         with IncomingDocument do begin
             if Status = Status::New then
                 exit;
             ClearReleaseFields(IncomingDocument);
-            Status := Status::New;
+
+        if not ((Status = Status::Created) and (GetRecord(RelatedRecord))) then
+                Status := Status::New;
 
             Modify(true);
         end;
