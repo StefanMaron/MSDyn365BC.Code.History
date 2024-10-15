@@ -1235,8 +1235,13 @@ codeunit 398 "Sales Tax Calculate"
                         if "Tax Liable" then begin
                             if (Abs(TaxBaseAmt) <= TaxDetail."Maximum Amount/Qty.") or
                                (TaxDetail."Maximum Amount/Qty." = 0)
-                            then
-                                AddedTaxAmount := TaxBaseAmt * TaxDetail."Tax Below Maximum"
+                            then begin
+                                if TempSalesTaxAmountLine."Tax Base Amount FCY" <> TempSalesTaxAmountLine."Tax Base Amount" then begin
+                                    AddedTaxAmount := Round((TempSalesTaxAmountLine."Tax Base Amount FCY" * TaxDetail."Tax Below Maximum") / 100, Currency."Amount Rounding Precision");
+                                    AddedTaxAmount := 100 * AddedTaxAmount / ExchangeFactor;
+                                end else
+                                    AddedTaxAmount := TaxBaseAmt * TaxDetail."Tax Below Maximum"
+                            end
                             else begin
                                 if "Tax Type" = "Tax Type"::"Sales and Use Tax" then
                                     MaxAmount := TaxBaseAmt / Abs("Tax Base Amount") * TaxDetail."Maximum Amount/Qty."
