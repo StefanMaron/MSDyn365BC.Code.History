@@ -285,7 +285,10 @@
     }
 
     trigger OnAfterGetRecord()
+    var
+        DimMgt: Codeunit DimensionManagement;
     begin
+        DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
         DescriptionIndent := 0;
         DescriptionOnFormat;
         LineAmountOnFormat(Format("Line Amount"));
@@ -293,7 +296,7 @@
 
     trigger OnOpenPage()
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
     end;
 
     var

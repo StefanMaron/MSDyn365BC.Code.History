@@ -369,6 +369,39 @@ codeunit 144018 QuoteManagement
         SalesLine.TestField("Quote Variant", SalesLine."Quote Variant"::Variant);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesQuoteTotalsForQuoteVariantVariant()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesQuote: TestPage "Sales Quote";
+        TotalAmount: Decimal;
+    begin
+        // [SCENARIO 344747] Create Sales Quote with Total Amount and change Quote Variant to Variant
+        // [GIVEN] Created Sales Quote with Sales line
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, Customer."No.");
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        TotalAmount := SalesLine.Amount;
+
+        // [GIVEN] Opened Sales Quote page
+        SalesQuote.OpenEdit();
+        SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesQuote.First();
+
+        // [WHEN] Set value in "Quote Variant" to Variant
+        SalesQuote.SalesLines."Quote Variant".SetValue(SalesLine."Quote Variant"::Variant);
+        SalesQuote.Close();
+        SalesQuote.OpenEdit();
+
+        // [THEN] The Total Amount was changed
+        Assert.AreNotEqual(SalesQuote.SalesLines."Total Amount Excl. VAT".Value, Format(TotalAmount), '"Total Amount Excl. VAT" should be chanhed');
+    end;
+
     local procedure Initialize()
     begin
         if not Initialized then begin

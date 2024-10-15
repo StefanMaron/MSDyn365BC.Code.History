@@ -29,7 +29,7 @@ codeunit 134228 "ERM Close Income Statement"
         ConfirmCloseAccPeriodQst: Label 'This function closes the fiscal year from %1 to %2. Once the fiscal year is closed it cannot be opened again, and the periods in the fiscal year cannot be changed.\\Do you want to close the fiscal year?';
         ConfirmDeleteGLAccountQst: Label 'Note that accounting regulations may require that you save accounting data for a certain number of years. Are you sure you want to delete the G/L account?';
         CannotDeleteGLAccGLEntryFoundAfterDateErr: Label 'You cannot delete G/L account %1 because it has ledger entries posted after %2.';
-        CannotDeleteGLAccountBadSetupErr: Label 'Allow G/L Acc. Deletion Before must have a value in General Ledger Setup: Primary Key=. It cannot be zero or empty.';
+        CannotDeleteGLAccountBadSetupErr: Label 'Check G/L Acc. Deletion After must have a value in General Ledger Setup: Primary Key=. It cannot be zero or empty.';
         UnexpectedConfirmErr: Label 'Unexpected confirm handler: %1';
 
     [Test]

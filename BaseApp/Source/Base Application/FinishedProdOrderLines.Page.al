@@ -89,14 +89,14 @@
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Time';
                     ToolTip = 'Specifies the entry''s starting time, which is retrieved from the production order routing.';
-                    Visible = false;
+                    Visible = DateAndTimeFieldVisible;
                 }
                 field("Starting Date"; StartingDate)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Date';
                     ToolTip = 'Specifies the entry''s starting date, which is retrieved from the production order routing.';
-                    Visible = false;
+                    Visible = DateAndTimeFieldVisible;
                 }
                 field("Ending Date-Time"; "Ending Date-Time")
                 {
@@ -108,14 +108,14 @@
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Time';
                     ToolTip = 'Specifies the entry''s ending time, which is retrieved from the production order routing.';
-                    Visible = false;
+                    Visible = DateAndTimeFieldVisible;
                 }
                 field("Ending Date"; EndingDate)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Date';
                     ToolTip = 'Specifies the entry''s ending date, which is retrieved from the production order routing.';
-                    Visible = false;
+                    Visible = DateAndTimeFieldVisible;
                 }
                 field("Scrap %"; "Scrap %")
                 {
@@ -234,6 +234,16 @@
         GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
     end;
 
+    trigger OnInit()
+    begin
+        DateAndTimeFieldVisible := false;
+    end;
+
+    trigger OnOpenPage()
+    begin
+        DateAndTimeFieldVisible := false;
+    end;
+
     var
         [InDataSet]
         DescriptionIndent: Integer;
@@ -241,6 +251,7 @@
         EndingTime: Time;
         StartingDate: Date;
         EndingDate: Date;
+        DateAndTimeFieldVisible: Boolean;
 
     local procedure ShowComponents()
     var

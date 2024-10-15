@@ -50,6 +50,7 @@ table 6307 "Power BI Report Uploads"
             Caption = 'Embed Url';
             DataClassification = CustomerContent;
             Description = 'URL to cache when selecting the reporting.';
+            ObsoleteTag = '16.0';
         }
         field(8; "Should Retry"; Boolean)
         {
