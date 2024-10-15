@@ -37,6 +37,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         EarlierPostingDateErr: Label 'You cannot create a payment with an earlier posting date for %1 %2.';
         AppliesToIdErr: Label 'Applies-to ID is not blank.';
         DocumentNoErr: Label 'Document No. is not equal.';
+        JournalBatchNameErr: Label 'Journal Batch Name must be %1 in %2';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -3889,6 +3890,93 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,SuggestVendorPmtsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPmtsShouldCreateGenJnlLinesInSelectedBatchWhenUseSavedValuesInRequestPage()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine2: Record "Gen. Journal Line";
+        SuggestVendorPayments: Report "Suggest Vendor Payments";
+        VendorNo: Code[20];
+        BankAccountNo: Code[20];
+        JournalBatchName: Code[10];
+        JournalBatchName2: Code[10];
+    begin
+        // [SCENARIO 495872] Suggest Vendor Payments going to different Batches
+        Initialize();
+
+        // [GIVEN] Generate and save Bank Account No. in a Variable.
+        BankAccountNo := LibraryERM.CreateBankAccountNo();
+
+        // [GIVEN] Create and Post Gen Journal Line.
+        CreateAndPostGeneralJournalLine(
+            GenJournalLine,
+            GenJournalLine."Account Type"::Vendor,
+            LibraryPurchase.CreateVendorNo(),
+            GenJournalLine."Document Type"::Invoice,
+            -LibraryRandom.RandInt(0));
+
+        // [GIVEN] Save Journal Batch Name and Vendor No. in a Variable.
+        JournalBatchName := GenJournalLine."Journal Batch Name";
+        VendorNo := GenJournalLine."Account No.";
+
+        // [GIVEN] Run Suggest Vendor Payments Report for Gen Journal Line.
+        SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
+        LibraryVariableStorage.Enqueue(VendorNo);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account Type"::"Bank Account");
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
+        SuggestVendorPayments.Run();
+
+        // [WHEN] Find the generated Gen Journal Line.
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Account No.", VendorNo);
+        GenJournalLine.FindFirst();
+
+        // [VERIFY] Verify JournalBatchName and Gen Journal Line Journal Batch Name are same.
+        Assert.AreEqual(
+            JournalBatchName,
+            GenJournalLine."Journal Batch Name",
+            StrSubstNo(JournalBatchNameErr, JournalBatchName, GenJournalLine.TableCaption()));
+
+        // [GIVEN] Create and Post Gen Journal Line 2.
+        CreateAndPostGeneralJournalLine(
+            GenJournalLine2,
+            GenJournalLine2."Account Type"::Vendor,
+            LibraryPurchase.CreateVendorNo(),
+            GenJournalLine2."Document Type"::Invoice,
+            -LibraryRandom.RandInt(0));
+
+        // [GIVEN] Save Journal Batch Name and Vendor No. in a Variable.
+        JournalBatchName2 := GenJournalLine2."Journal Batch Name";
+        VendorNo := GenJournalLine2."Account No.";
+
+        // [GIVEN] Run Suggest Vendor Payments Report for Gen Journal Line 2,
+        // with Gen Journal Line Request Page saved values.
+        SuggestVendorPayments.SetGenJnlLine(GenJournalLine2);
+        LibraryVariableStorage.Enqueue(VendorNo);
+        LibraryVariableStorage.Enqueue(GenJournalLine2."Bal. Account Type"::"Bank Account");
+        LibraryVariableStorage.Enqueue(BankAccountNo);
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
+        SuggestVendorPayments.Run();
+
+        // [WHEN] Find the generated Gen Journal Line 2.
+        GenJournalLine2.SetRange("Journal Batch Name", GenJournalLine2."Journal Batch Name");
+        GenJournalLine2.SetRange("Journal Template Name", GenJournalLine2."Journal Template Name");
+        GenJournalLine2.SetRange("Account No.", VendorNo);
+        GenJournalLine2.FindFirst();
+
+        // [VERIFY] Verify JournalBatchName2 and Gen Journal Line 2 Journal Batch Name are same.
+        Assert.AreEqual(
+            JournalBatchName2,
+            GenJournalLine2."Journal Batch Name",
+            StrSubstNo(JournalBatchNameErr, JournalBatchName2, GenJournalLine2.TableCaption()));
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSpecificLineFromTemlateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
@@ -4137,6 +4225,19 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         Assert.IsFalse(SuggestVendorPayments.PostingDate.Editable, '');
         Assert.IsTrue(SuggestVendorPayments.DueDateOffset.Enabled, '');
         Assert.IsTrue(SuggestVendorPayments.DueDateOffset.Editable, '');
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPmtsRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
+    begin
+        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        SuggestVendorPayments.BalAccountType.SetValue(LibraryVariableStorage.DequeueInteger());
+        SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText());
+        SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
+        SuggestVendorPayments.JournalTemplateName.SetValue(LibraryVariableStorage.DequeueText());
+        SuggestVendorPayments.JournalBatchName.SetValue(LibraryVariableStorage.DequeueText());
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [ModalPageHandler]
