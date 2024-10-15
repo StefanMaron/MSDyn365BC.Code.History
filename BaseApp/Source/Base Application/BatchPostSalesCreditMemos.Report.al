@@ -101,7 +101,10 @@ report 298 "Batch Post Sales Credit Memos"
         trigger OnOpenPage()
         var
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
+            ClientTypeManagement: Codeunit "Client Type Management";
         begin
+            if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
+                exit;
             SalesReceivablesSetup.Get();
             CalcInvDisc := SalesReceivablesSetup."Calc. Inv. Discount";
             ReplacePostingDate := false;

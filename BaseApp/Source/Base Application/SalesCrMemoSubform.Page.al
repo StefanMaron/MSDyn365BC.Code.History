@@ -1138,6 +1138,11 @@
             SendLineInvoiceDiscountResetNotification();
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate();
+    end;
+
     procedure RedistributeTotalsOnAfterValidate()
     var
         SalesHeader: Record "Sales Header";

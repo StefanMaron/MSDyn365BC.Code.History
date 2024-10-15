@@ -396,13 +396,20 @@ table 334 "Column Layout"
         exit(Token);
     end;
 
-    procedure LookUpDimFilter(DimNo: Integer; var Text: Text[250]): Boolean
+    procedure LookUpDimFilter(DimNo: Integer; var Text: Text[250]) Result: Boolean
     var
         DimVal: Record "Dimension Value";
         CostAccSetup: Record "Cost Accounting Setup";
         DimValList: Page "Dimension Value List";
+        IsHandled: Boolean;
     begin
         GetColLayoutSetup;
+
+        IsHandled := false;
+        OnBeforeLookUpDimFilter(Rec, DimNo, Text, ColumnLayoutName, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if CostAccSetup.Get then;
         case DimNo of
             1:
@@ -428,9 +435,17 @@ table 334 "Column Layout"
         exit(false)
     end;
 
-    procedure GetCaptionClass(AnalysisViewDimType: Integer): Text[250]
+    procedure GetCaptionClass(AnalysisViewDimType: Integer) Result: Text[250]
+    var
+        IsHandled: Boolean;
     begin
         GetColLayoutSetup;
+
+        IsHandled := false;
+        OnBeforeGetCaptionClass(Rec, ColumnLayoutName, AnalysisViewDimType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case AnalysisViewDimType of
             1:
                 begin
@@ -520,6 +535,16 @@ table 334 "Column Layout"
     procedure GetPeriodName(): Code[10]
     begin
         exit(Text002);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCaptionClass(var ColumnLayout: Record "Column Layout"; ColumnLayoutName: Record "Column Layout Name"; AnalysisViewDimType: Integer; Result: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookUpDimFilter(var ColumnLayout: Record "Column Layout"; DimNo: Integer; var Text: Text[250]; ColumnLayoutName: Record "Column Layout Name"; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

@@ -1,6 +1,6 @@
 codeunit 144022 "E-BANKING Import Test"
 {
-    // // [FEATURE] [E-BANKING]
+    // [FEATURE] [E-BANKING]
 
     Subtype = Test;
     TestPermissions = Disabled;
@@ -16,6 +16,7 @@ codeunit 144022 "E-BANKING Import Test"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryVariableStorage2: Codeunit "Library - Variable Storage";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         FileMgt: Codeunit "File Management";
@@ -23,7 +24,6 @@ codeunit 144022 "E-BANKING Import Test"
 
     [Test]
     [HandlerFunctions('PageReqHandler')]
-    [Scope('OnPrem')]
     procedure TestDomesticImportOfPaymentFile()
     var
         Customer: Record Customer;
@@ -63,7 +63,6 @@ codeunit 144022 "E-BANKING Import Test"
 
     [Test]
     [HandlerFunctions('PageReqHandler')]
-    [Scope('OnPrem')]
     procedure TestDomesticImportOfTwoPaymentFiles()
     var
         Customer: Record Customer;
@@ -103,22 +102,8 @@ codeunit 144022 "E-BANKING Import Test"
         ValidateAndGetGenJournalLine(GenJournalLine, 1500.6, GenJournalBatch.Name, GenJournalTemplate.Name, PostingNo, ReferenceNo);
     end;
 
-    local procedure ValidateAndGetGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; GenJournalBatchName: Code[20]; GenJournalTemplateName: Code[20]; PostingNo: Code[20]; ReferenceNo: Code[20])
-    begin
-        Clear(GenJournalLine);
-        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
-        GenJournalLine.SetRange("Journal Template Name", GenJournalTemplateName);
-        GenJournalLine.Validate("Posting Date", DMY2Date(22, 11, 2005));
-        GenJournalLine.SetRange("Applies-to Doc. No.", PostingNo);
-        GenJournalLine.SetRange("Reference No.", ReferenceNo);
-        Assert.AreEqual(1, GenJournalLine.Count, 'Expected number of entries in Gen. Journal Lines does not match');
-        GenJournalLine.FindFirst;
-        Assert.AreEqual(-Amount, GenJournalLine.Amount, 'Expected amount on first line does not match');
-    end;
-
     [Test]
     [HandlerFunctions('PageReqHandler')]
-    [Scope('OnPrem')]
     procedure TestDomesticImportOfThePaymentFileTheSecondTime()
     var
         Customer: Record Customer;
@@ -153,7 +138,6 @@ codeunit 144022 "E-BANKING Import Test"
 
     [Test]
     [HandlerFunctions('PageReqHandler,MessageSink')]
-    [Scope('OnPrem')]
     procedure TestDomesticImportOfPaymentFileFailesWhenThereAreNoMatchingDocuments()
     var
         RefPaymentImported: Record "Ref. Payment - Imported";
@@ -208,6 +192,9 @@ codeunit 144022 "E-BANKING Import Test"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"E-BANKING Import Test");
 
         Initialized := true;
+
+        BindSubscription(LibraryFileMgtHandler);
+        LibraryFileMgtHandler.SetDownloadSubscriberActivated(true); // to avoid downloading backup file to restricted location
 
         CompanyInformation.Get();
         SetupSalesAndReceivables;
@@ -358,8 +345,20 @@ codeunit 144022 "E-BANKING Import Test"
         ImportRefPayment.RunModal;
     end;
 
+    local procedure ValidateAndGetGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; GenJournalBatchName: Code[20]; GenJournalTemplateName: Code[20]; PostingNo: Code[20]; ReferenceNo: Code[20])
+    begin
+        Clear(GenJournalLine);
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
+        GenJournalLine.SetRange("Journal Template Name", GenJournalTemplateName);
+        GenJournalLine.Validate("Posting Date", DMY2Date(22, 11, 2005));
+        GenJournalLine.SetRange("Applies-to Doc. No.", PostingNo);
+        GenJournalLine.SetRange("Reference No.", ReferenceNo);
+        Assert.AreEqual(1, GenJournalLine.Count, 'Expected number of entries in Gen. Journal Lines does not match');
+        GenJournalLine.FindFirst;
+        Assert.AreEqual(-Amount, GenJournalLine.Amount, 'Expected amount on first line does not match');
+    end;
+
     [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure PageReqHandler(var TestRequestPage: TestRequestPage "Import Ref. Payment")
     var
         BankAccountNo: Variant;
@@ -370,7 +369,6 @@ codeunit 144022 "E-BANKING Import Test"
     end;
 
     [MessageHandler]
-    [Scope('OnPrem')]
     procedure MessageSink(Message: Text[1024])
     begin
     end;

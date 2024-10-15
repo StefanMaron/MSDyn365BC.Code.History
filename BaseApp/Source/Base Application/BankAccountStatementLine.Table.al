@@ -1,4 +1,4 @@
-table 276 "Bank Account Statement Line"
+﻿table 276 "Bank Account Statement Line"
 {
     Caption = 'Bank Account Statement Line';
 
@@ -109,6 +109,7 @@ table 276 "Bank Account Statement Line"
                     BankAccLedgEntry.SetRange("Statement Status", BankAccLedgEntry."Statement Status"::Closed);
                     BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
                     BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
+                    OnDisplayApplicationOnAfterBankAccLedgEntrySetFilters(Rec, BankAccLedgEntry);
                     PAGE.Run(0, BankAccLedgEntry);
                 end;
             Type::"Check Ledger Entry":
@@ -120,6 +121,7 @@ table 276 "Bank Account Statement Line"
                     CheckLedgEntry.SetRange("Statement Status", CheckLedgEntry."Statement Status"::Closed);
                     CheckLedgEntry.SetRange("Statement No.", "Statement No.");
                     CheckLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
+                    OnDisplayApplicationOnAfterCheckLedgEntrySetFilters(Rec, CheckLedgEntry);
                     PAGE.Run(0, CheckLedgEntry);
                 end;
         end;
@@ -142,6 +144,16 @@ table 276 "Bank Account Statement Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDisplayApplication(var BankAccountStatementLine: Record "Bank Account Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDisplayApplicationOnAfterBankAccLedgEntrySetFilters(var BankAccountStatementLine: Record "Bank Account Statement Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDisplayApplicationOnAfterCheckLedgEntrySetFilters(var BankAccountStatementLine: Record "Bank Account Statement Line"; var CheckLedgEntry: Record "Check Ledger Entry")
     begin
     end;
 }

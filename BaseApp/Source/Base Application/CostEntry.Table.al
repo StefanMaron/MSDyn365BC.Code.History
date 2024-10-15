@@ -85,7 +85,7 @@ table 1104 "Cost Entry"
         }
         field(33; "Allocated with Journal No."; Integer)
         {
-            Caption = 'Allocated with Journal No.';
+            Caption = 'Allocated with Register No.';
         }
         field(40; "User ID"; Code[50])
         {

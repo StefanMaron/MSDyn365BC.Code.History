@@ -94,7 +94,6 @@
         VendLedgEntry: Record "Vendor Ledger Entry";
         TempPurchLines: Record "Purchase Line" temporary;
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
-        PrepaymentMgt: Codeunit "Prepayment Mgt.";
         Window: Dialog;
         GenJnlLineDocNo: Code[20];
         GenJnlLineExtDocNo: Code[35];
@@ -238,13 +237,7 @@
 
             UpdatePostedPurchaseDocument(DocumentType, GenJnlLineDocNo);
 
-            VendLedgEntry.FindLast();
-            VendLedgEntry.CalcFields(Amount);
-            If PurchHeader."Document Type" = PurchHeader."Document Type"::Order then begin
-                PurchLine.CalcSums("Amount Including VAT");
-                PrepaymentMgt.AssertPrepmtAmountNotMoreThanDocAmount(
-                    PurchLine."Amount Including VAT", VendLedgEntry.Amount, PurchHeader."Currency Code", PurchSetup."Invoice Rounding");
-            end;
+            PurchaseAssertPrepmtAmountNotMoreThanDocAmount(VendLedgEntry, PurchHeader, PurchLine);
 
             // Balancing account
             if "Bal. Account No." <> '' then begin
@@ -268,6 +261,24 @@
         end;
 
         OnAfterPostPrepayments(PurchHeader2, DocumentType, SuppressCommit, PurchInvHeader, PurchCrMemoHeader);
+    end;
+
+    local procedure PurchaseAssertPrepmtAmountNotMoreThanDocAmount(var VendLedgEntry: Record "Vendor Ledger Entry"; PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
+    var
+        PrepaymentMgt: Codeunit "Prepayment Mgt.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePurchaseAssertPrepmtAmountNotMoreThanDocAmount(VendLedgEntry, PurchHeader, PurchLine, IsHandled);
+        If IsHandled then
+            exit;
+        VendLedgEntry.FindLast();
+        VendLedgEntry.CalcFields(Amount);
+        If PurchHeader."Document Type" = PurchHeader."Document Type"::Order then begin
+            PurchLine.CalcSums("Amount Including VAT");
+            PrepaymentMgt.AssertPrepmtAmountNotMoreThanDocAmount(
+                PurchLine."Amount Including VAT", VendLedgEntry.Amount, PurchHeader."Currency Code", PurchSetup."Invoice Rounding");
+        end;
     end;
 
     local procedure CreateLinesFromBuffer(var PurchHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; var Window: Dialog; var PostedDocTabNo: Integer; GenJnlLineDocNo: Code[20]; DocumentType: Option Invoice,"Credit Memo"; var LineNo: Integer)
@@ -1226,6 +1237,7 @@
 
     local procedure RunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
+        OnBeforeRunGenJnlPostLine(GenJnlLine);
         GenJnlPostLine.RunWithCheck(GenJnlLine);
     end;
 
@@ -1380,7 +1392,13 @@
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdatePostedPurchaseDocument(VendorLedgerEntry, PurchInvHeader, PurchCrMemoHdr, DocumentType, IsHandled, DocumentNo);
+        if IsHandled then
+            exit;
+
         case DocumentType of
             DocumentType::Invoice:
                 begin
@@ -1706,6 +1724,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseAssertPrepmtAmountNotMoreThanDocAmount(var VendLedgEntry: Record "Vendor Ledger Entry"; PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePurchInvHeaderInsert(var PurchInvHeader: Record "Purch. Inv. Header"; PurchHeader: Record "Purchase Header"; CommitIsSupressed: Boolean)
     begin
     end;
@@ -1741,12 +1764,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetStatusPendingPrepayment(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDocNos(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo"; var DocNo: Code[20]; var NoSeriesCode: Code[20]; var ModifyHeader: Boolean; var PreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePostedPurchaseDocument(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; DocumentType: Option Invoice,"Credit Memo"; var IsHandled: Boolean; DocumentNo: Code[20])
     begin
     end;
 

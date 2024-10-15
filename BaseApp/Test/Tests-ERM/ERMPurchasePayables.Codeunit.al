@@ -2247,6 +2247,39 @@ codeunit 134331 "ERM Purchase Payables"
         GenJournalLine.TestField("Applies-to Ext. Doc. No.");
     end;
 
+    [Test]
+    [HandlerFunctions('PostBatchRequestValuesHandler,MessageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure BatchPostPurchaseOrdersRequestValuesNotOverriddenWhenRunInBackground()
+    var
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        RequestPageXML: Text;
+    begin
+        // [SCENARIO] Saved Request page values are not overridden when running the batch job in background.
+
+        // [GIVEN] Saved request page values.
+        Initialize();
+        LibraryVariableStorage.Enqueue(true);
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(ClientType::Desktop);
+        RequestPageXML := Report.RunRequestPage(Report::"Batch Post Purchase Orders", RequestPageXML);
+
+        // [WHEN] Running the request page in the background.
+        LibraryVariableStorage.Enqueue(false);
+        TestClientTypeSubscriber.SetClientType(ClientType::Background);
+        RequestPageXML := Report.RunRequestPage(Report::"Batch Post Purchase Orders", RequestPageXML);
+
+        // [THEN] The saved request page values are not overriden (see PostBatchRequestValuesHandler).
+
+        // [WHEN] Running the request page as desktop.
+        LibraryVariableStorage.Enqueue(false);
+        TestClientTypeSubscriber.SetClientType(ClientType::Desktop);
+        asserterror RequestPageXML := Report.RunRequestPage(Report::"Batch Post Purchase Orders", RequestPageXML);
+
+        // [THEN] The saved request page values are overridden.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3324,6 +3357,28 @@ codeunit 134331 "ERM Purchase Payables"
     procedure SendNotificationHandler(var Notification: Notification): Boolean
     begin
         LibraryVariableStorage.Enqueue(Notification.Message);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PostBatchRequestValuesHandler(var PostBatchForm: TestRequestPage "Batch Post Purchase Orders")
+    begin
+        if LibraryVariableStorage.DequeueBoolean() then begin
+            PostBatchForm.Receive.SetValue(true);
+            PostBatchForm.Invoice.SetValue(true);
+            PostBatchForm.PostingDate.SetValue(20200101D);
+            PostBatchForm.ReplacePostingDate.SetValue(true);
+            PostBatchForm.ReplaceDocumentDate.SetValue(true);
+            PostBatchForm.PrintDoc.SetValue(true);
+            PostBatchForm.OK.Invoke();
+        end else begin
+            Assert.AreEqual(PostBatchForm.Receive.AsBoolean(), true, 'Expected value to be restored.');
+            Assert.AreEqual(PostBatchForm.Invoice.AsBoolean(), true, 'Expected value to be restored.');
+            Assert.AreEqual(PostBatchForm.PostingDate.AsDate(), 20200101D, 'Expected value to be restored.');
+            Assert.AreEqual(PostBatchForm.ReplacePostingDate.AsBoolean(), true, 'Expected value to be restored.');
+            Assert.AreEqual(PostBatchForm.ReplaceDocumentDate.AsBoolean(), true, 'Expected value to be restored.');
+            Assert.AreEqual(PostBatchForm.PrintDoc.AsBoolean(), true, 'Expected value to be restored.');
+        end;
     end;
 }
 
