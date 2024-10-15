@@ -1,4 +1,4 @@
-#if not CLEAN23
+#if not CLEAN25
 namespace Microsoft.Projects.Resources.Resource;
 
 using Microsoft.Finance.Currency;
@@ -271,7 +271,11 @@ report 1115 "Resource - Price List"
         Ok: Boolean;
         CurrencyText: Text[30];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'As of %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ResourcePriceListCaptionLbl: Label 'Resource - Price List';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoVATRegistrationNoCaptionLbl: Label 'VAT Reg. No.';

@@ -147,7 +147,9 @@ report 99003803 "Copy Production Forecast"
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Do you want to copy the demand forecast?';
+#pragma warning restore AA0074
 
     protected var
         ToProdForecastEntry: Record "Production Forecast Entry";

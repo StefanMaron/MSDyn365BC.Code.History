@@ -259,8 +259,12 @@ table 90 "BOM Component"
         AssemblyBOM: Page "Assembly BOM";
         QtyPerCannotBeNegativeErr: Label 'Quantity per cannot be negative.';
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 cannot be component of itself.';
         Text001: Label 'You cannot insert item %1 as an assembly component of itself.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure ValidateAgainstRecursion(ItemNo: Code[20])
     var

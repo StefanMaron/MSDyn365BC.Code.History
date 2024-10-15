@@ -18,6 +18,7 @@ using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Journal;
+using System.Utilities;
 
 codeunit 5850 "Invt. Doc.-Post Receipt"
 {
@@ -39,6 +40,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+        RecordLinkManagement: Codeunit "Record Link Management";
         Window: Dialog;
         LineCount: Integer;
         HideProgressWindow: Boolean;
@@ -89,7 +91,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
 
         if InvtSetup."Automatic Cost Posting" then begin
             GLEntry.LockTable();
-            if GLEntry.FindLast() then;
+            GLEntry.GetLastEntryNo();
         end;
         // Insert receipt header
         InvtRcptHeader.LockTable();
@@ -119,11 +121,13 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
         InvtRcptHeader.Insert();
         OnRunOnAfterInvtRcptHeaderInsert(InvtRcptHeader, InvtDocHeader);
 
-        if InvtSetup."Copy Comments to Invt. Doc." then
+        if InvtSetup."Copy Comments to Invt. Doc." then begin
             CopyCommentLines(
                 Enum::"Inventory Comment Document Type"::"Inventory Receipt",
                 Enum::"Inventory Comment Document Type"::"Posted Inventory Receipt",
                 InvtDocHeader."No.", InvtRcptHeader."No.");
+            RecordLinkManagement.CopyLinks(InvtDocHeader, InvtRcptHeader);
+        end;
         // Insert receipt lines
         LineCount := 0;
         InvtRcptLine.LockTable();

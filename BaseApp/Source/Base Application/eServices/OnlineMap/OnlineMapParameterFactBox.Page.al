@@ -77,6 +77,7 @@ page 805 "Online Map Parameter FactBox"
     }
 
     var
+#pragma warning disable AA0074
         Text001: Label 'Street (Address1)';
         Text002: Label 'City';
         Text003: Label 'State (County)';
@@ -86,6 +87,7 @@ page 805 "Online Map Parameter FactBox"
         Text007: Label 'Culture Information, e.g., en-us';
         Text008: Label 'Distance in (Miles/Kilometers)';
         Text009: Label 'Route (Quickest/Shortest)';
+#pragma warning restore AA0074
         LatitudeLbl: Label 'GPS Latitude';
         LongitudeLbl: Label 'GPS Longitude';
 }

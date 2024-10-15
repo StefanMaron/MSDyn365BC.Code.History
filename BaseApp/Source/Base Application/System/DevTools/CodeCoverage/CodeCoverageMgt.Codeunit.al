@@ -15,12 +15,16 @@ codeunit 9990 "Code Coverage Mgt."
     var
         [WithEvents]
         Timer: DotNet Timer;
+#pragma warning disable AA0470
         BackupErr: Label 'Code Coverage Backup encountered an error: %1.';
+#pragma warning restore AA0470
         FormatStringTxt: Label '<Day,2>_<Month,2>_<Year>_<Hours24,2>_<Minutes,2>.', Locked = true;
         BackupFilePath: Text[1024];
         SummaryFilePath: Text[1024];
+#pragma warning disable AA0470
         BackupPathFormatTxt: Label 'CodeCoverageBackup_%1.txt';
         SummaryPathFormatTxt: Label 'CodeCoverageSummary_%1.xml';
+#pragma warning restore AA0470
         ApplicationBaseline: Integer;
         IsRunning: Boolean;
         CodeCovNotRunningErr: Label 'Code coverage is not running.';

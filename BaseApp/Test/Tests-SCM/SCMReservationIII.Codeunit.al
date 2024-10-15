@@ -35,8 +35,6 @@ codeunit 137270 "SCM Reservation III"
         PlaceBinCodeError: Label 'The Place bin code must be different from the Take bin code on location';
         PutAwayActivityMessage: Label 'Put-away activity no. %1 has been created.';
         SourceDocumentError: Label 'The Source Document is not defined.';
-        WhseRequestError: Label 'The Warehouse Request does not exist.';
-        QuantityHandledError: Label '''Quantity Handled (Base) must be equal to ''0''  in Tracking Specification';
         CurrencyCodeMessage: Label 'the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.';
         LotNoTC324960Tok: Label 'L1', Locked = true;
         AvailabilityWarningsMsg: Label 'There are availability warnings on one or more lines';
@@ -357,7 +355,7 @@ codeunit 137270 "SCM Reservation III"
         asserterror LibraryWarehouse.CreateInvtPutAwayPick(WarehouseRequest, true, true, false);
 
         // Verify: Verify Availability error with Sales Order Reservation.
-        Assert.ExpectedError(WhseRequestError);
+        Assert.ExpectedErrorCannotFind(Database::"Warehouse Request");
     end;
 
     [Test]
@@ -975,6 +973,7 @@ codeunit 137270 "SCM Reservation III"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         TransferHeader: Record "Transfer Header";
+        TrackingSpec: Record "Tracking Specification";
         TrackingOption: Option AssignSerialNo,SelectEntries,AssignLotNo,SetValues;
     begin
         // Verify error while reassigning Item Tracking values on Purchase Line.
@@ -996,7 +995,7 @@ codeunit 137270 "SCM Reservation III"
         asserterror PurchaseLine.OpenItemTrackingLines();
 
         // Verify: Verify error while reassigning Item Tracking values on Purchase Line.
-        Assert.ExpectedError(QuantityHandledError);
+        Assert.ExpectedTestFieldError(TrackingSpec.FieldCaption("Quantity Handled (Base)"), Format(0));
     end;
 
     [Test]
@@ -1370,12 +1369,10 @@ codeunit 137270 "SCM Reservation III"
         QtySale := LibraryRandom.RandDecInRange(100, 1000, 2);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", QtySale);
-        with SalesLine do begin
-            Validate("Location Code", Location.Code);
-            Validate("Unit of Measure Code", AltUOMCode2);
-            Validate("Planned Delivery Date", CalcDate('<1M>', SalesHeader."Posting Date"));
-            Modify(true);
-        end;
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Unit of Measure Code", AltUOMCode2);
+        SalesLine.Validate("Planned Delivery Date", CalcDate('<1M>', SalesHeader."Posting Date"));
+        SalesLine.Modify(true);
 
         // [WHEN] Reserve Item from Purchase Order
         SalesLine.ShowReservation();
@@ -1995,40 +1992,34 @@ codeunit 137270 "SCM Reservation III"
     var
         PairedReservEntry: Record "Reservation Entry";
     begin
-        with ReservEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(ReservEntry, FieldNo("Entry No."));
-            Positive := false;
-            "Reservation Status" := "Reservation Status"::Reservation;
-            "Item No." := LibraryUtility.GenerateGUID();
-            "Location Code" := LibraryUtility.GenerateGUID();
-            "Quantity (Base)" := -LibraryRandom.RandIntInRange(11, 20);
-            SetSource(DATABASE::"Sales Line", 0, LibraryUtility.GenerateGUID(), LibraryRandom.RandInt(10), '', 0);
-            Insert();
-        end;
+        ReservEntry.Init();
+        ReservEntry."Entry No." := LibraryUtility.GetNewRecNo(ReservEntry, ReservEntry.FieldNo("Entry No."));
+        ReservEntry.Positive := false;
+        ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Reservation;
+        ReservEntry."Item No." := LibraryUtility.GenerateGUID();
+        ReservEntry."Location Code" := LibraryUtility.GenerateGUID();
+        ReservEntry."Quantity (Base)" := -LibraryRandom.RandIntInRange(11, 20);
+        ReservEntry.SetSource(DATABASE::"Sales Line", 0, LibraryUtility.GenerateGUID(), LibraryRandom.RandInt(10), '', 0);
+        ReservEntry.Insert();
 
-        with PairedReservEntry do begin
-            PairedReservEntry := ReservEntry;
-            Positive := not Positive;
-            "Quantity (Base)" *= -1;
-            SetSource(SourceType, 0, '', LibraryRandom.RandInt(10), '', 0);
-            Insert();
-        end;
+        PairedReservEntry := ReservEntry;
+        PairedReservEntry.Positive := not PairedReservEntry.Positive;
+        PairedReservEntry."Quantity (Base)" *= -1;
+        PairedReservEntry.SetSource(SourceType, 0, '', LibraryRandom.RandInt(10), '', 0);
+        PairedReservEntry.Insert();
     end;
 
     local procedure MockPickLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ReservEntry: Record "Reservation Entry")
     begin
-        with WarehouseActivityLine do begin
-            Init();
-            "Activity Type" := "Activity Type"::Pick;
-            "No." := LibraryUtility.GenerateGUID();
-            "Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine, FieldNo("Line No."));
-            SetSource(
-              ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID",
-              ReservEntry."Source Ref. No.", 0);
-            "Qty. Outstanding (Base)" := LibraryRandom.RandInt(10);
-            Insert();
-        end;
+        WarehouseActivityLine.Init();
+        WarehouseActivityLine."Activity Type" := WarehouseActivityLine."Activity Type"::Pick;
+        WarehouseActivityLine."No." := LibraryUtility.GenerateGUID();
+        WarehouseActivityLine."Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine, WarehouseActivityLine.FieldNo("Line No."));
+        WarehouseActivityLine.SetSource(
+          ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID",
+          ReservEntry."Source Ref. No.", 0);
+        WarehouseActivityLine."Qty. Outstanding (Base)" := LibraryRandom.RandInt(10);
+        WarehouseActivityLine.Insert();
     end;
 
     local procedure DeleteSalesLine(DocumentNo: Code[20])
@@ -2203,12 +2194,9 @@ codeunit 137270 "SCM Reservation III"
     end;
 
     local procedure RunOrderTracking(PurchaseLine: Record "Purchase Line")
-    var
-        OrderTracking: Page "Order Tracking";
     begin
         LibraryVariableStorage.Enqueue(OrderTrackingMessage);  // Enqueue for Message Handler.
-        OrderTracking.SetPurchLine(PurchaseLine);
-        OrderTracking.RunModal();
+        PurchaseLine.ShowOrderTracking();
     end;
 
     local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")

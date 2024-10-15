@@ -393,27 +393,41 @@ page 1290 "Payment Reconciliation Journal"
                         Caption = 'Lines';
                         GridLayout = Columns;
 
-                        group("Number of Lines")
+                        group(ReviewRequiredGroup)
                         {
+                            ShowCaption = false;
+
+#if not CLEAN25
+                            group("Number of Lines")
+                            {
+                                Visible = false;
+                                ShowCaption = false;
+                                ObsoleteState = Pending;
+                                ObsoleteReason = 'Rearranging the footer fields.';
+                                ObsoleteTag = '25.0';
+                            }
+                            group(LinesWithDifferenceGroup)
+                            {
+                                Visible = false;
+                                ShowCaption = false;
+                                ObsoleteState = Pending;
+                                ObsoleteReason = 'Rearranging the footer fields.';
+                                ObsoleteTag = '25.0';
+                            }
+#endif
                             field(TotalLines; TotalLinesCount)
                             {
-                                ShowCaption = false;
                                 Caption = 'Number of Lines';
                                 ApplicationArea = Basic, Suite;
                                 Editable = false;
                                 ToolTip = 'Specifies the total number of lines in the journal.';
                             }
-                        }
-
-                        group(ReviewRequiredGroup)
-                        {
-                            ShowCaption = false;
                             field(ReviewRequired; LinesForReviewCount)
                             {
                                 ApplicationArea = Basic, Suite;
                                 Editable = false;
                                 Style = StrongAccent;
-                                Caption = 'For Review';
+                                Caption = 'Lines For Review';
                                 ToolTip = 'Specifies the number of lines that you should review because they were matched automatically. The matching rule used is marked as Review Required on the Payment Application Rules page.';
 
                                 trigger OnDrillDown()
@@ -425,57 +439,70 @@ page 1290 "Payment Reconciliation Journal"
                                     CurrPage.Update(false);
                                 end;
                             }
-                            group(LinesWithDifferenceGroup)
+                            field(LinesWithDifference; LinesWithDifferenceCount)
                             {
-                                ShowCaption = false;
-                                field(LinesWithDifference; LinesWithDifferenceCount)
-                                {
-                                    ApplicationArea = Basic, Suite;
-                                    Editable = false;
-                                    Caption = 'With differences';
-                                    ToolTip = 'Specifies the number of lines that must be addressed before posting.';
+                                ApplicationArea = Basic, Suite;
+                                Editable = false;
+                                Caption = 'Lines With differences';
+                                ToolTip = 'Specifies the number of lines that must be addressed before posting.';
 
-                                    trigger OnDrillDown()
-                                    var
-                                        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-                                    begin
-                                        GetLinesWithDifference(BankAccReconciliationLine);
-                                        Page.Run(Page::"Payment Application Review", BankAccReconciliationLine);
-                                    end;
-                                }
+                                trigger OnDrillDown()
+                                var
+                                    BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+                                begin
+                                    GetLinesWithDifference(BankAccReconciliationLine);
+                                    Page.Run(Page::"Payment Application Review", BankAccReconciliationLine);
+                                end;
                             }
                         }
                     }
                     grid(TotalTransactionAmountGroup)
                     {
+                        GridLayout = Columns;
 
-                        group("Transaction Total")
+                        group(TotalTransactionAmountGroup1)
                         {
+                            ShowCaption = false;
+                            Editable = false;
+
+#if not CLEAN25
+                            group("Transaction Total")
+                            {
+                                Visible = false;
+                                ShowCaption = false;
+                                ObsoleteState = Pending;
+                                ObsoleteReason = 'Rearranging the footer fields.';
+                                ObsoleteTag = '25.0';
+                            }
+                            group(CreditDebit)
+                            {
+                                Visible = false;
+                                ShowCaption = false;
+                                ObsoleteState = Pending;
+                                ObsoleteReason = 'Rearranging the footer fields.';
+                                ObsoleteTag = '25.0';
+                            }
+#endif
                             field(TotalTransactionAmountFixedLayout; BankAccReconciliation."Total Transaction Amount")
                             {
                                 ApplicationArea = Basic, Suite;
                                 AutoFormatType = 1;
-                                ShowCaption = false;
                                 Style = Strong;
                                 Caption = 'Total Transaction Amount';
                                 ToolTip = 'Specifies the sum of values in the Statement Amount field on all the lines on the Payment Reconciliation Journal page.';
                             }
-                        }
-                        group(CreditDebit)
-                        {
-                            ShowCaption = false;
                             field(TotalPaidAmountFixedLayout; BankAccReconciliation."Total Paid Amount")
                             {
                                 ApplicationArea = Basic, Suite;
                                 AutoFormatType = 1;
-                                Caption = 'Credit';
+                                Caption = 'Total Credit Amount';
                                 ToolTip = 'Specifies the sum of values in the Statement Amount field on all the paid lines on the Payment Reconciliation Journal page.';
                             }
                             field(TotalReceivedAmountFixedLayout; BankAccReconciliation."Total Received Amount")
                             {
                                 ApplicationArea = Basic, Suite;
                                 AutoFormatType = 1;
-                                Caption = 'Debit';
+                                Caption = 'Total Debit Amount';
                                 ToolTip = 'Specifies the sum of values in the Statement Amount field on all the received lines on the Payment Reconciliation Journal page.';
                             }
                         }
@@ -488,38 +515,51 @@ page 1290 "Payment Reconciliation Journal"
                         group(Balances1)
                         {
                             ShowCaption = false;
+#if not CLEAN25
                             group(BalanceOnBankAccountGroup)
                             {
+                                Visible = false;
                                 ShowCaption = false;
-                                field(BalanceOnBankAccountFixedLayout; BankAccReconciliation."Total Balance on Bank Account")
-                                {
-                                    ApplicationArea = Basic, Suite;
-                                    AutoFormatType = 1;
-                                    Caption = 'Balance on Bank Account';
-                                    ToolTip = 'Specifies the balance of the bank account per the last time you reconciled the bank account.';
-
-                                    trigger OnDrillDown()
-                                    begin
-                                        BankAccReconciliation.DrillDownOnBalanceOnBankAccount();
-                                    end;
-                                }
+                                ObsoleteState = Pending;
+                                ObsoleteReason = 'Rearranging the footer fields.';
+                                ObsoleteTag = '25.0';
                             }
                             group(BalanceOnBankAccountAfterPostingGroup)
                             {
+                                Visible = false;
                                 ShowCaption = false;
-                                field(BalanceOnBankAccountAfterPostingFixedLayout; BankAccReconciliation."Total Balance on Bank Account" + BankAccReconciliation."Total Unposted Applied Amount" + AppliedBankAmounts)
-                                {
-                                    Caption = 'Balance After Posting';
-                                    ApplicationArea = Basic, Suite;
-                                    AutoFormatType = 1;
-                                    ToolTip = 'Specifies the total amount that will exist on the bank account as a result of payment applications that you post on the Payment Reconciliation Journal page.';
-                                }
+                                ObsoleteState = Pending;
+                                ObsoleteReason = 'Rearranging the footer fields.';
+                                ObsoleteTag = '25.0';
                             }
-                        }
+                            group(StatementEndingBalanceGroup)
+                            {
+                                Visible = false;
+                                ShowCaption = false;
+                                ObsoleteState = Pending;
+                                ObsoleteReason = 'Rearranging the footer fields.';
+                                ObsoleteTag = '25.0';
+                            }
+#endif
+                            field(BalanceOnBankAccountFixedLayout; BankAccReconciliation."Total Balance on Bank Account")
+                            {
+                                ApplicationArea = Basic, Suite;
+                                AutoFormatType = 1;
+                                Caption = 'Balance on Bank Account';
+                                ToolTip = 'Specifies the balance of the bank account per the last time you reconciled the bank account.';
 
-                        group(StatementEndingBalanceGroup)
-                        {
-                            ShowCaption = false;
+                                trigger OnDrillDown()
+                                begin
+                                    BankAccReconciliation.DrillDownOnBalanceOnBankAccount();
+                                end;
+                            }
+                            field(BalanceOnBankAccountAfterPostingFixedLayout; BankAccReconciliation."Total Balance on Bank Account" + BankAccReconciliation."Total Unposted Applied Amount" + AppliedBankAmounts)
+                            {
+                                Caption = 'Balance After Posting';
+                                ApplicationArea = Basic, Suite;
+                                AutoFormatType = 1;
+                                ToolTip = 'Specifies the total amount that will exist on the bank account as a result of payment applications that you post on the Payment Reconciliation Journal page.';
+                            }
                             field(StatementEndingBalanceFixedLayout; StatementEndingBalance)
                             {
                                 ApplicationArea = Basic, Suite;
@@ -927,9 +967,9 @@ page 1290 "Payment Reconciliation Journal"
                         EditinExcelFilters: Codeunit "Edit in Excel Filters";
                         ODataUtility: Codeunit "ODataUtility";
                     begin
-                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Statement Type")), Enum::"Edit in Excel Filter Type"::Equal, Format(Rec."Statement Type"), Enum::"Edit in Excel Edm Type"::"Edm.String");
-                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Bank Account No.")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Bank Account No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
-                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Statement No.")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Statement No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Statement Type")), Enum::"Edit in Excel Filter Type"::Equal, Format(Rec."Statement Type"), Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Bank Account No.")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Bank Account No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Statement No.")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Statement No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
                         EditinExcel.EditPageInExcel(Text.CopyStr(CurrPage.Caption, 1, 240), Page::"Payment Reconciliation Journal", EditInExcelFilters);
                     end;
                 }

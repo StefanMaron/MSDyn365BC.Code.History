@@ -1,10 +1,5 @@
 namespace System.Security.AccessControl;
 
-#if not CLEAN22
-using Microsoft.Finance.AuditFileExport;
-using Microsoft.Finance.AutomaticAccounts;
-#endif
-
 permissionset 1002 "LOCAL READ"
 {
     Access = Public;
@@ -16,13 +11,6 @@ permissionset 1002 "LOCAL READ"
     ObsoleteTag = '23.0';
 #else
     Assignable = false;
-#endif
-
-#if not CLEAN22
-    Permissions = tabledata "SIE Dimension" = R,
-                  tabledata "Automatic Acc. Header" = R,
-                  tabledata "Automatic Acc. Line" = R,
-                  tabledata "SIE Import Buffer" = R;
 #endif
 }
 

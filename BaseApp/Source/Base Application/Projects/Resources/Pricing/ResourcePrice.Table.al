@@ -7,7 +7,7 @@ using Microsoft.Utilities;
 table 201 "Resource Price"
 {
     Caption = 'Resource Price';
-#if not CLEAN23
+#if not CLEAN25
     DrillDownPageID = "Resource Prices";
     LookupPageID = "Resource Prices";
     ObsoleteState = Pending;
@@ -71,6 +71,10 @@ table 201 "Resource Price"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'cannot be specified when %1 is %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

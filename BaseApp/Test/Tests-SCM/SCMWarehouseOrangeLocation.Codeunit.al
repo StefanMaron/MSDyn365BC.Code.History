@@ -299,13 +299,11 @@ codeunit 137029 "SCM Warehouse Orange Location"
     begin
         WhseActivityLine.Reset();
         Clear(WhseActivityLine);
-        with WhseActivityLine do begin
-            SetRange("Activity Type", ActivityType);
-            SetRange("Source No.", SourceNo);
-            SetRange("Action Type", ActionType);
-            if LineNo <> 0 then
-                SetRange("Whse. Document Line No.", LineNo);
-        end;
+        WhseActivityLine.SetRange("Activity Type", ActivityType);
+        WhseActivityLine.SetRange("Source No.", SourceNo);
+        WhseActivityLine.SetRange("Action Type", ActionType);
+        if LineNo <> 0 then
+            WhseActivityLine.SetRange("Whse. Document Line No.", LineNo);
     end;
 
     [ConfirmHandler]

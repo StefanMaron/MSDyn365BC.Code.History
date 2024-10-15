@@ -50,6 +50,8 @@ table 99000772 "Production BOM Line"
             if (Type = const("Production BOM")) "Production BOM Header";
 
             trigger OnValidate()
+            var
+                Item: Record Item;
             begin
                 TestField(Type);
 
@@ -69,11 +71,11 @@ table 99000772 "Production BOM Line"
                         end;
                     Type::"Production BOM":
                         begin
-                            ProdBOMHeader.Get("No.");
-                            ProdBOMHeader.TestField("Unit of Measure Code");
-                            Description := ProdBOMHeader.Description;
-                            "Unit of Measure Code" := ProdBOMHeader."Unit of Measure Code";
-                            OnValidateNoOnAfterAssignProdBOMFields(Rec, ProdBOMHeader, xRec, CurrFieldNo);
+                            ProductionBOMHeader.Get("No.");
+                            ProductionBOMHeader.TestField("Unit of Measure Code");
+                            Description := ProductionBOMHeader.Description;
+                            "Unit of Measure Code" := ProductionBOMHeader."Unit of Measure Code";
+                            OnValidateNoOnAfterAssignProdBOMFields(Rec, ProductionBOMHeader, xRec, CurrFieldNo);
                         end;
                 end;
 
@@ -163,11 +165,14 @@ table 99000772 "Production BOM Line"
             TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."));
 
             trigger OnValidate()
+            var
+                ItemVariant: Record "Item Variant";
             begin
                 if Rec."Variant Code" = '' then
                     exit;
                 TestField(Type, Type::Item);
                 TestField("No.");
+                ItemVariant.SetLoadFields(Description);
                 ItemVariant.Get("No.", "Variant Code");
                 Description := ItemVariant.Description;
             end;
@@ -206,7 +211,7 @@ table 99000772 "Production BOM Line"
                    ("Starting Date" > "Ending Date")
                 then
                     Error(
-                      Text000,
+                      EndingDateBeforeStartingDateErr,
                       FieldCaption("Ending Date"),
                       FieldCaption("Starting Date"));
             end;
@@ -256,6 +261,8 @@ table 99000772 "Production BOM Line"
             Caption = 'Calculation Formula';
 
             trigger OnValidate()
+            var
+                UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
             begin
                 TestField("No.");
 
@@ -263,13 +270,13 @@ table 99000772 "Production BOM Line"
                     "Calculation Formula"::" ":
                         Quantity := "Quantity per";
                     "Calculation Formula"::Length:
-                        Quantity := Round(Length * "Quantity per", UOMMgt.QtyRndPrecision());
+                        Quantity := Round(Length * "Quantity per", UnitOfMeasureManagement.QtyRndPrecision());
                     "Calculation Formula"::"Length * Width":
-                        Quantity := Round(Length * Width * "Quantity per", UOMMgt.QtyRndPrecision());
+                        Quantity := Round(Length * Width * "Quantity per", UnitOfMeasureManagement.QtyRndPrecision());
                     "Calculation Formula"::"Length * Width * Depth":
-                        Quantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision());
+                        Quantity := Round(Length * Width * Depth * "Quantity per", UnitOfMeasureManagement.QtyRndPrecision());
                     "Calculation Formula"::Weight:
-                        Quantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision());
+                        Quantity := Round(Weight * "Quantity per", UnitOfMeasureManagement.QtyRndPrecision());
                     "Calculation Formula"::"Fixed Quantity":
                         begin
                             TestField(Type, Type::Item);
@@ -342,14 +349,13 @@ table 99000772 "Production BOM Line"
     end;
 
     var
-        Text000: Label '%1 must be later than %2.';
-        Item: Record Item;
-        ProdBOMHeader: Record "Production BOM Header";
-        ItemVariant: Record "Item Variant";
         BOMVersionUOMErr: Label 'The Unit of Measure Code %1 for Item %2 does not exist. Identification fields and values: Production BOM No. = %3, Version Code = %4.', Comment = '%1=UOM Code;%2=Item No.;%3=Production BOM No.;%4=Version Code';
         BOMHeaderUOMErr: Label 'The Unit of Measure Code %1 for Item %2 does not exist. Identification fields and values: Production BOM No. = %3.', Comment = '%1=UOM Code;%2=Item No.;%3=Production BOM No.';
         BOMLineUOMErr: Label 'The Unit of Measure Code %1 for Item %2 does not exist. Identification fields and values: Production BOM No. = %3, Version Code = %4, Line No. = %5.', Comment = '%1=UOM Code;%2=Item No.;%3=Production BOM No.;%4=Version Code;%5=Line No.';
-        UOMMgt: Codeunit "Unit of Measure Management";
+        EndingDateBeforeStartingDateErr: Label '%1 must be later than %2.', Comment = '%1=Ending Date; %2=Starting Date';
+
+    protected var
+        ProductionBOMHeader: Record "Production BOM Header";
 
     procedure TestStatus()
     var
@@ -365,16 +371,16 @@ table 99000772 "Production BOM Line"
             exit;
 
         if "Version Code" = '' then begin
-            ProdBOMHeader.Get("Production BOM No.");
-            if ProdBOMHeader.Status = ProdBOMHeader.Status::Certified then
-                ProdBOMHeader.FieldError(Status);
+            ProductionBOMHeader.Get("Production BOM No.");
+            if ProductionBOMHeader.Status = ProductionBOMHeader.Status::Certified then
+                ProductionBOMHeader.FieldError(Status);
         end else begin
             ProdBOMVersion.Get("Production BOM No.", "Version Code");
             if ProdBOMVersion.Status = ProdBOMVersion.Status::Certified then
                 ProdBOMVersion.FieldError(Status);
         end;
 
-        OnAfterTestStatus(Rec, ProdBOMHeader, ProdBOMVersion);
+        OnAfterTestStatus(Rec, ProductionBOMHeader, ProdBOMVersion);
     end;
 
     procedure GetQtyPerUnitOfMeasure() Result: Decimal
@@ -398,7 +404,7 @@ table 99000772 "Production BOM Line"
 
     procedure GetBOMHeaderQtyPerUOM(Item: Record Item) Result: Decimal
     var
-        ProdBOMHeader: Record "Production BOM Header";
+        ProductionBOMHeader: Record "Production BOM Header";
         ProdBOMVersion: Record "Production BOM Version";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -419,10 +425,10 @@ table 99000772 "Production BOM Line"
             exit(UOMMgt.GetQtyPerUnitOfMeasure(Item, ProdBOMVersion."Unit of Measure Code"));
         end;
 
-        ProdBOMHeader.Get("Production BOM No.");
-        if not ItemUnitOfMeasure.Get(Item."No.", ProdBOMHeader."Unit of Measure Code") then
-            Error(BOMHeaderUOMErr, ProdBOMHeader."Unit of Measure Code", Item."No.", "Production BOM No.");
-        exit(UOMMgt.GetQtyPerUnitOfMeasure(Item, ProdBOMHeader."Unit of Measure Code"));
+        ProductionBOMHeader.Get("Production BOM No.");
+        if not ItemUnitOfMeasure.Get(Item."No.", ProductionBOMHeader."Unit of Measure Code") then
+            Error(BOMHeaderUOMErr, ProductionBOMHeader."Unit of Measure Code", Item."No.", "Production BOM No.");
+        exit(UOMMgt.GetQtyPerUnitOfMeasure(Item, ProductionBOMHeader."Unit of Measure Code"));
     end;
 
     procedure GetBOMLineQtyPerUOM(Item: Record Item) Result: Decimal

@@ -161,6 +161,10 @@ page 5921 "Available Loaners"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot receive %1 %2 because it has not been lent.', Comment = 'You cannot receive Loaner L00001 because it has not been lent.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

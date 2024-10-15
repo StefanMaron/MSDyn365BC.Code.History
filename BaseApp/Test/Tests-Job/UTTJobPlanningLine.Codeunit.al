@@ -21,7 +21,7 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         IsInitialized: Boolean;
@@ -47,42 +47,39 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         Initialize();
         CreateJobPlanningLine(JobPlanningLine, true);
-
-        with JobPlanningLine do begin
-            // Verify that Quantities, Total Costs and Line Amounts are initialized correctly.
-            Assert.AreEqual(Quantity, "Remaining Qty.",
-              'Remaining Qty. is not initialized correctly.');
-            Assert.AreEqual("Quantity (Base)", "Remaining Qty. (Base)",
-              'Remaining Qty. (Base) is not initialized correctly.');
-            Assert.AreEqual(0, "Qty. Posted",
-              'Qty. Posted is not initialized correctly.');
-            Assert.AreEqual(Quantity, "Qty. to Transfer to Journal",
-              'Qty. to Post is not initialized correctly.');
-            Assert.AreEqual("Total Cost", "Remaining Total Cost",
-              'Remaining Total Cost is not initialized correctly.');
-            Assert.AreEqual("Total Cost (LCY)", "Remaining Total Cost (LCY)",
-              'Remaining Total Cost (LCY) is not initialized correctly.');
-            Assert.AreEqual("Line Amount", "Remaining Line Amount",
-              'Remaining Line Amount is not initialized correctly.');
-            Assert.AreEqual("Line Amount (LCY)", "Remaining Line Amount (LCY)",
-              'Remaining Line Amount (LCY) is not initialized correctly.');
-            Assert.AreEqual(0, "Posted Total Cost",
-              'Posted Total Cost is not initialized correctly.');
-            Assert.AreEqual(0, "Posted Total Cost (LCY)",
-              'Posted Total Cost (LCY) is not initialized correctly.');
-            Assert.AreEqual(0, "Posted Line Amount",
-              'Posted Line Amount is not initialized correctly.');
-            Assert.AreEqual(0, "Posted Line Amount (LCY)",
-              'Posted Line Amount (LCY) is not initialized correctly.');
-            Assert.AreEqual(0, "Qty. Transferred to Invoice",
-              'Qty. Transferred is not initialized correctly.');
-            Assert.AreEqual(0, "Qty. to Transfer to Invoice",
-              'Qty. to Transfer is not initialized correctly.');
-            Assert.AreEqual(0, "Qty. Invoiced",
-              'Qty. Invoiced is not initialized correctly.');
-            Assert.AreEqual(0, "Qty. to Invoice",
-              'Qty. to Invoice is not initialized correctly.');
-        end;
+        // Verify that Quantities, Total Costs and Line Amounts are initialized correctly.
+        Assert.AreEqual(JobPlanningLine.Quantity, JobPlanningLine."Remaining Qty.",
+          'Remaining Qty. is not initialized correctly.');
+        Assert.AreEqual(JobPlanningLine."Quantity (Base)", JobPlanningLine."Remaining Qty. (Base)",
+          'Remaining Qty. (Base) is not initialized correctly.');
+        Assert.AreEqual(0, JobPlanningLine."Qty. Posted",
+          'Qty. Posted is not initialized correctly.');
+        Assert.AreEqual(JobPlanningLine.Quantity, JobPlanningLine."Qty. to Transfer to Journal",
+          'Qty. to Post is not initialized correctly.');
+        Assert.AreEqual(JobPlanningLine."Total Cost", JobPlanningLine."Remaining Total Cost",
+          'Remaining Total Cost is not initialized correctly.');
+        Assert.AreEqual(JobPlanningLine."Total Cost (LCY)", JobPlanningLine."Remaining Total Cost (LCY)",
+          'Remaining Total Cost (LCY) is not initialized correctly.');
+        Assert.AreEqual(JobPlanningLine."Line Amount", JobPlanningLine."Remaining Line Amount",
+          'Remaining Line Amount is not initialized correctly.');
+        Assert.AreEqual(JobPlanningLine."Line Amount (LCY)", JobPlanningLine."Remaining Line Amount (LCY)",
+          'Remaining Line Amount (LCY) is not initialized correctly.');
+        Assert.AreEqual(0, JobPlanningLine."Posted Total Cost",
+          'Posted Total Cost is not initialized correctly.');
+        Assert.AreEqual(0, JobPlanningLine."Posted Total Cost (LCY)",
+          'Posted Total Cost (LCY) is not initialized correctly.');
+        Assert.AreEqual(0, JobPlanningLine."Posted Line Amount",
+          'Posted Line Amount is not initialized correctly.');
+        Assert.AreEqual(0, JobPlanningLine."Posted Line Amount (LCY)",
+          'Posted Line Amount (LCY) is not initialized correctly.');
+        Assert.AreEqual(0, JobPlanningLine."Qty. Transferred to Invoice",
+          'Qty. Transferred is not initialized correctly.');
+        Assert.AreEqual(0, JobPlanningLine."Qty. to Transfer to Invoice",
+          'Qty. to Transfer is not initialized correctly.');
+        Assert.AreEqual(0, JobPlanningLine."Qty. Invoiced",
+          'Qty. Invoiced is not initialized correctly.');
+        Assert.AreEqual(0, JobPlanningLine."Qty. to Invoice",
+          'Qty. to Invoice is not initialized correctly.');
     end;
 
     [Test]
@@ -112,6 +109,28 @@ codeunit 136353 "UT T Job Planning Line"
         // Validate that a Job Planning Line cannot be deleted if the line is transferred.
         CreateJobPlanningLineInvoice(JobPlanningLineInvoice, JobPlanningLine, 1);
         asserterror JobPlanningLine.Delete(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDeletionOfAttachedLines()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        AttachedJobPlanningLine: Record "Job Planning Line";
+    begin
+        Initialize();
+        // [GIVEN] Job Planning Line with attachedcJobhPlanningbLines
+        CreateJobPlanningLineWithAttachedLines(JobPlanningLine);
+        AttachedJobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        AttachedJobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        AttachedJobPlanningLine.SetRange("Attached to Line No.", JobPlanningLine."Line No.");
+        Assert.RecordIsNotEmpty(AttachedJobPlanningLine);
+
+        // [WHEN] Job Planning Line is deleted
+        JobPlanningLine.Delete(true);
+
+        // [THEN] Verify Attached Lines are deleted
+        Assert.RecordIsEmpty(AttachedJobPlanningLine);
     end;
 
     [Test]
@@ -187,38 +206,32 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         Initialize();
         CreateJobPlanningLine(JobPlanningLine, true);
-
-        with JobPlanningLine do begin
-            // Post usage to give Remaining Qty. a value.
-            QtyToPost := LibraryRandom.RandInt(Quantity);
-            Use(QtyToPost, 0, 0, "Currency Date", "Currency Factor");
-
-            // Verify that Remaining Qty. changes correctly, when Quantity is increased.
-            QtyDelta := LibraryRandom.RandInt(Quantity);
-            Validate(Quantity, Quantity + QtyDelta);
-            Assert.AreEqual(Quantity - QtyToPost, "Remaining Qty.", 'Remaining Qty. has wrong value after increasing Quantity.');
-            // Test only valid because no Unit Of Measure Code is defined:
-            TestField("Qty. per Unit of Measure", 1);
-            Assert.AreEqual("Remaining Qty.", "Remaining Qty. (Base)",
-              'Remaining Qty. (Base) is not updated correctly');
-
-            // Verify that Remaining Qty. changes correctly, when Quantity is decreased.
-            QtyDelta := LibraryRandom.RandInt("Remaining Qty.");
-            Validate(Quantity, Quantity - QtyDelta);
-            Assert.AreEqual(Quantity - QtyToPost, "Remaining Qty.", 'Remaining Qty. has wrong value after decreasing Quantity.');
-            // Test only valid because no Unit Of Measure Code is defined:
-            TestField("Qty. per Unit of Measure", 1);
-            Assert.AreEqual("Remaining Qty.", "Remaining Qty. (Base)",
-              'Remaining Qty. (Base) is not updated correctly');
-
-            // Verify that Remaining Qty. is reset to 0 when "No." is set to 0.
-            Validate("No.", '');
-            Assert.AreEqual(0, "Remaining Qty.", 'Remaining Qty. is not set to 0 when No. is set to 0.');
-            // Test only valid because no Unit Of Measure Code is defined:
-            TestField("Qty. per Unit of Measure", 1);
-            Assert.AreEqual("Remaining Qty.", "Remaining Qty. (Base)",
-              'Remaining Qty. (Base) is not updated correctly');
-        end;
+        // Post usage to give Remaining Qty. a value.
+        QtyToPost := LibraryRandom.RandInt(JobPlanningLine.Quantity);
+        JobPlanningLine.Use(QtyToPost, 0, 0, JobPlanningLine."Currency Date", JobPlanningLine."Currency Factor");
+        // Verify that Remaining Qty. changes correctly, when Quantity is increased.
+        QtyDelta := LibraryRandom.RandInt(JobPlanningLine.Quantity);
+        JobPlanningLine.Validate(Quantity, JobPlanningLine.Quantity + QtyDelta);
+        Assert.AreEqual(JobPlanningLine.Quantity - QtyToPost, JobPlanningLine."Remaining Qty.", 'Remaining Qty. has wrong value after increasing Quantity.');
+        // Test only valid because no Unit Of Measure Code is defined:
+        JobPlanningLine.TestField("Qty. per Unit of Measure", 1);
+        Assert.AreEqual(JobPlanningLine."Remaining Qty.", JobPlanningLine."Remaining Qty. (Base)",
+          'Remaining Qty. (Base) is not updated correctly');
+        // Verify that Remaining Qty. changes correctly, when Quantity is decreased.
+        QtyDelta := LibraryRandom.RandInt(JobPlanningLine."Remaining Qty.");
+        JobPlanningLine.Validate(Quantity, JobPlanningLine.Quantity - QtyDelta);
+        Assert.AreEqual(JobPlanningLine.Quantity - QtyToPost, JobPlanningLine."Remaining Qty.", 'Remaining Qty. has wrong value after decreasing Quantity.');
+        // Test only valid because no Unit Of Measure Code is defined:
+        JobPlanningLine.TestField("Qty. per Unit of Measure", 1);
+        Assert.AreEqual(JobPlanningLine."Remaining Qty.", JobPlanningLine."Remaining Qty. (Base)",
+          'Remaining Qty. (Base) is not updated correctly');
+        // Verify that Remaining Qty. is reset to 0 when "No." is set to 0.
+        JobPlanningLine.Validate("No.", '');
+        Assert.AreEqual(0, JobPlanningLine."Remaining Qty.", 'Remaining Qty. is not set to 0 when No. is set to 0.');
+        // Test only valid because no Unit Of Measure Code is defined:
+        JobPlanningLine.TestField("Qty. per Unit of Measure", 1);
+        Assert.AreEqual(JobPlanningLine."Remaining Qty.", JobPlanningLine."Remaining Qty. (Base)",
+          'Remaining Qty. (Base) is not updated correctly');
     end;
 
     [Test]
@@ -231,28 +244,21 @@ codeunit 136353 "UT T Job Planning Line"
         Initialize();
         CreateJobPlanningLine(JobPlanningLine, false);
 
-        with JobPlanningLine do begin
-            Validate("Line Type", "Line Type"::Billable);
-            CreateJobPlanningLineInvoice(JobPlanningLineInvoice, JobPlanningLine, LibraryRandom.RandInt(Quantity));
-
-            // Verify that the Line Type can be changed as long as the Line Type includes type Billable.
-            Validate("Line Type", "Line Type"::"Both Budget and Billable");
-            Assert.AreEqual("Line Type", "Line Type"::"Both Budget and Billable",
-              'Line Type was not updated correctly.');
-
-            // Verify that the Line Type cannot be changed if the Line Type does not include type Billable.
-            asserterror Validate("Line Type", "Line Type"::Budget);
-        end;
+        JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::Billable);
+        CreateJobPlanningLineInvoice(JobPlanningLineInvoice, JobPlanningLine, LibraryRandom.RandInt(JobPlanningLine.Quantity));
+        // Verify that the Line Type can be changed as long as the Line Type includes type Billable.
+        JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::"Both Budget and Billable");
+        Assert.AreEqual(JobPlanningLine."Line Type", JobPlanningLine."Line Type"::"Both Budget and Billable",
+          'Line Type was not updated correctly.');
+        // Verify that the Line Type cannot be changed if the Line Type does not include type Billable.
+        asserterror JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::Budget);
 
         CreateJobPlanningLine(JobPlanningLine, false);
 
-        with JobPlanningLine do begin
-            Validate("Line Type", "Line Type"::Billable);
-            CreateJobPlanningLineInvoice(JobPlanningLineInvoice, JobPlanningLine, LibraryRandom.RandInt(Quantity));
-
-            // Verify that the No. cannot be changed if Qty. Transferred <> 0.
-            asserterror Validate("No.", '');
-        end;
+        JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::Billable);
+        CreateJobPlanningLineInvoice(JobPlanningLineInvoice, JobPlanningLine, LibraryRandom.RandInt(JobPlanningLine.Quantity));
+        // Verify that the No. cannot be changed if Qty. Transferred <> 0.
+        asserterror JobPlanningLine.Validate("No.", '');
     end;
 
     [Test]
@@ -264,39 +270,32 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         Initialize();
         CreateJobPlanningLine(JobPlanningLine, false);
-
-        with JobPlanningLine do begin
-            // Verify that Qty. to Transfer is set correctly when Line Type is Billable.
-            CreateJobPlanningLineInvoice(JobPlanningLineInvoice, JobPlanningLine, LibraryRandom.RandInt(Quantity));
-            Validate("Line Type", "Line Type"::Billable);
-            Assert.AreEqual("Qty. to Transfer to Invoice", Quantity - "Qty. Transferred to Invoice",
-              'Qty. to Transfer was not set correctly when Line Type is Billable.');
-
-            // Verify that Qty. to Transfer is updated correctly when Qty. Transferred changes.
-            JobPlanningLineInvoice."Quantity Transferred" := LibraryRandom.RandInt(Quantity);
-            JobPlanningLineInvoice.Modify();
-            UpdateQtyToTransfer();
-            Assert.AreEqual("Qty. to Transfer to Invoice", Quantity - "Qty. Transferred to Invoice",
-              'Qty. to Transfer was not updated correctly when Qty Transferred changed.');
-
-            // Verify that Qty. to Transfer is updated correctly when Quantity changes.
-            Validate(Quantity, JobPlanningLineInvoice."Quantity Transferred" + LibraryRandom.RandInt(100));
-            Assert.AreEqual("Qty. to Transfer to Invoice", Quantity - "Qty. Transferred to Invoice",
-              'Qty. to Transfer was not updated correctly when Quantity changed.');
-
-            // Verify that Qty. to Transfer is set correctly when Line Type is Schedule.
-            JobPlanningLineInvoice.Delete();
-            CalcFields("Qty. Transferred to Invoice", "Qty. Invoiced");
-            Validate("Line Type", "Line Type"::Budget);
-            Assert.AreEqual("Qty. to Transfer to Invoice", 0,
-              'Qty. to Transfer was not set correctly when Line Type is Schedule.');
-
-            // Verify that Qty. to Transfer is set correctly when Line Type is Both Schedule and Billable.
-            Validate("Line Type", "Line Type"::"Both Budget and Billable");
-            CreateJobPlanningLineInvoice(JobPlanningLineInvoice, JobPlanningLine, LibraryRandom.RandInt(Quantity));
-            Assert.AreEqual("Qty. to Transfer to Invoice", Quantity - "Qty. Transferred to Invoice",
-              'Qty. to Transfer was not set correctly when Line Type is Both Schedule and Billable.');
-        end;
+        // Verify that Qty. to Transfer is set correctly when Line Type is Billable.
+        CreateJobPlanningLineInvoice(JobPlanningLineInvoice, JobPlanningLine, LibraryRandom.RandInt(JobPlanningLine.Quantity));
+        JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::Billable);
+        Assert.AreEqual(JobPlanningLine."Qty. to Transfer to Invoice", JobPlanningLine.Quantity - JobPlanningLine."Qty. Transferred to Invoice",
+          'Qty. to Transfer was not set correctly when Line Type is Billable.');
+        // Verify that Qty. to Transfer is updated correctly when Qty. Transferred changes.
+        JobPlanningLineInvoice."Quantity Transferred" := LibraryRandom.RandInt(JobPlanningLine.Quantity);
+        JobPlanningLineInvoice.Modify();
+        JobPlanningLine.UpdateQtyToTransfer();
+        Assert.AreEqual(JobPlanningLine."Qty. to Transfer to Invoice", JobPlanningLine.Quantity - JobPlanningLine."Qty. Transferred to Invoice",
+          'Qty. to Transfer was not updated correctly when Qty Transferred changed.');
+        // Verify that Qty. to Transfer is updated correctly when Quantity changes.
+        JobPlanningLine.Validate(Quantity, JobPlanningLineInvoice."Quantity Transferred" + LibraryRandom.RandInt(100));
+        Assert.AreEqual(JobPlanningLine."Qty. to Transfer to Invoice", JobPlanningLine.Quantity - JobPlanningLine."Qty. Transferred to Invoice",
+          'Qty. to Transfer was not updated correctly when Quantity changed.');
+        // Verify that Qty. to Transfer is set correctly when Line Type is Schedule.
+        JobPlanningLineInvoice.Delete();
+        JobPlanningLine.CalcFields("Qty. Transferred to Invoice", "Qty. Invoiced");
+        JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::Budget);
+        Assert.AreEqual(JobPlanningLine."Qty. to Transfer to Invoice", 0,
+          'Qty. to Transfer was not set correctly when Line Type is Schedule.');
+        // Verify that Qty. to Transfer is set correctly when Line Type is Both Schedule and Billable.
+        JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::"Both Budget and Billable");
+        CreateJobPlanningLineInvoice(JobPlanningLineInvoice, JobPlanningLine, LibraryRandom.RandInt(JobPlanningLine.Quantity));
+        Assert.AreEqual(JobPlanningLine."Qty. to Transfer to Invoice", JobPlanningLine.Quantity - JobPlanningLine."Qty. Transferred to Invoice",
+          'Qty. to Transfer was not set correctly when Line Type is Both Schedule and Billable.');
     end;
 
     [Test]
@@ -308,26 +307,21 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         Initialize();
         CreateJobPlanningLine(JobPlanningLine, false);
-
-        with JobPlanningLine do begin
-            // Verify that Qty. to Invoice is set correctly when Line Type is Billable.
-            CreateJobPlanningLineInvoice(JobPlanningLineInvoice, JobPlanningLine, LibraryRandom.RandInt(Quantity));
-            Validate("Line Type", "Line Type"::Billable);
-            Assert.AreEqual("Qty. to Invoice", Quantity - "Qty. Invoiced",
-              'Qty. to Invoice was not set correctly when Line Type is Billable.');
-
-            // Verify that Qty. to Invoice is set correctly when Line Type is Schedule.
-            JobPlanningLineInvoice.Delete();
-            CalcFields("Qty. Transferred to Invoice", "Qty. Invoiced");
-            Validate("Line Type", "Line Type"::Budget);
-            Assert.AreEqual("Qty. to Invoice", 0,
-              'Qty. to Invoice was not set correctly when Line Type is Schedule.');
-
-            // Verify that Qty. to Invoice is set correctly when Line Type is Both Schedule and Billable.
-            Validate("Line Type", "Line Type"::"Both Budget and Billable");
-            Assert.AreEqual("Qty. to Invoice", Quantity - "Qty. Invoiced",
-              'Qty. to Invoice was not set correctly when Line Type is Both Schedule and Billable.');
-        end;
+        // Verify that Qty. to Invoice is set correctly when Line Type is Billable.
+        CreateJobPlanningLineInvoice(JobPlanningLineInvoice, JobPlanningLine, LibraryRandom.RandInt(JobPlanningLine.Quantity));
+        JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::Billable);
+        Assert.AreEqual(JobPlanningLine."Qty. to Invoice", JobPlanningLine.Quantity - JobPlanningLine."Qty. Invoiced",
+          'Qty. to Invoice was not set correctly when Line Type is Billable.');
+        // Verify that Qty. to Invoice is set correctly when Line Type is Schedule.
+        JobPlanningLineInvoice.Delete();
+        JobPlanningLine.CalcFields("Qty. Transferred to Invoice", "Qty. Invoiced");
+        JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::Budget);
+        Assert.AreEqual(JobPlanningLine."Qty. to Invoice", 0,
+          'Qty. to Invoice was not set correctly when Line Type is Schedule.');
+        // Verify that Qty. to Invoice is set correctly when Line Type is Both Schedule and Billable.
+        JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::"Both Budget and Billable");
+        Assert.AreEqual(JobPlanningLine."Qty. to Invoice", JobPlanningLine.Quantity - JobPlanningLine."Qty. Invoiced",
+          'Qty. to Invoice was not set correctly when Line Type is Both Schedule and Billable.');
     end;
 
     [Test]
@@ -353,34 +347,31 @@ codeunit 136353 "UT T Job Planning Line"
 
         JobPlanningLine.Use(
           QtyToPost, TotalCostToPost, LineAmountToPost, JobPlanningLine."Currency Date", JobPlanningLine."Currency Factor");
-
-        with JobPlanningLine do begin
-            // Verify that Quantities, Total Costs and Line Amounts are updated correctly after posting usage.
-            Assert.AreEqual(Quantity - "Qty. Posted", "Remaining Qty.",
-              'Remaining Qty. has wrong value after posting usage.');
-            Assert.AreEqual(Round("Remaining Qty." * "Qty. per Unit of Measure", 0.00001), "Remaining Qty. (Base)",
-              'Remaining Qty. (Base) has wrong value after posting usage.');
-            Assert.AreEqual(QtyToPost, "Qty. Posted",
-              'Qty. Posted has wrong value after posting usage.');
-            Assert.AreEqual(Quantity - "Qty. Posted", "Qty. to Transfer to Journal",
-              'Qty. to Post has wrong value after posting usage.');
-            Assert.AreNearlyEqual("Remaining Qty." * "Unit Cost", "Remaining Total Cost", 0.01,
-              'Remaining Total Cost has wrong value after posting usage.');
-            Assert.AreNearlyEqual("Remaining Qty." * "Unit Cost (LCY)", "Remaining Total Cost (LCY)", 0.01,
-              'Remaining Total Cost (LCY) has wrong value after posting usage.');
-            Assert.AreNearlyEqual(HelperCalcLineAmount(JobPlanningLine, "Remaining Qty."), "Remaining Line Amount", 0.01,
-              'Remaining Line Amount has wrong value after posting usage.');
-            Assert.AreNearlyEqual(HelperCalcLineAmountLCY(JobPlanningLine, "Remaining Qty."), "Remaining Line Amount (LCY)", 0.01,
-              'Remaining Line Amount (LCY) has wrong value after posting usage.');
-            Assert.AreNearlyEqual(TotalCostToPost, "Posted Total Cost", 0.01,
-              'Posted Total Cost has wrong value after posting usage.');
-            Assert.AreNearlyEqual(TotalCostToPostLCY, "Posted Total Cost (LCY)", 0.01,
-              'Posted Total Cost (LCY) has wrong value after posting usage.');
-            Assert.AreNearlyEqual(LineAmountToPost, "Posted Line Amount", 0.01,
-              'Posted Line Amount has wrong value after posting usage.');
-            Assert.AreNearlyEqual(LineAmountToPostLCY, "Posted Line Amount (LCY)", 0.01,
-              'Posted Line Amount (LCY) has wrong value after posting usage.');
-        end;
+        // Verify that Quantities, Total Costs and Line Amounts are updated correctly after posting usage.
+        Assert.AreEqual(JobPlanningLine.Quantity - JobPlanningLine."Qty. Posted", JobPlanningLine."Remaining Qty.",
+          'Remaining Qty. has wrong value after posting usage.');
+        Assert.AreEqual(Round(JobPlanningLine."Remaining Qty." * JobPlanningLine."Qty. per Unit of Measure", 0.00001), JobPlanningLine."Remaining Qty. (Base)",
+          'Remaining Qty. (Base) has wrong value after posting usage.');
+        Assert.AreEqual(QtyToPost, JobPlanningLine."Qty. Posted",
+          'Qty. Posted has wrong value after posting usage.');
+        Assert.AreEqual(JobPlanningLine.Quantity - JobPlanningLine."Qty. Posted", JobPlanningLine."Qty. to Transfer to Journal",
+          'Qty. to Post has wrong value after posting usage.');
+        Assert.AreNearlyEqual(JobPlanningLine."Remaining Qty." * JobPlanningLine."Unit Cost", JobPlanningLine."Remaining Total Cost", 0.01,
+          'Remaining Total Cost has wrong value after posting usage.');
+        Assert.AreNearlyEqual(JobPlanningLine."Remaining Qty." * JobPlanningLine."Unit Cost (LCY)", JobPlanningLine."Remaining Total Cost (LCY)", 0.01,
+          'Remaining Total Cost (LCY) has wrong value after posting usage.');
+        Assert.AreNearlyEqual(HelperCalcLineAmount(JobPlanningLine, JobPlanningLine."Remaining Qty."), JobPlanningLine."Remaining Line Amount", 0.01,
+          'Remaining Line Amount has wrong value after posting usage.');
+        Assert.AreNearlyEqual(HelperCalcLineAmountLCY(JobPlanningLine, JobPlanningLine."Remaining Qty."), JobPlanningLine."Remaining Line Amount (LCY)", 0.01,
+          'Remaining Line Amount (LCY) has wrong value after posting usage.');
+        Assert.AreNearlyEqual(TotalCostToPost, JobPlanningLine."Posted Total Cost", 0.01,
+          'Posted Total Cost has wrong value after posting usage.');
+        Assert.AreNearlyEqual(TotalCostToPostLCY, JobPlanningLine."Posted Total Cost (LCY)", 0.01,
+          'Posted Total Cost (LCY) has wrong value after posting usage.');
+        Assert.AreNearlyEqual(LineAmountToPost, JobPlanningLine."Posted Line Amount", 0.01,
+          'Posted Line Amount has wrong value after posting usage.');
+        Assert.AreNearlyEqual(LineAmountToPostLCY, JobPlanningLine."Posted Line Amount (LCY)", 0.01,
+          'Posted Line Amount (LCY) has wrong value after posting usage.');
     end;
 
     [Test]
@@ -517,7 +508,7 @@ codeunit 136353 "UT T Job Planning Line"
         Assert.ExpectedError(CannotRemoveJobPlanningLineErr);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountPctInJobPlanningLineWhenAllowLineDiscDefinedInCustPriceGroup()
@@ -1030,14 +1021,11 @@ codeunit 136353 "UT T Job Planning Line"
         // [FEATURE] [Item Variant]
         // [SCENARIO 210300] Item Variant description should be copied to Job Planning Line description if Variant Code is not blank.
         Initialize();
-
         // [GIVEN] Item Variant "X" with Description = "D1" and "Description 2" = "D2".
-        with ItemVariant do begin
-            LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo());
-            Validate(Description, LibraryUtility.GenerateGUID());
-            Validate("Description 2", LibraryUtility.GenerateGUID());
-            Modify(true);
-        end;
+        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo());
+        ItemVariant.Validate(Description, LibraryUtility.GenerateGUID());
+        ItemVariant.Validate("Description 2", LibraryUtility.GenerateGUID());
+        ItemVariant.Modify(true);
 
         // [GIVEN] Job Planning Line.
         CreateJobPlanningLine(JobPlanningLine, false);
@@ -1051,7 +1039,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLine.TestField("Description 2", ItemVariant."Description 2");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure NoLineDiscountInJobPlanningLineWhenNoAllowLineDiscInSalesPriceForAllCustomersAndVariant()
@@ -1554,13 +1542,13 @@ codeunit 136353 "UT T Job Planning Line"
         Item: Record Item;
         Job: Record Job;
         JobTask: Record "Job Task";
-#if not CLEAN23
+#if not CLEAN25
         JobItemPrice: Record "Job Item Price";
 #else
         PriceListLine: Record "Price List Line";
 #endif
         JobPlanningLine: Record "Job Planning Line";
-#if CLEAN23        
+#if CLEAN25        
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
 #endif
         CostFactor: Decimal;
@@ -1577,7 +1565,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [GIVEN] Price line for Job and Item, where "Cost Factor" is set
         CostFactor := LibraryRandom.RandDec(10, 1);
         Item.Get(JobPlanningLine."No.");
-#if not CLEAN23
+#if not CLEAN25
         LibraryJob.CreateJobItemPrice(
             JobItemPrice, Job."No.", JobTask."Job Task No.", JobPlanningLine."No.", '', '', Item."Base Unit of Measure");
         JobItemPrice.Validate("Unit Cost Factor", CostFactor);
@@ -1764,7 +1752,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobCard.Close();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
 #pragma warning disable AS0072
     [Test]
     [Obsolete('Not used.', '23.0')]
@@ -1918,7 +1906,7 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT T Job Planning Line");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure SetupLineDiscScenario(var JobPlanningLine: Record "Job Planning Line"; var SalesLineDiscount: Record "Sales Line Discount"; JobTask: Record "Job Task"; CustNo: Code[20]; CustomerPriceGroupCode: Code[10])
     var
         Item: Record Item;
@@ -1952,6 +1940,25 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("Unit Price", JobPlanningLine."Unit Cost" * (1 + LibraryRandom.RandInt(100) / 100));
         JobPlanningLine.Modify();
+    end;
+
+    local procedure CreateJobPlanningLineWithAttachedLines(var JobPlanningLine: Record "Job Planning Line")
+    begin
+        CreateJobPlanningLine(JobPlanningLine, true);
+        CreateAttachedJobPlanningLine(JobPlanningLine);
+    end;
+
+    local procedure CreateAttachedJobPlanningLine(AttachedToJobPlanningLine: Record "Job Planning Line")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        JobPlanningLine.Init();
+        JobPlanningLine.Validate("Job No.", AttachedToJobPlanningLine."Job No.");
+        JobPlanningLine.Validate("Job Task No.", AttachedToJobPlanningLine."Job Task No.");
+        JobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Text);
+        JobPlanningLine."Attached to Line No." := AttachedToJobPlanningLine."Line No.";
+        JobPlanningLine.Insert(true);
     end;
 
     local procedure CreateTwoJobsWithJobPlanningLines(var JobNo: Code[20]; var SecondJobNo: Code[20])
@@ -2071,7 +2078,7 @@ codeunit 136353 "UT T Job Planning Line"
         ArrAmount[9] := JobPlanningLine."Line Amount";
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateJobGLAccPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; JobTaskNo: Code[20]; GLAccountNo: Code[20])
     begin
         LibraryJob.CreateJobGLAccountPrice(
@@ -2100,7 +2107,7 @@ codeunit 136353 "UT T Job Planning Line"
         MockJobLedgEntry(Job."No.", ArrAmount[11], -ArrAmount[12], JobLedgerEntry.Type::"G/L Account", JobLedgerEntry."Entry Type"::Sale);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateLineDiscForCustomer(var SalesLineDiscount: Record "Sales Line Discount"; Item: Record Item; CustNo: Code[20])
     begin
         LibraryERM.CreateLineDiscForCustomer(

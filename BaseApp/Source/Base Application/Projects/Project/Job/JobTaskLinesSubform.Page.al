@@ -277,7 +277,7 @@ page 1001 "Job Task Lines Subform"
                 Caption = 'Line';
                 group("&Job")
                 {
-                    Caption = '&Project';
+                    Caption = '&Project Task';
                     Image = Job;
                     action(JobPlanningLines)
                     {
@@ -306,6 +306,16 @@ page 1001 "Job Task Lines Subform"
                             JobPlanningLines.Editable := true;
                             JobPlanningLines.Run();
                         end;
+                    }
+                    action(JobTaskStatistics)
+                    {
+                        ApplicationArea = Jobs;
+                        Caption = 'Statistics';
+                        Image = StatisticsDocument;
+                        RunObject = Page "Job Task Statistics";
+                        RunPageLink = "Job No." = field("Job No."),
+                                  "Job Task No." = field("Job Task No.");
+                        ToolTip = 'View statistics for the project task.';
                     }
                 }
                 group("&Dimensions")
@@ -571,11 +581,13 @@ page 1001 "Job Task Lines Subform"
     var
         DescriptionIndent: Integer;
         StyleIsStrong: Boolean;
-        PerTaskBillingFieldsVisible: Boolean;
         PostingTypeRow: Boolean;
 #if not CLEAN24
         RefreshCustomerControl: Boolean;
 #endif
+
+    protected var
+        PerTaskBillingFieldsVisible: Boolean;
 
     procedure SetPerTaskBillingFieldsVisible(Visible: Boolean)
     begin

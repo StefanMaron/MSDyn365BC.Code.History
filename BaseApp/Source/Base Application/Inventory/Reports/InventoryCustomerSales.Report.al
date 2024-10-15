@@ -121,6 +121,8 @@ report 713 "Inventory - Customer Sales"
 
     requestpage
     {
+        AboutTitle = 'About Inventory Customer Sales';
+        AboutText = 'Analyse your customer sales per item to understand sales trends, optimise inventory management and improve marketing efforts. Assess the relationship between discounts, sales amount and volume of sales for each customer/item combination in the given period.';
 
         layout
         {

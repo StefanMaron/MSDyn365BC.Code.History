@@ -197,13 +197,6 @@ codeunit 423 "Change Log Management"
            Database::"Change Log Setup",
            Database::"Change Log Setup (Table)",
            Database::"Change Log Setup (Field)",
-#if not CLEAN22
-           Database::"User Group",
-           Database::"User Group Member",
-           Database::"User Group Access Control",
-           Database::"User Group Permission Set",
-           Database::"User Group Plan",
-#endif
            9004, // Plan
            9005, // UserPlan
            Database::"Tenant Permission Set Rel.",

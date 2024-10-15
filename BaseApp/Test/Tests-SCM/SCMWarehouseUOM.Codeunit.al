@@ -3259,8 +3259,7 @@ codeunit 137150 "SCM Warehouse UOM"
         // [WHEN] Try to register Pick
 
         // [THEN] Error 'Quantity (Base) available must not be less than ...' occurs.
-        with WarehouseActivityLineTake do
-            asserterror RegisterWarehouseActivity("Source Document"::"Sales Order", SalesHeader."No.", "Activity Type"::Pick);
+        asserterror RegisterWarehouseActivity(WarehouseActivityLineTake."Source Document"::"Sales Order", SalesHeader."No.", WarehouseActivityLineTake."Activity Type"::Pick);
 
         Assert.ExpectedError(QuantityBaseAvailableMustNotBeLessErr);
 
@@ -3393,7 +3392,10 @@ codeunit 137150 "SCM Warehouse UOM"
         // [THEN] Receive bin is empty.
         FindBin(Bin, Location.Code, true, false, false);
         FindBinContent(BinContent, Bin, Item."No.");
-        Assert.RecordIsEmpty(BinContent);
+        if BinContent.FindFirst() then begin
+            BinContent.CalcFields(Quantity);
+            Assert.AreEqual(0, BinContent.Quantity, 'Bin Content must be empty.');
+        end;
     end;
 
     [Test]
@@ -3662,27 +3664,20 @@ codeunit 137150 "SCM Warehouse UOM"
         // [GIVEN] Set "I"."Overhead Rate" = 10.
         Item.Validate("Overhead Rate", LibraryRandom.RandDecInRange(10, 20, 2));
         Item.Modify(true);
-
-        with PlanningComponent do begin
-            // [GIVEN] Planning component for 10 "PCS" of item "I" and "Unit Cost" = 200.
-            LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
-            LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
-            LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
-            Validate("Item No.", Item."No.");
-            Validate(Quantity, LibraryRandom.RandInt(10));
-
-            // [WHEN] Change "Unit of Measure Code" on the planning component to "PALLET".
-            Validate("Unit of Measure Code", AlternateItemUnitOfMeasure.Code);
-
-            // [THEN] "Unit Cost" is recalculated to 200 * 20 = 4000.
-            TestField("Unit Cost", UnitCost * "Qty. per Unit of Measure");
-
-            // [THEN] "Overhead Rate" has not been recalculated and remains equal to 10.
-            TestField("Overhead Rate", Item."Overhead Rate");
-
-            // [THEN] "Direct Unit Cost" is on the planning component is equal to 20 * (200 - 10) = 3800.
-            TestField("Direct Unit Cost", "Unit Cost" - "Overhead Rate" * "Qty. per Unit of Measure");
-        end;
+        // [GIVEN] Planning component for 10 "PCS" of item "I" and "Unit Cost" = 200.
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
+        PlanningComponent.Validate("Item No.", Item."No.");
+        PlanningComponent.Validate(Quantity, LibraryRandom.RandInt(10));
+        // [WHEN] Change "Unit of Measure Code" on the planning component to "PALLET".
+        PlanningComponent.Validate("Unit of Measure Code", AlternateItemUnitOfMeasure.Code);
+        // [THEN] "Unit Cost" is recalculated to 200 * 20 = 4000.
+        PlanningComponent.TestField("Unit Cost", UnitCost * PlanningComponent."Qty. per Unit of Measure");
+        // [THEN] "Overhead Rate" has not been recalculated and remains equal to 10.
+        PlanningComponent.TestField("Overhead Rate", Item."Overhead Rate");
+        // [THEN] "Direct Unit Cost" is on the planning component is equal to 20 * (200 - 10) = 3800.
+        PlanningComponent.TestField("Direct Unit Cost", PlanningComponent."Unit Cost" - PlanningComponent."Overhead Rate" * PlanningComponent."Qty. per Unit of Measure");
     end;
 
     [Test]
@@ -3706,26 +3701,20 @@ codeunit 137150 "SCM Warehouse UOM"
         // [GIVEN] Set "I"."Overhead Rate" = 10.
         Item.Validate("Overhead Rate", LibraryRandom.RandDecInRange(10, 20, 2));
         Item.Modify(true);
-
-        with PlanningComponent do begin
-            // [GIVEN] Planning Component for 10 "PCS" of item "I".
-            // [GIVEN] "Unit of Measure Code" on the planning component is changed to "PALLET".
-            LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
-            LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
-            LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
-            Validate("Item No.", Item."No.");
-            Validate(Quantity, LibraryRandom.RandInt(10));
-            Validate("Unit of Measure Code", AlternateItemUnitOfMeasure.Code);
-
-            // [WHEN] Set "Expected Quantity" on the planning component to 5 "PALLET".
-            Validate("Expected Quantity", LibraryRandom.RandIntInRange(2, 5));
-
-            // [THEN] "Overhead Rate" has not been recalculated and remains equal to 10.
-            TestField("Overhead Rate", Item."Overhead Rate");
-
-            // [THEN] "Overhead Amount" on the planning component is equal to 5 * 10 * 20 = 1000.
-            TestField("Overhead Amount", "Expected Quantity" * "Overhead Rate" * "Qty. per Unit of Measure");
-        end;
+        // [GIVEN] Planning Component for 10 "PCS" of item "I".
+        // [GIVEN] "Unit of Measure Code" on the planning component is changed to "PALLET".
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
+        PlanningComponent.Validate("Item No.", Item."No.");
+        PlanningComponent.Validate(Quantity, LibraryRandom.RandInt(10));
+        PlanningComponent.Validate("Unit of Measure Code", AlternateItemUnitOfMeasure.Code);
+        // [WHEN] Set "Expected Quantity" on the planning component to 5 "PALLET".
+        PlanningComponent.Validate("Expected Quantity", LibraryRandom.RandIntInRange(2, 5));
+        // [THEN] "Overhead Rate" has not been recalculated and remains equal to 10.
+        PlanningComponent.TestField("Overhead Rate", Item."Overhead Rate");
+        // [THEN] "Overhead Amount" on the planning component is equal to 5 * 10 * 20 = 1000.
+        PlanningComponent.TestField("Overhead Amount", PlanningComponent."Expected Quantity" * PlanningComponent."Overhead Rate" * PlanningComponent."Qty. per Unit of Measure");
     end;
 
     [Test]
@@ -4111,40 +4100,38 @@ codeunit 137150 "SCM Warehouse UOM"
         Counter: Integer;
         UseBaseUOM: Boolean;
     begin
-        with ItemUnitOfMeasure do begin
-            SetCurrentKey("Item No.", "Qty. per Unit of Measure");
-            SetRange("Item No.", Item."No.");
-            SetFilter(Code, '<>' + Item."Base Unit of Measure");
-            Ascending(false);
-            FindSet();
-        end;
-        with TempWarehouseEntry do begin
-            if UseLots then
-                "Lot No." := LibraryUtility.GenerateGUID();
-            for Counter := 1 to NumberOfBins do begin
-                "Entry No." += 1;
-                "Line No." += 10000;
-                Dedicated := true; // "New Line" flag
-                "Location Code" := LocationWhite.Code;
-                "Item No." := Item."No.";
+        ItemUnitOfMeasure.SetCurrentKey("Item No.", "Qty. per Unit of Measure");
+        ItemUnitOfMeasure.SetRange("Item No.", Item."No.");
+        ItemUnitOfMeasure.SetFilter(Code, '<>' + Item."Base Unit of Measure");
+        ItemUnitOfMeasure.Ascending(false);
+        ItemUnitOfMeasure.FindSet();
+        if UseLots then
+            TempWarehouseEntry."Lot No." := LibraryUtility.GenerateGUID();
+        for Counter := 1 to NumberOfBins do begin
+            TempWarehouseEntry."Entry No." += 1;
+            TempWarehouseEntry."Line No." += 10000;
+            TempWarehouseEntry.Dedicated := true;
+            // "New Line" flag
+            TempWarehouseEntry."Location Code" := LocationWhite.Code;
+            TempWarehouseEntry."Item No." := Item."No.";
 
-                if UseBaseUOM then begin
-                    "Unit of Measure Code" := Item."Base Unit of Measure";
-                    "Qty. per Unit of Measure" := 1;
-                end else begin
-                    "Unit of Measure Code" := ItemUnitOfMeasure.Code;
-                    "Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
-                end;
-                UseBaseUOM := ItemUnitOfMeasure.Next() = 0;
-
-                Validate(Quantity, 10 * LibraryRandom.RandIntInRange(1, 10));
-                if UseLots and (NumberOfEqualLots <= 0) then
-                    "Lot No." := LibraryUtility.GenerateGUID();
-                FindNextBin("Bin Code", Bin, LocationWhite.Code, false, true, true);  // Find PICK Bin.
-                Validate("Bin Code", Bin.Code);
-                Insert();
-                NumberOfEqualLots -= 1;
+            if UseBaseUOM then begin
+                TempWarehouseEntry."Unit of Measure Code" := Item."Base Unit of Measure";
+                TempWarehouseEntry."Qty. per Unit of Measure" := 1;
+            end else begin
+                TempWarehouseEntry."Unit of Measure Code" := ItemUnitOfMeasure.Code;
+                TempWarehouseEntry."Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
             end;
+            UseBaseUOM := ItemUnitOfMeasure.Next() = 0;
+
+            TempWarehouseEntry.Validate(Quantity, 10 * LibraryRandom.RandIntInRange(1, 10));
+            if UseLots and (NumberOfEqualLots <= 0) then
+                TempWarehouseEntry."Lot No." := LibraryUtility.GenerateGUID();
+            FindNextBin(TempWarehouseEntry."Bin Code", Bin, LocationWhite.Code, false, true, true);
+            // Find PICK Bin.
+            TempWarehouseEntry.Validate("Bin Code", Bin.Code);
+            TempWarehouseEntry.Insert();
+            NumberOfEqualLots -= 1;
         end;
     end;
 
@@ -4155,14 +4142,12 @@ codeunit 137150 "SCM Warehouse UOM"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
-        with TempWarehouseEntry do begin
-            FindSet();
-            repeat
-                CreatePurchaseLineWithUOMAndLotNo(
-                  PurchaseLine, PurchaseHeader, "Item No.", "Unit of Measure Code", "Location Code",
-                  Quantity, "Lot No.");
-            until Next() = 0;
-        end;
+        TempWarehouseEntry.FindSet();
+        repeat
+            CreatePurchaseLineWithUOMAndLotNo(
+              PurchaseLine, PurchaseHeader, TempWarehouseEntry."Item No.", TempWarehouseEntry."Unit of Measure Code", TempWarehouseEntry."Location Code",
+              TempWarehouseEntry.Quantity, TempWarehouseEntry."Lot No.");
+        until TempWarehouseEntry.Next() = 0;
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseHeader);
         PlaceToBinsAndRegisterWarehouseActivity(
@@ -4175,26 +4160,25 @@ codeunit 137150 "SCM Warehouse UOM"
         QtyToShipBase: Decimal;
         FirstLotNo: Code[50];
     begin
-        with TempWarehouseEntry do begin
-            Reset();
-            FindFirst();
-            // First line
-            FirstLotNo := "Lot No.";
-            QtyToShipBase := "Qty. per Unit of Measure" - 1;
-            SetQtyAndLotValues(TempWarehouseEntry, Quantity - 1, '');
-            Modify();
-            Next();
-            // Second line
-            SetQtyAndLotValues(
-              TempWarehouseEntry, Quantity + Round(QtyToShipBase / "Qty. per Unit of Measure", 0.00001), '');
-            Modify();
-            FindLast();
-            // Last line
-            "Entry No." += 1;
-            Dedicated := false; // "New Line" flag
-            SetQtyAndLotValues(TempWarehouseEntry, Round(1 / "Qty. per Unit of Measure", 0.00001), FirstLotNo);
-            Insert();
-        end;
+        TempWarehouseEntry.Reset();
+        TempWarehouseEntry.FindFirst();
+        // First line
+        FirstLotNo := TempWarehouseEntry."Lot No.";
+        QtyToShipBase := TempWarehouseEntry."Qty. per Unit of Measure" - 1;
+        SetQtyAndLotValues(TempWarehouseEntry, TempWarehouseEntry.Quantity - 1, '');
+        TempWarehouseEntry.Modify();
+        TempWarehouseEntry.Next();
+        // Second line
+        SetQtyAndLotValues(
+          TempWarehouseEntry, TempWarehouseEntry.Quantity + Round(QtyToShipBase / TempWarehouseEntry."Qty. per Unit of Measure", 0.00001), '');
+        TempWarehouseEntry.Modify();
+        TempWarehouseEntry.FindLast();
+        // Last line
+        TempWarehouseEntry."Entry No." += 1;
+        TempWarehouseEntry.Dedicated := false;
+        // "New Line" flag
+        SetQtyAndLotValues(TempWarehouseEntry, Round(1 / TempWarehouseEntry."Qty. per Unit of Measure", 0.00001), FirstLotNo);
+        TempWarehouseEntry.Insert();
     end;
 
     local procedure CreateAndReleaseTransferOrderWithData(var TransferHeader: Record "Transfer Header"; var TempWarehouseEntry: Record "Warehouse Entry" temporary; ToLocationCode: Code[10]; LotsAssignment: Option Partial,Complete)
@@ -4203,34 +4187,32 @@ codeunit 137150 "SCM Warehouse UOM"
         PartQuantity: Decimal;
     begin
         LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationWhite.Code, ToLocationCode, LocationIntransit.Code);
-        with TempWarehouseEntry do begin
-            FindSet();
-            repeat
-                ProcessTransferLineWithData(TempWarehouseEntry, TransferHeader, TransferLine);
-                case LotsAssignment of
-                    LotsAssignment::Partial:
-                        begin
-                            PartQuantity := LibraryRandom.RandIntInRange(1, Quantity * TransferLine."Qty. per Unit of Measure");
-                            LibraryVariableStorage.Enqueue(ItemTrackingLineHandling::Create);
-                            LibraryVariableStorage.Enqueue("Lot No.");
-                            LibraryVariableStorage.Enqueue(PartQuantity);
-                            TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
+        TempWarehouseEntry.FindSet();
+        repeat
+            ProcessTransferLineWithData(TempWarehouseEntry, TransferHeader, TransferLine);
+            case LotsAssignment of
+                LotsAssignment::Partial:
+                    begin
+                        PartQuantity := LibraryRandom.RandIntInRange(1, TempWarehouseEntry.Quantity * TransferLine."Qty. per Unit of Measure");
+                        LibraryVariableStorage.Enqueue(ItemTrackingLineHandling::Create);
+                        LibraryVariableStorage.Enqueue(TempWarehouseEntry."Lot No.");
+                        LibraryVariableStorage.Enqueue(PartQuantity);
+                        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
 
-                            LibraryVariableStorage.Enqueue(ItemTrackingLineHandling::"Use Existing");
-                            LibraryVariableStorage.Enqueue("Lot No.");
-                            LibraryVariableStorage.Enqueue(Quantity * TransferLine."Qty. per Unit of Measure");
-                            TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
-                        end;
-                    LotsAssignment::Complete:
-                        begin
-                            LibraryVariableStorage.Enqueue(ItemTrackingLineHandling::Create);
-                            LibraryVariableStorage.Enqueue("Lot No.");
-                            LibraryVariableStorage.Enqueue(Quantity * TransferLine."Qty. per Unit of Measure");
-                            TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
-                        end;
-                end;
-            until Next() = 0;
-        end;
+                        LibraryVariableStorage.Enqueue(ItemTrackingLineHandling::"Use Existing");
+                        LibraryVariableStorage.Enqueue(TempWarehouseEntry."Lot No.");
+                        LibraryVariableStorage.Enqueue(TempWarehouseEntry.Quantity * TransferLine."Qty. per Unit of Measure");
+                        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
+                    end;
+                LotsAssignment::Complete:
+                    begin
+                        LibraryVariableStorage.Enqueue(ItemTrackingLineHandling::Create);
+                        LibraryVariableStorage.Enqueue(TempWarehouseEntry."Lot No.");
+                        LibraryVariableStorage.Enqueue(TempWarehouseEntry.Quantity * TransferLine."Qty. per Unit of Measure");
+                        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
+                    end;
+            end;
+        until TempWarehouseEntry.Next() = 0;
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
     end;
 
@@ -4246,38 +4228,33 @@ codeunit 137150 "SCM Warehouse UOM"
 
     local procedure ProcessTransferLineWithData(var TempWarehouseEntry: Record "Warehouse Entry" temporary; TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line")
     begin
-        with TempWarehouseEntry do begin
-            if Dedicated then begin // "New Line" flag
-                LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, "Item No.", Quantity);
-                TransferLine.Validate("Unit of Measure Code", "Unit of Measure Code");
-            end else
-                TransferLine.Validate(Quantity, TransferLine.Quantity + Quantity);
-        end;
+        if TempWarehouseEntry.Dedicated then begin
+            // "New Line" flag
+            LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, TempWarehouseEntry."Item No.", TempWarehouseEntry.Quantity);
+            TransferLine.Validate("Unit of Measure Code", TempWarehouseEntry."Unit of Measure Code");
+        end else
+            TransferLine.Validate(Quantity, TransferLine.Quantity + TempWarehouseEntry.Quantity);
         TransferLine.Modify();
     end;
 
     local procedure GetTotalBaseQtyOfData(var TempWarehouseEntry: Record "Warehouse Entry" temporary; var BinCodeFilter: Text) Result: Decimal
     begin
         BinCodeFilter := '<>''''';
-        with TempWarehouseEntry do begin
-            FindSet();
-            repeat
-                BinCodeFilter += '&<>' + "Bin Code";
-                Result += Quantity * "Qty. per Unit of Measure";
-            until Next() = 0;
-        end;
+        TempWarehouseEntry.FindSet();
+        repeat
+            BinCodeFilter += '&<>' + TempWarehouseEntry."Bin Code";
+            Result += TempWarehouseEntry.Quantity * TempWarehouseEntry."Qty. per Unit of Measure";
+        until TempWarehouseEntry.Next() = 0;
     end;
 
     local procedure GetTotalBaseQty(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; BinCodeFilter: Text) Result: Decimal
     begin
-        with RegisteredWhseActivityLine do begin
-            SetRange("Action Type", "Action Type"::Place);
-            SetFilter("Bin Code", BinCodeFilter);
-            FindSet();
-            repeat
-                Result += Quantity * "Qty. per Unit of Measure";
-            until Next() = 0;
-        end;
+        RegisteredWhseActivityLine.SetRange("Action Type", RegisteredWhseActivityLine."Action Type"::Place);
+        RegisteredWhseActivityLine.SetFilter("Bin Code", BinCodeFilter);
+        RegisteredWhseActivityLine.FindSet();
+        repeat
+            Result += RegisteredWhseActivityLine.Quantity * RegisteredWhseActivityLine."Qty. per Unit of Measure";
+        until RegisteredWhseActivityLine.Next() = 0;
     end;
 
     local procedure GetItemUOMCodeFilter(ItemNo: Code[20]) Result: Text
@@ -4285,13 +4262,11 @@ codeunit 137150 "SCM Warehouse UOM"
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
         Result := '<>''''';
-        with ItemUnitOfMeasure do begin
-            SetRange("Item No.", ItemNo);
-            FindSet();
-            repeat
-                Result += '&<>' + Code;
-            until Next() = 0;
-        end;
+        ItemUnitOfMeasure.SetRange("Item No.", ItemNo);
+        ItemUnitOfMeasure.FindSet();
+        repeat
+            Result += '&<>' + ItemUnitOfMeasure.Code;
+        until ItemUnitOfMeasure.Next() = 0;
     end;
 
     local procedure SetQtyAndLotValues(var TempWarehouseEntry: Record "Warehouse Entry" temporary; Qty: Decimal; LotNo: Code[50])
@@ -5002,13 +4977,11 @@ codeunit 137150 "SCM Warehouse UOM"
     begin
         FindBin(Bin, LocationWhite.Code, false, true, true); // Find PICK Bin.
         GetBinContentOnMovementWorksheet(WhseWorksheetLine, LocationCode, ItemNo);
-        with WhseWorksheetLine do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            Validate("To Zone Code", Bin."Zone Code");
-            Validate("To Bin Code", Bin.Code);
-            Modify(true);
-        end;
+        WhseWorksheetLine.SetRange("Item No.", ItemNo);
+        WhseWorksheetLine.FindFirst();
+        WhseWorksheetLine.Validate("To Zone Code", Bin."Zone Code");
+        WhseWorksheetLine.Validate("To Bin Code", Bin.Code);
+        WhseWorksheetLine.Modify(true);
         CreateMovement(WhseWorksheetLine, ItemNo, ItemTrackingMode::" ", false);
         RegisterWarehouseMovement(ItemNo, '');
     end;
@@ -5123,11 +5096,9 @@ codeunit 137150 "SCM Warehouse UOM"
         PurchaseHeader: Record "Purchase Header";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
     begin
-        with PurchaseHeader do begin
-            Init();
-            Validate("Document Type", "Document Type"::"Credit Memo");
-            Insert(true);
-        end;
+        PurchaseHeader.Init();
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::"Credit Memo");
+        PurchaseHeader.Insert(true);
 
         CopyDocMgt.SetProperties(true, false, false, false, false, false, false);
         CopyDocMgt.CopyPurchDoc("Purchase Document Type From"::"Posted Receipt", GetPurchRcptNo(PurchHeaderNo), PurchaseHeader);
@@ -5138,11 +5109,9 @@ codeunit 137150 "SCM Warehouse UOM"
         SalesHeader: Record "Sales Header";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
     begin
-        with SalesHeader do begin
-            Init();
-            Validate("Document Type", "Document Type"::"Credit Memo");
-            Insert(true);
-        end;
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        SalesHeader.Insert(true);
 
         CopyDocMgt.SetProperties(true, false, false, false, false, false, false);
         CopyDocMgt.CopySalesDoc("Sales Document Type From"::"Posted Invoice", GetSalesInvoiceNo(SalesHeaderNo), SalesHeader);
@@ -5169,19 +5138,17 @@ codeunit 137150 "SCM Warehouse UOM"
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
-        with WarehouseActivityLine do begin
-            SetRange("Action Type", "Action Type"::Place);
-            FindSet();
-            repeat
-                TempWarehouseEntry.SetRange("Line No.", "Source Line No.");
-                TempWarehouseEntry.FindFirst();
-                Validate(
-                  "Zone Code",
-                  LibraryWarehouse.GetZoneForBin(TempWarehouseEntry."Location Code", TempWarehouseEntry."Bin Code"));
-                Validate("Bin Code", TempWarehouseEntry."Bin Code");
-                Modify();
-            until Next() = 0;
-        end;
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.FindSet();
+        repeat
+            TempWarehouseEntry.SetRange("Line No.", WarehouseActivityLine."Source Line No.");
+            TempWarehouseEntry.FindFirst();
+            WarehouseActivityLine.Validate(
+              "Zone Code",
+              LibraryWarehouse.GetZoneForBin(TempWarehouseEntry."Location Code", TempWarehouseEntry."Bin Code"));
+            WarehouseActivityLine.Validate("Bin Code", TempWarehouseEntry."Bin Code");
+            WarehouseActivityLine.Modify();
+        until WarehouseActivityLine.Next() = 0;
         RegisterWarehouseActivity(SourceDocument, SourceNo, ActivityType);
     end;
 
@@ -5265,11 +5232,9 @@ codeunit 137150 "SCM Warehouse UOM"
         Bin: Record Bin;
     begin
         Clear(WarehouseActivityHeader);
-        with WarehouseActivityHeader do begin
-            Validate("Location Code", LocationWhite.Code);
-            Validate(Type, Type::Movement);
-            Insert(true);
-        end;
+        WarehouseActivityHeader.Validate("Location Code", LocationWhite.Code);
+        WarehouseActivityHeader.Validate(Type, WarehouseActivityHeader.Type::Movement);
+        WarehouseActivityHeader.Insert(true);
 
         FindBin(Bin, LocationWhite.Code, false, true, true); // Pick Bin
         MockWhseActivityLine(
@@ -5283,52 +5248,46 @@ codeunit 137150 "SCM Warehouse UOM"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            "Activity Type" := WarehouseActivityHeader.Type;
-            "No." := WarehouseActivityHeader."No.";
+        WarehouseActivityLine."Activity Type" := WarehouseActivityHeader.Type;
+        WarehouseActivityLine."No." := WarehouseActivityHeader."No.";
 
-            SetRange("Activity Type", "Activity Type");
-            SetRange("No.", "No.");
-            if FindLast() then;
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type");
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityLine."No.");
+        if WarehouseActivityLine.FindLast() then;
 
-            Init();
-            "Line No." := "Line No." + 10000;
-            "Action Type" := ActionType;
-            "Location Code" := WarehouseActivityHeader."Location Code";
-            "Bin Code" := BinCode;
-            "Item No." := ItemNo;
-            "Qty. (Base)" := QtyBase;
-            "Qty. to Handle (Base)" := QtyToHandleBase;
-            Insert();
-        end;
+        WarehouseActivityLine.Init();
+        WarehouseActivityLine."Line No." := WarehouseActivityLine."Line No." + 10000;
+        WarehouseActivityLine."Action Type" := ActionType;
+        WarehouseActivityLine."Location Code" := WarehouseActivityHeader."Location Code";
+        WarehouseActivityLine."Bin Code" := BinCode;
+        WarehouseActivityLine."Item No." := ItemNo;
+        WarehouseActivityLine."Qty. (Base)" := QtyBase;
+        WarehouseActivityLine."Qty. to Handle (Base)" := QtyToHandleBase;
+        WarehouseActivityLine.Insert();
     end;
 
     local procedure MockFinProdOrderLine(ItemNo: Code[20]; ItemUoMCode: Code[10])
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        with ProdOrderLine do begin
-            Init();
-            Status := Status::Finished;
-            "Item No." := ItemNo;
-            "Remaining Quantity" := LibraryRandom.RandInt(5);
-            "Unit of Measure Code" := ItemUoMCode;
-            Insert();
-        end;
+        ProdOrderLine.Init();
+        ProdOrderLine.Status := ProdOrderLine.Status::Finished;
+        ProdOrderLine."Item No." := ItemNo;
+        ProdOrderLine."Remaining Quantity" := LibraryRandom.RandInt(5);
+        ProdOrderLine."Unit of Measure Code" := ItemUoMCode;
+        ProdOrderLine.Insert();
     end;
 
     local procedure MockFinProdOrderComp(ItemNo: Code[20]; ItemUoMCode: Code[10])
     var
         ProdOrderComp: Record "Prod. Order Component";
     begin
-        with ProdOrderComp do begin
-            Init();
-            Status := Status::Finished;
-            "Item No." := ItemNo;
-            "Remaining Quantity" := LibraryRandom.RandInt(5);
-            "Unit of Measure Code" := ItemUoMCode;
-            Insert();
-        end;
+        ProdOrderComp.Init();
+        ProdOrderComp.Status := ProdOrderComp.Status::Finished;
+        ProdOrderComp."Item No." := ItemNo;
+        ProdOrderComp."Remaining Quantity" := LibraryRandom.RandInt(5);
+        ProdOrderComp."Unit of Measure Code" := ItemUoMCode;
+        ProdOrderComp.Insert();
     end;
 
     local procedure DeleteWarehouseActivity(ActivityType: Enum "Warehouse Activity Type"; No: Code[20])
@@ -5361,22 +5320,18 @@ codeunit 137150 "SCM Warehouse UOM"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        with SalesInvoiceHeader do begin
-            SetRange("Order No.", SalesHeaderNo);
-            FindFirst();
-            exit("No.");
-        end;
+        SalesInvoiceHeader.SetRange("Order No.", SalesHeaderNo);
+        SalesInvoiceHeader.FindFirst();
+        exit(SalesInvoiceHeader."No.");
     end;
 
     local procedure GetPurchRcptNo(PurchHeaderNo: Code[20]): Code[20]
     var
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
-        with PurchRcptHeader do begin
-            SetRange("Order No.", PurchHeaderNo);
-            FindFirst();
-            exit("No.");
-        end;
+        PurchRcptHeader.SetRange("Order No.", PurchHeaderNo);
+        PurchRcptHeader.FindFirst();
+        exit(PurchRcptHeader."No.");
     end;
 
     local procedure FillWhseItemTrackingLines(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines"; OldLotNo: Code[50]; Quantity: Decimal)
@@ -5426,11 +5381,9 @@ codeunit 137150 "SCM Warehouse UOM"
 
     local procedure FindBOMBufferLine(var BOMBuffer: Record "BOM Buffer"; ItemNo: Code[20])
     begin
-        with BOMBuffer do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
-        end;
+        BOMBuffer.SetRange(Type, BOMBuffer.Type::Item);
+        BOMBuffer.SetRange("No.", ItemNo);
+        BOMBuffer.FindFirst();
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10])
@@ -5456,13 +5409,11 @@ codeunit 137150 "SCM Warehouse UOM"
 
     local procedure FindWarehouseActivityLineForPick(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type")
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Source Document", SourceDocument);
-            SetRange("Source No.", SourceNo);
-            SetRange("Activity Type", ActivityType);
-            SetRange("Action Type", ActionType);
-            FindFirst();
-        end;
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityLinesPairForPick(var WarehouseActivityLineTake: Record "Warehouse Activity Line"; var WarehouseActivityLinePlace: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
@@ -5508,12 +5459,10 @@ codeunit 137150 "SCM Warehouse UOM"
 
     local procedure FindWarehousePickLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Source Document", SourceDocument);
-            SetRange("Item No.", ItemNo);
-            SetRange("Activity Type", ActivityType);
-            FindFirst();
-        end;
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
@@ -5592,16 +5541,14 @@ codeunit 137150 "SCM Warehouse UOM"
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
-        with RegisteredWhseActivityLine do begin
-            SetRange("Source Document", "Source Document"::"Sales Order");
-            SetRange("Source No.", DocNo);
-            SetRange("Activity Type", "Activity Type"::Pick);
-            SetRange("Action Type", "Action Type"::Take);
-            SetRange("Item No.", ItemNo);
-            SetRange("Unit of Measure Code", UOMCode);
-            CalcSums("Qty. (Base)");
-            exit("Qty. (Base)");
-        end;
+        RegisteredWhseActivityLine.SetRange("Source Document", RegisteredWhseActivityLine."Source Document"::"Sales Order");
+        RegisteredWhseActivityLine.SetRange("Source No.", DocNo);
+        RegisteredWhseActivityLine.SetRange("Activity Type", RegisteredWhseActivityLine."Activity Type"::Pick);
+        RegisteredWhseActivityLine.SetRange("Action Type", RegisteredWhseActivityLine."Action Type"::Take);
+        RegisteredWhseActivityLine.SetRange("Item No.", ItemNo);
+        RegisteredWhseActivityLine.SetRange("Unit of Measure Code", UOMCode);
+        RegisteredWhseActivityLine.CalcSums("Qty. (Base)");
+        exit(RegisteredWhseActivityLine."Qty. (Base)");
     end;
 
     local procedure RegisterPutAwayForItemWithTwoUOM(LocationCode: Code[10]; ItemNo: Code[20]; UnitOfMeasure1Code: Code[10]; Quantity1: Decimal; UnitOfMeasure2Code: Code[10]; Quantity2: Decimal)
@@ -5638,16 +5585,14 @@ codeunit 137150 "SCM Warehouse UOM"
         NewEntryNo: Integer;
     begin
         Bin.Get(LocationWhite.Code, LocationWhite."Adjustment Bin Code");
-        with WarehouseEntry do begin
-            FindLast();
-            NewEntryNo := "Entry No." + 1;
-            Init();
-            "Entry No." := NewEntryNo;
-            "Item No." := ItemUnitOfMeasure."Item No.";
-            "Unit of Measure Code" := ItemUnitOfMeasure.Code;
-            "Zone Code" := Bin."Zone Code";
-            Insert();
-        end;
+        WarehouseEntry.FindLast();
+        NewEntryNo := WarehouseEntry."Entry No." + 1;
+        WarehouseEntry.Init();
+        WarehouseEntry."Entry No." := NewEntryNo;
+        WarehouseEntry."Item No." := ItemUnitOfMeasure."Item No.";
+        WarehouseEntry."Unit of Measure Code" := ItemUnitOfMeasure.Code;
+        WarehouseEntry."Zone Code" := Bin."Zone Code";
+        WarehouseEntry.Insert();
     end;
 
     local procedure OpenProductionJournalForReleasedProductionOrder(ItemNo: Code[20])
@@ -5871,20 +5816,18 @@ codeunit 137150 "SCM Warehouse UOM"
     var
         WarehouseEmployee: Record "Warehouse Employee";
     begin
-        with WarehouseEmployee do begin
-            SetRange("User ID", UserId);
-            SetRange(Default, true);
-            FindFirst();
-            Validate(Default, false);
-            Modify(true);
-            PreviousDefaultLocationCode := "Location Code";
+        WarehouseEmployee.SetRange("User ID", UserId);
+        WarehouseEmployee.SetRange(Default, true);
+        WarehouseEmployee.FindFirst();
+        WarehouseEmployee.Validate(Default, false);
+        WarehouseEmployee.Modify(true);
+        PreviousDefaultLocationCode := WarehouseEmployee."Location Code";
 
-            SetRange(Default, false);
-            SetRange("Location Code", LocationCode);
-            FindFirst();
-            Validate(Default, true);
-            Modify(true);
-        end;
+        WarehouseEmployee.SetRange(Default, false);
+        WarehouseEmployee.SetRange("Location Code", LocationCode);
+        WarehouseEmployee.FindFirst();
+        WarehouseEmployee.Validate(Default, true);
+        WarehouseEmployee.Modify(true);
     end;
 
     local procedure UpdateExpirationCalculationOnItem(var Item: Record Item)
@@ -6400,14 +6343,12 @@ codeunit 137150 "SCM Warehouse UOM"
 
     local procedure FindWarehousePickTypeLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type")
     begin
-        with WarehouseActivityLine do begin
-            Reset();
-            SetRange("Source Document", SourceDocument);
-            SetRange("Item No.", ItemNo);
-            SetRange("Activity Type", ActivityType);
-            SetRange("Action Type", ActionType);
-            Findfirst();
-        end;
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Action Type", ActionType);
+        WarehouseActivityLine.Findfirst();
     end;
 
     local procedure CreateAndReleaseSalesOrderAtLocationWithAdditionalUoM(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; UoMCode: Code[10])
@@ -6447,19 +6388,17 @@ codeunit 137150 "SCM Warehouse UOM"
         CreatePick: Codeunit "Create Pick";
         FirstWhseDocNo: Code[20];
     begin
-        with WarehouseShipmentLine do begin
-            ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
-              WhseWkshLine."Whse. Document Type"::Shipment, "No.", "Line No.",
-              "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
+        ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
+          WhseWkshLine."Whse. Document Type"::Shipment, WarehouseShipmentLine."No.", WarehouseShipmentLine."Line No.",
+          WarehouseShipmentLine."Source Type", WarehouseShipmentLine."Source Subtype", WarehouseShipmentLine."Source No.", WarehouseShipmentLine."Source Line No.", 0);
 
-            CreatePickParameters."Whse. Document" := CreatePickParameters."Whse. Document"::Shipment;
-            CreatePickParameters."Whse. Document Type" := CreatePickParameters."Whse. Document Type"::Pick;
-            CreatePick.SetParameters(CreatePickParameters);
-            CreatePick.SetWhseShipment(WarehouseShipmentLine, 1, '', '', '');
-            CreatePick.SetTempWhseItemTrkgLine("No.", DATABASE::"Warehouse Shipment Line", '', 0, "Line No.", "Location Code");
-            CreatePick.CreateTempLine("Location Code", "Item No.", '', '', '', "Bin Code", 1, Quantity, "Qty. (Base)");
-            CreatePick.CreateWhseDocument(FirstWhseDocNo, WhsePickNo, true);
-        end;
+        CreatePickParameters."Whse. Document" := CreatePickParameters."Whse. Document"::Shipment;
+        CreatePickParameters."Whse. Document Type" := CreatePickParameters."Whse. Document Type"::Pick;
+        CreatePick.SetParameters(CreatePickParameters);
+        CreatePick.SetWhseShipment(WarehouseShipmentLine, 1, '', '', '');
+        CreatePick.SetTempWhseItemTrkgLine(WarehouseShipmentLine."No.", DATABASE::"Warehouse Shipment Line", '', 0, WarehouseShipmentLine."Line No.", WarehouseShipmentLine."Location Code");
+        CreatePick.CreateTempLine(WarehouseShipmentLine."Location Code", WarehouseShipmentLine."Item No.", '', '', '', WarehouseShipmentLine."Bin Code", 1, WarehouseShipmentLine.Quantity, WarehouseShipmentLine."Qty. (Base)");
+        CreatePick.CreateWhseDocument(FirstWhseDocNo, WhsePickNo, true);
     end;
 
     [ModalPageHandler]
@@ -6504,22 +6443,21 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryVariableStorage.Dequeue(LotNo);
         LibraryVariableStorage.Dequeue(QuantityBase);
 
-        with ItemTrackingLines do
-            case ItemTrackingLineHandleType of
-                ItemTrackingLineHandling::Create:
-                    begin
-                        Last();
-                        Next();
-                        "Lot No.".SetValue(LotNo);
-                        "Quantity (Base)".SetValue(QuantityBase);
-                    end;
-                ItemTrackingLineHandling::"Use Existing":
-                    begin
-                        FILTER.SetFilter("Lot No.", LotNo);
-                        First();
-                        "Quantity (Base)".SetValue(QuantityBase);
-                    end;
-            end;
+        case ItemTrackingLineHandleType of
+            ItemTrackingLineHandling::Create:
+                begin
+                    ItemTrackingLines.Last();
+                    ItemTrackingLines.Next();
+                    ItemTrackingLines."Lot No.".SetValue(LotNo);
+                    ItemTrackingLines."Quantity (Base)".SetValue(QuantityBase);
+                end;
+            ItemTrackingLineHandling::"Use Existing":
+                begin
+                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LotNo);
+                    ItemTrackingLines.First();
+                    ItemTrackingLines."Quantity (Base)".SetValue(QuantityBase);
+                end;
+        end;
     end;
 
     [ModalPageHandler]

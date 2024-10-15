@@ -15,8 +15,6 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
 using System.Globalization;
 using System.Integration;
 using System.Security.AccessControl;
@@ -28,7 +26,8 @@ table 5065 "Interaction Log Entry"
     DrillDownPageID = "Interaction Log Entries";
     LookupPageID = "Interaction Log Entries";
     ReplicateData = true;
-    Permissions = TableData "Interaction Log Entry" = rimd;
+    Permissions = tabledata "Interaction Log Entry" = rimd,
+                  tabledata "Inter. Log Entry Comment Line" = rd;
 
     fields
     {
@@ -321,30 +320,39 @@ table 5065 "Interaction Log Entry"
 
     trigger OnDelete()
     var
-        InteractionCommentLine: Record "Inter. Log Entry Comment Line";
+        InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
         Attachment: Record Attachment;
-        CampaignMgt: Codeunit "Campaign Target Group Mgt";
+        CampaignTargetGroupMgt: Codeunit "Campaign Target Group Mgt";
     begin
-        InteractionCommentLine.SetRange("Entry No.", "Entry No.");
-        InteractionCommentLine.DeleteAll();
+        InterLogEntryCommentLine.SetRange("Entry No.", "Entry No.");
+        if not InterLogEntryCommentLine.IsEmpty() then
+            InterLogEntryCommentLine.DeleteAll();
 
-        CampaignMgt.DeleteContfromTargetGr(Rec);
+        CampaignTargetGroupMgt.DeleteContfromTargetGr(Rec);
         if UniqueAttachment() then
             if Attachment.Get("Attachment No.") then
                 Attachment.RemoveAttachment(false);
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 is marked %3.\';
+#pragma warning restore AA0470
         Text001: Label 'Do you wish to remove the checkmark?';
+#pragma warning disable AA0470
         Text002: Label 'Do you wish to mark %1 %2 as %3?';
+#pragma warning restore AA0470
         Text003: Label 'It is not possible to view sales statements after they have been printed.';
         Text004: Label 'It is not possible to show cover sheets after they have been printed.';
+#pragma warning disable AA0470
         Text005: Label 'Do you wish to remove the checkmark from the selected %1 lines?';
         Text006: Label 'Do you wish to mark the selected %1 lines as %2?';
+#pragma warning restore AA0470
         Text009: Label 'Do you want to remove Attachment?';
         Text010: Label 'Do you want to remove unique Attachments for the selected lines?';
         Text011: Label 'Very Positive,Positive,Neutral,Negative,Very Negative';
+#pragma warning restore AA0074
         TitleFromLbl: Label '%1 - from %2', Comment = '%1 - document description, %2 - name';
         TitleByLbl: Label '%1 - by %2', Comment = '%1 - document description, %2 - name';
         OpenMessageQst: Label 'You are about to open an email message in Outlook Online. Email messages might contain harmful content. Use caution when interacting with the message. Do you want to continue?';
@@ -354,8 +362,8 @@ table 5065 "Interaction Log Entry"
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
         if not Insert() then begin
-            SequenceNoMgt.RebaseSeqNo(DATABASE::"Interaction Log Entry");
-            "Entry No." := SequenceNoMgt.GetNextSeqNo(DATABASE::"Interaction Log Entry");
+            SequenceNoMgt.RebaseSeqNo(Database::"Interaction Log Entry");
+            "Entry No." := SequenceNoMgt.GetNextSeqNo(Database::"Interaction Log Entry");
             Insert();
         end;
     end;
@@ -426,7 +434,7 @@ table 5065 "Interaction Log Entry"
 
     procedure CreateInteraction()
     var
-        TempSegLine: Record "Segment Line" temporary;
+        TempSegmentLine: Record "Segment Line" temporary;
         Contact: Record Contact;
     begin
         if "Contact No." <> '' then
@@ -435,12 +443,12 @@ table 5065 "Interaction Log Entry"
         if "Contact Company No." <> '' then
             if Contact.Get("Contact Company No.") then
                 Contact.CheckIfPrivacyBlockedGeneric();
-        TempSegLine.CreateInteractionFromInteractLogEntry(Rec);
+        TempSegmentLine.CreateInteractionFromInteractLogEntry(Rec);
     end;
 
     procedure CreateTask()
     var
-        TempTask: Record "To-do" temporary;
+        TempToDoTask: Record "To-do" temporary;
         Contact: Record Contact;
     begin
         if "Contact No." <> '' then
@@ -449,7 +457,7 @@ table 5065 "Interaction Log Entry"
         if "Contact Company No." <> '' then
             if Contact.Get("Contact Company No.") then
                 Contact.CheckIfPrivacyBlockedGeneric();
-        TempTask.CreateTaskFromInteractLogEntry(Rec)
+        TempToDoTask.CreateTaskFromInteractLogEntry(Rec)
     end;
 
     procedure OpenAttachment()
@@ -495,7 +503,6 @@ table 5065 "Interaction Log Entry"
                     exit;
                 end;
             end;
-            Attachment.DisplayInOutlook();
         end;
 
         OnAfterOpenAttachment(Rec, Attachment, SegmentLine);
@@ -533,10 +540,12 @@ table 5065 "Interaction Log Entry"
 
         if Canceled and not CanceledCheckmark then begin
             if "Logged Segment Entry No." <> 0 then begin
+                LoggedSegment.SetLoadFields(Canceled);
                 LoggedSegment.Get("Logged Segment Entry No.");
                 LoggedSegment.TestField(Canceled, false);
             end;
             if "Campaign Entry No." <> 0 then begin
+                CampaignEntry.SetLoadFields(Canceled);
                 CampaignEntry.Get("Campaign Entry No.");
                 CampaignEntry.TestField(Canceled, false);
             end;
@@ -582,7 +591,7 @@ table 5065 "Interaction Log Entry"
             InteractLogEntry.SetCurrentKey("Attachment No.");
             InteractLogEntry.SetRange("Attachment No.", "Attachment No.");
             InteractLogEntry.SetFilter("Entry No.", '<>%1', "Entry No.");
-            IsUnique := not InteractLogEntry.FindFirst();
+            IsUnique := InteractLogEntry.IsEmpty();
         end;
     end;
 
@@ -591,7 +600,7 @@ table 5065 "Interaction Log Entry"
         if Find('-') then
             repeat
                 IsUnique := UniqueAttachment();
-            until (Next() = 0) or IsUnique
+            until (Next() = 0) or IsUnique;
     end;
 
     procedure ShowDocument()
@@ -607,12 +616,10 @@ table 5065 "Interaction Log Entry"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
-        ServHeader: Record "Service Header";
         ReturnRcptHeader: Record "Return Receipt Header";
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         ReturnReceiptHeader: Record "Return Receipt Header";
         ReturnShipmentHeader: Record "Return Shipment Header";
-        ServiceContractHeader: Record "Service Contract Header";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -629,10 +636,10 @@ table 5065 "Interaction Log Entry"
                     SalesHeaderArchive.SetRange("Document Type", SalesHeaderArchive."Document Type"::Quote);
                     SalesHeaderArchive.SetRange("No.", "Document No.");
                     SalesHeaderArchive.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-                    PAGE.Run(PAGE::"Sales Quote Archive", SalesHeaderArchive);
+                    Page.Run(Page::"Sales Quote Archive", SalesHeaderArchive);
                 end else begin
                     SalesHeader.Get(SalesHeader."Document Type"::Quote, "Document No.");
-                    PAGE.Run(PAGE::"Sales Quote", SalesHeader);
+                    Page.Run(Page::"Sales Quote", SalesHeader);
                 end;
             "Document Type"::"Sales Blnkt. Ord":
                 if "Version No." <> 0 then begin
@@ -641,10 +648,10 @@ table 5065 "Interaction Log Entry"
                     SalesHeaderArchive.SetRange("Document Type", SalesHeaderArchive."Document Type"::"Blanket Order");
                     SalesHeaderArchive.SetRange("No.", "Document No.");
                     SalesHeaderArchive.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-                    PAGE.Run(PAGE::"Blanket Sales Order Archive", SalesHeaderArchive);
+                    Page.Run(Page::"Blanket Sales Order Archive", SalesHeaderArchive);
                 end else begin
                     SalesHeader.Get(SalesHeader."Document Type"::"Blanket Order", "Document No.");
-                    PAGE.Run(PAGE::"Blanket Sales Order", SalesHeader);
+                    Page.Run(Page::"Blanket Sales Order", SalesHeader);
                 end;
             "Document Type"::"Sales Ord. Cnfrmn.":
                 if "Version No." <> 0 then begin
@@ -654,42 +661,37 @@ table 5065 "Interaction Log Entry"
                     SalesHeaderArchive.SetRange("Document Type", SalesHeaderArchive."Document Type"::Order);
                     SalesHeaderArchive.SetRange("No.", "Document No.");
                     SalesHeaderArchive.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-                    PAGE.Run(PAGE::"Sales Order Archive", SalesHeaderArchive);
+                    Page.Run(Page::"Sales Order Archive", SalesHeaderArchive);
                 end else begin
                     SalesHeader.Get(SalesHeader."Document Type"::Order, "Document No.");
-                    PAGE.Run(PAGE::"Sales Order", SalesHeader);
+                    Page.Run(Page::"Sales Order", SalesHeader);
                 end;
             "Document Type"::"Sales Draft Invoice":
                 begin
                     SalesHeader.Get(SalesHeader."Document Type"::Invoice, "Document No.");
-                    PAGE.Run(PAGE::"Sales Invoice", SalesHeader);
+                    Page.Run(Page::"Sales Invoice", SalesHeader);
                 end;
             "Document Type"::"Sales Inv.":
                 begin
                     SalesInvHeader.Get("Document No.");
-                    PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvHeader);
+                    Page.Run(Page::"Posted Sales Invoice", SalesInvHeader);
                 end;
             "Document Type"::"Sales Shpt. Note":
                 begin
                     SalesShptHeader.Get("Document No.");
-                    PAGE.Run(PAGE::"Posted Sales Shipment", SalesShptHeader);
+                    Page.Run(Page::"Posted Sales Shipment", SalesShptHeader);
                 end;
             "Document Type"::"Sales Cr. Memo":
                 begin
                     SalesCrMemoHeader.Get("Document No.");
-                    PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+                    Page.Run(Page::"Posted Sales Credit Memo", SalesCrMemoHeader);
                 end;
             "Document Type"::"Sales Stmnt.":
                 Error(Text003);
             "Document Type"::"Sales Rmdr.":
                 begin
                     IssuedReminderHeader.Get("Document No.");
-                    PAGE.Run(PAGE::"Issued Reminder", IssuedReminderHeader);
-                end;
-            "Document Type"::"Serv. Ord. Create":
-                begin
-                    ServHeader.Get(ServHeader."Document Type"::Order, "Document No.");
-                    PAGE.Run(PAGE::"Service Order", ServHeader)
+                    Page.Run(Page::"Issued Reminder", IssuedReminderHeader);
                 end;
             "Document Type"::"Purch.Qte.":
                 if "Version No." <> 0 then begin
@@ -699,10 +701,10 @@ table 5065 "Interaction Log Entry"
                     PurchHeaderArchive.SetRange("Document Type", PurchHeaderArchive."Document Type"::Quote);
                     PurchHeaderArchive.SetRange("No.", "Document No.");
                     PurchHeaderArchive.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-                    PAGE.Run(PAGE::"Purchase Quote Archive", PurchHeaderArchive);
+                    Page.Run(Page::"Purchase Quote Archive", PurchHeaderArchive);
                 end else begin
                     PurchHeader.Get(PurchHeader."Document Type"::Quote, "Document No.");
-                    PAGE.Run(PAGE::"Purchase Quote", PurchHeader);
+                    Page.Run(Page::"Purchase Quote", PurchHeader);
                 end;
             "Document Type"::"Purch. Blnkt. Ord.":
                 if "Version No." <> 0 then begin
@@ -712,10 +714,10 @@ table 5065 "Interaction Log Entry"
                     PurchHeaderArchive.SetRange("Document Type", PurchHeaderArchive."Document Type"::"Blanket Order");
                     PurchHeaderArchive.SetRange("No.", "Document No.");
                     PurchHeaderArchive.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-                    PAGE.Run(PAGE::"Blanket Purchase Order Archive", PurchHeaderArchive);
+                    Page.Run(Page::"Blanket Purchase Order Archive", PurchHeaderArchive);
                 end else begin
                     PurchHeader.Get(PurchHeader."Document Type"::"Blanket Order", "Document No.");
-                    PAGE.Run(PAGE::"Blanket Purchase Order", PurchHeader);
+                    Page.Run(Page::"Blanket Purchase Order", PurchHeader);
                 end;
             "Document Type"::"Purch. Ord.":
                 if "Version No." <> 0 then begin
@@ -725,71 +727,56 @@ table 5065 "Interaction Log Entry"
                     PurchHeaderArchive.SetRange("Document Type", PurchHeaderArchive."Document Type"::Order);
                     PurchHeaderArchive.SetRange("No.", "Document No.");
                     PurchHeaderArchive.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
-                    PAGE.Run(PAGE::"Purchase Order Archive", PurchHeaderArchive);
+                    Page.Run(Page::"Purchase Order Archive", PurchHeaderArchive);
                 end else begin
                     PurchHeader.Get(PurchHeader."Document Type"::Order, "Document No.");
-                    PAGE.Run(PAGE::"Purchase Order", PurchHeader);
+                    Page.Run(Page::"Purchase Order", PurchHeader);
                 end;
             "Document Type"::"Purch. Inv.":
                 begin
                     PurchInvHeader.Get("Document No.");
-                    PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
+                    Page.Run(Page::"Posted Purchase Invoice", PurchInvHeader);
                 end;
             "Document Type"::"Purch. Rcpt.":
                 begin
                     PurchRcptHeader.Get("Document No.");
-                    PAGE.Run(PAGE::"Posted Purchase Receipt", PurchRcptHeader);
+                    Page.Run(Page::"Posted Purchase Receipt", PurchRcptHeader);
                 end;
             "Document Type"::"Purch. Cr. Memo":
                 begin
                     PurchCrMemoHeader.Get("Document No.");
-                    PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHeader);
+                    Page.Run(Page::"Posted Purchase Credit Memo", PurchCrMemoHeader);
                 end;
             "Document Type"::"Cover Sheet":
                 Error(Text004);
             "Document Type"::"Sales Return Order":
                 if SalesHeader.Get(SalesHeader."Document Type"::"Return Order", "Document No.") then
-                    PAGE.Run(PAGE::"Sales Return Order", SalesHeader)
+                    Page.Run(Page::"Sales Return Order", SalesHeader)
                 else begin
                     ReturnRcptHeader.SetRange("Return Order No.", "Document No.");
-                    PAGE.Run(PAGE::"Posted Return Receipt", ReturnRcptHeader);
+                    Page.Run(Page::"Posted Return Receipt", ReturnRcptHeader);
                 end;
             "Document Type"::"Sales Finance Charge Memo":
                 begin
                     IssuedFinChargeMemoHeader.Get("Document No.");
-                    PAGE.Run(PAGE::"Issued Finance Charge Memo", IssuedFinChargeMemoHeader);
+                    Page.Run(Page::"Issued Finance Charge Memo", IssuedFinChargeMemoHeader);
                 end;
             "Document Type"::"Sales Return Receipt":
                 begin
                     ReturnReceiptHeader.Get("Document No.");
-                    PAGE.Run(PAGE::"Posted Return Receipt", ReturnReceiptHeader);
+                    Page.Run(Page::"Posted Return Receipt", ReturnReceiptHeader);
                 end;
             "Document Type"::"Purch. Return Shipment":
                 begin
                     ReturnShipmentHeader.Get("Document No.");
-                    PAGE.Run(PAGE::"Posted Return Shipment", ReturnShipmentHeader);
+                    Page.Run(Page::"Posted Return Shipment", ReturnShipmentHeader);
                 end;
             "Document Type"::"Purch. Return Ord. Cnfrmn.":
                 if PurchHeader.Get(PurchHeader."Document Type"::"Return Order", "Document No.") then
-                    PAGE.Run(PAGE::"Purchase Return Order", PurchHeader)
+                    Page.Run(Page::"Purchase Return Order", PurchHeader)
                 else begin
                     ReturnShipmentHeader.SetRange("Return Order No.", "Document No.");
-                    PAGE.Run(PAGE::"Posted Return Shipment", ReturnShipmentHeader);
-                end;
-            "Document Type"::"Service Contract":
-                begin
-                    ServiceContractHeader.Get(ServiceContractHeader."Contract Type"::Contract, "Document No.");
-                    PAGE.Run(PAGE::"Service Contract", ServiceContractHeader);
-                end;
-            "Document Type"::"Service Contract Quote":
-                begin
-                    ServiceContractHeader.Get(ServiceContractHeader."Contract Type"::Quote, "Document No.");
-                    PAGE.Run(PAGE::"Service Contract Quote", ServiceContractHeader);
-                end;
-            "Document Type"::"Service Quote":
-                begin
-                    ServHeader.Get(ServHeader."Document Type"::Quote, "Document No.");
-                    PAGE.Run(PAGE::"Service Quote", ServHeader);
+                    Page.Run(Page::"Posted Return Shipment", ReturnShipmentHeader);
                 end;
         end;
 
@@ -801,46 +788,46 @@ table 5065 "Interaction Log Entry"
         Selected: Integer;
     begin
         if Find('-') then begin
-            Selected := DIALOG.StrMenu(Text011);
+            Selected := Dialog.StrMenu(Text011);
             if Selected <> 0 then
                 repeat
                     Evaluation := Enum::"Interaction Evaluation".FromInteger(Selected);
                     Modify();
-                until Next() = 0
+                until Next() = 0;
         end;
     end;
 
     procedure ResumeInteraction()
     var
-        TempSegLine: Record "Segment Line" temporary;
+        TempSegmentLine: Record "Segment Line" temporary;
         IsHandled: Boolean;
     begin
-        TempSegLine.CopyFromInteractLogEntry(Rec);
-        TempSegLine.Validate(Date, WorkDate());
-        OnResumeInteractionOnAfterDateValidation(TempSegLine);
+        TempSegmentLine.CopyFromInteractLogEntry(Rec);
+        TempSegmentLine.Validate(Date, WorkDate());
+        OnResumeInteractionOnAfterDateValidation(TempSegmentLine);
 
-        if TempSegLine."To-do No." <> '' then
-            TempSegLine.SetRange("To-do No.", TempSegLine."To-do No.");
+        if TempSegmentLine."To-do No." <> '' then
+            TempSegmentLine.SetRange("To-do No.", TempSegmentLine."To-do No.");
 
-        if TempSegLine."Contact Company No." <> '' then
-            TempSegLine.SetRange("Contact Company No.", TempSegLine."Contact Company No.");
+        if TempSegmentLine."Contact Company No." <> '' then
+            TempSegmentLine.SetRange("Contact Company No.", TempSegmentLine."Contact Company No.");
 
-        if TempSegLine."Contact No." <> '' then
-            TempSegLine.SetRange("Contact No.", TempSegLine."Contact No.");
+        if TempSegmentLine."Contact No." <> '' then
+            TempSegmentLine.SetRange("Contact No.", TempSegmentLine."Contact No.");
 
-        if TempSegLine."Salesperson Code" <> '' then
-            TempSegLine.SetRange("Salesperson Code", TempSegLine."Salesperson Code");
+        if TempSegmentLine."Salesperson Code" <> '' then
+            TempSegmentLine.SetRange("Salesperson Code", TempSegmentLine."Salesperson Code");
 
-        if TempSegLine."Campaign No." <> '' then
-            TempSegLine.SetRange("Campaign No.", TempSegLine."Campaign No.");
+        if TempSegmentLine."Campaign No." <> '' then
+            TempSegmentLine.SetRange("Campaign No.", TempSegmentLine."Campaign No.");
 
-        if TempSegLine."Opportunity No." <> '' then
-            TempSegLine.SetRange("Opportunity No.", TempSegLine."Opportunity No.");
+        if TempSegmentLine."Opportunity No." <> '' then
+            TempSegmentLine.SetRange("Opportunity No.", TempSegmentLine."Opportunity No.");
 
         IsHandled := false;
-        OnResumeInteractionOnBeforeStartWizard(Rec, TempSegLine, IsHandled);
+        OnResumeInteractionOnBeforeStartWizard(Rec, TempSegmentLine, IsHandled);
         if not IsHandled then
-            TempSegLine.StartWizard();
+            TempSegmentLine.StartWizard();
     end;
 
     procedure GetEntryTitle() EntryTitle: Text
@@ -849,16 +836,21 @@ table 5065 "Interaction Log Entry"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         User: Record User;
     begin
+        InteractionTemplate.SetLoadFields("Description", "Information Flow");
         if InteractionTemplate.Get("Interaction Template Code") then begin
             EntryTitle := InteractionTemplate.Description;
             case InteractionTemplate."Information Flow" of
                 InteractionTemplate."Information Flow"::Outbound:
-                    if ("Salesperson Code" <> '') and SalespersonPurchaser.Get("Salesperson Code") then
-                        EntryTitle := StrSubstNo(TitleByLbl, InteractionTemplate.Description, SalespersonPurchaser.Name)
-                    else begin
-                        User.SetRange("User Name", "User ID");
-                        if User.FindFirst() then
-                            EntryTitle := StrSubstNo(TitleByLbl, InteractionTemplate.Description, User."Full Name");
+                    begin
+                        SalespersonPurchaser.SetLoadFields(Name);
+                        if ("Salesperson Code" <> '') and SalespersonPurchaser.Get("Salesperson Code") then
+                            EntryTitle := StrSubstNo(TitleByLbl, InteractionTemplate.Description, SalespersonPurchaser.Name)
+                        else begin
+                            User.SetLoadFields("Full Name");
+                            User.SetRange("User Name", "User ID");
+                            if User.FindFirst() then
+                                EntryTitle := StrSubstNo(TitleByLbl, InteractionTemplate.Description, User."Full Name");
+                        end;
                     end;
                 InteractionTemplate."Information Flow"::Inbound:
                     begin

@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Finance.ReceivablesPayables;
 
-using Microsoft.Finance.AutomaticAccounts;
 #if not CLEAN23
 using Microsoft.Finance.Currency;
 #endif
@@ -28,9 +27,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Document;
-using Microsoft.Service.Setup;
-using System.Environment.Configuration;
 #endif
 
 table 49 "Invoice Post. Buffer"
@@ -332,15 +328,9 @@ table 49 "Invoice Post. Buffer"
         {
             Caption = 'Auto. Acc. Group';
             DataClassification = SystemMetadata;
-            TableRelation = "Automatic Acc. Header";
             ObsoleteReason = 'Moved to Automatic Account Codes app.';
-#if CLEAN22
-			ObsoleteState = Removed;
+            ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
         }
         field(11203; "VAT Base Amount (LCY)"; Decimal)
         {
@@ -351,18 +341,9 @@ table 49 "Invoice Post. Buffer"
 
     keys
     {
-#if not CLEAN22
-        key(Key1; Type, "G/L Account", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Area Code", "Tax Group Code", "Tax Liable", "Use Tax", "Dimension Set ID", "Job No.", "Fixed Asset Line No.", "Deferral Code", "Auto. Acc. Group", "Additional Grouping Identifier")
-#else
         key(Key1; Type, "G/L Account", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Area Code", "Tax Group Code", "Tax Liable", "Use Tax", "Dimension Set ID", "Job No.", "Fixed Asset Line No.", "Deferral Code", "Additional Grouping Identifier")
-#endif
         {
             Clustered = true;
-#if not CLEAN22
-            ObsoleteReason = 'Auto. Acc. Group field is removed from the key.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif            
         }
     }
 
@@ -375,7 +356,6 @@ table 49 "Invoice Post. Buffer"
         TempInvoicePostBufferRounding: Record "Invoice Post. Buffer" temporary;
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         DimMgt: Codeunit DimensionManagement;
-        FeatureKeyManagement: Codeunit "Feature Key Management";
 
 #pragma warning disable AS0072
     [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
@@ -421,9 +401,6 @@ table 49 "Invoice Post. Buffer"
             NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
 #endif
         end;
-
-        if not FeatureKeyManagement.IsAutomaticAccountCodesEnabled() then
-            "Auto. Acc. Group" := SalesLine."Auto. Acc. Group";
 
         OnAfterInvPostBufferPrepareSales(SalesLine, Rec);
     end;
@@ -556,9 +533,6 @@ table 49 "Invoice Post. Buffer"
 #endif            
         end;
 
-        if not FeatureKeyManagement.IsAutomaticAccountCodesEnabled() then
-            "Auto. Acc. Group" := PurchLine."Auto. Acc. Group";
-
         OnAfterInvPostBufferPreparePurchase(PurchLine, Rec);
     end;
 
@@ -627,7 +601,7 @@ table 49 "Invoice Post. Buffer"
     end;
 
     [Obsolete('Replaced by procedure in table Invoice Posting Buffer', '20.0')]
-    procedure PrepareService(var ServiceLine: Record "Service Line")
+    procedure PrepareService(var ServiceLine: Record Microsoft.Service.Document."Service Line")
     begin
         Clear(Rec);
         case ServiceLine.Type of
@@ -780,10 +754,10 @@ table 49 "Invoice Post. Buffer"
             SalesHeader."Posting Description");
     end;
 
-    local procedure UpdateEntryDescriptionFromServiceLine(ServiceLine: Record "Service Line")
+    local procedure UpdateEntryDescriptionFromServiceLine(ServiceLine: Record Microsoft.Service.Document."Service Line")
     var
-        ServiceHeader: Record "Service Header";
-        ServiceSetup: record "Service Mgt. Setup";
+        ServiceHeader: Record Microsoft.Service.Document."Service Header";
+        ServiceSetup: record Microsoft.Service.Setup."Service Mgt. Setup";
     begin
         ServiceSetup.Get();
         ServiceHeader.get(ServiceLine."Document Type", ServiceLine."Document No.");
@@ -873,8 +847,6 @@ table 49 "Invoice Post. Buffer"
         NonDeductibleVAT.Copy(GenJnlLine, Rec);
 #endif        
 
-        if not FeatureKeyManagement.IsAutomaticAccountCodesEnabled() then
-            GenJnlLine."Auto. Acc. Group" := Rec."Auto. Acc. Group";
         OnAfterCopyToGenJnlLine(GenJnlLine, Rec);
     end;
 
@@ -910,7 +882,7 @@ table 49 "Invoice Post. Buffer"
 
     [Obsolete('Replaced by event in table Invoice Posting Buffer', '20.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInvPostBufferPrepareService(var ServiceLine: Record "Service Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    local procedure OnAfterInvPostBufferPrepareService(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
     end;
 

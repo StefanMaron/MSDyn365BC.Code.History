@@ -39,7 +39,9 @@ codeunit 7707 "Miniform Mainmenu"
         LocationFilter: Text[250];
         CurrentCode: Text[250];
         StackCode: Text[250];
+#pragma warning disable AA0074
         Text005: Label 'No input Node found.';
+#pragma warning restore AA0074
 
     local procedure Process()
     begin

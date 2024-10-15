@@ -106,10 +106,16 @@ table 7303 "Bin Type"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot delete the %1 because there is %2 %3 %4 with this %1.';
         Text001: Label 'You cannot delete the %1 because there is %2 %3 %4 %5 with this %1.';
         Text002: Label 'This combination already exists for %1 %2.';
         Text003: Label 'The %1 filter expression is too long.\Please use less Bin Types or shorter %1 Codes.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+        CannotEnterReceiveShipOrPickErr: Label 'You cannot enter a bin code of bin type %1, %2, or %3.', Comment = '%1 Receive, %2 Ship, %3 Pick.';
+        CannotEnterReceiveOrShipErr: Label 'You cannot enter a bin code of bin type %1 or %2.', Comment = '%1 Receive, %2 Ship.';
 
     protected procedure CheckCombination(CalledByFieldNo: Integer)
     var
@@ -209,6 +215,44 @@ table 7303 "Bin Type"
             until BinType.Next() = 0;
     end;
 
+    procedure AllowPutawayOrQCBinsOnly()
+    var
+#if not CLEAN25
+        WhseIntegrationManagement: Codeunit "Whse. Integration Management";
+#endif
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAllowPutawayOrQCBinsOnly(Rec, IsHandled);
+#if not CLEAN25
+        WhseIntegrationManagement.RunOnBeforeAllowPutawayOrQCBinsOnly(Rec, IsHandled);
+#endif
+        if IsHandled then
+            exit;
+
+        if Receive or Ship or Pick then
+            Error(CannotEnterReceiveShipOrPickErr, FieldCaption(Receive), FieldCaption(Ship), FieldCaption(Pick));
+    end;
+
+    procedure AllowPutawayPickOrQCBinsOnly()
+    var
+#if not CLEAN25
+        WhseIntegrationManagement: Codeunit "Whse. Integration Management";
+#endif
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAllowPutawayPickOrQCBinsOnly(Rec, IsHandled);
+#if not CLEAN25
+        WhseIntegrationManagement.RunOnBeforeAllowPutawayPickOrQCBinsOnly(Rec, IsHandled);
+#endif
+        if IsHandled then
+            exit;
+
+        if Receive or Ship then
+            Error(CannotEnterReceiveOrShipErr, FieldCaption(Receive), FieldCaption(Ship));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCombination(var BinType: Record "Bin Type"; CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
@@ -221,6 +265,16 @@ table 7303 "Bin Type"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateBinTypeFilterElseCase(var BinType: Record "Bin Type"; BinTypeFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAllowPutawayOrQCBinsOnly(var BinType: Record "Bin Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAllowPutawayPickOrQCBinsOnly(var BinType: Record "Bin Type"; var IsHandled: Boolean)
     begin
     end;
 }

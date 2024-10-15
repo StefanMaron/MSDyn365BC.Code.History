@@ -56,15 +56,6 @@ page 362 "Res. Gr. Availability Lines"
                     DecimalPlaces = 0 : 5;
                     ToolTip = 'Specifies the amount of measuring units allocated to projects with the status order.';
                 }
-#pragma warning disable AA0100
-                field("ResGr.""Qty. on Service Order"""; Rec."Qty. on Service Order")
-#pragma warning restore AA0100
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Qty. Allocated on Service Order';
-                    DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies the amount of measuring units allocated to service orders.';
-                }
                 field(CapacityAfterOrders; Rec."Availability After Orders")
                 {
                     ApplicationArea = Basic, Suite;
@@ -154,12 +145,11 @@ page 362 "Res. Gr. Availability Lines"
 
     local procedure CalcLine()
     begin
-        ResGr.CalcFields(Capacity, "Qty. on Order (Job)", "Qty. Quoted (Job)", "Qty. on Service Order");
+        ResGr.CalcFields(Capacity, "Qty. on Order (Job)", "Qty. Quoted (Job)");
         Rec.Capacity := ResGr.Capacity;
         Rec."Qty. on Order (Job)" := ResGr."Qty. on Order (Job)";
-        Rec."Qty. on Service Order" := ResGr."Qty. on Service Order";
         Rec."Qty. Quoted (Job)" := ResGr."Qty. Quoted (Job)";
-        Rec."Availability After Orders" := ResGr.Capacity - ResGr."Qty. on Order (Job)" - ResGr."Qty. on Service Order";
+        Rec."Availability After Orders" := ResGr.Capacity - ResGr."Qty. on Order (Job)";
         Rec."Net Availability" := Rec."Availability After Orders" - ResGr."Qty. Quoted (Job)";
 
         OnAfterCalcLine(ResGr, Rec."Availability After Orders", Rec."Net Availability", Rec);

@@ -58,9 +58,15 @@ table 1007 "Job WIP Warning"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 is 0.';
+#pragma warning restore AA0470
         Text002: Label 'Cost completion is greater than 100%.';
+#pragma warning disable AA0470
         Text003: Label '%1 is negative.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CreateEntries(JobWIPTotal: Record "Job WIP Total")
     var

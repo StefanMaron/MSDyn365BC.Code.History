@@ -968,7 +968,7 @@ codeunit 136601 "ERM RS Data Templates"
         asserterror CreateConfigTemplateLineForFieldAndValidate(
             ConfigTemplateHeader.Code, Item.FieldNo("Lot Nos."), Item.FieldName("Lot Nos."),
             NoSeries.Code, false);
-        Assert.ExpectedError('Item Tracking Code must have a value in Item: No.=. It cannot be zero or empty.');
+        Assert.ExpectedTestFieldError(Item.FieldCaption("Item Tracking Code"), '');
 
         CreateConfigTemplateLineForFieldAndValidate(
           ConfigTemplateHeader.Code, Item.FieldNo("Item Tracking Code"), Item.FieldName("Item Tracking Code"),

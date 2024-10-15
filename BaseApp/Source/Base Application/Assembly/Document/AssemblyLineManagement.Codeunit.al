@@ -21,13 +21,21 @@ codeunit 905 "Assembly Line Management"
     var
         WarningModeOff: Boolean;
         HideValidationDialog: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Do you want to update the %1 on the lines?';
+#pragma warning restore AA0470
         Text002: Label 'Do you want to update the Dimensions on the lines?';
+#pragma warning disable AA0470
         Text003: Label 'Changing %1 will change all the lines. Do you want to change the %1 from %2 to %3?';
+#pragma warning restore AA0470
         Text004: Label 'This assembly order may have customized lines. Are you sure that you want to reset the lines according to the assembly BOM?';
+#pragma warning disable AA0470
         Text005: Label 'Due Date %1 is before work date %2 in one or more of the assembly lines.';
         Text006: Label 'Item %1 is not a BOM.';
+#pragma warning restore AA0470
         Text007: Label 'There is not enough space to explode the BOM.';
+#pragma warning restore AA0074
         AssembleAvailabilityNotificationMsg: Label 'The inventory is not sufficient to cover request to assemble requested quantity of Item %1.', Comment = '%1=Item No.';
         AssembleAvailabilityCheckMsg: Label 'Assembly availability check for requested quantity of Item %1.', Comment = '%1=Item No.';
 
@@ -490,7 +498,6 @@ codeunit 905 "Assembly Line Management"
 
         if UpdateQtyToConsume then
             if not AssemblyLine.FixedUsage() then begin
-                AssemblyLine.InitQtyToConsume();
                 QtyToConsume := AssemblyLine.Quantity * AsmHeader."Quantity to Assemble" / AsmHeader.Quantity;
                 AssemblyLine.RoundQty(QtyToConsume);
                 UpdateQuantityToConsume(AsmHeader, AssemblyLine, QtyToConsume);
@@ -511,8 +518,10 @@ codeunit 905 "Assembly Line Management"
         if IsHandled then
             exit;
 
-        if QtyToConsume <= AssemblyLine.MaxQtyToConsume() then
-            AssemblyLine.Validate("Quantity to Consume", QtyToConsume);
+        if QtyToConsume < AssemblyLine.MaxQtyToConsume() then
+            AssemblyLine.Validate("Quantity to Consume", QtyToConsume)
+        else
+            AssemblyLine.Validate("Quantity to Consume", AssemblyLine.MaxQtyToConsume());
     end;
 
     local procedure UpdateAssemblyLineQuantity(AsmHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; QtyRatio: Decimal)
@@ -821,12 +830,14 @@ codeunit 905 "Assembly Line Management"
         EarliestDueDate := 0D;
         if EarliestStartingDate > 0D then begin
             EarliestEndingDate := // earliest starting date + lead time calculation
-                LeadTimeMgt.PlannedEndingDate(AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code",
-                '', LeadTimeMgt.ManufacturingLeadTime(AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code"),
-                ReqLine."Ref. Order Type"::Assembly, EarliestStartingDate);
+                LeadTimeMgt.GetPlannedEndingDate(
+                    AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code",
+                    '', LeadTimeMgt.ManufacturingLeadTime(AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code"),
+                    ReqLine."Ref. Order Type"::Assembly, EarliestStartingDate);
             EarliestDueDate := // earliest ending date + (default) safety lead time
-                LeadTimeMgt.PlannedDueDate(AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code",
-                EarliestEndingDate, '', ReqLine."Ref. Order Type"::Assembly);
+                LeadTimeMgt.GetPlannedDueDate(
+                    AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code",
+                    EarliestEndingDate, '', ReqLine."Ref. Order Type"::Assembly);
         end;
 
         OnAfterCalcEarliestDueDate(AsmHeader);

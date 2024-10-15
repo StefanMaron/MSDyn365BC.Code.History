@@ -120,12 +120,11 @@ table 5384 "Man. Int. Field Mapping"
                         TextBuilder.Append('<>' + Format(IntegrationFieldMapping."Integration Table Field No."))
                     else
                         TextBuilder.Append('<>' + Format(IntegrationFieldMapping."Field No."));
-                end else begin
+                end else
                     if IntegrationTable then
                         TextBuilder.Append('&<>' + Format(IntegrationFieldMapping."Integration Table Field No."))
                     else
                         TextBuilder.Append('&<>' + Format(IntegrationFieldMapping."Field No."));
-                end;
             until IntegrationFieldMapping.Next() = 0;
 
         //Filter fields that are already selected
@@ -136,12 +135,11 @@ table 5384 "Man. Int. Field Mapping"
                         TextBuilder.Append('<>' + Format(xRec."Integration Table Field No."))
                     else
                         TextBuilder.Append('<>' + Format(xRec."Table Field No."));
-                end else begin
+                end else
                     if IntegrationTable then
                         TextBuilder.Append('&<>' + Format(xRec."Integration Table Field No."))
                     else
                         TextBuilder.Append('&<>' + Format(xRec."Table Field No."));
-                end;
             until xRec.Next() = 0;
         if TextBuilder.Length = 0 then
             Field.SetFilter("No.", '..1999999999')
@@ -155,7 +153,7 @@ table 5384 "Man. Int. Field Mapping"
     begin
         TableRelationsMetadata.SetRange("Table ID", Field.TableNo);
         TableRelationsMetadata.SetRange("Field No.", Field."No.");
-        If not TableRelationsMetadata.IsEmpty() then
+        if not TableRelationsMetadata.IsEmpty() then
             Error(FieldRelationExistsErr, Field."Field Caption");
     end;
 

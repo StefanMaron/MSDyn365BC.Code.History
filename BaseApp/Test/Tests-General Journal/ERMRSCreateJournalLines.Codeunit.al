@@ -24,8 +24,6 @@ codeunit 136602 "ERM RS Create Journal Lines"
         NumberOfLinesError: Label 'Number of Lines must be equal.';
         IncorrectAccountNoError: Label 'Account No. in journal line is incorrect.';
         LineNoErr: Label 'The Increment of Line No. is incorrect.';
-        AccTypeErr: Label 'Account Type must be equal to ''Posting''  in G/L Account:';
-        BlockedErr: Label 'Blocked must be equal to ''No''  in G/L Account: No.';
 
     local procedure Initialize()
     var
@@ -1345,6 +1343,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
     procedure CheckGLAccTypeHeadingOnVendorPostingGroup()
     var
         VendorPostingGroup: Record "Vendor Posting Group";
+        GLAcc: Record "G/L Account";
     begin
         // Verify the Error Message When Account Type of G/L Account is Heading for Payables Account in Vendor Posting Group.
 
@@ -1356,7 +1355,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         asserterror VendorPostingGroup.Validate("Payables Account", CreateGLAccWithAccountTypeHeading());
 
         // Verify: Verify Account Type Error Message.
-        Assert.ExpectedError(AccTypeErr);
+        Assert.ExpectedTestFieldError(GLAcc.FieldCaption("Account Type"), Format(GLAcc."Account Type"::Posting));
     end;
 
     [Test]
@@ -1385,6 +1384,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
     procedure CheckGLAccBlockedOnVendorPostingGroup()
     var
         VendorPostingGroup: Record "Vendor Posting Group";
+        GLAcc: Record "G/L Account";
     begin
         // Verify the Error Message When G/L Account is Blocked for Payables Account in Vendor Posting Group.
 
@@ -1396,7 +1396,7 @@ codeunit 136602 "ERM RS Create Journal Lines"
         asserterror VendorPostingGroup.Validate("Payables Account", CreateBlockedGLAccount());
 
         // Verify: Verify Account No. in Payables Account.
-        Assert.ExpectedError(BlockedErr);
+        Assert.ExpectedTestFieldError(GLAcc.FieldCaption(Blocked), Format(false));
     end;
 
     local procedure AttachDimensionOnJournalLine(GenJournalLine: Record "Gen. Journal Line")

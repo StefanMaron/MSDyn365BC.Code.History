@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Inventory.Requisition;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.UOM;
@@ -8,12 +7,6 @@ using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Manufacturing.Routing;
-using Microsoft.Projects.Project.Job;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 page 5522 "Order Planning"
 {
@@ -38,7 +31,6 @@ page 5522 "Order Planning"
                     ApplicationArea = Planning;
                     Caption = 'Show Demand as';
                     Enabled = DemandOrderFilterCtrlEnable;
-                    OptionCaption = 'All Demand,Production Demand,Sales Demand,Service Demand,Project Demand,Assembly Demand';
                     ToolTip = 'Specifies a filter to define which demand types you want to display in the Order Planning window.';
 
                     trigger OnValidate()
@@ -177,7 +169,7 @@ page 5522 "Order Planning"
                 }
                 field(Quantity; Rec.Quantity)
                 {
-                    ApplicationArea = Assembly;
+                    ApplicationArea = Planning;
                     Caption = 'Qty. to Order';
                     HideValue = QuantityHideValue;
                     ToolTip = 'Specifies the quantity that will be ordered on the supply order, such as purchase or assembly, that you can create from the planning line.';
@@ -344,7 +336,7 @@ page 5522 "Order Planning"
                     ApplicationArea = Planning;
                     Caption = 'Ro&uting';
                     Image = Route;
-                    RunObject = Page "Planning Routing";
+                    RunObject = Page Microsoft.Manufacturing.Routing."Planning Routing";
                     RunPageLink = "Worksheet Template Name" = field("Worksheet Template Name"),
                                   "Worksheet Batch Name" = field("Journal Batch Name"),
                                   "Worksheet Line No." = field("Line No.");
@@ -402,7 +394,7 @@ page 5522 "Order Planning"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByEvent());
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -414,7 +406,7 @@ page 5522 "Order Planning"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByPeriod());
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -426,7 +418,7 @@ page 5522 "Order Planning"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByVariant());
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -439,7 +431,7 @@ page 5522 "Order Planning"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation());
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -455,14 +447,14 @@ page 5522 "Order Planning"
                     }
                     action("BOM Level")
                     {
-                        ApplicationArea = Assembly;
+                        ApplicationArea = Planning;
                         Caption = 'BOM Level';
                         Image = BOMLevel;
                         ToolTip = 'View availability figures for items on bills of materials that show how many units of a parent item you can make based on the availability of child items.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM());
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -470,6 +462,18 @@ page 5522 "Order Planning"
         }
         area(processing)
         {
+            action("Delete All")
+            {
+                ApplicationArea = Planning;
+                Caption = 'Delete all lines in worksheet';
+                Image = Delete;
+                Tooltip = 'Delete all lines in the current worksheet, disregarding any filters.';
+
+                trigger OnAction()
+                begin
+                    Rec.ClearOrderPlanningWorksheet();
+                end;
+            }
             group("F&unctions")
             {
                 Caption = 'F&unctions';
@@ -774,22 +778,18 @@ page 5522 "Order Planning"
 
     var
         ReqLine: Record "Requisition Line";
-        SalesHeader: Record "Sales Header";
-        ProdOrder: Record "Production Order";
-        AsmHeader: Record "Assembly Header";
-        ServHeader: Record "Service Header";
-        Job: Record Job;
-        MfgUserTempl: Record "Manufacturing User Template";
-        OrderPlanningMgt: Codeunit "Order Planning Mgt.";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+#if not CLEAN25
+        SalesHeader: Record Microsoft.Sales.Document."Sales Header";
+        ProdOrder: Record Microsoft.Manufacturing.Document."Production Order";
+        AsmHeader: Record Microsoft.Assembly.Document."Assembly Header";
+        ServHeader: Record Microsoft.Service.Document."Service Header";
+        Job: Record Microsoft.Projects.Project.Job.Job;
+#endif
+        ReqLineAvailabilityMgt: Codeunit "Req. Line Availability Mgt.";
         UOMMgt: Codeunit "Unit of Measure Management";
-        DemandOrderFilter: Option "All Demands","Production Demand","Sales Demand","Service Demand","Job Demand","Assembly Demand";
-        Text001: Label 'Sales';
-        Text002: Label 'Production';
-        Text003: Label 'Service';
-        Text004: Label 'Projects';
         StatusHideValue: Boolean;
         StatusText: Text[1024];
+        DemandSubtype: Integer;
         DemandTypeHideValue: Boolean;
         DemandTypeEmphasize: Boolean;
         DemandTypeText: Text[1024];
@@ -800,53 +800,79 @@ page 5522 "Order Planning"
         DescriptionIndent: Integer;
         SupplyFromEditable: Boolean;
         ReserveEditable: Boolean;
-        DemandOrderFilterCtrlEnable: Boolean;
-        Text005: Label 'Assembly';
         QtyOnOtherLocations: Decimal;
         SubstitionAvailable: Boolean;
         QtyATP: Decimal;
         EarliestShptDateAvailable: Date;
 
     protected var
+        MfgUserTempl: Record "Manufacturing User Template";
+        OrderPlanningMgt: Codeunit "Order Planning Mgt.";
+        DemandOrderFilter: Enum "Demand Order Source Type";
+        DemandOrderNo: Code[20];
         DemandQuantityHideValue: Boolean;
         DemandQtyAvailableHideValue: Boolean;
+        DemandOrderFilterCtrlEnable: Boolean;
         ReplenishmentSystemHideValue: Boolean;
         QuantityHideValue: Boolean;
 
-    procedure SetSalesOrder(SalesHeader2: Record "Sales Header")
+#if not CLEAN25
+    [Obsolete('This procedure is not used.', '25.0')]
+    procedure SetSalesOrder(SalesHeader2: Record Microsoft.Sales.Document."Sales Header")
     begin
         SalesHeader := SalesHeader2;
         DemandOrderFilter := DemandOrderFilter::"Sales Demand";
         DemandOrderFilterCtrlEnable := false;
     end;
+#endif
 
-    procedure SetProdOrder(ProdOrder2: Record "Production Order")
+#if not CLEAN25
+    [Obsolete('This procedure replaced by procedure SetProdOrderDemand()', '25.0')]
+    procedure SetProdOrder(ProdOrder2: Record Microsoft.Manufacturing.Document."Production Order")
     begin
         ProdOrder := ProdOrder2;
         DemandOrderFilter := DemandOrderFilter::"Production Demand";
         DemandOrderFilterCtrlEnable := false;
     end;
+#endif
 
-    procedure SetAsmOrder(AsmHeader2: Record "Assembly Header")
+    procedure SetProdOrderDemand(NewDemandSubtype: Integer; NewDemandOrderNo: Code[20])
+    begin
+        DemandSubtype := NewDemandSubtype;
+        DemandOrderNo := NewDemandOrderNo;
+        DemandOrderFilter := DemandOrderFilter::"Production Demand";
+        DemandOrderFilterCtrlEnable := false;
+    end;
+
+#if not CLEAN25
+    [Obsolete('This procedure is not used.', '25.0')]
+    procedure SetAsmOrder(AsmHeader2: Record Microsoft.Assembly.Document."Assembly Header")
     begin
         AsmHeader := AsmHeader2;
         DemandOrderFilter := DemandOrderFilter::"Assembly Demand";
         DemandOrderFilterCtrlEnable := false;
     end;
+#endif
 
-    procedure SetServOrder(ServHeader2: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('This procedure is not used.', '25.0')]
+    procedure SetServOrder(ServHeader2: Record Microsoft.Service.Document."Service Header")
     begin
         ServHeader := ServHeader2;
         DemandOrderFilter := DemandOrderFilter::"Service Demand";
         DemandOrderFilterCtrlEnable := false;
     end;
+#endif
 
-    procedure SetJobOrder(Job2: Record Job)
+#if not CLEAN25
+    [Obsolete('This procedure is not used.', '25.0')]
+    procedure SetJobOrder(Job2: Record Microsoft.Projects.Project.Job.Job)
     begin
         Job := Job2;
         DemandOrderFilter := DemandOrderFilter::"Job Demand";
         DemandOrderFilterCtrlEnable := false;
     end;
+#endif
 
     local procedure InitTempRec()
     var
@@ -876,12 +902,12 @@ page 5522 "Order Planning"
 
     protected procedure FindReqLineForCursor(var ReqLineWithCursor: Record "Requisition Line"; ActualReqLine: Record "Requisition Line")
     begin
-        if ProdOrder."No." = '' then
+        if DemandOrderNo = '' then
             exit;
 
-        if (ActualReqLine."Demand Type" = Database::"Prod. Order Component") and
-           (ActualReqLine."Demand Subtype" = ProdOrder.Status.AsInteger()) and
-           (ActualReqLine."Demand Order No." = ProdOrder."No.")
+        if (ActualReqLine."Demand Type" = Database::Microsoft.Manufacturing.Document."Prod. Order Component") and
+           (ActualReqLine."Demand Subtype" = DemandSubtype) and
+           (ActualReqLine."Demand Order No." = DemandOrderNo)
         then
             ReqLineWithCursor := ActualReqLine;
     end;
@@ -919,37 +945,11 @@ page 5522 "Order Planning"
         Rec.SetRange("User ID", UserId);
         Rec.SetRange("Worksheet Template Name", '');
 
-        case DemandOrderFilter of
-            DemandOrderFilter::"All Demands":
-                begin
-                    Rec.SetRange("Demand Type");
-                    Rec.SetCurrentKey("User ID", "Worksheet Template Name", "Journal Batch Name", "Line No.");
-                end;
-            DemandOrderFilter::"Sales Demand":
-                begin
-                    Rec.SetRange("Demand Type", Database::"Sales Line");
-                    Rec.SetCurrentKey("User ID", "Demand Type", "Worksheet Template Name", "Journal Batch Name", "Line No.");
-                end;
-            DemandOrderFilter::"Production Demand":
-                begin
-                    Rec.SetRange("Demand Type", Database::"Prod. Order Component");
-                    Rec.SetCurrentKey("User ID", "Demand Type", "Worksheet Template Name", "Journal Batch Name", "Line No.");
-                end;
-            DemandOrderFilter::"Assembly Demand":
-                begin
-                    Rec.SetRange("Demand Type", Database::"Assembly Line");
-                    Rec.SetCurrentKey("User ID", "Demand Type", "Worksheet Template Name", "Journal Batch Name", "Line No.");
-                end;
-            DemandOrderFilter::"Service Demand":
-                begin
-                    Rec.SetRange("Demand Type", Database::"Service Line");
-                    Rec.SetCurrentKey("User ID", "Demand Type", "Worksheet Template Name", "Journal Batch Name", "Line No.");
-                end;
-            DemandOrderFilter::"Job Demand":
-                begin
-                    Rec.SetRange("Demand Type", Database::"Job Planning Line");
-                    Rec.SetCurrentKey("User ID", "Demand Type", "Worksheet Template Name", "Journal Batch Name", "Line No.");
-                end;
+        OnSetRecDemandFilter(Rec, DemandOrderFilter);
+
+        if DemandOrderFilter = DemandOrderFilter::"All Demands" then begin
+            Rec.SetRange("Demand Type");
+            Rec.SetCurrentKey("User ID", "Worksheet Template Name", "Journal Batch Name", "Line No.");
         end;
         Rec.FilterGroup(0);
 
@@ -958,66 +958,12 @@ page 5522 "Order Planning"
 
     local procedure ShowDemandOrder()
     var
-        SalesHeader: Record "Sales Header";
-        ProdOrder: Record "Production Order";
-        ServHeader: Record "Service Header";
-        Job: Record Job;
-        AsmHeader: Record "Assembly Header";
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeShowDemandOrder(Rec, IsHandled);
         if not IsHandled then
-            case Rec."Demand Type" of
-                Database::"Sales Line":
-                    begin
-                        SalesHeader.Get(Rec."Demand Subtype", Rec."Demand Order No.");
-                        case SalesHeader."Document Type" of
-                            SalesHeader."Document Type"::Order:
-                                PAGE.Run(PAGE::"Sales Order", SalesHeader);
-                            SalesHeader."Document Type"::"Return Order":
-                                PAGE.Run(PAGE::"Sales Return Order", SalesHeader);
-                        end;
-                    end;
-                Database::"Prod. Order Component":
-                    begin
-                        ProdOrder.Get(Rec."Demand Subtype", Rec."Demand Order No.");
-                        case ProdOrder.Status of
-                            ProdOrder.Status::Planned:
-                                PAGE.Run(PAGE::"Planned Production Order", ProdOrder);
-                            ProdOrder.Status::"Firm Planned":
-                                PAGE.Run(PAGE::"Firm Planned Prod. Order", ProdOrder);
-                            ProdOrder.Status::Released:
-                                PAGE.Run(PAGE::"Released Production Order", ProdOrder);
-                        end;
-                    end;
-                Database::"Assembly Line":
-                    begin
-                        AsmHeader.Get(Rec."Demand Subtype", Rec."Demand Order No.");
-                        case AsmHeader."Document Type" of
-                            AsmHeader."Document Type"::Order:
-                                PAGE.Run(PAGE::"Assembly Order", AsmHeader);
-                        end;
-                    end;
-                Database::"Service Line":
-                    begin
-                        ServHeader.Get(Rec."Demand Subtype", Rec."Demand Order No.");
-                        case ServHeader."Document Type" of
-                            ServHeader."Document Type"::Order:
-                                PAGE.Run(PAGE::"Service Order", ServHeader);
-                        end;
-                    end;
-                Database::"Job Planning Line":
-                    begin
-                        Job.Get(Rec."Demand Order No.");
-                        case Job.Status of
-                            Job.Status::Open:
-                                PAGE.Run(PAGE::"Job Card", Job);
-                        end;
-                    end;
-            end;
-
-        OnAfterShowDemandOrder(Rec);
+            OnAfterShowDemandOrder(Rec);
     end;
 
     local procedure CalcItemAvail()
@@ -1088,18 +1034,7 @@ page 5522 "Order Planning"
         Rec.DeleteAll();
 
         Clear(OrderPlanningMgt);
-        case DemandOrderFilter of
-            DemandOrderFilter::"Sales Demand":
-                OrderPlanningMgt.SetSalesOrder();
-            DemandOrderFilter::"Assembly Demand":
-                OrderPlanningMgt.SetAsmOrder();
-            DemandOrderFilter::"Production Demand":
-                OrderPlanningMgt.SetProdOrder();
-            DemandOrderFilter::"Service Demand":
-                OrderPlanningMgt.SetServOrder();
-            DemandOrderFilter::"Job Demand":
-                OrderPlanningMgt.SetJobOrder();
-        end;
+        OrderPlanningMgt.SetDemandType(DemandOrderFilter);
         OnCalcPlanOnBeforeGetOrdersToPlan(ReqLine);
         OrderPlanningMgt.GetOrdersToPlan(ReqLine);
 
@@ -1125,23 +1060,6 @@ page 5522 "Order Planning"
 
     local procedure StatusTextOnFormat(var Text: Text[1024])
     begin
-        if Rec."Demand Line No." = 0 then
-            case Rec."Demand Type" of
-                Database::"Prod. Order Component":
-                    Text := Format(Enum::"Production Order Status".FromInteger(Rec.Status));
-                Database::"Sales Line":
-                    Text := Format(Enum::"Sales Document Status".FromInteger(Rec.Status));
-                Database::"Service Line":
-                    Text := Format(Enum::"Service Document Status".FromInteger(Rec.Status));
-                Database::"Job Planning Line":
-                    Text := Format("Job Status".FromInteger(Rec.Status));
-                Database::"Assembly Line":
-                    begin
-                        AsmHeader.Status := Rec.Status;
-                        Text := Format(AsmHeader.Status);
-                    end;
-            end;
-
         OnAfterStatusTextOnFormat(Rec, Text);
 
         StatusHideValue := Rec."Demand Line No." <> 0;
@@ -1149,20 +1067,6 @@ page 5522 "Order Planning"
 
     local procedure DemandTypeTextOnFormat(var Text: Text[1024])
     begin
-        if Rec."Demand Line No." = 0 then
-            case Rec."Demand Type" of
-                Database::"Sales Line":
-                    Text := Text001;
-                Database::"Prod. Order Component":
-                    Text := Text002;
-                Database::"Service Line":
-                    Text := Text003;
-                Database::"Job Planning Line":
-                    Text := Text004;
-                Database::"Assembly Line":
-                    Text := Text005;
-            end;
-
         OnAfterDemandTypeTextOnFormat(Rec, Text);
 
         DemandTypeHideValue := Rec."Demand Line No." <> 0;
@@ -1171,18 +1075,7 @@ page 5522 "Order Planning"
 
     local procedure DemandSubtypeTextOnFormat(var Text: Text[1024])
     begin
-        case Rec."Demand Type" of
-            Database::"Prod. Order Component":
-                Text := Format(Enum::"Production Order Status".FromInteger(Rec.Status));
-            Database::"Sales Line":
-                Text := Format(Enum::"Sales Document Type".FromInteger(Rec."Demand Subtype"));
-            Database::"Service Line":
-                Text := Format(Enum::"Service Document Type".FromInteger(Rec."Demand Subtype"));
-            Database::"Job Planning Line":
-                Text := Format("Job Status".FromInteger(Rec.Status));
-            Database::"Assembly Line":
-                Text := Format(Enum::"Assembly Document Type".FromInteger(Rec."Demand Subtype"));
-        end
+        OnAfterDemandSubtypeTextOnFormat(Rec, Text);
     end;
 
     local procedure DemandOrderNoOnFormat()
@@ -1236,9 +1129,17 @@ page 5522 "Order Planning"
         ActionMsgCarriedOut := MakeSupplyOrdersYesNo.ActionMsgCarriedOut();
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure SetDemandOrderSourceType', '25.0')]
     procedure SetDemandOrderFilter(NewDemandOrderFilter: Option)
     begin
-        DemandOrderFilter := NewDemandOrderFilter;
+        DemandOrderFilter := "Demand Order Source Type".FromInteger(NewDemandOrderFilter);
+    end;
+#endif
+
+    procedure SetDemandOrderSourceType(NewDemandOrderSourceType: Enum "Demand Order Source Type")
+    begin
+        DemandOrderFilter := NewDemandOrderSourceType;
     end;
 
     [IntegrationEvent(false, false)]
@@ -1253,6 +1154,11 @@ page 5522 "Order Planning"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDemandTypeTextOnFormat(var RequisitionLine: Record "Requisition Line"; var Text: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDemandSubtypeTextOnFormat(var RequisitionLine: Record "Requisition Line"; var Text: Text)
     begin
     end;
 
@@ -1273,6 +1179,11 @@ page 5522 "Order Planning"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDemandOrder(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetRecDemandFilter(var RequisitionLine: Record "Requisition Line"; DemandOrderFilter: Enum "Demand Order Source Type")
     begin
     end;
 }

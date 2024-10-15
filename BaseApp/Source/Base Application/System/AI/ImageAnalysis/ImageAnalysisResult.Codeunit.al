@@ -11,18 +11,9 @@ codeunit 2021 "Image Analysis Result"
         Tags: DotNet JArray;
         Color: DotNet JObject;
         DominantColors: DotNet JArray;
-        Faces: DotNet JArray;
         LastAnalysisTypes: List of [Enum "Image Analysis Type"];
-
-#if not CLEAN22
-    [Obsolete('Use SetResult with an Enum::"Image Analysis Type" as second parameter instead.', '22.0')]
-    procedure SetJson(InputJSONManagement: Codeunit "JSON Management"; AnalysisType: Option Tags,Faces,Color)
-    var
-        InputImageAnalysisType: Enum "Image Analysis Type";
-    begin
-        Evaluate(InputImageAnalysisType, Format(AnalysisType));
-        SetResult(InputJSONManagement, InputImageAnalysisType);
-    end;
+#if not CLEAN25
+        Faces: DotNet JArray;
 #endif
 
     procedure SetResult(InputJSONManagement: Codeunit "JSON Management"; AnalysisType: Enum "Image Analysis Type")
@@ -38,7 +29,9 @@ codeunit 2021 "Image Analysis Result"
         Tags := Tags.JArray();
         Color := Color.JObject();
         DominantColors := DominantColors.JArray();
+#if not CLEAN25
         Faces := Faces.JArray();
+#endif
 
         LastAnalysisTypes := AnalysisTypes;
 
@@ -50,9 +43,10 @@ codeunit 2021 "Image Analysis Result"
             if not JSONManagement.GetArrayPropertyValueFromJObjectByName(Result, 'Predictions', Tags) then
                 if not JSONManagement.GetArrayPropertyValueFromJObjectByName(Result, 'predictions', Tags) then
                     Tags := Tags.JArray();
-
+#if not CLEAN25
         if not JSONManagement.GetArrayPropertyValueFromJObjectByName(Result, 'faces', Faces) then
             Faces := Faces.JArray();
+#endif
 
         Color := Color.JObject();
         DominantColors := DominantColors.JArray();
@@ -138,11 +132,14 @@ codeunit 2021 "Image Analysis Result"
             exit(Format(LocalDominantColor));
     end;
 
+#if not CLEAN25
+    [Obsolete('Image analysis for face is being removed. There is no replacement.', '25.0')]
     procedure FaceCount(): Integer
     begin
         exit(Faces.Count);
     end;
 
+    [Obsolete('Image analysis for face is being removed. There is no replacement.', '25.0')]
     procedure FaceAge(Number: Integer): Integer
     var
         Face: DotNet JObject;
@@ -159,6 +156,7 @@ codeunit 2021 "Image Analysis Result"
         end;
     end;
 
+    [Obsolete('Image analysis for face is being removed. There is no replacement.', '25.0')]
     procedure FaceGender(Number: Integer): Text
     var
         Face: DotNet JObject;
@@ -175,14 +173,6 @@ codeunit 2021 "Image Analysis Result"
             JSONManagement.GetStringPropertyValueFromJObjectByName(Face, 'gender', Gender);
             exit(Gender);
         end;
-    end;
-
-#if not CLEAN22
-    [Obsolete('Use GetLatestImageAnalysisTypes instead.', '22.0')]
-    procedure GetLatestAnalysisType(var AnalysisType: Option Tags,Faces,Color)
-    begin
-        if LastAnalysisTypes.Count > 0 then
-            if Evaluate(AnalysisType, Format(LastAnalysisTypes.Get(1))) then;
     end;
 #endif
 

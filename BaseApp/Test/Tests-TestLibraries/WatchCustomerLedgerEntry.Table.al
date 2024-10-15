@@ -1,3 +1,5 @@
+namespace Microsoft.Sales.Test;
+
 table 131311 "Watch Customer Ledger Entry"
 {
     ReplicateData = false;

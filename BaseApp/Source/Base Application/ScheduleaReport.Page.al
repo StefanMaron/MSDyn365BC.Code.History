@@ -1,4 +1,5 @@
 namespace System.Threading;
+using Microsoft.Foundation.Reporting;
 
 page 682 "Schedule a Report"
 {
@@ -36,7 +37,7 @@ page 682 "Schedule a Report"
                 begin
                     if Rec."Object ID to Run" <> 0 then
                         Rec.RunReportRequestPage();
-                    OutPutEditable := REPORT.DefaultLayout(Rec."Object ID to Run") <> DEFAULTLAYOUT::None; // Processing Only
+                    OutPutEditable := not ReportManagementHelper.IsProcessingOnly(Rec."Object ID to Run");
                 end;
             }
             field("Object Caption to Run"; Rec."Object Caption to Run")
@@ -97,15 +98,16 @@ page 682 "Schedule a Report"
 
     trigger OnOpenPage()
     begin
+        OutPutEditable := true;
+
         if not Rec.FindFirst() then begin
             Rec.Init();
             ReportEditable := true;
-            OutPutEditable := true;
             Rec.Status := Rec.Status::"On Hold";
             Rec.Validate("Object Type to Run", Rec."Object Type to Run"::Report);
             Rec.Insert(true);
         end else
-            OutPutEditable := REPORT.DefaultLayout(Rec."Object ID to Run") <> DEFAULTLAYOUT::None; // Processing Only
+            OutPutEditable := not ReportManagementHelper.IsProcessingOnly(Rec."Object ID to Run");
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -134,6 +136,7 @@ page 682 "Schedule a Report"
     end;
 
     var
+        ReportManagementHelper: Codeunit "Report Management Helper";
         NoIdMsg: Label 'You must specify a report number.';
         ReportEditable: Boolean;
         OutPutEditable: Boolean;

@@ -16,8 +16,10 @@ codeunit 911 "Pstd. Assembly - Undo (Yes/No)"
 
     var
         PostedAsmHeader: Record "Posted Assembly Header";
+#pragma warning disable AA0074
         Text000: Label 'Do you want to undo posting of the posted assembly order?';
         Text001: Label 'Do you want to recreate the assembly order from the posted assembly order?';
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

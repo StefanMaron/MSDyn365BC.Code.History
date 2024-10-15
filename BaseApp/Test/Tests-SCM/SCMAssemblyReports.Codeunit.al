@@ -223,46 +223,46 @@ codeunit 137307 "SCM Assembly Reports"
         NextEntry: Integer;
     begin
         NextEntry := 0;
-        with ReservationEntry do begin
-            if FindLast() then
-                NextEntry := "Entry No.";
-            Init();
-            NextEntry += 1;
-            "Entry No." := NextEntry;
-            "Creation Date" := WorkDate();
-            "Location Code" := BlueLocation;
-            "Qty. per Unit of Measure" := 1;
-            if LotNo = '' then begin
-                "Item No." := AssemblyItemNo[5];
-                "Item Tracking" := "Item Tracking"::"Serial No.";
-                "Qty. to Handle (Base)" := -1;
-                "Qty. to Invoice (Base)" := -1;
-                Quantity := -1;
-                "Quantity (Base)" := -1;
-                "Reservation Status" := "Reservation Status"::Surplus;
-                "Serial No." := SerialNo;
-                "Shipment Date" := WorkDate();
-                "Source ID" := AssemblyLine."Document No.";
-                "Source Ref. No." := AssemblyLine."Line No.";
-                "Source Subtype" := 1; // Order
-                "Source Type" := DATABASE::"Assembly Line";
-            end else begin
-                "Item No." := AssemblyItemNo[6];
-                "Item Tracking" := "Item Tracking"::"Lot No.";
-                "Qty. to Handle (Base)" := -8;
-                "Qty. to Invoice (Base)" := -8;
-                Quantity := -8;
-                "Quantity (Base)" := -8;
-                "Reservation Status" := "Reservation Status"::Surplus;
-                "Lot No." := LotNo;
-                "Shipment Date" := WorkDate();
-                "Source ID" := AssemblyLine."Document No.";
-                "Source Ref. No." := AssemblyLine."Line No.";
-                "Source Subtype" := 1; // Order
-                "Source Type" := DATABASE::"Assembly Line";
-            end;
-            Insert();
+        if ReservationEntry.FindLast() then
+            NextEntry := ReservationEntry."Entry No.";
+        ReservationEntry.Init();
+        NextEntry += 1;
+        ReservationEntry."Entry No." := NextEntry;
+        ReservationEntry."Creation Date" := WorkDate();
+        ReservationEntry."Location Code" := BlueLocation;
+        ReservationEntry."Qty. per Unit of Measure" := 1;
+        if LotNo = '' then begin
+            ReservationEntry."Item No." := AssemblyItemNo[5];
+            ReservationEntry."Item Tracking" := ReservationEntry."Item Tracking"::"Serial No.";
+            ReservationEntry."Qty. to Handle (Base)" := -1;
+            ReservationEntry."Qty. to Invoice (Base)" := -1;
+            ReservationEntry.Quantity := -1;
+            ReservationEntry."Quantity (Base)" := -1;
+            ReservationEntry."Reservation Status" := ReservationEntry."Reservation Status"::Surplus;
+            ReservationEntry."Serial No." := SerialNo;
+            ReservationEntry."Shipment Date" := WorkDate();
+            ReservationEntry."Source ID" := AssemblyLine."Document No.";
+            ReservationEntry."Source Ref. No." := AssemblyLine."Line No.";
+            ReservationEntry."Source Subtype" := 1;
+            // Order
+            ReservationEntry."Source Type" := DATABASE::"Assembly Line";
+        end else begin
+            ReservationEntry."Item No." := AssemblyItemNo[6];
+            ReservationEntry."Item Tracking" := ReservationEntry."Item Tracking"::"Lot No.";
+            ReservationEntry."Qty. to Handle (Base)" := -8;
+            ReservationEntry."Qty. to Invoice (Base)" := -8;
+            ReservationEntry.Quantity := -8;
+            ReservationEntry."Quantity (Base)" := -8;
+            ReservationEntry."Reservation Status" := ReservationEntry."Reservation Status"::Surplus;
+            ReservationEntry."Lot No." := LotNo;
+            ReservationEntry."Shipment Date" := WorkDate();
+            ReservationEntry."Source ID" := AssemblyLine."Document No.";
+            ReservationEntry."Source Ref. No." := AssemblyLine."Line No.";
+            ReservationEntry."Source Subtype" := 1;
+            // Order
+            ReservationEntry."Source Type" := DATABASE::"Assembly Line";
         end;
+        ReservationEntry.Insert();
     end;
 
     local procedure CheckInit()

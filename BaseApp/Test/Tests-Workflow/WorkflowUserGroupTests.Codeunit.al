@@ -11,7 +11,6 @@ codeunit 134324 "Workflow User Group Tests"
     var
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryUtility: Codeunit "Library - Utility";
-        UserNotFoundErr: Label 'The Workflow User Group Member does not exist.';
         Assert: Codeunit Assert;
 
     [Test]
@@ -44,11 +43,11 @@ codeunit 134324 "Workflow User Group Tests"
 
         // Verification
         asserterror WorkflowUserGroupMember.Get(WorkflowUserGroup.Code, UserSetup1."User ID");
-        Assert.ExpectedError(UserNotFoundErr);
+        Assert.ExpectedErrorCannotFind(Database::"Workflow User Group Member");
         asserterror WorkflowUserGroupMember.Get(WorkflowUserGroup.Code, UserSetup2."User ID");
-        Assert.ExpectedError(UserNotFoundErr);
+        Assert.ExpectedErrorCannotFind(Database::"Workflow User Group Member");
         asserterror WorkflowUserGroupMember.Get(WorkflowUserGroup.Code, UserSetup3."User ID");
-        Assert.ExpectedError(UserNotFoundErr);
+        Assert.ExpectedErrorCannotFind(Database::"Workflow User Group Member");
     end;
 
     local procedure CreateWorkflowUserGroup(var WorkflowUserGroup: Record "Workflow User Group")

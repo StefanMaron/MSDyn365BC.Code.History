@@ -765,8 +765,10 @@ page 9249 "Analysis by Dimensions Matrix"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Period';
         Text002: Label 'You have not yet defined an analysis view.';
+#pragma warning restore AA0074
         TempDimensionCodeBuffer: Record "Dimension Code Buffer" temporary;
         GLSetup: Record "General Ledger Setup";
         AnalysisView: Record "Analysis View";
@@ -821,7 +823,11 @@ page 9249 "Analysis by Dimensions Matrix"
         Field30Visible: Boolean;
         Field31Visible: Boolean;
         Field32Visible: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Unsupported Account Source %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NoEntriesToExportToExcelErr: Label 'There are no entries to export to Excel.';
         Emphasize: Boolean;
 

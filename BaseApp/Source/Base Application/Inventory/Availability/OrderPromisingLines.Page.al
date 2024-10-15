@@ -1,9 +1,6 @@
 namespace Microsoft.Inventory.Availability;
 
 using Microsoft.Inventory.Requisition;
-using Microsoft.Projects.Project.Job;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 page 99000959 "Order Promising Lines"
 {
@@ -209,10 +206,10 @@ page 99000959 "Order Promising Lines"
 
     trigger OnClosePage()
     var
-        CapableToPromise: Codeunit "Capable to Promise";
+        CapableToPromise2: Codeunit "Capable to Promise";
     begin
         if not Accepted then begin
-            CapableToPromise.RemoveReqLines(CrntSourceID, 0, 0, true);
+            CapableToPromise2.RemoveReqLines(CrntSourceID, 0, 0, true);
             AvailabilityMgt.CancelReservations();
         end;
     end;
@@ -223,36 +220,11 @@ page 99000959 "Order Promising Lines"
     end;
 
     trigger OnOpenPage()
-    var
-        SalesHeader: Record "Sales Header";
-        ServHeader: Record "Service Header";
-        Job: Record Job;
     begin
         OrderPromisingCalculationDone := false;
         Accepted := false;
         if Rec.GetFilter("Source ID") <> '' then
-            case CrntSourceType of
-                Rec."Source Type"::"Service Order":
-                    begin
-                        ServHeader."Document Type" := ServHeader."Document Type"::Order;
-                        ServHeader."No." := Rec.GetRangeMin("Source ID");
-                        ServHeader.Find();
-                        SetServHeader(ServHeader);
-                    end;
-                Rec."Source Type"::Job:
-                    begin
-                        Job.Status := Job.Status::Open;
-                        Job."No." := Rec.GetRangeMin("Source ID");
-                        Job.Find();
-                        SetJob(Job);
-                    end;
-                else
-                    SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-                    SalesHeader."No." := Rec.GetRangeMin("Source ID");
-                    SalesHeader.Find();
-                    SetSalesHeader(SalesHeader);
-                    AcceptButtonEnable := SalesHeader.Status = SalesHeader.Status::Open;
-            end;
+            OnOpenPageOnSetSource(Rec, CrntSourceType, CrntSourceID, AvailabilityMgt, AcceptButtonEnable);
     end;
 
     var
@@ -262,36 +234,40 @@ page 99000959 "Order Promising Lines"
         CrntSourceType: Enum "Order Promising Line Source Type";
         AcceptButtonEnable: Boolean;
         OrderPromisingCalculationDone: Boolean;
+#pragma warning disable AA0074
         Text000: Label 'The order promising lines are already calculated. You must close and open the window again to perform a new calculation.';
+#pragma warning restore AA0074
 
-    procedure SetSalesHeader(var CrntSalesHeader: Record "Sales Header")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Sales Availability Mgt.', '25.0')]
+    procedure SetSalesHeader(var CrntSalesHeader: Record Microsoft.Sales.Document."Sales Header")
     begin
-        AvailabilityMgt.SetSalesHeader(Rec, CrntSalesHeader);
+        AvailabilityMgt.SetSourceRecord(Rec, CrntSalesHeader);
 
         CrntSourceType := CrntSourceType::Sales;
         CrntSourceID := CrntSalesHeader."No.";
     end;
+#endif
 
-    procedure SetServHeader(var CrntServHeader: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Serv. Availability Mgt.', '25.0')]
+    procedure SetServHeader(var CrntServHeader: Record Microsoft.Service.Document."Service Header")
     begin
-        AvailabilityMgt.SetServHeader(Rec, CrntServHeader);
+        AvailabilityMgt.SetSourceRecord(Rec, CrntServHeader);
 
         CrntSourceType := CrntSourceType::"Service Order";
         CrntSourceID := CrntServHeader."No.";
     end;
+#endif
 
-    procedure SetJob(var CrntJob: Record Job)
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Serv. Availability Mgt.', '25.0')]
+    procedure SetJob(var CrntJob: Record Microsoft.Projects.Project.Job.Job)
     begin
-        AvailabilityMgt.SetJob(Rec, CrntJob);
+        AvailabilityMgt.SetSourceRecord(Rec, CrntJob);
+
         CrntSourceType := CrntSourceType::Job;
         CrntSourceID := CrntJob."No.";
-    end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by procedure SetSource()', '22.0')]
-    procedure SetSourceType(SourceType: Option)
-    begin
-        CrntSourceType := "Order Promising Line Source Type".FromInteger(SourceType);
     end;
 #endif
 
@@ -309,6 +285,11 @@ page 99000959 "Order Promising Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAcceptButtonOnActionOnBeforeClosePage(var OrderPromisingLine: Record "Order Promising Line"; CrntSourceType: Enum "Order Promising Line Source Type"; CrntSourceID: Code[20]; OrderPromisingCalculationDone: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnSetSource(var OrderPromisingLine: Record "Order Promising Line"; var CrntSourceType: Enum "Order Promising Line Source Type"; var CrntSourceID: Code[20]; var AvailabilityMgt: Codeunit AvailabilityManagement; var AcceptButtonEnable: Boolean)
     begin
     end;
 }

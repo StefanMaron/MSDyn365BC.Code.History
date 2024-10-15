@@ -3,6 +3,7 @@ namespace Microsoft.Manufacturing.Document;
 using Microsoft.Inventory;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Family;
 using Microsoft.Manufacturing.Setup;
@@ -117,6 +118,7 @@ codeunit 99000787 "Create Prod. Order Lines"
     procedure CopyFromSalesOrder(SalesHeader: Record "Sales Header"): Boolean
     var
         TempSalesPlanningLine: Record "Sales Planning Line" temporary;
+        TrackingSpecification: Record "Tracking Specification";
         Location: Record Location;
         LeadTimeMgt: Codeunit "Lead-Time Management";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
@@ -167,7 +169,9 @@ codeunit 99000787 "Create Prod. Order Lines"
 
                 ProdOrderLine."Due Date" := SalesLine."Shipment Date";
                 ProdOrderLine."Ending Date" :=
-                  LeadTimeMgt.PlannedEndingDate(ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code", ProdOrderLine."Due Date", '', 2);
+                  LeadTimeMgt.GetPlannedEndingDate(
+                    ProdOrderLine."Item No.", ProdOrderLine."Location Code", ProdOrderLine."Variant Code",
+                    ProdOrderLine."Due Date", '', Enum::"Requisition Ref. Order Type"::"Prod. Order");
                 ProdOrderLine.Validate("Ending Date");
 
                 OnBeforeProdOrderLineInsert(ProdOrderLine, ProdOrder, true, SalesLine);
@@ -178,9 +182,13 @@ codeunit 99000787 "Create Prod. Order Lines"
 
                 if SalesLine."Document Type" = SalesLine."Document Type"::Order then begin // Not simulated
                     ProdOrderLine.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
-                    SalesLineReserve.BindToProdOrder(SalesLine, ProdOrderLine,
-                      ProdOrderLine."Remaining Quantity" - ProdOrderLine."Reserved Quantity",
-                      ProdOrderLine."Remaining Qty. (Base)" - ProdOrderLine."Reserved Qty. (Base)");
+                    TrackingSpecification.InitTrackingSpecification(
+                        Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
+                        ProdOrderLine."Variant Code", ProdOrderLine."Location Code", ProdOrderLine."Qty. per Unit of Measure");
+                    SalesLineReserve.BindToTracking(
+                        SalesLine, TrackingSpecification, ProdOrderLine.Description, ProdOrderLine."Ending Date",
+                        ProdOrderLine."Remaining Quantity" - ProdOrderLine."Reserved Quantity",
+                        ProdOrderLine."Remaining Qty. (Base)" - ProdOrderLine."Reserved Qty. (Base)");
                 end;
                 CopyDimFromSalesLine(SalesLine, ProdOrderLine);
                 OnCopyFromSalesOrderOnBeforeProdOrderLineModify(ProdOrderLine, SalesLine, TempSalesPlanningLine, NextProdOrderLineNo);
@@ -251,7 +259,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         ProdOrderLine.DeleteAll(true);
     end;
 
-    local procedure InitProdOrderLine(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
+    procedure InitProdOrderLine(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     var
         Item: Record Item;
         IsHandled: Boolean;
@@ -295,7 +303,7 @@ codeunit 99000787 "Create Prod. Order Lines"
         NextProdOrderLineNo := NextProdOrderLineNo + 10000;
     end;
 
-    local procedure InsertProdOrderLine(): Boolean
+    procedure InsertProdOrderLine(): Boolean
     var
         ProdOrderLine3: Record "Prod. Order Line";
         IsHandled: Boolean;
@@ -480,6 +488,7 @@ codeunit 99000787 "Create Prod. Order Lines"
     var
         ProdOrderComp3: Record "Prod. Order Component";
         ProdOrderLine3: Record "Prod. Order Line";
+        TrackingSpecification: Record "Tracking Specification";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         IsHandled: Boolean;
     begin
@@ -495,9 +504,13 @@ codeunit 99000787 "Create Prod. Order Lines"
                          ProdOrderComp3.Status, ProdOrderComp3."Prod. Order No.", ProdOrderComp3."Supplied-by Line No.")
                     then begin
                         ProdOrderComp3.CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
-                        ProdOrderCompReserve.BindToProdOrder(ProdOrderComp3, ProdOrderLine3,
-                          ProdOrderComp3."Remaining Quantity" - ProdOrderComp3."Reserved Quantity",
-                          ProdOrderComp3."Remaining Qty. (Base)" - ProdOrderComp3."Reserved Qty. (Base)");
+                        TrackingSpecification.InitTrackingSpecification(
+                            Database::"Prod. Order Line", ProdOrderLine3.Status.AsInteger(), ProdOrderLine3."Prod. Order No.", '', ProdOrderLine3."Line No.", 0,
+                            ProdOrderLine3."Variant Code", ProdOrderLine3."Location Code", ProdOrderLine3."Qty. per Unit of Measure");
+                        ProdOrderCompReserve.BindToTracking(
+                            ProdOrderComp3, TrackingSpecification, ProdOrderLine3.Description, ProdOrderLine3."Ending Date",
+                            ProdOrderComp3."Remaining Quantity" - ProdOrderComp3."Reserved Quantity",
+                            ProdOrderComp3."Remaining Qty. (Base)" - ProdOrderComp3."Reserved Qty. (Base)");
                     end;
                 OnAfterReserveMultiLevelStructureComp(ProdOrderLine3, ProdOrderComp3);
             until ProdOrderComp3.Next(-1) = 0;

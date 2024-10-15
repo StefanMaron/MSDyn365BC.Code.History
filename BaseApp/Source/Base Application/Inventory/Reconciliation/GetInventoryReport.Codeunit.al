@@ -35,20 +35,26 @@ codeunit 5845 "Get Inventory Report"
         Item: Record Item;
         GLAcc: Record "G/L Account";
         ValueEntry: Record "Value Entry";
+#pragma warning disable AA0074
         Text000: Label 'Calculating...\';
+#pragma warning disable AA0470
         Text001: Label 'Type         #1######\';
         Text002: Label 'No.          #2######\';
         Text003: Label 'Posting Type #3######';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Window: Dialog;
         WindowIsOpen: Boolean;
         WindowType: Text;
         WindowNo: Text[20];
         WindowPostingType: Text;
         WindowUpdateDateTime: DateTime;
+#pragma warning disable AA0074
         Text004: Label 'Show Item Direct Costs,Show Assembly Direct Cost,Show Revaluations,Show Roundings';
         Text005: Label 'Show WIP Consumption,Show WIP Capacity,Show WIP Output';
         Text006: Label 'Show Item Direct Costs,Show Assembly Direct Costs';
         Text007: Label 'Show Item Indirect Costs,Show Assembly Indirect Costs';
+#pragma warning restore AA0074
 
     local procedure Calculate(var InventoryReportLine: Record "Inventory Report Entry")
     begin

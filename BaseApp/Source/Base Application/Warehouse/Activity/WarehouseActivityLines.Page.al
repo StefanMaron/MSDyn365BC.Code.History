@@ -284,12 +284,14 @@ page 5785 "Warehouse Activity Lines"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Warehouse Put-away Lines';
         Text001: Label 'Warehouse Pick Lines';
         Text002: Label 'Warehouse Movement Lines';
         Text003: Label 'Warehouse Activity Lines';
         Text004: Label 'Inventory Put-away Lines';
         Text005: Label 'Inventory Pick Lines';
+#pragma warning restore AA0074
 
     local procedure FormCaption(): Text[250]
     begin

@@ -47,12 +47,16 @@ table 381 "VAT Registration No. Format"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The entered VAT Registration number is not in agreement with the format specified for Country/Region Code %1.\';
         Text001: Label 'The following formats are acceptable: %1', Comment = '1 - format list';
         Text002: Label 'This VAT registration number has already been entered for the following customers:\ %1';
         Text003: Label 'This VAT registration number has already been entered for the following vendors:\ %1';
         Text004: Label 'This VAT registration number has already been entered for the following contacts:\ %1';
+#pragma warning restore AA0470
         Text005: Label 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+#pragma warning restore AA0074
         VATRegistrationNumberErr: Label 'The entered VAT Registration number for %1 %2 is not in agreement with the format specified for Country/Region Code %3.\', Comment = '%1 - Record Type, %2 - Record No., %3 - Country Region Code';
 
     procedure Test(VATRegNo: Text[20]; CountryCode: Code[10]; Number: Code[20]; TableID: Option): Boolean

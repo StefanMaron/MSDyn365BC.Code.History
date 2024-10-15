@@ -16,10 +16,6 @@ codeunit 9002 "Permission Manager"
     InherentPermissions = X;
 
     Permissions = TableData "Permission Set Link" = rd,
-#if not CLEAN22
-                  TableData "User Group Member" = rid, // Do not add m so the check UserGroupMember.WritePermission() would be false unless the user has direct access
-                  TableData "User Group Plan" = rimd,
-#endif
                   TableData "Aggregate Permission Set" = rimd;
 
     SingleInstance = true;
@@ -52,11 +48,7 @@ codeunit 9002 "Permission Manager"
     begin
         // If intelligent cloud is enabled, then assign the intelligent cloud permissions
         if IsIntelligentCloud() then begin
-#if not CLEAN22
-            AddUserToUserGroup(UserSecurityID, IntelligentCloudTok, Company);
-#else
             AddPermissionSetToUser(UserSecurityID, IntelligentCloudTok, Company);
-#endif
             PermissionsAdded := true;
             exit;
         end;
@@ -72,45 +64,16 @@ codeunit 9002 "Permission Manager"
         while UsersInPlans.Read() do
             if PlanConfiguration.IsCustomized(UsersInPlans.Plan_ID) then begin
                 FeatureTelemetry.LogUptake('0000HSP', PlanConfigurationFeatureNameTxt, Enum::"Feature Uptake Status"::Used);
-#if not CLEAN22
-                OnAssignCustomPermissionsToUser(UserSecurityID, UsersInPlans.Plan_ID, PermissionsAdded);
-#endif
                 PlanConfiguration.AssignCustomPermissionsToUser(UsersInPlans.Plan_ID, UserSecurityID);
                 PermissionsAdded := true;
             end else begin
-#if not CLEAN22
-                AssignDefaultPermissionsOfThePlanToUser(UserSecurityID, UsersInPlans.Plan_ID, Company);
-#endif
                 PlanConfiguration.AssignDefaultPermissionsToUser(UsersInPlans.Plan_ID, UserSecurityID, Company);
                 PermissionsAdded := true;
             end;
     end;
 
-#if not CLEAN22
-    local procedure AssignDefaultPermissionsOfThePlanToUser(UserSecurityID: Guid; PlanID: Guid; Company: Text[30]): Boolean
-    var
-        UserGroupPlan: Record "User Group Plan";
-    begin
-        // Get all User Groups in plan
-        UserGroupPlan.SetRange("Plan ID", PlanID);
-        if not UserGroupPlan.FindSet() then
-            exit(false); // nothing to add
-
-        // Assign groups to the current user (if not assigned already)
-        repeat
-            AddUserToUserGroup(UserSecurityID, UserGroupPlan."User Group Code", Company);
-        until UserGroupPlan.Next() = 0;
-
-        exit(true);
-    end;
-#endif
-
     procedure ResetUserToDefaultPermissions(UserSecurityID: Guid)
     begin
-#if not CLEAN22
-        // Remove the user from all assigned user groups and their related permission sets
-        RemoveUserFromAllUserGroups(UserSecurityID);
-#endif
         // Remove the user from any additional, manually assigned permission sets
         RemoveAllPermissionSetsFromUser(UserSecurityID);
 
@@ -125,48 +88,6 @@ codeunit 9002 "Permission Manager"
         AccessControl.SetRange("User Security ID", UserSecurityID);
         AccessControl.DeleteAll(true);
     end;
-
-#if not CLEAN22
-    [Obsolete('User groups are replaced with security groups, where group membership is specified in M365 admin portal.', '22.0')]
-    procedure AddUserToUserGroup(UserSecurityID: Guid; UserGroupCode: Code[20]; Company: Text[30])
-    var
-        UserGroupMember: Record "User Group Member";
-    begin
-        if not UserGroupMember.Get(UserGroupCode, UserSecurityID, Company) then begin
-            UserGroupMember.Init();
-            UserGroupMember."Company Name" := Company;
-            UserGroupMember."User Security ID" := UserSecurityID;
-            UserGroupMember."User Group Code" := UserGroupCode;
-            UserGroupMember.Insert(true);
-        end;
-    end;
-
-    [Obsolete('Replaced with the AssignDefaultPermissionsToUser procedure.', '22.0')]
-    procedure AddUserToDefaultUserGroups(UserSecurityID: Guid): Boolean
-    begin
-        exit(AssignDefaultPermissionsToUser(UserSecurityID));
-    end;
-
-    [Obsolete('Replaced with the AssignDefaultPermissionsToUser procedure.', '22.0')]
-    procedure AddUserToDefaultUserGroupsForCompany(UserSecurityID: Guid; Company: Text[30]) PermissionsAdded: Boolean
-    begin
-        exit(AssignDefaultPermissionsToUser(UserSecurityID, Company));
-    end;
-
-    local procedure RemoveUserFromAllUserGroups(UserSecurityID: Guid)
-    var
-        UserGroupMember: Record "User Group Member";
-    begin
-        UserGroupMember.SetRange("User Security ID", UserSecurityID);
-        UserGroupMember.DeleteAll(true);
-    end;
-
-    [Obsolete('Replaced with the ResetUserToDefaultPermissions procedure.', '22.0')]
-    procedure ResetUserToDefaultUserGroups(UserSecurityID: Guid)
-    begin
-        ResetUserToDefaultPermissions(UserSecurityID);
-    end;
-#endif
 
     procedure GetOfficePortalUserAdminUrl(): Text
     begin
@@ -220,27 +141,6 @@ codeunit 9002 "Permission Manager"
 
         exit(true);
     end;
-
-#if not CLEAN22
-    [Obsolete('User groups are replaced with security groups, use the method Add on the Security Group codeunit.', '22.0')]
-    procedure AddUserGroupFromExtension(UserGroupCode: Code[20]; RoleID: Code[20]; AppGuid: Guid)
-    var
-        UserGroupPermissionSet: Record "User Group Permission Set";
-        UserGroup: Record "User Group";
-    begin
-        if not EnvironmentInfo.IsSaaS() then
-            if not UserGroup.Get(UserGroupCode) then
-                exit;
-
-        UserGroupPermissionSet.Init();
-        UserGroupPermissionSet."User Group Code" := UserGroupCode;
-        UserGroupPermissionSet."Role ID" := RoleID;
-        UserGroupPermissionSet."App ID" := AppGuid;
-        UserGroupPermissionSet.Scope := UserGroupPermissionSet.Scope::Tenant;
-        if not UserGroupPermissionSet.Find() then
-            UserGroupPermissionSet.Insert(true);
-    end;
-#endif
 
     local procedure AssignDefaultRoleCenterToUser(UserSecurityID: Guid)
     var
@@ -334,21 +234,10 @@ codeunit 9002 "Permission Manager"
 
     procedure CanCurrentUserManagePlansAndGroups(): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         AccessControl: Record "Access Control";
-#if not CLEAN22
-        UserGroupMember: Record "User Group Member";
-        UserGroupAccessControl: Record "User Group Access Control";
-        UserGroupPermissionSet: Record "User Group Permission Set";
-#endif
     begin
-#if not CLEAN22
-        exit(
-          UserGroupMember.WritePermission and
-          AccessControl.WritePermission and UserGroupAccessControl.WritePermission and
-          UserGroupPermissionSet.WritePermission);
-#else
         exit(AccessControl.WritePermission());
-#endif
     end;
 
     procedure GenerateHashForPermissionSet(PermissionSetId: Code[30]): Text[250]
@@ -409,14 +298,6 @@ codeunit 9002 "Permission Manager"
         end;
     end;
 
-#if not CLEAN22
-    [Obsolete('Use the ResetUsersToIntelligentCloud procedure instead.', '22.0')]
-    procedure ResetUsersToIntelligentCloudUserGroup()
-    begin
-        ResetUsersToIntelligentCloudPermissions();
-    end;
-#endif
-
     procedure ResetUsersToIntelligentCloudPermissions()
     var
         User: Record User;
@@ -465,9 +346,6 @@ codeunit 9002 "Permission Manager"
     local procedure RemoveExistingPermissionsAndAddIntelligentCloud(UserSecurityID: Guid; CompanyName: Text[30])
     var
         AccessControl: Record "Access Control";
-#if not CLEAN22
-        UserGroupMember: Record "User Group Member";
-#endif
     begin
         // Remove User from all Permission Sets for the company
         AccessControl.SetRange("User Security ID", UserSecurityID);
@@ -477,19 +355,7 @@ codeunit 9002 "Permission Manager"
         AccessControl.SetFilter("Role ID", '<>%1', LocalTok);
         AccessControl.DeleteAll(true);
 
-#if not CLEAN22
-        // Remove User from all User Groups for the company
-        UserGroupMember.SetRange("User Security ID", UserSecurityID);
-        UserGroupMember.SetRange("Company Name", CompanyName);
-        UserGroupMember.SetFilter("User Group Code", '<>%1', IntelligentCloudTok);
-        if not UserGroupMember.IsEmpty() then begin
-            UserGroupMember.DeleteAll(true);
-            AddUserToUserGroup(UserSecurityID, IntelligentCloudTok, CompanyName)
-        end else
-            AddPermissionSetToUser(UserSecurityID, IntelligentCloudTok, CompanyName);
-#else
         AddPermissionSetToUser(UserSecurityID, IntelligentCloudTok, CompanyName);
-#endif
     end;
 
     procedure SetTestabilityIntelligentCloud(EnableIntelligentCloudForTest: Boolean)
@@ -519,20 +385,12 @@ codeunit 9002 "Permission Manager"
     local procedure OnBeforeDeleteTenantPermissionSet(var Rec: Record "Tenant Permission Set")
     var
         PermissionSetLink: Record "Permission Set Link";
-#if not CLEAN22
-        UserGroupPermissionSet: Record "User Group Permission Set";
-#endif
     begin
         if Rec.IsTemporary() then
             exit;
 
         PermissionSetLink.SetRange("Linked Permission Set ID", Rec."Role ID");
         PermissionSetLink.DeleteAll();
-
-#if not CLEAN22
-        UserGroupPermissionSet.SetRange("Role ID", Rec."Role ID");
-        UserGroupPermissionSet.DeleteAll();
-#endif
     end;
 
     [EventSubscriber(ObjectType::Table, Database::User, 'OnBeforeModifyEvent', '', true, true)]
@@ -545,6 +403,9 @@ codeunit 9002 "Permission Manager"
         if Rec.IsTemporary() then
             exit;
 
+        if Rec."License Type" = Rec."License Type"::Agent then
+            exit;
+
         Rec.TestField("User Name");
         CurrentUserSecurityId := UserSecurityId();
         if not LoggedInUser.Get(CurrentUserSecurityId) then // Current user is Super from when there were no users in the system
@@ -554,13 +415,5 @@ codeunit 9002 "Permission Manager"
         if not UserPermissions.CanManageUsersOnTenant(CurrentUserSecurityId) then
             Error(CannotModifyOtherUsersErr);
     end;
-
-#if not CLEAN22
-    [Obsolete('Custom permissions are handled within BaseApp and System Application.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAssignCustomPermissionsToUser(UserSecurityID: Guid; PlanId: Guid; var PermissionsAssigned: Boolean)
-    begin
-    end;
-#endif
 }
 

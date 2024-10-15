@@ -57,19 +57,25 @@ codeunit 11 "Gen. Jnl.-Check Line"
         LogErrorMode: Boolean;
         IsBatchMode: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'can only be a closing date for G/L entries';
         Text001: Label 'is not within your range of allowed posting dates';
+#pragma warning disable AA0470
         Text002: Label '%1 or %2 must be G/L Account or Bank Account.';
         Text003: Label 'must have the same sign as %1';
         Text004: Label 'You must not specify %1 when %2 is %3.';
         Text005: Label '%1 + %2 must be %3.';
         Text006: Label '%1 + %2 must be -%3.';
+#pragma warning restore AA0470
         Text007: Label 'must be positive';
         Text008: Label 'must be negative';
+#pragma warning disable AA0470
         Text009: Label 'must have a different sign than %1';
         Text010: Label '%1 %2 and %3 %4 is not allowed.';
         Text011: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
         Text012: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DuplicateRecordErr: Label 'Document No. %1 already exists. It is not possible to calculate new deferrals for a Document No. that already exists.', Comment = '%1=Document No.';
         SpecifyGenPostingTypeErr: Label 'Posting to Account %1 must either be of type Purchase or Sale (see %2), because there are specified values in one of the following fields: %3, %4 , %5, or %6', comment = '%1 an G/L Account number;%2 = Gen. Posting Type; %3 = Gen. Bus. Posting Group; %4 = Gen. Prod. Posting Group; %5 = VAT Bus. Posting Group, %6 = VAT Prod. Posting Group';
         SalesDocAlreadyExistsErr: Label 'Sales %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
@@ -145,12 +151,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
         if GenJnlLine."Bal. Account No." <> '' then
             CheckBalAccountNo(GenJnlLine);
-#if not CLEAN22
-        if (GenJnlLine."IC Partner G/L Acc. No." <> '') and (GenJnlLine."IC Account No." = '') then begin
-            GenJnlLine."IC Account Type" := GenJnlLine."IC Account Type"::"G/L Account";
-            GenJnlLine."IC Account No." := GenJnlLine."IC Partner G/L Acc. No.";
-        end;
-#endif
         if GenJnlLine."IC Account No." <> '' then begin
             if GenJnlLine."IC Account Type" = GenJnlLine."IC Account Type"::"G/L Account" then
                 if ICGLAcount.Get(GenJnlLine."IC Account No.") then
@@ -409,12 +409,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
             GenJnlLine.TestField("Journal Template Name", ErrorInfo.Create());
         OnBeforeDateNotAllowed(GenJnlLine, DateCheckDone);
         if not DateCheckDone then
-#if not CLEAN22
-                if HasAutoAccGroupExist(GenJnlLine) then begin
-                if DeferralPostingDateNotAllowed(GenJnlLine."Posting Date") then
-                    IsDateErr := true;
-            end else
-#endif
                 if DateNotAllowed(GenJnlLine."Posting Date", GenJnlLine."Journal Template Name") then
 #if not CLEAN23
                         IsDateErr := true;
@@ -1160,13 +1154,6 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
         exit(Account);
     end;
-
-#if not CLEAN22
-    local procedure HasAutoAccGroupExist(var GenJnlLine: Record "Gen. Journal Line"): Boolean
-    begin
-        exit((GenJnlLine."Auto. Acc. Group" <> '') and (GenJnlLine."Deferral Code" = ''));
-    end;
-#endif
 
     internal procedure HasVAT(var GenJnlLine: Record "Gen. Journal Line"): Boolean
     begin

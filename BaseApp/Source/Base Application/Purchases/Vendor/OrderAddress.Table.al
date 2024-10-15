@@ -193,7 +193,9 @@ table 224 "Order Address"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'untitled';
+#pragma warning restore AA0074
         Vend: Record Vendor;
         PostCode: Record "Post Code";
 

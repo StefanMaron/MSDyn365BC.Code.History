@@ -137,7 +137,7 @@ codeunit 6135 "E-Document WorkFlow Processing"
         if not AnyErrors then begin
             EDocIntMgt.SendBatch(EDocument, EDocumentService, IsAsync);
             if IsAsync then
-                EDocumentBackgroundjobs.GetEDocumentResponse()
+                EDocumentBackgroundjobs.ScheduleGetResponseJob()
             else
                 HandleNextEvent(EDocument);
         end;
@@ -185,7 +185,7 @@ codeunit 6135 "E-Document WorkFlow Processing"
 
         if Sent then
             if IsAsync then
-                EDocumentBackgroundjobs.GetEDocumentResponse()
+                EDocumentBackgroundjobs.ScheduleGetResponseJob()
             else
                 HandleNextEvent(EDocument);
     end;

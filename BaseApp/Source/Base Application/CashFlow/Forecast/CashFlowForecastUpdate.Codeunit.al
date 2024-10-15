@@ -12,7 +12,9 @@ codeunit 842 "Cash Flow Forecast Update"
     trigger OnRun()
     var
         CashFlowSetup: Record "Cash Flow Setup";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         CashFlowWorksheetLine: Record "Cash Flow Worksheet Line";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         CashFlowForecast: Record "Cash Flow Forecast";
         CashFlowManagement: Codeunit "Cash Flow Management";
         OriginalWorkDate: Date;

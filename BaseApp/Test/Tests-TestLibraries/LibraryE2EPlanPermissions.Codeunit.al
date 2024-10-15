@@ -121,65 +121,16 @@ codeunit 132230 "Library - E2E Plan Permissions"
 
     local procedure SetPlanPermissions(PlanID: Guid)
     var
-#if not CLEAN22
-        UserGroupPlan: Record "User Group Plan";
-#endif
         PlanConfiguration: Codeunit "Plan Configuration";
         PermissionSetInPlanBuffer: Record "Permission Set In Plan Buffer";
-#if not CLEAN22
-        IsFirstPermissionPushed: Boolean;
-#endif
     begin
-#if not CLEAN22
-        UserGroupPlan.SetRange("Plan ID", PlanID);
-        if UserGroupPlan.FindSet() then begin
-            IsFirstPermissionPushed := SetFirstUserGroupPermissionSet(UserGroupPlan."User Group Code");
-            while UserGroupPlan.Next() > 0 do
-                AddRemainingUserGroupPermissionSets(UserGroupPlan);
-        end;
-#endif
         PlanConfiguration.GetDefaultPermissions(PermissionSetInPlanBuffer);
         PermissionSetInPlanBuffer.SetRange("Plan ID", PlanID);
         if PermissionSetInPlanBuffer.FindSet() then begin
-#if not CLEAN22
-            if IsFirstPermissionPushed then
-                LibraryLowerPermissions.AddPermissionSet(PermissionSetInPlanBuffer."Role ID")
-            else
-#endif
                 LibraryLowerPermissions.PushPermissionSet(PermissionSetInPlanBuffer."Role ID");
             while PermissionSetInPlanBuffer.Next() > 0 do
                 LibraryLowerPermissions.AddPermissionSet(PermissionSetInPlanBuffer."Role ID")
         end;
     end;
-
-#if not CLEAN22
-    local procedure SetFirstUserGroupPermissionSet(UserGroupCode: Code[20]) PushedFirstPermissionSet: Boolean
-    var
-        UserGroupPermissionSet: Record "User Group Permission Set";
-        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-    begin
-        UserGroupPermissionSet.SetRange("User Group Code", UserGroupCode);
-        if UserGroupPermissionSet.FindSet() then begin
-            LibraryLowerPermissions.PushPermissionSet(UserGroupPermissionSet."Role ID");
-            PushedFirstPermissionSet := true;
-            while UserGroupPermissionSet.Next() > 0 do
-                LibraryLowerPermissions.AddPermissionSet(UserGroupPermissionSet."Role ID")
-        end;
-    end;
-
-    local procedure AddRemainingUserGroupPermissionSets(var UserGroupPlan: Record "User Group Plan")
-    var
-        UserGroupPermissionSet: Record "User Group Permission Set";
-        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-    begin
-        repeat
-            UserGroupPermissionSet.SetRange("User Group Code", UserGroupPlan."User Group Code");
-            if UserGroupPermissionSet.FindSet() then
-                repeat
-                    LibraryLowerPermissions.AddPermissionSet(UserGroupPermissionSet."Role ID")
-                until UserGroupPermissionSet.Next() = 0;
-        until UserGroupPlan.Next() = 0;
-    end;
-#endif
 }
 

@@ -15,8 +15,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Activity.History;
@@ -46,8 +44,6 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     var
-        Text003: Label 'No information exists for %1 %2.';
-        Text005: Label 'Warehouse item tracking is not enabled for %1 %2.';
         TempSourceTrackingSpecification: Record "Tracking Specification" temporary;
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         TempGlobalWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
@@ -57,15 +53,32 @@ codeunit 6500 "Item Tracking Management"
         UOMMgt: Codeunit "Unit of Measure Management";
         SourceProdOrderLineForFilter: Integer;
         DueDate: Date;
-        Text006: Label 'Synchronization cancelled.';
         Registering: Boolean;
-        Text007: Label 'There are multiple expiration dates registered for lot %1.';
-        TrackingNoInfoAlreadyExistsErr: Label '%1 already exists for %2 %3. Do you want to overwrite the existing information?', Comment = '%1 - tracking info table caption, %2 - tracking field caption, %3 - tracking field value';
         IsConsume: Boolean;
-        Text011: Label '%1 must not be %2.';
-        Text012: Label 'Only one expiration date is allowed per lot number.\%1 currently has two different expiration dates: %2 and %3.';
         IsPick: Boolean;
         DeleteReservationEntries: Boolean;
+
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        Text003: Label 'No information exists for %1 %2.';
+        Text005: Label 'Warehouse item tracking is not enabled for %1 %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+        Text006: Label 'Synchronization cancelled.';
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        Text007: Label 'There are multiple expiration dates registered for lot %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+        TrackingNoInfoAlreadyExistsErr: Label '%1 already exists for %2 %3. Do you want to overwrite the existing information?', Comment = '%1 - tracking info table caption, %2 - tracking field caption, %3 - tracking field value';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        Text011: Label '%1 must not be %2.';
+        Text012: Label 'Only one expiration date is allowed per lot number.\%1 currently has two different expiration dates: %2 and %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CannotMatchItemTrackingErr: Label 'Cannot match item tracking.\Document No.: %1, Line No.: %2, Item: %3 %4', Comment = '%1 - source document no., %2 - source document line no., %3 - item no., %4 - item description';
         QtyToInvoiceDoesNotMatchItemTrackingErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
 
@@ -771,28 +784,15 @@ codeunit 6500 "Item Tracking Management"
         until ItemEntryRelation.Next() = 0;
     end;
 
-    procedure CopyHandledItemTrkgToServLine(FromServLine: Record "Service Line"; ToServLine: Record "Service Line")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Serv. Item Tracking Mgt.', '25.0')]
+    procedure CopyHandledItemTrkgToServLine(FromServLine: Record Microsoft.Service.Document."Service Line"; ToServLine: Record Microsoft.Service.Document."Service Line")
     var
-        ItemEntryRelation: Record "Item Entry Relation";
+        ServItemTrackingMgt: Codeunit "Serv. Item Tracking Mgt.";
     begin
-        // Used for combined shipment/returns:
-        if FromServLine.Type <> FromServLine.Type::Item then
-            exit;
-
-        case ToServLine."Document Type" of
-            ToServLine."Document Type"::Invoice:
-                begin
-                    ItemEntryRelation.SetSourceFilter(
-                      Database::"Service Shipment Line", 0, ToServLine."Shipment No.", ToServLine."Shipment Line No.", true);
-                    ItemEntryRelation.SetSourceFilter2('', 0);
-                end;
-            else
-                ToServLine.FieldError("Document Type", Format(ToServLine."Document Type"));
-        end;
-
-        InsertProspectReservEntryFromItemEntryRelationAndSourceData(
-          ItemEntryRelation, ToServLine."Document Type".AsInteger(), ToServLine."Document No.", ToServLine."Line No.");
+        ServitemTrackingMgt.CopyHandledItemTrkgToServLine(FromServLine, ToServLine);
     end;
+#endif
 
     procedure CollectItemEntryRelation(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; TotalQty: Decimal) Result: Boolean
     var
@@ -842,8 +842,6 @@ codeunit 6500 "Item Tracking Management"
                 exit(Subtype in [2]);
             Database::"Transfer Line":
                 exit(true);
-            Database::"Service Line":
-                exit(Subtype in [1]);
             else begin
                 OnIsOrderNetworkEntity(Type, Subtype, IsNetworkEntity);
                 exit(IsNetworkEntity);
@@ -1655,7 +1653,6 @@ codeunit 6500 "Item Tracking Management"
                          Database::"Assembly Header",
                          Database::"Assembly Line",
                          Database::"Prod. Order Line",
-                         Database::"Service Line",
                          Database::"Prod. Order Component",
                          Database::Job];
 
@@ -3509,7 +3506,7 @@ codeunit 6500 "Item Tracking Management"
         if TrackingSpecification."New Lot No." <> '' then
             LotNumbers.Add(TrackingSpecification."New Lot No.");
 
-        foreach LotNumber in LotNumbers do begin
+        foreach LotNumber in LotNumbers do
             if not LotNoInfo.Get(TrackingSpecification."Item No.", TrackingSpecification."Variant Code", LotNumber) then begin
                 LotNoInfo.Init();
                 LotNoInfo.Validate("Item No.", TrackingSpecification."Item No.");
@@ -3518,7 +3515,6 @@ codeunit 6500 "Item Tracking Management"
                 LotNoInfo.Insert(true);
                 OnAfterCreateLotInformation(LotNoInfo, TrackingSpecification);
             end;
-        end;
     end;
 
     local procedure GetQtyBaseFromShippedQtyNotReturned(ShippedQtyNotReturned: Decimal; SignFactor: Integer; ToSalesLine: Record "Sales Line") Result: Decimal

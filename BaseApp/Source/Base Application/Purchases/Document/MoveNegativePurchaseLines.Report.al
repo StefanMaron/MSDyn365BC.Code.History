@@ -125,10 +125,16 @@ report 6698 "Move Negative Purchase Lines"
         ToDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo";
         ToDocType2: Option ,,"Order",Invoice,"Return Order","Credit Memo";
         FromDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 %2 has been created. Do you want to view the created document?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DropDownForRetOrderAndCrMemoEd: Boolean;
         DropDownForOrderAndInvoiceEdit: Boolean;
+#pragma warning disable AA0074
         Text19012737: Label 'When you move a negative purchase line to your selected document type, the quantity of the line on the selected document will become positive.';
+#pragma warning restore AA0074
 
     procedure SetPurchHeader(var NewFromPurchHeader: Record "Purchase Header")
     begin

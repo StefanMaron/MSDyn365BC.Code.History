@@ -135,20 +135,16 @@ codeunit 134632 "Graph Collect Mgt Vendor"
     begin
         // Apply complex type JSON to TempVendor
         RecRef.GetTable(TempVendor);
-        with TempVendor do
-            GraphMgtComplexTypes.ApplyPostalAddressFromJSON(ActualJSON, RecRef,
-              FieldNo(Address), FieldNo("Address 2"), FieldNo(City), FieldNo(County), FieldNo("Country/Region Code"), FieldNo("Post Code"));
+        GraphMgtComplexTypes.ApplyPostalAddressFromJSON(ActualJSON, RecRef,
+              TempVendor.FieldNo(Address), TempVendor.FieldNo("Address 2"), TempVendor.FieldNo(City), TempVendor.FieldNo(County), TempVendor.FieldNo("Country/Region Code"), TempVendor.FieldNo("Post Code"));
         RecRef.SetTable(TempVendor);
-
         // Verify Vendor fields match TempVendor fields (which were from the JSON)
-        with TempVendor do begin
-            Vendor.TestField(Address, Address);
-            Vendor.TestField("Address 2", "Address 2");
-            Vendor.TestField(City, City);
-            Vendor.TestField(County, County);
-            Vendor.TestField("Country/Region Code", "Country/Region Code");
-            Vendor.TestField("Post Code", "Post Code");
-        end;
+        Vendor.TestField(Address, TempVendor.Address);
+        Vendor.TestField("Address 2", TempVendor."Address 2");
+        Vendor.TestField(City, TempVendor.City);
+        Vendor.TestField(County, TempVendor.County);
+        Vendor.TestField("Country/Region Code", TempVendor."Country/Region Code");
+        Vendor.TestField("Post Code", TempVendor."Post Code");
     end;
 }
 

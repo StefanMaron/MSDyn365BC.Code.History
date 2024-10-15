@@ -129,7 +129,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
 
         // [WHEN] The user invokes GetAccessToken method.
         // [THEN] The return value is empty.
-        Assert.AreEqual('', AzureAdMgt.GetAccessToken(ValidResourceUrlTxt, ValidResourceNameTxt, false), 'Expected the access token to be empty.');
+        Assert.IsTrue(AzureAdMgt.GetAccessTokenAsSecretText(ValidResourceUrlTxt, ValidResourceNameTxt, false).IsEmpty(), 'Expected the access token to be empty.')
     end;
 
     [Test]
@@ -137,7 +137,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
     procedure GetAccessTokenSaasNoDialogGetsFromCache()
     var
         AzureAdMgt: Codeunit "Azure AD Mgt.";
-        Result: Text;
+        Result: SecretText;
     begin
         // [SCENARIO] In a SaaS environment, user calls GetAccessToken with no dialog and recieves the cached access token.
 
@@ -145,10 +145,10 @@ codeunit 139086 "Azure AD Mgt. Tests"
         Initialize(false, true, false, true, true);
 
         // [WHEN] The user invokes GetAccessToken method requesting no dialog.
-        Result := AzureAdMgt.GetAccessToken(ValidResourceUrlTxt, ValidResourceNameTxt, false);
+        Result := AzureAdMgt.GetAccessTokenAsSecretText(ValidResourceUrlTxt, ValidResourceNameTxt, false);
 
         // [THEN] The user recieves the access token from the cache.
-        Assert.AreEqual('TokenFromCache', Result, 'The access token should be pulling from the SaaS cache.');
+        AssertSecret('TokenFromCache', Result, 'The access token should be pulling from the SaaS cache.');
     end;
 
     [Test]
@@ -156,7 +156,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
     procedure GetAccessTokenOnPremNoDialogNoTokenAvailableIsBlank()
     var
         AzureAdMgt: Codeunit "Azure AD Mgt.";
-        Result: Text;
+        Result: SecretText;
     begin
         // [SCENARIO] In an On-Prem environment, user calls GetAccessToken with no dialog and recieves a blank token because there is not one available in the cache.
 
@@ -164,10 +164,10 @@ codeunit 139086 "Azure AD Mgt. Tests"
         Initialize(false, false, false, true, false);
 
         // [WHEN] The user invokes GetAccessToken method requesting no dialog.
-        Result := AzureAdMgt.GetAccessToken(ValidResourceUrlTxt, ValidResourceNameTxt, false);
+        Result := AzureAdMgt.GetAccessTokenAsSecretText(ValidResourceUrlTxt, ValidResourceNameTxt, false);
 
         // [THEN] The user recieves a blank access token.
-        Assert.AreEqual('', Result, 'The access token should be an empty string.');
+        Assert.IsTrue(Result.IsEmpty(), 'The access token should be an empty string.');
     end;
 
     [Test]
@@ -175,7 +175,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
     procedure GetAccessTokenOnPremNoDialogGetsFromCache()
     var
         AzureAdMgt: Codeunit "Azure AD Mgt.";
-        Result: Text;
+        Result: SecretText;
     begin
         // [SCENARIO] In an On-Prem environment, user calls GetAccessToken with no dialog and recieves the cached access token.
 
@@ -183,10 +183,10 @@ codeunit 139086 "Azure AD Mgt. Tests"
         Initialize(false, true, false, true, false);
 
         // [WHEN] The user invokes GetAccessToken method requesting no dialog.
-        Result := AzureAdMgt.GetAccessToken(ValidResourceUrlTxt, ValidResourceNameTxt, false);
+        Result := AzureAdMgt.GetAccessTokenAsSecretText(ValidResourceUrlTxt, ValidResourceNameTxt, false);
 
         // [THEN] The user recieves the access token from the cache.
-        Assert.AreEqual('TokenFromCacheWithCredentials', Result, 'The access token should be pulling from the On-Prem cache.');
+        AssertSecret('TokenFromCacheWithCredentials', Result, 'The access token should be pulling from the On-Prem cache.');
     end;
 
     [Test]
@@ -202,7 +202,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
         Initialize(false, false, false, true, false);
 
         // [WHEN] The user invokes GetAccessToken method requesting no dialog.
-        AzureAdMgt.GetAccessToken(ValidResourceUrlTxt, ValidResourceNameTxt, true);
+        AzureAdMgt.GetAccessTokenAsSecretText(ValidResourceUrlTxt, ValidResourceNameTxt, true);
 
         // [THEN] The user recieves the access token from the cache.
         // Test will fail if attached modal handler is not invoked
@@ -221,7 +221,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
         Initialize(false, false, false, false, false);
 
         // [WHEN] The user invokes GetAccessToken method requesting no dialog.
-        AzureAdMgt.GetAccessToken(ValidResourceUrlTxt, ValidResourceNameTxt, true);
+        AzureAdMgt.GetAccessTokenAsSecretText(ValidResourceUrlTxt, ValidResourceNameTxt, true);
 
         // [THEN] The user recieves the access token from the cache.
         // Test will fail if attached modal handler is not invoked
@@ -391,11 +391,18 @@ codeunit 139086 "Azure AD Mgt. Tests"
     begin
     end;
 
+    [NonDebuggable]
+    local procedure AssertSecret(Expected: Text; Actual: SecretText; Message: Text)
+    begin
+        Assert.AreEqual(Expected, Actual.Unwrap(), Message);
+    end;
+
     [Normal]
     local procedure Initialize(FreshTokenAvailable: Boolean; CachedTokenAvailable: Boolean; GuestTokenAvailable: Boolean; ClientIdAvailable: Boolean; IsSaaS: Boolean)
     var
         AzureADAppSetup: Record "Azure AD App Setup";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        DummySecretKey: Text;
     begin
         // Configure the auth flow library
         Clear(LibraryAzureADAuthFlow);
@@ -418,7 +425,8 @@ codeunit 139086 "Azure AD Mgt. Tests"
             if ClientIdAvailable then begin
                 AzureADAppSetup.Init();
                 AzureADAppSetup."App ID" := '22222222-2222-2222-2222-222222222222';
-                AzureADAppSetup.SetSecretKeyToIsolatedStorage('Ultra super secret key');
+                DummySecretKey := 'Ultra super secret key';
+                AzureADAppSetup.SetSecretKeyToIsolatedStorage(DummySecretKey);
                 AzureADAppSetup."Redirect URL" := GetUnencodedRedirectUrl('OAuthLanding.htm');
                 AzureADAppSetup.Insert();
             end;

@@ -258,12 +258,16 @@ page 673 "Job Queue Entry Card"
                     Enabled = not IsPendingApproval;
 
                     trigger OnAction()
+                    var
+                        SetStatustoReadyActivatedLbl: Label 'UserSecurityId %1 set the Status of the job queue entry %2 to Ready.', Locked = true;
                     begin
                         if IsUserDelegated then begin
                             JobQueueManagement.SendForApproval(Rec);
                             CurrPage.Update(false);
-                        end else
+                        end else begin
                             Rec.SetStatus(Rec.Status::Ready);
+                            Session.LogAuditMessage(StrSubstNo(SetStatustoReadyActivatedLbl, UserSecurityId(), Rec."Entry No."), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
+                        end;
                     end;
                 }
                 action("Set On Hold")
@@ -487,7 +491,7 @@ page 673 "Job Queue Entry Card"
         JobQueueManagement: Codeunit "Job Queue Management";
         ChooseSetOnHoldMsg: Label 'To edit the job queue entry, you must first choose the Set On Hold action.';
         SetOnHoldLbl: Label 'Set On Hold';
-        ModifyOnlyWhenReadOnlyNotificationIdTxt: Label '509FD112-31EC-4CDC-AEBF-19B8FEBA526F', Locked = true;
+        ModifyOnlyWhenReadOnlyNotificationIdTxt: Label 'dfc885c0-9960-411a-b96f-5deeedc712dc', Locked = true;
         IsUserDelegated: Boolean;
         IsPendingApproval: Boolean;
 

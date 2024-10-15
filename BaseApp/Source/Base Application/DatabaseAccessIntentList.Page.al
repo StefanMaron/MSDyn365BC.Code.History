@@ -117,7 +117,9 @@ page 9880 "Database Access Intent List"
         TempObjectAccessIntentOverride: Record "Object Access Intent Override" temporary;
         ObjectAccessIntentOverride: Record "Object Access Intent Override";
         TempPublishedApplication: Record "Published Application" temporary;
+#pragma warning disable AA0470
         NotSupportedTypeMsg: Label 'You cannot run an object of type %1.';
+#pragma warning restore AA0470
 
     trigger OnOpenPage()
     var

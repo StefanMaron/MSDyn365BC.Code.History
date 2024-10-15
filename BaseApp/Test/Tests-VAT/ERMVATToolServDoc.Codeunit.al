@@ -632,8 +632,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         asserterror ERMVATToolHelper.RunVATRateChangeTool();
 
         // [THEN] Error "Release Status must be equal to Open" occured.
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError('Release Status must be equal to ''Open''  in Service Header');
+        Assert.ExpectedTestFieldError(ServiceHeader.FieldCaption("Release Status"), Format(ServiceHeader."Release Status"::Open));
 
         // Cleanup: Delete groups.
         ERMVATToolHelper.DeleteGroups();
@@ -952,19 +951,17 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         GetServiceLine(ServiceHeader, ServiceLine3);
         ServiceLine3.FindLast();
 
-        with ServiceLine do begin
-            Init();
-            Validate("Document Type", ServiceHeader."Document Type");
-            Validate("Document No.", ServiceHeader."No.");
-            Validate("Line No.", ServiceLine3."Line No." + 1);
-            Insert(true);
+        ServiceLine.Init();
+        ServiceLine.Validate("Document Type", ServiceHeader."Document Type");
+        ServiceLine.Validate("Document No.", ServiceHeader."No.");
+        ServiceLine.Validate("Line No.", ServiceLine3."Line No." + 1);
+        ServiceLine.Insert(true);
 
-            Validate("Service Item Line No.", ServiceLine3."Service Item Line No.");
-            Validate(Type, ServiceLine3.Type);
-            Validate("No.", ServiceLine3."No.");
-            Validate(Quantity, ServiceLine3.Quantity);
-            Modify(true);
-        end;
+        ServiceLine.Validate("Service Item Line No.", ServiceLine3."Service Item Line No.");
+        ServiceLine.Validate(Type, ServiceLine3.Type);
+        ServiceLine.Validate("No.", ServiceLine3."No.");
+        ServiceLine.Validate(Quantity, ServiceLine3.Quantity);
+        ServiceLine.Modify(true);
     end;
 
     local procedure AddReservationLinesForService(ServiceHeader: Record "Service Header")
@@ -1362,27 +1359,23 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     local procedure VerifySplitOldLineService(var ServiceLn1: Record "Service Line"; ServiceLn2: Record "Service Line")
     begin
         // Splitted Line should have Quantity = Quantity to Ship/Receive of the Original Line and old Product Posting Groups.
-        with ServiceLn2 do begin
-            TestField("Line No.", ServiceLn1."Line No.");
-            TestField(Quantity, ServiceLn1."Qty. to Ship");
-            TestField("Qty. to Ship", 0);
-            TestField("Quantity Shipped", ServiceLn1."Qty. to Ship");
-            TestField("VAT Prod. Posting Group", ServiceLn1."VAT Prod. Posting Group");
-            TestField("Gen. Prod. Posting Group", ServiceLn1."Gen. Prod. Posting Group");
-        end;
+        ServiceLn2.TestField("Line No.", ServiceLn1."Line No.");
+        ServiceLn2.TestField(Quantity, ServiceLn1."Qty. to Ship");
+        ServiceLn2.TestField("Qty. to Ship", 0);
+        ServiceLn2.TestField("Quantity Shipped", ServiceLn1."Qty. to Ship");
+        ServiceLn2.TestField("VAT Prod. Posting Group", ServiceLn1."VAT Prod. Posting Group");
+        ServiceLn2.TestField("Gen. Prod. Posting Group", ServiceLn1."Gen. Prod. Posting Group");
     end;
 
     local procedure VerifySplitNewLineService(var ServiceLn1: Record "Service Line"; ServiceLn2: Record "Service Line"; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
     begin
         // Line should have Quantity = Original Quantity - Quantity Shipped/Received,
         // Quantity Shipped/Received = 0 and new Posting Groups.
-        with ServiceLn2 do begin
-            TestField(Quantity, ServiceLn1.Quantity);
-            TestField("Qty. to Ship", ServiceLn1."Qty. to Ship");
-            TestField("Dimension Set ID", ServiceLn1."Dimension Set ID");
-            TestField("VAT Prod. Posting Group", VATProdPostingGroup);
-            TestField("Gen. Prod. Posting Group", GenProdPostingGroup);
-        end;
+        ServiceLn2.TestField(Quantity, ServiceLn1.Quantity);
+        ServiceLn2.TestField("Qty. to Ship", ServiceLn1."Qty. to Ship");
+        ServiceLn2.TestField("Dimension Set ID", ServiceLn1."Dimension Set ID");
+        ServiceLn2.TestField("VAT Prod. Posting Group", VATProdPostingGroup);
+        ServiceLn2.TestField("Gen. Prod. Posting Group", GenProdPostingGroup);
     end;
 
     local procedure VerifyLineConverted(ServiceHeader: Record "Service Header"; QtyShipped: Decimal; QtyToBeConverted: Decimal)

@@ -363,9 +363,13 @@ page 189 "Incoming Document"
 
     actions
     {
+#if not CLEAN25
+#pragma warning disable AL0545
         area(creation)
         {
         }
+#pragma warning restore AL0545
+#endif
         area(navigation)
         {
             group(Action57)

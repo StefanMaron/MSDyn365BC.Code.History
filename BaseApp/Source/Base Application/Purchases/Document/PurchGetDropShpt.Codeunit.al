@@ -29,7 +29,11 @@ codeunit 76 "Purch.-Get Drop Shpt."
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'There were no lines to be retrieved from sales order %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
         SalesHeader: Record "Sales Header";
@@ -41,11 +45,15 @@ codeunit 76 "Purch.-Get Drop Shpt."
         FeatureKeyManagement: Codeunit "Feature Key Management";
 #endif
         NextLineNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The %1 for %2 %3 has changed from %4 to %5 since the Sales Order was created. Adjust the %6 on the Sales Order or the %1.';
 #if not CLEAN23
         Text010: Label '%1 on %2 %3 is %4.\Do you wish to change %5 on %6 %7 from %8 to %9?';
         IsEU3PartyTradePurchaseEnabled: Boolean;
 #endif
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SelltoCustomerBlankErr: Label 'The Sell-to Customer No. field must have a value.';
 
     local procedure "Code"()

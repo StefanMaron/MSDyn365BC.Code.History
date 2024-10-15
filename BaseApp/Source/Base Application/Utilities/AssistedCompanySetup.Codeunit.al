@@ -18,7 +18,8 @@ using System.Globalization;
 
 codeunit 1800 "Assisted Company Setup"
 {
-    Permissions = tabledata "Assisted Company Setup Status" = r;
+    Permissions = tabledata "Assisted Company Setup Status" = r,
+                  tabledata "G/L Entry" = r;
     InherentPermissions = X;
     InherentEntitlements = X;
 

@@ -106,7 +106,7 @@ page 6508 "Lot No. Information List"
                     Caption = 'Item &Tracking Entries';
                     Image = ItemTrackingLedger;
                     ShortCutKey = 'Ctrl+Alt+Q';
-                    ToolTip = 'View serial or lot numbers that are assigned to items.';
+                    ToolTip = 'View serial, lot or package numbers that are assigned to items.';
 
                     trigger OnAction()
                     var
@@ -137,7 +137,7 @@ page 6508 "Lot No. Information List"
                     ApplicationArea = ItemTracking;
                     Caption = '&Item Tracing';
                     Image = ItemTracing;
-                    ToolTip = 'Trace where a lot or serial number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
+                    ToolTip = 'Trace where a serial, lot or package number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
 
                     trigger OnAction()
                     var

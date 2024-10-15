@@ -1772,9 +1772,7 @@ codeunit 134371 "Dimension Correction Tests"
                         Assert.AreEqual(TemporaryDimCorrectionChange."New Value ID", TempDimensionSetEntry."Dimension Value ID", 'Wrong value was assigned');
                     end;
                 TemporaryDimCorrectionChange."Change Type"::Remove:
-                    begin
-                        Assert.IsFalse(TempDimensionSetEntry.Get(GLEntry."Dimension Set ID", TemporaryDimCorrectionChange."Dimension Code"), 'Dimension Code was supposed to be removed form the Dimension Set');
-                    end;
+                    Assert.IsFalse(TempDimensionSetEntry.Get(GLEntry."Dimension Set ID", TemporaryDimCorrectionChange."Dimension Code"), 'Dimension Code was supposed to be removed form the Dimension Set');
                 TemporaryDimCorrectionChange."Change Type"::"No Change":
                     begin
                         Assert.IsTrue(TempDimensionSetEntry.Get(GLEntry."Dimension Set ID", TemporaryDimCorrectionChange."Dimension Code"), 'Could not find the Dimension Code in the Dimension set');

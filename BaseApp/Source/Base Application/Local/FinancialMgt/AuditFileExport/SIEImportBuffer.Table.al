@@ -9,14 +9,10 @@ table 11208 "SIE Import Buffer"
 {
     Caption = 'SIE Import Buffer';
     ObsoleteReason = 'Replaced by Import Buffer SIE table of Standard Import Export (SIE) extension';
-#if CLEAN22
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#else
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-#endif
     DataClassification = CustomerContent;
+    ReplicateData = false;
 
     fields
     {

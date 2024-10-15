@@ -313,6 +313,7 @@ report 1138 "Cost Acctg. Balance/Budget"
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
         CostTypeLineType: Integer;
+#pragma warning disable AA0074
         Text000: Label 'Starting date and ending date in the actual period must be defined.';
         Text001: Label 'Ending date must not be before starting date.';
         Text002: Label 'Filter: ';
@@ -321,6 +322,7 @@ report 1138 "Cost Acctg. Balance/Budget"
         Text005: Label 'Actual period %1 - %2', Comment = '%1=date,%2=date';
         Text006: Label 'Cumulated %1 - %2', Comment = '%1=date,%2=date';
         Text007: Label 'Year %1 - %2', Comment = '%1=date,%2=date';
+#pragma warning restore AA0074
         CurrReportPAGENOCaptionLbl: Label 'Page';
         CostCenterReportCaptionLbl: Label 'Cost Acctg. Balance/Budget';
         ActDiffCaptionLbl: Label 'Difference';

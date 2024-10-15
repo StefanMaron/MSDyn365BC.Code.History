@@ -1,13 +1,13 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Availability;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Item;
 using Microsoft.Service.Maintenance;
 using Microsoft.Service.Pricing;
-using Microsoft.Service.Reports;
 using Microsoft.Service.Setup;
 
 page 5906 "Service Item Worksheet"
@@ -118,6 +118,7 @@ page 5906 "Service Item Worksheet"
                               "Document No." = field("Document No."),
                               "Service Item No." = field("Service Item No."),
                               "Service Item Line No." = field("Line No.");
+                UpdatePropagation = Both;
             }
             group(Customer)
             {
@@ -522,7 +523,7 @@ page 5906 "Service Item Worksheet"
                         DemandOverview: Page "Demand Overview";
                     begin
                         DemandOverview.SetCalculationParameter(true);
-                        DemandOverview.Initialize(0D, 4, Rec."Document No.", '', '');
+                        DemandOverview.SetParameters(0D, Microsoft.Inventory.Requisition."Demand Order Source Type"::"Service Demand", Rec."Document No.", '', '');
                         DemandOverview.RunModal();
                     end;
                 }
@@ -558,12 +559,13 @@ page 5906 "Service Item Worksheet"
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
+                var
+                    ServItemLine: Record "Service Item Line";
+                    ServDocumentPrint: Codeunit "Serv. Document Print";
                 begin
-                    Clear(ServItemLine);
-                    ServItemLine.SetRange("Document Type", Rec."Document Type");
-                    ServItemLine.SetRange("Document No.", Rec."Document No.");
-                    ServItemLine.SetRange("Line No.", Rec."Line No.");
-                    REPORT.Run(REPORT::"Service Item Worksheet", true, false, ServItemLine);
+                    ServItemLine := Rec;
+                    ServItemLine.SetRecFilter();
+                    ServDocumentPrint.PrintServiceItemWorksheet(ServItemLine);
                 end;
             }
         }
@@ -615,7 +617,6 @@ page 5906 "Service Item Worksheet"
     var
         ServHeader: Record "Service Header";
         ShiptoAddr: Record "Ship-to Address";
-        ServItemLine: Record "Service Item Line";
         ServItem: Record "Service Item";
         TblshtgHeader: Record "Troubleshooting Header";
         FormatAddress: Codeunit "Format Address";
@@ -629,7 +630,9 @@ page 5906 "Service Item Worksheet"
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
 
+#pragma warning disable AA0470
         CannotOpenWindowErr: Label 'You cannot open the window because %1 is %2 in the %3 table.';
+#pragma warning restore AA0470
 
     procedure Caption(): Text
     begin

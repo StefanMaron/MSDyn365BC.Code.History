@@ -20,7 +20,7 @@ codeunit 139608 "Shpfy Orders API Test"
     begin
         // [SCENARIO] Create a randpom expected Json structure for the OrdersToImport and see of all orders are available in the "Shpfy Orders to Import" table.
         // [SCENARIO] At start we reset the "Shpfy Orders to Import" table so we can see how many record are added.
-        Codeunit.Run(Codeunit::"Shpfy Initialize Test");
+        Initialize();
         Clear(OrdersToImport);
         if not OrdersToImport.IsEmpty then
             OrdersToImport.DeleteAll();
@@ -56,7 +56,7 @@ codeunit 139608 "Shpfy Orders API Test"
     begin
         // [SCENARIO] Create a randpom expected Json structure for the OrdersToImport and see of all orders are available in the "Shpfy Orders to Import" table.
         // [SCENARIO] At start we reset the "Shpfy Orders to Import" table so we can see how many record are added.
-        Codeunit.Run(Codeunit::"Shpfy Initialize Test");
+        Initialize();
         Clear(OrdersToImport);
         if not OrdersToImport.IsEmpty then
             OrdersToImport.DeleteAll();
@@ -90,7 +90,7 @@ codeunit 139608 "Shpfy Orders API Test"
         JShopifyLineItems: JsonArray;
     begin
         // [SCENARIO] Import a Shopify order from the "Shpfy Orders to Import" record.
-        Codeunit.Run(Codeunit::"Shpfy Initialize Test");
+        Initialize();
 
         // [GIVEN] Shopify Shop
         Shop := CommunicationMgt.GetShopRecord();
@@ -128,7 +128,7 @@ codeunit 139608 "Shpfy Orders API Test"
         JShopifyLineItems: JsonArray;
     begin
         // [SCENARIO] Import a Shopify order from the "Shpfy Orders to Import" record.
-        Codeunit.Run(Codeunit::"Shpfy Initialize Test");
+        Initialize();
 
         // [GIVEN] Shopify Shop
         Shop := CommunicationMgt.GetShopRecord();
@@ -168,7 +168,7 @@ codeunit 139608 "Shpfy Orders API Test"
     begin
         // [SCENARIO] Creating a random Shopify Order and try to map customer and product data.
         // [SCENARIO] If everithing succeed the function will return true.
-        Codeunit.Run(Codeunit::"Shpfy Initialize Test");
+        Initialize();
 
         // [GIVEN] Shopify Shop
         Shop := CommunicationMgt.GetShopRecord();
@@ -199,7 +199,7 @@ codeunit 139608 "Shpfy Orders API Test"
     begin
         // [SCENARIO] Creating a random Shopify Order and try to map customer and product data.
         // [SCENARIO] If everithing succeed the function will return true.
-        Codeunit.Run(Codeunit::"Shpfy Initialize Test");
+        Initialize();
 
         // [GIVEN] Shopify Shop
         Shop := CommunicationMgt.GetShopRecord();
@@ -230,12 +230,11 @@ codeunit 139608 "Shpfy Orders API Test"
     begin
         // [SCENARIO] Creating a random Shopify Order and try to map customer and product data.
         // [SCENARIO] When the sales document is created, everything will be mapped and the sales document must exist.
-        Codeunit.Run(Codeunit::"Shpfy Initialize Test");
+        Initialize();
 
         // [GIVEN] Shopify Shop
         Shop := CommunicationMgt.GetShopRecord();
         Shop."Customer Mapping Type" := "Shpfy Customer Mapping"::"By EMail/Phone";
-        Shop.Validate("Auto Release Sales Orders", false);
         if not Shop.Modify() then
             Shop.Insert();
         ImportOrder.SetShop(Shop.Code);
@@ -276,12 +275,11 @@ codeunit 139608 "Shpfy Orders API Test"
     begin
         // [SCENARIO] Creating a random Shopify Order and try to map customer and product data.
         // [SCENARIO] When the sales document is created, everything will be mapped and the sales document must exist.
-        Codeunit.Run(Codeunit::"Shpfy Initialize Test");
+        Initialize();
 
         // [GIVEN] Shopify Shop
         Shop := CommunicationMgt.GetShopRecord();
         Shop."Customer Mapping Type" := "Shpfy Customer Mapping"::"By EMail/Phone";
-        Shop.Validate("Auto Release Sales Orders", false);
         if not Shop.Modify() then
             Shop.Insert();
         ImportOrder.SetShop(Shop.Code);
@@ -323,13 +321,12 @@ codeunit 139608 "Shpfy Orders API Test"
         ProcessOrders: Codeunit "Shpfy Process Orders";
     begin
         // [SCENARIO] When the sales document is created, tax priority is taken from the shop.
-        Codeunit.Run(Codeunit::"Shpfy Initialize Test");
+        Initialize();
 
         // [GIVEN] Shopify Shop
         Shop := CommunicationMgt.GetShopRecord();
         Shop."Tax Area Priority" := Shop."Tax Area Priority"::"Ship-to -> Sell-to -> Bill-to";
         Shop."County Source" := Shop."County Source"::"Code";
-        Shop.Validate("Auto Release Sales Orders", false);
         if not Shop.Modify() then
             Shop.Insert();
         ImportOrder.SetShop(Shop.Code);
@@ -368,13 +365,12 @@ codeunit 139608 "Shpfy Orders API Test"
         ProcessOrders: Codeunit "Shpfy Process Orders";
     begin
         // [SCENARIO] When the sales document is created, tax priority is taken from the shop
-        Codeunit.Run(Codeunit::"Shpfy Initialize Test");
+        Initialize();
 
         // [GIVEN] Shopify Shop
         Shop := CommunicationMgt.GetShopRecord();
         Shop."Tax Area Priority" := Shop."Tax Area Priority"::"Sell-to -> Ship-to -> Bill-to";
         Shop."County Source" := Shop."County Source"::"Name";
-        Shop.Validate("Auto Release Sales Orders", false);
         if not Shop.Modify() then
             Shop.Insert();
         ImportOrder.SetShop(Shop.Code);
@@ -413,7 +409,7 @@ codeunit 139608 "Shpfy Orders API Test"
         ProcessOrders: Codeunit "Shpfy Process Orders";
     begin
         // [SCENARIO] When the sales document is created, tax area is empty if there is no mapping
-        Codeunit.Run(Codeunit::"Shpfy Initialize Test");
+        Initialize();
 
         // [GIVEN] Shopify Shop
         Shop := CommunicationMgt.GetShopRecord();
@@ -489,5 +485,13 @@ codeunit 139608 "Shpfy Orders API Test"
     begin
         JShopifyOrder := OrderHandlingHelper.CreateShopifyOrderAsJson(Shop, OrdersToImport, JShopifyLineItems, B2B);
         ImportShopifyOrder(Shop, OrderHeader, OrdersToImport, ImportOrder, JShopifyOrder, JShopifyLineItems);
+    end;
+
+    local procedure Initialize()
+    var
+        OrdersAPISubscriber: Codeunit "Shpfy Orders API Subscriber";
+    begin
+        Codeunit.Run(Codeunit::"Shpfy Initialize Test");
+        if BindSubscription(OrdersAPISubscriber) then;
     end;
 }

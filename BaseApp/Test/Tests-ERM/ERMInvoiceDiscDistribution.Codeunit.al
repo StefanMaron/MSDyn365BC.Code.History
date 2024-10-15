@@ -676,14 +676,12 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
 
     local procedure VerifySalesLines(var SalesLine: Record "Sales Line"; Multiplier: Decimal)
     begin
-        with SalesLine do begin
-            FindSet();
-            VerifySalesLineInvoiceDiscountAmounts(SalesLine, 333.33 * Multiplier, 0);
-            Next();
-            VerifySalesLineInvoiceDiscountAmounts(SalesLine, 333.34 * Multiplier, 333.34 / 2);
-            Next();
-            VerifySalesLineInvoiceDiscountAmounts(SalesLine, 333.33 * Multiplier, 333.33);
-        end;
+        SalesLine.FindSet();
+        VerifySalesLineInvoiceDiscountAmounts(SalesLine, 333.33 * Multiplier, 0);
+        SalesLine.Next();
+        VerifySalesLineInvoiceDiscountAmounts(SalesLine, 333.34 * Multiplier, 333.34 / 2);
+        SalesLine.Next();
+        VerifySalesLineInvoiceDiscountAmounts(SalesLine, 333.33 * Multiplier, 333.33);
     end;
 
     local procedure VerifySalesLineInvoiceDiscountAmounts(SalesLine: Record "Sales Line"; ExpectedInvoiceDiscount: Decimal; ExpectedInvoiceDiscountToInvoice: Decimal)
@@ -694,14 +692,12 @@ codeunit 134098 "ERM Invoice Disc. Distribution"
 
     local procedure VerifyPurchaseLines(var PurchaseLine: Record "Purchase Line"; Multiplier: Decimal)
     begin
-        with PurchaseLine do begin
-            FindSet();
-            VerifyPurchaseLineInvoiceDiscountAmounts(PurchaseLine, 333.33 * Multiplier, 0);
-            Next();
-            VerifyPurchaseLineInvoiceDiscountAmounts(PurchaseLine, 333.34 * Multiplier, 333.34 / 2);
-            Next();
-            VerifyPurchaseLineInvoiceDiscountAmounts(PurchaseLine, 333.33 * Multiplier, 333.33);
-        end;
+        PurchaseLine.FindSet();
+        VerifyPurchaseLineInvoiceDiscountAmounts(PurchaseLine, 333.33 * Multiplier, 0);
+        PurchaseLine.Next();
+        VerifyPurchaseLineInvoiceDiscountAmounts(PurchaseLine, 333.34 * Multiplier, 333.34 / 2);
+        PurchaseLine.Next();
+        VerifyPurchaseLineInvoiceDiscountAmounts(PurchaseLine, 333.33 * Multiplier, 333.33);
     end;
 
     local procedure VerifyPurchaseLineInvoiceDiscountAmounts(PurchaseLine: Record "Purchase Line"; ExpectedInvoiceDiscount: Decimal; ExpectedInvoiceDiscountToInvoice: Decimal)

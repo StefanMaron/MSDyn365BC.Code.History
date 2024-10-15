@@ -70,25 +70,23 @@ codeunit 134124 "ERM Reverse Employee Ledger"
 
         // [THEN] Fields are copied from  Employee Ledger Entry to Reversal Entry
         LibraryLowerPermissions.SetOutsideO365Scope();
-        with ReversalEntry do begin
-            TestField("Entry No.", EmployeeLedgerEntry."Entry No.");
-            TestField("Posting Date", EmployeeLedgerEntry."Posting Date");
-            TestField("Source Code", EmployeeLedgerEntry."Source Code");
-            TestField("Journal Batch Name", EmployeeLedgerEntry."Journal Batch Name");
-            TestField("Transaction No.", EmployeeLedgerEntry."Transaction No.");
-            TestField("Currency Code", EmployeeLedgerEntry."Currency Code");
-            TestField(Description, EmployeeLedgerEntry.Description);
-            TestField("Document Type", EmployeeLedgerEntry."Document Type");
-            TestField("Document No.", EmployeeLedgerEntry."Document No.");
-            TestField("Bal. Account Type", EmployeeLedgerEntry."Bal. Account Type");
-            TestField("Bal. Account No.", EmployeeLedgerEntry."Bal. Account No.");
-            TestField(Amount, EmployeeLedgerEntry.Amount);
-            TestField("Amount (LCY)", EmployeeLedgerEntry."Amount (LCY)");
-            TestField("Debit Amount", EmployeeLedgerEntry."Debit Amount");
-            TestField("Debit Amount (LCY)", EmployeeLedgerEntry."Debit Amount (LCY)");
-            TestField("Credit Amount", 0);
-            TestField("Credit Amount (LCY)", 0);
-        end;
+        ReversalEntry.TestField("Entry No.", EmployeeLedgerEntry."Entry No.");
+        ReversalEntry.TestField("Posting Date", EmployeeLedgerEntry."Posting Date");
+        ReversalEntry.TestField("Source Code", EmployeeLedgerEntry."Source Code");
+        ReversalEntry.TestField("Journal Batch Name", EmployeeLedgerEntry."Journal Batch Name");
+        ReversalEntry.TestField("Transaction No.", EmployeeLedgerEntry."Transaction No.");
+        ReversalEntry.TestField("Currency Code", EmployeeLedgerEntry."Currency Code");
+        ReversalEntry.TestField(Description, EmployeeLedgerEntry.Description);
+        ReversalEntry.TestField("Document Type", EmployeeLedgerEntry."Document Type");
+        ReversalEntry.TestField("Document No.", EmployeeLedgerEntry."Document No.");
+        ReversalEntry.TestField("Bal. Account Type", EmployeeLedgerEntry."Bal. Account Type");
+        ReversalEntry.TestField("Bal. Account No.", EmployeeLedgerEntry."Bal. Account No.");
+        ReversalEntry.TestField(Amount, EmployeeLedgerEntry.Amount);
+        ReversalEntry.TestField("Amount (LCY)", EmployeeLedgerEntry."Amount (LCY)");
+        ReversalEntry.TestField("Debit Amount", EmployeeLedgerEntry."Debit Amount");
+        ReversalEntry.TestField("Debit Amount (LCY)", EmployeeLedgerEntry."Debit Amount (LCY)");
+        ReversalEntry.TestField("Credit Amount", 0);
+        ReversalEntry.TestField("Credit Amount (LCY)", 0);
     end;
 
     [Test]
@@ -115,12 +113,10 @@ codeunit 134124 "ERM Reverse Employee Ledger"
 
         // [THEN] Fields Credit Amount and Credit Amount (LCY) are copied from  Employee Ledger Entry to Reversal Entry
         LibraryLowerPermissions.SetOutsideO365Scope();
-        with ReversalEntry do begin
-            TestField("Credit Amount");
-            TestField("Credit Amount (LCY)");
-            TestField("Credit Amount", EmployeeLedgerEntry."Credit Amount");
-            TestField("Credit Amount (LCY)", EmployeeLedgerEntry."Credit Amount (LCY)");
-        end;
+        ReversalEntry.TestField("Credit Amount");
+        ReversalEntry.TestField("Credit Amount (LCY)");
+        ReversalEntry.TestField("Credit Amount", EmployeeLedgerEntry."Credit Amount");
+        ReversalEntry.TestField("Credit Amount (LCY)", EmployeeLedgerEntry."Credit Amount (LCY)");
     end;
 
     [Test]
@@ -451,53 +447,47 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         FindEmployeeLedgerEntriesAndCalcFields(OriginalEmployeeLedgerEntry, ReversalEmployeeLedgerEntry, OriginalEntryNo);
         VerifyCalcFieldsReversalEmployeeLedgerEntry(ReversalEmployeeLedgerEntry, OriginalEmployeeLedgerEntry);
         VerifyReversalEmployeeLedgerEntryAppliedFields(ReversalEmployeeLedgerEntry, OriginalEmployeeLedgerEntry);
-        with ReversalEmployeeLedgerEntry do begin
-            TestField(Positive, not OriginalEmployeeLedgerEntry.Positive);
-            TestField("User ID", UserId);
-            TestField("Transaction No.", OriginalEmployeeLedgerEntry."Transaction No." + 1);
-            TestField("Journal Batch Name", '');
-            TestField("Source Code", GetSourceCodeSetupReversal());
-            TestField(Description, OriginalEmployeeLedgerEntry.Description);
-            TestField("Reversed Entry No.", OriginalEmployeeLedgerEntry."Entry No.");
-            TestField(Reversed, true);
-            TestField("Applies-to ID", '');
-            TestField("Posting Date", OriginalEmployeeLedgerEntry."Posting Date");
+        ReversalEmployeeLedgerEntry.TestField(Positive, not OriginalEmployeeLedgerEntry.Positive);
+        ReversalEmployeeLedgerEntry.TestField("User ID", UserId);
+        ReversalEmployeeLedgerEntry.TestField("Transaction No.", OriginalEmployeeLedgerEntry."Transaction No." + 1);
+        ReversalEmployeeLedgerEntry.TestField("Journal Batch Name", '');
+        ReversalEmployeeLedgerEntry.TestField("Source Code", GetSourceCodeSetupReversal());
+        ReversalEmployeeLedgerEntry.TestField(Description, OriginalEmployeeLedgerEntry.Description);
+        ReversalEmployeeLedgerEntry.TestField("Reversed Entry No.", OriginalEmployeeLedgerEntry."Entry No.");
+        ReversalEmployeeLedgerEntry.TestField(Reversed, true);
+        ReversalEmployeeLedgerEntry.TestField("Applies-to ID", '');
+        ReversalEmployeeLedgerEntry.TestField("Posting Date", OriginalEmployeeLedgerEntry."Posting Date");
 
-            TestField("Employee No.", OriginalEmployeeLedgerEntry."Employee No.");
-            TestField("Employee Posting Group", OriginalEmployeeLedgerEntry."Employee Posting Group");
-            TestField("Document Type", OriginalEmployeeLedgerEntry."Document Type");
-            TestField("Document No.", OriginalEmployeeLedgerEntry."Document No.");
-            TestField("Bal. Account Type", OriginalEmployeeLedgerEntry."Bal. Account Type");
-            TestField("Bal. Account No.", OriginalEmployeeLedgerEntry."Bal. Account No.");
-            TestField("Currency Code", OriginalEmployeeLedgerEntry."Currency Code");
-        end;
+        ReversalEmployeeLedgerEntry.TestField("Employee No.", OriginalEmployeeLedgerEntry."Employee No.");
+        ReversalEmployeeLedgerEntry.TestField("Employee Posting Group", OriginalEmployeeLedgerEntry."Employee Posting Group");
+        ReversalEmployeeLedgerEntry.TestField("Document Type", OriginalEmployeeLedgerEntry."Document Type");
+        ReversalEmployeeLedgerEntry.TestField("Document No.", OriginalEmployeeLedgerEntry."Document No.");
+        ReversalEmployeeLedgerEntry.TestField("Bal. Account Type", OriginalEmployeeLedgerEntry."Bal. Account Type");
+        ReversalEmployeeLedgerEntry.TestField("Bal. Account No.", OriginalEmployeeLedgerEntry."Bal. Account No.");
+        ReversalEmployeeLedgerEntry.TestField("Currency Code", OriginalEmployeeLedgerEntry."Currency Code");
     end;
 
     local procedure VerifyCalcFieldsReversalEmployeeLedgerEntry(ReversalEmployeeLedgerEntry: Record "Employee Ledger Entry"; OriginalEmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
-        with ReversalEmployeeLedgerEntry do begin
-            TestField(Amount, -OriginalEmployeeLedgerEntry.Amount);
-            TestField("Amount (LCY)", -OriginalEmployeeLedgerEntry."Amount (LCY)");
-            TestField("Debit Amount", -OriginalEmployeeLedgerEntry."Debit Amount");
-            TestField("Debit Amount (LCY)", -OriginalEmployeeLedgerEntry."Debit Amount (LCY)");
-            TestField("Credit Amount", -OriginalEmployeeLedgerEntry."Credit Amount");
-            TestField("Credit Amount (LCY)", -OriginalEmployeeLedgerEntry."Credit Amount (LCY)");
-            TestField("Original Amount", -OriginalEmployeeLedgerEntry."Original Amount");
-            TestField("Original Amt. (LCY)", -OriginalEmployeeLedgerEntry."Original Amt. (LCY)");
-            TestField("Remaining Amount", 0);
-            TestField("Remaining Amt. (LCY)", 0);
-        end;
+        ReversalEmployeeLedgerEntry.TestField(Amount, -OriginalEmployeeLedgerEntry.Amount);
+        ReversalEmployeeLedgerEntry.TestField("Amount (LCY)", -OriginalEmployeeLedgerEntry."Amount (LCY)");
+        ReversalEmployeeLedgerEntry.TestField("Debit Amount", -OriginalEmployeeLedgerEntry."Debit Amount");
+        ReversalEmployeeLedgerEntry.TestField("Debit Amount (LCY)", -OriginalEmployeeLedgerEntry."Debit Amount (LCY)");
+        ReversalEmployeeLedgerEntry.TestField("Credit Amount", -OriginalEmployeeLedgerEntry."Credit Amount");
+        ReversalEmployeeLedgerEntry.TestField("Credit Amount (LCY)", -OriginalEmployeeLedgerEntry."Credit Amount (LCY)");
+        ReversalEmployeeLedgerEntry.TestField("Original Amount", -OriginalEmployeeLedgerEntry."Original Amount");
+        ReversalEmployeeLedgerEntry.TestField("Original Amt. (LCY)", -OriginalEmployeeLedgerEntry."Original Amt. (LCY)");
+        ReversalEmployeeLedgerEntry.TestField("Remaining Amount", 0);
+        ReversalEmployeeLedgerEntry.TestField("Remaining Amt. (LCY)", 0);
     end;
 
     local procedure VerifyReversalEmployeeLedgerEntryAppliedFields(ReversalEmployeeLedgerEntry: Record "Employee Ledger Entry"; OriginalEmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
-        with ReversalEmployeeLedgerEntry do begin
-            TestField("Closed by Entry No.", OriginalEmployeeLedgerEntry."Entry No.");
-            TestField("Closed at Date", OriginalEmployeeLedgerEntry."Posting Date");
-            TestField("Closed by Amount", -OriginalEmployeeLedgerEntry."Remaining Amount");
-            TestField("Closed by Amount (LCY)", -OriginalEmployeeLedgerEntry."Remaining Amt. (LCY)");
-            TestField(Open, false);
-        end;
+        ReversalEmployeeLedgerEntry.TestField("Closed by Entry No.", OriginalEmployeeLedgerEntry."Entry No.");
+        ReversalEmployeeLedgerEntry.TestField("Closed at Date", OriginalEmployeeLedgerEntry."Posting Date");
+        ReversalEmployeeLedgerEntry.TestField("Closed by Amount", -OriginalEmployeeLedgerEntry."Remaining Amount");
+        ReversalEmployeeLedgerEntry.TestField("Closed by Amount (LCY)", -OriginalEmployeeLedgerEntry."Remaining Amt. (LCY)");
+        ReversalEmployeeLedgerEntry.TestField(Open, false);
     end;
 
     local procedure VerifyOriginalEmployeeLedgerEntryAppliedFields(OriginalEntryNo: Integer)
@@ -506,13 +496,11 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         ReversalEmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
         FindEmployeeLedgerEntriesAndCalcFields(OriginalEmployeeLedgerEntry, ReversalEmployeeLedgerEntry, OriginalEntryNo);
-        with OriginalEmployeeLedgerEntry do begin
-            TestField("Closed by Entry No.", ReversalEmployeeLedgerEntry."Entry No.");
-            TestField("Closed at Date", ReversalEmployeeLedgerEntry."Posting Date");
-            TestField("Closed by Amount", -ReversalEmployeeLedgerEntry.Amount);
-            TestField("Closed by Amount (LCY)", -ReversalEmployeeLedgerEntry."Amount (LCY)");
-            TestField(Open, false);
-        end;
+        OriginalEmployeeLedgerEntry.TestField("Closed by Entry No.", ReversalEmployeeLedgerEntry."Entry No.");
+        OriginalEmployeeLedgerEntry.TestField("Closed at Date", ReversalEmployeeLedgerEntry."Posting Date");
+        OriginalEmployeeLedgerEntry.TestField("Closed by Amount", -ReversalEmployeeLedgerEntry.Amount);
+        OriginalEmployeeLedgerEntry.TestField("Closed by Amount (LCY)", -ReversalEmployeeLedgerEntry."Amount (LCY)");
+        OriginalEmployeeLedgerEntry.TestField(Open, false);
     end;
 
     local procedure VerifyReversalDetailedEmployeeLedgerEntry(OriginalEmployeeLedgerEntryNo: Integer)
@@ -527,13 +515,11 @@ codeunit 134124 "ERM Reverse Employee Ledger"
           ReversalDetailedEmployeeLedgerEntry, ReversalDetailedEmployeeLedgerEntry."Entry Type"::"Initial Entry",
           FindReversalEmployeeLedgerEntryNoByOriginalEntryNo(OriginalEmployeeLedgerEntryNo));
 
-        with ReversalDetailedEmployeeLedgerEntry do begin
-            TestField(Amount, -OriginalDetailedEmployeeLedgerEntry.Amount);
-            TestField("Amount (LCY)", -OriginalDetailedEmployeeLedgerEntry."Amount (LCY)");
-            TestField("User ID", UserId);
-            TestField("Transaction No.", OriginalDetailedEmployeeLedgerEntry."Transaction No." + 1);
-            TestField("Entry No.", OriginalDetailedEmployeeLedgerEntry."Entry No." + 1);
-        end;
+        ReversalDetailedEmployeeLedgerEntry.TestField(Amount, -OriginalDetailedEmployeeLedgerEntry.Amount);
+        ReversalDetailedEmployeeLedgerEntry.TestField("Amount (LCY)", -OriginalDetailedEmployeeLedgerEntry."Amount (LCY)");
+        ReversalDetailedEmployeeLedgerEntry.TestField("User ID", UserId);
+        ReversalDetailedEmployeeLedgerEntry.TestField("Transaction No.", OriginalDetailedEmployeeLedgerEntry."Transaction No." + 1);
+        ReversalDetailedEmployeeLedgerEntry.TestField("Entry No.", OriginalDetailedEmployeeLedgerEntry."Entry No." + 1);
     end;
 
     local procedure VerifyBalancingDetailedEmployeeLedgerEntry(OriginalEmployeeLedgerEntryNo: Integer)
@@ -548,14 +534,12 @@ codeunit 134124 "ERM Reverse Employee Ledger"
           BalancingDetailedEmployeeLedgerEntry, BalancingDetailedEmployeeLedgerEntry."Entry Type"::Application,
           OriginalEmployeeLedgerEntryNo);
 
-        with BalancingDetailedEmployeeLedgerEntry do begin
-            TestField("Applied Empl. Ledger Entry No.", FindReversalEmployeeLedgerEntryNoByOriginalEntryNo(OriginalEmployeeLedgerEntryNo));
-            TestField(Amount, -OriginalDetailedEmployeeLedgerEntry.Amount);
-            TestField("Amount (LCY)", -OriginalDetailedEmployeeLedgerEntry."Amount (LCY)");
-            TestField("User ID", UserId);
-            TestField("Transaction No.", OriginalDetailedEmployeeLedgerEntry."Transaction No." + 1);
-            TestField("Entry No.", OriginalDetailedEmployeeLedgerEntry."Entry No." + 2);
-        end;
+        BalancingDetailedEmployeeLedgerEntry.TestField("Applied Empl. Ledger Entry No.", FindReversalEmployeeLedgerEntryNoByOriginalEntryNo(OriginalEmployeeLedgerEntryNo));
+        BalancingDetailedEmployeeLedgerEntry.TestField(Amount, -OriginalDetailedEmployeeLedgerEntry.Amount);
+        BalancingDetailedEmployeeLedgerEntry.TestField("Amount (LCY)", -OriginalDetailedEmployeeLedgerEntry."Amount (LCY)");
+        BalancingDetailedEmployeeLedgerEntry.TestField("User ID", UserId);
+        BalancingDetailedEmployeeLedgerEntry.TestField("Transaction No.", OriginalDetailedEmployeeLedgerEntry."Transaction No." + 1);
+        BalancingDetailedEmployeeLedgerEntry.TestField("Entry No.", OriginalDetailedEmployeeLedgerEntry."Entry No." + 2);
     end;
 
     local procedure VerifyBalancingReversalDetailedEmployeeLedgerEntry(OriginalEmployeeLedgerEntryNo: Integer)
@@ -570,14 +554,12 @@ codeunit 134124 "ERM Reverse Employee Ledger"
           BalancingDetailedEmployeeLedgerEntry, BalancingDetailedEmployeeLedgerEntry."Entry Type"::Application,
           FindReversalEmployeeLedgerEntryNoByOriginalEntryNo(OriginalEmployeeLedgerEntryNo));
 
-        with BalancingDetailedEmployeeLedgerEntry do begin
-            TestField("Applied Empl. Ledger Entry No.", ReversalDetailedEmployeeLedgerEntry."Employee Ledger Entry No.");
-            TestField(Amount, -ReversalDetailedEmployeeLedgerEntry.Amount);
-            TestField("Amount (LCY)", -ReversalDetailedEmployeeLedgerEntry."Amount (LCY)");
-            TestField("User ID", UserId);
-            TestField("Transaction No.", ReversalDetailedEmployeeLedgerEntry."Transaction No.");
-            TestField("Entry No.", ReversalDetailedEmployeeLedgerEntry."Entry No." + 2);
-        end;
+        BalancingDetailedEmployeeLedgerEntry.TestField("Applied Empl. Ledger Entry No.", ReversalDetailedEmployeeLedgerEntry."Employee Ledger Entry No.");
+        BalancingDetailedEmployeeLedgerEntry.TestField(Amount, -ReversalDetailedEmployeeLedgerEntry.Amount);
+        BalancingDetailedEmployeeLedgerEntry.TestField("Amount (LCY)", -ReversalDetailedEmployeeLedgerEntry."Amount (LCY)");
+        BalancingDetailedEmployeeLedgerEntry.TestField("User ID", UserId);
+        BalancingDetailedEmployeeLedgerEntry.TestField("Transaction No.", ReversalDetailedEmployeeLedgerEntry."Transaction No.");
+        BalancingDetailedEmployeeLedgerEntry.TestField("Entry No.", ReversalDetailedEmployeeLedgerEntry."Entry No." + 2);
     end;
 
     [MessageHandler]
@@ -604,27 +586,25 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         EmployeeLedgerEntry.CalcFields("Amount (LCY)");
         // Account Name, G/L Register No., Source Code, Amount, Debit and Credit Amount, Debit and Credit Amount (LCY) are invisible on page
         // Reversal Type and Line No. do not present on page;
-        with ReverseTransactionEntries do begin
-            FILTER.SetFilter("Entry Type", Format(DummyReversalEntry."Entry Type"::Employee));
-            First();
-            "Entry No.".AssertEquals(EmployeeLedgerEntry."Entry No.");
-            "Posting Date".AssertEquals(EmployeeLedgerEntry."Posting Date");
-            "Journal Batch Name".AssertEquals(EmployeeLedgerEntry."Journal Batch Name");
-            "Transaction No.".AssertEquals(EmployeeLedgerEntry."Transaction No.");
-            "Currency Code".AssertEquals(EmployeeLedgerEntry."Currency Code");
-            Description.AssertEquals(EmployeeLedgerEntry.Description);
-            "Amount (LCY)".AssertEquals(EmployeeLedgerEntry."Amount (LCY)");
-            "Document Type".AssertEquals(EmployeeLedgerEntry."Document Type");
-            "Document No.".AssertEquals(EmployeeLedgerEntry."Document No.");
-            "Account No.".AssertEquals(EmployeeLedgerEntry."Employee No.");
+        ReverseTransactionEntries.FILTER.SetFilter("Entry Type", Format(DummyReversalEntry."Entry Type"::Employee));
+        ReverseTransactionEntries.First();
+        ReverseTransactionEntries."Entry No.".AssertEquals(EmployeeLedgerEntry."Entry No.");
+        ReverseTransactionEntries."Posting Date".AssertEquals(EmployeeLedgerEntry."Posting Date");
+        ReverseTransactionEntries."Journal Batch Name".AssertEquals(EmployeeLedgerEntry."Journal Batch Name");
+        ReverseTransactionEntries."Transaction No.".AssertEquals(EmployeeLedgerEntry."Transaction No.");
+        ReverseTransactionEntries."Currency Code".AssertEquals(EmployeeLedgerEntry."Currency Code");
+        ReverseTransactionEntries.Description.AssertEquals(EmployeeLedgerEntry.Description);
+        ReverseTransactionEntries."Amount (LCY)".AssertEquals(EmployeeLedgerEntry."Amount (LCY)");
+        ReverseTransactionEntries."Document Type".AssertEquals(EmployeeLedgerEntry."Document Type");
+        ReverseTransactionEntries."Document No.".AssertEquals(EmployeeLedgerEntry."Document No.");
+        ReverseTransactionEntries."Account No.".AssertEquals(EmployeeLedgerEntry."Employee No.");
 
-            FILTER.SetFilter("Entry Type", Format(DummyReversalEntry."Entry Type"::"G/L Account"));
-            First();
-            "Source Type".AssertEquals(DummyReversalEntry."Source Type"::Employee);
-            "Source No.".AssertEquals(EmployeeLedgerEntry."Employee No.");
+        ReverseTransactionEntries.FILTER.SetFilter("Entry Type", Format(DummyReversalEntry."Entry Type"::"G/L Account"));
+        ReverseTransactionEntries.First();
+        ReverseTransactionEntries."Source Type".AssertEquals(DummyReversalEntry."Source Type"::Employee);
+        ReverseTransactionEntries."Source No.".AssertEquals(EmployeeLedgerEntry."Employee No.");
 
-            OK().Invoke();
-        end;
+        ReverseTransactionEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]

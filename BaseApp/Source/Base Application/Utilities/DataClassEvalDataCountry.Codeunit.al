@@ -10,10 +10,6 @@ using Microsoft.HumanResources.Employee;
 using Microsoft.HumanResources.Payables;
 using Microsoft.Sales.Archive;
 using System.Privacy;
-#if not CLEAN22
-using Microsoft.Finance.AutomaticAccounts;
-using Microsoft.Finance.AuditFileExport;
-#endif
 
 codeunit 1752 "Data Class. Eval. Data Country"
 {
@@ -35,11 +31,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         ClassifyVATReportHeader();
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
-#if not CLEAN22
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Automatic Acc. Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Automatic Acc. Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SIE Dimension");
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         OnAfterClassifyCountrySpecificTables();
     end;

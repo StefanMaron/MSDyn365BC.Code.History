@@ -830,14 +830,12 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         LibraryInventory.CreateItem(Item);
         CreateAndPostPurchReceiptPutAway(Item."No.", 1, 147, Location.Code);
 
-        with BinContent do begin
-            SetRange("Item No.", Item."No.");
-            FindFirst();
-            Validate(Fixed, true);
-            Validate("Min. Qty.", 96);
-            Validate("Max. Qty.", 192);
-            Modify(true);
-        end;
+        BinContent.SetRange("Item No.", Item."No.");
+        BinContent.FindFirst();
+        BinContent.Validate(Fixed, true);
+        BinContent.Validate("Min. Qty.", 96);
+        BinContent.Validate("Max. Qty.", 192);
+        BinContent.Modify(true);
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesLine, SalesHeader, Item."No.", 24, Location.Code);
@@ -935,23 +933,21 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         VerifyWhseUOMQty(Item."No.", Location.Code, Item."Purch. Unit of Measure", 100, 100, 100);
         VerifyInvtQty(Item."No.", 100);
 
-        with WhseActivLine do begin
-            SetRange("Activity Type", "Activity Type"::Movement);
-            SetRange("Whse. Document Type", "Whse. Document Type"::"Movement Worksheet");
-            SetRange("Item No.", Item."No.");
-            Find('-');
-            Assert.AreEqual(10, Quantity, '');
-            Assert.AreEqual(100, "Qty. (Base)", '');
+        WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::Movement);
+        WhseActivLine.SetRange("Whse. Document Type", WhseActivLine."Whse. Document Type"::"Movement Worksheet");
+        WhseActivLine.SetRange("Item No.", Item."No.");
+        WhseActivLine.Find('-');
+        Assert.AreEqual(10, WhseActivLine.Quantity, '');
+        Assert.AreEqual(100, WhseActivLine."Qty. (Base)", '');
 
-            Bin[1].SetRange("Location Code", Location.Code);
-            Bin[1].SetRange("Zone Code", "Zone Code");
-            Bin[1].SetFilter(Code, '<>%1', "Bin Code");
-            Bin[1].FindFirst();
+        Bin[1].SetRange("Location Code", Location.Code);
+        Bin[1].SetRange("Zone Code", WhseActivLine."Zone Code");
+        Bin[1].SetFilter(Code, '<>%1', WhseActivLine."Bin Code");
+        Bin[1].FindFirst();
 
-            Next();
-            Assert.AreEqual(10, Quantity, '');
-            Assert.AreEqual(100, "Qty. (Base)", '');
-        end;
+        WhseActivLine.Next();
+        Assert.AreEqual(10, WhseActivLine.Quantity, '');
+        Assert.AreEqual(100, WhseActivLine."Qty. (Base)", '');
     end;
 
     [Test]
@@ -1183,15 +1179,13 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         VerifyWhseUOMQty(Item."No.", Location.Code, ItemUnitOfMeasure.Code, 0, 0, 10);
         VerifyInvtQty(Item."No.", 20);
 
-        with BinContent do begin
-            SetRange("Location Code", Location.Code);
-            SetRange("Item No.", Item."No.");
-            SetRange("Unit of Measure Code", ItemUnitOfMeasure.Code);
-            Assert.IsTrue(FindFirst(), 'Bin Content exists');
+        BinContent.SetRange("Location Code", Location.Code);
+        BinContent.SetRange("Item No.", Item."No.");
+        BinContent.SetRange("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        Assert.IsTrue(BinContent.FindFirst(), 'Bin Content exists');
 
-            SetRange("Unit of Measure Code", Item."Base Unit of Measure");
-            Assert.IsTrue(FindFirst(), 'Bin Content exists');
-        end;
+        BinContent.SetRange("Unit of Measure Code", Item."Base Unit of Measure");
+        Assert.IsTrue(BinContent.FindFirst(), 'Bin Content exists');
 
         // Exercise
         Bin[1].Get(BinContent."Location Code", BinContent."Bin Code");
@@ -1208,16 +1202,14 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         VerifyWhseUOMQty(Item."No.", Location.Code, ItemUnitOfMeasure.Code, 0, 0, 10);
         VerifyInvtQty(Item."No.", 20);
 
-        with BinContent do begin
-            SetRange("Location Code", Location.Code);
-            SetRange("Item No.", Item."No.");
-            SetRange("Unit of Measure Code", ItemUnitOfMeasure.Code);
-            SetRange("Bin Code", Bin[2].Code);
-            Assert.IsTrue(FindFirst(), 'Bin Content exists');
+        BinContent.SetRange("Location Code", Location.Code);
+        BinContent.SetRange("Item No.", Item."No.");
+        BinContent.SetRange("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        BinContent.SetRange("Bin Code", Bin[2].Code);
+        Assert.IsTrue(BinContent.FindFirst(), 'Bin Content exists');
 
-            SetRange("Unit of Measure Code", Item."Base Unit of Measure");
-            Assert.IsTrue(FindFirst(), 'Bin Content exists');
-        end;
+        BinContent.SetRange("Unit of Measure Code", Item."Base Unit of Measure");
+        Assert.IsTrue(BinContent.FindFirst(), 'Bin Content exists');
     end;
 
     [Test]
@@ -1253,20 +1245,18 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         LibraryWarehouse.CreateBin(
           Bin, Location.Code, '', FindLocationPickZone(Location.Code), FindPutPickBinType());
 
-        with BinContent do begin
-            Init();
-            Validate("Location Code", Location.Code);
-            Validate("Zone Code", FindLocationPickZone("Location Code"));
-            Validate("Bin Code", Bin.Code);
-            Validate("Item No.", Item."No.");
-            Validate("Unit of Measure Code", Item."Base Unit of Measure");
-            Validate("Bin Type Code", FindPutPickBinType());
-            Validate("Bin Ranking", 10000);
-            Validate("Min. Qty.", 101);
-            Validate("Max. Qty.", 225);
-            Validate(Fixed, true);
-            Insert(true);
-        end;
+        BinContent.Init();
+        BinContent.Validate("Location Code", Location.Code);
+        BinContent.Validate("Zone Code", FindLocationPickZone(BinContent."Location Code"));
+        BinContent.Validate("Bin Code", Bin.Code);
+        BinContent.Validate("Item No.", Item."No.");
+        BinContent.Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        BinContent.Validate("Bin Type Code", FindPutPickBinType());
+        BinContent.Validate("Bin Ranking", 10000);
+        BinContent.Validate("Min. Qty.", 101);
+        BinContent.Validate("Max. Qty.", 225);
+        BinContent.Validate(Fixed, true);
+        BinContent.Insert(true);
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(), Item."No.", 152,
@@ -1277,37 +1267,34 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
           LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
               DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
-
         // [WHEN] Now put multiple UOMs of the same Item in same Bin
-        with WhseActivLine do begin
-            SetRange("Item No.", Item."No.");
-            FindLast();
-            Validate("Qty. to Handle", 1);
-            Modify(true);
+        WhseActivLine.SetRange("Item No.", Item."No.");
+        WhseActivLine.FindLast();
+        WhseActivLine.Validate("Qty. to Handle", 1);
+        WhseActivLine.Modify(true);
 
-            TempWhseActivLine := WhseActivLine;
-            SplitLine(WhseActivLine);
-            FindLast();
-            Validate("Zone Code", TempWhseActivLine."Zone Code");
-            Validate("Bin Code", TempWhseActivLine."Bin Code");
-            Modify(true);
+        TempWhseActivLine := WhseActivLine;
+        WhseActivLine.SplitLine(WhseActivLine);
+        WhseActivLine.FindLast();
+        WhseActivLine.Validate("Zone Code", TempWhseActivLine."Zone Code");
+        WhseActivLine.Validate("Bin Code", TempWhseActivLine."Bin Code");
+        WhseActivLine.Modify(true);
 
-            TempWhseActivLine := WhseActivLine;
-            TempWhseActivLine."Unit of Measure Code" := Item."Base Unit of Measure";
-            TempWhseActivLine."Qty. per Unit of Measure" := 1;
-            TempWhseActivLine.Validate(Quantity, TempWhseActivLine."Qty. (Base)");
-            ChangeUOMCode(WhseActivLine, TempWhseActivLine);
-            Validate("Qty. to Handle", 3);
-            Modify(true);
+        TempWhseActivLine := WhseActivLine;
+        TempWhseActivLine."Unit of Measure Code" := Item."Base Unit of Measure";
+        TempWhseActivLine."Qty. per Unit of Measure" := 1;
+        TempWhseActivLine.Validate(Quantity, TempWhseActivLine."Qty. (Base)");
+        WhseActivLine.ChangeUOMCode(WhseActivLine, TempWhseActivLine);
+        WhseActivLine.Validate("Qty. to Handle", 3);
+        WhseActivLine.Modify(true);
 
-            TempWhseActivLine := WhseActivLine;
-            SplitLine(WhseActivLine);
-            FindLast();
-            Validate("Zone Code", FindLocationPickZone("Location Code"));
-            Validate("Bin Code", Bin.Code);
-            Validate("Qty. to Handle", 74);
-            Modify(true);
-        end;
+        TempWhseActivLine := WhseActivLine;
+        WhseActivLine.SplitLine(WhseActivLine);
+        WhseActivLine.FindLast();
+        WhseActivLine.Validate("Zone Code", FindLocationPickZone(WhseActivLine."Location Code"));
+        WhseActivLine.Validate("Bin Code", Bin.Code);
+        WhseActivLine.Validate("Qty. to Handle", 74);
+        WhseActivLine.Modify(true);
 
         LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
         LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, Location.Code);
@@ -1392,12 +1379,10 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
           LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
               DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
 
-        with WhseRcptLine do begin
-            SetRange("No.", WhseRcptHeader."No.");
-            FindFirst();
-            asserterror Validate("Qty. to Receive", 0.5);
-            AssertRunTime('integer', 'It should not be possible to receive ratios of items that are serial nos. tracked');
-        end;
+        WhseRcptLine.SetRange("No.", WhseRcptHeader."No.");
+        WhseRcptLine.FindFirst();
+        asserterror WhseRcptLine.Validate("Qty. to Receive", 0.5);
+        AssertRunTime('integer', 'It should not be possible to receive ratios of items that are serial nos. tracked');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -1968,11 +1953,9 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        with ItemUnitOfMeasure do begin
-            Get(ItemNo, UOMCode);
-            Validate("Qty. per Unit of Measure", "Qty. per Unit of Measure" + LibraryRandom.RandInt(10));
-            Modify();
-        end;
+        ItemUnitOfMeasure.Get(ItemNo, UOMCode);
+        ItemUnitOfMeasure.Validate("Qty. per Unit of Measure", ItemUnitOfMeasure."Qty. per Unit of Measure" + LibraryRandom.RandInt(10));
+        ItemUnitOfMeasure.Modify();
     end;
 
     local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10])
@@ -2153,32 +2136,28 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     var
         AssemblyHeader: Record "Assembly Header";
     begin
-        with AssemblyHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Quote;
-            "No." := LibraryUtility.GenerateGUID();
-            "Item No." := ItemNo;
-            "Remaining Quantity" := LibraryRandom.RandIntInRange(10, 100);
-            "Unit of Measure Code" := UOMCode;
-            Insert();
-        end;
+        AssemblyHeader.Init();
+        AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Quote;
+        AssemblyHeader."No." := LibraryUtility.GenerateGUID();
+        AssemblyHeader."Item No." := ItemNo;
+        AssemblyHeader."Remaining Quantity" := LibraryRandom.RandIntInRange(10, 100);
+        AssemblyHeader."Unit of Measure Code" := UOMCode;
+        AssemblyHeader.Insert();
     end;
 
     local procedure CreateAssemblyLine(ItemNo: Code[20]; UOMCode: Code[10])
     var
         AssemblyLine: Record "Assembly Line";
     begin
-        with AssemblyLine do begin
-            Init();
-            "Document Type" := "Document Type"::Quote;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Line No." := 10000;
-            Type := Type::Item;
-            "No." := ItemNo;
-            "Remaining Quantity" := LibraryRandom.RandIntInRange(10, 100);
-            "Unit of Measure Code" := UOMCode;
-            Insert();
-        end;
+        AssemblyLine.Init();
+        AssemblyLine."Document Type" := AssemblyLine."Document Type"::Quote;
+        AssemblyLine."Document No." := LibraryUtility.GenerateGUID();
+        AssemblyLine."Line No." := 10000;
+        AssemblyLine.Type := AssemblyLine.Type::Item;
+        AssemblyLine."No." := ItemNo;
+        AssemblyLine."Remaining Quantity" := LibraryRandom.RandIntInRange(10, 100);
+        AssemblyLine."Unit of Measure Code" := UOMCode;
+        AssemblyLine.Insert();
     end;
 
     local procedure CreateConsumptionJournalLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ItemNo: Code[20])
@@ -2189,20 +2168,18 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Consumption);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
 
-        with ItemJournalLine do begin
-            Init();
-            "Line No." := "Line No." + 10000;
-            Validate("Journal Template Name", ItemJournalTemplate.Name);
-            Validate("Journal Batch Name", ItemJournalBatch.Name);
-            Validate("Line No.", LibraryUtility.GetNewRecNo(ItemJournalLine, FieldNo("Line No.")));
+        ItemJournalLine.Init();
+        ItemJournalLine."Line No." := ItemJournalLine."Line No." + 10000;
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalTemplate.Name);
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.Validate("Line No.", LibraryUtility.GetNewRecNo(ItemJournalLine, ItemJournalLine.FieldNo("Line No.")));
 
-            Validate("Entry Type", "Entry Type"::Consumption);
-            Validate("Order Type", "Order Type"::Production);
-            Validate("Order No.", ProdOrderNo);
-            Validate("Order Line No.", ProdOrderLineNo);
-            Validate("Item No.", ItemNo);
-            Insert(true);
-        end;
+        ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::Consumption);
+        ItemJournalLine.Validate("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.Validate("Order No.", ProdOrderNo);
+        ItemJournalLine.Validate("Order Line No.", ProdOrderLineNo);
+        ItemJournalLine.Validate("Item No.", ItemNo);
+        ItemJournalLine.Insert(true);
     end;
 
     local procedure CreateFullWMSLocation(var Location: Record Location; FEFO: Boolean)
@@ -2284,24 +2261,20 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     local procedure CreateLotSpecificItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; LotWarehouseTracking: Boolean; StrictExpirationPosting: Boolean; ManExpirDateEntry: Boolean)
     begin
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
-        with ItemTrackingCode do begin
-            Validate("Lot Warehouse Tracking", LotWarehouseTracking);
-            Validate("Use Expiration Dates", StrictExpirationPosting or ManExpirDateEntry);
-            Validate("Strict Expiration Posting", StrictExpirationPosting);
-            Validate("Man. Expir. Date Entry Reqd.", ManExpirDateEntry);
-            Modify(true);
-        end;
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", LotWarehouseTracking);
+        ItemTrackingCode.Validate("Use Expiration Dates", StrictExpirationPosting or ManExpirDateEntry);
+        ItemTrackingCode.Validate("Strict Expiration Posting", StrictExpirationPosting);
+        ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", ManExpirDateEntry);
+        ItemTrackingCode.Modify(true);
     end;
 
     local procedure CreateSNSpecificItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; SNWarehouseTracking: Boolean; StrictExpirationPosting: Boolean; ManExpirDateEntry: Boolean)
     begin
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
-        with ItemTrackingCode do begin
-            Validate("SN Warehouse Tracking", SNWarehouseTracking);
-            Validate("Strict Expiration Posting", StrictExpirationPosting);
-            Validate("Man. Expir. Date Entry Reqd.", ManExpirDateEntry);
-            Modify(true);
-        end;
+        ItemTrackingCode.Validate("SN Warehouse Tracking", SNWarehouseTracking);
+        ItemTrackingCode.Validate("Strict Expiration Posting", StrictExpirationPosting);
+        ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", ManExpirDateEntry);
+        ItemTrackingCode.Modify(true);
     end;
 
     local procedure CreatePurchaseLineWithLotTracking(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; LotNo: Code[50])
@@ -2315,15 +2288,13 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     var
         TransferLine: Record "Transfer Line";
     begin
-        with TransferLine do begin
-            Init();
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Line No." := 10000;
-            "Item No." := ItemNo;
-            "Outstanding Quantity" := LibraryRandom.RandIntInRange(10, 100);
-            "Unit of Measure Code" := UOMCode;
-            Insert();
-        end;
+        TransferLine.Init();
+        TransferLine."Document No." := LibraryUtility.GenerateGUID();
+        TransferLine."Line No." := 10000;
+        TransferLine."Item No." := ItemNo;
+        TransferLine."Outstanding Quantity" := LibraryRandom.RandIntInRange(10, 100);
+        TransferLine."Unit of Measure Code" := UOMCode;
+        TransferLine.Insert();
     end;
 
     local procedure CreateProductionOrderAndPickComponents(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; QtyToPick: Decimal)
@@ -2347,48 +2318,42 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        with ProdOrderLine do begin
-            Init();
-            "Prod. Order No." := LibraryUtility.GenerateGUID();
-            "Line No." := 10000;
-            "Item No." := ItemNo;
-            "Remaining Quantity" := LibraryRandom.RandIntInRange(10, 100);
-            "Unit of Measure Code" := UOMCode;
-            Insert();
-        end;
+        ProdOrderLine.Init();
+        ProdOrderLine."Prod. Order No." := LibraryUtility.GenerateGUID();
+        ProdOrderLine."Line No." := 10000;
+        ProdOrderLine."Item No." := ItemNo;
+        ProdOrderLine."Remaining Quantity" := LibraryRandom.RandIntInRange(10, 100);
+        ProdOrderLine."Unit of Measure Code" := UOMCode;
+        ProdOrderLine.Insert();
     end;
 
     local procedure CreateProductionComponent(ItemNo: Code[20]; UOMCode: Code[10])
     var
         ProdOrderComponent: Record "Prod. Order Component";
     begin
-        with ProdOrderComponent do begin
-            Init();
-            "Prod. Order No." := LibraryUtility.GenerateGUID();
-            "Prod. Order Line No." := 10000;
-            "Line No." := 10000;
-            "Item No." := ItemNo;
-            "Remaining Quantity" := LibraryRandom.RandIntInRange(10, 100);
-            "Unit of Measure Code" := UOMCode;
-            Insert();
-        end;
+        ProdOrderComponent.Init();
+        ProdOrderComponent."Prod. Order No." := LibraryUtility.GenerateGUID();
+        ProdOrderComponent."Prod. Order Line No." := 10000;
+        ProdOrderComponent."Line No." := 10000;
+        ProdOrderComponent."Item No." := ItemNo;
+        ProdOrderComponent."Remaining Quantity" := LibraryRandom.RandIntInRange(10, 100);
+        ProdOrderComponent."Unit of Measure Code" := UOMCode;
+        ProdOrderComponent.Insert();
     end;
 
     local procedure CreateServiceLine(ItemNo: Code[20]; UOMCode: Code[10])
     var
         ServiceLine: Record "Service Line";
     begin
-        with ServiceLine do begin
-            Init();
-            "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Line No." := 10000;
-            Type := Type::Item;
-            "No." := ItemNo;
-            "Outstanding Quantity" := LibraryRandom.RandIntInRange(10, 100);
-            "Unit of Measure Code" := UOMCode;
-            Insert();
-        end;
+        ServiceLine.Init();
+        ServiceLine."Document Type" := ServiceLine."Document Type"::Order;
+        ServiceLine."Document No." := LibraryUtility.GenerateGUID();
+        ServiceLine."Line No." := 10000;
+        ServiceLine.Type := ServiceLine.Type::Item;
+        ServiceLine."No." := ItemNo;
+        ServiceLine."Outstanding Quantity" := LibraryRandom.RandIntInRange(10, 100);
+        ServiceLine."Unit of Measure Code" := UOMCode;
+        ServiceLine.Insert();
     end;
 
     local procedure CreateWarehouseJournalLinePhysInventory(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; ItemNo: Code[20]; ItemUnitOfMeasureCode: Code[10])
@@ -2458,16 +2423,14 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WarehouseEntry: Record "Warehouse Entry";
         EntryNo: Integer;
     begin
-        with WarehouseEntry do begin
-            FindLast();
-            EntryNo := "Entry No." + 1;
-            Init();
-            "Entry No." := EntryNo;
-            "Item No." := ItemNo;
-            Quantity := LibraryRandom.RandIntInRange(10, 100);
-            Validate("Unit of Measure Code", UOMCode);
-            Insert();
-        end;
+        WarehouseEntry.FindLast();
+        EntryNo := WarehouseEntry."Entry No." + 1;
+        WarehouseEntry.Init();
+        WarehouseEntry."Entry No." := EntryNo;
+        WarehouseEntry."Item No." := ItemNo;
+        WarehouseEntry.Quantity := LibraryRandom.RandIntInRange(10, 100);
+        WarehouseEntry.Validate("Unit of Measure Code", UOMCode);
+        WarehouseEntry.Insert();
     end;
 
     local procedure EnqueueLotTrackingParameters(LotNo: Code[50]; Quantity: Decimal)
@@ -2507,13 +2470,11 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
 
     local procedure FindWhseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20])
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Activity Type", ActivityType);
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubtype);
-            SetRange("Source No.", SourceNo);
-            FindSet();
-        end;
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.SetRange("Source Type", SourceType);
+        WarehouseActivityLine.SetRange("Source Subtype", SourceSubtype);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure PostProdOrderConsumption(ProdOrderNo: Code[20])
@@ -2550,34 +2511,30 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            Init();
-            "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Line No." := 10000;
-            Type := Type::Item;
-            "No." := ItemNo;
-            "Outstanding Quantity" := LibraryRandom.RandIntInRange(10, 100);
-            "Unit of Measure Code" := UOMCode;
-            Insert();
-        end;
+        PurchaseLine.Init();
+        PurchaseLine."Document Type" := PurchaseLine."Document Type"::Order;
+        PurchaseLine."Document No." := LibraryUtility.GenerateGUID();
+        PurchaseLine."Line No." := 10000;
+        PurchaseLine.Type := PurchaseLine.Type::Item;
+        PurchaseLine."No." := ItemNo;
+        PurchaseLine."Outstanding Quantity" := LibraryRandom.RandIntInRange(10, 100);
+        PurchaseLine."Unit of Measure Code" := UOMCode;
+        PurchaseLine.Insert();
     end;
 
     local procedure MockSalesLine(ItemNo: Code[20]; UOMCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            Init();
-            "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Line No." := 10000;
-            Type := Type::Item;
-            "No." := ItemNo;
-            "Outstanding Quantity" := LibraryRandom.RandIntInRange(10, 100);
-            "Unit of Measure Code" := UOMCode;
-            Insert();
-        end;
+        SalesLine.Init();
+        SalesLine."Document Type" := SalesLine."Document Type"::Order;
+        SalesLine."Document No." := LibraryUtility.GenerateGUID();
+        SalesLine."Line No." := 10000;
+        SalesLine.Type := SalesLine.Type::Item;
+        SalesLine."No." := ItemNo;
+        SalesLine."Outstanding Quantity" := LibraryRandom.RandIntInRange(10, 100);
+        SalesLine."Unit of Measure Code" := UOMCode;
+        SalesLine.Insert();
     end;
 
     local procedure PostWhseReceiptAndPutAwayFromPurchOrder(var PurchaseHeader: Record "Purchase Header")
@@ -2601,6 +2558,7 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     var
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
         WarehouseShipmentHeader.Get(CreateWhseShipmentAndPickFromSalesOrder(SalesHeader));
         FindWhseActivity(
@@ -2608,6 +2566,8 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
           SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+        WarehouseActivityLine.DeleteBinContent(enum::"Warehouse Action Type"::Take.AsInteger());
+        WarehouseActivityLine.DeleteBinContent(enum::"Warehouse Action Type"::Place.AsInteger());
     end;
 
     local procedure PrepareQtyPerUOMChange(var Item: Record Item): Code[10]
@@ -2651,15 +2611,13 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
     var
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
-        with WarehouseJournalLine do begin
-            SetRange("Journal Template Name", JnlTemplateName);
-            SetRange("Journal Batch Name", JnlBatchName);
-            SetRange("Location Code", LocationCode);
-            SetRange("Lot No.", LotNo);
-            FindFirst();
-            Validate("Qty. (Phys. Inventory)", NewPhysInvQty);
-            Modify(true);
-        end;
+        WarehouseJournalLine.SetRange("Journal Template Name", JnlTemplateName);
+        WarehouseJournalLine.SetRange("Journal Batch Name", JnlBatchName);
+        WarehouseJournalLine.SetRange("Location Code", LocationCode);
+        WarehouseJournalLine.SetRange("Lot No.", LotNo);
+        WarehouseJournalLine.FindFirst();
+        WarehouseJournalLine.Validate("Qty. (Phys. Inventory)", NewPhysInvQty);
+        WarehouseJournalLine.Modify(true);
     end;
 
     local procedure VerifyWhseAndInvtIsZero(ItemNo: Code[20])
@@ -2668,24 +2626,23 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WhseEntry: Record "Warehouse Entry";
         DummyBinContent: Record "Bin Content";
     begin
-        with ItemLedgEntry do begin
-            SetCurrentKey("Item No.", "Entry Type");
-            SetRange("Item No.", ItemNo);
-            CalcSums(Quantity);
-            TestField(Quantity, 0);
-        end;
+        ItemLedgEntry.SetCurrentKey("Item No.", "Entry Type");
+        ItemLedgEntry.SetRange("Item No.", ItemNo);
+        ItemLedgEntry.CalcSums(Quantity);
+        ItemLedgEntry.TestField(Quantity, 0);
 
-        with WhseEntry do begin
-            SetCurrentKey("Item No.");
-            SetRange("Item No.", ItemNo);
-            CalcSums("Qty. (Base)");
-            TestField("Qty. (Base)", 0);
-        end;
+        WhseEntry.SetCurrentKey("Item No.");
+        WhseEntry.SetRange("Item No.", ItemNo);
+        WhseEntry.CalcSums("Qty. (Base)");
+        WhseEntry.TestField("Qty. (Base)", 0);
 
         DummyBinContent.SetCurrentKey("Item No.");
         DummyBinContent.SetRange("Item No.", ItemNo);
         DummyBinContent.SetRange(Fixed, false);
-        Assert.RecordIsEmpty(DummyBinContent);
+        if DummyBinContent.FindFirst() then begin
+            DummyBinContent.CalcFields(Quantity);        
+            Assert.AreEqual(0, DummyBinContent.Quantity, 'Quantity must be 0 for this bin content.');
+        end;
     end;
 
     local procedure VerifyWhseUOMQty(ItemNo: Code[20]; LocationCode: Code[10]; UOMCode: Code[20]; QtyToTakeBase: Decimal; QtyToPlaceBase: Decimal; QtyOnWhseBase: Decimal)
@@ -2693,30 +2650,24 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WhseEntry: Record "Warehouse Entry";
         WhseActivLine: Record "Warehouse Activity Line";
     begin
-        with WhseActivLine do begin
-            SetCurrentKey("Item No.", "Bin Code", "Location Code", "Action Type", "Variant Code", "Unit of Measure Code");
-            SetRange("Item No.", ItemNo);
-            SetRange("Location Code", LocationCode);
-            SetRange("Unit of Measure Code", UOMCode);
-            SetRange("Action Type", "Action Type"::Take);
-            CalcSums("Qty. (Base)");
-            TestField("Qty. (Base)", QtyToTakeBase);
-        end;
+        WhseActivLine.SetCurrentKey("Item No.", "Bin Code", "Location Code", "Action Type", "Variant Code", "Unit of Measure Code");
+        WhseActivLine.SetRange("Item No.", ItemNo);
+        WhseActivLine.SetRange("Location Code", LocationCode);
+        WhseActivLine.SetRange("Unit of Measure Code", UOMCode);
+        WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Take);
+        WhseActivLine.CalcSums("Qty. (Base)");
+        WhseActivLine.TestField("Qty. (Base)", QtyToTakeBase);
 
-        with WhseActivLine do begin
-            SetRange("Action Type", "Action Type"::Place);
-            CalcSums("Qty. (Base)");
-            TestField("Qty. (Base)", QtyToPlaceBase);
-        end;
+        WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Place);
+        WhseActivLine.CalcSums("Qty. (Base)");
+        WhseActivLine.TestField("Qty. (Base)", QtyToPlaceBase);
 
-        with WhseEntry do begin
-            SetCurrentKey("Item No.", "Location Code", "Variant Code", "Bin Type Code", "Unit of Measure Code");
-            SetRange("Item No.", ItemNo);
-            SetRange("Location Code", LocationCode);
-            SetRange("Unit of Measure Code", UOMCode);
-            CalcSums("Qty. (Base)");
-            TestField("Qty. (Base)", QtyOnWhseBase);
-        end;
+        WhseEntry.SetCurrentKey("Item No.", "Location Code", "Variant Code", "Bin Type Code", "Unit of Measure Code");
+        WhseEntry.SetRange("Item No.", ItemNo);
+        WhseEntry.SetRange("Location Code", LocationCode);
+        WhseEntry.SetRange("Unit of Measure Code", UOMCode);
+        WhseEntry.CalcSums("Qty. (Base)");
+        WhseEntry.TestField("Qty. (Base)", QtyOnWhseBase);
     end;
 
     local procedure VerifyWhseBinQty(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; UOMCode: Code[20]; QtyToTakeBase: Decimal; QtyToPlaceBase: Decimal; QtyOnWhseBase: Decimal)
@@ -2724,31 +2675,25 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         WhseEntry: Record "Warehouse Entry";
         WhseActivLine: Record "Warehouse Activity Line";
     begin
-        with WhseActivLine do begin
-            SetCurrentKey("Item No.", "Bin Code", "Location Code", "Action Type", "Variant Code", "Unit of Measure Code");
-            SetRange("Item No.", ItemNo);
-            SetRange("Location Code", LocationCode);
-            SetRange("Bin Code", BinCode);
-            SetRange("Unit of Measure Code", UOMCode);
-            SetRange("Action Type", "Action Type"::Take);
-            CalcSums("Qty. (Base)");
-            TestField("Qty. (Base)", QtyToTakeBase);
-        end;
+        WhseActivLine.SetCurrentKey("Item No.", "Bin Code", "Location Code", "Action Type", "Variant Code", "Unit of Measure Code");
+        WhseActivLine.SetRange("Item No.", ItemNo);
+        WhseActivLine.SetRange("Location Code", LocationCode);
+        WhseActivLine.SetRange("Bin Code", BinCode);
+        WhseActivLine.SetRange("Unit of Measure Code", UOMCode);
+        WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Take);
+        WhseActivLine.CalcSums("Qty. (Base)");
+        WhseActivLine.TestField("Qty. (Base)", QtyToTakeBase);
 
-        with WhseActivLine do begin
-            SetRange("Action Type", "Action Type"::Place);
-            CalcSums("Qty. (Base)");
-            TestField("Qty. (Base)", QtyToPlaceBase);
-        end;
+        WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Place);
+        WhseActivLine.CalcSums("Qty. (Base)");
+        WhseActivLine.TestField("Qty. (Base)", QtyToPlaceBase);
 
-        with WhseEntry do begin
-            SetCurrentKey("Item No.", "Location Code", "Variant Code", "Bin Type Code", "Unit of Measure Code");
-            SetRange("Item No.", ItemNo);
-            SetRange("Location Code", LocationCode);
-            SetRange("Unit of Measure Code", UOMCode);
-            CalcSums("Qty. (Base)");
-            TestField("Qty. (Base)", QtyOnWhseBase);
-        end;
+        WhseEntry.SetCurrentKey("Item No.", "Location Code", "Variant Code", "Bin Type Code", "Unit of Measure Code");
+        WhseEntry.SetRange("Item No.", ItemNo);
+        WhseEntry.SetRange("Location Code", LocationCode);
+        WhseEntry.SetRange("Unit of Measure Code", UOMCode);
+        WhseEntry.CalcSums("Qty. (Base)");
+        WhseEntry.TestField("Qty. (Base)", QtyOnWhseBase);
     end;
 
     local procedure VerifyInvtQty(ItemNo: Code[20]; ExpectedQty: Decimal)
@@ -2756,19 +2701,15 @@ codeunit 137423 "SCM WMS Item Unit of Measure"
         ItemLedgEntry: Record "Item Ledger Entry";
         WhseEntry: Record "Warehouse Entry";
     begin
-        with ItemLedgEntry do begin
-            SetCurrentKey("Item No.", "Entry Type");
-            SetRange("Item No.", ItemNo);
-            CalcSums(Quantity);
-            TestField(Quantity, ExpectedQty);
-        end;
+        ItemLedgEntry.SetCurrentKey("Item No.", "Entry Type");
+        ItemLedgEntry.SetRange("Item No.", ItemNo);
+        ItemLedgEntry.CalcSums(Quantity);
+        ItemLedgEntry.TestField(Quantity, ExpectedQty);
 
-        with WhseEntry do begin
-            SetCurrentKey("Item No.");
-            SetRange("Item No.", ItemNo);
-            CalcSums("Qty. (Base)");
-            TestField("Qty. (Base)", ExpectedQty);
-        end;
+        WhseEntry.SetCurrentKey("Item No.");
+        WhseEntry.SetRange("Item No.", ItemNo);
+        WhseEntry.CalcSums("Qty. (Base)");
+        WhseEntry.TestField("Qty. (Base)", ExpectedQty);
     end;
 
     local procedure AssertRunTime(ExpectedErrorTextContains: Text[1024]; Message: Text[1024])

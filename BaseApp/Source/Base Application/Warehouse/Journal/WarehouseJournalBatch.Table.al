@@ -150,7 +150,11 @@ table 7310 "Warehouse Journal Batch"
         WhseJnlTemplate: Record "Warehouse Journal Template";
         WhseJnlLine: Record "Warehouse Journal Line";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'must not be %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetupNewBatch()
     begin

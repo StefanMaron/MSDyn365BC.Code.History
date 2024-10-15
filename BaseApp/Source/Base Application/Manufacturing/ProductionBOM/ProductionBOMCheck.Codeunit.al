@@ -17,9 +17,13 @@ codeunit 99000769 "Production BOM-Check"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Checking Item           #1########## @2@@@@@@@@@@@@@';
         Text001: Label 'The maximum number of BOM levels, %1, was exceeded. The process stopped at item number %2, BOM header number %3, BOM level %4.';
         Text003: Label '%1 with %2 %3 cannot be found. Check %4 %5 %6 %7.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         RtngLine: Record "Routing Line";

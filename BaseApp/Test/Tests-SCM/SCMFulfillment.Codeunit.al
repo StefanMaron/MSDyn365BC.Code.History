@@ -1392,6 +1392,42 @@ codeunit 137014 "SCM Fulfillment"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmYesHandler,WarehouseEmployeesModalPageHandler,MessageHandler')]
+    procedure CreateWarehouseShipmentNotWarehouseEmployee()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        WarehouseShipment: TestPage "Warehouse Shipment";
+    begin
+        // [FEATURE] [Create Warehouse Shipment] [Warehouse Employee]
+        Initialize();
+
+        // [GIVEN] WHS Location, Item
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Released Sales Order
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 10, Location.Code, WorkDate());
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Create Warehouse Shipment from Sales Order page
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+
+        WarehouseShipment.Trap();
+        LibraryVariableStorage.Enqueue(Location.Code);
+        SalesOrder."Create &Warehouse Shipment".Invoke();  //WarehouseEmployeesModalPageHandler will be triggered here
+
+        // [THEN] Warehouse Shipment is created and opened
+        Assert.AreEqual(WarehouseShipment."No.".Value, LibraryWarehouse.FindWhseShipmentNoBySourceDoc(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."), 'Warehouse Shipment not created');
+        WarehouseShipment.Close();
+    end;
+
+    [Test]
     procedure CreateWarehouseShipmentReportOneSalesDoc()
     var
         Location: Record Location;
@@ -2043,6 +2079,15 @@ codeunit 137014 "SCM Fulfillment"
         JobTransferJobPlanningLine.JobJournalTemplateName.SetValue(LibraryVariableStorage.DequeueText());
         JobTransferJobPlanningLine.JobJournalBatchName.SetValue(LibraryVariableStorage.DequeueText());
         JobTransferJobPlanningLine.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure WarehouseEmployeesModalPageHandler(var WarehouseEmployees: TestPage "Warehouse Employees")
+    begin
+        WarehouseEmployees.New();
+        WarehouseEmployees."User ID".SetValue(UserId());
+        WarehouseEmployees."Location Code".SetValue(LibraryVariableStorage.DequeueText());
+        WarehouseEmployees.OK().Invoke();
     end;
 
     [RequestPageHandler]

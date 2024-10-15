@@ -2389,11 +2389,9 @@ codeunit 134382 "ERM Dimension Journals"
 
     local procedure FindServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
     begin
-        with ServiceLine do begin
-            SetRange("Document Type", ServiceHeader."Document Type");
-            SetRange("Document No.", ServiceHeader."No.");
-            FindFirst();
-        end;
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.FindFirst();
     end;
 
     local procedure FindGeneralJournalLineForAccountNo(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])
@@ -2501,17 +2499,15 @@ codeunit 134382 "ERM Dimension Journals"
     begin
         FindResourceBatch(ResJournalBatch);
         ClearResourceJournalBatch(ResJournalBatch);
-        with ResJournalLine do begin
-            Init();
-            Validate("Journal Template Name", ResJournalBatch."Journal Template Name");
-            Validate("Journal Batch Name", ResJournalBatch.Name);
-            Validate("Posting Date", WorkDate());
-            Validate("Document No.", DocumentNo);
-            Validate("Entry Type", "Entry Type"::Usage);
-            Validate("Resource No.", ResourceNo);
-            Validate(Quantity, LibraryRandom.RandInt(10));
-            Insert(true);
-        end;
+        ResJournalLine.Init();
+        ResJournalLine.Validate("Journal Template Name", ResJournalBatch."Journal Template Name");
+        ResJournalLine.Validate("Journal Batch Name", ResJournalBatch.Name);
+        ResJournalLine.Validate("Posting Date", WorkDate());
+        ResJournalLine.Validate("Document No.", DocumentNo);
+        ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Usage);
+        ResJournalLine.Validate("Resource No.", ResourceNo);
+        ResJournalLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        ResJournalLine.Insert(true);
     end;
 
     local procedure CreateJobJournalLine(var JobJournalLine: Record "Job Journal Line"; DocumentNo: Code[20]; JobNo: Code[20])
@@ -2519,20 +2515,18 @@ codeunit 134382 "ERM Dimension Journals"
         JobJournalBatch: Record "Job Journal Batch";
     begin
         FindJobBatch(JobJournalBatch);
-        with JobJournalLine do begin
-            Init();
-            Validate("Journal Template Name", JobJournalBatch."Journal Template Name");
-            Validate("Journal Batch Name", JobJournalBatch.Name);
-            Validate("Posting Date", WorkDate());
-            Validate("Document No.", DocumentNo);
-            Validate("Entry Type", "Entry Type"::Usage);
-            Validate("Job No.", JobNo);
-            Validate("Job Task No.", FindJobTask(JobNo));
-            Validate(Type, Type::Resource);
-            Validate("No.", FindResource());
-            Validate(Quantity, LibraryRandom.RandInt(10));
-            Insert(true);
-        end;
+        JobJournalLine.Init();
+        JobJournalLine.Validate("Journal Template Name", JobJournalBatch."Journal Template Name");
+        JobJournalLine.Validate("Journal Batch Name", JobJournalBatch.Name);
+        JobJournalLine.Validate("Posting Date", WorkDate());
+        JobJournalLine.Validate("Document No.", DocumentNo);
+        JobJournalLine.Validate("Entry Type", JobJournalLine."Entry Type"::Usage);
+        JobJournalLine.Validate("Job No.", JobNo);
+        JobJournalLine.Validate("Job Task No.", FindJobTask(JobNo));
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Resource);
+        JobJournalLine.Validate("No.", FindResource());
+        JobJournalLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        JobJournalLine.Insert(true);
     end;
 
     local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; DocumentNo: Code[20]; FANo: Code[20])
@@ -2540,18 +2534,16 @@ codeunit 134382 "ERM Dimension Journals"
         FAJournalBatch: Record "FA Journal Batch";
     begin
         FindFABatch(FAJournalBatch);
-        with FAJournalLine do begin
-            Init();
-            Validate("Journal Template Name", FAJournalBatch."Journal Template Name");
-            Validate("Journal Batch Name", FAJournalBatch.Name);
-            Validate("FA Posting Date", WorkDate());
-            Validate("Document No.", DocumentNo);
-            Validate("Document Type", "Document Type"::Invoice);
-            Validate("FA No.", FANo);
-            Validate("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-            Validate(Amount, LibraryRandom.RandInt(1000));
-            Insert(true);
-        end;
+        FAJournalLine.Init();
+        FAJournalLine.Validate("Journal Template Name", FAJournalBatch."Journal Template Name");
+        FAJournalLine.Validate("Journal Batch Name", FAJournalBatch.Name);
+        FAJournalLine.Validate("FA Posting Date", WorkDate());
+        FAJournalLine.Validate("Document No.", DocumentNo);
+        FAJournalLine.Validate("Document Type", FAJournalLine."Document Type"::Invoice);
+        FAJournalLine.Validate("FA No.", FANo);
+        FAJournalLine.Validate("FA Posting Type", FAJournalLine."FA Posting Type"::"Acquisition Cost");
+        FAJournalLine.Validate(Amount, LibraryRandom.RandInt(1000));
+        FAJournalLine.Insert(true);
     end;
 
     local procedure CreateAndPostPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]): Code[20]
@@ -2669,18 +2661,16 @@ codeunit 134382 "ERM Dimension Journals"
         InsuranceJournalBatch: Record "Insurance Journal Batch";
     begin
         FindInsuranceBatch(InsuranceJournalBatch);
-        with InsuranceJournalLine do begin
-            Init();
-            Validate("Journal Template Name", InsuranceJournalBatch."Journal Template Name");
-            Validate("Journal Batch Name", InsuranceJournalBatch.Name);
-            Validate("Posting Date", WorkDate());
-            Validate("Document No.", DocumentNo);
-            Validate("Document Type", "Document Type"::Invoice);
-            Validate("Insurance No.", InsuranceNo);
-            Validate("FA No.", FindFA());
-            Validate(Amount, LibraryRandom.RandInt(1000));
-            Insert(true);
-        end;
+        InsuranceJournalLine.Init();
+        InsuranceJournalLine.Validate("Journal Template Name", InsuranceJournalBatch."Journal Template Name");
+        InsuranceJournalLine.Validate("Journal Batch Name", InsuranceJournalBatch.Name);
+        InsuranceJournalLine.Validate("Posting Date", WorkDate());
+        InsuranceJournalLine.Validate("Document No.", DocumentNo);
+        InsuranceJournalLine.Validate("Document Type", InsuranceJournalLine."Document Type"::Invoice);
+        InsuranceJournalLine.Validate("Insurance No.", InsuranceNo);
+        InsuranceJournalLine.Validate("FA No.", FindFA());
+        InsuranceJournalLine.Validate(Amount, LibraryRandom.RandInt(1000));
+        InsuranceJournalLine.Insert(true);
     end;
 
     local procedure CreatePaymentGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -2872,13 +2862,11 @@ codeunit 134382 "ERM Dimension Journals"
     local procedure SuggestVendorPaymentAndCount(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20])
     begin
         SuggestVendorPaymentUsingPage(GenJournalLine);
-        with GenJournalLine do begin
-            Reset();
-            SetRange("Account Type", "Account Type"::Vendor);
-            SetRange("Account No.", VendorNo);
-            Assert.AreEqual(1, Count, NoOfSuggestedLineIncorrectErr);
-            FindFirst();
-        end;
+        GenJournalLine.Reset();
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+        GenJournalLine.SetRange("Account No.", VendorNo);
+        Assert.AreEqual(1, GenJournalLine.Count, NoOfSuggestedLineIncorrectErr);
+        GenJournalLine.FindFirst();
     end;
 
     local procedure CreateRecurringGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalRecurringMethod: Enum "Gen. Journal Recurring Method")

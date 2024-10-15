@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Posting;
 
 using Microsoft.Foundation.Reporting;
@@ -74,24 +78,25 @@ codeunit 5979 "Service-Post and Send"
     local procedure ValidateElectronicFormats(DocumentSendingProfile: Record "Document Sending Profile")
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        ServElectrDocFormat: Codeunit "Serv. Electr. Doc. Format";
     begin
         if (DocumentSendingProfile."E-Mail" <> DocumentSendingProfile."E-Mail"::No) and
            (DocumentSendingProfile."E-Mail Attachment" <> DocumentSendingProfile."E-Mail Attachment"::PDF)
         then begin
             ElectronicDocumentFormat.ValidateElectronicFormat(DocumentSendingProfile."E-Mail Format");
-            ElectronicDocumentFormat.ValidateElectronicServiceDocument(ServiceHeader, DocumentSendingProfile."E-Mail Format");
+            ServElectrDocFormat.ValidateElectronicServiceDocument(ServiceHeader, DocumentSendingProfile."E-Mail Format");
         end;
 
         if (DocumentSendingProfile.Disk <> DocumentSendingProfile.Disk::No) and
            (DocumentSendingProfile.Disk <> DocumentSendingProfile.Disk::PDF)
         then begin
             ElectronicDocumentFormat.ValidateElectronicFormat(DocumentSendingProfile."Disk Format");
-            ElectronicDocumentFormat.ValidateElectronicServiceDocument(ServiceHeader, DocumentSendingProfile."Disk Format");
+            ServElectrDocFormat.ValidateElectronicServiceDocument(ServiceHeader, DocumentSendingProfile."Disk Format");
         end;
 
         if DocumentSendingProfile."Electronic Document" <> DocumentSendingProfile."Electronic Document"::No then begin
             ElectronicDocumentFormat.ValidateElectronicFormat(DocumentSendingProfile."Electronic Format");
-            ElectronicDocumentFormat.ValidateElectronicServiceDocument(ServiceHeader, DocumentSendingProfile."Electronic Format");
+            ServElectrDocFormat.ValidateElectronicServiceDocument(ServiceHeader, DocumentSendingProfile."Electronic Format");
         end;
     end;
 

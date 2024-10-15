@@ -264,7 +264,7 @@ page 6562 "Invt. Receipt Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromInvtDocLine(Rec, ItemAvailFormsMgt.ByEvent());
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromInvtDocLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -276,7 +276,7 @@ page 6562 "Invt. Receipt Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromInvtDocLine(Rec, ItemAvailFormsMgt.ByPeriod());
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromInvtDocLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -288,7 +288,7 @@ page 6562 "Invt. Receipt Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromInvtDocLine(Rec, ItemAvailFormsMgt.ByVariant());
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromInvtDocLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -300,7 +300,7 @@ page 6562 "Invt. Receipt Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromInvtDocLine(Rec, ItemAvailFormsMgt.ByLocation());
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromInvtDocLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -323,7 +323,7 @@ page 6562 "Invt. Receipt Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromInvtDocLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromInvtDocLine(Rec, "Item Availability Type"::BOM)
                         end;
                     }
                 }
@@ -346,7 +346,7 @@ page 6562 "Invt. Receipt Subform"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin

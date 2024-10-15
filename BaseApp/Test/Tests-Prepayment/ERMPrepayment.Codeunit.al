@@ -32,12 +32,9 @@
         UnknownErr: Label 'Unknown error.';
         PostPrepaymentErr: Label '%1 cannot be more than %2 in %3 %4=''%5'',%6=''%7'',%8=''%9''.', Comment = '%1=FieldCaption,%2=Value,%3=TableName,%4=FieldName,%5=FieldValue,%6=FieldName,%7=FieldValue,%8=FieldName,%9=FieldValue';
         PrepaymentErr: Label '%1 cannot be less than %2 in %3 %4=''%5'',%6=''%7'',%8=''%9''.', Comment = '%1=FieldName,%2=FieldValue,%3=TableName,%4=FieldName,%5=FieldValue,%6=FieldName,%7=FieldValue,%8=FieldName,%9=FieldValue';
-        CopyDocumentErr: Label 'Prepayment Invoice must be equal to ''No''  in %1: %2=%3. Current value is ''Yes''.', Comment = '%1=TableCaption,%2=FieldCaption,%3=Value';
-        PricesInclVATMustBeEqualMsg: Label 'Prices Including VAT must be equal to ''%1''  in %2: Document Type=%3, No.=%4. Current value is ''%5''.';
         PrepmtLineAmountErr: Label 'Prepmt. Line Amount Excl. VAT cannot be more than';
         AmountErr: Label '%1 must be %2 in %3.';
         StatTotalAmtLCYErr: Label 'Statistics Total LCY is incorrect.';
-        PrepaymentStatusErr: Label 'Status must be equal to ''Open''  in %1: Document Type=%2, No.=%3. Current value is ''Pending Prepayment''.';
         WrongPrepaymentStatusErr: Label 'Status must be equal to ''Pending Prepayment''  in %1: Document Type=%2, No.=%3. Current value is ''Open''.';
         WrongPostingNoSeriesErr: Label 'Wrong Posting No. Series in %1.';
         RmngUnrealAmountErr: Label 'Wrong value in Remaining Unrealized Amount of VAT Entry after Unappling prepayment invoice.';
@@ -46,8 +43,6 @@
         SalesDocExistErr: Label 'Sales document was not deleted';
         PurchaseDocExistErr: Label 'Purchase document was not deleted';
         PrepaymentAmountInvErr: Label 'Prepmt. Amt. Inv. Incl. VAT must be equal to';
-        PrepmtInvErr: Label 'Prepayment Invoice must be equal to ''No''';
-        PrepmtCrMemoErr: Label 'Prepayment Credit Memo must be equal to ''No''';
         CannotChangePrepmtAccErr: Label 'You cannot change %2 while %1 is pending prepayment.', Comment = '%2- field caption, %1 - "sales order 1001".';
         CannotChangeSetupOnPrepmtAccErr: Label 'You cannot change %2 on account %3 while %1 is pending prepayment.', Comment = '%2 - field caption, %3 - account number, %1 - "sales order 1001".';
         SalesOrderNotCreatedWorksheetLineMsg: Label 'The Sales Order entry not created in Cash Flow Worksheet.';
@@ -1879,11 +1874,7 @@
         asserterror CopyDocument(SalesHeader2, FindSalesPrepmtInvoiceNo(SalesHeader."No."), "Sales Document Type From"::"Posted Invoice");
 
         // [THEN] Verify that System throws an error while making Copy Document for Posted Prepayment Invoice.
-        Assert.AreEqual(
-          StrSubstNo(
-            CopyDocumentErr, SalesInvoiceHeader.TableCaption(), SalesInvoiceHeader.FieldCaption("No."),
-            FindSalesPrepmtInvoiceNo(SalesHeader."No.")),
-          GetLastErrorText, UnknownErr);
+        Assert.ExpectedTestFieldError(SalesInvoiceHeader.FieldCaption("Prepayment Invoice"), Format(false));
 
         // Tear down
         TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
@@ -1915,8 +1906,7 @@
         // [FEATURE] [Sales] [Get Shipment Lines] [Prices Incl. VAT]
         // [SCENARIO] The error message appears when doing Get Shipment Lines for Invoice with Prices Including VAT <> Sales Order Prices Including VAT
         asserterror CreateSalesInvoiceFromShipmentPrepayment(SalesHeader, SalesHeader2, true, false);
-        Assert.AreEqual(StrSubstNo(PricesInclVATMustBeEqualMsg, true, SalesHeader.TableCaption(), SalesHeader2."Document Type"::Invoice,
-            SalesHeader2."No.", false), GetLastErrorText, UnknownErr);
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption("Prices Including VAT"), Format(true));
 
         // Tear down
         TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
@@ -1964,10 +1954,7 @@
         // [FEATURE] [Purchase] [Get Receipt Lines] [Prices Incl. VAT]
         // [SCENARIO] The error message appears when doing Get Receipt Lines for Invoice with Prices Including VAT <> Purchase Order Prices Including VAT
         asserterror CreatePurchInvoiceFromReceiptPrepayment(PurchaseHeader, PurchaseHeader2, true, false);
-        Assert.AreEqual(
-          StrSubstNo(
-            PricesInclVATMustBeEqualMsg, true, PurchaseHeader.TableCaption(), PurchaseHeader2."Document Type"::Invoice, PurchaseHeader2."No.",
-            false), GetLastErrorText, UnknownErr);
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption("Prices Including VAT"), Format(true));
 
         // Tear down
         TearDownVATPostingSetup(PurchaseHeader."VAT Bus. Posting Group");
@@ -2237,9 +2224,7 @@
             PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, PurchaseLine."No.", LibraryRandom.RandDec(100, 2));
 
         // [THEN] Verifying Open status error for prepayment.
-        Assert.ExpectedError(
-          StrSubstNo(
-            PrepaymentStatusErr, PurchaseHeader.TableCaption(), PurchaseHeader."Document Type", PurchaseHeader."No."));
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Open));
 
         // Tear down
         TearDownVATPostingSetup(PurchaseHeader."VAT Bus. Posting Group");
@@ -2267,8 +2252,7 @@
         asserterror LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type, SalesLine."No.", SalesLine.Quantity);
 
         // [THEN] Verifying Open status error for prepayment.
-        Assert.ExpectedError(
-          StrSubstNo(PrepaymentStatusErr, SalesHeader.TableCaption(), SalesHeader."Document Type", SalesHeader."No."));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
 
         // Tear down
         TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
@@ -2521,7 +2505,7 @@
         asserterror SalesHeader.Delete(true);
 
         // [THEN] Error occurs
-        Assert.ExpectedError(PrepaymentAmountInvErr);
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Prepmt. Amt. Inv."), '');
     end;
 
     [Test]
@@ -2542,7 +2526,7 @@
         asserterror SalesHeader.Delete(true);
 
         // [THEN] Error occurs
-        Assert.ExpectedError(PrepaymentAmountInvErr);
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Prepmt. Amt. Inv."), '');
     end;
 
     [Test]
@@ -2593,7 +2577,7 @@
         asserterror SalesHeader.Delete(true);
 
         // [THEN] Error occurs
-        Assert.ExpectedError(PrepaymentAmountInvErr);
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Prepmt. Amt. Inv."), '');
     end;
 
     [Test]
@@ -2612,7 +2596,7 @@
         asserterror PurchaseHeader.Delete(true);
 
         // [THEN] Error occurs
-        Assert.ExpectedError(PrepaymentAmountInvErr);
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Prepmt. Amt. Inv."), '');
     end;
 
     [Test]
@@ -2633,7 +2617,7 @@
         asserterror PurchaseHeader.Delete(true);
 
         // [THEN] Error occurs
-        Assert.ExpectedError(PrepaymentAmountInvErr);
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Prepmt. Amt. Inv."), '');
     end;
 
     [Test]
@@ -2684,7 +2668,7 @@
         asserterror PurchaseHeader.Delete(true);
 
         // [THEN] Error occurs
-        Assert.ExpectedError(PrepaymentAmountInvErr);
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Prepmt. Amt. Inv."), '');
     end;
 
     [Test]
@@ -3157,6 +3141,7 @@
         PurchHeader: Record "Purchase Header";
         NewPurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
         PrepmtNo: Code[20];
     begin
         // [FEATURE] [Purchase] [UI]
@@ -3184,7 +3169,7 @@
         // Verification done in PostedPurchInvoicesModalPageHandler
 
         // [THEN] Error message "Prepayment Invoice must be equal to 'No'" raised
-        Assert.ExpectedError(PrepmtInvErr);
+        Assert.ExpectedTestFieldError(PurchInvHeader.FieldCaption("Prepayment Invoice"), Format(false));
     end;
 
     [Test]
@@ -3195,6 +3180,7 @@
         PurchHeader: Record "Purchase Header";
         NewPurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         PrepmtNo: Code[20];
     begin
         // [FEATURE] [Purchase] [UI]
@@ -3227,7 +3213,7 @@
         // Verification done in PostedPurchCrMemosModalPageHandler
 
         // [THEN] Error message "Prepayment Credit Memo must be equal to 'No'" raised
-        Assert.ExpectedError(PrepmtCrMemoErr);
+        Assert.ExpectedTestFieldError(PurchCrMemoHeader.FieldCaption("Prepayment Credit Memo"), Format(false));
     end;
 
     [Test]
@@ -3238,6 +3224,7 @@
         SalesHeader: Record "Sales Header";
         NewSalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        SalesInvHeader: Record "Sales Invoice Header";
         PrepmtNo: Code[20];
     begin
         // [FEATURE] [Sales] [UI]
@@ -3266,7 +3253,7 @@
         // Verification done in PostedSalesInvoicesModalPageHandler
 
         // [THEN] Error message "Prepayment Invoice must be equal to 'No'" raised
-        Assert.ExpectedError(PrepmtInvErr);
+        Assert.ExpectedTestFieldError(SalesInvHeader.FieldCaption("Prepayment Invoice"), Format(false));
     end;
 
     [Test]
@@ -3277,6 +3264,7 @@
         SalesHeader: Record "Sales Header";
         NewSalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PrepmtNo: Code[20];
     begin
         // [FEATURE] [Sales] [UI]
@@ -3307,7 +3295,7 @@
         // Verification done in PostedSalesCrMemosModalPageHandler
 
         // [THEN] Error message "Prepayment Credit Memo must be equal to 'No'" raised
-        Assert.ExpectedError(PrepmtCrMemoErr);
+        Assert.ExpectedTestFieldError(SalesCrMemoHeader.FieldCaption("Prepayment Credit Memo"), Format(false));
     end;
 
     [Test]
@@ -3968,13 +3956,11 @@
         CustomerNo := CreateCustomerWithPostingSetup(LineGLAccount);
         ItemNo := CreateItemWithPostingSetup(LineGLAccount);
 
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Order, CustomerNo);
-            Validate("Currency Code", CurrencyCode);
-            Validate("Prices Including VAT", PriceIncludingVAT);
-            Validate("Prepayment %", PrepaymentPercent);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Validate("Prices Including VAT", PriceIncludingVAT);
+        SalesHeader.Validate("Prepayment %", PrepaymentPercent);
+        SalesHeader.Modify(true);
 
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDecInRange(100, 200, 2));
@@ -3993,13 +3979,11 @@
         VendorNo := CreateVendorWithPostingSetup(LineGLAccount);
         ItemNo := CreateItemWithPostingSetup(LineGLAccount);
 
-        with PurchaseHeader do begin
-            LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Document Type"::Order, VendorNo);
-            Validate("Currency Code", CurrencyCode);
-            Validate("Prices Including VAT", PriceIncludingVAT);
-            Validate("Prepayment %", PrepaymentPercent);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Validate("Prices Including VAT", PriceIncludingVAT);
+        PurchaseHeader.Validate("Prepayment %", PrepaymentPercent);
+        PurchaseHeader.Modify(true);
 
         CreatePurchaseLineItem(PurchaseLine, PurchaseHeader, ItemNo, LibraryRandom.RandDec(100, 2));
     end;
@@ -4211,14 +4195,12 @@
     var
         ItemCharge: Record "Item Charge";
     begin
-        with ItemCharge do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            "Gen. Prod. Posting Group" := LineGLAccount."Gen. Prod. Posting Group";
-            "VAT Prod. Posting Group" := LineGLAccount."VAT Prod. Posting Group";
-            Insert(true);
-            exit("No.");
-        end;
+        ItemCharge.Init();
+        ItemCharge."No." := LibraryUtility.GenerateGUID();
+        ItemCharge."Gen. Prod. Posting Group" := LineGLAccount."Gen. Prod. Posting Group";
+        ItemCharge."VAT Prod. Posting Group" := LineGLAccount."VAT Prod. Posting Group";
+        ItemCharge.Insert(true);
+        exit(ItemCharge."No.");
     end;
 
     local procedure CreateFAPostingGroupWithPostingSetup(LineGLAccount: Record "G/L Account"): Code[10]
@@ -4226,19 +4208,17 @@
         FAPostingGroup: Record "FA Posting Group";
         GLAccNo: Code[20];
     begin
-        with FAPostingGroup do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            GLAccNo := CreateGLAccountforPostingSetup(LineGLAccount);
-            case LineGLAccount."Gen. Posting Type" of
-                LineGLAccount."Gen. Posting Type"::Purchase:
-                    "Acquisition Cost Account" := GLAccNo;
-                LineGLAccount."Gen. Posting Type"::Sale:
-                    "Acq. Cost Acc. on Disposal" := GLAccNo;
-            end;
-            Insert(true);
-            exit(Code);
+        FAPostingGroup.Init();
+        FAPostingGroup.Code := LibraryUtility.GenerateGUID();
+        GLAccNo := CreateGLAccountforPostingSetup(LineGLAccount);
+        case LineGLAccount."Gen. Posting Type" of
+            LineGLAccount."Gen. Posting Type"::Purchase:
+                FAPostingGroup."Acquisition Cost Account" := GLAccNo;
+            LineGLAccount."Gen. Posting Type"::Sale:
+                FAPostingGroup."Acq. Cost Acc. on Disposal" := GLAccNo;
         end;
+        FAPostingGroup.Insert(true);
+        exit(FAPostingGroup.Code);
     end;
 
     local procedure CreateFAWithPostingSetup(LineGLAccount: Record "G/L Account"): Code[20]
@@ -4476,11 +4456,9 @@
 
     local procedure CreateSalesHeaderWithPrepaymentPercentage(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
     begin
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Order, CustomerNo);
-            Validate("Prepayment %", LibraryRandom.RandInt(99));
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandInt(99));
+        SalesHeader.Modify(true);
     end;
 
     local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Enum "Sales Line Type"; LineNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
@@ -4742,19 +4720,15 @@
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with LibraryERM do begin
-            CreateGenJournalTemplate(GenJournalTemplate);
-            CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        end;
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalBatch.Modify(true);
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type"::Payment,
-              "Account Type"::Customer, SalesHeader."Sell-to Customer No.", 0);
-            Validate(Amount, -1 * LibraryRandom.RandDec(1000, 2));
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Customer, SalesHeader."Sell-to Customer No.", 0);
+        GenJournalLine.Validate(Amount, -1 * LibraryRandom.RandDec(1000, 2));
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;
@@ -4765,19 +4739,15 @@
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with LibraryERM do begin
-            CreateGenJournalTemplate(GenJournalTemplate);
-            CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        end;
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalBatch.Modify(true);
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type"::Payment,
-              "Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", 0);
-            Validate(Amount, LibraryRandom.RandDec(1000, 2));
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", 0);
+        GenJournalLine.Validate(Amount, LibraryRandom.RandDec(1000, 2));
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;
@@ -4928,12 +4898,10 @@
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with GLAccount do begin
-            Validate("Gen. Prod. Posting Group", SrcGLAccount."Gen. Prod. Posting Group");
-            Validate("VAT Prod. Posting Group", SrcGLAccount."VAT Prod. Posting Group");
-            Modify();
-            exit("No.");
-        end;
+        GLAccount.Validate("Gen. Prod. Posting Group", SrcGLAccount."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", SrcGLAccount."VAT Prod. Posting Group");
+        GLAccount.Modify();
+        exit(GLAccount."No.");
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GenPostingType: Enum "General Posting Type")
@@ -5027,22 +4995,18 @@
     var
         SalesShptLine: Record "Sales Shipment Line";
     begin
-        with SalesShptLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            exit("Line No.");
-        end;
+        SalesShptLine.SetRange("Document No.", DocumentNo);
+        SalesShptLine.FindFirst();
+        exit(SalesShptLine."Line No.");
     end;
 
     local procedure FindReceiptLineNo(DocumentNo: Code[20]): Integer
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
-        with PurchRcptLine do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            exit("Line No.");
-        end;
+        PurchRcptLine.SetRange("Document No.", DocumentNo);
+        PurchRcptLine.FindFirst();
+        exit(PurchRcptLine."Line No.");
     end;
 
     local procedure GenProdPostingGroupInItem(var Item: Record Item; LineGLAccount: Record "G/L Account")
@@ -5095,22 +5059,18 @@
 
     local procedure ModifyPurchaseQtyToInvoice(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; LineNo: Integer)
     begin
-        with PurchaseLine do begin
-            Get(DocumentType, DocumentNo, LineNo);
-            Validate("Qty. to Invoice", "Qty. to Invoice" / LibraryRandom.RandIntInRange(3, 5));
-            Validate("Qty. to Receive", "Qty. to Invoice");
-            Modify(true);
-        end;
+        PurchaseLine.Get(DocumentType, DocumentNo, LineNo);
+        PurchaseLine.Validate("Qty. to Invoice", PurchaseLine."Qty. to Invoice" / LibraryRandom.RandIntInRange(3, 5));
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine."Qty. to Invoice");
+        PurchaseLine.Modify(true);
     end;
 
     local procedure ModifySalesQtyToInvoice(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; LineNo: Integer)
     begin
-        with SalesLine do begin
-            Get(DocumentType, DocumentNo, LineNo);
-            Validate("Qty. to Invoice", "Qty. to Invoice" / LibraryRandom.RandIntInRange(3, 5));
-            Validate("Qty. to Ship", "Qty. to Invoice");
-            Modify(true);
-        end;
+        SalesLine.Get(DocumentType, DocumentNo, LineNo);
+        SalesLine.Validate("Qty. to Invoice", SalesLine."Qty. to Invoice" / LibraryRandom.RandIntInRange(3, 5));
+        SalesLine.Validate("Qty. to Ship", SalesLine."Qty. to Invoice");
+        SalesLine.Modify(true);
     end;
 
     local procedure PostedPrepmtCrMemoNosInSetup(var SalesReceivablesSetup: Record "Sales & Receivables Setup"; PostedPrepmtCrMemoNos: Code[20])
@@ -5129,37 +5089,29 @@
 
     local procedure PostedPrepmtCrMemoNosInPurchSetup(var PurchPayablesSetup: Record "Purchases & Payables Setup"; PostedPrepmtCrMemoNos: Code[20])
     begin
-        with PurchPayablesSetup do begin
-            Get();
-            Validate("Posted Prepmt. Cr. Memo Nos.", PostedPrepmtCrMemoNos);
-            Modify(true);
-        end;
+        PurchPayablesSetup.Get();
+        PurchPayablesSetup.Validate("Posted Prepmt. Cr. Memo Nos.", PostedPrepmtCrMemoNos);
+        PurchPayablesSetup.Modify(true);
     end;
 
     local procedure PostedPrepmtInvNosInPurchSetup(var PurchPayablesSetup: Record "Purchases & Payables Setup"; PostedPrepmtInvNos: Code[20])
     begin
-        with PurchPayablesSetup do begin
-            Get();
-            Validate("Posted Prepmt. Inv. Nos.", PostedPrepmtInvNos);
-            Modify(true);
-        end;
+        PurchPayablesSetup.Get();
+        PurchPayablesSetup.Validate("Posted Prepmt. Inv. Nos.", PostedPrepmtInvNos);
+        PurchPayablesSetup.Modify(true);
     end;
 
     local procedure PostPartialPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
-        with PurchaseHeader do begin
-            ModifyPurchaseQtyToInvoice(PurchaseLine, "Document Type", "No.", PurchaseLine."Line No.");
-            PostPurchaseDocument(PurchaseHeader);
-            Find();
-        end;
+        ModifyPurchaseQtyToInvoice(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No.");
+        PostPurchaseDocument(PurchaseHeader);
+        PurchaseHeader.Find();
     end;
 
     local procedure PostPartialSalesInvoice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        with SalesHeader do begin
-            ModifySalesQtyToInvoice(SalesLine, "Document Type", "No.", SalesLine."Line No.");
-            LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        end;
+        ModifySalesQtyToInvoice(SalesLine, SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
     local procedure PostPurchaseDocument(PurchaseHeader: Record "Purchase Header"): Code[20]
@@ -5319,11 +5271,9 @@
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Credit Warnings", "Credit Warnings"::"Credit Limit");
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"Credit Limit");
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure SalesOrderWithGreaterThanCreditLimit(Customer: Record Customer; LineGLAccount: Record "G/L Account")
@@ -5369,24 +5319,20 @@
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Customer No.", CustomerNo);
-            FindFirst();
-            LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
-        end;
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindFirst();
+        LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
     end;
 
     local procedure UnapplyInvoiceVend(VendorNo: Code[20]; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Vendor No.", VendorNo);
-            FindFirst();
-            LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
-        end;
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindFirst();
+        LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
     end;
 
     local procedure UpdateItemChargeQtyToAssign(var SalesLine: Record "Sales Line"; QuantityToInvoice: Decimal): Decimal
@@ -5394,14 +5340,12 @@
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        with SalesLine do begin
-            Get("Document Type", "Document No.", "Line No.");
-            Validate("Qty. to Invoice", QuantityToInvoice);
-            Modify(true);
-            LibraryVariableStorage.Enqueue("Qty. to Invoice");
-            ShowItemChargeAssgnt();
-            exit(Round("Unit Price" * "Qty. to Invoice", GeneralLedgerSetup."Amount Rounding Precision"));
-        end;
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.Validate("Qty. to Invoice", QuantityToInvoice);
+        SalesLine.Modify(true);
+        LibraryVariableStorage.Enqueue(SalesLine."Qty. to Invoice");
+        SalesLine.ShowItemChargeAssgnt();
+        exit(Round(SalesLine."Unit Price" * SalesLine."Qty. to Invoice", GeneralLedgerSetup."Amount Rounding Precision"));
     end;
 
     local procedure UpdateQuantityToShip(var SalesLine: Record "Sales Line")
@@ -5449,17 +5393,15 @@
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        with LibraryERM do begin
-            FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
-            CustLedgerEntry.CalcFields("Remaining Amount");
-            SetApplyCustomerEntry(CustLedgerEntry, CustLedgerEntry."Remaining Amount");
-            FindCustomerLedgerEntry(CustLedgerEntry2, DocumentType2, DocumentNo2);
-            CustLedgerEntry2.CalcFields("Remaining Amount");
-            CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
-            CustLedgerEntry2.Modify(true);
-            SetAppliestoIdCustomer(CustLedgerEntry2);
-            PostCustLedgerApplication(CustLedgerEntry);
-        end;
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, CustLedgerEntry."Remaining Amount");
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry2, DocumentType2, DocumentNo2);
+        CustLedgerEntry2.CalcFields("Remaining Amount");
+        CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
+        CustLedgerEntry2.Modify(true);
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
     end;
 
     local procedure ApplyVendorLedgerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
@@ -5467,17 +5409,15 @@
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        with LibraryERM do begin
-            FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
-            VendorLedgerEntry.CalcFields("Remaining Amount");
-            SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Remaining Amount");
-            FindVendorLedgerEntry(VendorLedgerEntry2, DocumentType2, DocumentNo2);
-            VendorLedgerEntry2.CalcFields("Remaining Amount");
-            VendorLedgerEntry2.Validate("Amount to Apply", VendorLedgerEntry2."Remaining Amount");
-            VendorLedgerEntry2.Modify(true);
-            SetAppliestoIdVendor(VendorLedgerEntry2);
-            PostVendLedgerApplication(VendorLedgerEntry);
-        end;
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Remaining Amount");
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry2, DocumentType2, DocumentNo2);
+        VendorLedgerEntry2.CalcFields("Remaining Amount");
+        VendorLedgerEntry2.Validate("Amount to Apply", VendorLedgerEntry2."Remaining Amount");
+        VendorLedgerEntry2.Modify(true);
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry2);
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntry);
     end;
 
     local procedure CopyPurchDocument(PurchHeader: Record "Purchase Header"; DocNo: Code[20]; DocType: Enum "Purchase Document Type From")
@@ -5550,14 +5490,12 @@
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", InvoiceNo);
-            SetFilter("G/L Account No.", GLAccountNoFilter);
-            CalcSums(Amount, "VAT Amount");
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedVATAmount, "VAT Amount", FieldCaption("VAT Amount"));
-        end;
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("Document No.", InvoiceNo);
+        GLEntry.SetFilter("G/L Account No.", GLAccountNoFilter);
+        GLEntry.CalcSums(Amount, "VAT Amount");
+        Assert.AreEqual(ExpectedAmount, GLEntry.Amount, GLEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedVATAmount, GLEntry."VAT Amount", GLEntry.FieldCaption("VAT Amount"));
     end;
 
     local procedure VerifyGLEntryByBusPostingGroup(OrderNo: Code[20]; Amount: Decimal)
@@ -5905,13 +5843,11 @@
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetFilter("Unrealized Amount", '<>0');
-            FindFirst();
-            Assert.AreEqual("Unrealized Amount", "Remaining Unrealized Amount", RmngUnrealAmountErr);
-        end;
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetFilter("Unrealized Amount", '<>0');
+        VATEntry.FindFirst();
+        Assert.AreEqual(VATEntry."Unrealized Amount", VATEntry."Remaining Unrealized Amount", RmngUnrealAmountErr);
     end;
 
     local procedure VerifyCustomerLedgerAmount(DocumentNo: Code[20]; RemaningAmount: Decimal)
@@ -5930,22 +5866,20 @@
         PrepaymentAmount: Decimal;
         PrepaymentAmountInclVAT: Decimal;
     begin
-        with SalesLine do begin
-            Find();
-            LineAmount :=
-              Round("Quantity Invoiced" * "Unit Price", LibraryERM.GetCurrencyAmountRoundingPrecision("Currency Code"));
-            PrepaymentAmount :=
-              Round(LineAmount * "Prepayment %" / 100, LibraryERM.GetCurrencyAmountRoundingPrecision("Currency Code"));
-            PrepaymentAmountInclVAT := PrepaymentAmount;
-            if not PricesIncludingVAT then
-                PrepaymentAmountInclVAT :=
-                  Round(PrepaymentAmount * (100 + "VAT %") / 100, LibraryERM.GetCurrencyAmountRoundingPrecision("Currency Code"));
+        SalesLine.Find();
+        LineAmount :=
+          Round(SalesLine."Quantity Invoiced" * SalesLine."Unit Price", LibraryERM.GetCurrencyAmountRoundingPrecision(SalesLine."Currency Code"));
+        PrepaymentAmount :=
+          Round(LineAmount * SalesLine."Prepayment %" / 100, LibraryERM.GetCurrencyAmountRoundingPrecision(SalesLine."Currency Code"));
+        PrepaymentAmountInclVAT := PrepaymentAmount;
+        if not PricesIncludingVAT then
+            PrepaymentAmountInclVAT :=
+              Round(PrepaymentAmount * (100 + SalesLine."VAT %") / 100, LibraryERM.GetCurrencyAmountRoundingPrecision(SalesLine."Currency Code"));
 
-            Assert.AreEqual(
-              PrepaymentAmountInclVAT,
-              "Prepmt. Amt. Incl. VAT",
-              StrSubstNo(AmountErr, FieldCaption("Prepmt. Amt. Incl. VAT"), PrepaymentAmountInclVAT, TableCaption));
-        end;
+        Assert.AreEqual(
+          PrepaymentAmountInclVAT,
+          SalesLine."Prepmt. Amt. Incl. VAT",
+          StrSubstNo(AmountErr, SalesLine.FieldCaption("Prepmt. Amt. Incl. VAT"), PrepaymentAmountInclVAT, SalesLine.TableCaption));
     end;
 
     local procedure VerifyPurchPrepmtAmtInclVAT(var PurchaseLine: Record "Purchase Line"; PricesIncludingVAT: Boolean)
@@ -5954,22 +5888,20 @@
         PrepaymentAmount: Decimal;
         PrepaymentAmountInclVAT: Decimal;
     begin
-        with PurchaseLine do begin
-            Find();
-            LineAmount :=
-              Round("Quantity Invoiced" * "Direct Unit Cost", LibraryERM.GetCurrencyAmountRoundingPrecision("Currency Code"));
-            PrepaymentAmount :=
-              Round(LineAmount * "Prepayment %" / 100, LibraryERM.GetCurrencyAmountRoundingPrecision("Currency Code"));
-            PrepaymentAmountInclVAT := PrepaymentAmount;
-            if not PricesIncludingVAT then
-                PrepaymentAmountInclVAT :=
-                  Round(PrepaymentAmount * (100 + "VAT %") / 100, LibraryERM.GetCurrencyAmountRoundingPrecision("Currency Code"));
+        PurchaseLine.Find();
+        LineAmount :=
+          Round(PurchaseLine."Quantity Invoiced" * PurchaseLine."Direct Unit Cost", LibraryERM.GetCurrencyAmountRoundingPrecision(PurchaseLine."Currency Code"));
+        PrepaymentAmount :=
+          Round(LineAmount * PurchaseLine."Prepayment %" / 100, LibraryERM.GetCurrencyAmountRoundingPrecision(PurchaseLine."Currency Code"));
+        PrepaymentAmountInclVAT := PrepaymentAmount;
+        if not PricesIncludingVAT then
+            PrepaymentAmountInclVAT :=
+              Round(PrepaymentAmount * (100 + PurchaseLine."VAT %") / 100, LibraryERM.GetCurrencyAmountRoundingPrecision(PurchaseLine."Currency Code"));
 
-            Assert.AreEqual(
-              PrepaymentAmountInclVAT,
-              "Prepmt. Amt. Incl. VAT",
-              StrSubstNo(AmountErr, FieldCaption("Prepmt. Amt. Incl. VAT"), PrepaymentAmountInclVAT, TableCaption));
-        end;
+        Assert.AreEqual(
+          PrepaymentAmountInclVAT,
+          PurchaseLine."Prepmt. Amt. Incl. VAT",
+          StrSubstNo(AmountErr, PurchaseLine.FieldCaption("Prepmt. Amt. Incl. VAT"), PrepaymentAmountInclVAT, PurchaseLine.TableCaption));
     end;
 
     local procedure VerifyCustomerStatisticsTotalAmount(Customer: Record Customer; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; PrepmtSalesInvHeader: Record "Sales Invoice Header"; SalesInvHeader: Record "Sales Invoice Header")
@@ -6018,72 +5950,60 @@
     var
         DummyPurchLine: Record "Purchase Line";
     begin
-        with DummyPurchLine do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, Type::Item);
-            SetRange("Receipt No.", PostedDocNo);
-            SetRange("Receipt Line No.", FindReceiptLineNo(PostedDocNo));
-            Assert.RecordIsNotEmpty(DummyPurchLine);
-        end;
+        DummyPurchLine.SetRange("Document Type", DummyPurchLine."Document Type"::Invoice);
+        DummyPurchLine.SetRange("Document No.", DocumentNo);
+        DummyPurchLine.SetRange(Type, DummyPurchLine.Type::Item);
+        DummyPurchLine.SetRange("Receipt No.", PostedDocNo);
+        DummyPurchLine.SetRange("Receipt Line No.", FindReceiptLineNo(PostedDocNo));
+        Assert.RecordIsNotEmpty(DummyPurchLine);
     end;
 
     local procedure VerifyInvLineFromShipment(DocumentNo: Code[20]; PostedDocNo: Code[20])
     var
         DummySalesLine: Record "Sales Line";
     begin
-        with DummySalesLine do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, Type::Item);
-            SetRange("Shipment No.", PostedDocNo);
-            SetRange("Shipment Line No.", FindShipmentLineNo(PostedDocNo));
-            Assert.RecordIsNotEmpty(DummySalesLine);
-        end;
+        DummySalesLine.SetRange("Document Type", DummySalesLine."Document Type"::Invoice);
+        DummySalesLine.SetRange("Document No.", DocumentNo);
+        DummySalesLine.SetRange(Type, DummySalesLine.Type::Item);
+        DummySalesLine.SetRange("Shipment No.", PostedDocNo);
+        DummySalesLine.SetRange("Shipment Line No.", FindShipmentLineNo(PostedDocNo));
+        Assert.RecordIsNotEmpty(DummySalesLine);
     end;
 
     local procedure VerifySalesPrepmtInvPostingNoSeries(PrepaymentOrderNo: Code[20]; PostedPrepmtNos: Code[20])
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        with SalesInvoiceHeader do begin
-            SetRange("Prepayment Order No.", PrepaymentOrderNo);
-            FindFirst();
-            VerifyNoSeries("No.", PostedPrepmtNos, "No. Series", TableCaption);
-        end;
+        SalesInvoiceHeader.SetRange("Prepayment Order No.", PrepaymentOrderNo);
+        SalesInvoiceHeader.FindFirst();
+        VerifyNoSeries(SalesInvoiceHeader."No.", PostedPrepmtNos, SalesInvoiceHeader."No. Series", SalesInvoiceHeader.TableCaption);
     end;
 
     local procedure VerifySalesPrepmtCrMemoPostingNoSeries(PrepaymentOrderNo: Code[20]; PostedPrepmtNos: Code[20])
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        with SalesCrMemoHeader do begin
-            SetRange("Prepayment Order No.", PrepaymentOrderNo);
-            FindFirst();
-            VerifyNoSeries("No.", PostedPrepmtNos, "No. Series", TableCaption);
-        end;
+        SalesCrMemoHeader.SetRange("Prepayment Order No.", PrepaymentOrderNo);
+        SalesCrMemoHeader.FindFirst();
+        VerifyNoSeries(SalesCrMemoHeader."No.", PostedPrepmtNos, SalesCrMemoHeader."No. Series", SalesCrMemoHeader.TableCaption);
     end;
 
     local procedure VerifyPurchPrepmtInvPostingNoSeries(PrepaymentOrderNo: Code[20]; PostedPrepmtNos: Code[20])
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        with PurchInvHeader do begin
-            SetRange("Prepayment Order No.", PrepaymentOrderNo);
-            FindFirst();
-            VerifyNoSeries("No.", PostedPrepmtNos, "No. Series", TableCaption);
-        end;
+        PurchInvHeader.SetRange("Prepayment Order No.", PrepaymentOrderNo);
+        PurchInvHeader.FindFirst();
+        VerifyNoSeries(PurchInvHeader."No.", PostedPrepmtNos, PurchInvHeader."No. Series", PurchInvHeader.TableCaption);
     end;
 
     local procedure VerifyPurchPrepmtCrMemoPostingNoSeries(PrepaymentOrderNo: Code[20]; PostedPrepmtNos: Code[20])
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
-        with PurchCrMemoHdr do begin
-            SetRange("Prepayment Order No.", PrepaymentOrderNo);
-            FindFirst();
-            VerifyNoSeries("No.", PostedPrepmtNos, "No. Series", TableCaption);
-        end;
+        PurchCrMemoHdr.SetRange("Prepayment Order No.", PrepaymentOrderNo);
+        PurchCrMemoHdr.FindFirst();
+        VerifyNoSeries(PurchCrMemoHdr."No.", PostedPrepmtNos, PurchCrMemoHdr."No. Series", PurchCrMemoHdr.TableCaption);
     end;
 
     local procedure VerifyNoSeries(DocNo: Code[20]; ExpectedNoSeries: Code[20]; ActualNoSeries: Code[20]; TableCaption: Text)
@@ -6098,26 +6018,22 @@
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocNo);
-            FindSet();
-            repeat
-                Assert.AreEqual(NoSeries, "No. Series", StrSubstNo(WrongPostingNoSeriesErr, TableCaption));
-            until Next() = 0;
-        end;
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.FindSet();
+        repeat
+            Assert.AreEqual(NoSeries, GLEntry."No. Series", StrSubstNo(WrongPostingNoSeriesErr, GLEntry.TableCaption));
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyNoSeriesOnVATEntries(DocNo: Code[20]; NoSeries: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocNo);
-            FindSet();
-            repeat
-                Assert.AreEqual(NoSeries, "No. Series", StrSubstNo(WrongPostingNoSeriesErr, TableCaption));
-            until Next() = 0;
-        end;
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.FindSet();
+        repeat
+            Assert.AreEqual(NoSeries, VATEntry."No. Series", StrSubstNo(WrongPostingNoSeriesErr, VATEntry.TableCaption));
+        until VATEntry.Next() = 0;
     end;
 
     local procedure VerifyPurchPstdInvoiceExtendedText(DocumentNo: Code[20]; ExtendedText: Text)
@@ -6186,28 +6102,24 @@
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            FindSet();
-            repeat
-                Assert.AreNotEqual(0, "Transaction No.", DtldCustLedgEntryErr);
-            until Next() = 0;
-        end;
+        DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Invoice);
+        DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
+        DetailedCustLedgEntry.FindSet();
+        repeat
+            Assert.AreNotEqual(0, DetailedCustLedgEntry."Transaction No.", DtldCustLedgEntryErr);
+        until DetailedCustLedgEntry.Next() = 0;
     end;
 
     local procedure TransNoIsNotZeroInDtldVendLedgEntries(DocumentNo: Code[20])
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            FindSet();
-            repeat
-                Assert.AreNotEqual(0, "Transaction No.", DtldVendLedgEntryErr);
-            until Next() = 0;
-        end;
+        DetailedVendorLedgEntry.SetRange("Document Type", DetailedVendorLedgEntry."Document Type"::Invoice);
+        DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
+        DetailedVendorLedgEntry.FindSet();
+        repeat
+            Assert.AreNotEqual(0, DetailedVendorLedgEntry."Transaction No.", DtldVendLedgEntryErr);
+        until DetailedVendorLedgEntry.Next() = 0;
     end;
 
     local procedure CreateCustomerWithPrepmtPct(var Customer: Record Customer; LineGLAccount: Record "G/L Account")
@@ -6226,10 +6138,8 @@
         CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
           LineGLAccount."No.", LibraryRandom.RandInt(10) + 5, LibraryRandom.RandDec(1000, 2));
-        with SalesLine do begin
-            Validate("Qty. to Ship", Round(2 * "Qty. to Ship" / 3, 1));
-            Modify(true);
-        end;
+        SalesLine.Validate("Qty. to Ship", Round(2 * SalesLine."Qty. to Ship" / 3, 1));
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateCustomerPrepmtPaymentAndApply(SalesInvHeader: Record "Sales Invoice Header")
@@ -6245,16 +6155,14 @@
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Customer, SalesInvHeader."Bill-to Customer No.", 0);
-        with GenJournalLine do begin
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", SalesInvHeader."No.");
-            Validate(Amount, -SalesInvHeader."Amount Including VAT");
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-            Validate(Prepayment, true);
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", SalesInvHeader."No.");
+        GenJournalLine.Validate(Amount, -SalesInvHeader."Amount Including VAT");
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJournalLine.Validate(Prepayment, true);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure CreateVendorWithPrepmtPct(var Vendor: Record Vendor; LineGLAccount: Record "G/L Account")
@@ -6273,10 +6181,8 @@
         CreatePurchaseLine(
           PurchLine, PurchHeader, PurchLine.Type::"G/L Account",
           LineGLAccount."No.", LibraryRandom.RandInt(10) + 5, LibraryRandom.RandDec(1000, 2));
-        with PurchLine do begin
-            Validate("Qty. to Receive", Round(2 * "Qty. to Receive" / 3, 1));
-            Modify(true);
-        end;
+        PurchLine.Validate("Qty. to Receive", Round(2 * PurchLine."Qty. to Receive" / 3, 1));
+        PurchLine.Modify(true);
     end;
 
     local procedure CreateVendorPrepmtPaymentAndApply(PurchInvHeader: Record "Purch. Inv. Header")
@@ -6292,16 +6198,14 @@
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Vendor, PurchInvHeader."Pay-to Vendor No.", 0);
-        with GenJournalLine do begin
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", PurchInvHeader."No.");
-            Validate(Amount, PurchInvHeader."Amount Including VAT");
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-            Validate(Prepayment, true);
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", PurchInvHeader."No.");
+        GenJournalLine.Validate(Amount, PurchInvHeader."Amount Including VAT");
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        GenJournalLine.Validate(Prepayment, true);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure VerifyCustomerLedgerEntryForSalesPrepayment(OrderNo: Code[20])

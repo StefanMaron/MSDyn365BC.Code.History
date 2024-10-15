@@ -749,9 +749,13 @@ table 753 "Standard Item Journal Line"
         GLSetupRead: Boolean;
         PhysInvtEntered: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot rename a %1.';
         Text002: Label 'You cannot change %1 when %2 is %3.';
         Text003: Label 'You cannot change %3 when %2 is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure SetDefaultPriceCalculationMethod()
     var

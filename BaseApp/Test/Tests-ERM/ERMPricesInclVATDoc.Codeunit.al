@@ -1331,26 +1331,24 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
     var
         SalesHeader: Record "Sales Header";
     begin
-        with SalesHeader do
-            case DocumentType of
-                "Document Type"::Invoice:
-                    exit(GeneralPostingSetup."Sales Account");
-                "Document Type"::"Credit Memo":
-                    exit(GeneralPostingSetup."Sales Credit Memo Account");
-            end;
+        case DocumentType of
+            SalesHeader."Document Type"::Invoice:
+                exit(GeneralPostingSetup."Sales Account");
+            SalesHeader."Document Type"::"Credit Memo":
+                exit(GeneralPostingSetup."Sales Credit Memo Account");
+        end;
     end;
 
     local procedure GetPurchGenPostGLAccNoByDocType(DocumentType: Enum "Purchase Document Type"; GeneralPostingSetup: Record "General Posting Setup"): Code[20]
     var
         PurchHeader: Record "Purchase Header";
     begin
-        with PurchHeader do
-            case DocumentType of
-                "Document Type"::Invoice:
-                    exit(GeneralPostingSetup."Purch. Account");
-                "Document Type"::"Credit Memo":
-                    exit(GeneralPostingSetup."Purch. Credit Memo Account");
-            end;
+        case DocumentType of
+            PurchHeader."Document Type"::Invoice:
+                exit(GeneralPostingSetup."Purch. Account");
+            PurchHeader."Document Type"::"Credit Memo":
+                exit(GeneralPostingSetup."Purch. Credit Memo Account");
+        end;
     end;
 
     local procedure OpenSalesRetOrdPage(var SalesReturnOrder: TestPage "Sales Return Order"; No: Code[20])

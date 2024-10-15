@@ -4,9 +4,11 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using Microsoft.Inventory.Location;
+using Microsoft.Service.Archive;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Setup;
 using Microsoft.Utilities;
+using System.Email;
 using System.Globalization;
 using System.Utilities;
 
@@ -563,6 +565,9 @@ report 5900 "Service Order"
                         column(ShiptoAddressCaption; ShiptoAddressCaptionLbl)
                         {
                         }
+                        column(ShipToPhoneNo; "Service Header"."Ship-to Phone")
+                        {
+                        }
 
                         trigger OnPreDataItem()
                         begin
@@ -593,6 +598,8 @@ report 5900 "Service Order"
             }
 
             trigger OnAfterGetRecord()
+            var
+                ServiceDocumentArchiveMgmt: Codeunit "Service Document Archive Mgmt.";
             begin
                 CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
@@ -601,6 +608,15 @@ report 5900 "Service Order"
                 FormatAddressFields("Service Header");
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
+
+                if not IsReportInPreviewMode() and
+                   ((CurrReport.UseRequestPage()) and ArchiveDocument or
+                   not (CurrReport.UseRequestPage()) and (ServiceSetup."Archive Orders"))
+                then begin
+                    CurrReport.Language(LanguageMgt.GetLanguageIdOrDefault(LanguageMgt.GetUserLanguageCode()));
+                    ServiceDocumentArchiveMgmt.ArchServiceDocumentNoConfirm("Service Header");
+                    CurrReport.Language(LanguageMgt.GetLanguageIdOrDefault("Language Code"));
+                end;
             end;
         }
     }
@@ -628,6 +644,12 @@ report 5900 "Service Order"
                         Caption = 'Show Internal Information';
                         ToolTip = 'Specifies if you want the printed report to show information that is only for internal use.';
                     }
+                    field(ArchiveDocument; ArchiveDocument)
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Archive Document';
+                        ToolTip = 'Specifies if the document is archived after you preview or print it.';
+                    }
                     field(ShowQty; ShowQty)
                     {
                         ApplicationArea = Service;
@@ -642,6 +664,11 @@ report 5900 "Service Order"
         actions
         {
         }
+
+        trigger OnInit()
+        begin
+            ArchiveDocument := ServiceSetup."Archive Orders";
+        end;
     }
 
     labels
@@ -671,6 +698,7 @@ report 5900 "Service Order"
         ShowInternalInfo: Boolean;
         Continue: Boolean;
         ShowShippingAddr: Boolean;
+        ArchiveDocument: Boolean;
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
@@ -684,8 +712,12 @@ report 5900 "Service Order"
         TotalAmt: Decimal;
         TotalGrossAmt: Decimal;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Service Order %1';
         Text002: Label 'Page %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ContractNoCaptionLbl: Label 'Contract No.';
         ServiceHeaderOrderDateCaptionLbl: Label 'Order Date';
         InvoicetoCaptionLbl: Label 'Invoice to';
@@ -716,6 +748,13 @@ report 5900 "Service Order"
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
 
+    local procedure IsReportInPreviewMode(): Boolean
+    var
+        MailManagement: Codeunit "Mail Management";
+    begin
+        exit(CurrReport.Preview() or MailManagement.IsHandlingGetEmailBody());
+    end;
+
     procedure InitializeRequest(ShowInternalInfoFrom: Boolean; ShowQtyFrom: Option)
     begin
         ShowInternalInfo := ShowInternalInfoFrom;
@@ -723,12 +762,14 @@ report 5900 "Service Order"
     end;
 
     local procedure FormatAddressFields(var ServiceHeader: Record "Service Header")
+    var
+        ServiceFormatAddress: Codeunit "Service Format Address";
     begin
         FormatAddr.GetCompanyAddr(ServiceHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
-        FormatAddr.ServiceOrderSellto(CustAddr, ServiceHeader);
+        ServiceFormatAddress.ServiceOrderSellto(CustAddr, ServiceHeader);
         ShowShippingAddr := ServiceHeader."Ship-to Code" <> '';
         if ShowShippingAddr then
-            FormatAddr.ServiceOrderShipto(ShipToAddr, ServiceHeader);
+            ServiceFormatAddress.ServiceOrderShipto(ShipToAddr, ServiceHeader);
     end;
 }
 

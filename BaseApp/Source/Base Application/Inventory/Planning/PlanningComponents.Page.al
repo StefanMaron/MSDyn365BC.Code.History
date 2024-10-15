@@ -208,7 +208,7 @@ page 99000862 "Planning Components"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPlanningComp(Rec, ItemAvailFormsMgt.ByEvent());
+                            PlanningCompAvailMgt.ShowItemAvailabilityFromPlanningComp(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action("&Period")
@@ -220,7 +220,7 @@ page 99000862 "Planning Components"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPlanningComp(Rec, ItemAvailFormsMgt.ByPeriod());
+                            PlanningCompAvailMgt.ShowItemAvailabilityFromPlanningComp(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action("&Variant")
@@ -232,7 +232,7 @@ page 99000862 "Planning Components"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPlanningComp(Rec, ItemAvailFormsMgt.ByVariant());
+                            PlanningCompAvailMgt.ShowItemAvailabilityFromPlanningComp(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action("&Location")
@@ -245,7 +245,7 @@ page 99000862 "Planning Components"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPlanningComp(Rec, ItemAvailFormsMgt.ByLocation());
+                            PlanningCompAvailMgt.ShowItemAvailabilityFromPlanningComp(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -268,7 +268,7 @@ page 99000862 "Planning Components"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPlanningComp(Rec, ItemAvailFormsMgt.ByBOM());
+                            PlanningCompAvailMgt.ShowItemAvailabilityFromPlanningComp(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -298,7 +298,7 @@ page 99000862 "Planning Components"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -335,10 +335,10 @@ page 99000862 "Planning Components"
 
                     trigger OnAction()
                     var
-                        TrackingForm: Page "Order Tracking";
+                        OrderTracking: Page "Order Tracking";
                     begin
-                        TrackingForm.SetPlanningComponent(Rec);
-                        TrackingForm.RunModal();
+                        OrderTracking.SetPlanningComponent(Rec);
+                        OrderTracking.RunModal();
                     end;
                 }
             }
@@ -389,6 +389,6 @@ page 99000862 "Planning Components"
     }
 
     var
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        PlanningCompAvailMgt: Codeunit "Planning Comp. Avail. Mgt.";
 }
 

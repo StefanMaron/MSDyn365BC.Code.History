@@ -472,7 +472,7 @@ codeunit 134828 "Dimension Filter Scenario Test"
         // modal page handler
 
         // Verify
-        Assert.ExpectedError('The Dimension does not exist.')
+        Assert.ExpectedErrorCannotFind(Database::Dimension);
     end;
 
     [Test]

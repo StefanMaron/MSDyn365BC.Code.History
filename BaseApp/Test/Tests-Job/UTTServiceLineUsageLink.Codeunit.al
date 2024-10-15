@@ -173,14 +173,12 @@ codeunit 136360 "UT T Service Line Usage Link"
         Assert.AreEqual(JobPlanningLine."Remaining Qty. (Base)", ServiceLine."Job Remaining Qty. (Base)",
           'Remaining Qty. (Base) is not set correctly');
 
-        with ServiceLine do begin
-            Assert.AreNearlyEqual("Job Remaining Qty." * "Unit Cost", "Job Remaining Total Cost", 0.01,
-              'Remaining Total Cost has wrong value after Remaining Qty is set.');
-            Assert.AreNearlyEqual("Job Remaining Qty." * "Unit Cost (LCY)", "Job Remaining Total Cost (LCY)", 0.01,
-              'Remaining Total Cost (LCY) has wrong value after Remaining Qty is set.');
-            Assert.AreNearlyEqual(HelperCalcLineAmount("Job Remaining Qty."), "Job Remaining Line Amount", 0.01,
-              'Remaining Line Amount has wrong value after Remaining Qty is set.');
-        end;
+        Assert.AreNearlyEqual(ServiceLine."Job Remaining Qty." * ServiceLine."Unit Cost", ServiceLine."Job Remaining Total Cost", 0.01,
+          'Remaining Total Cost has wrong value after Remaining Qty is set.');
+        Assert.AreNearlyEqual(ServiceLine."Job Remaining Qty." * ServiceLine."Unit Cost (LCY)", ServiceLine."Job Remaining Total Cost (LCY)", 0.01,
+          'Remaining Total Cost (LCY) has wrong value after Remaining Qty is set.');
+        Assert.AreNearlyEqual(HelperCalcLineAmount(ServiceLine."Job Remaining Qty."), ServiceLine."Job Remaining Line Amount", 0.01,
+          'Remaining Line Amount has wrong value after Remaining Qty is set.');
 
         // Verify that "Remaining Qty." changes correctly when Quantity is changed.
         OldRemainingQty := ServiceLine."Job Remaining Qty.";

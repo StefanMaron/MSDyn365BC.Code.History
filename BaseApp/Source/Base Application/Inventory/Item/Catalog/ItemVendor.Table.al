@@ -103,6 +103,7 @@ table 99 "Item Vendor"
 
     procedure InsertItemReference()
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         ItemReference: Record "Item Reference";
         IsHandled: Boolean;
     begin
@@ -118,6 +119,7 @@ table 99 "Item Vendor"
 
     local procedure DeleteItemReference()
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         ItemReference: Record "Item Reference";
         IsHandled: Boolean;
     begin
@@ -133,6 +135,7 @@ table 99 "Item Vendor"
 
     local procedure UpdateItemReference()
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         ItemReference: Record "Item Reference";
         IsHandled: Boolean;
     begin

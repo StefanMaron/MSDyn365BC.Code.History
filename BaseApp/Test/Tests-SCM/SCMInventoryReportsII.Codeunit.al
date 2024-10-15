@@ -19,7 +19,7 @@
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
-#if not CLEAN23
+#if not CLEAN25
         LibraryMarketing: Codeunit "Library - Marketing";
 #endif
         LibraryUtility: Codeunit "Library - Utility";
@@ -44,7 +44,7 @@
         ReportQtyErr: Label 'Wrong Quantity on Report';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -872,7 +872,7 @@
         VerifyQtyToReceiveInPurchLine(PurchHeader[3]);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1570,7 +1570,7 @@
           'Item_Journal_Batch_Name', ExtraItemJournalBatch.Name);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1689,7 +1689,7 @@
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Reports - II");
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
-#if not CLEAN23
+#if not CLEAN25
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
 #else
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 16.0)");
@@ -1828,7 +1828,7 @@
         ProductionBOMVersion.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure RunPriceListReport(NoFilter: Text; SalesType: Option; SalesCode: Code[20]; CurrencyCode: Code[10])
     var
         Item: Record Item;
@@ -1890,22 +1890,20 @@
 
     local procedure CreateItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20])
     begin
-        with ItemLedgerEntry do begin
-            if FindLast() then;
+        if ItemLedgerEntry.FindLast() then;
 
-            Init();
-            "Entry No." += 1;
-            "Item No." := ItemNo;
-            Quantity := LibraryRandom.RandDec(100, 2);
-            "Location Code" := LibraryUtility.GenerateGUID();
-            "Variant Code" := LibraryUtility.GenerateGUID();
-            "Global Dimension 1 Code" := LibraryUtility.GenerateGUID();
-            "Global Dimension 2 Code" := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        ItemLedgerEntry.Init();
+        ItemLedgerEntry."Entry No." += 1;
+        ItemLedgerEntry."Item No." := ItemNo;
+        ItemLedgerEntry.Quantity := LibraryRandom.RandDec(100, 2);
+        ItemLedgerEntry."Location Code" := LibraryUtility.GenerateGUID();
+        ItemLedgerEntry."Variant Code" := LibraryUtility.GenerateGUID();
+        ItemLedgerEntry."Global Dimension 1 Code" := LibraryUtility.GenerateGUID();
+        ItemLedgerEntry."Global Dimension 2 Code" := LibraryUtility.GenerateGUID();
+        ItemLedgerEntry.Insert();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateSalesPriceForCampaign(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; CampaignNo: Code[20])
     begin
         // Create Sales Price with random unit price.
@@ -2169,13 +2167,11 @@
         ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
-        with RequisitionLine do begin
-            Validate(Type, Type::Item);
-            Validate("No.", ItemNo);
-            Validate(Quantity, Qty);
-            Validate("Due Date", WorkDate());
-            Modify(true);
-        end;
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", ItemNo);
+        RequisitionLine.Validate(Quantity, Qty);
+        RequisitionLine.Validate("Due Date", WorkDate());
+        RequisitionLine.Modify(true);
     end;
 
     local procedure GenerateBOMCostTree(var Item: Record Item; var TempBOMBuffer: Record "BOM Buffer" temporary)
@@ -2713,7 +2709,7 @@
         // Dummy message Handler.
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PriceListRequestPageHandler(var PriceList: TestRequestPage "Price List")
@@ -2910,12 +2906,10 @@
 
     local procedure SetLimitsTotalsFilterOnItem(var Item: Record Item; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
-        with Item do begin
-            SetRange("Location Filter", ItemLedgerEntry."Location Code");
-            SetRange("Variant Filter", ItemLedgerEntry."Variant Code");
-            SetRange("Global Dimension 1 Filter", ItemLedgerEntry."Global Dimension 1 Code");
-            SetRange("Global Dimension 2 Filter", ItemLedgerEntry."Global Dimension 2 Code");
-        end;
+        Item.SetRange("Location Filter", ItemLedgerEntry."Location Code");
+        Item.SetRange("Variant Filter", ItemLedgerEntry."Variant Code");
+        Item.SetRange("Global Dimension 1 Filter", ItemLedgerEntry."Global Dimension 1 Code");
+        Item.SetRange("Global Dimension 2 Filter", ItemLedgerEntry."Global Dimension 2 Code");
     end;
 
     [MessageHandler]

@@ -1,4 +1,4 @@
-#if not CLEAN23
+﻿#if not CLEAN23
 codeunit 144050 "ERM Regoff SE"
 {
     //  1..4 Check that Registered Office field on Company Information exists and can accept any value (so is editable).
@@ -35,7 +35,6 @@ codeunit 144050 "ERM Regoff SE"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryUTUtility: Codeunit "Library UT Utility";
-        LibraryDimension: Codeunit "Library - Dimension";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
@@ -219,111 +218,6 @@ codeunit 144050 "ERM Regoff SE"
           CompanyBoardDirectorCap, Format(CompanyBoardDirectorValue2),
           CompanyAddressCap, Format(CompanyInformation."Post Code" + ' ' + CompanyInformation.City));
     end;
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure SIEUpdateShortcutDimensionForNotLinkedSIEDimension()
-    var
-        Dimension: Record Dimension;
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        SIEDimension: Record "SIE Dimension";
-    begin
-        // [FEATURE] [Standard Import Export] [Dimensions]
-        // [SCENARIO 381234] Changing of Shortcut dimension updates ShortCutDimNo in SIE Dimension
-        Initialize();
-
-        // [GIVEN] SIE Dimension "D" not linked to any Shortcut Dimension
-        LibraryDimension.CreateDimension(Dimension);
-        SIEDimension.Validate("Dimension Code", Dimension.Code);
-        SIEDimension.Insert(true);
-        SIEDimension.TestField(ShortCutDimNo, 0);
-
-        // [WHEN] Set dimension "D" as Shortcut Dimension 3 in G/L Setup
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("Shortcut Dimension 3 Code", Dimension.Code);
-        GeneralLedgerSetup.Modify(true);
-
-        // [THEN] SIE Dimension "D" linked with ShortCutDimNo = 3
-        SIEDimension.Find();
-        SIEDimension.TestField(ShortCutDimNo, 3);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SIEClearShortcutDimensionForLinkedSIEDimension()
-    var
-        Dimension: Record Dimension;
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        SIEDimension: Record "SIE Dimension";
-    begin
-        // [FEATURE] [Standard Import Export] [Dimensions]
-        // [SCENARIO 381234] Deleting of Shortcut dimension clears ShortCutDimNo in SIE Dimension to 0
-        Initialize();
-
-        // [GIVEN] Shortcut Dimension 4 has value dimension "D"
-        LibraryDimension.CreateDimension(Dimension);
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("Shortcut Dimension 4 Code", Dimension.Code);
-        GeneralLedgerSetup.Modify();
-
-        // [GIVEN] SIE Dimension "D" linked to Shortcut Dimension 4
-        SIEDimension.Validate("Dimension Code", Dimension.Code);
-        SIEDimension.Insert(true);
-        SIEDimension.TestField(ShortCutDimNo, 4);
-
-        // [WHEN] Clear Shortcut Dimension 4 in G/L Setup
-        GeneralLedgerSetup.Validate("Shortcut Dimension 4 Code", '');
-        GeneralLedgerSetup.Modify(true);
-
-        // [THEN] SIE Dimension "D" has ShortCutDimNo = 0
-        SIEDimension.Find();
-        SIEDimension.TestField(ShortCutDimNo, 0);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SIEReplaceShortcutDimensionForTwoSIEDimentios()
-    var
-        Dimension1: Record Dimension;
-        Dimension2: Record Dimension;
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        SIEDimension1: Record "SIE Dimension";
-        SIEDimension2: Record "SIE Dimension";
-    begin
-        // [FEATURE] [Standard Import Export] [Dimensions]
-        // [SCENARIO 381234] Replacing of Shortcut dimension updates ShortCutDimNo in SIE Dimension
-        Initialize();
-
-        // [GIVEN] Shortcut Dimension 5 has dimension "D1"
-        LibraryDimension.CreateDimension(Dimension1);
-        LibraryDimension.CreateDimension(Dimension2);
-
-        GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("Shortcut Dimension 5 Code", Dimension1.Code);
-        GeneralLedgerSetup.Modify(true);
-
-        // SIE Dimension "D1" is linked to Shortcut Dimension 5
-        SIEDimension1.Validate("Dimension Code", Dimension1.Code);
-        SIEDimension1.Insert(true);
-        SIEDimension1.TestField(ShortCutDimNo, 5);
-        // SIE Dimension "D2" is not linked to any Shortcut Dimension
-        SIEDimension2.Validate("Dimension Code", Dimension2.Code);
-        SIEDimension2.Insert(true);
-        SIEDimension2.TestField(ShortCutDimNo, 0);
-
-        // [WHEN] Replace Shortcut Dimension 5 with dimension "D2"
-        GeneralLedgerSetup.Validate("Shortcut Dimension 5 Code", Dimension2.Code);
-        GeneralLedgerSetup.Modify(true);
-
-        // [THEN] SIE Dimension "D1" has ShortCutDimNo = 0
-        // [THEN] SIE Dimension "D2" has ShortCutDimNo = 5
-        SIEDimension1.Find();
-        SIEDimension1.TestField(ShortCutDimNo, 0);
-        SIEDimension2.Find();
-        SIEDimension2.TestField(ShortCutDimNo, 5);
-    end;
-#endif
 
     local procedure Initialize()
     begin

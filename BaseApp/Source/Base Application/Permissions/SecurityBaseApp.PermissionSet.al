@@ -36,12 +36,5 @@ permissionset 7372 "Security - Baseapp"
                   tabledata "Support Contact Information" = Rimd,
                   tabledata "Terms And Conditions" = RIM,
                   tabledata "Terms And Conditions State" = RIM,
-#if not CLEAN22
-                  tabledata "User Group" = RIMD,
-                  tabledata "User Group Access Control" = RIMD,
-                  tabledata "User Group Member" = RIMD,
-                  tabledata "User Group Permission Set" = RIMD,
-                  tabledata "User Group Plan" = RIMD,
-#endif
                   tabledata "User Security Status" = RIMD;
 }

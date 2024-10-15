@@ -134,20 +134,16 @@ codeunit 134631 "Graph Collect Mgt Customer"
     begin
         // Apply complex type JSON to TempCustomer
         RecRef.GetTable(TempCustomer);
-        with TempCustomer do
-            GraphMgtComplexTypes.ApplyPostalAddressFromJSON(ActualJSON, RecRef,
-              FieldNo(Address), FieldNo("Address 2"), FieldNo(City), FieldNo(County), FieldNo("Country/Region Code"), FieldNo("Post Code"));
+        GraphMgtComplexTypes.ApplyPostalAddressFromJSON(ActualJSON, RecRef,
+              TempCustomer.FieldNo(Address), TempCustomer.FieldNo("Address 2"), TempCustomer.FieldNo(City), TempCustomer.FieldNo(County), TempCustomer.FieldNo("Country/Region Code"), TempCustomer.FieldNo("Post Code"));
         RecRef.SetTable(TempCustomer);
-
         // Verify Customer fields match TempCustomer fields (which were from the JSON)
-        with TempCustomer do begin
-            Customer.TestField(Address, Address);
-            Customer.TestField("Address 2", "Address 2");
-            Customer.TestField(City, City);
-            Customer.TestField(County, County);
-            Customer.TestField("Country/Region Code", "Country/Region Code");
-            Customer.TestField("Post Code", "Post Code");
-        end;
+        Customer.TestField(Address, TempCustomer.Address);
+        Customer.TestField("Address 2", TempCustomer."Address 2");
+        Customer.TestField(City, TempCustomer.City);
+        Customer.TestField(County, TempCustomer.County);
+        Customer.TestField("Country/Region Code", TempCustomer."Country/Region Code");
+        Customer.TestField("Post Code", TempCustomer."Post Code");
     end;
 }
 

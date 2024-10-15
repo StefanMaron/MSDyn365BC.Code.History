@@ -128,7 +128,9 @@ page 5197 "Attendee Subform"
     end;
 
     var
+#pragma warning disable AA0074
         Text004: Label 'The Make Phone Call function is not available for a salesperson.';
+#pragma warning restore AA0074
         StyleIsStrong: Boolean;
         SendInvitationEditable: Boolean;
         AttendanceTypeIndent: Integer;

@@ -38,18 +38,17 @@ codeunit 137077 "SCM Supply Planning -IV"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         ShopCalendarMgt: Codeunit "Shop Calendar Management";
         isInitialized: Boolean;
-        VendorNoError: Label 'Vendor No. must have a value in Requisition Line';
-        RequisitionLinesQuantity: Label 'Quantity value must match.';
-        AvailabilityWarningConfirmationMessage: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
-        ReleasedProdOrderCreated: Label 'Released Prod. Order';
+        VendorNoErr: Label 'Vendor No. must have a value in Requisition Line';
+        RequisitionLinesQuantityErr: Label 'Quantity value must match.';
+        AvailabilityWarningConfirmationErr: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
+        ReleasedProdOrderCreatedMsg: Label 'Released Prod. Order';
         SalesLineQtyChangedMsg: Label 'This Sales Line is currently planned. Your changes will not cause any replanning.';
         RequisitionLineQtyErr: Label 'The Quantity of component Item on Requisition Line is not correct.';
-        RequisitionLineExistenceErr: Label 'Requisition Line expected to %1 for Item %2 and Location %3';
+        RequisitionLineExistenceErr: Label 'Requisition Line expected to %1 for Item %2 and Location %3', Comment = '%1 = "Exist/Not exist", %2 = Item No., %3 = Location code';
         ReqLineExpectedTo: Option "Not Exist",Exist;
         RequisitionLineProdOrderErr: Label '"Prod Order No." should be same as Released Production Order';
         CloseBOMVersionsQst: Label 'All versions attached to the BOM will be closed';
         NotAllItemsPlannedMsg: Label 'Not all items were planned. A total of %1 items were not planned.', Comment = '%1 = count of items not planned';
-        BOMMustBeCertifiedErr: Label 'Status must be equal to ''Certified''  in Production BOM Header';
         PeriodType: Option Day,Week,Month,Quarter,Year,Period;
         AmountType: Option "Net Change","Balance at Date";
         AppliesToEntryMissingErr: Label 'Applies-to Entry must have a value';
@@ -925,7 +924,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         asserterror CarryOutActionMessage(Item."No.");
 
         // Verify: Verify error - Vendor No. must have a value in Requisition Line for carry out.
-        Assert.ExpectedError(VendorNoError);
+        Assert.ExpectedError(VendorNoErr);
     end;
 
     [Test]
@@ -948,7 +947,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         asserterror CarryOutActionMessage(Item."No.");
 
         // Verify: Verify error - Vendor No. must have a value in Requisition Line for carry Out.
-        Assert.ExpectedError(VendorNoError);
+        Assert.ExpectedError(VendorNoErr);
     end;
 
     [Test]
@@ -1061,7 +1060,9 @@ codeunit 137077 "SCM Supply Planning -IV"
         OpenOrderPromisingPage(SalesLine."Document No.");  // Using Page to avoid Due Date error - OrderPromisingPageHandler.
 
         // Verify: Verify Requisition Line with Action Message,Quantity and Due Date after Calculating Capable To Promise.
+#pragma warning disable AA0181
         SalesLine.Find();  // Required to maintain the instance of Sales Line.
+#pragma warning restore
         VerifyRequisitionLineEntries(
           Item."No.", '', RequisitionLine."Action Message"::New, SalesLine."Shipment Date", 0, SalesLine.Quantity,
           RequisitionLine."Ref. Order Type"::"Prod. Order");
@@ -1442,7 +1443,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         end;
 
         // Create Sales Order. Assign SN or Lot specific Tracking to Sales Line. Page Handler - ItemTrackingPageHandler.
-        CreateSalesOrder(Item."No.", '');
+        CreateSalesOrder(Item."No.", '', 1);
         AssignTrackingOnSalesLine(SalesLine, Item."No.", ItemTrackingMode);
 
         // Exercise: Calculate Net Change Plan from Planning Worksheet.
@@ -1513,7 +1514,9 @@ codeunit 137077 "SCM Supply Planning -IV"
         OpenOrderPromisingPage(SalesLine."Document No.");  // Using Page to avoid Due Date error - OrderPromisingPageHandler.
 
         // Verify: Verify Due Date on Requisition Line.
+#pragma warning disable AA0181
         SalesLine.Find();
+#pragma warning restore
         SelectRequisitionLine(RequisitionLine, Item."No.");
         RequisitionLine.TestField("Due Date", SalesLine."Planned Shipment Date");
     end;
@@ -2148,6 +2151,7 @@ codeunit 137077 "SCM Supply Planning -IV"
     var
         Item: Record Item;
         ProdBomVersion: Record "Production BOM Version";
+        ProductionBOMHeader: Record "Production BOM Header";
         PlanningWorksheet: TestPage "Planning Worksheet";
     begin
         // [FEATURE] [Planning Worksheet] [Planning Resiliency] [Production BOM]
@@ -2169,7 +2173,7 @@ codeunit 137077 "SCM Supply Planning -IV"
 
         // [THEN] Planning is terminated with an error: "Status must be equal to 'Certified' in Production BOM Header"
         asserterror PlanningWorksheet.CalculateRegenerativePlan.Invoke();
-        Assert.ExpectedError(BOMMustBeCertifiedErr);
+        Assert.ExpectedTestFieldError(ProductionBOMHeader.FieldCaption(Status), Format(ProductionBOMHeader.Status::Certified));
     end;
 
     [Test]
@@ -2977,6 +2981,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         ReqWkshTemplate: Record "Req. Wksh. Template";
         RequisitionLine: Record "Requisition Line";
         PlanningComponent: Record "Planning Component";
+        TrackingSpecification: Record "Tracking Specification";
         PlngComponentReserve: Codeunit "Plng. Component-Reserve";
         Qty: Decimal;
     begin
@@ -3022,7 +3027,12 @@ codeunit 137077 "SCM Supply Planning -IV"
         RequisitionLine.Modify(true);
 
         // [WHEN] Reserve the planning component from the planning line.
-        PlngComponentReserve.BindToRequisition(PlanningComponent, RequisitionLine, Qty, Qty);
+        TrackingSpecification.InitTrackingSpecification(
+          DATABASE::"Requisition Line", 0,
+          RequisitionLine."Worksheet Template Name", RequisitionLine."Journal Batch Name", 0, RequisitionLine."Line No.",
+          RequisitionLine."Variant Code", RequisitionLine."Location Code", RequisitionLine."Qty. per Unit of Measure");
+        PlngComponentReserve.BindToTracking(
+            PlanningComponent, TrackingSpecification, RequisitionLine.Description, RequisitionLine."Ending Date", Qty, Qty);
 
         // [THEN] The planning component is not reserved.
         // [THEN] No error is thrown.
@@ -3340,7 +3350,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         ValueEntry.FindSet();
         repeat
             GLItemLedgerRelation.SetRange("Value Entry No.", ValueEntry."Entry No.");
-            If GLItemLedgerRelation.FindSet() then
+            if GLItemLedgerRelation.FindSet() then
                 repeat
                     GLEntry.Get(GLItemLedgerRelation."G/L Entry No.");
                     GLEntry.TestField("Prod. Order No.", ProductionOrder."No.");
@@ -4020,7 +4030,6 @@ codeunit 137077 "SCM Supply Planning -IV"
         ProductionBOMLine: Record "Production BOM Line";
         WorkCenter: Record "Work Center";
         RoutingHeader: Record "Routing Header";
-        PrevComponentsAtLocation: Code[10];
         ToLocation: Record Location;
         InTransitLocation: Record Location;
         ItemJournalLine: Record "Item Journal Line";
@@ -4034,6 +4043,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
+        PrevComponentsAtLocation: Code[10];
     begin
         // [FEATURE] [Components at Location] [Planning Worksheet] [Calculate Regenerative Plan] [Production BOM] [Released Production Order] [Warehouse Pick] [Inventory Movement] [Transfer Order] [Warehouse Shipment]
         // [SCENARIO 464697] Create Transfer Order and replenish via Production Orders. Create Warehouse Shipment for Transfer Order and post partial Shipment.
@@ -4331,36 +4341,30 @@ codeunit 137077 "SCM Supply Planning -IV"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        with InventorySetup do begin
-            Get();
-            Result := "Location Mandatory";
-            Validate("Location Mandatory", NewValue);
-            Modify(true);
-        end;
+        InventorySetup.Get();
+        Result := InventorySetup."Location Mandatory";
+        InventorySetup.Validate("Location Mandatory", NewValue);
+        InventorySetup.Modify(true);
     end;
 
     local procedure UpdManufSetupComponentsAtLocation(NewValue: Code[10]) Result: Code[10]
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        with ManufacturingSetup do begin
-            Get();
-            Result := "Components at Location";
-            Validate("Components at Location", NewValue);
-            Modify(true);
-        end;
+        ManufacturingSetup.Get();
+        Result := ManufacturingSetup."Components at Location";
+        ManufacturingSetup.Validate("Components at Location", NewValue);
+        ManufacturingSetup.Modify(true);
     end;
 
     local procedure SetReplenishmentQuantities(var Item: Record Item; NewQuantity: Decimal)
     begin
-        with Item do begin
-            Validate("Safety Stock Quantity", NewQuantity);
-            Validate("Minimum Order Quantity", NewQuantity);
-            Validate("Maximum Order Quantity", NewQuantity);
-            Validate("Order Multiple", NewQuantity);
-            Validate("Include Inventory", true);
-            Modify(true);
-        end;
+        Item.Validate("Safety Stock Quantity", NewQuantity);
+        Item.Validate("Minimum Order Quantity", NewQuantity);
+        Item.Validate("Maximum Order Quantity", NewQuantity);
+        Item.Validate("Order Multiple", NewQuantity);
+        Item.Validate("Include Inventory", true);
+        Item.Modify(true);
     end;
 
     local procedure CalculateSubcontractingWorksheetForBatch(RequisitionWkshName: Record "Requisition Wksh. Name"; WorkCenter: Record "Work Center")
@@ -4368,19 +4372,15 @@ codeunit 137077 "SCM Supply Planning -IV"
         RequisitionLine: Record "Requisition Line";
         CalculateSubcontracts: Report "Calculate Subcontracts";
     begin
-        with RequisitionLine do begin
-            Init();
-            "Worksheet Template Name" := RequisitionWkshName."Worksheet Template Name";
-            "Journal Batch Name" := RequisitionWkshName.Name;
-        end;
+        RequisitionLine.Init();
+        RequisitionLine."Worksheet Template Name" := RequisitionWkshName."Worksheet Template Name";
+        RequisitionLine."Journal Batch Name" := RequisitionWkshName.Name;
 
         Clear(CalculateSubcontracts);
-        with CalculateSubcontracts do begin
-            SetWkShLine(RequisitionLine);
-            SetTableView(WorkCenter);
-            UseRequestPage(false);
-            RunModal();
-        end;
+        CalculateSubcontracts.SetWkShLine(RequisitionLine);
+        CalculateSubcontracts.SetTableView(WorkCenter);
+        CalculateSubcontracts.UseRequestPage(false);
+        CalculateSubcontracts.RunModal();
     end;
 
     local procedure CertifyRouting(var RoutingHeader: Record "Routing Header")
@@ -4790,13 +4790,11 @@ codeunit 137077 "SCM Supply Planning -IV"
     local procedure CreateAndUpdateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ReorderingPolicy: Enum "Reordering Policy"; ManufacturingPolicy: Enum "Manufacturing Policy"; VendorNo: Code[20])
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Replenishment System", ReplenishmentSystem);
-            Validate("Reordering Policy", ReorderingPolicy);
-            Validate("Manufacturing Policy", ManufacturingPolicy);
-            Validate("Vendor No.", VendorNo);
-            Modify(true);
-        end;
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Reordering Policy", ReorderingPolicy);
+        Item.Validate("Manufacturing Policy", ManufacturingPolicy);
+        Item.Validate("Vendor No.", VendorNo);
+        Item.Modify(true);
     end;
 
     local procedure CreateItemWithClosedBOMAndVersion(var Item: Record Item; var ProdBOMVersion: Record "Production BOM Version")
@@ -4832,12 +4830,10 @@ codeunit 137077 "SCM Supply Planning -IV"
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        with ProdOrderLine do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            Validate(Quantity, NewQty);
-            Modify(true);
-        end;
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.FindFirst();
+        ProdOrderLine.Validate(Quantity, NewQty);
+        ProdOrderLine.Modify(true);
     end;
 
     local procedure UpdateRequisitionLineDueDateAndQuantity(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; Quantity: Decimal)
@@ -4877,12 +4873,17 @@ codeunit 137077 "SCM Supply Planning -IV"
     end;
 
     local procedure CreateSalesOrder(ItemNo: Code[20]; CustomerNo: Code[20])
+    begin
+        CreateSalesOrder(ItemNo, CustomerNo, LibraryRandom.RandInt(10));
+    end;
+
+    local procedure CreateSalesOrder(ItemNo: Code[20]; CustomerNo: Code[20]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));  // Value type important for Serial tracking.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
     local procedure CreateSalesOrderAtLocation(ItemNo: Code[20]; LocationCode: Code[10])
@@ -5338,7 +5339,7 @@ codeunit 137077 "SCM Supply Planning -IV"
     begin
         CreateSalesOrder(ItemNo, '');
         FindSalesOrderHeader(SalesHeader, ItemNo);
-        LibraryVariableStorage.Enqueue(ReleasedProdOrderCreated);
+        LibraryVariableStorage.Enqueue(ReleasedProdOrderCreatedMsg);
         LibraryManufacturing.CreateProductionOrderFromSalesOrder(
             SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ItemOrder);
     end;
@@ -5434,7 +5435,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         PurchaseHeader.TestField("Ship-to Code", ShipToCode);
     end;
 
-    local procedure VerifyRequisitionLineEntries(ItemNo: Code[20]; LocationCode: Code[10]; ActionMessage: Enum "Action Message Type"; DueDate: Date; OriginalQuantity: Decimal; Quantity: Decimal; RefOrderType: Option)
+    local procedure VerifyRequisitionLineEntries(ItemNo: Code[20]; LocationCode: Code[10]; ActionMessage: Enum "Action Message Type"; DueDate: Date; OriginalQuantity: Decimal; Quantity: Decimal; RefOrderType: Enum "Requisition Ref. Order Type")
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -5506,7 +5507,7 @@ codeunit 137077 "SCM Supply Planning -IV"
     begin
         SelectRequisitionLine(RequisitionLine, ItemNo);
         VerifyTrackingOnRequisitionLine(ItemNo, 1);  // Quantity value required on Item Tracking Lines because Serial No tracking assigned on Requisition Lines.
-        Assert.AreEqual(TotalQuantity, RequisitionLine.Count, RequisitionLinesQuantity);  // When Serial No. Tracking is assigned then total No of Requisition Lines equals Total Quantity.
+        Assert.AreEqual(TotalQuantity, RequisitionLine.Count, RequisitionLinesQuantityErr);  // When Serial No. Tracking is assigned then total No of Requisition Lines equals Total Quantity.
     end;
 
     local procedure VerifyRequisitionWithTracking(ItemTrackingMode: Option " ","Assign Lot No.","Assign Serial No."; ItemNo: Code[20]; Quantity: Integer)
@@ -5543,30 +5544,28 @@ codeunit 137077 "SCM Supply Planning -IV"
         Assert.AreEqual(Quantity, RequisitionLine.Quantity, RequisitionLineQtyErr);
     end;
 
-    local procedure VerifyRequisitionLineExistenceWithLocation(ItemNo: Code[20]; LocationCode: Code[10]; ReqLineExpectedTo: Option "Not Exist",Exist)
+    local procedure VerifyRequisitionLineExistenceWithLocation(ItemNo: Code[20]; LocationCode: Code[10]; ReqLineExists: Option "Not Exist",Exist)
     var
         RequisitionLine: Record "Requisition Line";
     begin
         SelectRequisitionLine(RequisitionLine, ItemNo);
         RequisitionLine.SetRange("Location Code", LocationCode);
         Assert.AreEqual(
-          ReqLineExpectedTo = ReqLineExpectedTo::"Not Exist", RequisitionLine.IsEmpty,
-          StrSubstNo(RequisitionLineExistenceErr, ReqLineExpectedTo, ItemNo, LocationCode));
+          ReqLineExists = ReqLineExpectedTo::"Not Exist", RequisitionLine.IsEmpty,
+          StrSubstNo(RequisitionLineExistenceErr, ReqLineExists, ItemNo, LocationCode));
     end;
 
     local procedure VerifyRequisitionLineForTwoBatches(RequisitionWkshName: Code[10]; RequisitionWkshName2: Code[10]; ItemNo: Code[20]; ProductionOrderNo: Code[20])
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        with RequisitionLine do begin
-            SetRange("Journal Batch Name", RequisitionWkshName2);
-            SetRange("No.", ItemNo);
-            FindFirst();
-            Assert.AreEqual(ProductionOrderNo, "Prod. Order No.", RequisitionLineProdOrderErr);
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName2);
+        RequisitionLine.SetRange("No.", ItemNo);
+        RequisitionLine.FindFirst();
+        Assert.AreEqual(ProductionOrderNo, RequisitionLine."Prod. Order No.", RequisitionLineProdOrderErr);
 
-            SetRange("Journal Batch Name", RequisitionWkshName);
-            Assert.RecordIsEmpty(RequisitionLine);
-        end;
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName);
+        Assert.RecordIsEmpty(RequisitionLine);
     end;
 
     local procedure VerifyRequisitionLineItemExist(ItemNo: Code[20])
@@ -5582,46 +5581,40 @@ codeunit 137077 "SCM Supply Planning -IV"
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        with ReservEntry do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubtype);
-            SetRange("Source ID", SourceID);
-            Assert.RecordIsEmpty(ReservEntry);
-        end;
+        ReservEntry.SetRange("Source Type", SourceType);
+        ReservEntry.SetRange("Source Subtype", SourceSubtype);
+        ReservEntry.SetRange("Source ID", SourceID);
+        Assert.RecordIsEmpty(ReservEntry);
     end;
 
     local procedure VerifyReservationBetweenSources(ItemNo: Code[20]; SourceTypeFrom: Integer; SourceTypeFor: Integer)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Source Type", SourceTypeFrom);
-            FindFirst();
-            TestField("Reservation Status", "Reservation Status"::Reservation);
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Source Type", SourceTypeFrom);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
 
-            Reset();
-            Get("Entry No.", not Positive);
-            TestField("Source Type", SourceTypeFor);
-            TestField("Reservation Status", "Reservation Status"::Reservation);
-        end;
+        ReservationEntry.Reset();
+        ReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive);
+        ReservationEntry.TestField("Source Type", SourceTypeFor);
+        ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
     end;
 
     local procedure VerifyReservedQtyBetweenSources(ItemNo: Code[20]; SourceTypeFrom: Integer; SourceTypeFor: Integer; Qty: Decimal)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Reservation Status", "Reservation Status"::Reservation);
-            SetRange("Item No.", ItemNo);
-            SetRange("Source Type", SourceTypeFrom);
-            FindFirst();
-            TestField(Quantity, Qty);
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Source Type", SourceTypeFrom);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField(Quantity, Qty);
 
-            Get("Entry No.", not Positive);
-            TestField("Source Type", SourceTypeFor);
-            TestField(Quantity, -Qty);
-        end;
+        ReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive);
+        ReservationEntry.TestField("Source Type", SourceTypeFor);
+        ReservationEntry.TestField(Quantity, -Qty);
     end;
 
     local procedure VerifyPlanningComponentExistForItemLocation(ItemNo: Code[20]; LocationCode: Code[10])
@@ -5651,7 +5644,7 @@ codeunit 137077 "SCM Supply Planning -IV"
         Assert.AreEqual(ExpectedAvailableInventory, AvailableInventory, 'Unexpected Available Inventory value');
     end;
 
-    local procedure PostProductionOrderConsumption(ProdOrderLine: Record "Prod. Order Line"; ComponentItem: Record Item; LocationCode: Code[10]; BinCode: Code[10]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal)
+    local procedure PostProductionOrderConsumption(ProdOrderLine: Record "Prod. Order Line"; ComponentItem: Record Item; LocationCode: Code[10]; BinCode: Code[20]; VariantCode: Code[10]; Qty: Decimal; PostingDate: Date; UnitCost: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
@@ -5740,30 +5733,6 @@ codeunit 137077 "SCM Supply Planning -IV"
         WarehouseActivityLine.FindFirst();
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Enum "Warehouse Action Type")
-    var
-        WarehouseActivityHeader: Record "Warehouse Activity Header";
-    begin
-        FindWarehouseActivityHeader(WarehouseActivityHeader, SourceNo, SourceDocument, ActionType);
-        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
-    end;
-
-    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Enum "Warehouse Action Type")
-    var
-        WarehouseActivityLine: Record "Warehouse Activity Line";
-    begin
-        FindWarehouseActivityLine(WarehouseActivityLine, SourceNo, SourceDocument, ActionType);
-        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
-    end;
-
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document"; ActionType: Enum "Warehouse Action Type")
-    begin
-        WarehouseActivityLine.SetRange("Source No.", SourceNo);
-        WarehouseActivityLine.SetRange("Source Document", SourceDocument);
-        WarehouseActivityLine.SetRange("Action Type", ActionType);
-        WarehouseActivityLine.FindSet();
-    end;
-
     local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LocationCode: Code[10])
     begin
         WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
@@ -5844,7 +5813,7 @@ codeunit 137077 "SCM Supply Planning -IV"
                 ItemTrackingMode::"Assign Serial No.":
                     ItemTrackingLines."Assign Serial No.".Invoke();
             end;
-            LibraryVariableStorage.Enqueue(AvailabilityWarningConfirmationMessage);  // Required inside ConfirmHandlerTRUE.
+            LibraryVariableStorage.Enqueue(AvailabilityWarningConfirmationErr);  // Required inside ConfirmHandlerTRUE.
         end else
             VerifyItemTrackingLineQty(ItemTrackingLines);  // Verify Quantity(Base) on Tracking Line.
         ItemTrackingLines.OK().Invoke();

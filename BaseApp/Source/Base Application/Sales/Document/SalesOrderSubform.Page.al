@@ -49,6 +49,7 @@ page 46 "Sales Order Subform"
                 {
                     ApplicationArea = Advanced;
                     ToolTip = 'Specifies the type of entity that will be posted for this sales line, such as Item, Resource, or G/L Account.';
+                    Visible = not TypeAsTextFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -67,7 +68,7 @@ page 46 "Sales Order Subform"
                     LookupPageID = "Option Lookup List";
                     TableRelation = "Option Lookup Buffer"."Option Caption" where("Lookup Type" = const(Sales));
                     ToolTip = 'Specifies the type of transaction that will be posted with the document line. If you select Comment, then you can enter any text in the Description field, such as a message to a customer. ';
-                    Visible = IsFoundation;
+                    Visible = TypeAsTextFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -844,18 +845,6 @@ page 46 "Sales Order Subform"
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied -to.';
                     Visible = false;
                 }
-#if not CLEAN22
-                field("Auto. Acc. Group"; Rec."Auto. Acc. Group")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code relating to an automatic account group.';
-                    Visible = not IsAutomaticAccountCodesEnabled;
-                    Enabled = not IsAutomaticAccountCodesEnabled;
-                    ObsoleteReason = 'Moved to Automatic Account Codes app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = Suite;
@@ -1136,7 +1125,7 @@ page 46 "Sales Order Subform"
                 {
                     Caption = 'F&unctions';
                     Image = "Action";
-#if not CLEAN23
+#if not CLEAN25
                     action(GetPrice)
                     {
                         AccessByPermission = TableData "Sales Price" = R;
@@ -1273,7 +1262,7 @@ page 46 "Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ShowTracking();
+                            Rec.ShowOrderTracking();
                         end;
                     }
                     action("Select Nonstoc&k Items")
@@ -1304,7 +1293,7 @@ page 46 "Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(ItemAvailabilityByPeriod)
@@ -1316,7 +1305,7 @@ page 46 "Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(ItemAvailabilityByVariant)
@@ -1328,7 +1317,7 @@ page 46 "Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(ItemAvailabilityByLocation)
@@ -1341,7 +1330,7 @@ page 46 "Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -1365,7 +1354,7 @@ page 46 "Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                     action(ItemAvailabilityByUnitOfMeasure)
@@ -1377,7 +1366,7 @@ page 46 "Sales Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByUOM());
+                            SalesAvailabilityMgt.ShowItemAvailabilityFromSalesLine(Rec, "Item Availability Type"::UOM);
                         end;
                     }
                 }
@@ -1405,7 +1394,7 @@ page 46 "Sales Order Subform"
                         Image = ItemTrackingLines;
                         ShortCutKey = 'Ctrl+Alt+I';
                         Enabled = Rec.Type = Rec.Type::Item;
-                        ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
+                        ToolTip = 'View or edit serial, lot and package numbers for the selected item. This action is available only for lines that contain an item.';
 
                         trigger OnAction()
                         begin
@@ -1732,7 +1721,7 @@ page 46 "Sales Order Subform"
                         EditinExcel: Codeunit "Edit in Excel";
                         EditinExcelFilters: Codeunit "Edit in Excel Filters";
                     begin
-                        EditinExcelFilters.AddField('Document_No', Enum::"Edit in Excel Filter Type"::Equal, Rec."Document No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddFieldV2('Document_No', Enum::"Edit in Excel Filter Type"::Equal, Rec."Document No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
 
                         EditinExcel.EditPageInExcel(
                             'Sales_Order_Line',
@@ -1808,10 +1797,7 @@ page 46 "Sales Order Subform"
         SalesSetup.Get();
         Currency.InitRoundingPrecision();
         TempOptionLookupBuffer.FillLookupBuffer(Enum::"Option Lookup Type"::Sales);
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
-#if not CLEAN22
-        IsAutomaticAccountCodesEnabled := FeatureKeyManagement.IsAutomaticAccountCodesEnabled();
-#endif
+        TypeAsTextFieldVisible := ApplicationAreaMgmtFacade.IsFoundationEnabled() and not ApplicationAreaMgmtFacade.IsAdvancedEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -1843,17 +1829,14 @@ page 46 "Sales Order Subform"
         SalesSetup: Record "Sales & Receivables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        SalesAvailabilityMgt: Codeunit "Sales Availability Mgt.";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
-#if not CLEAN22
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-        IsAutomaticAccountCodesEnabled: Boolean;
-#endif
         AmountWithDiscountAllowed: Decimal;
+#pragma warning disable AA0074
         Text001: Label 'You cannot use the Explode BOM function because a prepayment of the sales order has been invoiced.';
+#pragma warning restore AA0074
         VariantCodeMandatory: Boolean;
         LocationCodeVisible: Boolean;
-        IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
@@ -1864,6 +1847,7 @@ page 46 "Sales Order Subform"
         ItemChargeStyleExpression: Text;
         ItemChargeToHandleStyleExpression: Text;
         TypeAsText: Text[30];
+        TypeAsTextFieldVisible: Boolean;
         UseAllocationAccountNumber: Boolean;
         ActionOnlyAllowedForAllocationAccountsErr: Label 'This action is only available for lines that have Allocation Account set as Type.';
         ExcelFileNameTxt: Label 'Sales Order %1 - Lines', Comment = '%1 = document number, ex. 10000';
@@ -2021,11 +2005,8 @@ page 46 "Sales Order Subform"
     end;
 
     procedure ShowTracking()
-    var
-        TrackingForm: Page "Order Tracking";
     begin
-        TrackingForm.SetSalesLine(Rec);
-        TrackingForm.RunModal();
+        Rec.ShowOrderTracking();
     end;
 
     procedure ItemChargeAssgnt()
@@ -2286,7 +2267,7 @@ page 46 "Sales Order Subform"
     var
         RecRef: RecordRef;
     begin
-        if not IsFoundation then
+        if not TypeAsTextFieldVisible then
             exit;
 
         OnBeforeUpdateTypeText(Rec);

@@ -352,10 +352,14 @@ report 790 "Calculate Inventory"
         NegQty: Decimal;
         ItemNotOnInventoryErr: Label 'Items Not on Inventory.';
 
+#pragma warning disable AA0074
         Text000: Label 'Enter the posting date.';
         Text001: Label 'Enter the document no.';
+#pragma warning disable AA0470
         Text002: Label 'Processing items    #1##########';
+#pragma warning restore AA0470
         Text003: Label 'Retain Dimensions';
+#pragma warning restore AA0074
 
     protected var
         WhseEntry: Record "Warehouse Entry";

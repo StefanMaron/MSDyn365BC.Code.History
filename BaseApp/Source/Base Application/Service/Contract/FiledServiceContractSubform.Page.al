@@ -139,6 +139,25 @@ page 6074 "Filed Service Contract Subform"
 
     actions
     {
+        area(processing)
+        {
+            group("&Line")
+            {
+                Caption = '&Line';
+                Image = Line;
+                action("&Comments")
+                {
+                    ApplicationArea = Comments;
+                    Caption = '&Comments';
+                    Image = ViewComments;
+                    ToolTip = 'View comments for the record.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.ShowComments();
+                    end;
+                }
+            }
+        }
     }
 }
-

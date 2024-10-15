@@ -41,6 +41,8 @@ codeunit 5642 "FA Reclass. Transfer Line"
         FAJnlDocumentNo: Code[20];
         GenJnlDocumentNo: Code[20];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'is a %1 and %2 is not a %1.';
         Text001: Label 'is not different than %1.';
         Text002: Label '%1 is disposed.';
@@ -51,6 +53,8 @@ codeunit 5642 "FA Reclass. Transfer Line"
         Text007: Label '%1 must be %2 for %3.';
         Text008: Label 'must not be used together with %1 in %2 %3.';
         Text009: Label '%1 cannot be calculated for %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure FAReclassLine(var FAReclassJnlLine: Record "FA Reclass. Journal Line"; var Done: Boolean)
     var

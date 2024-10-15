@@ -698,20 +698,16 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
     begin
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
 
-        with RoutingLine do begin
-            LibraryManufacturing.CreateRoutingLine(
-              RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), Type::"Work Center", WorkCenterNo);
-            Validate("Setup Time", SetupTime);
-            Validate("Run Time", RunTime);
-            Validate("Lot Size", LotSize);
-            Modify(true);
-        end;
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenterNo);
+        RoutingLine.Validate("Setup Time", SetupTime);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Validate("Lot Size", LotSize);
+        RoutingLine.Modify(true);
 
-        with RoutingHeader do begin
-            Validate(Status, Status::Certified);
-            Modify(true);
-            exit("No.");
-        end;
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+        exit(RoutingHeader."No.");
     end;
 
     local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; CompItem: array[2] of Record Item)

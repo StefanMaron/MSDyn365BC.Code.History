@@ -8,7 +8,6 @@ using Microsoft.Assembly.Document;
 using Microsoft.HumanResources.Absence;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
-using Microsoft.Service.Document;
 
 table 956 "Time Sheet Detail Archive"
 {
@@ -53,15 +52,6 @@ table 956 "Time Sheet Detail Archive"
         {
             Caption = 'Cause of Absence Code';
             TableRelation = "Cause of Absence";
-        }
-        field(13; "Service Order No."; Code[20])
-        {
-            Caption = 'Service Order No.';
-            TableRelation = if (Posted = const(false)) "Service Header"."No." where("Document Type" = const(Order));
-        }
-        field(14; "Service Order Line No."; Integer)
-        {
-            Caption = 'Service Order Line No.';
         }
         field(15; Quantity; Decimal)
         {

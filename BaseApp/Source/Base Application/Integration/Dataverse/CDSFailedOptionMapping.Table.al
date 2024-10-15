@@ -9,13 +9,8 @@ table 5358 "CDS Failed Option Mapping"
     Caption = 'CDS Failed Option Mapping';
     DataClassification = SystemMetadata;
     ObsoleteReason = 'Feature OptionMapping will be enabled by default in version 22.0.';
-#if not CLEAN22
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#endif
 
     fields
     {

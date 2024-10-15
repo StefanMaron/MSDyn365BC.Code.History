@@ -14,9 +14,6 @@ using Microsoft.Sales.Archive;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 using Microsoft.Utilities;
 using System.Diagnostics;
 using System.Globalization;
@@ -325,6 +322,7 @@ codeunit 1180 "Data Privacy Mgmt"
         CurrentTableID := 0;
         repeat
             if DataClassificationMgt.IsSupportedTable(TableRelationsMetadata."Table ID") then begin
+
                 ConfigProgressBar.Update(TableRelationsMetadata.TableName);
 
                 FilterCreated := CreatePackageFilter(ConfigPackage.Code,
@@ -427,40 +425,43 @@ codeunit 1180 "Data Privacy Mgmt"
         ContactPerson: Record Contact;
         ContactCompany: Record Contact;
     begin
-        case TableNo of
-            DATABASE::Contact,
-          DATABASE::"Contact Alt. Address",
-          DATABASE::"Sales Header",
-          DATABASE::"Purchase Header",
-          DATABASE::"Sales Shipment Header",
-          DATABASE::"Sales Invoice Header",
-          DATABASE::"Sales Cr.Memo Header",
-          DATABASE::"Purch. Rcpt. Header",
-          DATABASE::"Purch. Inv. Header",
-          Database::"Purch. Cr. Memo Entity Buffer",
-          DATABASE::"Purch. Cr. Memo Hdr.",
-          DATABASE::"Sales Header Archive",
-          DATABASE::"Purchase Header Archive",
-          DATABASE::"Sales Invoice Entity Aggregate",
-          DATABASE::"Sales Order Entity Buffer",
-          DATABASE::"Sales Quote Entity Buffer",
-          DATABASE::"Sales Cr. Memo Entity Buffer",
-          DATABASE::"Service Header",
-          DATABASE::"Service Contract Header",
-          DATABASE::"Service Shipment Header",
-          DATABASE::"Service Invoice Header",
-          DATABASE::"Service Cr.Memo Header",
-          DATABASE::"Return Shipment Header",
-          DATABASE::"Return Receipt Header",
-          DATABASE::"Interaction Log Entry":
-                if ContactPerson.Get(Format(FieldValue, 20)) then // FieldValue is the EntityNo for this method
-                    if ContactCompany.Get(ContactPerson."Company No.") then
-                        FieldValue := FieldValue + ' | ' + ContactCompany."No.";
-            else
-                OnGetPackageFilterTableNoCaseElse(TableNo, FieldValue);
-        end;
+        if IsContactPersonTable(TableNo) then begin
+            if ContactPerson.Get(Format(FieldValue, 20)) then // FieldValue is the EntityNo for this method
+                if ContactCompany.Get(ContactPerson."Company No.") then
+                    FieldValue := FieldValue + ' | ' + ContactCompany."No.";
+        end else
+            OnGetPackageFilterTableNoCaseElse(TableNo, FieldValue);
 
         exit(FieldValue);
+    end;
+
+    local procedure IsContactPersonTable(TableNo: Integer) Result: Boolean
+    begin
+        Result :=
+            TableNo in [
+                        DATABASE::Contact,
+                        DATABASE::"Contact Alt. Address",
+                        DATABASE::"Sales Header",
+                        DATABASE::"Purchase Header",
+                        DATABASE::"Sales Shipment Header",
+                        DATABASE::"Sales Invoice Header",
+                        DATABASE::"Sales Cr.Memo Header",
+                        DATABASE::"Purch. Rcpt. Header",
+                        DATABASE::"Purch. Inv. Header",
+                        Database::"Purch. Cr. Memo Entity Buffer",
+                        DATABASE::"Purch. Cr. Memo Hdr.",
+                        DATABASE::"Sales Header Archive",
+                        DATABASE::"Purchase Header Archive",
+                        DATABASE::"Sales Invoice Entity Aggregate",
+                        DATABASE::"Sales Order Entity Buffer",
+                        DATABASE::"Sales Quote Entity Buffer",
+                        DATABASE::"Sales Cr. Memo Entity Buffer",
+                        DATABASE::"Return Shipment Header",
+                        DATABASE::"Return Receipt Header",
+                        DATABASE::"Interaction Log Entry"
+                       ];
+
+        OnAfterIsContactPersonTable(TableNo, Result);
     end;
 
     local procedure InsertPackageFilter(PackageCode: Code[20]; TableId: Integer; FieldId: Integer; FieldFilter: Text[250]): Boolean
@@ -638,6 +639,11 @@ codeunit 1180 "Data Privacy Mgmt"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPrivacyBlocked(EntityTypeTableNo: Integer; EntityNo: Code[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsContactPersonTable(TableNo: Integer; var Result: Boolean);
     begin
     end;
 }

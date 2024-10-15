@@ -157,9 +157,13 @@ report 5706 "Create Stockkeeping Unit"
         LocationFilter: Code[1024];
         VariantFilter: Code[1024];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Item No.       #1##################\';
         Text001: Label 'Location Code  #2########\';
         Text002: Label 'Variant Code   #3########\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         Location: Record Location;

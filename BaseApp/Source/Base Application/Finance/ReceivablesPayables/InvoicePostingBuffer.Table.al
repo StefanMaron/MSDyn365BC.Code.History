@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Finance.ReceivablesPayables;
 
-using Microsoft.Finance.AutomaticAccounts;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
@@ -17,15 +16,6 @@ using Microsoft.FixedAssets.Maintenance;
 using Microsoft.FixedAssets.Posting;
 using Microsoft.Foundation.Enums;
 using Microsoft.Projects.Project.Job;
-using Microsoft.Purchases.Document;
-using Microsoft.Purchases.Setup;
-using Microsoft.Sales.Document;
-using Microsoft.Sales.Setup;
-using Microsoft.Service.Document;
-using Microsoft.Service.Setup;
-#if not CLEAN22
-using System.Environment.Configuration;
-#endif
 
 table 55 "Invoice Posting Buffer"
 {
@@ -326,15 +316,9 @@ table 55 "Invoice Posting Buffer"
         {
             Caption = 'Auto. Acc. Group';
             DataClassification = SystemMetadata;
-            TableRelation = "Automatic Acc. Header";
             ObsoleteReason = 'Moved to Automatic Account Codes app.';
-#if CLEAN22
-			ObsoleteState = Removed;
+            ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
         }
 #if not CLEAN23
         field(11203; "VAT Base Amount (LCY)"; Decimal)
@@ -362,60 +346,17 @@ table 55 "Invoice Posting Buffer"
 
     var
         TempInvoicePostingBufferRounding: Record "Invoice Posting Buffer" temporary;
-        DimMgt: Codeunit DimensionManagement;
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
-#if not CLEAN22
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
 
-    procedure PrepareSales(var SalesLine: Record "Sales Line")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure PrepareInvoicePostingBuffer in codeunit Sales Post Invoice', '25.0')]
+    procedure PrepareSales(var SalesLine: Record Microsoft.Sales.Document."Sales Line")
+    var
+        SalesPostInvoice: Codeunit Microsoft.Sales.Posting."Sales Post Invoice";
     begin
-        OnBeforePrepareSales(Rec, SalesLine);
-
-        Clear(Rec);
-        Type := SalesLine.Type;
-        "System-Created Entry" := true;
-        "Gen. Bus. Posting Group" := SalesLine."Gen. Bus. Posting Group";
-        "Gen. Prod. Posting Group" := SalesLine."Gen. Prod. Posting Group";
-        "VAT Bus. Posting Group" := SalesLine."VAT Bus. Posting Group";
-        "VAT Prod. Posting Group" := SalesLine."VAT Prod. Posting Group";
-        "VAT Calculation Type" := SalesLine."VAT Calculation Type";
-        "Global Dimension 1 Code" := SalesLine."Shortcut Dimension 1 Code";
-        "Global Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
-        "Dimension Set ID" := SalesLine."Dimension Set ID";
-        "Job No." := SalesLine."Job No.";
-        "VAT %" := SalesLine."VAT %";
-        "VAT Difference" := SalesLine."VAT Difference";
-        if Type = Type::"Fixed Asset" then begin
-            "FA Posting Date" := SalesLine."FA Posting Date";
-            "Depreciation Book Code" := SalesLine."Depreciation Book Code";
-            "Depr. until FA Posting Date" := SalesLine."Depr. until FA Posting Date";
-            "Duplicate in Depreciation Book" := SalesLine."Duplicate in Depreciation Book";
-            "Use Duplication List" := SalesLine."Use Duplication List";
-        end;
-
-        UpdateEntryDescriptionFromSalesLine(SalesLine);
-
-        if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then
-            SetSalesTaxForSalesLine(SalesLine);
-
-        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Global Dimension 1 Code", "Global Dimension 2 Code");
-
-        if SalesLine."Line Discount %" = 100 then begin
-            "VAT Base Amount" := 0;
-            "VAT Base Amount (ACY)" := 0;
-            "VAT Amount" := 0;
-            "VAT Amount (ACY)" := 0;
-            NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
-        end;
-
-        "Journal Templ. Name" := SalesLine.GetJnlTemplateName();
-#if not CLEAN22
-        if not FeatureKeyManagement.IsAutomaticAccountCodesEnabled() then
-            "Auto. Acc. Group" := SalesLine."Auto. Acc. Group";
-#endif
-        OnAfterPrepareSales(SalesLine, Rec);
+        SalesPostInvoice.PrepareInvoicePostingBuffer(SalesLine, Rec);
     end;
+#endif
 
     procedure CalcDiscount(PricesInclVAT: Boolean; DiscountAmount: Decimal; DiscountAmountACY: Decimal)
     var
@@ -490,60 +431,15 @@ table 55 "Invoice Posting Buffer"
         "VAT Base Before Pmt. Disc." := TotalAmount;
     end;
 
-    procedure PreparePurchase(var PurchLine: Record "Purchase Line")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure PrepareInvoicePostingBuffer in codeunit Purch. Post Invoice', '25.0')]
+    procedure PreparePurchase(var PurchLine: Record Microsoft.Purchases.Document."Purchase Line")
+    var
+        PurchPostInvoice: Codeunit Microsoft.Purchases.Posting."Purch. Post Invoice";
     begin
-        Clear(Rec);
-        Type := PurchLine.Type;
-        "System-Created Entry" := true;
-        "Gen. Bus. Posting Group" := PurchLine."Gen. Bus. Posting Group";
-        "Gen. Prod. Posting Group" := PurchLine."Gen. Prod. Posting Group";
-        "VAT Bus. Posting Group" := PurchLine."VAT Bus. Posting Group";
-        "VAT Prod. Posting Group" := PurchLine."VAT Prod. Posting Group";
-        "VAT Calculation Type" := PurchLine."VAT Calculation Type";
-        "Global Dimension 1 Code" := PurchLine."Shortcut Dimension 1 Code";
-        "Global Dimension 2 Code" := PurchLine."Shortcut Dimension 2 Code";
-        "Dimension Set ID" := PurchLine."Dimension Set ID";
-        "Job No." := PurchLine."Job No.";
-        "VAT %" := PurchLine."VAT %";
-        NonDeductibleVAT.Copy(Rec, PurchLine);
-        "VAT Difference" := PurchLine."VAT Difference";
-        if Type = Type::"Fixed Asset" then begin
-            "FA Posting Date" := PurchLine."FA Posting Date";
-            "Depreciation Book Code" := PurchLine."Depreciation Book Code";
-            "Depr. until FA Posting Date" := PurchLine."Depr. until FA Posting Date";
-            "Duplicate in Depreciation Book" := PurchLine."Duplicate in Depreciation Book";
-            "Use Duplication List" := PurchLine."Use Duplication List";
-            "FA Posting Type" := PurchLine."FA Posting Type";
-            "Depreciation Book Code" := PurchLine."Depreciation Book Code";
-            "Salvage Value" := PurchLine."Salvage Value";
-            "Depr. Acquisition Cost" := PurchLine."Depr. Acquisition Cost";
-            "Maintenance Code" := PurchLine."Maintenance Code";
-            "Insurance No." := PurchLine."Insurance No.";
-            "Budgeted FA No." := PurchLine."Budgeted FA No.";
-        end;
-
-        UpdateEntryDescriptionFromPurchaseLine(PurchLine);
-
-        if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then
-            SetSalesTaxForPurchLine(PurchLine);
-
-        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Global Dimension 1 Code", "Global Dimension 2 Code");
-
-        if PurchLine."Line Discount %" = 100 then begin
-            "VAT Base Amount" := 0;
-            "VAT Base Amount (ACY)" := 0;
-            "VAT Amount" := 0;
-            "VAT Amount (ACY)" := 0;
-            NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
-        end;
-
-        "Journal Templ. Name" := PurchLine.GetJnlTemplateName();
-#if not CLEAN22   
-        if not FeatureKeyManagement.IsAutomaticAccountCodesEnabled() then
-            "Auto. Acc. Group" := PurchLine."Auto. Acc. Group";
-#endif
-        OnAfterPreparePurchase(PurchLine, Rec);
+        PurchPostInvoice.PrepareInvoicePostingBuffer(PurchLine, Rec);
     end;
+#endif
 
     procedure CalcDiscountNoVAT(DiscountAmount: Decimal; DiscountAmountACY: Decimal)
     var
@@ -561,23 +457,25 @@ table 55 "Invoice Posting Buffer"
         "VAT Base Before Pmt. Disc." := "VAT Base Amount";
     end;
 
-    procedure SetSalesTaxForPurchLine(PurchaseLine: Record "Purchase Line")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure SetSalesTax in codeunit Purch. Post Invoice', '25.0')]
+    procedure SetSalesTaxForPurchLine(PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line")
+    var
+        PurchPostInvoice: Codeunit Microsoft.Purchases.Posting."Purch. Post Invoice";
     begin
-        "Tax Area Code" := PurchaseLine."Tax Area Code";
-        "Tax Liable" := PurchaseLine."Tax Liable";
-        "Tax Group Code" := PurchaseLine."Tax Group Code";
-        "Use Tax" := PurchaseLine."Use Tax";
-        Quantity := PurchaseLine."Qty. to Invoice (Base)";
+        PurchPostInvoice.SetSalesTax(PurchaseLine, Rec);
     end;
+#endif
 
-    procedure SetSalesTaxForSalesLine(SalesLine: Record "Sales Line")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure SetSalesTax in codeunit Sales Post Invoice', '25.0')]
+    procedure SetSalesTaxForSalesLine(SalesLine: Record Microsoft.Sales.Document."Sales Line")
+    var
+        SalesPostInvoice: Codeunit Microsoft.Sales.Posting."Sales Post Invoice";
     begin
-        "Tax Area Code" := SalesLine."Tax Area Code";
-        "Tax Liable" := SalesLine."Tax Liable";
-        "Tax Group Code" := SalesLine."Tax Group Code";
-        "Use Tax" := false;
-        Quantity := SalesLine."Qty. to Invoice (Base)";
+        SalesPostInvoice.SetSalesTax(SalesLine, Rec);
     end;
+#endif
 
     procedure ReverseAmounts()
     begin
@@ -601,41 +499,15 @@ table 55 "Invoice Posting Buffer"
         "VAT Difference" := VATDifference;
     end;
 
-    procedure PrepareService(var ServiceLine: Record "Service Line")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure PrepareInvoicePostingBuffer in codeunit Service Post Invoice', '25.0')]
+    procedure PrepareService(var ServiceLine: Record Microsoft.Service.Document."Service Line")
+    var
+        ServicePostInvoice: Codeunit Microsoft.Service.Posting."Service Post Invoice";
     begin
-        Clear(Rec);
-        case ServiceLine.Type of
-            ServiceLine.Type::Item:
-                Type := Type::Item;
-            ServiceLine.Type::Resource:
-                Type := Type::Resource;
-            ServiceLine.Type::"G/L Account":
-                Type := Type::"G/L Account";
-        end;
-        "System-Created Entry" := true;
-        "Gen. Bus. Posting Group" := ServiceLine."Gen. Bus. Posting Group";
-        "Gen. Prod. Posting Group" := ServiceLine."Gen. Prod. Posting Group";
-        "VAT Bus. Posting Group" := ServiceLine."VAT Bus. Posting Group";
-        "VAT Prod. Posting Group" := ServiceLine."VAT Prod. Posting Group";
-        "VAT Calculation Type" := ServiceLine."VAT Calculation Type";
-        "Global Dimension 1 Code" := ServiceLine."Shortcut Dimension 1 Code";
-        "Global Dimension 2 Code" := ServiceLine."Shortcut Dimension 2 Code";
-        "Dimension Set ID" := ServiceLine."Dimension Set ID";
-        "Job No." := ServiceLine."Job No.";
-        "VAT %" := ServiceLine."VAT %";
-        "VAT Difference" := ServiceLine."VAT Difference";
-        if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then begin
-            "Tax Area Code" := ServiceLine."Tax Area Code";
-            "Tax Group Code" := ServiceLine."Tax Group Code";
-            "Tax Liable" := ServiceLine."Tax Liable";
-            "Use Tax" := false;
-            Quantity := ServiceLine."Qty. to Invoice (Base)";
-        end;
-
-        UpdateEntryDescriptionFromServiceLine(ServiceLine);
-
-        OnAfterPrepareService(ServiceLine, Rec);
+        ServicePostInvoice.PrepareInvoicePostingBuffer(ServiceLine, Rec);
     end;
+#endif
 
     procedure PreparePrepmtAdjBuffer(InvoicePostingBuffer: Record "Invoice Posting Buffer"; GLAccountNo: Code[20]; AdjAmount: Decimal; RoundingEntry: Boolean)
     var
@@ -762,55 +634,15 @@ table 55 "Invoice Posting Buffer"
         TotalVATBaseACY := TotalVATBaseACY - "VAT Base Amount (ACY)"
     end;
 
-    local procedure UpdateEntryDescriptionFromPurchaseLine(PurchaseLine: Record "Purchase Line")
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchSetup: record "Purchases & Payables Setup";
+    procedure UpdateEntryDescription(CopyLineDescrToGLEntry: Boolean; LineNo: Integer; LineDescription: text[100]; HeaderDescription: Text[100]; SetLineNo: Boolean)
     begin
-        PurchSetup.Get();
-        PurchaseHeader.get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        UpdateEntryDescription(
-            PurchSetup."Copy Line Descr. to G/L Entry",
-            PurchaseLine."Line No.",
-            PurchaseLine.Description,
-            PurchaseHeader."Posting Description");
-    end;
-
-    local procedure UpdateEntryDescriptionFromSalesLine(SalesLine: Record "Sales Line")
-    var
-        SalesHeader: Record "Sales Header";
-        SalesSetup: record "Sales & Receivables Setup";
-    begin
-        SalesSetup.Get();
-        SalesHeader.get(SalesLine."Document Type", SalesLine."Document No.");
-        UpdateEntryDescription(
-            SalesSetup."Copy Line Descr. to G/L Entry",
-            SalesLine."Line No.",
-            SalesLine.Description,
-            SalesHeader."Posting Description");
-    end;
-
-    local procedure UpdateEntryDescriptionFromServiceLine(ServiceLine: Record "Service Line")
-    var
-        ServiceHeader: Record "Service Header";
-        ServiceSetup: record "Service Mgt. Setup";
-    begin
-        ServiceSetup.Get();
-        ServiceHeader.get(ServiceLine."Document Type", ServiceLine."Document No.");
-        UpdateEntryDescription(
-            ServiceSetup."Copy Line Descr. to G/L Entry",
-            ServiceLine."Line No.",
-            ServiceLine.Description,
-            ServiceHeader."Posting Description");
-    end;
-
-    local procedure UpdateEntryDescription(CopyLineDescrToGLEntry: Boolean; LineNo: Integer; LineDescription: text[100]; HeaderDescription: Text[100])
-    begin
-        if CopyLineDescrToGLEntry and (Type = type::"G/L Account") then begin
-            "Entry Description" := LineDescription;
-            "Fixed Asset Line No." := LineNo;
-        end else
-            "Entry Description" := HeaderDescription;
+        "Entry Description" := HeaderDescription;
+        if Type in [Type::"G/L Account", Type::"Fixed Asset"] then begin
+            if CopyLineDescrToGLEntry then
+                "Entry Description" := LineDescription;
+            if SetLineNo then
+                "Fixed Asset Line No." := LineNo;
+        end;
     end;
 
     local procedure AdjustRoundingForUpdate()
@@ -886,10 +718,7 @@ table 55 "Invoice Posting Buffer"
         GenJnlLine."VAT Difference" := Rec."VAT Difference";
         GenJnlLine."VAT Base Before Pmt. Disc." := Rec."VAT Base Before Pmt. Disc.";
         NonDeductibleVAT.Copy(GenJnlLine, Rec);
-#if not CLEAN22
-        if not FeatureKeyManagement.IsAutomaticAccountCodesEnabled() then
-            GenJnlLine."Auto. Acc. Group" := Rec."Auto. Acc. Group";
-#endif
+
         OnAfterCopyToGenJnlLine(GenJnlLine, Rec);
     end;
 
@@ -910,20 +739,44 @@ table 55 "Invoice Posting Buffer"
         OnAfterCopyToGenJnlLineFA(GenJnlLine, Rec);
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+#if not CLEAN25
+    internal procedure RunOnAfterPrepareSales(var SalesLine: Record Microsoft.Sales.Document."Sales Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
+        OnAfterPrepareSales(SalesLine, InvoicePostingBuffer);
     end;
 
+    [Obsolete('Moved to codeunit Sales Post Invoice Events', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPreparePurchase(var PurchaseLine: Record "Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    local procedure OnAfterPrepareSales(var SalesLine: Record Microsoft.Sales.Document."Sales Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterPreparePurchase(var PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+        OnAfterPreparePurchase(PurchaseLine, InvoicePostingBuffer);
     end;
 
+    [Obsolete('Moved to codeunit Sales Post Invoice Events', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPrepareService(var ServiceLine: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    local procedure OnAfterPreparePurchase(var PurchaseLine: Record Microsoft.Purchases.Document."Purchase Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnAfterPrepareService(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+        OnAfterPrepareService(ServiceLine, InvoicePostingBuffer);
+    end;
+
+    [Obsolete('Replaced by event OnAfterPrepareInvoicePostingBuffer in codeunit Service Post Invoice', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrepareService(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterBuildPrimaryKey(var InvoicePostingBuffer: Record "Invoice Posting Buffer")
@@ -960,10 +813,18 @@ table 55 "Invoice Posting Buffer"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforePrepareSales(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var SalesLine: Record Microsoft.Sales.Document."Sales Line")
+    begin
+        OnBeforePrepareSales(InvoicePostingBuffer, SalesLine);
+    end;
+
+    [Obsolete('Moved to codeunit Sales Post Invoice Events', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrepareSales(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var SalesLine: Record "Sales Line")
+    local procedure OnBeforePrepareSales(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var SalesLine: Record Microsoft.Sales.Document."Sales Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnFillPrepmtAdjBufferOnBeforeAssignInvoicePostingBuffer(var PrepmtAdjInvoicePostingBuffer: Record "Invoice Posting Buffer"; InvoicePostingBuffer: Record "Invoice Posting Buffer")

@@ -608,15 +608,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Questionnaire - NamedType ExcelControlVisibilityErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2049660768 - NamedType 3818217827" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Field does not exist. Identification fields and values: TableNo='%1',No.='0']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Questionnaire - NamedType FieldDoesNotExistError)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2049660768 - NamedType 1316724347" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Record %1 in %2 must not exist.]]></Val>

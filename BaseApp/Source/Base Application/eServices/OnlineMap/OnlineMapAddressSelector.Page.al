@@ -84,12 +84,20 @@ page 802 "Online Map Address Selector"
         SelectedRecPosition: Text[1000];
         LookupCode: Code[20];
         LookupSelection: Enum "Online Map Table Selection";
+#pragma warning disable AA0074
         Text001: Label 'The selection that was chosen is not valid.';
+#pragma warning disable AA0470
         Text003: Label 'The value %1 from Table ID %2 could not be found.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Distance: Option Miles,Kilometers;
         Route: Option Quickest,Shortest;
         SelectedTableNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'Table No. %1 is not set up.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GetTableNo(): Integer
     begin

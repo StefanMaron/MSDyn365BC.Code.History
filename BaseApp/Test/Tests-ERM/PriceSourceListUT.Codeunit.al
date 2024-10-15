@@ -185,7 +185,7 @@ codeunit 134121 "Price Source List UT"
     [Test]
     procedure T006_RemoveCustomerSourceAtLevel()
     var
-        Customer: Array[2] of Record Customer;
+        Customer: array[2] of Record Customer;
         TempPriceSource: Record "Price Source" temporary;
         PriceSourceList: Codeunit "Price Source List";
         SourceType: Enum "Price Source Type";
@@ -213,7 +213,7 @@ codeunit 134121 "Price Source List UT"
     [Test]
     procedure T006_RemoveMultipleCustomerSources()
     var
-        Customer: Array[2] of Record Customer;
+        Customer: array[2] of Record Customer;
         TempPriceSource: Record "Price Source" temporary;
         PriceSourceList: Codeunit "Price Source List";
         SourceType: Enum "Price Source Type";
@@ -240,7 +240,7 @@ codeunit 134121 "Price Source List UT"
     [Test]
     procedure T007_RemoveMultipleCustomerSourcesAtLevels()
     var
-        Customer: Array[2] of Record Customer;
+        Customer: array[2] of Record Customer;
         TempPriceSource: Record "Price Source" temporary;
         PriceSourceList: Codeunit "Price Source List";
         SourceType: Enum "Price Source Type";

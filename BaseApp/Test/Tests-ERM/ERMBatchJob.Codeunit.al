@@ -33,7 +33,6 @@ codeunit 134900 "ERM Batch Job"
         AmountErr: Label 'Amount must be %1.', Comment = '%1=Value';
         ApprovalPendingErr: Label 'Cannot post %1 document no. %2 of type %3 because it is pending approval.';
         ApprovalWorkflowErr: Label 'Cannot post %1 document no. %2 of type %3 due to the approval workflow.';
-        StatusErr: Label 'Status must be equal to ''Open''  in %1: %2=%3, %4=%5. Current value is ''Released''.', Comment = '%1 = TableCaption, %2 = FIELDCaption,%3 =   FIELDValue,%4 = FieldCaption ,%5 =  FIELDValue';
         SalesHeaderErr: Label 'You cannot delete the order line because it is associated with purchase order';
         ShipToNameErr: Label 'The %1 field on the purchase order %2 must be the same as on sales order %3.', Comment = '%1=Field;%2=Value;%3=Value;';
         DropShipWithShipToAddress2Err: Label 'Sales Order of Drop Shipment with different Ship-To-Address 2 should be carried to seperate orders.';
@@ -332,9 +331,7 @@ codeunit 134900 "ERM Batch Job"
         asserterror SalesCopyDocument(SalesHeader2, PostedDocumentNo, "Sales Document Type From"::"Posted Invoice");
 
         // [THEN] Verify Copy Document Error on Sales Order When Order is Released.
-        Assert.ExpectedError(
-          StrSubstNo(StatusErr, SalesHeader2.TableCaption(), SalesLine2.FieldCaption("Document Type"), SalesLine2."Document Type",
-            SalesHeader2.FieldCaption("No."), SalesLine2."Document No."));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
     [Test]
@@ -363,9 +360,7 @@ codeunit 134900 "ERM Batch Job"
         asserterror PurchaseCopyDocument(PurchaseHeader2, PostedDocumentNo, "Purchase Document Type From"::"Posted Invoice");
 
         // [THEN] Verify Copy Document Error on Purchase Order When Order is Released.
-        Assert.ExpectedError(
-          StrSubstNo(StatusErr, PurchaseHeader2.TableCaption(), PurchaseLine2.FieldCaption("Document Type"), PurchaseLine2."Document Type",
-            PurchaseHeader2.FieldCaption("No."), PurchaseLine2."Document No."));
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Open));
     end;
 
     [Test]
@@ -724,11 +719,10 @@ codeunit 134900 "ERM Batch Job"
         // [THEN] Following Setup fields are copied: "Sales Pmt. Tol. Debit Acc.","Sales Pmt. Tol. Credit Acc.",
         // "Purch. Pmt. Tol. Debit Acc.","Purch. Pmt. Tol. Credit Acc.","Sales Prepayments Account",
         // "Purch. Prepayments Account"
-        with GeneralPostingSetupSource do
-            VerifyValuesOnGenPostingSetupAllFields(
-              GeneralPostingSetupDestination, "Sales Account", "Sales Pmt. Tol. Debit Acc.", "Sales Pmt. Tol. Credit Acc.",
-              "Purch. Pmt. Tol. Debit Acc.", "Purch. Pmt. Tol. Credit Acc.", "Sales Prepayments Account",
-              "Purch. Prepayments Account");
+        VerifyValuesOnGenPostingSetupAllFields(
+              GeneralPostingSetupDestination, GeneralPostingSetupSource."Sales Account", GeneralPostingSetupSource."Sales Pmt. Tol. Debit Acc.", GeneralPostingSetupSource."Sales Pmt. Tol. Credit Acc.",
+              GeneralPostingSetupSource."Purch. Pmt. Tol. Debit Acc.", GeneralPostingSetupSource."Purch. Pmt. Tol. Credit Acc.", GeneralPostingSetupSource."Sales Prepayments Account",
+              GeneralPostingSetupSource."Purch. Prepayments Account");
     end;
 
     [Test]
@@ -1044,6 +1038,7 @@ codeunit 134900 "ERM Batch Job"
         // [GIVEN] Create Sales Order with Special Order Line And Drop Shipment Line.
         Initialize();
         CreateSalesOrderWithSpecialOrderAndDropShipment(SalesHeader);
+        UpdateShipToAddressOnSalesHeader(SalesHeader);
         CreateReqWkshTemplateName(RequisitionWkshName, ReqWkshTemplate);
 
         // [WHEN] Run Carry Out Action Msg. - Req. batch job.
@@ -1054,16 +1049,18 @@ codeunit 134900 "ERM Batch Job"
         GetDropShipmentOnReqWksht(SalesLine1, RequisitionLine, RequisitionWkshName.Name, ReqWkshTemplate.Name);
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
 
-        // [THEN] Verify Purchasing Code, Ship-to Name, Ship-to Address on 1st Purchase Order.
+        // [THEN] Verify Purchasing Code, Ship-to Name, Ship-to Address, Ship-to Phone No. on 1st Purchase Order.
         GetPurchHeader(PurchHeader, SalesLine."No.");
         VerifyPurchasingCodeAndSpecialOrderOnPurchaseLine(SalesLine, PurchHeader."No.");
         Location.Get(SalesHeader."Location Code");
         VerifyPurchShippingDetails(PurchHeader, Location.Name, Location.Address);
+        VerifyPurchShippingContactDetails(PurchHeader, Location."Phone No.");
 
-        // [THEN] Verify Purchasing Code, Ship-to Name, Ship-to Address on 2nd Purchase Order.
+        // [THEN] Verify Purchasing Code, Ship-to Name, Ship-to Address and Ship-to Phone No. on 2nd Purchase Order.
         GetPurchHeader(PurchHeader1, SalesLine1."No.");
         VerifyPurchasingCodeAndDropShipmentOnPurchLine(SalesLine1, PurchHeader1."No.");
         VerifyPurchShippingDetails(PurchHeader1, SalesHeader."Ship-to Name", SalesHeader."Ship-to Address");
+        VerifyPurchShippingContactDetails(PurchHeader1, SalesHeader."Ship-to Phone No.");
     end;
 
     [Test]
@@ -1091,11 +1088,12 @@ codeunit 134900 "ERM Batch Job"
         // [THEN] Verify Error message.
         Assert.ExpectedError(StrSubstNo(ShipToNameErr, PurchHeader.FieldCaption("Ship-to Name"), PurchHeader."No.", SalesHeader."No."));
 
-        // [THEN] Verify Purchasing Code, Ship-to Name, Ship-to Address on Purchase Order with Special Order.
+        // [THEN] Verify Purchasing Code, Ship-to Name, Ship-to Address and Ship-to Phone on Purchase Order with Special Order.
         SelectSalesLineWithSpecialOrder(SalesLine, SalesHeader);
         VerifyPurchasingCodeAndSpecialOrderOnPurchaseLine(SalesLine, PurchHeader."No.");
         Location.Get(SalesHeader."Location Code");
         VerifyPurchShippingDetails(PurchHeader, Location.Name, Location.Address);
+        VerifyPurchShippingContactDetails(PurchHeader, Location."Phone No.");
     end;
 
     [Test]
@@ -1112,6 +1110,7 @@ codeunit 134900 "ERM Batch Job"
         // [GIVEN] Create Sales Order with Special Order Line And Drop Shipment Line.
         Initialize();
         CreateSalesOrderWithSpecialOrderAndDropShipment(SalesHeader);
+        UpdateShipToAddressOnSalesHeader(SalesHeader);
 
         // [WHEN] Create Purchase Order. Get Drop Shipment then Get Special Order.
         CreatePurchHeader(PurchHeader, SalesHeader."Sell-to Customer No.", '');
@@ -1122,10 +1121,11 @@ codeunit 134900 "ERM Batch Job"
         // [THEN] Verify Error Message.
         Assert.ExpectedError(StrSubstNo(ShipToNameErr, PurchHeader.FieldCaption("Ship-to Name"), PurchHeader."No.", SalesHeader."No."));
 
-        // [THEN] Verify Purchasing Code, Ship-to Name, Ship-to Address on Purchase Order with Drop Shipment.
+        // [THEN] Verify Purchasing Code, Ship-to Name, Ship-to Address and Ship-to Phone on Purchase Order with Drop Shipment.
         SelectSalesLineWithDropShipment(SalesLine, SalesHeader);
         VerifyPurchasingCodeAndDropShipmentOnPurchLine(SalesLine, PurchHeader."No.");
         VerifyPurchShippingDetails(PurchHeader, SalesHeader."Ship-to Name", SalesHeader."Ship-to Address");
+        VerifyPurchShippingContactDetails(PurchHeader, SalesHeader."Ship-to Phone No.");
     end;
 
     [Test]
@@ -1253,7 +1253,7 @@ codeunit 134900 "ERM Batch Job"
           SalesHeader, SalesLine, LibrarySales.CreateCustomerNo(), CreatePurchasingCodeWithDropShipment(), LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] 'Ship-to' fields updated on Sales Order:
-        // [GIVEN] Address, Address 2, Post Code, City, Contact, County, Country/Region
+        // [GIVEN] Address, Address 2, Post Code, City, Contact, County, Country/Region and Phone No.
         UpdateShipToAddressOnSalesHeader(SalesHeader);
 
         // [WHEN] Run Carry Out Action Msg. - Req. batch job.
@@ -2304,7 +2304,6 @@ codeunit 134900 "ERM Batch Job"
     [Scope('OnPrem')]
     procedure BatchPostPurchaseOrdersWithEmptyCategoryCode()
     var
-        //PurchaseHeader: List of [v: Record "purc" temporary;];
         PurchaseHeader: array[2] of Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -2358,7 +2357,7 @@ codeunit 134900 "ERM Batch Job"
           SalesHeader, SalesLine, LibrarySales.CreateCustomerNo(), CreatePurchasingCodeWithDropShipment(), LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] 'Ship-to' fields updated on Sales Order:
-        // [GIVEN] Address, Address 2, Post Code, City, Contact, County, Country/Region
+        // [GIVEN] Address, Address 2, Post Code, City, Contact, County, Country/Region and Phone No
         UpdateShipToAddressOnSalesHeader(SalesHeader);
 
         // [GIVEN] Create Purchase Header with "Sell-to Customer No." = "CU01"
@@ -2824,11 +2823,9 @@ codeunit 134900 "ERM Batch Job"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with SalesHeader do begin
-            CalcFields("Amount Including VAT");
-            LibrarySales.CreatePaymentAndApplytoInvoice(
-              GenJournalLine, "Sell-to Customer No.", "Last Prepayment No.", -"Amount Including VAT");
-        end;
+        SalesHeader.CalcFields("Amount Including VAT");
+        LibrarySales.CreatePaymentAndApplytoInvoice(
+          GenJournalLine, SalesHeader."Sell-to Customer No.", SalesHeader."Last Prepayment No.", -SalesHeader."Amount Including VAT");
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
@@ -2953,11 +2950,9 @@ codeunit 134900 "ERM Batch Job"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithPrepayment(LineGLAccount));
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
-        with SalesLine do begin
-            Validate("Location Code", LocationCode);
-            Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
-            Modify(true);
-        end;
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        SalesLine.Modify(true);
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
     end;
 
@@ -3315,11 +3310,9 @@ codeunit 134900 "ERM Batch Job"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Order, LibrarySales.CreateCustomerNo());
-            Validate("Ship-to Code", CreateShipToAddress(CountryCode, "Sell-to Customer No."));
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Ship-to Code", CreateShipToAddress(CountryCode, SalesHeader."Sell-to Customer No."));
+        SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), 10 + LibraryRandom.RandDec(10, 2));
         ItemNo := SalesLine."No.";
         SalesLine.Validate("Drop Shipment", true);
@@ -3331,26 +3324,22 @@ codeunit 134900 "ERM Batch Job"
         ShipToAddress: Record "Ship-to Address";
     begin
         CountryCode := CreateNewCountryCode();
-        with ShipToAddress do begin
-            Init();
-            "Customer No." := CustNo;
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Ship-to Address");
-            "Country/Region Code" := CountryCode;
-            Insert();
-            exit(Code);
-        end;
+        ShipToAddress.Init();
+        ShipToAddress."Customer No." := CustNo;
+        ShipToAddress.Code := LibraryUtility.GenerateRandomCode(ShipToAddress.FieldNo(Code), DATABASE::"Ship-to Address");
+        ShipToAddress."Country/Region Code" := CountryCode;
+        ShipToAddress.Insert();
+        exit(ShipToAddress.Code);
     end;
 
     local procedure CreateNewCountryCode(): Code[10]
     var
         CountryRegion: Record "Country/Region";
     begin
-        with CountryRegion do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Country/Region");
-            Insert();
-            exit(Code);
-        end;
+        CountryRegion.Init();
+        CountryRegion.Code := LibraryUtility.GenerateRandomCode(CountryRegion.FieldNo(Code), DATABASE::"Country/Region");
+        CountryRegion.Insert();
+        exit(CountryRegion.Code);
     end;
 
     local procedure CalculateAmountOverFinChargeMinimum(CustomerNo: Code[20]): Decimal
@@ -3636,11 +3625,9 @@ codeunit 134900 "ERM Batch Job"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Check Prepmt. when Posting", CheckPrepmtwhenPosting);
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Check Prepmt. when Posting", CheckPrepmtwhenPosting);
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure RemovePrepmtVATSetup(GLAccount: Record "G/L Account")
@@ -3841,35 +3828,29 @@ codeunit 134900 "ERM Batch Job"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document No.", PurchHeaderNo);
-            FindFirst();
-            Validate("Qty. to Receive", QtyToReceive);
-            Modify();
-        end;
+        PurchaseLine.SetRange("Document No.", PurchHeaderNo);
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
+        PurchaseLine.Modify();
     end;
 
     local procedure UpdateSalesLineQtyToShip(SalesHeaderNo: Code[20]; QtyToShip: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document No.", SalesHeaderNo);
-            FindFirst();
-            Validate("Qty. to Ship", QtyToShip);
-            Modify();
-        end;
+        SalesLine.SetRange("Document No.", SalesHeaderNo);
+        SalesLine.FindFirst();
+        SalesLine.Validate("Qty. to Ship", QtyToShip);
+        SalesLine.Modify();
     end;
 
     local procedure FillGenPostingSetup(var GenPostingSetup: Record "General Posting Setup")
     begin
-        with GenPostingSetup do begin
-            "Sales Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo();
-            "Sales Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo();
-            "Purch. Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo();
-            "Purch. Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo();
-            Modify();
-        end;
+        GenPostingSetup."Sales Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup."Sales Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup."Purch. Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup."Purch. Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo();
+        GenPostingSetup.Modify();
     end;
 
     local procedure UpdateVATIdentifierForVATpostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -3903,6 +3884,7 @@ codeunit 134900 "ERM Batch Job"
         SalesHeader."Ship-to Contact" := LibraryUtility.GenerateGUID();
         SalesHeader."Ship-to County" := LibraryUtility.GenerateGUID();
         SalesHeader."Ship-to Country/Region Code" := CountryRegion.Code;
+        SalesHeader."Ship-to Phone No." := LibraryUtility.GenerateRandomPhoneNo();
         SalesHeader.Modify();
     end;
 
@@ -3921,7 +3903,14 @@ codeunit 134900 "ERM Batch Job"
         Location: Record Location;
     begin
         LibraryWarehouse.CreateLocation(Location);
+        UpdateLocationContactDetails(Location);
         exit(Location.Code);
+    end;
+
+    local procedure UpdateLocationContactDetails(var Location: Record Location)
+    begin
+        Location."Phone No." := LibraryUtility.GenerateRandomPhoneNo();
+        Location.Modify();
     end;
 
     local procedure CreateRecordLink(SourceRecord: Variant): Text[250]
@@ -4047,41 +4036,35 @@ codeunit 134900 "ERM Batch Job"
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        with WarehouseShipmentLine do begin
-            SetRange("Source Document", "Source Document"::"Sales Order");
-            SetRange("Source No.", SourceNo);
-            FindFirst();
-            TestField("Item No.", ItemNo);
-            TestField(Quantity, Qty);
-        end;
+        WarehouseShipmentLine.SetRange("Source Document", WarehouseShipmentLine."Source Document"::"Sales Order");
+        WarehouseShipmentLine.SetRange("Source No.", SourceNo);
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentLine.TestField("Item No.", ItemNo);
+        WarehouseShipmentLine.TestField(Quantity, Qty);
     end;
 
     local procedure VerifyValuesOnGenPostingSetupAllFields(GeneralPostingSetup: Record "General Posting Setup"; SalesAccount: Code[20]; SalesPmtTolDebitAcc: Code[20]; SalesPmtTolCreditAcc: Code[20]; PurchPmtTolDebitAcc: Code[20]; PurchPmtTolCreditAcc: Code[20]; SalesPrepaymentsAccount: Code[20]; PurchPrepaymentsAccount: Code[20])
     begin
-        with GeneralPostingSetup do begin
-            Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-            Assert.AreEqual("Sales Account", SalesAccount, FieldCaption("Sales Account"));
-            Assert.AreEqual("Sales Pmt. Tol. Debit Acc.", SalesPmtTolDebitAcc, FieldCaption("Sales Pmt. Tol. Debit Acc."));
-            Assert.AreEqual("Sales Pmt. Tol. Credit Acc.", SalesPmtTolCreditAcc, FieldCaption("Sales Pmt. Tol. Credit Acc."));
-            Assert.AreEqual("Purch. Pmt. Tol. Debit Acc.", PurchPmtTolDebitAcc, FieldCaption("Purch. Pmt. Tol. Debit Acc."));
-            Assert.AreEqual("Purch. Pmt. Tol. Credit Acc.", PurchPmtTolCreditAcc, FieldCaption("Purch. Pmt. Tol. Credit Acc."));
-            Assert.AreEqual("Sales Prepayments Account", SalesPrepaymentsAccount, FieldCaption("Sales Prepayments Account"));
-            Assert.AreEqual("Purch. Prepayments Account", PurchPrepaymentsAccount, FieldCaption("Purch. Prepayments Account"));
-        end;
+        GeneralPostingSetup.Get(GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        Assert.AreEqual(GeneralPostingSetup."Sales Account", SalesAccount, GeneralPostingSetup.FieldCaption("Sales Account"));
+        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Tol. Debit Acc.", SalesPmtTolDebitAcc, GeneralPostingSetup.FieldCaption("Sales Pmt. Tol. Debit Acc."));
+        Assert.AreEqual(GeneralPostingSetup."Sales Pmt. Tol. Credit Acc.", SalesPmtTolCreditAcc, GeneralPostingSetup.FieldCaption("Sales Pmt. Tol. Credit Acc."));
+        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Tol. Debit Acc.", PurchPmtTolDebitAcc, GeneralPostingSetup.FieldCaption("Purch. Pmt. Tol. Debit Acc."));
+        Assert.AreEqual(GeneralPostingSetup."Purch. Pmt. Tol. Credit Acc.", PurchPmtTolCreditAcc, GeneralPostingSetup.FieldCaption("Purch. Pmt. Tol. Credit Acc."));
+        Assert.AreEqual(GeneralPostingSetup."Sales Prepayments Account", SalesPrepaymentsAccount, GeneralPostingSetup.FieldCaption("Sales Prepayments Account"));
+        Assert.AreEqual(GeneralPostingSetup."Purch. Prepayments Account", PurchPrepaymentsAccount, GeneralPostingSetup.FieldCaption("Purch. Prepayments Account"));
     end;
 
     local procedure VerifyValuesOnGenPostingSetupSelectedFields(GeneralPostingSetup: Record "General Posting Setup"; PurchAccount: Code[20]; COGSAccount: Code[20]; DirectCostAppliedAccount: Code[20])
     var
         GenPostingSetupSource: Record "General Posting Setup";
     begin
-        with GeneralPostingSetup do begin
-            Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-            GenPostingSetupSource.Get(LibraryVariableStorage.DequeueText(), LibraryVariableStorage.DequeueText());
-            Assert.AreEqual("Sales Account", GenPostingSetupSource."Sales Account", FieldCaption("Sales Account"));
-            Assert.AreEqual("Purch. Account", PurchAccount, FieldCaption("Purch. Account"));
-            Assert.AreEqual("COGS Account", COGSAccount, FieldCaption("COGS Account"));
-            Assert.AreEqual("Direct Cost Applied Account", DirectCostAppliedAccount, FieldCaption("Direct Cost Applied Account"));
-        end;
+        GeneralPostingSetup.Get(GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GenPostingSetupSource.Get(LibraryVariableStorage.DequeueText(), LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(GeneralPostingSetup."Sales Account", GenPostingSetupSource."Sales Account", GeneralPostingSetup.FieldCaption("Sales Account"));
+        Assert.AreEqual(GeneralPostingSetup."Purch. Account", PurchAccount, GeneralPostingSetup.FieldCaption("Purch. Account"));
+        Assert.AreEqual(GeneralPostingSetup."COGS Account", COGSAccount, GeneralPostingSetup.FieldCaption("COGS Account"));
+        Assert.AreEqual(GeneralPostingSetup."Direct Cost Applied Account", DirectCostAppliedAccount, GeneralPostingSetup.FieldCaption("Direct Cost Applied Account"));
     end;
 
     local procedure VerifyValuesOnVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup"; VATIdentifier: Code[20])
@@ -4096,49 +4079,48 @@ codeunit 134900 "ERM Batch Job"
         PurchHeader.TestField("Ship-to Address", ShipToAddress);
     end;
 
+    local procedure VerifyPurchShippingContactDetails(PurchaseHeader: Record "Purchase Header"; ShipToPhoneNo: Text[30])
+    begin
+        Assert.AreEqual(ShipToPhoneNo, PurchaseHeader."Ship-to Phone No.", PurchaseHeader.FieldCaption("Ship-to Phone No."));
+    end;
+
     local procedure VerifyShipmentItemLedgerEntry(ItemNo: Code[20]; CountryCode: Code[10])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::"Sales Shipment");
-            SetRange("Entry Type", "Entry Type"::Sale);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            Assert.AreEqual(CountryCode, "Country/Region Code", '');
-        end;
+        ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Sales Shipment");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindFirst();
+        Assert.AreEqual(CountryCode, ItemLedgerEntry."Country/Region Code", '');
     end;
 
     local procedure VerifyPartialDropShipmentSalesILE(ItemNo: Code[20]; ExpAmount: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::"Sales Shipment");
-            SetRange("Entry Type", "Entry Type"::Sale);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            CalcFields("Sales Amount (Expected)");
-            Assert.AreEqual(
-              ExpAmount, "Sales Amount (Expected)",
-              StrSubstNo(ILEAmounValueErr, FieldCaption("Sales Amount (Expected)")));
-        end;
+        ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Sales Shipment");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.CalcFields("Sales Amount (Expected)");
+        Assert.AreEqual(
+          ExpAmount, ItemLedgerEntry."Sales Amount (Expected)",
+          StrSubstNo(ILEAmounValueErr, ItemLedgerEntry.FieldCaption("Sales Amount (Expected)")));
     end;
 
     local procedure VerifyPartialDropShipmentPurchaseILE(ItemNo: Code[20]; ExpAmount: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Document Type", "Document Type"::"Purchase Receipt");
-            SetRange("Entry Type", "Entry Type"::Purchase);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            CalcFields("Purchase Amount (Expected)");
-            Assert.AreEqual(
-              ExpAmount, "Purchase Amount (Expected)",
-              StrSubstNo(ILEAmounValueErr, FieldCaption("Purchase Amount (Expected)")));
-        end;
+        ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Purchase Receipt");
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.CalcFields("Purchase Amount (Expected)");
+        Assert.AreEqual(
+          ExpAmount, ItemLedgerEntry."Purchase Amount (Expected)",
+          StrSubstNo(ILEAmounValueErr, ItemLedgerEntry.FieldCaption("Purchase Amount (Expected)")));
     end;
 
     local procedure VerifySalesHeaderArchive(DocumentType: Enum "Sales Document Type"; No: Code[20])
@@ -4212,6 +4194,7 @@ codeunit 134900 "ERM Batch Job"
         PurchaseHeader.TestField("Ship-to Contact", SalesHeader."Ship-to Contact");
         PurchaseHeader.TestField("Ship-to County", SalesHeader."Ship-to County");
         PurchaseHeader.TestField("Ship-to Country/Region Code", SalesHeader."Ship-to Country/Region Code");
+        PurchaseHeader.TestField("Ship-to Phone No.", SalesHeader."Ship-to Phone No.");
     end;
 
     local procedure VerifyItemLedgerEntryForItemLocationActivity(EntryType: Enum "Item Ledger Entry Type"; LocationCode: Code[10]; ItemNo: Code[20]; Qty: Decimal)

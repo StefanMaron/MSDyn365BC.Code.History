@@ -474,6 +474,8 @@ report 5607 "Fixed Asset - Projected Value"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Fixed Asset Projected Value';
+        AboutText = '**Fixed Asset Projected Value** Report is a detailed analysis that forecasts the future value of an organization''s fixed assets over a specified period. This is specially useful where there are multiple depreciation methods and there is need to review the projected values of depreciation.';
 
         layout
         {
@@ -487,6 +489,8 @@ report 5607 "Fixed Asset - Projected Value"
                         ApplicationArea = FixedAssets;
                         Caption = 'Depreciation Book';
                         TableRelation = "Depreciation Book";
+                        AboutTitle = 'Select Depreciation Book';
+                        AboutText = 'Choose the Depreciation Book and specify the First Depreciation Date, Last Depreciation Date for which details are to be seen and group the total with applicable option.';
                         ToolTip = 'Specifies the code for the depreciation book to be included in the report or batch job.';
 
                         trigger OnValidate()
@@ -559,6 +563,8 @@ report 5607 "Fixed Asset - Projected Value"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Insert Bal. Account';
+                        AboutTitle = 'Insert Balancing Account';
+                        AboutText = 'Enable the applicable options to view the report details as required.';
                         ToolTip = 'Specifies if you want the batch job to automatically insert fixed asset entries with balancing accounts.';
 
                         trigger OnValidate()
@@ -726,13 +732,17 @@ report 5607 "Fixed Asset - Projected Value"
         Year365Days: Boolean;
         NumberOfDaysCtrlEditable: Boolean;
 
+#pragma warning disable AA0470
         NumberOfDaysMustNotBeGreaterThanErr: Label 'Number of Days must not be greater than %1 or less than 5.', Comment = '1 - Number of days in fiscal year';
+#pragma warning restore AA0470
         ProjectedGainLossTxt: Label 'Projected Gain/Loss';
         GroupTotalTxt: Label 'Group Total';
         GroupTotalsTxt: Label 'Group Totals';
+#pragma warning disable AA0470
         HasBeenModifiedInFAErr: Label '%1 has been modified in fixed asset %2.', Comment = '1 - FA Posting Group caption; 2- FA No.';
         YouMustSpecifyErr: Label 'You must specify %1.', Comment = '1 - G/L Budget Name caption';
         YouMustCreateAccPeriodsErr: Label 'You must create accounting periods until %1 to use 365 days depreciation and ''Use Accounting Periods''.', Comment = '1 - Date';
+#pragma warning restore AA0470
         PageNoLbl: Label 'Page';
         FAProjectedValueLbl: Label 'Fixed Asset - Projected Value';
         FAPostingDateLbl: Label 'FA Posting Date';

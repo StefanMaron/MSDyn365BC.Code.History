@@ -1036,11 +1036,9 @@ codeunit 144003 "ERM EU 3-Party"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            TestField("EU 3-Party Trade", EUThirdPartyTrade);
-        end;
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        VATEntry.TestField("EU 3-Party Trade", EUThirdPartyTrade);
     end;
 
     [PageHandler]

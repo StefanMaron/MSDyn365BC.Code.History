@@ -21,7 +21,9 @@ codeunit 71 "Purch.-Disc. (Yes/No)"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Do you want to calculate the invoice discount?';
+#pragma warning restore AA0074
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)

@@ -685,6 +685,9 @@ report 6641 "Return Order"
                         column(ShiptoAddressCaption; ShiptoAddressCaptionLbl)
                         {
                         }
+                        column(ShipToPhoneNo; "Purchase Header"."Ship-to Phone No.")
+                        {
+                        }
                         column(SelltoCustNo_PurchHdrCaption; "Purchase Header".FieldCaption("Sell-to Customer No."))
                         {
                         }
@@ -884,11 +887,17 @@ report 6641 "Return Order"
         TypeInt: Integer;
         LogInteractionEnable: Boolean;
 
+#pragma warning disable AA0074
         Text004: Label 'Return Order %1', Comment = '%1 = Document No.';
+#pragma warning disable AA0470
         Text005: Label 'Page %1';
+#pragma warning restore AA0470
         Text007: Label 'VAT Amount Specification in ';
         Text008: Label 'Local Currency';
+#pragma warning disable AA0470
         Text009: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DirectUnitCostCaptionLbl: Label 'Direct Unit Cost';
         AmtCaptionLbl: Label 'Amount';
         PurchLineInvDiscAmtCaptionLbl: Label 'Invoice Discount Amount';

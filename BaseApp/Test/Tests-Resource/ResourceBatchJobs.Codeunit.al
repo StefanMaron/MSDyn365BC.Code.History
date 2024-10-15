@@ -43,7 +43,7 @@ codeunit 136402 "Resource Batch Jobs"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Resource Batch Jobs");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SuggestPriceChangeResource()
@@ -252,7 +252,7 @@ codeunit 136402 "Resource Batch Jobs"
             Resource2.TestField("Unit Price", Round(Resource."Unit Price" * UnitPriceFactor, Precision));
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateResourcePrice(ResourceNo: Code[20]): Decimal
     var
         ResourcePrice: Record "Resource Price";
@@ -319,7 +319,7 @@ codeunit 136402 "Resource Batch Jobs"
         DeleteEmptyResRegisters.Run();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure RunSuggestResPriceChgPrice("Code": Code[20]; UnitPriceFactor: Decimal)
     var
         ResourcePrice: Record "Resource Price";
@@ -346,7 +346,7 @@ codeunit 136402 "Resource Batch Jobs"
         ResLedgerEntry.FindFirst();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifyResourcePrice("Code": Code[20]; UnitPrice: Decimal)
     var
         ResourcePrice: Record "Resource Price";

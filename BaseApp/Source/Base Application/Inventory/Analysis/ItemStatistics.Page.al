@@ -331,8 +331,12 @@ page 5827 "Item Statistics"
         PeriodInitialized: Boolean;
         PerUnit: Boolean;
         IncludeExpected: Boolean;
+#pragma warning disable AA0074
         Text002: Label 'Period';
+#pragma warning disable AA0470
         Text003: Label '%1 is not a valid column definition.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         MATRIX_CurrentNoOfColumns: Integer;
 
     local procedure IntegerLineSetFilter()

@@ -22,42 +22,38 @@ codeunit 139211 "Json Text Reader/Writer Test"
     begin
         // [SCENARIO] Write Json and verify read Json
         LibraryLowerPermissions.SetO365Basic();
-
         // [GIVEN] https://en.wikipedia.org/wiki/JSON
-
         // [WHEN] Writing
-        with JsonTextReaderWriter do begin
-            WriteStartObject('');
-            WriteStringProperty('firstName', 'John');
-            WriteStringProperty('lastName', 'Smith');
-            WriteBooleanProperty('isAlive', true);
-            WriteNumberProperty('age', 27);
-            WriteStartObject('address');
-            WriteStringProperty('streetAddress', '21 2nd Street');
-            WriteStringProperty('city', 'New York');
-            WriteStringProperty('state', 'NY');
-            WriteStringProperty('postalCode', '10021-3100');
-            WriteEndObject();
-            WriteStartArray('phoneNumbers');
-            WriteStartObject('');
-            WriteStringProperty('type', 'home');
-            WriteStringProperty('number', '212 555-1234');
-            WriteEndObject();
-            WriteStartObject('');
-            WriteStringProperty('type', 'office');
-            WriteStringProperty('number', '646 555-4567');
-            WriteEndObject();
-            WriteStartObject('');
-            WriteStringProperty('type', 'mobile');
-            WriteStringProperty('number', '123 456-7890');
-            WriteEndObject();
-            WriteEndArray();
-            WriteStartArray('children');
-            WriteEndArray();
-            WriteNullProperty('spouce');
-            WriteEndObject();
-            Json := GetJSonAsText();
-        end;
+        JsonTextReaderWriter.WriteStartObject('');
+        JsonTextReaderWriter.WriteStringProperty('firstName', 'John');
+        JsonTextReaderWriter.WriteStringProperty('lastName', 'Smith');
+        JsonTextReaderWriter.WriteBooleanProperty('isAlive', true);
+        JsonTextReaderWriter.WriteNumberProperty('age', 27);
+        JsonTextReaderWriter.WriteStartObject('address');
+        JsonTextReaderWriter.WriteStringProperty('streetAddress', '21 2nd Street');
+        JsonTextReaderWriter.WriteStringProperty('city', 'New York');
+        JsonTextReaderWriter.WriteStringProperty('state', 'NY');
+        JsonTextReaderWriter.WriteStringProperty('postalCode', '10021-3100');
+        JsonTextReaderWriter.WriteEndObject();
+        JsonTextReaderWriter.WriteStartArray('phoneNumbers');
+        JsonTextReaderWriter.WriteStartObject('');
+        JsonTextReaderWriter.WriteStringProperty('type', 'home');
+        JsonTextReaderWriter.WriteStringProperty('number', '212 555-1234');
+        JsonTextReaderWriter.WriteEndObject();
+        JsonTextReaderWriter.WriteStartObject('');
+        JsonTextReaderWriter.WriteStringProperty('type', 'office');
+        JsonTextReaderWriter.WriteStringProperty('number', '646 555-4567');
+        JsonTextReaderWriter.WriteEndObject();
+        JsonTextReaderWriter.WriteStartObject('');
+        JsonTextReaderWriter.WriteStringProperty('type', 'mobile');
+        JsonTextReaderWriter.WriteStringProperty('number', '123 456-7890');
+        JsonTextReaderWriter.WriteEndObject();
+        JsonTextReaderWriter.WriteEndArray();
+        JsonTextReaderWriter.WriteStartArray('children');
+        JsonTextReaderWriter.WriteEndArray();
+        JsonTextReaderWriter.WriteNullProperty('spouce');
+        JsonTextReaderWriter.WriteEndObject();
+        Json := JsonTextReaderWriter.GetJSonAsText();
 
         // [WHEN] Reading Json back into Json Buffer
         JsonTextReaderWriter.ReadJSonToJSonBuffer(Json, TempJSONBuffer);
@@ -77,29 +73,27 @@ codeunit 139211 "Json Text Reader/Writer Test"
 
     local procedure VerifyPropertyValue(var TempJSONBuffer: Record "JSON Buffer" temporary; PropertyName: Text; PropertyValue: Variant)
     begin
-        with TempJSONBuffer do begin
-            SetRange("Token type", "Token type"::"Property Name");
-            SetRange(Value, PropertyName);
-            FindFirst();
-            Reset();
-            Next();
-            case true of
-                PropertyValue.IsText:
-                    begin
-                        Assert.AreEqual("Token type"::String, "Token type", StrSubstNo(InvalidJsonValueTxt, PropertyName));
-                        Assert.AreEqual(PropertyValue, Value, StrSubstNo(InvalidJsonValueTxt, PropertyName));
-                    end;
-                PropertyValue.IsInteger, PropertyValue.IsDecimal:
-                    begin
-                        Assert.AreEqual("Token type"::Decimal, "Token type", StrSubstNo(InvalidJsonValueTxt, PropertyName));
-                        Assert.AreEqual(Format(PropertyValue, 0, 9), Value, StrSubstNo(InvalidJsonValueTxt, PropertyName));
-                    end;
-                PropertyValue.IsBoolean:
-                    begin
-                        Assert.AreEqual("Token type"::Boolean, "Token type", StrSubstNo(InvalidJsonValueTxt, PropertyName));
-                        Assert.AreEqual(Format(PropertyValue, 0, 9), Format(Value = 'Yes', 0, 9), StrSubstNo(InvalidJsonValueTxt, PropertyName));
-                    end;
-            end;
+        TempJSONBuffer.SetRange("Token type", TempJSONBuffer."Token type"::"Property Name");
+        TempJSONBuffer.SetRange(Value, PropertyName);
+        TempJSONBuffer.FindFirst();
+        TempJSONBuffer.Reset();
+        TempJSONBuffer.Next();
+        case true of
+            PropertyValue.IsText:
+                begin
+                    Assert.AreEqual(TempJSONBuffer."Token type"::String, TempJSONBuffer."Token type", StrSubstNo(InvalidJsonValueTxt, PropertyName));
+                    Assert.AreEqual(PropertyValue, TempJSONBuffer.Value, StrSubstNo(InvalidJsonValueTxt, PropertyName));
+                end;
+            PropertyValue.IsInteger, PropertyValue.IsDecimal:
+                begin
+                    Assert.AreEqual(TempJSONBuffer."Token type"::Decimal, TempJSONBuffer."Token type", StrSubstNo(InvalidJsonValueTxt, PropertyName));
+                    Assert.AreEqual(Format(PropertyValue, 0, 9), TempJSONBuffer.Value, StrSubstNo(InvalidJsonValueTxt, PropertyName));
+                end;
+            PropertyValue.IsBoolean:
+                begin
+                    Assert.AreEqual(TempJSONBuffer."Token type"::Boolean, TempJSONBuffer."Token type", StrSubstNo(InvalidJsonValueTxt, PropertyName));
+                    Assert.AreEqual(Format(PropertyValue, 0, 9), Format(TempJSONBuffer.Value = 'Yes', 0, 9), StrSubstNo(InvalidJsonValueTxt, PropertyName));
+                end;
         end;
     end;
 }

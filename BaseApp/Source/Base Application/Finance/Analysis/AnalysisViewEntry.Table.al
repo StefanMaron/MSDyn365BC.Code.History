@@ -169,10 +169,12 @@ table 365 "Analysis View Entry"
     var
         AnalysisView: Record "Analysis View";
 
+#pragma warning disable AA0074
         Text000: Label '1,5,,Dimension 1 Value Code';
         Text001: Label '1,5,,Dimension 2 Value Code';
         Text002: Label '1,5,,Dimension 3 Value Code';
         Text003: Label '1,5,,Dimension 4 Value Code';
+#pragma warning restore AA0074
 
     procedure GetCaptionClass(AnalysisViewDimType: Integer) Result: Text[250]
     var

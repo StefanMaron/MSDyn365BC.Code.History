@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Finance.AutomaticAccounts;
 using Microsoft.Finance.Deferral;
@@ -687,13 +687,8 @@ table 123 "Purch. Inv. Line"
             Caption = 'Auto. Acc. Group';
             TableRelation = "Automatic Acc. Header";
             ObsoleteReason = 'Moved to Automatic Account Codes app.';
-#if CLEAN22
 			ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#endif
         }
         field(99000750; "Routing No."; Code[20])
         {

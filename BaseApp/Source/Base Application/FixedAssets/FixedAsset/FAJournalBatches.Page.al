@@ -12,6 +12,8 @@ page 5633 "FA Journal Batches"
     RefreshOnActivate = true;
     SourceTable = "FA Journal Batch";
     AnalysisModeEnabled = false;
+    AboutTitle = 'About FA Journal Batches';
+    AboutText = 'With the **FA journal batches** you can setup multiple journal batches, which are individual journals for each journal template.';
 
     layout
     {
@@ -23,6 +25,8 @@ page 5633 "FA Journal Batches"
                 field(Name; Rec.Name)
                 {
                     ApplicationArea = FixedAssets;
+                    AboutTitle = 'Manage name and No. Series';
+                    AboutText = 'Specify the batch name and no. series to be used.';
                     ToolTip = 'Specifies the name of the journal batch you are creating.';
                 }
                 field(Description; Rec.Description)

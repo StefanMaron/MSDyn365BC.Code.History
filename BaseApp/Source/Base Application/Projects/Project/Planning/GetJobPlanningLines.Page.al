@@ -356,7 +356,7 @@ page 1043 "Get Job Planning Lines"
                     Caption = 'Item Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the project planning line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the project planning line.';
 
                     trigger OnAction()
                     begin

@@ -23,35 +23,35 @@ report 5757 "Items with Negative Inventory"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName())
+            column(CompanyName; CompanyProperty.DisplayName())
             {
             }
-            column(LocationCode; StrSubstNo('%1: %2', ItemLedgEntry.FieldCaption("Location Code"), LocCode))
+            column(LocationCode; StrSubstNo('%1: %2', TempItemLedgerEntry.FieldCaption("Location Code"), LocationToCheckCode))
             {
             }
-            column(ItemLedgEntryBufferItemNo; TempItemLedgEntry."Item No.")
+            column(ItemLedgEntryBufferItemNo; TempItemLedgerEntry."Item No.")
             {
             }
-            column(ItemLedgEntryBufferRemainQty; TempItemLedgEntry."Remaining Quantity")
+            column(ItemLedgEntryBufferRemainQty; TempItemLedgerEntry."Remaining Quantity")
             {
                 DecimalPlaces = 0 : 5;
             }
-            column(ItemLedgEntryBufferPackageNo; TempItemLedgEntry."Package No.")
+            column(ItemLedgEntryBufferPackageNo; TempItemLedgerEntry."Package No.")
             {
             }
-            column(ItemLedgEntryBufferLotNo; TempItemLedgEntry."Lot No.")
+            column(ItemLedgEntryBufferLotNo; TempItemLedgerEntry."Lot No.")
             {
             }
-            column(ItemLedgEntryBufferSerialNo; TempItemLedgEntry."Serial No.")
+            column(ItemLedgEntryBufferSerialNo; TempItemLedgerEntry."Serial No.")
             {
             }
-            column(ItemLedgEntryBufferUOMCode; TempItemLedgEntry."Unit of Measure Code")
+            column(ItemLedgEntryBufferUOMCode; TempItemLedgerEntry."Unit of Measure Code")
             {
             }
-            column(ItemLedgEntryBufferDesc; TempItemLedgEntry.Description)
+            column(ItemLedgEntryBufferDesc; TempItemLedgerEntry.Description)
             {
             }
-            column(ItemLedgEntryBufferVariantCode; TempItemLedgEntry."Variant Code")
+            column(ItemLedgEntryBufferVariantCode; TempItemLedgerEntry."Variant Code")
             {
             }
             column(Check_on_Negative_InventoryCaption; Items_with_Negative_InventoryLbl)
@@ -60,71 +60,75 @@ report 5757 "Items with Negative Inventory"
             column(CurrReport_PAGENOCaption; CurrReport_PAGENOCaptionLbl)
             {
             }
-            column(ItemLedgEntryBufferRemainQtyCaption; ItemLedgEntryBufferRemainQtyCaption)
+            column(ItemLedgEntryBufferRemainQtyCaption; ItemLedgerEntryBufferRemainQtyCaption)
             {
             }
-            column(ItemLedgEntryBufferPackageNoCaption; ItemLedgEntryBufferPackageNoCaption)
+            column(ItemLedgEntryBufferPackageNoCaption; ItemLedgerEntryBufferPackageNoCaption)
             {
             }
-            column(ItemLedgEntryBufferLotNoCaption; ItemLedgEntryBufferLotNoCaption)
+            column(ItemLedgEntryBufferLotNoCaption; ItemLedgerEntryBufferLotNoCaption)
             {
             }
-            column(ItemLedgEntryBufferSerialNoCaption; ItemLedgEntryBufferSerialNoCaption)
+            column(ItemLedgEntryBufferSerialNoCaption; ItemLedgerEntryBufferSerialNoCaption)
             {
             }
-            column(ItemLedgEntryBufferUOMCodeCaption; ItemLedgEntryBufferUOMCodeCaption)
+            column(ItemLedgEntryBufferUOMCodeCaption; ItemLedgerEntryBufferUOMCodeCaption)
             {
             }
-            column(ItemLedgEntryBufferDescCaption; ItemLedgEntryBufferDescCaption)
+            column(ItemLedgEntryBufferDescCaption; ItemLedgerEntryBufferDescCaption)
             {
             }
-            column(ItemLedgEntryBufferVariantCodeCaption; ItemLedgEntryBufferVariantCodeCaption)
+            column(ItemLedgEntryBufferVariantCodeCaption; ItemLedgerEntryBufferVariantCodeCaption)
             {
             }
-            column(ItemLedgEntryBufferItemNoCaption; ItemLedgEntryBufferItemNoCaption)
+            column(ItemLedgEntryBufferItemNoCaption; ItemLedgerEntryBufferItemNoCaption)
             {
             }
 
             trigger OnAfterGetRecord()
+            var
+                Item: Record Item;
+                ItemVariant: Record "Item Variant";
             begin
-                if ILECounter = 0 then
-                    TempItemLedgEntry.Description := Text004
+                if TempItemLedgerEntryCounter = 0 then
+                    TempItemLedgerEntry.Description := NoNegativeInventoryLbl
                 else begin
                     if Number = 1 then
-                        TempItemLedgEntry.Find('-')
+                        TempItemLedgerEntry.Find('-')
                     else
-                        TempItemLedgEntry.Next();
+                        TempItemLedgerEntry.Next();
 
-                    if TempItemLedgEntry.Description = '' then
-                        if TempItemLedgEntry."Variant Code" <> '' then begin
-                            ItemVariant.Get(TempItemLedgEntry."Item No.", TempItemLedgEntry."Variant Code");
-                            TempItemLedgEntry.Description := ItemVariant.Description;
+                    if TempItemLedgerEntry.Description = '' then
+                        if TempItemLedgerEntry."Variant Code" <> '' then begin
+                            ItemVariant.SetLoadFields(Description);
+                            ItemVariant.Get(TempItemLedgerEntry."Item No.", TempItemLedgerEntry."Variant Code");
+                            TempItemLedgerEntry.Description := ItemVariant.Description;
                         end else begin
-                            Item.Get(TempItemLedgEntry."Item No.");
-                            TempItemLedgEntry.Description := Item.Description;
-                        end
+                            Item.SetLoadFields(Description);
+                            Item.Get(TempItemLedgerEntry."Item No.");
+                            TempItemLedgerEntry.Description := Item.Description;
+                        end;
                 end;
             end;
 
             trigger OnPreDataItem()
             begin
-                TempItemLedgEntry.SetCurrentKey(
-                  "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.");
+                TempItemLedgerEntry.SetCurrentKey("Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Package No.", "Serial No.");
 
-                ILECounter := TempItemLedgEntry.Count();
-                if ILECounter = 0 then
+                TempItemLedgerEntryCounter := TempItemLedgerEntry.Count();
+                if TempItemLedgerEntryCounter = 0 then
                     SetRange(Number, 1)
                 else
-                    SetRange(Number, 1, ILECounter);
+                    SetRange(Number, 1, TempItemLedgerEntryCounter);
 
-                ItemLedgEntryBufferRemainQtyCaption := ItemLedgEntry.FieldCaption(Quantity);
-                ItemLedgEntryBufferLotNoCaption := ItemLedgEntry.FieldCaption("Lot No.");
-                ItemLedgEntryBufferSerialNoCaption := ItemLedgEntry.FieldCaption("Serial No.");
-                ItemLedgEntryBufferUOMCodeCaption := ItemLedgEntry.FieldCaption("Unit of Measure Code");
-                ItemLedgEntryBufferDescCaption := ItemLedgEntry.FieldCaption("Description");
-                ItemLedgEntryBufferVariantCodeCaption := ItemLedgEntry.FieldCaption("Variant Code");
-                ItemLedgEntryBufferItemNoCaption := ItemLedgEntry.FieldCaption("Item No.");
-
+                ItemLedgerEntryBufferRemainQtyCaption := TempItemLedgerEntry.FieldCaption(Quantity);
+                ItemLedgerEntryBufferLotNoCaption := TempItemLedgerEntry.FieldCaption("Lot No.");
+                ItemLedgerEntryBufferPackageNoCaption := TempItemLedgerEntry.FieldCaption("Package No.");
+                ItemLedgerEntryBufferSerialNoCaption := TempItemLedgerEntry.FieldCaption("Serial No.");
+                ItemLedgerEntryBufferUOMCodeCaption := TempItemLedgerEntry.FieldCaption("Unit of Measure Code");
+                ItemLedgerEntryBufferDescCaption := TempItemLedgerEntry.FieldCaption("Description");
+                ItemLedgerEntryBufferVariantCodeCaption := TempItemLedgerEntry.FieldCaption("Variant Code");
+                ItemLedgerEntryBufferItemNoCaption := TempItemLedgerEntry.FieldCaption("Item No.");
             end;
         }
         dataitem(ErrorLoop; "Integer")
@@ -159,7 +163,7 @@ report 5757 "Items with Negative Inventory"
                 group(Options)
                 {
                     Caption = 'Options';
-                    field(LocationCode; LocCode)
+                    field(LocationCode; LocationToCheckCode)
                     {
                         ApplicationArea = Location;
                         Caption = 'Location Code';
@@ -167,182 +171,151 @@ report 5757 "Items with Negative Inventory"
                         ToolTip = 'Specifies the location for items with negative inventory.';
 
                         trigger OnLookup(var Text: Text): Boolean
+                        var
+                            Location: Record Location;
                         begin
-                            Clear(Location);
-                            if LocCode <> '' then
-                                Location.Code := LocCode;
-                            if PAGE.RunModal(0, Location) = ACTION::LookupOK then
-                                LocCode := Location.Code;
+                            if LocationToCheckCode <> '' then
+                                Location.Code := LocationToCheckCode;
+                            if Page.RunModal(0, Location) = Action::LookupOK then
+                                LocationToCheckCode := Location.Code;
                         end;
 
                         trigger OnValidate()
+                        var
+                            Location: Record Location;
                         begin
-                            Location.Get(LocCode);
+                            Location.SetLoadFields(Code);
+                            Location.Get(LocationToCheckCode);
                         end;
                     }
                 }
             }
         }
-
-        actions
-        {
-        }
-    }
-
-    labels
-    {
     }
 
     trigger OnPreReport()
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        GroupedItemLedgerEntries: Query "Grouped Item Ledger Entries";
+        LastItemNoUsed: Code[20];
     begin
-        if LocCode = '' then
-            Error(Text001);
+        if LocationToCheckCode = '' then
+            Error(NoLocationCodeErr);
 
-        ItemLedgEntry.SetCurrentKey(
-          "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
+        Window.Open(StrSubstNo(ProcessingTxt, ItemLedgerEntry.FieldCaption("Location Code"), LocationToCheckCode) + ItemNoInProgressTxt);
+        LastItemNoUsed := '';
 
-        if ItemLedgEntry.Find('-') then begin
-            Window.Open(StrSubstNo(Text002, ItemLedgEntry.FieldCaption("Location Code"), LocCode) + Text003);
-            i := 1;
-            ILECounter := ItemLedgEntry.Count;
-            repeat
-                Window.Update(100, i);
-                Window.Update(102, Round(i / ILECounter * 10000, 1));
+        GroupedItemLedgerEntries.SetRange(Location_Code, LocationToCheckCode);
+        GroupedItemLedgerEntries.Open();
+        while GroupedItemLedgerEntries.Read() do begin
+            if LastItemNoUsed <> GroupedItemLedgerEntries.Item_No then begin
+                Window.Update(100, GroupedItemLedgerEntries.Item_No);
+                LastItemNoUsed := GroupedItemLedgerEntries.Item_No;
+            end;
 
-                ItemLedgEntry.SetRange("Item No.", ItemLedgEntry."Item No.");
-                if ItemLedgEntry.Find('-') then begin
-                    ItemLedgEntry.SetRange("Location Code", LocCode);
-                    ItemLedgEntry.SetRange(Open, true);
-                    if ItemLedgEntry.Find('-') then
-                        repeat
-                            ItemLedgEntry.SetRange("Variant Code", ItemLedgEntry."Variant Code");
-                            if ItemLedgEntry.Find('-') then
-                                repeat
-                                    ItemLedgEntry.SetRange("Unit of Measure Code", ItemLedgEntry."Unit of Measure Code");
-                                    if ItemLedgEntry.Find('-') then
-                                        repeat
-                                            ItemLedgEntry.SetRange("Package No.", ItemLedgEntry."Package No.");
-                                            if ItemLedgEntry.Find('-') then
-                                                repeat
-                                                    ItemLedgEntry.SetRange("Lot No.", ItemLedgEntry."Lot No.");
-                                                    if ItemLedgEntry.Find('-') then
-                                                        repeat
-                                                            ItemLedgEntry.SetRange("Serial No.", ItemLedgEntry."Serial No.");
-                                                            ItemLedgEntry.CalcSums("Remaining Quantity");
-                                                            if ItemLedgEntry."Remaining Quantity" < 0 then
-                                                                FillBuffer();
-                                                            ItemLedgEntry.Find('+');
-                                                            ItemLedgEntry.SetRange("Serial No.");
-                                                        until ItemLedgEntry.Next() = 0;
-                                                    ItemLedgEntry.Find('+');
-                                                    ItemLedgEntry.SetRange("Lot No.");
-                                                until ItemLedgEntry.Next() = 0;
-                                            ItemLedgEntry.Find('+');
-                                            ItemLedgEntry.SetRange("Package No.");
-                                        until ItemLedgEntry.Next() = 0;
-                                    ItemLedgEntry.Find('+');
-                                    ItemLedgEntry.SetRange("Unit of Measure Code")
-                                until ItemLedgEntry.Next() = 0;
-
-                            ItemLedgEntry.Find('+');
-                            ItemLedgEntry.SetRange("Variant Code");
-                        until ItemLedgEntry.Next() = 0;
+            if GroupedItemLedgerEntries.Remaining_Quantity < 0 then begin
+                ItemLedgerEntry.SetCurrentKey("Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Package No.", "Serial No.");
+                ItemLedgerEntry.SetRange("Location Code", GroupedItemLedgerEntries.Location_Code);
+                ItemLedgerEntry.SetRange(Open, true);
+                ItemLedgerEntry.SetFilter("Item No.", GroupedItemLedgerEntries.Item_No);
+                ItemLedgerEntry.SetFilter("Variant Code", GroupedItemLedgerEntries.Variant_Code);
+                ItemLedgerEntry.SetFilter("Unit of Measure Code", GroupedItemLedgerEntries.Unit_of_Measure_Code);
+                ItemLedgerEntry.SetFilter("Lot No.", GroupedItemLedgerEntries.Lot_No_);
+                ItemLedgerEntry.SetFilter("Package No.", GroupedItemLedgerEntries.Package_No_);
+                ItemLedgerEntry.SetFilter("Serial No.", GroupedItemLedgerEntries.Serial_No_);
+                if ItemLedgerEntry.FindFirst() then begin
+                    TempItemLedgerEntry := ItemLedgerEntry;
+                    TempItemLedgerEntry."Remaining Quantity" := GroupedItemLedgerEntries.Remaining_Quantity;
+                    TempItemLedgerEntry.Insert();
                 end;
-
-                ItemLedgEntry.SetRange(Open);
-                ItemLedgEntry.SetRange("Location Code");
-                ItemLedgEntry.Find('+');
-                i := i + ItemLedgEntry.Count;
-                ItemLedgEntry.SetRange("Item No.");
-            until ItemLedgEntry.Next() = 0;
-
-            Window.Close();
+            end;
         end;
 
-        ErrorCounter := 0;
-        WhseRcptHeader.SetCurrentKey("Location Code");
-        WhseRcptHeader.SetRange("Location Code", LocCode);
-        if WhseRcptHeader.FindFirst() then
-            AddError(
-              StrSubstNo(
-                Text005,
-                WhseRcptHeader.TableCaption(),
-                WhseRcptHeader.FieldCaption("Location Code"),
-                LocCode));
+        Window.Close();
 
-        WhseShipHeader.SetCurrentKey("Location Code");
-        WhseShipHeader.SetRange("Location Code", LocCode);
-        if WhseShipHeader.FindFirst() then
-            AddError(
-              StrSubstNo(
-                Text005,
-                WhseShipHeader.TableCaption(),
-                WhseShipHeader.FieldCaption("Location Code"),
-                LocCode));
-
-        for i := 1 to 2 do begin
-            WhseActHeader.SetCurrentKey("Location Code");
-            WhseActHeader.SetRange("Location Code", LocCode);
-            WhseActHeader.SetRange(Type, i);
-            if WhseActHeader.FindFirst() then
-                AddError(
-                  StrSubstNo(
-                    Text006,
-                    WhseActHeader.Type,
-                    WhseActHeader.FieldCaption("Location Code"),
-                    LocCode));
-        end;
-
-        WhseWkshLine.SetCurrentKey("Item No.", "Location Code");
-        WhseWkshLine.SetRange("Location Code", LocCode);
-        if WhseWkshLine.FindFirst() then
-            AddError(
-              StrSubstNo(
-                Text007,
-                WhseWkshLine.TableCaption(),
-                WhseWkshLine.FieldCaption("Location Code"),
-                LocCode));
+        CheckForErrors();
     end;
 
     var
-        Location: Record Location;
-        ItemLedgEntry: Record "Item Ledger Entry";
-        TempItemLedgEntry: Record "Item Ledger Entry" temporary;
-        Item: Record Item;
-        ItemVariant: Record "Item Variant";
-        WhseRcptHeader: Record "Warehouse Receipt Header";
-        WhseShipHeader: Record "Warehouse Shipment Header";
-        WhseActHeader: Record "Warehouse Activity Header";
-        WhseWkshLine: Record "Whse. Worksheet Line";
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+        LocationToCheckCode: Code[10];
         Window: Dialog;
-        LocCode: Code[10];
-        Text001: Label 'Enter a location code.';
-        Text002: Label 'Checking %1 %2 for negative inventory...\\';
-        Text003: Label 'Count #100##### @102@@@@@@@@';
-        i: Integer;
-        ILECounter: Integer;
-        Text004: Label 'No negative inventory was found.';
-        Text005: Label 'A %1 exists for %2 %3. It must be either posted or deleted before running the Create Whse. Location batch job.';
+        TempItemLedgerEntryCounter: Integer;
         ErrorCounter: Integer;
         ErrorText: array[5] of Text[250];
-        Text006: Label 'A %1 exists for %2 %3. It must be either registered or deleted before running the Create Whse. Location batch job.';
-        Text007: Label 'A %1 exists for %2 %3. It must be deleted before running the Create Whse. Location batch job.';
+        ItemLedgerEntryBufferRemainQtyCaption: Text;
+        ItemLedgerEntryBufferPackageNoCaption: Text;
+        ItemLedgerEntryBufferLotNoCaption: Text;
+        ItemLedgerEntryBufferSerialNoCaption: Text;
+        ItemLedgerEntryBufferUOMCodeCaption: Text;
+        ItemLedgerEntryBufferDescCaption: Text;
+        ItemLedgerEntryBufferVariantCodeCaption: Text;
+        ItemLedgerEntryBufferItemNoCaption: Text;
+        NoLocationCodeErr: Label 'Enter a location code.';
+        ProcessingTxt: Label 'Checking %1 %2 for negative inventory...\\', Comment = '%1: Location Code caption, %2: Location Code value';
+        ItemNoInProgressTxt: Label 'Processing item number #100##################.', Comment = '#100 - Item No.';
+        NoNegativeInventoryLbl: Label 'No negative inventory was found.';
         Items_with_Negative_InventoryLbl: Label 'Items with Negative Inventory';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
-        ItemLedgEntryBufferRemainQtyCaption: Text;
-        ItemLedgEntryBufferPackageNoCaption: Text;
-        ItemLedgEntryBufferLotNoCaption: Text;
-        ItemLedgEntryBufferSerialNoCaption: Text;
-        ItemLedgEntryBufferUOMCodeCaption: Text;
-        ItemLedgEntryBufferDescCaption: Text;
-        ItemLedgEntryBufferVariantCodeCaption: Text;
-        ItemLedgEntryBufferItemNoCaption: Text;
         ErrorTextNumberCaptionLbl: Label 'Error!';
+        WarehouseDocumentExistsLbl: Label 'A %1 exists for %2 %3. It must be either posted or deleted before running the Create Whse. Location batch job.', Comment = '%1: Table caption, %2: Location Code caption, %3: Location Code value';
+        WarehouseActivityHeaderExistsLbl: Label 'A %1 exists for %2 %3. It must be either registered or deleted before running the Create Whse. Location batch job.', Comment = '%1: Warehouse Activity Type, %2: Location Code caption, %3: Location Code value';
+        WhseWorksheetLineExistsLbl: Label 'A %1 exists for %2 %3. It must be deleted before running the Create Whse. Location batch job.', Comment = '%1: Table caption, %2: Location Code caption, %3: Location Code value';
 
-    local procedure FillBuffer()
+    local procedure CheckForErrors()
+    var
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
     begin
-        TempItemLedgEntry := ItemLedgEntry;
-        TempItemLedgEntry.Insert();
+        ErrorCounter := 0;
+        WarehouseReceiptHeader.SetRange("Location Code", LocationToCheckCode);
+        if not WarehouseReceiptHeader.IsEmpty() then
+            AddError(
+              StrSubstNo(
+                WarehouseDocumentExistsLbl,
+                WarehouseReceiptHeader.TableCaption(),
+                WarehouseReceiptHeader.FieldCaption("Location Code"),
+                LocationToCheckCode));
+
+        WarehouseShipmentHeader.SetRange("Location Code", LocationToCheckCode);
+        if not WarehouseShipmentHeader.IsEmpty() then
+            AddError(
+              StrSubstNo(
+                WarehouseDocumentExistsLbl,
+                WarehouseShipmentHeader.TableCaption(),
+                WarehouseShipmentHeader.FieldCaption("Location Code"),
+                LocationToCheckCode));
+
+        WarehouseActivityHeader.SetRange("Location Code", LocationToCheckCode);
+        WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::"Put-away");
+        if not WarehouseActivityHeader.IsEmpty() then
+            AddError(
+              StrSubstNo(
+                WarehouseActivityHeaderExistsLbl,
+                WarehouseActivityHeader.Type,
+                WarehouseActivityHeader.FieldCaption("Location Code"),
+                LocationToCheckCode));
+
+        WarehouseActivityHeader.SetRange("Location Code", LocationToCheckCode);
+        WarehouseActivityHeader.SetRange(Type, WarehouseActivityHeader.Type::"Pick");
+        if not WarehouseActivityHeader.IsEmpty() then
+            AddError(
+              StrSubstNo(
+                WarehouseActivityHeaderExistsLbl,
+                WarehouseActivityHeader.Type,
+                WarehouseActivityHeader.FieldCaption("Location Code"),
+                LocationToCheckCode));
+
+        WhseWorksheetLine.SetRange("Location Code", LocationToCheckCode);
+        if not WhseWorksheetLine.IsEmpty() then
+            AddError(
+              StrSubstNo(
+                WhseWorksheetLineExistsLbl,
+                WhseWorksheetLine.TableCaption(),
+                WhseWorksheetLine.FieldCaption("Location Code"),
+                LocationToCheckCode));
     end;
 
     local procedure AddError(Text: Text[250])
@@ -353,7 +326,7 @@ report 5757 "Items with Negative Inventory"
 
     procedure InitializeRequest(NewLocCode: Code[10])
     begin
-        LocCode := NewLocCode;
+        LocationToCheckCode := NewLocCode;
     end;
 }
 

@@ -1,8 +1,5 @@
 namespace Microsoft.Finance.Dimension;
 
-#if not CLEAN22
-using Microsoft.Finance.AuditFileExport;
-#endif
 using Microsoft.Intercompany.GLAccount;
 
 page 536 Dimensions
@@ -124,19 +121,6 @@ page 536 Dimensions
                     RunPageLink = Code = field(Code);
                     ToolTip = 'View or edit translated dimensions. Translated item descriptions are automatically inserted on documents according to the language code.';
                 }
-#if not CLEAN22
-                action("SIE Dimensions")
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'SIE Dimensions';
-                    Image = UserInterface;
-                    RunObject = Page "SIE Dimensions";
-                    ToolTip = 'View or edit the dimensions to use when importing or exporting general ledger data for your company.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'SIE related functionality was moved to the Standard Import Export (SIE) extension';
-                }
-#endif
             }
         }
         area(processing)
@@ -193,6 +177,8 @@ page 536 Dimensions
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Are you sure you want to map the selected lines?';
+#pragma warning restore AA0074
 }
 

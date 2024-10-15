@@ -400,10 +400,26 @@ page 5966 "Service Quote Lines"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Line"),
+                              "No." = field("Document No."),
+                              "Document Type" = field("Document Type"),
+                              "Line No." = field("Line No.");
+                Visible = false;
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Line"),
                               "No." = field("Document No."),
                               "Document Type" = field("Document Type"),
@@ -467,7 +483,7 @@ page 5966 "Service Quote Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByEvent());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -479,7 +495,7 @@ page 5966 "Service Quote Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByPeriod());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -491,7 +507,7 @@ page 5966 "Service Quote Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByVariant());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -504,7 +520,7 @@ page 5966 "Service Quote Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByLocation());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -527,7 +543,7 @@ page 5966 "Service Quote Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByBOM());
+                            ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -537,7 +553,7 @@ page 5966 "Service Quote Lines"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -822,7 +838,7 @@ page 5966 "Service Quote Lines"
     var
         ServMgtSetup: Record "Service Mgt. Setup";
         ServHeader: Record "Service Header";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        ServAvailabilityMgt: Codeunit "Serv. Availability Mgt.";
         ServItemLineNo: Integer;
         SelectionFilter: Option "All Service Lines","Lines per Selected Service Item","Lines Not Item Related";
 
@@ -854,14 +870,14 @@ page 5966 "Service Quote Lines"
 
     procedure InsertExtendedText(Unconditionally: Boolean)
     var
-        TransferExtendedText: Codeunit "Transfer Extended Text";
+        ServiceTransferExtText: Codeunit "Service Transfer Ext. Text";
     begin
         OnBeforeInsertExtendedText(Rec);
-        if TransferExtendedText.ServCheckIfAnyExtText(Rec, Unconditionally) then begin
+        if ServiceTransferExtText.ServCheckIfAnyExtText(Rec, Unconditionally) then begin
             CurrPage.SaveRecord();
-            TransferExtendedText.InsertServExtText(Rec);
+            ServiceTransferExtText.InsertServExtText(Rec);
         end;
-        if TransferExtendedText.MakeUpdate() then
+        if ServiceTransferExtText.MakeUpdate() then
             CurrPage.Update();
     end;
 

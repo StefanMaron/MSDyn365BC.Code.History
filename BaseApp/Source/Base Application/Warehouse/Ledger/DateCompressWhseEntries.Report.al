@@ -1,6 +1,7 @@
 namespace Microsoft.Warehouse.Ledger;
 
 using Microsoft.Foundation.AuditCodes;
+using Microsoft.Warehouse.Setup;
 using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Tracking;
 using System.DataAdministration;
@@ -116,10 +117,13 @@ report 7398 "Date Compress Whse. Entries"
                 SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress Whse. Entries");
 
-                NewWhseEntry.LockTable();
-                WhseReg.LockTable();
-                DateComprReg.LockTable();
+                if WarehouseSetup.UseLegacyPosting() then begin
+                    NewWhseEntry.LockTable();
+                    WhseReg.LockTable();
+                end;
 
+                DateComprReg.LockTable();
+                WhseEntry2.ReadIsolation(IsolationLevel::ReadCommitted);
                 LastEntryNo := WhseEntry2.GetLastEntryNo();
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Registering Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
@@ -262,6 +266,7 @@ report 7398 "Date Compress Whse. Entries"
     end;
 
     var
+        WarehouseSetup: Record "Warehouse Setup";
         SourceCodeSetup: Record "Source Code Setup";
         DateComprReg: Record "Date Compr. Register";
         EntrdDateComprReg: Record "Date Compr. Register";
@@ -284,6 +289,7 @@ report 7398 "Date Compress Whse. Entries"
         RetainFields: array[3] of Boolean;
         FieldNumber: array[10] of Integer;
         FieldNameArray: array[10] of Text;
+        FirstEntryNo: Integer;
         LastEntryNo: Integer;
         NoOfDeleted: Integer;
         i: Integer;
@@ -291,17 +297,25 @@ report 7398 "Date Compress Whse. Entries"
         RetainSerialNo: Boolean;
         RetainLotNo: Boolean;
         RetainPackageNo: Boolean;
+#pragma warning disable AA0074
         Text008: Label 'Date Compressed';
+#pragma warning restore AA0074
         HideDialog: Boolean;
         UseDataArchive: Boolean;
         DataArchiveProviderExists: Boolean;
 
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 must be specified.';
+#pragma warning restore AA0470
         Text004: Label 'Date compressing warehouse entries...\\';
+#pragma warning disable AA0470
         Text005: Label 'Date                 #1######\\';
         Text006: Label 'No. of new entries   #2######\';
         Text007: Label 'No. of entries del.  #3######';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -310,12 +324,11 @@ report 7398 "Date Compress Whse. Entries"
         NextRegNo: Integer;
     begin
         WhseReg.Init();
-        WhseReg."No." := WhseReg.GetLastEntryNo() + 1;
+        WhseReg."No." := WhseReg.GetNextEntryNo(WarehouseSetup.UseLegacyPosting());
         WhseReg."Creation Date" := Today;
         WhseReg."Creation Time" := Time;
         WhseReg."Source Code" := SourceCodeSetup."Compress Whse. Entries";
         WhseReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(WhseReg."User ID"));
-        WhseReg."From Entry No." := LastEntryNo + 1;
 
         NextRegNo := DateComprReg.GetLastEntryNo() + 1;
 
@@ -337,32 +350,22 @@ report 7398 "Date Compress Whse. Entries"
     end;
 
     local procedure InsertRegisters(var WhseReg: Record "Warehouse Register"; var DateComprReg: Record "Date Compr. Register")
-    var
-        FoundLastEntryNo: Integer;
     begin
+        WhseReg."From Entry No." := FirstEntryNo;
         WhseReg."To Entry No." := NewWhseEntry."Entry No.";
 
         if WhseRegExists then begin
             WhseReg.Modify();
             DateComprReg.Modify();
         end else begin
-            WhseReg.Insert();
+            WhseReg.InsertRecord(WarehouseSetup.UseLegacyPosting());
             DateComprReg.Insert();
             WhseRegExists := true;
         end;
         Commit();
 
-        NewWhseEntry.LockTable();
-        WhseReg.LockTable();
         DateComprReg.LockTable();
-
         WhseEntry2.Reset();
-
-        FoundLastEntryNo := WhseEntry2.GetLastEntryNo();
-        if LastEntryNo <> FoundLastEntryNo then begin
-            LastEntryNo := FoundLastEntryNo;
-            InitRegisters();
-        end;
     end;
 
     local procedure InsertField(Number: Integer; Name: Text)
@@ -529,15 +532,21 @@ report 7398 "Date Compress Whse. Entries"
 
     local procedure InsertNewEntry(var WhseEntry: Record "Warehouse Entry"; Qty: Decimal; QtyBase: Decimal; Cubage: Decimal; Weight: Decimal; EntryType: Option)
     begin
-        LastEntryNo := LastEntryNo + 1;
+        if WarehouseSetup.UseLegacyPosting() then
+            LastEntryNo += 1
+        else
+            LastEntryNo := WhseEntry.GetNextEntryNo();
         WhseEntry."Entry No." := LastEntryNo;
+        WhseEntry."Warehouse Register No." := WhseReg."No.";
         WhseEntry.Quantity := Qty;
         WhseEntry."Qty. (Base)" := QtyBase;
         WhseEntry.Cubage := Cubage;
         WhseEntry.Weight := Weight;
         WhseEntry."Entry Type" := EntryType;
         OnBeforeInsertNewEntry(WhseEntry);
-        WhseEntry.Insert();
+        WhseEntry.InsertRecord(WarehouseSetup.UseLegacyPosting());
+        if FirstEntryNo = 0 then
+            FirstEntryNo := LastEntryNo;
     end;
 
     procedure SetParameters(EntrdDateComprReg2: Record "Date Compr. Register"; ItemTrackingSetup: Record "Item Tracking Setup")

@@ -15,7 +15,9 @@ codeunit 740 "VAT Report Mediator"
 
     var
         VATReportReleaseReopen: Codeunit "VAT Report Release/Reopen";
+#pragma warning disable AA0074
         Text001: Label 'This action will also mark the report as released. Are you sure you want to continue?';
+#pragma warning restore AA0074
 
     procedure GetLines(VATReportHeader: Record "VAT Report Header")
     var

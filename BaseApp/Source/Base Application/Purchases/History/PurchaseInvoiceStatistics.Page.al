@@ -172,8 +172,12 @@ page 400 "Purchase Invoice Statistics"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'VAT Amount';
+#pragma warning disable AA0470
         Text001: Label '%1% VAT';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CurrExchRate: Record "Currency Exchange Rate";
         PurchInvLine: Record "Purch. Inv. Line";
         Vend: Record Vendor;

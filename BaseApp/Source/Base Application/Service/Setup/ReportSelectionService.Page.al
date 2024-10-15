@@ -177,6 +177,8 @@ page 5932 "Report Selection - Service"
                 Rec.SetRange(Usage, Rec.Usage::"SM.Contract");
             ReportUsage2::"Service Document - Test":
                 Rec.SetRange(Usage, Rec.Usage::"SM.Test");
+            ReportUsage2::"Item Worksheet":
+                Rec.SetRange(Usage, Rec.Usage::"SM.Item Worksheet");
         end;
         OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2);
         Rec.FilterGroup(0);
@@ -206,6 +208,8 @@ page 5932 "Report Selection - Service"
                         ReportUsage2 := ReportUsage2::Contract;
                     ReportUsage::"SM.Test":
                         ReportUsage2 := ReportUsage2::"Service Document - Test";
+                    ReportUsage::"SM.Item Worksheet":
+                        ReportUsage2 := ReportUsage2::"Item Worksheet";
                     else
                         OnInitUsageFilterOnElseCase(ReportUsage, ReportUsage2);
                 end;

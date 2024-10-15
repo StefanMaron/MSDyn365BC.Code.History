@@ -12,14 +12,9 @@ codeunit 134227 "ERM PostRecurringJournal"
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
-        IncorrectPostingPreviewErr: Label 'Incorrect number of entries in posting preview.';
-        NoOfLinesErr: Label 'Incorrect number of lines found in GL Entry.';
-        DocumentDateErr: Label '%1 must be equal to %2 in %3.', Comment = '%1 = Document Date Field Caption,%2 = Posting Date Field Caption,%3 = GL Entry Table Caption';
         LibraryJournals: Codeunit "Library - Journals";
         LibraryUtility: Codeunit "Library - Utility";
-        SuccessPostingMsg: Label 'The journal lines were successfully posted.';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        SkippedLineMsg: Label 'One or more lines has not been posted because the amount is zero.';
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -29,6 +24,13 @@ codeunit 134227 "ERM PostRecurringJournal"
         GenJnlAccountType: Enum "Gen. Journal Account Type";
         GenJnlRecurringMethod: Enum "Gen. Journal Recurring Method";
         IsInitialized: Boolean;
+        IncorrectPostingPreviewErr: Label 'Incorrect number of entries in posting preview.';
+        NoOfLinesErr: Label 'Incorrect number of lines found in GL Entry.';
+        DocumentDateErr: Label '%1 must be equal to %2 in %3.', Comment = '%1 = Document Date Field Caption,%2 = Posting Date Field Caption,%3 = GL Entry Table Caption';
+        SuccessPostingMsg: Label 'The journal lines were successfully posted.';
+        SkippedLineMsg: Label 'One or more lines has not been posted because the amount is zero.';
+        DocumentOutOfBalanceErr: Label 'Document No. %1 is out of balance', Locked = true;
+        AllocAccountImportWrongAccTypeErr: Label 'Import from Allocation Account is only allowed for G/L Account Destination account type.', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -1071,7 +1073,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Error "Document No. is out of balance" was thrown. General Journal Lines were not posted.
-        Assert.ExpectedError(StrSubstNo('Document No. %1 is out of balance', DocumentNo[1]));
+        Assert.ExpectedError(StrSubstNo(DocumentOutOfBalanceErr, DocumentNo[1]));
         Assert.ExpectedErrorCode('Dialog');
         VerifyGLEntryNotExists(GenJournalBatch.Name);
     end;
@@ -1214,6 +1216,86 @@ codeunit 134227 "ERM PostRecurringJournal"
                     GenJournalLine.TestField("Posting Date", WorkDate() - 1);
             end;
         until GenJournalLine.Next() = 0;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('AllocationAccountListPageHandler,ConfirmHandlerYes')]
+    procedure RecurringJournal_ImportAllocationFromAllocationAccount_Successful()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJnlAllocation: Record "Gen. Jnl. Allocation";
+        AllocationAccount: Record "Allocation Account";
+        GLAccounts: array[3] of Record "G/L Account";
+        AllocationShares: array[3] of Decimal;
+        SharesSum: Decimal;
+
+    begin
+        // [FEATURE] [Recurring General Journal] [Allocation Account] [Allocations]
+        // [SCENARIO 501438] User can import Allocation Account definition to Allocations in Recurring Gen Journal
+        Initialize();
+
+        // [GIVEN] Create Recurring General Journal Batch.
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create Recurring Journal with a line
+        CreateRecurringJnlLine(GenJournalLine, GenJournalBatch, WorkDate(), 0D, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create allocation for general journal line
+        LibraryERM.CreateGenJnlAllocation(GenJnlAllocation, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+
+        // [GIVEN] Allocation Account "XXX" with 3 lines exists for different G/L Accounts and different Allocation Shares
+        CreateAllocationAccountWithThreeGLAccLines(AllocationAccount, GLAccounts, AllocationShares);
+
+        // [WHEN] Invoke Import from Allocation Account. Handler chooses Allocation Account "XXX" in lookup
+        LibraryVariableStorage.Enqueue(AllocationAccount."No.");
+        GenJnlAllocation.ChooseAndImportFromAllocationAccount();
+        // UI Handled by handler
+
+        // [THEN] There are 3 Gen Journal Allocations with the same amount and account as in Allocation Account
+        SharesSum := AllocationShares[1] + AllocationShares[2] + AllocationShares[3];
+        VerifyGenJnlAllocationExists(GenJnlAllocation, GenJournalLine, GLAccounts[1], AllocationShares[1] / SharesSum * 100);
+        VerifyGenJnlAllocationExists(GenJnlAllocation, GenJournalLine, GLAccounts[2], AllocationShares[2] / SharesSum * 100);
+        VerifyGenJnlAllocationExists(GenJnlAllocation, GenJournalLine, GLAccounts[3], AllocationShares[3] / SharesSum * 100);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('AllocationAccountListPageHandler,ConfirmHandlerYes')]
+    procedure RecurringJournal_ImportAllocationFromAllocationAccount_BankAccountNotSupported()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJnlAllocation: Record "Gen. Jnl. Allocation";
+        AllocationAccount: Record "Allocation Account";
+        BankAccount: Record "Bank Account";
+
+    begin
+        // [FEATURE] [Recurring General Journal] [Allocation Account] [Allocations]
+        // [SCENARIO 501438] User cannot import Allocation Account definition to Allocations in Recurring Gen Journal if a line on Allocation Account is of type = Bank Account
+        Initialize();
+
+        // [GIVEN] Create Recurring General Journal Batch.
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create Recurring Journal with a line
+        CreateRecurringJnlLine(GenJournalLine, GenJournalBatch, WorkDate(), 0D, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Create allocation for general journal line
+        LibraryERM.CreateGenJnlAllocation(GenJnlAllocation, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+
+        // [GIVEN] Allocation Account "XXX" with a line exists for a Bank Account
+        CreateAllocationAccountWithBankLine(AllocationAccount, BankAccount);
+
+        // [WHEN] Invoke Import from Allocation Account. Handler chooses Allocation Account "XXX" in lookup
+        LibraryVariableStorage.Enqueue(AllocationAccount."No.");
+        asserterror GenJnlAllocation.ChooseAndImportFromAllocationAccount();
+        // UI Handled by handler
+
+        // [THEN] Error message is shown that Bank Account is not supported
+        Assert.ExpectedError(AllocAccountImportWrongAccTypeErr);
+
     end;
 
     local procedure Initialize()
@@ -1366,6 +1448,82 @@ codeunit 134227 "ERM PostRecurringJournal"
         until GenJournalLine.Next() = 0;
     end;
 
+    local procedure CreateAllocationAccountWithThreeGLAccLines(var AllocationAccount: Record "Allocation Account"; var GLAccounts: array[3] of Record "G/L Account"; var AllocationShares: array[3] of Decimal)
+    var
+        AllocationAccountPage: TestPage "Allocation Account";
+        FixedAllocationAccountCode: Code[20];
+    begin
+        FixedAllocationAccountCode := CreateAllocationAccountWithFixedDistribution(AllocationAccountPage);
+        AddGLDestinationAccountForFixedDistribution(AllocationAccountPage, GLAccounts[1]);
+        AllocationShares[1] := LibraryRandom.RandDecInRange(1, 100, 2);
+        AllocationAccountPage.FixedAccountDistribution.Share.SetValue(AllocationShares[1]);
+
+        AllocationAccountPage.FixedAccountDistribution.New();
+        AddGLDestinationAccountForFixedDistribution(AllocationAccountPage, GLAccounts[2]);
+        AllocationShares[2] := LibraryRandom.RandDecInRange(1, 100, 2);
+        AllocationAccountPage.FixedAccountDistribution.Share.SetValue(AllocationShares[2]);
+
+        AllocationAccountPage.FixedAccountDistribution.New();
+        AddGLDestinationAccountForFixedDistribution(AllocationAccountPage, GLAccounts[3]);
+        AllocationShares[3] := LibraryRandom.RandDecInRange(1, 100, 2);
+        AllocationAccountPage.FixedAccountDistribution.Share.SetValue(AllocationShares[3]);
+
+        AllocationAccountPage.Close();
+
+        AllocationAccount.Get(FixedAllocationAccountCode);
+    end;
+
+    local procedure CreateAllocationAccountWithBankLine(var AllocationAccount: Record "Allocation Account"; var BankAccount: Record "Bank Account")
+    var
+        AllocationAccountPage: TestPage "Allocation Account";
+        FixedAllocationAccountCode: Code[20];
+    begin
+        FixedAllocationAccountCode := CreateAllocationAccountWithFixedDistribution(AllocationAccountPage);
+        AddBankDestinationAccountForFixedDistribution(AllocationAccountPage, BankAccount);
+        AllocationAccountPage.FixedAccountDistribution.Share.SetValue(LibraryRandom.RandDecInRange(1, 100, 2));
+
+        AllocationAccountPage.Close();
+
+        AllocationAccount.Get(FixedAllocationAccountCode);
+    end;
+
+    local procedure AddGLDestinationAccountForFixedDistribution(var AllocationAccountPage: TestPage "Allocation Account"; var GLAccount: Record "G/L Account")
+    var
+        DummyAllocAccountDistribution: Record "Alloc. Account Distribution";
+    begin
+        if GLAccount."No." = '' then
+            GLAccount.Get(LibraryERM.CreateGLAccountNoWithDirectPosting());
+
+        AllocationAccountPage.FixedAccountDistribution."Destination Account Type".SetValue(DummyAllocAccountDistribution."Destination Account Type"::"G/L Account");
+        AllocationAccountPage.FixedAccountDistribution."Destination Account Number".SetValue(GLAccount."No.");
+    end;
+
+    local procedure AddBankDestinationAccountForFixedDistribution(var AllocationAccountPage: TestPage "Allocation Account"; var BankAccount: Record "Bank Account")
+    var
+        DummyAllocAccountDistribution: Record "Alloc. Account Distribution";
+    begin
+        if BankAccount."No." = '' then
+            BankAccount.Get(LibraryERM.CreateBankAccountNo());
+
+        AllocationAccountPage.FixedAccountDistribution."Destination Account Type".SetValue(DummyAllocAccountDistribution."Destination Account Type"::"Bank Account");
+        AllocationAccountPage.FixedAccountDistribution."Destination Account Number".SetValue(BankAccount."No.");
+    end;
+
+    local procedure CreateAllocationAccountWithFixedDistribution(var AllocationAccountPage: TestPage "Allocation Account"): Code[20]
+    var
+        DummyAllocationAccount: Record "Allocation Account";
+        AllocationAccountNo: Code[20];
+    begin
+        AllocationAccountPage.OpenNew();
+
+        AllocationAccountNo := LibraryUtility.GenerateGUID();
+
+        AllocationAccountPage."No.".SetValue(AllocationAccountNo);
+        AllocationAccountPage."Account Type".SetValue(DummyAllocationAccount."Account Type"::Fixed);
+        AllocationAccountPage.Name.SetValue(LibraryUtility.GenerateGUID());
+        exit(AllocationAccountNo);
+    end;
+
     local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Enum "Gen. Journal Recurring Method"; Amount: Decimal; AccountNo: Code[20])
     begin
         CreateGeneralJournalLineWithType(
@@ -1402,25 +1560,21 @@ codeunit 134227 "ERM PostRecurringJournal"
 
     local procedure CreateUserSetupWithAllowedPostingPeriod(var UserSetup: Record "User Setup"; AllowedPostingFrom: Date; AllowedPostingTo: Date; IsAdministrator: Boolean)
     begin
-        LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserId, '');
-        with UserSetup do begin
-            Validate("Allow Posting From", AllowedPostingFrom);
-            Validate("Allow Posting To", AllowedPostingTo);
-            Validate("Approval Administrator", IsAdministrator);
-            Modify(true)
-        end;
+        LibraryDocumentApprovals.CreateUserSetup(UserSetup, CopyStr(UserId, 1, 50), '');
+        UserSetup.Validate("Allow Posting From", AllowedPostingFrom);
+        UserSetup.Validate("Allow Posting To", AllowedPostingTo);
+        UserSetup.Validate("Approval Administrator", IsAdministrator);
+        UserSetup.Modify(true)
     end;
 
     local procedure CreateGLSetupWithAllowedPostingPeriod(AllowedPostingFrom: Date; AllowedPostingTo: Date)
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            FindFirst();
-            Validate("Allow Posting From", AllowedPostingFrom);
-            Validate("Allow Posting To", AllowedPostingTo);
-            Modify(true)
-        end;
+        GLSetup.FindFirst();
+        GLSetup.Validate("Allow Posting From", AllowedPostingFrom);
+        GLSetup.Validate("Allow Posting To", AllowedPostingTo);
+        GLSetup.Modify(true)
     end;
 
     local procedure CreatePostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
@@ -1483,6 +1637,16 @@ codeunit 134227 "ERM PostRecurringJournal"
         VATEntry.FindFirst();
     end;
 
+    local procedure VerifyGenJnlAllocationExists(GenJnlAllocation: Record "Gen. Jnl. Allocation"; GenJournalLine: Record "Gen. Journal Line"; GLAccount: Record "G/L Account"; AllocationPct: Decimal)
+    begin
+        GenJnlAllocation.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJnlAllocation.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJnlAllocation.SetRange("Journal Line No.", GenJournalLine."Line No.");
+        GenJnlAllocation.SetRange("Account No.", GLAccount."No.");
+        GenJnlAllocation.FindFirst();
+        Assert.AreNearlyEqual(GenJnlAllocation."Allocation %", AllocationPct, 0.01, 'Allocation % is not correct');
+    end;
+
     local procedure VerifyGenJnlAllocationAmount(GenJournalLine: Record "Gen. Journal Line"; AllocationLineNo: Integer; ExpectedAmount: Decimal)
     var
         GenJnlAllocation: Record "Gen. Jnl. Allocation";
@@ -1508,8 +1672,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetFilter("Document Date", '<>%1', GLEntry."Posting Date");
         if not GLEntry.IsEmpty() then
-            Error(
-              StrSubstNo(DocumentDateErr, GLEntry.FieldCaption("Document Date"), GLEntry.FieldCaption("Posting Date"), GLEntry.TableCaption()));
+            Error(DocumentDateErr, GLEntry.FieldCaption("Document Date"), GLEntry.FieldCaption("Posting Date"), GLEntry.TableCaption());
     end;
 
     local procedure VerifyGLEntryExists(JournalBatchName: Code[10]; PostingDate: Date)
@@ -1558,22 +1721,18 @@ codeunit 134227 "ERM PostRecurringJournal"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            FindFirst();
-            TestField("Purchase (LCY)", ExpectedAmount);
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.TestField("Purchase (LCY)", ExpectedAmount);
     end;
 
     local procedure VerifyCustomerLedgerEntrySalesLCY(CustomerNo: Code[20]; ExpectedAmount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            FindFirst();
-            TestField("Sales (LCY)", ExpectedAmount);
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.TestField("Sales (LCY)", ExpectedAmount);
     end;
 
     local procedure VerifyCustomerLedgerEntryDueDateForRVMethod(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date)
@@ -1643,6 +1802,14 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
         GeneralJournalTemplateList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure AllocationAccountListPageHandler(var AllocationAccountList: TestPage "Allocation Account List")
+    begin
+        AllocationAccountList.GoToKey(LibraryVariableStorage.DequeueText());
+        AllocationAccountList.OK().Invoke();
     end;
 
     [ReportHandler]

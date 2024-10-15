@@ -636,18 +636,6 @@ page 98 "Purch. Cr. Memo Subform"
                     ToolTip = 'Specifies the number of the item ledger entry that the document or journal line is applied -to.';
                     Visible = false;
                 }
-#if not CLEAN22
-                field("Auto. Acc. Group"; Rec."Auto. Acc. Group")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies an automatic account group code.';
-                    Visible = not IsAutomaticAccountCodesEnabled;
-                    Enabled = not IsAutomaticAccountCodesEnabled;
-                    ObsoleteReason = 'Moved to Automatic Account Codes app.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = Suite;
@@ -1024,7 +1012,7 @@ page 98 "Purch. Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -1036,7 +1024,7 @@ page 98 "Purch. Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -1048,7 +1036,7 @@ page 98 "Purch. Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -1061,7 +1049,7 @@ page 98 "Purch. Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -1085,7 +1073,7 @@ page 98 "Purch. Cr. Memo Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -1123,7 +1111,7 @@ page 98 "Purch. Cr. Memo Subform"
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
                     Enabled = Rec.Type = Rec.Type::Item;
-                    ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
+                    ToolTip = 'View or edit serial, lot and package numbers for the selected item. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin
@@ -1233,9 +1221,6 @@ page 98 "Purch. Cr. Memo Subform"
         TempOptionLookupBuffer.FillLookupBuffer(Enum::"Option Lookup Type"::Purchases);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
         Currency.InitRoundingPrecision();
-#if not CLEAN22
-        IsAutomaticAccountCodesEnabled := FeatureKeyManagement.IsAutomaticAccountCodesEnabled();
-#endif
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -1268,14 +1253,13 @@ page 98 "Purch. Cr. Memo Subform"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        PurchAvailabilityMgt: Codeunit "Purch. Availability Mgt.";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         DocumentTotals: Codeunit "Document Totals";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-#if not CLEAN22
-        FeatureKeyManagement: Codeunit "Feature Key Management";
-#endif
+#pragma warning disable AA0074
         Text000: Label 'Unable to run this function while in View mode.';
+#pragma warning restore AA0074
         AmountWithDiscountAllowed: Decimal;
         VariantCodeMandatory: Boolean;
         InvDiscAmountEditable: Boolean;
@@ -1287,9 +1271,6 @@ page 98 "Purch. Cr. Memo Subform"
         ItemChargeStyleExpression: Text;
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
-#if not CLEAN22        
-        IsAutomaticAccountCodesEnabled: Boolean;
-#endif
         UseAllocationAccountNumber: Boolean;
         ActionOnlyAllowedForAllocationAccountsErr: Label 'This action is only available for lines that have Allocation Account set as Type.';
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';

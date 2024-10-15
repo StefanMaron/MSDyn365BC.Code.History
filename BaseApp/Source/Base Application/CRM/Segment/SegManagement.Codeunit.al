@@ -419,16 +419,6 @@ codeunit 5051 SegManagement
         end;
     end;
 
-#if not CLEAN22
-#pragma warning disable AS0072
-    [Obsolete('Use FindInteractionTemplateCode(DocumentType: Enum "Interaction Log Entry Document Type") instead.', '22.0')]
-    procedure FindInteractTmplCode(DocumentType: Integer) InteractTmplCode: Code[10]
-    begin
-        exit(FindInteractionTemplateCode("Interaction Log Entry Document Type".FromInteger(DocumentType)));
-    end;
-#pragma warning restore AS0072
-#endif
-
     procedure FindInteractionTemplateCode(DocumentType: Enum "Interaction Log Entry Document Type") InteractTmplCode: Code[10]
     begin
         if not InteractionTemplateSetup.ReadPermission() then
@@ -489,9 +479,6 @@ codeunit 5051 SegManagement
                     InteractTmplCode := InteractionTemplateSetup."Sales Draft Invoices";
             end;
 
-#if not CLEAN22
-        OnAfterFindInteractTmplCode(DocumentType.AsInteger(), InteractionTemplateSetup, InteractTmplCode);
-#endif
         OnAfterFindInteractTemplateCode(DocumentType, InteractionTemplateSetup, InteractTmplCode);
 
         exit(InteractTmplCode);
@@ -768,14 +755,6 @@ codeunit 5051 SegManagement
         CampaignEntry.Insert();
         exit(CampaignEntry."Entry No.");
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaed by event OnAfterFindInteractTemplateCode with enum parameter.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterFindInteractTmplCode(DocumentType: Integer; InteractionTemplateSetup: Record "Interaction Template Setup"; var InteractionTemplateCode: Code[10])
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindInteractTemplateCode(DocumentType: Enum "Interaction Log Entry Document Type"; InteractionTemplateSetup: Record "Interaction Template Setup"; var InteractionTemplateCode: Code[10])

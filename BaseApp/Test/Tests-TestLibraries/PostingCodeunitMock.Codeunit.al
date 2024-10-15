@@ -19,9 +19,7 @@ codeunit 132479 "Posting Codeunit Mock"
             MsgType := "Message Type";
             case MsgType of
                 -3: // pop context
-                    begin
-                        ContextID := ErrorMessageMgt.PopContext(ErrorContextElement[ContextID]);
-                    end;
+                    ContextID := ErrorMessageMgt.PopContext(ErrorContextElement[ContextID]);
                 -2: // Error in local context
                     LogLocalError("Record ID", "Message", "Additional Information");
                 -1: // global context
