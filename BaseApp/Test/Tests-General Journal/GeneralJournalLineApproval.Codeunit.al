@@ -1622,6 +1622,32 @@ codeunit 134322 "General Journal Line Approval"
         Assert.AreEqual(ImposedRestrictionLbl, GeneralJournal.GenJnlLineApprovalStatus.Value, 'Imposed restriction is not shown');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RenumberMultipleGenjnlLineHasRestrictedRecord()
+    var
+        GenJournalLine: array[3] of Record "Gen. Journal Line";
+        Workflow: Record Workflow;
+        ApprovalUserSetup: Record "User Setup";
+        GeneralJournal: TestPage "General Journal";
+    begin
+        // [SCENARIO 539249] After renumbering doc numbers on the General Journal Lines approval workflow. Restricted Entry created for all General Journal Line
+        Initialize();
+
+        // [GIVEN] Enable Gen. Journal Batch Approval Workflow
+        LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
+        CreateDirectApprovalEnabledWorkflow(Workflow);
+
+        // [GIVEN] Create multiple Gen. Journal Line
+        CreateMultipleGenJnlLine(GenJournalLine);
+
+        // [WHEN] Create Multiple Approval Entry
+        CreateMultipleApprovalEntry(GenJournalLine);
+
+        // [THEN] Verify: Restricted record created for all the General Journal Line.
+        VerifyMultipleRestrictionRecordExists(GenJournalLine);
+    end;
+
     local procedure Initialize()
     var
         Workflow: Record Workflow;
@@ -2106,6 +2132,44 @@ codeunit 134322 "General Journal Line Approval"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
+    end;
+
+    local procedure CreateMultipleGenJnlLine(var GenJnlLine: array[3] of Record "Gen. Journal Line")
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        i: Integer;
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        for i := 1 to ArrayLen(GenJnlLine) do begin
+            LibraryERM.CreateGeneralJnlLine(
+                GenJnlLine[i],
+                GenJournalBatch."Journal Template Name",
+                GenJournalBatch.Name,
+                GenJnlLine[i]."Account Type"::"G/L Account",
+                GenJnlLine[i]."Document Type"::" ",
+                LibraryERM.CreateGLAccountNo(),
+                LibraryRandom.RandDec(100, 2));
+            GenJnlLine[i].Validate("Document No.", Format(GenJnlLine[i]."Line No."));
+            GenJnlLine[i].Modify();
+        end;
+    end;
+
+    local procedure CreateMultipleApprovalEntry(GenJnlLine: array[3] of Record "Gen. Journal Line")
+    var
+        ApprovalStatus: Enum "Approval Status";
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(GenJnlLine) do
+            CreateApprovalEntryForCurrentUser(GenJnlLine[1].RecordId, ApprovalStatus::Approved);
+    end;
+
+    local procedure VerifyMultipleRestrictionRecordExists(var GenJnlLine: array[3] of Record "Gen. Journal Line")
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(GenJnlLine) do
+            VerifyRestrictionRecordExists(GenJnlLine[i].RecordId);
     end;
 
     [PageHandler]
