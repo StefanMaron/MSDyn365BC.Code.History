@@ -180,6 +180,24 @@ page 5469 "API Setup"
                     GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Sales Cr. Memo");
                 end;
             }
+            action(FixSalesInvoiceShortcutDimension)
+            {
+                ApplicationArea = All;
+                Caption = 'Fix document API records Shortcut Dimensions';
+                Image = Setup;
+                Promoted = false;
+                ToolTip = 'Updates shortcut dimension codes of the records that are used by the salesInvoices, salesOrders, salesCreditMemos, salesQuotes, purchaseOrders and purchaseInvoices API';
+                ObsoleteReason = 'This action will be removed together with the upgrade code.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '20.0';
+
+                trigger OnAction()
+                var
+                    GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
+                begin
+                    GraphMgtGeneralTools.ScheduleUpdateAPIRecordsJob(Codeunit::"API Fix Document Shortcut Dim.");
+                end;
+            }
         }
     }
 

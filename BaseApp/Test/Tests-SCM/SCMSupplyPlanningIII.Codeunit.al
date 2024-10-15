@@ -2404,6 +2404,128 @@
         ProductionOrder.TestField("Variant Code", RequisitionLine."Variant Code");
     end;
 
+    [Test]
+    procedure CalcRegenPlanWhenParentItemProducedOnHolidays()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        BaseCalendar: Record "Base Calendar";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        OldBaseCalendarCode: Code[10];
+        ShipmentDate: Date;
+    begin
+        // [FEATURE] [Production Order] [Purchase] [Calendar]
+        // [SCENARIO 412288] Due Date and Starting/Ending Dates of purchase Requisition Line when Calc Regen Plan for Item which is produced on holidays.
+        Initialize();
+
+        // [GIVEN] Company has Base Calendar with non-working days Saturday and Sunday each week.
+        CreateBaseCalendarWithNonWorkingWeekends(BaseCalendar);
+        OldBaseCalendarCode := UpdateBaseCalendarOnCompanyInformation(BaseCalendar.Code);
+        LibraryApplicationArea.EnablePremiumSetup();
+
+        // [GIVEN] Certified Production BOM "B" with Item "I2" with Replenishment System "Purchase". "I2" has Safety Lead Time "0D".
+        // [GIVEN] Item "I1" with Replenishment System "Prod. Order", Safety Lead Time "0D" and with Production BOM "B".
+        // [GIVEN] Certified Routing for Item "I1" with one line for Work Center that works 8 hours a day all week without holidays.
+        // [GIVEN] Routing Line has Run Time = 600 minutes (10 hours), so it takes ~2 days for Work Center to produce "I1".
+        CreateItem(ChildItem, ChildItem."Reordering Policy"::"Lot-for-Lot", ChildItem."Replenishment System"::Purchase);
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
+        UpdateSafetyLeadTimeOnItem(ChildItem, '0D');
+        CreateProductionItemWithOneLineRouting(Item, 600);
+        UpdateProductionBOMOnItem(Item, ProductionBOMHeader."No.");
+        UpdateSafetyLeadTimeOnItem(Item, '0D');
+
+        // [GIVEN] Sales Order for Item "I1" with Shipment Date on Monday, 30.01.23.
+        ShipmentDate := CalcDate('<1W + WD1>', WorkDate());
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, "Sales Document Type"::Order, '', Item."No.", 1, '', ShipmentDate);
+
+        // [WHEN] Calculate regenerative plan for "I1" and "I2".
+        Item.SetFilter("No.", ItemFilterTxt, Item."No.", ChildItem."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, ShipmentDate - 10, ShipmentDate + 10);
+
+        // [THEN] Two Requisition Lines are created.
+        // [THEN] First line is for Prod. Order for "I1". Due Date = 30.01.23, Starting Date = 29.01 (Sunday), Ending Date = 30.01.
+        // [THEN] Second line is for Purchase of "I2". Due Date = 29.01 (Sunday), Starting/Ending Date = 27.01 (Friday).
+        VerifyRequisitionLineDates(
+            Item."No.", RequisitionLine."Ref. Order Type"::"Prod. Order", "Action Message Type"::New, ShipmentDate, ShipmentDate - 1, ShipmentDate);
+        VerifyRequisitionLineDates(
+            ChildItem."No.", RequisitionLine."Ref. Order Type"::Purchase, "Action Message Type"::New, ShipmentDate - 1, ShipmentDate - 3, ShipmentDate - 3);
+
+        // [WHEN] Carry Out Action Message for both Requisition Lines.
+        RequisitionLine.SetFilter("No.", ItemFilterTxt, Item."No.", ChildItem."No.");
+        RequisitionLine.FindFirst();
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [THEN] Purchase Order with one purchase line for Item "I2" is created.
+        // [THEN] Purchase Line has Planned/Expected Receipt Date = 27.01 (Friday).
+        VerifyPurchaseLineReceiptDates(
+            "Purchase Document Type"::Order, ChildItem."Vendor No.", ChildItem."No.", ShipmentDate - 3, ShipmentDate - 3);
+
+        // tear down
+        UpdateBaseCalendarOnCompanyInformation(OldBaseCalendarCode);
+    end;
+
+    [Test]
+    procedure RecalcRegenPlanWhenParentItemProducedOnHolidays()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        BaseCalendar: Record "Base Calendar";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        OldBaseCalendarCode: Code[10];
+        ShipmentDate: Date;
+    begin
+        // [FEATURE] [Production Order] [Purchase] [Calendar]
+        // [SCENARIO 412288] Recalculating Regeneration Plan when we have Purchase Order for Item with Receipt Date on Friday and this Item, when planned, has Due Date on Sunday.
+        Initialize();
+
+        // [GIVEN] Company has Base Calendar with non-working days Saturday and Sunday each week.
+        CreateBaseCalendarWithNonWorkingWeekends(BaseCalendar);
+        OldBaseCalendarCode := UpdateBaseCalendarOnCompanyInformation(BaseCalendar.Code);
+        LibraryApplicationArea.EnablePremiumSetup();
+
+        // [GIVEN] Certified Production BOM "B" with Item "I2" with Replenishment System "Purchase". "I2" has Safety Lead Time "0D".
+        // [GIVEN] Item "I1" with Replenishment System "Prod. Order", Safety Lead Time "0D" and with Production BOM "B".
+        // [GIVEN] Certified Routing for Item "I1" with one line for Work Center that works 8 hours a day all week without holidays.
+        // [GIVEN] Routing Line has Run Time = 600 minutes (10 hours), so it takes ~2 days for Work Center to produce "I1".
+        CreateItem(ChildItem, ChildItem."Reordering Policy"::"Lot-for-Lot", ChildItem."Replenishment System"::Purchase);
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
+        UpdateSafetyLeadTimeOnItem(ChildItem, '0D');
+        CreateProductionItemWithOneLineRouting(Item, 600);
+        UpdateProductionBOMOnItem(Item, ProductionBOMHeader."No.");
+        UpdateSafetyLeadTimeOnItem(Item, '0D');
+
+        // [GIVEN] Sales Order for Item "I1" with Shipment Date on Monday, 30.01.23.
+        ShipmentDate := CalcDate('<1W + WD1>', WorkDate());
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, "Sales Document Type"::Order, '', Item."No.", 1, '', ShipmentDate);
+
+        // [GIVEN] Calculated regenerative plan for "I1" and "I2". Two Requisition Lines for producing "I1" and purchasing "I2" are created.
+        Item.SetFilter("No.", ItemFilterTxt, Item."No.", ChildItem."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, ShipmentDate - 10, ShipmentDate + 10);
+
+        // [GIVEN] Carried Out Action Message for both Requisition Lines.
+        RequisitionLine.SetFilter("No.", ItemFilterTxt, Item."No.", ChildItem."No.");
+        RequisitionLine.FindFirst();
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [WHEN] Calculate regenerative plan for "I1" and "I2" again.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, ShipmentDate - 10, ShipmentDate + 10);
+
+        // [THEN] No Requisition Lines are created for "I1" or "I2".
+        RequisitionLine.SetFilter("No.", ItemFilterTxt, Item."No.", ChildItem."No.");
+        Assert.RecordIsEmpty(RequisitionLine);
+
+        // tear down
+        UpdateBaseCalendarOnCompanyInformation(OldBaseCalendarCode);
+    end;
+
     local procedure Initialize()
     var
         UntrackedPlanningElement: Record "Untracked Planning Element";
@@ -2683,6 +2805,66 @@
             NWDate -= 1;
         end;
         exit(BaseCalendar.Code);
+    end;
+
+    local procedure CreateBaseCalendarWithNonWorkingWeekends(var BaseCalendar: Record "Base Calendar")
+    var
+        BaseCalendarChange: Record "Base Calendar Change";
+    begin
+        LibraryService.CreateBaseCalendar(BaseCalendar);
+        LibraryInventory.CreateBaseCalendarChange(
+            BaseCalendarChange, BaseCalendar.Code, BaseCalendarChange."Recurring System"::"Weekly Recurring", 0D, BaseCalendarChange.Day::Saturday);
+        LibraryInventory.CreateBaseCalendarChange(
+            BaseCalendarChange, BaseCalendar.Code, BaseCalendarChange."Recurring System"::"Weekly Recurring", 0D, BaseCalendarChange.Day::Sunday);
+    end;
+
+    local procedure CreateWorkCenterWithShopCalendar(UOMType: Enum "Capacity Unit of Measure"; ShopCalendarCode: Code[10]; Efficiency: Decimal; Capacity: Decimal; DueDate: Date): Code[20]
+    var
+        WorkCenter: Record "Work Center";
+        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, UOMType);
+        WorkCenter.Validate("Unit of Measure Code", CapacityUnitOfMeasure.Code);
+        WorkCenter.Validate("Shop Calendar Code", ShopCalendarCode);
+        WorkCenter.Validate(Efficiency, Efficiency);
+        WorkCenter.Validate(Capacity, Capacity);
+        WorkCenter.Modify(true);
+
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-2M>', DueDate), CalcDate('<+2M>', DueDate));
+        exit(WorkCenter."No.");
+    end;
+
+    local procedure CreateShopCalendarAllWeek(): Code[10]
+    var
+        ShopCalendar: Record "Shop Calendar";
+        WorkShift: Record "Work Shift";
+        ShopCalendWorkDays: Record "Shop Calendar Working Days";
+        Day: Integer;
+    begin
+        LibraryManufacturing.CreateShopCalendarCode(ShopCalendar);
+        LibraryManufacturing.CreateWorkShiftCode(WorkShift);
+        for Day := ShopCalendWorkDays.Day::Monday to ShopCalendWorkDays.Day::Sunday do
+            LibraryManufacturing.CreateShopCalendarWorkingDays(ShopCalendWorkDays, ShopCalendar.Code, Day, WorkShift.Code, 080000T, 160000T);
+        exit(ShopCalendar.Code);
+    end;
+
+    local procedure CreateProductionItemWithOneLineRouting(var Item: Record Item; RunTime: Decimal)
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WorkCenterCode: Code[20];
+    begin
+        WorkCenterCode := CreateWorkCenterWithShopCalendar("Capacity Unit of Measure"::Minutes, CreateShopCalendarAllWeek(), 100, 1, WorkDate());
+        CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::"Prod. Order");
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', "Capacity Type Routing"::"Work Center", WorkCenterCode);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Modify(true);
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
     end;
 
     local procedure UpdateItemBlocked(var Item: Record Item)
@@ -3414,6 +3596,31 @@
         ProductionForecast.Matrix.Field1.SetValue(Qty);
     end;
 
+    local procedure UpdateProductionBOMOnItem(var Item: Record Item; ProductionBOMNo: Code[20])
+    begin
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Modify(true);
+    end;
+
+    local procedure UpdateSafetyLeadTimeOnItem(var Item: Record Item; SafetyLeadTimeText: Text)
+    var
+        SafetyLeadTime: DateFormula;
+    begin
+        Evaluate(SafetyLeadTime, SafetyLeadTimeText);
+        Item.Validate("Safety Lead Time", SafetyLeadTime);
+        Item.Modify(true);
+    end;
+
+    local procedure UpdateBaseCalendarOnCompanyInformation(NewBaseCalendarCode: Code[10]) OldBaseCalendarCode: Code[10]
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        OldBaseCalendarCode := CompanyInformation."Base Calendar Code";
+        CompanyInformation.Validate("Base Calendar Code", NewBaseCalendarCode);
+        CompanyInformation.Modify(true);
+    end;
+
     local procedure VerifyReservationEntryPairInsideProductionOrder(Level1ItemNo: Code[20]; Level2ItemNo: Code[20]; LocationCode: Code[10])
     var
         Level1ReservationEntry: Record "Reservation Entry";
@@ -3615,6 +3822,32 @@
                 VerifyRequisitionLineWithDueDate("No.", Quantity, "Shipment Date");
             until Next = 0;
         end;
+    end;
+
+    local procedure VerifyRequisitionLineDates(ItemNo: Code[20]; RefOrderType: Option; ActionMessage: Enum "Action Message Type"; ExpDueDate: Date; ExpStartDate: Date; ExpEndDate: Date)
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        FilterOnRequisitionLine(RequisitionLine, ItemNo);
+        RequisitionLine.SetRange("Ref. Order Type", RefOrderType);
+        RequisitionLine.SetRange("Action Message", ActionMessage);
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Due Date", ExpDueDate);
+        RequisitionLine.TestField("Starting Date", ExpStartDate);
+        RequisitionLine.TestField("Ending Date", ExpEndDate);
+    end;
+
+    local procedure VerifyPurchaseLineReceiptDates(DocType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; PlannedReceiptDate: Date; ExpectedReceiptDate: Date)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", DocType);
+        PurchaseLine.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchaseLine.SetRange(Type, "Purchase Line Type"::Item);
+        PurchaseLine.SetRange("No.", ItemNo);
+        PurchaseLine.FindFirst();
+        PurchaseLine.TestField("Planned Receipt Date", PlannedReceiptDate);
+        PurchaseLine.TestField("Expected Receipt Date", ExpectedReceiptDate);
     end;
 
     local procedure VerifyItemTrackingLineQty(ItemTrackingLines: TestPage "Item Tracking Lines")

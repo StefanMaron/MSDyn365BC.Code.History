@@ -551,10 +551,10 @@ report 10407 "Bank Rec. Test Report"
 
                 CalculateBalance;
                 Difference :=
-                  ("G/L Balance" +
+                  Round(("G/L Balance" +
                    ("Positive Adjustments" - "Negative Bal. Adjustments") +
                    ("Negative Adjustments" - "Positive Bal. Adjustments")) -
-                  (("Statement Balance" + "Outstanding Deposits") - "Outstanding Checks");
+                  (("Statement Balance" + "Outstanding Deposits") - "Outstanding Checks"), 0.01);
                 if Difference <> 0 then
                     AddError(StrSubstNo('Difference %1 must be zero before statement can be posted!', Difference));
 

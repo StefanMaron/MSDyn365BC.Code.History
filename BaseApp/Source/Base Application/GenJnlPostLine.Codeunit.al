@@ -1192,6 +1192,7 @@
 
             // Post detailed employee entries
             DtldLedgEntryInserted := PostDtldEmplLedgEntries(GenJnlLine, TempDtldCVLedgEntryBuf, EmployeePostingGr, true);
+            OnPostEmployeeOnAfterPostDtldEmplLedgEntries(GenJnlLine, EmployeeLedgerEntry, DtldLedgEntryInserted);
 
             // Posting GL Entry
             if DtldLedgEntryInserted then
@@ -3448,6 +3449,7 @@
         CustLedgEntry2.CalcFields("Amount (LCY)", "Original Amt. (LCY)");
 
         PaidAmount := CustLedgEntry2."Amount (LCY)" - CustLedgEntry2."Remaining Amt. (LCY)";
+        OnCustUnrealizedVATOnAfterCalcPaidAmount(GenJnlLine, CustLedgEntry2, SettledAmount, PaidAmount);
         VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", CustLedgEntry2."Transaction No.");
@@ -6593,8 +6595,7 @@
                 PeriodicCount := 1;
                 repeat
                     PerPostDate := DeferralLine."Posting Date";
-                    if GenJnlCheckLine.DateNotAllowed(PerPostDate) then
-                        Error(InvalidPostingDateErr, PerPostDate);
+                    CheckDeferralPostingDate(PerPostDate);
 
                     InitGLEntry(
                       GenJournalLine, GLEntry, AccountNo,
@@ -6618,6 +6619,20 @@
         end;
 
         OnAfterPostDeferral(GenJournalLine, TempGLEntryBuf, AccountNo);
+    end;
+
+    local procedure CheckDeferralPostingDate(PostingDate: Date)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDeferralPostDate(PostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
+    if GenJnlCheckLine.DateNotAllowed(PostingDate) then
+        Error(InvalidPostingDateErr, PostingDate);
+
     end;
 
     local procedure PostDeferralPostBuffer(GenJournalLine: Record "Gen. Journal Line")
@@ -6857,6 +6872,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckGLAccDirectPosting(var GenJournalLine: Record "Gen. Journal Line"; GLAcc: Record "G/L Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDeferralPostDate(PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 
@@ -7170,7 +7190,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeInsertVATForGLEntry(var GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; GLEntryVATAmount: Decimal; SrcCurrGLEntryVATAmt: Decimal; UnrealizedVAT: Boolean; var IsHandled: Boolean; var VATEntry: Record "VAT Entry")
     begin
     end;
@@ -7803,7 +7823,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertVATOnBeforeCreateGLEntryForReverseChargeVATToPurchAcc(var GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; UnrealizedVAT: Boolean; VATAmount: Decimal; VATAmountAddCurr: Decimal; UseAmountAddCurr: Boolean)
+    local procedure OnInsertVATOnBeforeCreateGLEntryForReverseChargeVATToPurchAcc(var GenJournalLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; UnrealizedVAT: Boolean; VATAmount: Decimal; VATAmountAddCurr: Decimal; UseAmountAddCurr: Boolean)
     begin
     end;
 
@@ -7996,6 +8016,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostEmployeeOnAfterPostDtldEmplLedgEntries(GenJournalLine: Record "Gen. Journal Line"; var EmployeeLedgerEntry: Record "Employee Ledger Entry"; var DtldLedgEntryInserted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostUnapplyOnAfterVATEntrySetFilters(var VATEntry: Record "VAT Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -8102,6 +8127,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCustUnrealizedVATOnAfterVATPartCalculation(GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; PaidAmount: Decimal; TotalUnrealVATAmountFirst: Decimal; TotalUnrealVATAmountLast: Decimal; SettledAmount: Decimal; VATEntry2: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustUnrealizedVATOnAfterCalcPaidAmount(GenJnlLine: Record "Gen. Journal Line"; var CustLedgEntry2: Record "Cust. Ledger Entry"; SettledAmount: Decimal; var PaidAmount: Decimal)
     begin
     end;
 

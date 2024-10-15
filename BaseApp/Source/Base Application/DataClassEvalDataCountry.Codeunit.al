@@ -58,6 +58,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Payment Method Code");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CFDI Documents");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CFDI Relation Document");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"CFDI Transport Operator");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Classification");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Relationship Type");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Use Code");
@@ -67,6 +68,15 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Payment Term");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Payment Method");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT MX Resources");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Federal Motor Transport");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Trailer Type");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Permission Type");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Hazardous Material");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Packaging Type");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT State");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Municipality");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Locality");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"SAT Suburb");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Credit Manager Cue");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         OnAfterClassifyCountrySpecificTables();

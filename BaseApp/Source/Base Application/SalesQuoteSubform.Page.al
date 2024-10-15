@@ -53,7 +53,7 @@
                 field("No."; "No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = NOT IsCommentLine;
+                    ShowMandatory = Type <> Type::" ";
                     ToolTip = 'Specifies the number of a general ledger account, item, resource, additional cost, or fixed asset, depending on the contents of the Type field.';
 
                     trigger OnValidate()
@@ -154,7 +154,7 @@
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = NOT IsCommentLine;
+                    ShowMandatory = Type <> Type::" ";
                     ToolTip = 'Specifies a description of the entry of the product to be sold. To add a non-transactional text line, fill in the Description field only.';
 
                     trigger OnValidate()
@@ -197,7 +197,7 @@
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies how many units are being sold.';
 
                     trigger OnValidate()
@@ -262,7 +262,7 @@
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the price for one unit on the sales line.';
 
                     trigger OnValidate()
@@ -319,7 +319,7 @@
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
 
                     trigger OnValidate()
