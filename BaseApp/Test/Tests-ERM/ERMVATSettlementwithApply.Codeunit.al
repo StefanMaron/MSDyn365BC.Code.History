@@ -54,7 +54,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         VatPostingSetup.FindLast();
         CalcandPostVATSettlement.SetTableView(VatPostingSetup);
         CalcandPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          WorkDate, WorkDate(), WorkDate, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           GenJournalLine."Bal. Account No.", false, false);
         CalcandPostVATSettlement.UseRequestPage(false);
 
@@ -381,7 +381,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
         GenJournalBatch.Modify(true);
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          WorkDate, WorkDate(), WorkDate, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           LibraryERM.CreateGLAccountNo, false, true);
         CalcAndPostVATSettlement.UseRequestPage(false);
         CalcAndPostVATSettlement.SaveAsXml('');
@@ -434,7 +434,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, CalcDate('<+7D>', WorkDate()), Enum::"VAT Date Type"::"Posting Date", WorkDate(),
+          WorkDate, CalcDate('<+7D>', WorkDate()), WorkDate(),
           GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryERM.CreateGLAccountNo, false, false);
         CalcAndPostVATSettlement.SetInitialized(false);
         Commit();
@@ -490,7 +490,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
 	    VATPostingSetup.SetRecFilter();
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryERM.CreateGLAccountNo, false, true);
+          WorkDate, WorkDate(), WorkDate, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryERM.CreateGLAccountNo, false, true);
         CalcAndPostVATSettlement.UseRequestPage(false);
         CalcAndPostVATSettlement.SaveAsXml('');
 
@@ -735,6 +735,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         VATEntry.Init();
         VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
         VATEntry."Posting Date" := PostingDate;
+        VATEntry."VAT Reporting Date" := PostingDate;
         VATEntry."Tax Type" := VATEntry."Tax Type"::"Sales Tax";
         VATEntry.Type := VATEntry.Type::Sale;
         VATEntry."Tax Group Code" := TaxDetail."Tax Group Code";
@@ -807,7 +808,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         Clear(CalcAndPostVATSettlement);
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          WorkDate, WorkDate(), WorkDate, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           GenJournalLine."Bal. Account No.", false, true);
         CalcAndPostVATSettlement.UseRequestPage(false);
         FilePath := TemporaryPath + Format(VATPostingSetup.TableName) + '.xlsx';

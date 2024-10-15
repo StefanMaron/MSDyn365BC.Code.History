@@ -380,6 +380,8 @@
                 Init();
                 Insert();
             end;
+
+        OnAfterInitSetupTables();
     end;
 
     local procedure InitSourceCodeSetup()
@@ -800,6 +802,11 @@
             exit;
 
         InitializeCompany();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitSetupTables()
+    begin
     end;
 }
 

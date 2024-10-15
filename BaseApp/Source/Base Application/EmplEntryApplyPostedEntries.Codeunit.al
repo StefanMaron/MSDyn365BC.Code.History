@@ -175,7 +175,7 @@
         exit(DtldEmplLedgEntry.GetLastEntryNo());
     end;
 
-    local procedure FindLastApplEntry(EmplLedgEntryNo: Integer): Integer
+    procedure FindLastApplEntry(EmplLedgEntryNo: Integer): Integer
     var
         DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry";
         ApplicationEntryNo: Integer;
@@ -226,13 +226,19 @@
     procedure UnApplyEmplLedgEntry(EmplLedgEntryNo: Integer)
     var
         DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry";
+    begin
+        CheckEmployeeLedgerEntryToUnapply(EmplLedgEntryNo, DtldEmplLedgEntry);
+        UnApplyEmployee(DtldEmplLedgEntry);
+    end;
+
+    procedure CheckEmployeeLedgerEntryToUnapply(EmployeeLedgerEntryNo: Integer; var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry")
+    var
         ApplicationEntryNo: Integer;
     begin
-        ApplicationEntryNo := FindLastApplEntry(EmplLedgEntryNo);
+        ApplicationEntryNo := FindLastApplEntry(EmployeeLedgerEntryNo);
         if ApplicationEntryNo = 0 then
-            Error(NoApplicationEntryErr, EmplLedgEntryNo);
-        DtldEmplLedgEntry.Get(ApplicationEntryNo);
-        UnApplyEmployee(DtldEmplLedgEntry);
+            Error(NoApplicationEntryErr, EmployeeLedgerEntryNo);
+        DetailedEmployeeLedgerEntry.Get(ApplicationEntryNo);
     end;
 
     local procedure UnApplyEmployee(DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry")

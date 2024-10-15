@@ -69,9 +69,9 @@ page 475 "VAT Statement Preview Line"
                         case Type of
                             Type::"Account Totaling":
                                 begin
-                                    SetKeyForGLEntry(GLEntry);
+                                    GLEntry.SetCurrentKey("Journal Templ. Name", "G/L Account No.", "VAT Reporting Date", "Document Type");
                                     GLEntry.SetFilter("G/L Account No.", "Account Totaling");
-                                    SetDateFilterForGLEntry(GLEntry);
+                                    Rec.CopyFilter("Date Filter", GLEntry."VAT Reporting Date");
                                     if "Document Type" = "Document Type"::"All except Credit Memo" then
                                         GLEntry.SetFilter("Document Type", '<>%1', "Document Type"::"Credit Memo")
                                     else
@@ -82,7 +82,7 @@ page 475 "VAT Statement Preview Line"
                             Type::"VAT Entry Totaling":
                                 begin
                                     VATEntry.Reset();
-                                    SetKeyForVATEntry(VATEntry);
+                                    VATEntry.SetCurrentKey("Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date");
                                     VATEntry.SetRange(Type, "Gen. Posting Type");
                                     VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                                     VATEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
@@ -166,49 +166,19 @@ page 475 "VAT Statement Preview Line"
         UseAmtsInAddCurr: Boolean;
         CorrectionValue: Decimal;
         NetAmountLCY: Decimal;
+#if not CLEAN22
+#pragma warning disable AA0137
         VATDateType: Enum "VAT Date Type";
+#pragma warning restore
+#endif
 
-    local procedure SetKeyForGLEntry(var GLEntryLocal: Record "G/L Entry")
-    begin
-        case VATDateType of
-            VATDateType::"Document Date": GLEntryLocal.SetCurrentKey("Journal Templ. Name", "G/L Account No.", "Document Date", "Document Type");
-            VATDateType::"Posting Date": GLEntryLocal.SetCurrentKey("Journal Templ. Name", "G/L Account No.", "Posting Date", "Document Type");
-            VATDateType::"VAT Reporting Date": GLEntryLocal.SetCurrentKey("Journal Templ. Name", "G/L Account No.", "VAT Reporting Date", "Document Type");
-        end
-    end;
-
-    local procedure SetKeyForVATEntry(var VATEntryLocal: Record "VAT Entry")
-    begin
-        case VATDateType of
-            VATDateType::"Document Date": VATEntryLocal.SetCurrentKey("Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Date");
-            VATDateType::"Posting Date": VATEntryLocal.SetCurrentKey("Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date");
-            VATDateType::"VAT Reporting Date": VATEntryLocal.SetCurrentKey("Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date");
-        end
-    end;
-
-    local procedure SetDateFilterForGLEntry(var GLEntryLocal: Record "G/L Entry")
-    begin
-        case VATDateType of
-            VATDateType::"Document Date": Rec.CopyFilter("Date Filter", GLEntryLocal."Document Date");
-            VATDateType::"Posting Date": Rec.CopyFilter("Date Filter", GLEntryLocal."Posting Date");
-            VATDateType::"VAT Reporting Date": Rec.CopyFilter("Date Filter", GLEntryLocal."VAT Reporting Date");
-        end
-    end;
 
     local procedure SetDateFilterForVATEntry(var VATEntryLocal: Record "VAT Entry")
     begin
         if PeriodSelection = PeriodSelection::"Before and Within Period" then
-            case VATDateType of
-                VATDateType::"Document Date": VATEntryLocal.SetRange("Document Date", 0D, Rec.GetRangeMax("Date Filter"));
-                VATDateType::"Posting Date": VATEntryLocal.SetRange("Posting Date", 0D, Rec.GetRangeMax("Date Filter"));
-                VATDateType::"VAT Reporting Date": VATEntryLocal.SetRange("VAT Reporting Date", 0D, Rec.GetRangeMax("Date Filter"));
-            end
+            VATEntryLocal.SetRange("VAT Reporting Date", 0D, Rec.GetRangeMax("Date Filter"))
         else
-            case VATDateType of
-                VATDateType::"Document Date": Rec.CopyFilter("Date Filter", VATEntryLocal."Document Date");
-                VATDateType::"Posting Date": Rec.CopyFilter("Date Filter", VATEntryLocal."Posting Date");
-                VATDateType::"VAT Reporting Date": Rec.CopyFilter("Date Filter", VATEntryLocal."VAT Reporting Date");
-            end
+            Rec.CopyFilter("Date Filter", VATEntryLocal."VAT Reporting Date");
     end;
 
     local procedure CalcColumnValue(VATStatementLine: Record "VAT Statement Line"; var ColumnValue: Decimal; var CorrectionValue: Decimal; var NetAmountLCY: Decimal; JournalTempl: Code[10]; Level: Integer)
@@ -223,23 +193,9 @@ page 475 "VAT Statement Preview Line"
         VATStatement.CalcLineTotal(VATStatementLine, ColumnValue, CorrectionValue, NetAmountLCY, JournalTempl, Level);
     end;
 
+#if not CLEAN22
+    [Obsolete('Replaced by UpdateForm without VAT Date', '22.0')]
     procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewUseAmtsInAddCurr: Boolean; NewVATDateType: Enum "VAT Date Type")
-    begin
-        VATStmtName.CopyFilter("Date Filter", "Date Filter");
-        Selection := NewSelection;
-        PeriodSelection := NewPeriodSelection;
-        UseAmtsInAddCurr := NewUseAmtsInAddCurr;
-        VATDateType := NewVATDateType;
-        VATStatement.InitializeRequest(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr, NewVATDateType);
-        OnUpdateFormOnBeforePageUpdate2(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr, NewVATDateType);
-        CurrPage.Update();
-
-        OnAfterUpdateForm();
-    end;
-
-#if not CLEAN21
-    [Obsolete('Replaced by UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewUseAmtsInAddCurr: Boolean; NewVATDateType: Enum "VAT Date Type")', '21.0')]
-    procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewUseAmtsInAddCurr: Boolean)
     begin
         VATStmtName.CopyFilter("Date Filter", "Date Filter");
         Selection := NewSelection;
@@ -252,6 +208,19 @@ page 475 "VAT Statement Preview Line"
         OnAfterUpdateForm();
     end;
 #endif
+
+    procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewUseAmtsInAddCurr: Boolean)
+    begin
+        VATStmtName.CopyFilter("Date Filter", "Date Filter");
+        Selection := NewSelection;
+        PeriodSelection := NewPeriodSelection;
+        UseAmtsInAddCurr := NewUseAmtsInAddCurr;
+        VATStatement.InitializeRequest(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr);
+        OnUpdateFormOnBeforePageUpdate(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr);
+        CurrPage.Update();
+
+        OnAfterUpdateForm();
+    end;
 
     local procedure ApplyDateFilter(var ManualVATCorrection: Record "Manual VAT Correction")
     begin
@@ -327,18 +296,18 @@ page 475 "VAT Statement Preview Line"
     begin
     end;
 
-#if not CLEAN21
     [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by OnUpdateFormOnBeforePageUpdate2(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; VATDateType: Enum "VAT Date Type")', '21.0')]
     local procedure OnUpdateFormOnBeforePageUpdate(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
     begin
     end;
-#endif
 
+#if not CLEAN22
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by OnUpdateFormOnBeforePageUpdate', '22.0')]
     local procedure OnUpdateFormOnBeforePageUpdate2(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewVATDateType: Enum "VAT Date Type")
     begin
     end;
+#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateForm()

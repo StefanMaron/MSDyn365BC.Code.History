@@ -540,8 +540,13 @@ codeunit 99000774 "Calculate Routing Line"
             ProdOrderCapNeed2.SetRange("Routing No.", "Routing No.");
             ProdOrderCapNeed2.SetRange("Routing Reference No.", "Routing Reference No.");
             ProdOrderCapNeed2.SetRange("Operation No.", "Operation No.");
-            if ProdOrderCapNeed2.FindFirst() then
+            if ProdOrderCapNeed2.FindFirst() then begin
+                if TotalLotSize <> MaxLotSize then begin
+                    SendAheadLotSize := MaxLotSize - (TotalLotSize - SendAheadLotSize);
+                    TotalLotSize := MaxLotSize;
+                end;
                 exit(false);
+            end;
 
             // calculate Starting Date/Time for the last lot of the next line by going back from Ending Date/Time of the line
             Workcenter2.Get(ProdOrderRoutingLineNext."Work Center No.");
@@ -839,8 +844,13 @@ codeunit 99000774 "Calculate Routing Line"
             ProdOrderCapNeed2.SetRange("Routing No.", "Routing No.");
             ProdOrderCapNeed2.SetRange("Routing Reference No.", "Routing Reference No.");
             ProdOrderCapNeed2.SetRange("Operation No.", "Operation No.");
-            if ProdOrderCapNeed2.FindFirst() then
+            if ProdOrderCapNeed2.FindFirst() then begin
+                if TotalLotSize <> MaxLotSize then begin
+                    SendAheadLotSize := MaxLotSize - (TotalLotSize - SendAheadLotSize);
+                    TotalLotSize := MaxLotSize;
+                end;
                 exit(false);
+            end;
 
             // calculate Starting Date/Time of current line using Setup/Run/Wait/Move Time for the first send-ahead lot from previous line
             Workcenter2.Get(ProdOrderRoutingLinePrev."Work Center No.");

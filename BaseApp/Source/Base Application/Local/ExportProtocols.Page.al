@@ -60,7 +60,7 @@ page 2000005 "Export Protocols"
                 field("Grouped Payment"; Rec."Grouped Payment")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if this export protocol used for grouped payments.';
+                    ToolTip = 'Specifies if the BtchBookg element is set to true or false in the SEPA xml file.';
                 }
             }
         }

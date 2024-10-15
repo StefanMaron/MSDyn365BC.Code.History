@@ -98,6 +98,10 @@
         key(Key3; "Source Code", "Journal Batch Name", "Creation Date")
         {
         }
+        key(key4; "From Entry No.", "To Entry No.")
+        {
+            IncludedFields = "Creation Date";
+        }
     }
 
     fieldgroups

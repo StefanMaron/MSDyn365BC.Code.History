@@ -62,7 +62,8 @@ page 283 "Recurring General Journal"
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
-                    Editable = true;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
                 }
                 field("Document Date"; Rec."Document Date")
@@ -834,6 +835,7 @@ page 283 "Recurring General Journal"
     trigger OnOpenPage()
     var
         ServerSetting: Codeunit "Server Setting";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         OnBeforeOnOpenPage();
 
@@ -853,6 +855,7 @@ page 283 "Recurring General Journal"
         SelectJournalWithError();
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
         OnAfterOnOpenPage(CurrentJnlBatchName);
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var
@@ -879,6 +882,8 @@ page 283 "Recurring General Journal"
         JobQueueVisible: Boolean;
         DimensionBalanceLine: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     protected var
         CurrentJnlBatchName: Code[10];

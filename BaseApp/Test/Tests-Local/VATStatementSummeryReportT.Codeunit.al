@@ -133,6 +133,7 @@ codeunit 144049 "VAT Statement Summery Report T"
             Init();
             "Entry No." := 990000;
             "Posting Date" := WorkDate();
+            "VAT Reporting Date" := WorkDate();
             Amount := VATEntryOneAmount;
             Closed := false;
             "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
@@ -147,6 +148,7 @@ codeunit 144049 "VAT Statement Summery Report T"
             Init();
             "Entry No." := 990001;
             "Posting Date" := WorkDate();
+            "VAT Reporting Date" := WorkDate();
             Type := Type::Sale;
             Amount := VATEntryTwoAmount;
             Closed := true;

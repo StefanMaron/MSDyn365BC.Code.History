@@ -130,9 +130,10 @@ codeunit 5069 "Word Template Interactions"
                     InteractionMergeData.SetRange(ID, InteractionMergeData.ID); // A filter to current Record is needed
                     WordTemplates.Load(InteractLogEntry."Word Template Code");
 
-                    if TempDeliverySorter."Send Word Docs. as Attmt." then
+                    if TempDeliverySorter."Send Word Docs. as Attmt." then begin
+                        OnExecuteMergeOnBeforeMergeWordTemplates(TempDeliverySorter, InteractLogEntry, SaveFormat);
                         WordTemplates.Merge(InteractionMergeData, false, Enum::"Word Templates Save Format"::Docx) // Only one document
-                    else
+                    end else
                         WordTemplates.Merge(InteractionMergeData, false, Enum::"Word Templates Save Format"::Html); // Only one document
                     WordTemplates.GetDocument(DocumentInStream);
                     SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractLogEntry);

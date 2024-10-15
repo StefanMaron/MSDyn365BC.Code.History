@@ -981,7 +981,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     end;
 
     [Test]
-    [HandlerFunctions('AccountScheduleOverviewPageHandler,SuggestWorksheetLinesReqPageHandler')]
+    [HandlerFunctions('AccountScheduleOverviewPageHandler,SuggestWorksheetLinesReqPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure CashFlowWithAccountSchedule()
     var

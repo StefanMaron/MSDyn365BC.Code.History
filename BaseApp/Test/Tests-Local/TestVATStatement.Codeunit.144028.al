@@ -702,8 +702,8 @@ codeunit 144028 "Test VAT Statement"
         VATEntriesPage.Trap;
         VATStatementPreviewPage.VATStatementLineSubForm.ColumnValue.DrillDown;
 
-        TextValue := VATEntriesPage.FILTER.GetFilter("Posting Date");
-        Assert.AreEqual(ExpectedValue, TextValue, 'Posting Date filter is not as expecetd');
+        TextValue := VATEntriesPage.FILTER.GetFilter("VAT Reporting Date");
+        Assert.AreEqual(ExpectedValue, TextValue, 'VAT Reporting Date filter is not as expecetd');
 
         VATEntriesPage.Close();
     end;
@@ -1075,6 +1075,7 @@ codeunit 144028 "Test VAT Statement"
             Init();
             "Entry No." := -1;
             "Posting Date" := WorkDate();
+            "VAT Reporting Date" := WorkDate();
             Type := Type::Sale;
             "VAT Bus. Posting Group" := LibraryUtility.GenerateGUID();
             "VAT Prod. Posting Group" := "VAT Bus. Posting Group";
