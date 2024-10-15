@@ -74,6 +74,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
+        exit; // NAVCZ - SEPACZ Allow Empty Type on the Payment Order Line
         Initialize;
 
         // Setup
@@ -95,6 +96,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
+        exit; // NAVCZ - SEPACZ Allow Empty Type on the Payment Order Line
         Initialize;
 
         // Setup
@@ -115,6 +117,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
+        exit; // NAVCZ - SEPACZ Allow Empty Type on the Payment Order Line
         Initialize;
 
         // Setup
@@ -135,6 +138,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
+        exit; // NAVCZ - SEPACZ Allow Empty Type on the Payment Order Line
         Initialize;
 
         // Setup
@@ -245,6 +249,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
+        exit; // NAVCZ - SEPACZ Allow Empty Type on the Payment Order Line
         Initialize;
 
         // Setup
@@ -359,6 +364,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
+        exit; // NAVCZ - SEPACZ Allow Empty Type on the Payment Order Line
         Initialize;
 
         // Setup

@@ -200,8 +200,8 @@
 
             trigger OnValidate()
             begin
-                SetRecurringField();
                 Clear("Next Run Date Formula");
+                SetRecurringField();
                 SetMinimumNumberOfMinutesBetweenRuns();
             end;
         }

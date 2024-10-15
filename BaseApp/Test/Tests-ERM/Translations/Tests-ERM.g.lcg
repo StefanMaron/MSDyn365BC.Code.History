@@ -518,6 +518,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule - NamedType Dim1FilterErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2859947066 - NamedType 577434072" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Period: ]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Account Schedule - NamedType PeriodTextCaptionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2859947066 - NamedType 2868768795" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Changing Analysis View will clear differing dimension totaling columns of Account Schedule Lines. \Do you want to continue?]]></Val>

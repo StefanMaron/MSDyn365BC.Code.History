@@ -1102,7 +1102,7 @@ codeunit 134331 "ERM Purchase Payables"
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
         // Exercise: Run Suggest Vendor Payment Report for Vendor.
-        SuggestVendorPayment(GenJournalLine, PurchaseHeader."Posting Date", PurchaseHeader."Buy-from Vendor No.");
+        SuggestVendorPayment(GenJournalLine, PurchaseHeader."Posting Date", PurchaseHeader."Buy-from Vendor No.", true);
 
         // Verify: Verify General Journal Line for Suggested Vendor.
         Assert.IsTrue(FindGenJournalLine(GenJournalLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No."), FilterMsg);
@@ -1122,7 +1122,7 @@ codeunit 134331 "ERM Purchase Payables"
         CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
 
         // [WHEN] Run Suggest Vendor Payment Report.
-        SuggestVendorPayment(GenJournalLine, PurchaseHeader."Posting Date", PurchaseHeader."Buy-from Vendor No.");
+        SuggestVendorPayment(GenJournalLine, PurchaseHeader."Posting Date", PurchaseHeader."Buy-from Vendor No.", true);
 
         // [THEN] General Journal Line does not exist for Suggested Vendor.
         Assert.IsFalse(FindGenJournalLine(GenJournalLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No."), NoFilterMsg);
@@ -2423,6 +2423,54 @@ codeunit 134331 "ERM Purchase Payables"
         Assert.AreEqual('Strong', GetStatusStyleText("Purchase Document Status"::Released), 'Unexpected style text');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentsAppliesToExtDocNoSummarizePerVendorTrue()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 393756] "Applies-to Ext. Doc. No." should be blank when Suggest Vendor Payments with "Summarize per Vendor" = true
+        Initialize;
+
+        // [GIVEN] Two purchase invoices
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+
+        // [WHEN] Run Suggest Vendor Payment report with "Summarize per Vendor" = true
+        SuggestVendorPayment(GenJournalLine, PurchaseHeader."Posting Date", PurchaseHeader."Buy-from Vendor No.", true);
+
+        // [THEN] "Applies-to Ext. Doc. No." in gen. jnl. line is blank
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+        GenJournalLine.SetRange("Account No.", PurchaseHeader."Buy-from Vendor No.");
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Applies-to Ext. Doc. No.", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentsAppliesToExtDocNoSummarizePerVendorFalse()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 393756] "Applies-to Ext. Doc. No." should not be blank when Suggest Vendor Payments with "Summarize per Vendor" = false
+        Initialize;
+
+        // [GIVEN] Two purchase invoices
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+        CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+
+        // [WHEN] Run Suggest Vendor Payment report with "Summarize per Vendor" = false
+        SuggestVendorPayment(GenJournalLine, PurchaseHeader."Posting Date", PurchaseHeader."Buy-from Vendor No.", false);
+
+        // [THEN] "Applies-to Ext. Doc. No." in gen. jnl. line is not blank
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+        GenJournalLine.SetRange("Account No.", PurchaseHeader."Buy-from Vendor No.");
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Applies-to Ext. Doc. No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3093,7 +3141,7 @@ codeunit 134331 "ERM Purchase Payables"
         PurchasePrices.StartingDateFilter.AssertEquals(StartingDate);
     end;
 
-    local procedure SuggestVendorPayment(var GenJournalLine: Record "Gen. Journal Line"; LastPmtDate: Date; VendorNo: Code[20])
+    local procedure SuggestVendorPayment(var GenJournalLine: Record "Gen. Journal Line"; LastPmtDate: Date; VendorNo: Code[20]; SummarizePerVendor: Boolean)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -3113,7 +3161,7 @@ codeunit 134331 "ERM Purchase Payables"
         Vendor.SetRange("No.", VendorNo);
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.InitializeRequest(
-            LastPmtDate, false, 0, false, LastPmtDate, VendorNo, true,
+            LastPmtDate, false, 0, false, LastPmtDate, VendorNo, SummarizePerVendor,
             "Gen. Journal Account Type"::"G/L Account", '', "Bank Payment Type"::" ");  // Blank value for Account No.
         SuggestVendorPayments.UseRequestPage(false);
         SuggestVendorPayments.Run;

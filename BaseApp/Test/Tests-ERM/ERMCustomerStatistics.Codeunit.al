@@ -356,6 +356,29 @@ codeunit 134389 "ERM Customer Statistics"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CustomerServiceHistSelltoFactBox()
+    var
+        Customer: Record Customer;
+        ServiceHistSelltoFactBox: TestPage "Service Hist. Sell-to FactBox";
+    begin
+        // [SCENARIO 121705] Service Hist. Sell-to FactBox is opened for Sell-to Customer No.
+        Initialize;
+
+        // [GIVEN] Setup new Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        ServiceHistSelltoFactBox.Trap;
+
+        // [WHEN] Open Service Hist. Sell-to FactBox
+        Customer.SetRecFilter();
+        PAGE.Run(PAGE::"Service Hist. Sell-to FactBox", Customer);
+
+        // [THEN] FactBox is opened for Sell-to Customer No.
+        ServiceHistSelltoFactBox."No.".AssertEquals(Customer."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure DrillDownOnBalanceFromList()
     var
         Customer: Record Customer;

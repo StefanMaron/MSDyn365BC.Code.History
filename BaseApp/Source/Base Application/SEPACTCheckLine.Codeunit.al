@@ -42,19 +42,19 @@ codeunit 1223 "SEPA CT-Check Line"
 
             if "Bal. Account No." = '' then
                 AddFieldEmptyError(GenJnlLine, TableCaption, FieldCaption("Bal. Account No."), '');
+            if "Account No." <> '' then begin   //NAVCZ
+                if "Recipient Bank Account" = '' then
+                    AddFieldEmptyError(GenJnlLine, TableCaption, FieldCaption("Recipient Bank Account"), '');
 
-            if "Recipient Bank Account" = '' then
-                AddFieldEmptyError(GenJnlLine, TableCaption, FieldCaption("Recipient Bank Account"), '');
+                if not ("Account Type" in ["Account Type"::Vendor, "Account Type"::Customer, "Account Type"::Employee]) then
+                    InsertPaymentFileError(MustBeVendorEmployeeOrCustomerErr);
 
-            if not ("Account Type" in ["Account Type"::Vendor, "Account Type"::Customer, "Account Type"::Employee]) then
-                InsertPaymentFileError(MustBeVendorEmployeeOrCustomerErr);
-
-            if (("Account Type" = "Account Type"::Vendor) and ("Document Type" <> "Document Type"::Payment)) or
-               (("Account Type" = "Account Type"::Customer) and ("Document Type" <> "Document Type"::Refund)) or
-               (("Account Type" = "Account Type"::Employee) and ("Document Type" <> "Document Type"::Payment))
-            then
-                InsertPaymentFileError(StrSubstNo(MustBeVendEmplPmtOrCustRefundErr));
-
+                if (("Account Type" = "Account Type"::Vendor) and ("Document Type" <> "Document Type"::Payment)) or
+                   (("Account Type" = "Account Type"::Customer) and ("Document Type" <> "Document Type"::Refund)) or
+                   (("Account Type" = "Account Type"::Employee) and ("Document Type" <> "Document Type"::Payment))
+                then
+                    InsertPaymentFileError(StrSubstNo(MustBeVendEmplPmtOrCustRefundErr));
+            end;    //NAVCZ
             if Amount <= 0 then
                 InsertPaymentFileError(MustBePositiveErr);
 
@@ -73,7 +73,13 @@ codeunit 1223 "SEPA CT-Check Line"
     local procedure CheckBank(var GenJnlLine: Record "Gen. Journal Line")
     var
         BankAccount: Record "Bank Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBank(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do
             if BankAccount.Get("Bal. Account No.") then begin
                 if BankAccount.IBAN = '' then
@@ -88,8 +94,19 @@ codeunit 1223 "SEPA CT-Check Line"
         Vendor: Record Vendor;
         VendorBankAccount: Record "Vendor Bank Account";
         Employee: Record Employee;
+        IsHandled: Boolean;
     begin
-        with GenJnlLine do begin
+        IsHandled := false;
+        OnBeforeCheckCustVendEmpl(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+        //NAVCZ
+        if GenJnlLine."Account No." = '' then
+            exit;
+        //NAVCZ
+
+        with GenJnlLine do
+        begin
             if "Account No." = '' then begin
                 InsertPaymentFileError(MustBeVendorEmployeeOrCustomerErr);
                 exit;
@@ -147,6 +164,16 @@ codeunit 1223 "SEPA CT-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBank(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCustVendEmpl(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -65,6 +65,7 @@ codeunit 134902 "ERM Account Schedule"
         IncorrectExpectedMessageErr: Label 'Incorrect Expected Message';
         IncorrectCalcCellValueErr: Label 'Incorrect CalcCell Value';
         Dim1FilterErr: Label 'Incorrect Dimension 1 Filter was created.';
+        PeriodTextCaptionLbl: Label 'Period: ';
         ClearDimTotalingConfirmTxt: Label 'Changing Analysis View will clear differing dimension totaling columns of Account Schedule Lines. \Do you want to continue?';
 
     [Test]
@@ -4464,6 +4465,31 @@ codeunit 134902 "ERM Account Schedule"
     end;
 
     [Test]
+    [HandlerFunctions('AccountScheduleSetStartEndDatesRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportSetsFirstDayOfMonthWithinRequestWithEmptyStartDateField()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        EndDate: Date;
+    begin
+        // [SCENARIO 315882] Account Schedule report uses first date of month as start date when start date field is empty within request.
+        Initialize;
+
+        // [WHEN] Run Account Schedule report with february end date and where start date has blank value (AccountScheduleSetStartEndDatesRequestHandler).
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        Commit();
+        EndDate := DMY2Date(28, 2, 2019);
+        LibraryVariableStorage.Enqueue(0D);
+        LibraryVariableStorage.Enqueue(EndDate);
+        AccScheduleName.SetRecFilter;
+        REPORT.Run(REPORT::"Account Schedule", true, false, AccScheduleName);
+
+        // [THEN] PeriodText field consists of first day of the month of work date and work date itself.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('PeriodText', PeriodTextCaptionLbl + Format('..' + Format(EndDate)));
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure UTConvertOptionAccScheduleLineTotalingTypeToEnum()
     var
@@ -4888,6 +4914,31 @@ codeunit 134902 "ERM Account Schedule"
         AccScheduleLine.TestField("Dimension 4 Totaling", DimensionValueCode);
         AccScheduleName.TestField("Analysis View Name", AnalysisView[1].Code);
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetStartEndDatesRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportAcceptsClosingDates()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        StartDate: Date;
+        EndDate: Date;
+    begin
+        // [SCENARIO 396826] Account Schedule accepts closing dates entered by users
+        Initialize();
+
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        Commit();
+        StartDate := ClosingDate(DMY2Date(1, 2, 2019));
+        EndDate := ClosingDate(DMY2Date(28, 2, 2019));
+        LibraryVariableStorage.Enqueue(StartDate);
+        LibraryVariableStorage.Enqueue(EndDate);
+        AccScheduleName.SetRecFilter();
+        REPORT.Run(REPORT::"Account Schedule", true, false, AccScheduleName);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('PeriodText', PeriodTextCaptionLbl + Format(StartDate) + '..' + Format(EndDate));
     end;
 
     local procedure Initialize()

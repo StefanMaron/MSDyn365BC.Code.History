@@ -82,7 +82,7 @@
         }
         field(14; "Due Date"; Date)
         {
-            Caption = 'Due Date';
+            Caption = 'Approval Due Date';
         }
         field(15; Amount; Decimal)
         {

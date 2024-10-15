@@ -3908,6 +3908,9 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
           StatementEndingBalance + OutstdTransactions + OutstdPayments);
         LibraryReportDataset.AssertElementWithValueExists('Difference',
           (GLBalance - (StatementEndingBalance + OutstdTransactions + OutstdPayments)));
+        // Warning HeaderError1 does not exist for Payment Reconciliation (TFS 398635)
+        LibraryReportDataset.AssertElementWithValueNotExist(
+            'HeaderError1', 'Statement Ending Balance is not equal to Total Balance.');
 
         // Verify Totals
         Assert.AreEqual(GLBalance,

@@ -12,7 +12,6 @@ report 11720 "Turnover Rpt. by Gl. Dim. CZL"
         dataitem("G/L Account"; "G/L Account")
         {
             DataItemTableView = sorting("No.") WHERE("Account Type" = FILTER(Posting));
-            PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Date Filter", "Global Dimension 1 Filter", "Global Dimension 2 Filter";
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {

@@ -32,6 +32,14 @@ codeunit 139160 "CRM Setup Test"
         NotMatchCurrencyCodeErr: Label 'does not match ISO Currency Code';
         CRMIntegrationEnabledStateErr: Label 'CRMIntegrationEnabledState is wrong';
         ConnectionDisabledMsg: Label 'Connection to Dynamics 365 is broken and that it has been disabled due to an error: %1';
+        PasswordConnectionStringFormatTxt: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5;', Locked = true;
+        PasswordAuthTxt: Label 'AuthType=AD', Locked = true;
+        ClientSecretConnectionStringFormatTxt: Label '%1; Url=%2; ClientId=%3; ClientSecret=%4; ProxyVersion=%5', Locked = true;
+        ClientSecretAuthTxt: Label 'AuthType=ClientSecret', Locked = true;
+        UserTok: Label '{USER}', Locked = true;
+        PasswordTok: Label '{PASSWORD}', Locked = true;
+        ClientIdTok: Label '{CLIENTID}', Locked = true;
+        ClientSecretTok: Label '{CLIENTSECRET}', Locked = true;
         IsInitialized: Boolean;
 
     [Test]
@@ -1682,16 +1690,7 @@ codeunit 139160 "CRM Setup Test"
         // [GIVEN] Connection is not enabled
         // [WHEN] Connection Setup opened and connection not enabled
         CRMConnectionSetup.OpenEdit;
-        // [THEN] SDK Version field is enabled
-        Assert.IsFalse(CRMConnectionSetup.SDKVersion.Enabled, 'Expected "SDK Version" field not to be enabled');
-        CRMConnectionSetup.Close;
-
-        // [GIVEN] Connection is enabled
-        LibraryCRMIntegration.ConfigureCRM;
-        LibraryCRMIntegration.CreateCRMOrganization;
-        // [WHEN] Connection Setup opened
-        CRMConnectionSetup.OpenEdit;
-        // [THEN] SDK Version field is not enabled
+        // [THEN] SDK Version field is disabled
         Assert.IsFalse(CRMConnectionSetup.SDKVersion.Enabled, 'Expected "SDK Version" field not to be enabled');
         CRMConnectionSetup.Close;
     end;
@@ -1725,6 +1724,96 @@ codeunit 139160 "CRM Setup Test"
         // [THEN] Proxy Version in CRM Connection Setup record is "9"
         CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Proxy Version", 9);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYes')]
+    [Scope('OnPrem')]
+    procedure UpdatSDKVersionInConnectionStringWithPassword()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMConnectionSetupPage: TestPage "CRM Connection Setup";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        OldConnectionString: Text;
+        NewConnectionString: Text;
+        OldVersion: Integer;
+        NewVersion: Integer;
+    begin
+        // [FEATURE] [Multiple SDK]
+        // [SCENARIO] Changing SDK version updates the connection string with the new version
+
+        // [WHEN] SDK Version in CRM Connection Setup record is "8"
+        OldVersion := 8;
+        CDSConnectionSetup.DeleteAll();
+        CDSConnectionSetup.Init();
+        CDSConnectionSetup."Is Enabled" := true;
+        CDSConnectionSetup."Server Address" := '@@test@@';
+        CDSConnectionSetup."Proxy Version" := OldVersion;
+        CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::AD;
+        CDSConnectionSetup.Insert();
+        OldConnectionString := StrSubstNo(PasswordConnectionStringFormatTxt, CDSConnectionSetup."Server Address", UserTok, PasswordTok, OldVersion, PasswordAuthTxt);
+        CDSIntegrationImpl.SetConnectionString(CDSConnectionSetup, OldConnectionString);
+        CRMConnectionSetup.DeleteAll();
+        CRMConnectionSetup.LoadConnectionStringElementsFromCDSConnectionSetup();
+        CRMConnectionSetup.Get();
+        Assert.AreEqual(OldConnectionString, CRMConnectionSetup.GetConnectionString(), 'Unexpected old connection string');
+
+        // [WHEN] SDK Version is set to "9.1"
+        NewVersion := 91;
+        CRMConnectionSetupPage.OpenEdit();
+        CRMConnectionSetupPage.SDKVersion.SetValue(NewVersion);
+        CRMConnectionSetupPage.Close();
+
+        // [THEN] Proxy Version in CRM Connection Setup record is "9.1", other parts are unchanged
+        CRMConnectionSetup.Get();
+        NewConnectionString := StrSubstNo(PasswordConnectionStringFormatTxt, CRMConnectionSetup."Server Address", UserTok, PasswordTok, NewVersion, PasswordAuthTxt);
+        Assert.AreEqual(NewConnectionString, CRMConnectionSetup.GetConnectionString(), 'Unexpected new connection string');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYes')]
+    [Scope('OnPrem')]
+    procedure UpdatSDKVersionInConnectionStringWithClientSecret()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMConnectionSetupPage: TestPage "CRM Connection Setup";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        OldConnectionString: Text;
+        NewConnectionString: Text;
+        OldVersion: Integer;
+        NewVersion: Integer;
+    begin
+        // [FEATURE] [Multiple SDK]
+        // [SCENARIO] Changing SDK version updates the connection string with the new version
+
+        // [WHEN] SDK Version in CRM Connection Setup record is "8"
+        OldVersion := 8;
+        CDSConnectionSetup.DeleteAll();
+        CDSConnectionSetup.Init();
+        CDSConnectionSetup."Is Enabled" := true;
+        CDSConnectionSetup."Server Address" := '@@test@@';
+        CDSConnectionSetup."Proxy Version" := OldVersion;
+        CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
+        CDSConnectionSetup.Insert();
+        OldConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, OldVersion);
+        CDSIntegrationImpl.SetConnectionString(CDSConnectionSetup, OldConnectionString);
+        CRMConnectionSetup.DeleteAll();
+        CRMConnectionSetup.LoadConnectionStringElementsFromCDSConnectionSetup();
+        CRMConnectionSetup.Get();
+        Assert.AreEqual(OldConnectionString, CRMConnectionSetup.GetConnectionString(), 'Unexpected old connection string');
+
+        // [WHEN] SDK Version is set to "9.1"
+        NewVersion := 91;
+        CRMConnectionSetupPage.OpenEdit();
+        CRMConnectionSetupPage.SDKVersion.SetValue(NewVersion);
+        CRMConnectionSetupPage.Close();
+
+        // [THEN] Proxy Version in CRM Connection Setup record is "9.1", other parts are unchanged
+        CRMConnectionSetup.Get();
+        NewConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CRMConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, NewVersion);
+        Assert.AreEqual(NewConnectionString, CRMConnectionSetup.GetConnectionString(), 'Unexpected new connection string');
     end;
 
     [Scope('OnPrem')]

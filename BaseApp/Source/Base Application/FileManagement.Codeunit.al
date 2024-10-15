@@ -44,6 +44,8 @@ codeunit 419 "File Management"
         LocalFileSystemNotAccessibleErr: Label 'Sorry, this action is not available for the online version of the app.';
         ChooseFileTitleMsg: Label 'Choose the file to upload.';
         NotAllowedPathErr: Label 'Files outside of the current user''s folder cannot be accessed. Access is denied to file %1.', Comment = '%1=the full path to a file. ex: C:\Windows\TextFile.txt ';
+        AppendFileNameWithIndexTxt: Label '%1 (%2)', Locked = true, Comment = '%1 - original file name, %2 - append index';
+        AppendFileNameWithExtWithIndexTxt: Label '%1 (%2).%3', Locked = true, Comment = '%1 - original file name, %2 - append index, %3 - extension';
 
     procedure BLOBImport(var TempBlob: Codeunit "Temp Blob"; Name: Text): Text
     begin
@@ -1194,6 +1196,20 @@ codeunit 419 "File Management"
                 end;
             end;
         exit(true)
+    end;
+
+    procedure AppendFileNameWithIndex(OriginalFileName: Text; AppendIndex: Integer): Text
+    var
+        Extension: Text;
+        FileNameWithoutExtension: Text;
+    begin
+        // convert "file.txt" to "file (1).txt"
+        Extension := GetExtension(OriginalFileName);
+        if Extension = '' then
+            exit(StrSubstNo(AppendFileNameWithIndexTxt, OriginalFileName, Format(AppendIndex)));
+
+        FileNameWithoutExtension := CopyStr(OriginalFileName, 1, StrLen(OriginalFileName) - StrLen(Extension) - 1);
+        exit(StrSubstNo(AppendFileNameWithExtWithIndexTxt, FileNameWithoutExtension, Format(AppendIndex), Extension));
     end;
 
     [IntegrationEvent(false, false)]

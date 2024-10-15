@@ -14,6 +14,7 @@ pageextension 11729 "Sales Credit Memo CZL" extends "Sales Credit Memo"
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the VAT date of the original document.';
+                Visible = false;
             }
         }
         addafter("Incoming Document Entry No.")
