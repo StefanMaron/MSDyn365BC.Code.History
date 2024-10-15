@@ -252,6 +252,7 @@
                 TempGenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
             end;
             TempGenJnlLine."Posting Date" := "Posting Date";
+            TempGenJnlLine."VAT Reporting Date" := "VAT Reporting Date";
             TempGenJnlLine."Document Date" := "Document Date";
             TempGenJnlLine."Account Type" := AccType;
             TempGenJnlLine."Account No." := AccNo;

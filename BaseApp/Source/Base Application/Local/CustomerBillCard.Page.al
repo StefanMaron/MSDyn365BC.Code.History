@@ -317,6 +317,12 @@ page 12175 "Customer Bill Card"
             TotalPayments := 0;
             Balance := 0;
         end;
+        OnAfterCalcBalance(Rec, Balance, TotalPayments);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcBalance(var CustomerBillHeader: Record "Customer Bill Header"; var Balance: Decimal; var TotalPayments: Decimal)
+    begin
     end;
 }
 

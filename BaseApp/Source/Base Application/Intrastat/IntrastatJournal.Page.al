@@ -244,6 +244,11 @@ page 311 "Intrastat Journal"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the progressive number.';
                 }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the external document number.';
+                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Basic, Suite;

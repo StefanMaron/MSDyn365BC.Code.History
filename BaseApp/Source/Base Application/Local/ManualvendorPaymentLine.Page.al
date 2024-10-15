@@ -182,6 +182,7 @@ page 12188 "Manual vendor Payment Line"
                         "Dimension Set ID" :=
                           DimMgt.GetDefaultDimID(
                             TableID, No, '', Dimension, Dimension, 0, 0);
+                        OnInsertLineActionOnBeforeVendorBillLineInsert(VendorBillLine, VendorBillNo, PostingDate, VendorNo, TotalAmount, DocumentType, DocumentNo, DocumentDate);
                         Insert(true)
                     end;
                     ClearAll();
@@ -229,6 +230,11 @@ page 12188 "Manual vendor Payment Line"
     begin
         VendorBillNo := VendBillNo;
         PostingDate := Date;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertLineActionOnBeforeVendorBillLineInsert(var VendorBillLine: Record "Vendor Bill Line"; VendorBillNo: Code[20]; PostingDate: Date; VendorNo: Code[20]; TotalAmount: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentDate: Date)
+    begin
     end;
 }
 

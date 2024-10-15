@@ -63,6 +63,8 @@
                     {
                         ApplicationArea = VAT;
                         Caption = 'VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
                         ToolTip = 'Specifies the date that the program will use as the VAT date when you post if you place a checkmark in Replace VAT Date.';
                     }
                     field(ReplacePostingDate; ReplacePostingDate)
@@ -90,6 +92,8 @@
                     {
                         ApplicationArea = VAT;
                         Caption = 'Replace VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
                         ToolTip = 'Specifies if you want to replace the sales orders'' VAT date with the date in the VAT Date field.';
                     }
                     field(CalcInvDisc; CalcInvDisc)
@@ -136,6 +140,7 @@
         var
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
             ClientTypeManagement: Codeunit "Client Type Management";
+            VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
             IsHandled: Boolean;
         begin
             IsHandled := false;
@@ -148,6 +153,7 @@
                     ReplaceDocumentDate := false;
                     PrintDoc := false;
                     PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
+                    VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
                 end;
             OnAfterOnOpenPage(ShipReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc);
         end;
@@ -163,6 +169,7 @@
         [InDataSet]
         PrintDocVisible: Boolean;
         Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
+        VATDateEnabled: Boolean;
 
     protected var
         ShipReq: Boolean;

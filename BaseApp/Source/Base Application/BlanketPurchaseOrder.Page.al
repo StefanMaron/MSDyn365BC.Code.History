@@ -94,6 +94,32 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies the city of the vendor who ships the items.';
                     }
+                    group(Control122)
+                    {
+                        ShowCaption = false;
+                        Visible = IsBuyFromCountyVisible;
+                        field("Buy-from County"; Rec."Buy-from County")
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'County';
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the state, province or county of the address.';
+                        }
+                    }
+                    field("Buy-from Country/Region Code"; Rec."Buy-from Country/Region Code")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Country/Region';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the country or region of the address.';
+
+                        trigger OnValidate()
+                        begin
+                            IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
+                        end;
+                    }
                     field("Buy-from Contact No."; Rec."Buy-from Contact No.")
                     {
                         ApplicationArea = Suite;
@@ -398,6 +424,32 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies the city the items in the purchase order will be shipped to.';
                     }
+                    group(Control124)
+                    {
+                        ShowCaption = false;
+                        Visible = IsShipToCountyVisible;
+                        field("Ship-to County"; Rec."Ship-to County")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'County';
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the state, province or county of the address.';
+                        }
+                    }
+                    field("Ship-to Country/Region Code"; Rec."Ship-to Country/Region Code")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Country/Region';
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the country/region code of the address that you want the items on the purchase document to be shipped to.';
+
+                        trigger OnValidate()
+                        begin
+                            IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+                        end;
+                    }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Suite;
@@ -464,6 +516,36 @@
                         Importance = Additional;
                         QuickEntry = false;
                         ToolTip = 'Specifies the city of the vendor sending the invoice.';
+                    }
+                    group(Control123)
+                    {
+                        ShowCaption = false;
+                        Visible = IsPayToCountyVisible;
+                        field("Pay-to County"; Rec."Pay-to County")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'County';
+                            Editable = "Buy-from Vendor No." <> "Pay-to Vendor No.";
+                            Enabled = "Buy-from Vendor No." <> "Pay-to Vendor No.";
+                            Importance = Additional;
+                            QuickEntry = false;
+                            ToolTip = 'Specifies the state, province or county of the address.';
+                        }
+                    }
+                    field("Pay-to Country/Region Code"; Rec."Pay-to Country/Region Code")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Country/Region';
+                        Editable = "Buy-from Vendor No." <> "Pay-to Vendor No.";
+                        Enabled = "Buy-from Vendor No." <> "Pay-to Vendor No.";
+                        Importance = Additional;
+                        QuickEntry = false;
+                        ToolTip = 'Specifies the country/region code of the vendor on the purchase document.';
+
+                        trigger OnValidate()
+                        begin
+                            IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
+                        end;
                     }
                     field("Pay-to Contact No."; Rec."Pay-to Contact No.")
                     {
@@ -1082,11 +1164,7 @@
 
         SetDocNoVisible();
 
-        GLSetup.Get();
-        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
-        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
-
-        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+        ActivateFields();
     end;
 
     var
@@ -1097,6 +1175,7 @@
         UserMgt: Codeunit "User Setup Management";
         ArchiveManagement: Codeunit ArchiveManagement;
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
+        FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         DocNoVisible: Boolean;
         OpenApprovalEntriesExist: Boolean;
@@ -1111,6 +1190,20 @@
         IsPaymentMethodCodeVisible: Boolean;
         [InDataSet]
         IsPurchaseLinesEditable: Boolean;
+        IsBuyFromCountyVisible: Boolean;
+        IsPayToCountyVisible: Boolean;
+        IsShipToCountyVisible: Boolean;
+
+    local procedure ActivateFields()
+    begin
+        IsBuyFromCountyVisible := FormatAddress.UseCounty(Rec."Buy-from Country/Region Code");
+        IsPayToCountyVisible := FormatAddress.UseCounty(Rec."Pay-to Country/Region Code");
+        IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
+    end;
 
     protected var
         IsActivityCodeMandatory: Boolean;
@@ -1170,4 +1263,3 @@
         IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
     end;
 }
-

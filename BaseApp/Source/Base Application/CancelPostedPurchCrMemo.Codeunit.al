@@ -13,6 +13,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         CreateCopyDocument(Rec, PurchHeader);
         CorrectPostedPurchInvoice.UpdateCheckTotal(PurchHeader);
 
+        OnRunOnBeforeRunPurchPost(PurchHeader, Rec);
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchHeader);
         SetTrackInfoForCancellation(Rec);
 
@@ -100,6 +101,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         CopyDocMgt.SetPropertiesForInvoiceCorrection(false);
         CopyDocMgt.CopyPurchDocForCrMemoCancelling(PurchCrMemoHdr."No.", PurchHeader);
         PurchHeader."Vendor Invoice No." := PurchHeader."No.";
+        OnAfterCreateCopyDocument(PurchCrMemoHdr, PurchHeader);
     end;
 
     procedure TestCorrectCrMemoIsAllowed(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
@@ -533,6 +535,11 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateCopyDocument(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestIfCrMemoIsCorrectiveDoc(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
     begin
     end;
@@ -554,6 +561,11 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateCopyDocumentOnBeforePurchHeaderInsert(var PurchHeader: Record "Purchase Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeRunPurchPost(var PurchaseHeader: Record "Purchase Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     begin
     end;
 }

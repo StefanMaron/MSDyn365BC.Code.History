@@ -105,8 +105,13 @@ page 12171 "Payment Date Lines"
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
+        IsHandled: Boolean;
     begin
-        OnBeforeUpdateAmount(Rec);
+        IsHandled := false;
+        OnBeforeUpdateAmount(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ClearAll();
         if Find('-') then
             repeat
@@ -185,7 +190,7 @@ page 12171 "Payment Date Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateAmount(var PaymentLines: Record "Payment Lines")
+    local procedure OnBeforeUpdateAmount(var PaymentLines: Record "Payment Lines"; var IsHandled: Boolean)
     begin
     end;
 

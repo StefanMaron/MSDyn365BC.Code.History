@@ -1090,6 +1090,7 @@
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
     begin
+        OnBeforeOnDelete(Rec);
         TestStatusOpen();
 
         TestField("Quantity Shipped", "Quantity Received");
@@ -2159,6 +2160,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenItemTrackingLines(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var TransferLine: Record "Transfer Line")
     begin
     end;
 

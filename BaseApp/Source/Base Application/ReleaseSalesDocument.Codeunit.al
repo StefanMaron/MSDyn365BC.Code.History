@@ -25,6 +25,7 @@
         UnpostedPrepaymentAmountsErr: Label 'There are unposted prepayment amounts on the document of type %1 with the number %2.', Comment = '%1 - Document Type; %2 - Document No.';
         PreviewMode: Boolean;
         SkipCheckReleaseRestrictions: Boolean;
+        SkipWhseRequestOperations: Boolean;
 
     local procedure "Code"() LinesWereModified: Boolean
     var
@@ -119,7 +120,8 @@
 
             if NotOnlyDropShipment then
                 if "Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"] then
-                    WhseSalesRelease.Release(SalesHeader);
+                    if not SkipWhseRequestOperations then
+                        WhseSalesRelease.Release(SalesHeader);
 
             OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified);
         end;
@@ -208,7 +210,8 @@
             OnReopenOnBeforeSalesHeaderModify(SalesHeader);
             Modify(true);
             if "Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"] then
-                WhseSalesRelease.Reopen(SalesHeader);
+                if not SkipWhseRequestOperations then
+                    WhseSalesRelease.Reopen(SalesHeader);
         end;
 
         OnAfterReopenSalesDoc(SalesHeader, PreviewMode);
@@ -353,6 +356,11 @@
     procedure SetSkipCheckReleaseRestrictions()
     begin
         SkipCheckReleaseRestrictions := true;
+    end;
+
+    internal procedure SetSkipWhseRequestOperations(NewSkipWhseRequestOperations: Boolean)
+    begin
+        SkipWhseRequestOperations := NewSkipWhseRequestOperations;
     end;
 
     procedure CalcAndUpdateVATOnLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line") LinesWereModified: Boolean

@@ -407,11 +407,7 @@ codeunit 99000752 "Check Routing Lines"
         RtngLine.SetRange("WIP Item", true);
         if RtngLine.Find('-') then
             repeat
-                RtngLine.TestField("Routing Link Code", '');
-                RtngLine.TestField(Type, RtngLine.Type::"Work Center");
-                RtngLine.TestField("Previous Operation No.");
-                WorkCenter.Get(RtngLine."Work Center No.");
-                WorkCenter.TestField("Subcontractor No.");
+                CheckRoutingLineWorkCenterFields(RtngLine);
             until RtngLine.Next() = 0;
         RtngLine.SetRange("WIP Item");
 
@@ -498,6 +494,23 @@ codeunit 99000752 "Check Routing Lines"
             until RtngLine.Next() = 0;
     end;
 
+    local procedure CheckRoutingLineWorkCenterFields(var RoutingLine: Record "Routing Line")
+    var
+        WorkCenter: Record "Work Center";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckRoutingLineWorkCenterFields(RoutingLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        RoutingLine.TestField("Routing Link Code", '');
+        RoutingLine.TestField(Type, RoutingLine.Type::"Work Center");
+        RoutingLine.TestField("Previous Operation No.");
+        WorkCenter.Get(RoutingLine."Work Center No.");
+        WorkCenter.TestField("Subcontractor No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPreviousOperations(var RoutingHeader: Record "Routing Header"; VersionCode: Code[20]; var IsHandled: Boolean)
     begin
@@ -505,6 +518,11 @@ codeunit 99000752 "Check Routing Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculate(RoutingHeader: Record "Routing Header"; VersionCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRoutingLineWorkCenterFields(var RoutingLine: Record "Routing Line"; var IsHandled: Boolean)
     begin
     end;
 

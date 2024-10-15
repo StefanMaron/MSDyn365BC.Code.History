@@ -286,17 +286,13 @@
     trigger OnDelete()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
-        Customer: Record Customer;
     begin
         CustLedgerEntry.SetRange("Customer No.", "Customer No.");
         CustLedgerEntry.SetRange("Recipient Bank Account", Code);
         CustLedgerEntry.SetRange(Open, true);
         if not CustLedgerEntry.IsEmpty() then
             Error(BankAccDeleteErr);
-        if Customer.Get("Customer No.") and (Customer."Preferred Bank Account Code" = Code) then begin
-            Customer."Preferred Bank Account Code" := '';
-            Customer.Modify();
-        end;
+        UpdateCustPreferredBankAccountCode();
     end;
 
     trigger OnRename()
@@ -368,6 +364,22 @@
             exit("Bank Account No.");
     end;
 
+    local procedure UpdateCustPreferredBankAccountCode()
+    var
+        CustomerLocal: Record Customer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateCustPreferredBankAccountCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CustomerLocal.Get("Customer No.") and (CustomerLocal."Preferred Bank Account Code" = Code) then begin
+            CustomerLocal."Preferred Bank Account Code" := '';
+            CustomerLocal.Modify();
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetBBAN(var CustomerBankAccount: Record "Customer Bank Account")
     begin
@@ -390,6 +402,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateCity(var CustomerBankAccount: Record "Customer Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCustPreferredBankAccountCode(var CustomerBankAccount: Record "Customer Bank Account"; var IsHandled: Boolean)
     begin
     end;
 

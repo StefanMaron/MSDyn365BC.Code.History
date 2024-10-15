@@ -461,6 +461,7 @@
         SendToDisk("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocNo, DocName, ToCust);
 
         OnAfterSend(ReportUsage, RecordVariant, DocNo, ToCust, DocName, CustomerFieldNo, DocumentNoFieldNo);
+        Commit();
     end;
 
     procedure SendVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToVendor: Code[20]; DocName: Text[150]; VendorNoFieldNo: Integer; DocumentNoFieldNo: Integer)
@@ -481,7 +482,9 @@
         TrySendToEMailGroupedMultipleSelection("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocumentNoFieldNo, DocName, VendorNoFieldNo, false);
         SendToDiskVendor("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocNo, DocName, ToVendor);
 
-        OnAfterSendVendor(ReportUsage, RecordVariant, DocNo, ToVendor, DocName, VendorNoFieldNo, DocumentNoFieldNo);
+        OnAfterSendVendor(
+            ReportUsage, RecordVariant, DocNo, ToVendor, DocName, VendorNoFieldNo, DocumentNoFieldNo);
+        Commit();
     end;
 
     [Scope('OnPrem')]

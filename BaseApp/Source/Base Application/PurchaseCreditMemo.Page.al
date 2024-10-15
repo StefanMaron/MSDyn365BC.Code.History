@@ -1831,6 +1831,7 @@ page 52 "Purchase Credit Memo"
         GLSetup.Get();
         IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
         IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
     end;
 
     local procedure SetIsActivityCodeMandatory()

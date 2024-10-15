@@ -833,6 +833,15 @@
             Caption = 'Bank Acc. Recon. Batch Name';
             TableRelation = IF ("Bank Acc. Recon. Template Name" = FILTER(<> '')) "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Bank Acc. Recon. Template Name"));
         }
+        field(188; "Control VAT Period"; Enum "VAT Period Control")
+        {
+            Caption = 'Control VAT Period';
+            
+            trigger OnValidate()
+            begin
+                FeatureTelemetry.LogUsage('0000JWC', VATDateFeatureTok, StrSubstNo(VATPeriodControlUsageMsg, Format("Control VAT Period")));
+            end;
+        }
         field(12100; "Use Document Date in Currency"; Boolean)
         {
             Caption = 'Use Document Date in Currency';
@@ -955,6 +964,7 @@
         ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
         AccSchedObsoleteErr: Label 'This field is obsolete and it has been replaced by Table 88 Financial Report';
         VATDateFeatureTok: Label 'VAT Date', Locked = true;
+        VATPeriodControlUsageMsg: Label 'Control VAT Period set to %1', Locked = true;
         VATDateFeatureUsageMsg: Label 'VAT Reporting Date Usage set to %1', Locked = true;
 
     procedure CheckDecimalPlacesFormat(var DecimalPlaces: Text[5])

@@ -86,6 +86,7 @@ codeunit 12152 SubcontractingManagement
         SKU: Record "Stockkeeping Unit";
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
         Subcontracting: Boolean;
+        IsHandled: Boolean;
     begin
         Subcontracting := false;
 
@@ -114,7 +115,10 @@ codeunit 12152 SubcontractingManagement
                             ProdOrdComponent.Validate("Location Code", Vendor."Subcontracting Location Code")
                         else
                             ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
-                    ProdOrdComponent.Modify();
+                    IsHandled := false;
+                    OnUpdLinkedComponentsOnBeforeModify(ProdOrdRoutingLine, ProdOrdComponent, ProdOrdLine, SKU, IsHandled);
+                    if not IsHandled then
+                        ProdOrdComponent.Modify();
                 until ProdOrdComponent.Next() = 0;
 
                 if ShowMsg then
@@ -129,6 +133,7 @@ codeunit 12152 SubcontractingManagement
         ProdOrdLine: Record "Prod. Order Line";
         SKU: Record "Stockkeeping Unit";
         GetPlanningParameters: Codeunit "Planning-Get Parameters";
+        IsHandled: Boolean;
     begin
         with ProdOrdRoutingLine do begin
             ProdOrdComponent.SetRange(Status, Status);
@@ -146,7 +151,10 @@ codeunit 12152 SubcontractingManagement
                   ProdOrdLine."Location Code");
                 repeat
                     ProdOrdComponent.Validate("Location Code", SKU."Components at Location");
-                    ProdOrdComponent.Modify();
+                    IsHandled := false;
+                    OnDelLocationLinkedComponentsOnBeforeModify(ProdOrdRoutingLine, ProdOrdComponent, ProdOrdLine, SKU, IsHandled);
+                    if not IsHandled then
+                        ProdOrdComponent.Modify();
                 until ProdOrdComponent.Next() = 0;
 
                 if ShowMsg then
@@ -292,6 +300,16 @@ codeunit 12152 SubcontractingManagement
                         end;
                 end;
             until TempReservEntry.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDelLocationLinkedComponentsOnBeforeModify(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderComponent: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line"; var StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdLinkedComponentsOnBeforeModify(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderComponent: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line"; var StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
+    begin
     end;
 }
 

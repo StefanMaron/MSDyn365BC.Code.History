@@ -663,7 +663,14 @@ table 99000830 "Planning Routing Line"
     end;
 
     procedure CalcStartingEndingDates()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcStartingEndingDates(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Modify();
 
         PlanningRtngLine.Get(
@@ -923,6 +930,7 @@ table 99000830 "Planning Routing Line"
     begin
         "Starting Date-Time" := CreateDateTime("Starting Date", "Starting Time");
         "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
+        OnAfterUpdateDatetime(Rec, xRec, CurrFieldNo);
     end;
 
     procedure SetNextOperations()
@@ -998,6 +1006,16 @@ table 99000830 "Planning Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFromReqLine(var PlanningRoutingLine: Record "Planning Routing Line"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDatetime(var PlanningRoutingLine: Record "Planning Routing Line"; xPlanningRoutingLine: Record "Planning Routing Line"; FieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcStartingEndingDates(var PlanningRoutingLine: Record "Planning Routing Line"; var IsHandled: Boolean)
     begin
     end;
 }

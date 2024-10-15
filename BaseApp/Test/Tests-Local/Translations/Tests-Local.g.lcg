@@ -1535,6 +1535,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Payment Lines - NamedType PmtTermsDoesNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2799076071 - NamedType 668728601" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Vendor Ledger Entries are not applied.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Payment Lines - NamedType VendorBalanceErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2799076071 - NamedType 3108854004" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong balance on page.]]></Val>

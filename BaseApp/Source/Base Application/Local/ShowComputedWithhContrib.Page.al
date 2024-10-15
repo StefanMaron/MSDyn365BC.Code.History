@@ -236,7 +236,14 @@ page 12111 "Show Computed Withh. Contrib."
         PurchSetup: Integer;
 
     local procedure OKOnPush()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOKOnPush(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJnlLine2.Reset();
         GenJnlLine2.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine2.SetRange("Journal Batch Name", "Journal Batch Name");
@@ -434,6 +441,11 @@ page 12111 "Show Computed Withh. Contrib."
         GenJnlLine.SetRange("Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name");
         GenJnlLine.SetRange("Line No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOKOnPush(var TmpWithholdingContribution: Record "Tmp Withholding Contribution"; var IsHandled: Boolean)
+    begin
     end;
 }
 

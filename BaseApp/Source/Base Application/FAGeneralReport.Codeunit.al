@@ -95,11 +95,11 @@ codeunit 5626 "FA General Report"
                 FADeprBook.FieldNo("Depreciable Basis"):
                     SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Depreciable Basis");
                 else begin
-                        SetCurrentKey(
-                          "FA No.", "Depreciation Book Code",
-                          "FA Posting Category", "FA Posting Type", "FA Posting Date");
-                        SetRange("FA Posting Category", "FA Posting Category"::" ");
-                    end;
+                    SetCurrentKey(
+                      "FA No.", "Depreciation Book Code",
+                      "FA Posting Category", "FA Posting Type", "FA Posting Date");
+                    SetRange("FA Posting Category", "FA Posting Category"::" ");
+                end;
             end;
             SetRange("FA No.", FANo);
             SetRange("Depreciation Book Code", DeprBookCode);
@@ -323,6 +323,7 @@ codeunit 5626 "FA General Report"
             if FindFirst() then
                 SetRange("Entry No.", 0, "Entry No." - 1);
             SetRange("Reclassification Entry");
+            OnCalcFAPostedOriginalAcqCostAmountOnAfterSetFilters(FALedgEntry, Period, StartingDate, EndingDate);
             CalcSums(Amount);
             exit(Amount);
         end;
@@ -340,6 +341,11 @@ codeunit 5626 "FA General Report"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcGLPostedAmountOnBeforeCalcAmount(var FALedgerEntry: Record "FA Ledger Entry"; PostingType: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcFAPostedOriginalAcqCostAmountOnAfterSetFilters(var FALedgerEntry: Record "FA Ledger Entry"; Period: Option; StartingDate: Date; EndingDate: Date)
     begin
     end;
 

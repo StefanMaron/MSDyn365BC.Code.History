@@ -61,6 +61,8 @@
                     {
                         ApplicationArea = VAT;
                         Caption = 'VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
                         ToolTip = 'Specifies the date that the program will use as the VAT date when you post if you place a checkmark in Replace VAT Date.';
                     }
                     field(ReplacePostingDate; ReplacePostingDate)
@@ -88,6 +90,8 @@
                     {
                         ApplicationArea = VAT;
                         Caption = 'Replace VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
                         ToolTip = 'Specifies if you want to replace the purchase orders'' VAT date with the date in the VAT Date field.';
                     }
                     field(CalcInvDiscount; CalcInvDisc)
@@ -134,6 +138,7 @@
         var
             PurchasesPayablesSetup: Record "Purchases & Payables Setup";
             ClientTypeManagement: Codeunit "Client Type Management";
+            VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         begin
             if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
                 exit;
@@ -141,6 +146,7 @@
             CalcInvDisc := PurchasesPayablesSetup."Calc. Inv. Discount";
             PrintDoc := false;
             PrintDocVisible := PurchasesPayablesSetup."Post & Print with Job Queue";
+            VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
 
             OnAfterOnOpenPage(ShipReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc);
         end;
@@ -164,6 +170,7 @@
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;
+        VATDateEnabled: Boolean;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnOpenPage(var ShipReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean)

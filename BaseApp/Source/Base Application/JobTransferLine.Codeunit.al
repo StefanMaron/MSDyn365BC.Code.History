@@ -605,6 +605,8 @@
                 JobJnlLine.Validate(Quantity, "Qty. to Invoice");
             end;
 
+            OnFromPurchaseLineToJnlLineOnAfterValidateJobJnlLineQuantity(JobJnlLine, PurchHeader, PurchLine, PurchInvHeader, PurchCrMemoHeader);
+
             if PurchHeader."Document Type" in [PurchHeader."Document Type"::"Return Order",
                                                PurchHeader."Document Type"::"Credit Memo"]
             then begin
@@ -894,6 +896,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeJobJournalLineValidateType(var JobJournalLine: Record "Job Journal Line"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFromPurchaseLineToJnlLineOnAfterValidateJobJnlLineQuantity(var JobJournalLine: Record "Job Journal Line"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     begin
     end;
 

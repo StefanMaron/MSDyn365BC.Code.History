@@ -105,5 +105,6 @@ table 1228 "Payment Jnl. Export Error Text"
         SetRange("Document No.", GenJnlLine."Document No.");
         SetRange("Journal Line No.", GenJnlLine."Line No.");
     end;
+    
 }
 

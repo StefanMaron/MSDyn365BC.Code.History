@@ -16,7 +16,8 @@ report 12176 "Suggest Customer Bills"
                 Customer.Get("Customer No.");
                 if Customer."Privacy Blocked" then
                     CurrReport.Skip();
-                if (Customer.Blocked in [Customer.Blocked::All]) or (Customer."Partner Type" <> PartnerType) then
+                if (Customer.Blocked in [Customer.Blocked::All]) or
+                   ((Customer."Partner Type" <> PartnerType) and (PartnerType <> PartnerType::" ")) then
                     CurrReport.Skip();
                 CalcFields("Remaining Amount");
 
@@ -174,6 +175,7 @@ report 12176 "Suggest Customer Bills"
                     CustomerBillLine."Customer Bank Acc. No." := CustLedgEntry."Recipient Bank Account";
                 CustomerBillLine."Customer Entry No." := CustLedgEntry."Entry No.";
                 CustomerBillLine."Direct Debit Mandate ID" := CustLedgEntry."Direct Debit Mandate ID";
+                OnCreateLineOnBeforeInsert(CustomerBillLine, CustLedgEntry, CustBillHeader);
                 CustomerBillLine.Insert();
                 if MaxAmount > 0 then
                     PaymentsCalc();
@@ -184,6 +186,11 @@ report 12176 "Suggest Customer Bills"
     begin
         CustBillHeader.CalcFields("Total Amount");
         TotalPayments := CustBillHeader."Total Amount";
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateLineOnBeforeInsert(CustomerBillLine: Record "Customer Bill Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerBillHeader: Record "Customer Bill Header")
+    begin
     end;
 }
 

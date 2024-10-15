@@ -257,7 +257,13 @@ report 5405 "Calc. Consumption"
         ItemTrackingLines: Page "Item Tracking Lines";
         Qty: Decimal;
         MinQty: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssignItemTracking(ProdOrderComponent, ItemJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if ItemJournalLine.Quantity >= 0 then
             ItemTrackingMgt.CopyItemTracking(ProdOrderComponent.RowID1(), ItemJournalLine.RowID1(), false)
         else begin
@@ -305,6 +311,11 @@ report 5405 "Calc. Consumption"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignItemTracking(ProdOrderComponent: Record "Prod. Order Component"; ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -21,6 +21,13 @@ table 12118 "Intra - form Buffer"
             Caption = 'No.';
             DataClassification = SystemMetadata;
         }
+        field(4; Type; Option)
+        {
+            Caption = 'Type';
+            DataClassification = SystemMetadata;
+            OptionCaption = 'Receipt,Shipment';
+            OptionMembers = Receipt,Shipment;
+        }        
         field(5; Date; Date)
         {
             Caption = 'Date';
@@ -166,6 +173,11 @@ table 12118 "Intra - form Buffer"
         field(12184; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
+            DataClassification = SystemMetadata;
+        }
+        field(12185; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
             DataClassification = SystemMetadata;
         }
     }

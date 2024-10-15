@@ -1079,7 +1079,7 @@ codeunit 144060 "ERM Intrastat"
 
         // [THEN] Partner VAT ID is exported with "X" value
         VerifyDocNoDocDate(
-            FileName, IntrastatJnlLine."Document No.", IntrastatJnlLine.Date, false, IntrastatJnlLine."Partner VAT ID");
+            FileName, IntrastatJnlLine."External Document No.", IntrastatJnlLine.Date, false, IntrastatJnlLine."Partner VAT ID");
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -3200,6 +3200,7 @@ codeunit 144060 "ERM Intrastat"
             "Journal Batch Name" := IntrastatJnlBatch.Name;
             "Line No." := LibraryUtility.GetNewRecNo(IntrastatJnlLine, FieldNo("Line No."));
             "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Intrastat Jnl. Line");
+            "External Document No." := LibraryUtility.GenerateRandomCode(FieldNo("External Document No."), DATABASE::"Intrastat Jnl. Line");
             if CorrectedDocNo <> '' then begin
                 "Corrected Document No." := CorrectedDocNo;
                 "Corrected Intrastat Report No." := CorrectedJnlBatchName;

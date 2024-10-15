@@ -428,6 +428,10 @@
         {
             Caption = 'Progressive No.';
         }
+        field(12185; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
+        }
     }
 
     keys
@@ -587,6 +591,7 @@
             "Partner VAT ID" := VATEntry."VAT Registration No.";
             Amount := GetLineAmount(VATEntry);
             "Document No." := VATEntry."Document No.";
+            "External Document No." := VATEntry."External Document No.";
             "Statistics Period" := IntrastatJnlBatch."Statistics Period";
             "Service Tariff No." := VATEntry."Service Tariff No.";
             "Transport Method" := VATEntry."Transport Method";

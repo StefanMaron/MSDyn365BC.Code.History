@@ -136,6 +136,12 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
                     PriceAsset."Unit Price 2" := Resource."Unit Cost";
                 end;
         end;
+        OnAfterFillAdditionalFields(PriceAsset, Resource);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillAdditionalFields(var PriceAsset: Record "Price Asset"; Resource: Record Resource)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

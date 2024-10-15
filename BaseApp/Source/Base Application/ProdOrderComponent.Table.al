@@ -132,6 +132,7 @@
                 SKU: Record "Stockkeeping Unit";
                 GetPlanningParameters: Codeunit "Planning-Get Parameters";
                 SubcontractingManagement: Codeunit SubcontractingManagement;
+                ShouldUpdateLocation: Boolean;
             begin
                 UpdateExpectedQuantity();
 
@@ -155,7 +156,9 @@
                                         Validate("Location Code", Vendor."Subcontracting Location Code");
                     end;
                 end else begin
-                    if xRec."Routing Link Code" <> '' then begin
+                    ShouldUpdateLocation := xRec."Routing Link Code" <> '';
+                    OnValidateRoutingLinkCodeOnAfterShouldUpdateLocation(Rec, GetPlanningParameters, SKU, ProdOrderLine, ShouldUpdateLocation);
+                    if ShouldUpdateLocation then begin
                         GetPlanningParameters.AtSKU(
                           SKU,
                           ProdOrderLine."Item No.",
@@ -806,7 +809,7 @@
         }
         field(12180; "Qty. transf. to Subcontractor"; Decimal)
         {
-            CalcFormula = Sum ("Item Ledger Entry".Quantity WHERE("Entry Type" = CONST(Transfer),
+            CalcFormula = Sum("Item Ledger Entry".Quantity WHERE("Entry Type" = CONST(Transfer),
                                                                   "Prod. Order No." = FIELD("Prod. Order No."),
                                                                   "Prod. Order Line No." = FIELD("Prod. Order Line No."),
                                                                   "Prod. Order Comp. Line No." = FIELD("Line No."),
@@ -819,7 +822,7 @@
         }
         field(12181; "Qty. in Transit (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Transfer Line"."Qty. in Transit (Base)" WHERE("Prod. Order No." = FIELD("Prod. Order No."),
+            CalcFormula = Sum("Transfer Line"."Qty. in Transit (Base)" WHERE("Prod. Order No." = FIELD("Prod. Order No."),
                                                                               "Prod. Order Line No." = FIELD("Prod. Order Line No."),
                                                                               "Prod. Order Comp. Line No." = FIELD("Line No."),
                                                                               "Subcontr. Purch. Order No." = FIELD("Purchase Order Filter"),
@@ -832,7 +835,7 @@
         }
         field(12182; "Qty. on Transfer Order (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Transfer Line"."Outstanding Qty. (Base)" WHERE("Prod. Order No." = FIELD("Prod. Order No."),
+            CalcFormula = Sum("Transfer Line"."Outstanding Qty. (Base)" WHERE("Prod. Order No." = FIELD("Prod. Order No."),
                                                                                "Prod. Order Line No." = FIELD("Prod. Order Line No."),
                                                                                "Prod. Order Comp. Line No." = FIELD("Line No."),
                                                                                "Subcontr. Purch. Order No." = FIELD("Purchase Order Filter"),
@@ -2187,6 +2190,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateRoutingLinkCodeBeforeValidateDueDate(var ProdOrderComponent: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRoutingLinkCodeOnAfterShouldUpdateLocation(var ProdOrderComponent: Record "Prod. Order Component"; var PlanningGetParameters: Codeunit "Planning-Get Parameters"; var StockkeepingUnit: Record "Stockkeeping Unit"; var ProdOrderLine: Record "Prod. Order Line"; var ShouldUpdateLocation: Boolean)
     begin
     end;
 

@@ -263,7 +263,14 @@ report 12115 "Calculate End Year Costs"
 
     [Scope('OnPrem')]
     procedure InitPurchFields()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitPurchFields(ItemCostHistory, IsHandled);
+        if IsHandled then
+            exit;
+
         GetBefStartItemQtyAndCost(ItemCostHistory."Purchase Quantity", ItemCostHistory."Purchase Amount");
         SetItemLedgerEntryFilters(ItemLedgEntry, StartingDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Purchase);
         if ItemLedgEntry.FindSet() then
@@ -969,6 +976,11 @@ report 12115 "Calculate End Year Costs"
             SetFilter("Competence Year", FilterTxt, CompYearDate);
             SetRange(Definitive, Def);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitPurchFields(var ItemCostHistory: Record "Item Cost History"; var IsHandled: Boolean)
+    begin
     end;
 }
 

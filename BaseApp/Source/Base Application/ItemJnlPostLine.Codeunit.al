@@ -690,9 +690,7 @@
             exit;
 
         with ItemJnlLine do begin
-            ProdOrderRtngLine.Get(
-              ProdOrderRtngLine.Status::Released, "Order No.",
-              "Routing Reference No.", "Routing No.", "Operation No.");
+            GetProdOrderRoutingLine(ProdOrderRtngLine, ItemJnlLine);
             if Finished then
                 ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::Finished
             else
@@ -1381,6 +1379,7 @@
                 SetRange(Status, Status::Released);
                 SetRange("Prod. Order No.", OldItemJnlLine."Order No.");
                 SetRange("Prod. Order Line No.", OldItemJnlLine."Order Line No.");
+                OnFlushOperationOnAfterProdOrderCompSetFilters(ProdOrderComp, OldItemJnlLine, ProdOrderRoutingLine);
                 if FindSet() then begin
                     BlockRetrieveIT := true;
                     repeat
@@ -3523,6 +3522,7 @@
             AdjustedCostACY := AdjustedCostACY * AppliedQty / PosItemLedgEntry.Quantity;
             DiscountAmount := DiscountAmount * AppliedQty / PosItemLedgEntry.Quantity;
         end;
+        OnAfterCalcAdjustedCost(ItemJnlLine, AdjustedCostLCY, AdjustedCostACY);
     end;
 
     local procedure GetMaxValuationDate(ItemLedgerEntry: Record "Item Ledger Entry"): Date
@@ -5918,6 +5918,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcAdjustedCost(var ItemJournalLine: Record "Item Journal Line"; var AdjustedCostLCY: Decimal; var AdjustedCostACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCheckItemTracking(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup"; GlobalItemTrackingCode: Record "Item Tracking Code")
     begin
     end;
@@ -6516,6 +6521,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCorrectOutputValuationDateOnBeforeCheckProdOrder(ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFlushOperationOnAfterProdOrderCompSetFilters(var ProdOrderComponent: Record "Prod. Order Component"; OldItemJournalLine: Record "Item Journal Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
 

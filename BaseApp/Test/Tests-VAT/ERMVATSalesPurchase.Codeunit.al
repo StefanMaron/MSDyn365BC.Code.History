@@ -2240,7 +2240,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         SalesHeader: Record "Sales Header";
         SellToCustomerNo: Code[20];
-        PostingDate, VATDate: Date;
+        PostingDate, VATDate : Date;
     begin
         // [GIVEN] Create Sales Invoice.
         Initialize();
@@ -2261,7 +2261,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         PurchaseHeader: Record "Purchase Header";
         VendorNo: Code[20];
-        PostingDate, VATDate: Date;
+        PostingDate, VATDate : Date;
     begin
         // [GIVEN] Create Purchase Invoice.
         Initialize();
@@ -2282,7 +2282,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         SalesHeader: Record "Sales Header";
         SellToCustomerNo: Code[20];
-        PostingDate, VATDate: Date;
+        PostingDate, VATDate : Date;
     begin
         // [GIVEN] Create Sales Order.
         Initialize();
@@ -2303,7 +2303,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         SalesHeader: Record "Sales Header";
         SellToCustomerNo: Code[20];
-        PostingDate, VATDate: Date;
+        PostingDate, VATDate : Date;
     begin
         // [GIVEN] Create Sales Credit Memo.
         Initialize();
@@ -2324,7 +2324,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         PurchaseHeader: Record "Purchase Header";
         VendorNo: Code[20];
-        PostingDate, VATDate: Date;
+        PostingDate, VATDate : Date;
     begin
         // [GIVEN] Create Purchase Order.
         Initialize();
@@ -2345,7 +2345,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         PurchaseHeader: Record "Purchase Header";
         VendorNo: Code[20];
-        PostingDate, VATDate: Date;
+        PostingDate, VATDate : Date;
     begin
         // [GIVEN] Create Purchase Credit Memo.
         Initialize();
@@ -2364,7 +2364,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     procedure VATDateReturnsCorrectBasedOnGLSetup()
     var
         GLSetup: Record "General Ledger Setup";
-        PostingDate, DocumentDate, VATDate: Date;
+        PostingDate, DocumentDate, VATDate : Date;
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 431931] GL Setup returns correct date based on GL Setup setting
@@ -2387,7 +2387,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     procedure VATDateReturnsCorrectBasedOnGLSetup2()
     var
         GLSetup: Record "General Ledger Setup";
-        PostingDate, DocumentDate, VATDate: Date;
+        PostingDate, DocumentDate, VATDate : Date;
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 431931] GL Setup returns correct date based on GL Setup setting
@@ -2451,6 +2451,190 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Assert.AreEqual(SalesHeaderArchive."VAT Reporting Date", SalesHeader."VAT Reporting Date", VATDateErr);
     end;
 
+    [Test]
+    [HandlerFunctions('BatchPostSalesOrderRequestPageHandler')]
+    procedure VerifyVATDateandReplaceVATDateIsNotVisibleOnBatchPostSalesOrderRequestPage()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BatchPostSalesOrders: Report "Batch Post Sales Orders";
+    begin
+        // [SCENARIO 461514] "VAT Date" and "Replace VAT Date" are shown in "Batch Post" although "VAT Date Usage" is set to "Do not use VAT Date functionality" in General Ledger Setup
+        Initialize();
+
+        // [GIVEN] General Ledger Setup "VAT Date Usage" is set to "Do not use VAT Date functionality"
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Reporting Date Usage", GeneralLedgerSetup."VAT Reporting Date Usage"::Disabled);
+        GeneralLedgerSetup.Modify();
+        Commit();
+
+        // [WHEN] Run Report Batch Post Sales Orders.
+        BatchPostSalesOrders.Run();
+
+        // [VERIFY] Verify "Vat Date" and "Replace Vat Date" is not Visible on Batch Post Sales Orders.
+        // Verified in Handler function
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostSalesInvoiceRequestPageHandler')]
+    procedure VerifyVATDateandReplaceVATDateIsNotVisibleOnBatchPostSalesInvoiceRequestPage()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BatchPostSalesInvoices: Report "Batch Post Sales Invoices";
+    begin
+        // [SCENARIO 461514] "VAT Date" and "Replace VAT Date" are shown in "Batch Post" although "VAT Date Usage" is set to "Do not use VAT Date functionality" in General Ledger Setup
+        Initialize();
+
+        // [GIVEN] General Ledger Setup "VAT Date Usage" is set to "Do not use VAT Date functionality"
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Reporting Date Usage", GeneralLedgerSetup."VAT Reporting Date Usage"::Disabled);
+        GeneralLedgerSetup.Modify();
+        Commit();
+
+        // [WHEN] Run Report Batch Post Sales Invoices.
+        BatchPostSalesInvoices.Run();
+
+        // [VERIFY] Verify "Vat Date" and "Replace Vat Date" is not Visible on Batch Post Sales Invoices.
+        // Verified in Handler function
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostSalesReturnOrdersRequestPageHandler')]
+    procedure VerifyVATDateandReplaceVATDateIsNotVisibleOnBatchPostSalesReturnOrdersRequestPage()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BatchPostSalesReturnOrders: Report "Batch Post Sales Return Orders";
+    begin
+        // [SCENARIO 461514] "VAT Date" and "Replace VAT Date" are shown in "Batch Post" although "VAT Date Usage" is set to "Do not use VAT Date functionality" in General Ledger Setup
+        Initialize();
+
+        // [GIVEN] General Ledger Setup "VAT Date Usage" is set to "Do not use VAT Date functionality"
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Reporting Date Usage", GeneralLedgerSetup."VAT Reporting Date Usage"::Disabled);
+        GeneralLedgerSetup.Modify();
+        Commit();
+
+        // [WHEN] Run Report Batch Post Sales Return Orders.
+        BatchPostSalesReturnOrders.Run();
+
+        // [VERIFY] Verify "Vat Date" and "Replace Vat Date" is not Visible on Batch Post Sales Return Orders.
+        // Verified in Handler function
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostSalesCreditMemoRequestPageHandler')]
+    procedure VerifyVATDateandReplaceVATDateIsNotVisibleOnBatchPostSalesCreditMemosRequestPage()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BatchPostSalesCreditMemos: Report "Batch Post Sales Credit Memos";
+    begin
+        // [SCENARIO 461514] "VAT Date" and "Replace VAT Date" are shown in "Batch Post" although "VAT Date Usage" is set to "Do not use VAT Date functionality" in General Ledger Setup
+        Initialize();
+
+        // [GIVEN] General Ledger Setup "VAT Date Usage" is set to "Do not use VAT Date functionality"
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Reporting Date Usage", GeneralLedgerSetup."VAT Reporting Date Usage"::Disabled);
+        GeneralLedgerSetup.Modify();
+        Commit();
+
+        // [WHEN] Run Report Batch Post Sales Credit Memos.
+        BatchPostSalesCreditMemos.Run();
+
+        // [VERIFY] Verify "Vat Date" and "Replace Vat Date" is not Visible on Batch Post Sales Credit Memos.
+        // Verified in Handler function
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchaseOrdersRequestPageHandler')]
+    procedure VerifyVATDateandReplaceVATDateIsNotVisibleOnBatchPostPurchaseOrdersRequestPage()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BatchPostPurchaseOrders: Report "Batch Post Purchase Orders";
+    begin
+        // [SCENARIO 461514] "VAT Date" and "Replace VAT Date" are shown in "Batch Post" although "VAT Date Usage" is set to "Do not use VAT Date functionality" in General Ledger Setup
+        Initialize();
+
+        // [GIVEN] General Ledger Setup "VAT Date Usage" is set to "Do not use VAT Date functionality"
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Reporting Date Usage", GeneralLedgerSetup."VAT Reporting Date Usage"::Disabled);
+        GeneralLedgerSetup.Modify();
+        Commit();
+
+        // [WHEN] Run Report Batch Post Purchase Orders.
+        BatchPostPurchaseOrders.Run();
+
+        // [VERIFY] Verify "Vat Date" and "Replace Vat Date" is not Visible on Batch Post Purchase Orders.
+        // Verified in Handler function
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchaseInvoiceRequestPageHandler')]
+    procedure VerifyVATDateandReplaceVATDateIsNotVisibleOnBatchPostPurchaseInvoiceRequestPage()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BatchPostPurchaseInvoices: Report "Batch Post Purchase Invoices";
+    begin
+        // [SCENARIO 461514] "VAT Date" and "Replace VAT Date" are shown in "Batch Post" although "VAT Date Usage" is set to "Do not use VAT Date functionality" in General Ledger Setup
+        Initialize();
+
+        // [GIVEN] General Ledger Setup "VAT Date Usage" is set to "Do not use VAT Date functionality"
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Reporting Date Usage", GeneralLedgerSetup."VAT Reporting Date Usage"::Disabled);
+        GeneralLedgerSetup.Modify();
+        Commit();
+
+        // [WHEN] Run Report Batch Post Purchase Invoices.
+        BatchPostPurchaseInvoices.Run();
+
+        // [VERIFY] Verify "Vat Date" and "Replace Vat Date" is not Visible on Batch Post Purchase Invoices.
+        // Verified in Handler function
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchRetOrdersRequestPageHandler')]
+    procedure VerifyVATDateandReplaceVATDateIsNotVisibleOnBatchPostPurchRetOrdersRequestPage()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BatchPostPurchRetOrders: Report "Batch Post Purch. Ret. Orders";
+    begin
+        // [SCENARIO 461514] "VAT Date" and "Replace VAT Date" are shown in "Batch Post" although "VAT Date Usage" is set to "Do not use VAT Date functionality" in General Ledger Setup
+        Initialize();
+
+        // [GIVEN] General Ledger Setup "VAT Date Usage" is set to "Do not use VAT Date functionality"
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Reporting Date Usage", GeneralLedgerSetup."VAT Reporting Date Usage"::Disabled);
+        GeneralLedgerSetup.Modify();
+        Commit();
+
+        // [WHEN] Run Report Batch Post Purchase Return Order.
+        BatchPostPurchRetOrders.Run();
+
+        // [VERIFY] Verify "Vat Date" and "Replace Vat Date" is not Visible on Batch Post Purchase Return Order.
+        // Verified in Handler function
+    end;
+
+    [Test]
+    [HandlerFunctions('BatchPostPurchCreditMemoRequestPageHandler')]
+    procedure VerifyVATDateandReplaceVATDateIsNotVisibleOnBatchPostPurchCreditMemosRequestPage()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        BatchPostPurchCreditMemos: Report "Batch Post Purch. Credit Memos";
+    begin
+        // [SCENARIO 461514] "VAT Date" and "Replace VAT Date" are shown in "Batch Post" although "VAT Date Usage" is set to "Do not use VAT Date functionality" in General Ledger Setup
+        Initialize();
+
+        // [GIVEN] General Ledger Setup "VAT Date Usage" is set to "Do not use VAT Date functionality"
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("VAT Reporting Date Usage", GeneralLedgerSetup."VAT Reporting Date Usage"::Disabled);
+        GeneralLedgerSetup.Modify();
+        Commit();
+
+        // [WHEN] Run Report Batch Post Purch. Credit. Memo.
+        BatchPostPurchCreditMemos.Run();
+
+        // [VERIFY] Verify "Vat Date" and "Replace Vat Date" is not Visible on Batch Post Purch. Credit. Memo.
+        // Verified in Handler function
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2466,7 +2650,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup.Get();
         GLSetup."VAT Reporting Date Usage" := GLSetup."VAT Reporting Date Usage"::Complete;
         GLSetup.Modify();
-        
+
         // Lazy Setup.
         if IsInitialized then
             exit;
@@ -2518,14 +2702,14 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesHeader: Record "Sales Header";
         BatchPostSalesOrders: Report "Batch Post Sales Orders";
     begin
-        LibraryVariableStorage.Enqueue(PostingDate); 
+        LibraryVariableStorage.Enqueue(PostingDate);
         LibraryVariableStorage.Enqueue(VATDate);
         LibraryVariableStorage.Enqueue(DocNo);
         Commit();  // Commit required to Run report.
         Clear(BatchPostSalesOrders);
         SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
         BatchPostSalesOrders.SetTableView(SalesHeader);
-        BatchPostSalesOrders.Run();  
+        BatchPostSalesOrders.Run();
     end;
 
     local procedure RunReportBatchPostSalesCreditMemos(SellToCustomerNo: Code[20]; PostingDate: Date; VATDate: Date)
@@ -2533,13 +2717,13 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         SalesHeader: Record "Sales Header";
         BatchPostSalesCreditMemos: Report "Batch Post Sales Credit Memos";
     begin
-        LibraryVariableStorage.Enqueue(PostingDate); 
+        LibraryVariableStorage.Enqueue(PostingDate);
         LibraryVariableStorage.Enqueue(VATDate);
         Commit();  // Commit required to Run report.
         Clear(BatchPostSalesCreditMemos);
         SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
         BatchPostSalesCreditMemos.SetTableView(SalesHeader);
-        BatchPostSalesCreditMemos.Run();  
+        BatchPostSalesCreditMemos.Run();
     end;
 
     local procedure RunReportBatchPostPurchOrders(VendorNo: Code[20]; PostingDate: Date; VATDate: Date)
@@ -2547,13 +2731,13 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchHeader: Record "Purchase Header";
         BatchPostPurchOrders: Report "Batch Post Purchase Orders";
     begin
-        LibraryVariableStorage.Enqueue(PostingDate);  
-        LibraryVariableStorage.Enqueue(VATDate);  
+        LibraryVariableStorage.Enqueue(PostingDate);
+        LibraryVariableStorage.Enqueue(VATDate);
         Commit();  // Commit required to Run report.
         Clear(BatchPostPurchOrders);
         PurchHeader.SetRange("Buy-from Vendor No.", VendorNo);
         BatchPostPurchOrders.SetTableView(PurchHeader);
-        BatchPostPurchOrders.Run(); 
+        BatchPostPurchOrders.Run();
     end;
 
     local procedure RunReportBatchPostPurchCreditMemos(VendorNo: Code[20]; PostingDate: Date; VATDate: Date)
@@ -2561,8 +2745,8 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchHeader: Record "Purchase Header";
         BatchPostPurchCreditMemos: Report "Batch Post Purch. Credit Memos";
     begin
-        LibraryVariableStorage.Enqueue(PostingDate);  
-        LibraryVariableStorage.Enqueue(VATDate); 
+        LibraryVariableStorage.Enqueue(PostingDate);
+        LibraryVariableStorage.Enqueue(VATDate);
         Commit();  // Commit required to Run report.
         Clear(BatchPostPurchCreditMemos);
         PurchHeader.SetRange("Buy-from Vendor No.", VendorNo);
@@ -3641,7 +3825,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     begin
         Reply := true;
     end;
-    
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
@@ -3652,7 +3836,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     [RequestPageHandler]
     procedure BatchPostSalesInvoicesRequestPageHandler(var BatchPostSalesInvoices: TestRequestPage "Batch Post Sales Invoices")
     var
-        PostingDate, VATDate: Variant;
+        PostingDate, VATDate : Variant;
     begin
         LibraryVariableStorage.Dequeue(PostingDate);
         LibraryVariableStorage.Dequeue(VATDate);
@@ -3666,13 +3850,13 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     [RequestPageHandler]
     procedure BatchPostSalesOrdersRequestPageHandler(var BatchPostSalesOrders: TestRequestPage "Batch Post Sales Orders")
     var
-        PostingDate, VATDate: Date;
+        PostingDate, VATDate : Date;
         DocumentNoFilter: Text;
     begin
         PostingDate := LibraryVariableStorage.DequeueDate();
         VATDate := LibraryVariableStorage.DequeueDate();
         DocumentNoFilter := LibraryVariableStorage.DequeueText();
-        
+
         BatchPostSalesOrders.Ship.SetValue(true);
         BatchPostSalesOrders.Invoice.SetValue(true);
         BatchPostSalesOrders."Sales Header".SetFilter("No.", DocumentNoFilter);
@@ -3687,7 +3871,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     [RequestPageHandler]
     procedure BatchPostSalesCreditMemosRequestPageHandler(var BatchPostSalesCreditMemos: TestRequestPage "Batch Post Sales Credit Memos")
     var
-        PostingDate, VATDate: Variant;
+        PostingDate, VATDate : Variant;
     begin
         LibraryVariableStorage.Dequeue(PostingDate);
         LibraryVariableStorage.Dequeue(VATDate);
@@ -3701,7 +3885,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     [RequestPageHandler]
     procedure BatchPostPurchOrdersRequestPageHandler(var BatchPostPurchOrders: TestRequestPage "Batch Post Purchase Orders")
     var
-        PostingDate, VATDate: Variant;
+        PostingDate, VATDate : Variant;
     begin
         LibraryVariableStorage.Dequeue(PostingDate);
         LibraryVariableStorage.Dequeue(VATDate);
@@ -3717,7 +3901,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     [RequestPageHandler]
     procedure BatchPostPurchCreditMemosRequestPageHandler(var BatchPostPurchCreditMemos: TestRequestPage "Batch Post Purch. Credit Memos")
     var
-        PostingDate, VATDate: Variant;
+        PostingDate, VATDate : Variant;
     begin
         LibraryVariableStorage.Dequeue(PostingDate);
         LibraryVariableStorage.Dequeue(VATDate);
@@ -3729,9 +3913,65 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     end;
 
     [RequestPageHandler]
+    procedure BatchPostSalesOrderRequestPageHandler(var BatchPostSalesOrders: TestRequestPage "Batch Post Sales Orders")
+    begin
+        Assert.IsFalse(BatchPostSalesOrders.VATDate.Visible(), '');
+        Assert.IsFalse(BatchPostSalesOrders.ReplaceVATDate.Visible(), '');
+    end;
+
+    [RequestPageHandler]
+    procedure BatchPostSalesInvoiceRequestPageHandler(var BatchPostSalesInvoices: TestRequestPage "Batch Post Sales Invoices")
+    begin
+        Assert.IsFalse(BatchPostSalesInvoices.VATDate.Visible(), '');
+        Assert.IsFalse(BatchPostSalesInvoices.ReplaceVATDate.Visible(), '');
+    end;
+
+    [RequestPageHandler]
+    procedure BatchPostSalesReturnOrdersRequestPageHandler(var BatchPostSalesReturnOrders: TestRequestPage "Batch Post Sales Return Orders")
+    begin
+        Assert.IsFalse(BatchPostSalesReturnOrders.VATDate.Visible(), '');
+        Assert.IsFalse(BatchPostSalesReturnOrders.ReplaceVATDate.Visible(), '');
+    end;
+
+    [RequestPageHandler]
+    procedure BatchPostSalesCreditMemoRequestPageHandler(var BatchPostSalesCreditMemos: TestRequestPage "Batch Post Sales Credit Memos")
+    begin
+        Assert.IsFalse(BatchPostSalesCreditMemos.VATDate.Visible(), '');
+        Assert.IsFalse(BatchPostSalesCreditMemos.ReplaceVATDate.Visible(), '');
+    end;
+
+    [RequestPageHandler]
+    procedure BatchPostPurchaseOrdersRequestPageHandler(var BatchPostPurchaseOrders: TestRequestPage "Batch Post Purchase Orders")
+    begin
+        Assert.IsFalse(BatchPostPurchaseOrders.VATDate.Visible(), '');
+        Assert.IsFalse(BatchPostPurchaseOrders.ReplaceVATDate.Visible(), '');
+    end;
+
+    [RequestPageHandler]
+    procedure BatchPostPurchaseInvoiceRequestPageHandler(var BatchPostPurchaseInvoices: TestRequestPage "Batch Post Purchase Invoices")
+    begin
+        Assert.IsFalse(BatchPostPurchaseInvoices.VATDate.Visible(), '');
+        Assert.IsFalse(BatchPostPurchaseInvoices.ReplaceVATDate.Visible(), '');
+    end;
+
+    [RequestPageHandler]
+    procedure BatchPostPurchRetOrdersRequestPageHandler(var BatchPostPurchRetOrders: TestRequestPage "Batch Post Purch. Ret. Orders")
+    begin
+        Assert.IsFalse(BatchPostPurchRetOrders.VATDate.Visible(), '');
+        Assert.IsFalse(BatchPostPurchRetOrders.ReplaceVATDate.Visible(), '');
+    end;
+
+    [RequestPageHandler]
+    procedure BatchPostPurchCreditMemoRequestPageHandler(var BatchPostPurchCreditMemos: TestRequestPage "Batch Post Purch. Credit Memos")
+    begin
+        Assert.IsFalse(BatchPostPurchCreditMemos.VATDate.Visible(), '');
+        Assert.IsFalse(BatchPostPurchCreditMemos.ReplaceVATDate.Visible(), '');
+    end;
+
+    [RequestPageHandler]
     procedure BatchPostPurchInvoicesRequestPageHandler(var BatchPostPurchInvoices: TestRequestPage "Batch Post Purchase Invoices")
     var
-        PostingDate, VATDate: Variant;
+        PostingDate, VATDate : Variant;
     begin
         LibraryVariableStorage.Dequeue(PostingDate);
         LibraryVariableStorage.Dequeue(VATDate);

@@ -502,6 +502,7 @@
 
     procedure CalcVATFields(NewCurrencyCode: Code[10]; NewPricesIncludingVAT: Boolean; NewVATBaseDiscPct: Decimal)
     begin
+        OnBeforeCalcVATFields(Rec, NewVATBaseDiscPct);
         InitGlobals(NewCurrencyCode, false);
 
         "VAT Amount" := GetCalculatedVAT(NewCurrencyCode, NewPricesIncludingVAT, NewVATBaseDiscPct);
@@ -972,6 +973,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcVATFields(var VATAmountLine: Record "VAT Amount Line"; NewPricesIncludingVAT: Boolean; NewVATBaseDiscPct: Decimal; Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcVATFields(var VATAmountLine: Record "VAT Amount Line"; var NewVATBaseDiscPct: Decimal)
     begin
     end;
 

@@ -1103,7 +1103,7 @@
                     0, '', DummyTrackingSpecification, false);
 
             IsHandled := false;
-            OnPostItemLineOnBeforeMakeSalesLineToShip(SalesHeader, SalesLine, TempPostedATOLink, ItemLedgShptEntryNo, IsHandled);
+            OnPostItemLineOnBeforeMakeSalesLineToShip(SalesHeader, SalesLine, TempPostedATOLink, ItemLedgShptEntryNo, IsHandled, GenJnlLineDocNo, GenJnlLineExtDocNo, ReturnRcptHeader, TempHandlingSpecification, TempTrackingSpecificationInv);
             if not IsHandled then begin
                 // Invoice discount amount is also included in expected sales amount posted for shipment or return receipt.
                 MakeSalesLineToShip(SalesLineToShip, SalesLine);
@@ -3398,7 +3398,7 @@
                       "Unit Price",
                       Round(
                         InvoiceRoundingAmount /
-                        (1 + (1 - SalesHeader."VAT Base Discount %" / 100) * "VAT %" / 100),
+                        (1 + (1 - SalesLine.GetVatBaseDiscountPct(SalesHeader) / 100) * "VAT %" / 100),
                         Currency."Amount Rounding Precision"));
                 Validate("Amount Including VAT", InvoiceRoundingAmount);
                 "Line No." := BiggestLineNo;
@@ -6573,9 +6573,12 @@
                 SalesShipmentHeader."Sell-to Country/Region Code"));
         end;
 
-        if SalesHeader.IsCreditDocType() then
-            exit(SalesHeader."Sell-to Country/Region Code")
-        else begin
+        if SalesHeader.IsCreditDocType() then begin
+            if (SalesHeader."Ship-to Country/Region Code" <> '') then
+                exit(SalesHeader."Ship-to Country/Region Code")
+            else
+                exit(SalesHeader."Sell-to Country/Region Code");
+        end else begin
             CountryRegionCode := SalesHeader."Ship-to Country/Region Code";
 
             exit(
@@ -6862,7 +6865,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertPostedPayment(SalesHeader, IsHandled);
+        OnBeforeInsertPostedPayment(SalesHeader, IsHandled, SalesInvHeader, SalesCrMemoHeader);
         if IsHandled then
             exit;
 
@@ -10292,7 +10295,7 @@
 
         SalesLine."VAT Base Amount" :=
           Round(
-            SalesLine.Amount * (1 - SalesHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+            SalesLine.Amount * (1 - SalesLine.GetVatBaseDiscountPct(SalesHeader) / 100), Currency."Amount Rounding Precision");
     end;
 
     local procedure SalesShptLineInsert(var SalesShptLine: Record "Sales Shipment Line"; SalesShptHeader: Record "Sales Shipment Header"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
@@ -10901,12 +10904,12 @@
     local procedure OnInsertPostedPaymentOnBeforeInsertPostedPayments(SalesHeader: Record "Sales Header"; PaymentTermsLine: Record "Payment Lines"; var PostedPayments: Record "Posted Payment Lines")
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnInsertPostedPaymentOnBeforeInsertPaymentJournalLine(SalesHeader: Record "Sales Header"; PaymentTermsLine: Record "Payment Lines"; var PaymentJournalLine: Record "Payment Lines")
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnPostAssocItemJnlLineOnBeforePost(var ItemJournalLine: Record "Item Journal Line"; PurchOrderLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
@@ -11276,7 +11279,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemLineOnBeforeMakeSalesLineToShip(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempPostedATOLink: Record "Posted Assemble-to-Order Link" temporary; var ItemLedgShptEntryNo: Integer; var IsHandled: Boolean);
+    local procedure OnPostItemLineOnBeforeMakeSalesLineToShip(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempPostedATOLink: Record "Posted Assemble-to-Order Link" temporary; var ItemLedgShptEntryNo: Integer; var IsHandled: Boolean; var GenJnlLineDocNo: Code[20]; var GenJnlLineExtDocNo: Code[35]; ReturnReceiptHeader: Record "Return Receipt Header"; var TempHandlingSpecification: Record "Tracking Specification" temporary; var TempHandlingSpecificationInv: Record "Tracking Specification" temporary)
     begin
     end;
 
@@ -11296,7 +11299,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemChargeLineOnBeforePostItemCharge(var TempItemChargeAssgntSales: record "Item Charge Assignment (Sales)" temporary; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    local procedure OnPostItemChargeLineOnBeforePostItemCharge(var TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -11451,7 +11454,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertPostedPayment(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeInsertPostedPayment(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; SalesInvoiceHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 
@@ -11549,7 +11552,7 @@
     local procedure OnValidateIncludeInVATReportAfterValidate(SalesHeaderParam: Record "Sales Header"; var InclInVATReportErrorLogTemp: Record "Incl. in VAT Report Error Log" temporary)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateICPartnerBusPostingGroups(var TempICGenJnlLine: Record "Gen. Journal Line" temporary; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin

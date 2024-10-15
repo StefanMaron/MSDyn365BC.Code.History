@@ -652,7 +652,10 @@ report 593 "Intrastat - Make Disk Tax Auth"
             if IntrastatJnlLine2.FindFirst() then
                 DocumentDate := IntrastatJnlLine2.Date;
         end else begin
-            DocumentNo := "Intra - form Buffer"."Document No.";
+            if "Intra - form Buffer".Type = "Intra - form Buffer".Type::Shipment then
+                DocumentNo := "Intra - form Buffer"."Document No."
+            else
+                DocumentNo := CopyStr("Intra - form Buffer"."External Document No.", 1, MaxStrLen(DocumentNo));
             DocumentDate := "Intra - form Buffer".Date;
         end;
     end;

@@ -95,14 +95,21 @@ codeunit 744 "VAT Report Validate"
                     VATReportLine.Type::Sale:
                         CheckCust(VATReportLine, VATEntry);
                 end;
-            until VATReportLine.Next() = 0
+            until VATReportLine.Next() = 0;
+        OnAfterValidateVATReportLines(VATReportLine);
     end;
 
     [Scope('OnPrem')]
     procedure CheckVendor(var VATReportLine: Record "VAT Report Line"; var VATEntry: Record "VAT Entry")
     var
         Vendor: Record Vendor;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckVendor(VATReportLine, VATEntry, TempVATReportErrorLog, IsHandled);
+        if IsHandled then
+            exit;
+
         if Vendor.Get(VATReportLine."Bill-to/Pay-to No.") then begin
             if (VATEntry.Resident = VATEntry.Resident::"Non-Resident") and (not VATEntry."Individual Person") then begin
                 if Vendor.Name = '' then
@@ -270,6 +277,16 @@ codeunit 744 "VAT Report Validate"
             if PhoneNumber[Index] in ['0' .. '9'] then
                 CleanedNumber += Format(PhoneNumber[Index]);
         exit(CleanedNumber);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateVATReportLines(var VATReportLine: Record "VAT Report Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckVendor(var VATReportLine: Record "VAT Report Line"; var VATEntry: Record "VAT Entry"; var TempVATReportErrorLog: Record "VAT Report Error Log" temporary; var IsHandled: Boolean)
+    begin
     end;
 }
 
