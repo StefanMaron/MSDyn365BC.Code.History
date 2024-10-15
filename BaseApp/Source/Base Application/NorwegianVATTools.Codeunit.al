@@ -498,6 +498,7 @@ codeunit 10600 "Norwegian VAT Tools"
         AddTempVATCode(TempVATCode, '11U', InputVATDeductDomDescrTxt, GetWithdrawalSpecificationCode(), '', '11');
         AddTempVATCode(TempVATCode, '11T', InputVATDeductDomDescrTxt, GetReversalInputVATSpecificationCode(), '', '11');
         AddTempVATCode(TempVATCode, '13T', InputVATDeductDomDescrTxt, GetLossesOnClaimsSpecificationCode(), '', '13');
+        AddTempVATCode(TempVATCode, '1T', InputVATDeductDomDescrTxt, GetLossesOnClaimsSpecificationCode(), '', '1');
         AddTempVATCode(TempVATCode, '1J', InputVATDeductDomDescrTxt, GetAdjustmentCode(), '', '1');
         AddTempVATCode(TempVATCode, '1TF', InputVATDeductDomDescrTxt, GetReversalInputVATSpecificationCode(), GetRealPropertyTok(), '1');
         AddTempVATCode(TempVATCode, '1TP', InputVATDeductDomDescrTxt, GetReversalInputVATSpecificationCode(), GetPassengerVehicles(), '1');
@@ -522,11 +523,26 @@ codeunit 10600 "Norwegian VAT Tools"
         TempVATCode.Insert(true);
     end;
 
+    local procedure SetVATCodeFilterInsteadOfPostingGroups(var VATEntry: Record "VAT Entry"; VATStatementLine: Record "VAT Statement Line")
+    begin
+        if VATStatementLine."VAT Code" = '' then
+            exit;
+
+        VATEntry.SetRange("VAT Bus. Posting Group");
+        VATEntry.SetRange("VAT Prod. Posting Group");
+        VATEntry.SetRange("VAT Code", VATStatementLine."VAT Code");
+    end;
+
     [EventSubscriber(ObjectType::Report, Report::"VAT Statement", 'OnCalcLineTotalOnVATEntryTotalingOnAfterVATEntrySetFilters', '', true, true)]
     local procedure OnCalcLineTotalOnVATEntryTotalingOnAfterVATEntrySetFilters(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; Selection: Enum "VAT Statement Report Selection")
     begin
-        if VATStmtLine."VAT Code" <> '' then
-            VATEntry.SetRange("VAT Code", VATStmtLine."VAT Code");
+        SetVATCodeFilterInsteadOfPostingGroups(VATEntry, VATStmtLine);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"VAT Statement Preview Line", 'OnBeforeOpenPageVATEntryTotaling', '', true, true)]
+    local procedure OnBeforeOpenPageVATEntryTotaling(var VATEntry: Record "VAT Entry"; var VATStatementLine: Record "VAT Statement Line"; var GLEntry: Record "G/L Entry")
+    begin
+        SetVATCodeFilterInsteadOfPostingGroups(VATEntry, VATStatementLine);
     end;
 }
 

@@ -598,7 +598,7 @@ codeunit 144001 "VAT Tools Test"
             VATNote.Insert();
         until TempVATNote.Next() = 0;
         NorwegianVATTools.GetVATCodes2022(TempVATCode);
-        Assert.RecordCount(TempVATCode, 12);
+        Assert.RecordCount(TempVATCode, 13);
     end;
 
     [Test]
