@@ -1900,7 +1900,7 @@ codeunit 142055 "UT REP Vendor 1099"
         Vendor1099MagneticMedia.VendorInfoPostCode.SetValue(LibraryUTUtility.GetNewCode);
         Vendor1099MagneticMedia.VendorInfoEMail.SetValue(LibraryUTUtility.GetNewCode);
 
-        Vendor1099MagneticMedia.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Vendor1099MagneticMedia.VendorData.SetFilter("No.", LibraryVariableStorage.DequeueText);
         Vendor1099MagneticMedia.OK.Invoke;
     end;
 

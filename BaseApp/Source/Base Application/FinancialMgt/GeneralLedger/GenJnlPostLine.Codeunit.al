@@ -3328,7 +3328,7 @@
                         repeat
                             VATBusPostingGroup := VATEntry."VAT Bus. Posting Group";
                             VATProdPostingGroup := VATEntry."VAT Prod. Posting Group";
-                            UnRealisedVATAmount := VATEntry."Unrealized Base" + VATEntry."Remaining Unrealized Amount";
+                            UnRealisedVATAmount := VATEntry."Remaining Unrealized Amount";
                             if UnRealisedVATAmount <> 0 then begin
                                 IsVATEntryFilter := true;
                                 CustUnrealizedVAT(
@@ -3843,10 +3843,12 @@
                     InsertSummarizedVAT(GenJnlLine);
                     LastConnectionNo := VATEntry2."Sales Tax Connection No.";
                 end;
-                if (UnRealisedVATAmount + VATEntry2."Remaining Unrealized Amount" + VATEntry2."Unrealized Base" = 0)
-                        and (PaidAmount <> 0)
-                        and IsVATEntryFilter then
-                    VATPart := 1
+
+                if (PaidAmount <> 0) and
+                   IsVATEntryFilter and
+                   (VATEntry2."Remaining Unrealized Amount" <> 0) and
+                   (VATPostingSetup."Unrealized VAT Type" = VATPostingSetup."Unrealized VAT Type"::"Cash Basis") then
+                    VATPart := Round(-UnRealisedVATAmount / VATEntry2."Remaining Unrealized Amount")
                 else
                     VATPart :=
                       VATEntry2.GetUnrealizedVATPart(
@@ -3884,7 +3886,7 @@
                         VATBase := VATEntry2."Remaining Unrealized Base";
                         VATAmountAddCurr := VATEntry2."Add.-Curr. Rem. Unreal. Amount";
                         VATBaseAddCurr := VATEntry2."Add.-Curr. Rem. Unreal. Base";
-                    end else begin
+                    end else
                         if (VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::"Cash Basis") then begin
                             VATAmount := Round(VATEntry2."Remaining Unrealized Amount" * VATPart, GLSetup."Amount Rounding Precision");
                             VATBase := Round(VATEntry2."Remaining Unrealized Base" * VATPart, GLSetup."Amount Rounding Precision");
@@ -3908,7 +3910,6 @@
                                 VATEntry2."Add.-Currency Unrealized Base" * VATPart,
                                 AddCurrency."Amount Rounding Precision");
                         end;
-                    end;
 
                     // what is LCY value of VAT and VAT Base at posting date (cash basis)
                     if (VATPostingSetup."Unrealized VAT Type" = VATPostingSetup."Unrealized VAT Type"::"Cash Basis") and

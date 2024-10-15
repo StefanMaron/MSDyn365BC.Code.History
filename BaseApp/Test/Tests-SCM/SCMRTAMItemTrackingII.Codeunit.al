@@ -75,6 +75,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         ValueNotEqual: Label 'The Cost Amount(Actual) is not equal to Amount';
         ItemTracingOutputErr: Label 'There is no Parent Item Output Entry on Item Tracing Page.';
         IncorrectShippedQtyMsg: Label '%1 is not equal to %2 of the original Sales Line.', Comment = '%1: Field(Quantity Shipped), %2: Field(Qty. to Ship)';
+        RemainingQtyMustBeEqualErr: Label 'Remaining Qty must be equal to %1 in %2', Comment = '%1 = Expected Value , %2 = Table Caption';
 
     [Test]
     [HandlerFunctions('ItemTrackingDropShipmentPageHandler,QuantityToCreatePageHandler,SalesListPageHandler,ItemTrackingConfirmHandler,SynchronizeMessageHandler')]
@@ -3138,6 +3139,127 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         TempItemTracingBuffer.TestField("Lot No.", ProdLotNo);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandlerTrackingOptionWithLot,MessageHandler')]
+    procedure VerifyReservationEntryMustExistWhenItemTrackingPageIsClosed()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReservationEntry: Record "Reservation Entry";
+        ItemTrackingOption: Option AssignLotNoManual,AssignLotNos,ChangeLotQty;
+        SalesOrderSubform: TestPage "Sales Order Subform";
+        LotNos: array[2] of Code[50];
+        LotQty: array[2] of Decimal;
+        TotalQty: Decimal;
+        i, ExpectedQty : Integer;
+    begin
+        // [SCENARIO 491329] Verify Reservation Entry must exist When Item Tracking Page is closed.
+        Initialize();
+
+        // [GIVEN] Change the work date to today.
+        WorkDate(Today);
+
+        // [GIVEN] Generate a random expected quantity.
+        ExpectedQty := LibraryRandom.RandInt(2);
+
+        // [GIVEN] Create an item with item tracking.
+        LibraryItemTracking.CreateLotItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(20, 2));
+        Item.Validate("Unit Price", LibraryRandom.RandDec(50, 2));
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking & Action Msg.");
+        Item.Modify(true);
+
+        // [GIVEN] Create a location with the inventory posting setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create an item journal template.
+        LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
+
+        // [GIVEN] Create an item journal batch.
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+
+        // [GIVEN] Create lot numbers and quantities to assign on item tracking lines, and post positive adjustments with item tracking.
+        for i := 1 to ArrayLen(LotNos) do begin
+            LotNos[i] := LibraryUtility.GenerateGUID();
+            LotQty[i] := LibraryRandom.RandInt(10);
+            TotalQty += LotQty[i];
+
+            PostItemJournalLineWithItemTracking(Location, Item, LotNos[i], LotQty[i]);
+        end;
+
+        // [GIVEN] Create a sales order with a shipment date and location.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Shipment Date", WorkDate());
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Create a sales line.
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            SalesLine.Type::Item,
+            Item."No.",
+            TotalQty - ExpectedQty);
+
+        // [GIVEN] Update the shipment date in the sales line.
+        SalesLine.Validate("Shipment Date", CalcDate('<1M-CM>', WorkDate()));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Save a transaction.
+        Commit();
+
+        // [GIVEN] Change item No. to a non-existent item in the sales line.
+        SalesOrderSubform.OpenEdit();
+        SalesOrderSubform.GotoRecord(SalesLine);
+        asserterror SalesOrderSubform."No.".SetValue(LibraryRandom.RandText(5));
+        SalesOrderSubform.Close();
+
+        // [GIVEN] Change item number to old item in the sales line.
+        SalesLine.Validate("No.", Item."No.");
+        SalesLine.Modify(true);
+
+        // [GIVEN] Assign Lot No. in the sales line.
+        for i := 1 to ArrayLen(LotNos) do begin
+            LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignLotNoManual);
+            LibraryVariableStorage.Enqueue(LotNos[i]);
+
+            if i = ArrayLen(LotNos) then
+                LibraryVariableStorage.Enqueue(LotQty[i] - ExpectedQty)
+            else
+                LibraryVariableStorage.Enqueue(LotQty[i]);
+
+            SalesLine.OpenItemTrackingLines();
+        end;
+
+        // [GIVEN] Change the shipment date to workdate in the sales line.
+        SalesOrderSubform.OpenEdit();
+        SalesOrderSubform.GotoRecord(SalesLine);
+        SalesOrderSubform."Shipment Date".SetValue(CalcDate('<1M-CM>', WorkDate()));
+        SalesOrderSubform.Close();
+
+        // [WHEN] Delete the item tracking lines from the sales line.
+        for i := 1 to ArrayLen(LotNos) do begin
+            LibraryVariableStorage.Enqueue(ItemTrackingOption::ChangeLotQty);
+            LibraryVariableStorage.Enqueue(LotNos[i]);
+            LibraryVariableStorage.Enqueue(0);
+
+            SalesLine.OpenItemTrackingLines();
+        end;
+
+        // [VERIFY] Verify the remaining quantity of the item from the reservation entry.
+        ReservationEntry.SetRange("Item No.", Item."No.");
+        ReservationEntry.CalcSums(Quantity);
+        Assert.AreEqual(
+            ExpectedQty,
+            ReservationEntry.Quantity,
+            StrSubstNo(
+                RemainingQtyMustBeEqualErr,
+                ExpectedQty,
+                ReservationEntry.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4716,6 +4838,25 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         Assert.RecordIsNotEmpty(ReservationEntry);
     end;
 
+
+    local procedure PostItemJournalLineWithItemTracking(
+        Location: Record Location;
+        Item: Record Item;
+        LotNo: Code[50];
+        LotQty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ItemTrackingOption: Option AssignLotNoManual,AssignLotNos,ChangeLotQty;
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingOption::AssignLotNoManual);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(LotQty);
+
+        CreateAndPostItemJournalLineWithTracking(
+            ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Location.Code,
+            LotQty, 0, AssignTracking::GivenLotNo);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
@@ -5169,6 +5310,40 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesPageHandlerTrackingOptionWithLot(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        ItemTrackingOption: Option AssignLotNoManual,AssignLotNos,ChangeLotQty;
+        NoOfLines: Integer;
+        i: Integer;
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            ItemTrackingOption::AssignLotNoManual:
+                begin
+                    ItemTrackingLines.New();
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                end;
+            ItemTrackingOption::AssignLotNos:
+                begin
+                    NoOfLines := LibraryVariableStorage.DequeueInteger();
+                    for i := 1 to NoOfLines do begin
+                        ItemTrackingLines.New();
+                        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    end;
+                end;
+            ItemTrackingOption::ChangeLotQty:
+                begin
+                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                end;
+        end;
+
+        ItemTrackingLines.OK().Invoke();
     end;
 }
 
