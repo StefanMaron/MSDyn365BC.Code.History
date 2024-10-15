@@ -341,7 +341,9 @@ report 790 "Calculate Inventory"
 
     local procedure ValidatePostingDate()
     begin
-        ItemJnlBatch.Get(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+        if not ItemJnlBatch.Get(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name") then
+            exit;
+
         if ItemJnlBatch."No. Series" = '' then
             NextDocNo := ''
         else begin

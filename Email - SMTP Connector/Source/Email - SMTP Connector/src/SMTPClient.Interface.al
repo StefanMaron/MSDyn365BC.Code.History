@@ -3,14 +3,17 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
+#pragma warning disable AS0049
 interface "SMTP Client"
 {
+    Access = Internal;
+
     /// <summary>
     /// Initialize the SMTP client with the account to use and the email message to send.
     /// </summary>
     /// <param name="Account">The account to send the email from.</param>
     /// <param name="Message">The email message to send.</param>
-    procedure Initialize(Account: Record "SMTP Account"; Message: Codeunit "SMTP Message");
+    procedure Initialize(Account: Record "SMTP Account"; Message: Codeunit "Connector SMTP Message");
 
     /// <summary>
     /// Connects to the SMTP server specified in the Account variable during initialize.
@@ -35,3 +38,4 @@ interface "SMTP Client"
     /// </summary>
     procedure Disconnect();
 }
+#pragma warning restore AS0049
