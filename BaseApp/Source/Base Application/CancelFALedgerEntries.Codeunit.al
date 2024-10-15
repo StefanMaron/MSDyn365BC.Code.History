@@ -129,7 +129,10 @@ codeunit 5624 "Cancel FA Ledger Entries"
             "FA Error Entry No." := FALedgEntry."Entry No.";
             // to be able to filter on FA Posting Date
             "FA Posting Date" := FALedgEntry."FA Posting Date";
-            Validate(Amount, -Amount);
+            if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then
+                Validate(Amount, Amount)
+            else
+                Validate(Amount, -Amount);
             Validate(Correction, DeprBook."Mark Errors as Corrections");
             "Posting No. Series" := FAJnlSetup.GetGenNoSeries(GenJnlLine);
             "Line No." := "Line No." + 10000;

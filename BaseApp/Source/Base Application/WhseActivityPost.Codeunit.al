@@ -967,7 +967,7 @@ codeunit 7324 "Whse.-Activity-Post"
                 repeat
                     TrackingSpecification.CheckItemTrackingQuantity(
                       "Source Type", "Source Subtype", "Source No.", "Source Line No.",
-                      "Qty. to Handle", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
+                      "Qty. to Handle (Base)", "Qty. to Handle (Base)", true, InvoiceSourceDoc);
                 until Next() = 0;
         end;
     end;
