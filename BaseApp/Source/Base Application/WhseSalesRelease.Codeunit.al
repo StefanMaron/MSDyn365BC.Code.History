@@ -53,6 +53,8 @@ codeunit 5771 "Whse.-Sales Release"
                 else
                     WhseType := WhseType::Inbound;
 
+                OnReleaseOnBeforeCreateWhseRequest(SalesLine, OldWhseType, WhseType, First);
+
                 if First or (SalesLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
                     CreateWarehouseRequest(SalesHeader, SalesLine, WhseType, WhseRqst);
 
@@ -221,6 +223,11 @@ codeunit 5771 "Whse.-Sales Release"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReopenSetWhseRequestSourceDocument(var SalesHeader: Record "Sales Header"; var WarehouseRequest: Record "Warehouse Request"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReleaseOnBeforeCreateWhseRequest(var SalesLine: Record "Sales Line"; OldWhseType: Enum "Warehouse Request Type"; WhseType: Enum "Warehouse Request Type"; var First: Boolean)
     begin
     end;
 

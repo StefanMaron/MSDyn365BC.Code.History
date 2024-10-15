@@ -129,6 +129,8 @@ table 64 "Merge Duplicates Buffer"
         CollectFieldData;
         if not IsConflict then
             CollectRelatedTables;
+
+        OnAfterCollectData(Rec, TempMergeDuplicatesLineBuffer);
     end;
 
     local procedure CollectFieldData()
@@ -586,6 +588,11 @@ table 64 "Merge Duplicates Buffer"
                     until RecRef.Next() = 0;
                 RecRef.Close;
             until TableRelationsMetadata.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCollectData(MergeDuplicatesBuffer: Record "Merge Duplicates Buffer"; var TempMergeDuplicatesLineBuffer: Record "Merge Duplicates Line Buffer" temporary)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

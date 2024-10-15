@@ -1,4 +1,4 @@
-codeunit 8618 "Config. Excel Exchange"
+﻿codeunit 8618 "Config. Excel Exchange"
 {
 
     trigger OnRun()
@@ -81,10 +81,16 @@ codeunit 8618 "Config. Excel Exchange"
         exit(ExportExcel(FileName, ConfigPackageTable, false, false));
     end;
 
-    procedure ExportExcelTemplateFromTables(var ConfigPackageTable: Record "Config. Package Table"): Boolean
+    procedure ExportExcelTemplateFromTables(var ConfigPackageTable: Record "Config. Package Table") Result: Boolean
     var
         FileName: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExportExcelTemplateFromTables(ConfigPackageTable, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(ExportExcel(FileName, ConfigPackageTable, false, true));
     end;
 
@@ -791,6 +797,11 @@ codeunit 8618 "Config. Excel Exchange"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateTableColumnNames(var ConfigPackageField: Record "Config. Package Field"; var ConfigPackageTable: Record "Config. Package Table"; var TypeHelper: Codeunit "Type Helper"; var ConfigXMLExchange: Codeunit "Config. XML Exchange"; var OpenXMLManagement: Codeunit "OpenXML Management"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportExcelTemplateFromTables(var ConfigPackageTable: Record "Config. Package Table"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

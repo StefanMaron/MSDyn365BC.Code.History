@@ -139,7 +139,14 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
     end;
 
     local procedure TestIfUnapplied(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestIfUnapplied(PurchCrMemoHdr, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchCrMemoHdr.CalcFields("Amount Including VAT");
         PurchCrMemoHdr.CalcFields("Remaining Amount");
         if PurchCrMemoHdr."Amount Including VAT" <> -PurchCrMemoHdr."Remaining Amount" then
@@ -287,7 +294,13 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
     var
         GenPostingSetup: Record "General Posting Setup";
         Item: Record Item;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestGenPostingSetup(PurchCrMemoLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenPostingSetup do begin
             Get(PurchCrMemoLine."Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group");
             TestField("Purch. Account");
@@ -474,6 +487,16 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestInventoryPostingSetup(PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestGenPostingSetup(PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestIfUnapplied(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
     begin
     end;
 }
