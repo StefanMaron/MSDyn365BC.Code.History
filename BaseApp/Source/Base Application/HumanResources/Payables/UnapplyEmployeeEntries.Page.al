@@ -172,7 +172,6 @@ page 625 "Unapply Employee Entries"
 
                 trigger OnAction()
                 var
-                    ApplyUnapplyParameters: Record "Apply Unapply Parameters";
                     EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";
                 begin
                     if Rec.IsEmpty() then
@@ -200,7 +199,6 @@ page 625 "Unapply Employee Entries"
 
                 trigger OnAction()
                 var
-                    ApplyUnapplyParameters: Record "Apply Unapply Parameters";
                     EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";
                 begin
                     if Rec.IsEmpty() then
@@ -232,6 +230,9 @@ page 625 "Unapply Employee Entries"
     begin
         InsertEntries();
     end;
+
+    protected var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
 
     var
         DtldEmplLedgEntry2: Record "Detailed Employee Ledger Entry";

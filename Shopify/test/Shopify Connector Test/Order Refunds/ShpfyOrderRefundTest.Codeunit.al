@@ -5,6 +5,8 @@ codeunit 139611 "Shpfy Order Refund Test"
 
     var
         LibraryAssert: Codeunit "Library Assert";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryRandom: Codeunit "Library - Random";
 
     trigger OnRun()
     begin
@@ -34,6 +36,25 @@ codeunit 139611 "Shpfy Order Refund Test"
         ShpfyDocLinkToDoc.DeleteAll();
     end;
 
+    local procedure CreateAndValidateUnitOfMeasureCode(RefundId: BigInteger)
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        RefundLine: record "Shpfy Refund Line";
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        RefundLine.SetRange("Refund Id", RefundId);
+        RefundLine.SetAutoCalcFields("Item No.", "Variant Code", Description, "Gift Card");
+        if RefundLine.FindSet(false) then
+            repeat
+                LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+                LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, RefundLine."Item No.", UnitOfMeasure.Code, LibraryRandom.RandInt(0));
+                if Item.Get(RefundLine."Item No.") then
+                    Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
+                Item.Modify(true);
+            until RefundLine.Next() = 0;
+    end;
+
     [Test]
     procedure UnitTestCreateCrMemoFromRefundWithFullyRefundedItem()
     var
@@ -44,7 +65,7 @@ codeunit 139611 "Shpfy Order Refund Test"
         CanCreateDocument: boolean;
         ErrorInfo: ErrorInfo;
     begin
-        // [SCENARION] Create a Credit Memo from a Shopify Refund where the item is totally refunded.
+        // [SCENARIO] Create a Credit Memo from a Shopify Refund where the item is totally refunded.
         Codeunit.Run(Codeunit::"Shpfy Initialize Test");
         Initialize();
 
@@ -58,6 +79,9 @@ codeunit 139611 "Shpfy Order Refund Test"
         CanCreateDocument := IReturnRefundProcess.CanCreateSalesDocumentFor(enum::"Shpfy Source Document Type"::Refund, RefundId, errorInfo);
         // [THEN] CancreateDocument must be true
         LibraryAssert.IsTrue(CanCreateDocument, 'The result of IReturnRefundProcess.CanCreateSalesDocumentFor must be true');
+
+        // [GIVEN] Create and Validate Unit of Measure Code.
+        CreateAndValidateUnitOfMeasureCode(RefundId);
 
         // [WHEN] Execute IReturnRefundProcess.CreateSalesDocument(Enum::"Shpfy Source Document Type"::Refund, RefundId)
         SalesHeader := IReturnRefundProcess.CreateSalesDocument(Enum::"Shpfy Source Document Type"::Refund, RefundId);
@@ -81,7 +105,7 @@ codeunit 139611 "Shpfy Order Refund Test"
         CanCreateDocument: boolean;
         ErrorInfo: ErrorInfo;
     begin
-        // [SCENARION] Create a Credit Memo from a Shopify Refund where only the shipment is refunded.
+        // [SCENARIO] Create a Credit Memo from a Shopify Refund where only the shipment is refunded.
         Codeunit.Run(Codeunit::"Shpfy Initialize Test");
         Initialize();
 
@@ -118,7 +142,7 @@ codeunit 139611 "Shpfy Order Refund Test"
         CanCreateDocument: boolean;
         ErrorInfo: ErrorInfo;
     begin
-        // [SCENARION] Create a Credit Memo from a Shopify Refund where the item is not refunded.
+        // [SCENARIO] Create a Credit Memo from a Shopify Refund where the item is not refunded.
         Codeunit.Run(Codeunit::"Shpfy Initialize Test");
         Initialize();
 
@@ -133,6 +157,9 @@ codeunit 139611 "Shpfy Order Refund Test"
         // [THEN] CancreateDocument must be true
         LibraryAssert.IsTrue(CanCreateDocument, 'The result of IReturnRefundProcess.CanCreateSalesDocumentFor must be true');
 
+        // [GIVEN] Create and Validate Unit of Measure Code.
+        CreateAndValidateUnitOfMeasureCode(RefundId);
+
         // [WHEN] Execute IReturnRefundProcess.CreateSalesDocument(Enum::"Shpfy Source Document Type"::Refund, RefundId)
         SalesHeader := IReturnRefundProcess.CreateSalesDocument(Enum::"Shpfy Source Document Type"::Refund, RefundId);
         // [THEN] SalesHeader."Document Type" = Enum::"Sales Document Type"::"Credit Memo"
@@ -144,6 +171,37 @@ codeunit 139611 "Shpfy Order Refund Test"
 
         // Tear down
         ResetProccesOnRefund(RefundId);
+    end;
+
+    [Test]
+    procedure UnitTestCanCreateCreditMemo()
+    var
+        RefundsAPI: Codeunit "Shpfy Refunds API";
+        RefundId1: BigInteger;
+        RefundId2: BigInteger;
+        RefundId3: BigInteger;
+    begin
+        // [SCENARIO] Can create credit memo check returns
+        // Non-zero refund = true
+        // Linked return refund = true
+        // Zero and not linked refund = false
+        Codeunit.Run(Codeunit::"Shpfy Initialize Test");
+        Initialize();
+
+        // [GIVEN] Non-zero refund
+        RefundId1 := ShopifyIds.Get('Refund').Get(5);
+        // [GIVEN] Linked return refund
+        RefundId2 := ShopifyIds.Get('Refund').Get(4);
+        // [GIVEN] Zero and not linked refund
+        RefundId3 := ShopifyIds.Get('Refund').Get(6);
+
+        // [WHEN] Execute VerifyRefundCanCreateCreditMemo
+        RefundsAPI.VerifyRefundCanCreateCreditMemo(RefundId1);
+        RefundsAPI.VerifyRefundCanCreateCreditMemo(RefundId2);
+        asserterror RefundsAPI.VerifyRefundCanCreateCreditMemo(RefundId3);
+
+        // [THEN] Only RefundId3 throws an error
+        LibraryAssert.ExpectedError('The refund imported from Shopify can''t be used to create a credit memo. Only refunds for paid items can be used to create credit memos.');
     end;
 
     var

@@ -193,7 +193,7 @@ report 292 "Copy Sales Document"
 
         trigger OnQueryClosePage(CloseAction: Action): Boolean
         begin
-            if CloseAction = ACTION::OK then
+            if CloseAction = Action::OK then
                 if FromDocNo = '' then
                     Error(DocNoNotSerErr)
         end;
@@ -404,7 +404,8 @@ report 292 "Copy Sales Document"
                 FromSalesHeader."Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
                 if FromSalesHeader.Find('=><') then;
             end;
-        if PAGE.RunModal(0, FromSalesHeader) = ACTION::LookupOK then
+        OnLookupSalesDocOnBeforeRunLookup(FromSalesHeader, SalesHeader, FromDocType);
+        if Page.RunModal(0, FromSalesHeader) = Action::LookupOK then
             FromDocNo := FromSalesHeader."No.";
     end;
 
@@ -424,7 +425,7 @@ report 292 "Copy Sales Document"
                 FromSalesHeaderArchive."Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
                 if FromSalesHeaderArchive.Find('=><') then;
             end;
-        if PAGE.RunModal(0, FromSalesHeaderArchive) = ACTION::LookupOK then begin
+        if Page.RunModal(0, FromSalesHeaderArchive) = Action::LookupOK then begin
             FromDocNo := FromSalesHeaderArchive."No.";
             FromDocNoOccurrence := FromSalesHeaderArchive."Doc. No. Occurrence";
             FromDocVersionNo := FromSalesHeaderArchive."Version No.";
@@ -442,7 +443,7 @@ report 292 "Copy Sales Document"
                 FromSalesShptHeader."Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
                 if FromSalesShptHeader.Find('=><') then;
             end;
-        if PAGE.RunModal(0, FromSalesShptHeader) = ACTION::LookupOK then
+        if Page.RunModal(0, FromSalesShptHeader) = Action::LookupOK then
             FromDocNo := FromSalesShptHeader."No.";
     end;
 
@@ -459,7 +460,8 @@ report 292 "Copy Sales Document"
         FromSalesInvHeader.FilterGroup(2);
         FromSalesInvHeader.SetRange("Prepayment Invoice", false);
         FromSalesInvHeader.FilterGroup(0);
-        if PAGE.RunModal(0, FromSalesInvHeader) = ACTION::LookupOK then
+        OnLookupPostedInvoiceOnBeforeRunLookup(FromSalesInvHeader, SalesHeader);
+        if Page.RunModal(0, FromSalesInvHeader) = Action::LookupOK then
             FromDocNo := FromSalesInvHeader."No.";
     end;
 
@@ -476,7 +478,8 @@ report 292 "Copy Sales Document"
         FromSalesCrMemoHeader.FilterGroup(2);
         FromSalesCrMemoHeader.SetRange("Prepayment Credit Memo", false);
         FromSalesCrMemoHeader.FilterGroup(0);
-        if PAGE.RunModal(0, FromSalesCrMemoHeader) = ACTION::LookupOK then
+        OnLookupPostedCrMemoOnBeforeRunLookup(FromSalesCrMemoHeader, SalesHeader);
+        if Page.RunModal(0, FromSalesCrMemoHeader) = Action::LookupOK then
             FromDocNo := FromSalesCrMemoHeader."No.";
     end;
 
@@ -490,7 +493,7 @@ report 292 "Copy Sales Document"
                 FromReturnRcptHeader."Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
                 if FromReturnRcptHeader.Find('=><') then;
             end;
-        if PAGE.RunModal(0, FromReturnRcptHeader) = ACTION::LookupOK then
+        if Page.RunModal(0, FromReturnRcptHeader) = Action::LookupOK then
             FromDocNo := FromReturnRcptHeader."No.";
     end;
 
@@ -577,7 +580,6 @@ report 292 "Copy Sales Document"
     begin
     end;
 
-
     [IntegrationEvent(false, false)]
     local procedure OnLookupSalesArchiveOnBeforeSetFilters(var FromSalesHeaderArchive: Record "Sales Header Archive"; var SalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From")
     begin
@@ -608,5 +610,19 @@ report 292 "Copy Sales Document"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupSalesDocOnBeforeRunLookup(var FromSalesHeader: Record "Sales Header"; var SalesHeader: Record "Sales Header"; SalesDocumentTypeFrom: Enum "Sales Document Type From")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupPostedInvoiceOnBeforeRunLookup(var FromSalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupPostedCrMemoOnBeforeRunLookup(var FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; var SalesHeader: Record "Sales Header");
+    begin
+    end;
 }
 

@@ -14,6 +14,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Accounting Period Search Test - NamedType WrongPeriodDateErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2964098855 - NamedType 438356844" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Destination GL Account must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = GL Account No. %2 = Page Name]D;]A;(LookupHint=Codeunit Alloc. Account Sales E2E Tests - NamedType DestinationAccountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3312798875 - NamedType 1887292331" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This posting date will cause an overdue payment.]]></Val>
@@ -286,7 +295,7 @@
   </Item>
   <Item ItemId=";Codeunit 2859947066 - NamedType 210726671" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Because of circular references, the program cannot calculate a formula.]]></Val>
+      <Val><![CDATA[This can be caused by recursive function calls]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -7315,7 +7324,7 @@
   </Item>
   <Item ItemId=";Codeunit 2641639841 - NamedType 4263595487" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot assign new numbers from the number series]]></Val>
+      <Val><![CDATA[Argument NoSeriesCode in GetNoSeriesLine cannot be blank.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -7644,6 +7653,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Invoice Aggregate UT - NamedType DocumentIDNotSpecifiedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1819602085 - NamedType 3355534607" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Due Date must be udpadated]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Invoice Aggregate UT - NamedType DueDateMustBeUpdatedTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1819602085 - NamedType 236230563" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -9383,15 +9401,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-O365 Shipping Agent - NamedType ModifiedShippingSvcCodeMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3835063973 - NamedType 1339937680" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Amount must have a value in Purch. Inv. Header]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Correct Purchase Invoice - NamedType AmountPurchInvErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3835063973 - NamedType 2976868375" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The invoice was posted from an order. The order has been deleted, and the invoice will be cancelled. You can create a new invoice or order by using the Copy Document action.\ \Do you want to continue?]]></Val>
@@ -9435,15 +9444,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Item no. %2 = Item description.]D;]A;(LookupHint=Codeunit O365 Correct Purchase Invoice - NamedType ShippedQtyReturnedCorrectErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2407102724 - NamedType 1774006116" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Amount must have a value in Sales Invoice Header]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Correct Sales Invoice - NamedType AmountSalesInvErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2407102724 - NamedType 2976868375" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -12207,15 +12207,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Move Neg. Sales Lines - NamedType ErrorNoNegLines)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 642181707 - NamedType 1339937680" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Amount must have a value in Purch. Inv. Header]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Purchase Correct Invoice - NamedType AmountPurchInvErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 642181707 - NamedType 720193098" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

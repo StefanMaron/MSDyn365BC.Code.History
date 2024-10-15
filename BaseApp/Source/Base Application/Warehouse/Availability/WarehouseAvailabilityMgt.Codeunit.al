@@ -249,6 +249,7 @@ codeunit 7314 "Warehouse Availability Mgt."
         PostedWhseRcptLine.SetRange("Item No.", ItemNo);
         PostedWhseRcptLine.SetRange("Location Code", LocationCode);
         PostedWhseRcptLine.SetRange("Variant Code", VariantCode);
+        OnCalcQtyRcvdNotAvailableOnBeforeCalcSums(PostedWhseRcptLine, LocationCode, ItemNo, VariantCode);
         PostedWhseRcptLine.CalcSums("Qty. (Base)", "Qty. Put Away (Base)");
         QtyRcvdNotAvailable := PostedWhseRcptLine."Qty. (Base)" - PostedWhseRcptLine."Qty. Put Away (Base)";
 
@@ -739,7 +740,13 @@ codeunit 7314 "Warehouse Availability Mgt."
         WarehouseEntry: Record "Warehouse Entry";
         QtyPickedBase: Decimal;
         QtyShippedBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcQtyPickedNotShipped(SourceType, SourceSubType, SourceID, SourceRefNo, QtyPickedBase, IsHandled);
+        if IsHandled then
+            exit(QtyPickedBase);
+
         WarehouseEntry.Reset();
         WarehouseEntry.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceRefNo, true);
         WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::Movement);
@@ -948,6 +955,16 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQtyOnDedicatedBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; var WarehouseEntry: Record "Warehouse Entry"; TempWhseItemTrackingSetup: Record "Item Tracking Setup" temporary; var QtyOnDedicatedBin: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyRcvdNotAvailableOnBeforeCalcSums(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyPickedNotShipped(SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer; var QtyPickedNotShippedBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

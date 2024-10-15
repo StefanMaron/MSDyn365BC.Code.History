@@ -52,7 +52,7 @@ codeunit 134902 "ERM Account Schedule"
         MoreLeftParenthesisTok: Label '10*{(}%1/10';
         MoreLeftParenthesisErr: Label 'There are more left parentheses than right parentheses.';
         AvoidBlankTok: Label '+ %1 ';
-        CircularRefErr: Label 'Because of circular references, the program cannot calculate a formula.';
+        CircularRefErr: Label 'This can be caused by recursive function calls';
         IsInitialized: Boolean;
         RowVisibleErr: Label 'Row no %1 with property Show = No is visible in Account Schedule Overview.';
         DivisionFormulaTok: Label '%1/%2', Locked = true;

@@ -440,41 +440,46 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     local procedure BufferCapacityPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
+    var
+        IsHandled: Boolean;
     begin
-        if ValueEntry."Order Type" = ValueEntry."Order Type"::Assembly then
-            case ValueEntry."Entry Type" of
-                ValueEntry."Entry Type"::"Direct Cost":
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                      TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
-                      CostToPost, CostToPostACY, false);
-                ValueEntry."Entry Type"::"Indirect Cost":
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                      TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
-                      CostToPost, CostToPostACY, false);
-                else
-                    ErrorNonValidCombination(ValueEntry);
-            end
-        else
-            case ValueEntry."Entry Type" of
-                ValueEntry."Entry Type"::"Direct Cost":
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
-                      TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
-                      CostToPost, CostToPostACY, false);
-                ValueEntry."Entry Type"::"Indirect Cost":
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
-                      TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
-                      CostToPost, CostToPostACY, false);
-                else
-                    ErrorNonValidCombination(ValueEntry);
-            end;
+        IsHandled := false;
+        OnBeforeBufferCapacityPosting(ValueEntry, TempGlobalInvtPostingBuffer, CostToPost, CostToPostACY, IsHandled);
+        if not IsHandled then
+            if ValueEntry."Order Type" = ValueEntry."Order Type"::Assembly then
+                case ValueEntry."Entry Type" of
+                    ValueEntry."Entry Type"::"Direct Cost":
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                          TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
+                          CostToPost, CostToPostACY, false);
+                    ValueEntry."Entry Type"::"Indirect Cost":
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                          TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
+                          CostToPost, CostToPostACY, false);
+                    else
+                        ErrorNonValidCombination(ValueEntry);
+                end
+            else
+                case ValueEntry."Entry Type" of
+                    ValueEntry."Entry Type"::"Direct Cost":
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                          TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
+                          CostToPost, CostToPostACY, false);
+                    ValueEntry."Entry Type"::"Indirect Cost":
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                          TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
+                          CostToPost, CostToPostACY, false);
+                    else
+                        ErrorNonValidCombination(ValueEntry);
+                end;
 
         OnAfterBufferCapacityPosting(ValueEntry, CostToPost, CostToPostACY);
     end;
@@ -1536,6 +1541,11 @@ codeunit 5802 "Inventory Posting To G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterBufferPurchPosting(var TempInvtPostingBuffer: array[20] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; var PostBufDimNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeBufferCapacityPosting(var ValueEntry: Record "Value Entry"; var TempGlobalInvtPostingBuffer: Record "Invt. Posting Buffer" temporary; CostToPost: Decimal; CostToPostACY: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

@@ -158,7 +158,7 @@ codeunit 799 "VAT Reporting Date Mgt"
         exit(IsValidDate(VATDate, 0));
     end;
 
-    internal procedure CheckDateAllowed(VATDate: Date; ContextFieldNo: Integer)
+    procedure CheckDateAllowed(VATDate: Date; ContextFieldNo: Integer)
     begin
         CheckDateAllowed(VATDate, ContextFieldNo, false, true);
     end;

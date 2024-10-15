@@ -102,35 +102,38 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         FromPurchLine: Record "Purchase Line";
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
         NextLineNo: Integer;
+        IsHandled: Boolean;
     begin
-        OnBeforeCreateDocChargeAssgn(LastItemChargeAssgntPurch, FromPurchLine);
-
-        FromPurchLine.SetRange("Document Type", LastItemChargeAssgntPurch."Document Type");
-        FromPurchLine.SetRange("Document No.", LastItemChargeAssgntPurch."Document No.");
-        FromPurchLine.SetRange(Type, FromPurchLine.Type::Item);
-        OnCreateDocChargeAssgntOnAfterFromPurchLineSetFilters(LastItemChargeAssgntPurch, FromPurchLine);
-        if FromPurchLine.Find('-') then begin
-            NextLineNo := LastItemChargeAssgntPurch."Line No.";
-            ItemChargeAssgntPurch.Reset();
-            ItemChargeAssgntPurch.SetRange("Document Type", LastItemChargeAssgntPurch."Document Type");
-            ItemChargeAssgntPurch.SetRange("Document No.", LastItemChargeAssgntPurch."Document No.");
-            ItemChargeAssgntPurch.SetRange("Document Line No.", LastItemChargeAssgntPurch."Document Line No.");
-            ItemChargeAssgntPurch.SetRange("Applies-to Doc. No.", LastItemChargeAssgntPurch."Document No.");
-            repeat
-                if (FromPurchLine.Quantity <> 0) and
-                   (FromPurchLine.Quantity <> FromPurchLine."Quantity Invoiced") and
-                   (FromPurchLine."Work Center No." = '') and
-                   ((ReceiptNo = '') or (FromPurchLine."Receipt No." = ReceiptNo)) and
-                   FromPurchLine."Allow Item Charge Assignment"
-                then begin
-                    ItemChargeAssgntPurch.SetRange("Applies-to Doc. Line No.", FromPurchLine."Line No.");
-                    if not ItemChargeAssgntPurch.FindFirst() then
-                        InsertItemChargeAssignment(
-                            LastItemChargeAssgntPurch, FromPurchLine."Document Type",
-                            FromPurchLine."Document No.", FromPurchLine."Line No.",
-                            FromPurchLine."No.", FromPurchLine.Description, NextLineNo);
-                end;
-            until FromPurchLine.Next() = 0;
+        IsHandled := false;
+        OnBeforeCreateDocChargeAssgn(LastItemChargeAssgntPurch, FromPurchLine, ReceiptNo, IsHandled);
+        if not IsHandled then begin
+            FromPurchLine.SetRange("Document Type", LastItemChargeAssgntPurch."Document Type");
+            FromPurchLine.SetRange("Document No.", LastItemChargeAssgntPurch."Document No.");
+            FromPurchLine.SetRange(Type, FromPurchLine.Type::Item);
+            OnCreateDocChargeAssgntOnAfterFromPurchLineSetFilters(LastItemChargeAssgntPurch, FromPurchLine);
+            if FromPurchLine.Find('-') then begin
+                NextLineNo := LastItemChargeAssgntPurch."Line No.";
+                ItemChargeAssgntPurch.Reset();
+                ItemChargeAssgntPurch.SetRange("Document Type", LastItemChargeAssgntPurch."Document Type");
+                ItemChargeAssgntPurch.SetRange("Document No.", LastItemChargeAssgntPurch."Document No.");
+                ItemChargeAssgntPurch.SetRange("Document Line No.", LastItemChargeAssgntPurch."Document Line No.");
+                ItemChargeAssgntPurch.SetRange("Applies-to Doc. No.", LastItemChargeAssgntPurch."Document No.");
+                repeat
+                    if (FromPurchLine.Quantity <> 0) and
+                       (FromPurchLine.Quantity <> FromPurchLine."Quantity Invoiced") and
+                       (FromPurchLine."Work Center No." = '') and
+                       ((ReceiptNo = '') or (FromPurchLine."Receipt No." = ReceiptNo)) and
+                       FromPurchLine."Allow Item Charge Assignment"
+                    then begin
+                        ItemChargeAssgntPurch.SetRange("Applies-to Doc. Line No.", FromPurchLine."Line No.");
+                        if not ItemChargeAssgntPurch.FindFirst() then
+                            InsertItemChargeAssignment(
+                                LastItemChargeAssgntPurch, FromPurchLine."Document Type",
+                                FromPurchLine."Document No.", FromPurchLine."Line No.",
+                                FromPurchLine."No.", FromPurchLine.Description, NextLineNo);
+                    end;
+                until FromPurchLine.Next() = 0;
+            end;
         end;
 
         OnAfterCreateDocChargeAssgnt(LastItemChargeAssgntPurch, ReceiptNo);
@@ -955,7 +958,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateDocChargeAssgn(var LastItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var FromPurchLine: Record "Purchase Line")
+    local procedure OnBeforeCreateDocChargeAssgn(var LastItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var FromPurchLine: Record "Purchase Line"; ReceiptNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
