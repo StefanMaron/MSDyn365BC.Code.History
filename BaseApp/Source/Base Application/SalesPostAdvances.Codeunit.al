@@ -3183,6 +3183,7 @@ codeunit 31000 "Sales-Post Advances"
         TempSalesAdvanceLetterEntry."VAT Amount (LCY)" := VATEntry.Amount;
         TempSalesAdvanceLetterEntry."VAT Entry No." := VATEntry."Entry No.";
         TempSalesAdvanceLetterEntry."VAT Date" := VATEntry."VAT Date";
+        OnFillVATFieldsOfDeductionEntryOnBeforeTempSalesAdvanceLetterEntry(TempSalesAdvanceLetterEntry, VATEntry);
         TempSalesAdvanceLetterEntry.Modify();
     end;
 
@@ -5673,6 +5674,11 @@ codeunit 31000 "Sales-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFillVATFieldsOfDeductionEntryOnBeforeTempSalesAdvanceLetterEntry(var TempSalesAdvanceLetterEntry: Record "Sales Advance Letter Entry"; VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUnapplyCustLedgEntryOnBeforeUnapply(CustLedgEntry: Record "Cust. Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
@@ -5756,7 +5762,7 @@ codeunit 31000 "Sales-Post Advances"
     local procedure OnUnPostInvCorrGLOnBeforePost(SalesInvHeader: Record "Sales Invoice Header"; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnPostInvLineCorrectionOnAfterAdvanceLetterLineRelationSetFilters(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var AdvanceLetterLineRelation: Record "Advance Letter Line Relation")
     begin
@@ -5861,6 +5867,7 @@ codeunit 31000 "Sales-Post Advances"
     local procedure OnCreateAdvanceEntryOnBeforeInsertTempSalesAdvanceLetterEntry(SalesAdvanceLetterLine: Record "Sales Advance Letter Line"; CustLedgEntry: Record "Cust. Ledger Entry"; var TempSalesAdvanceLetterEntry: Record "Sales Advance Letter Entry" temporary)
     begin
     end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateOrderLine(var SalesLine: Record "Sales Line"; var PricesInclVAT: Boolean; var RecalcAmtToDeduct: Boolean; var IsHandled: Boolean)
     begin

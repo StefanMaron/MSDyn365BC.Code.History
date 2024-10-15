@@ -88,7 +88,13 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
                                 VATCtrlReportSectionCZL.Get(VATStatementLine."VAT Ctrl. Report Section CZL");
 
                             if UseMergeVATEntries then
-                                MergeVATEntry(TempVATEntry, TempVATCtrlReportEntLinkCZL2);
+                                MergeVATEntry(TempVATEntry, TempVATCtrlReportEntLinkCZL2)
+                            else begin
+#pragma warning disable AL0432
+                                TempVATEntry.Base -= TempVATEntry."VAT Amount (Non Deductible)";
+                                TempVATEntry.Amount += TempVATEntry."VAT Amount (Non Deductible)";
+#pragma warning restore AL0432
+                            end;
 
                             DocumentAmount := GetDocumentAmount(
                                 TempVATEntry, VATCtrlReportSectionCZL."Group By" = VATCtrlReportSectionCZL."Group By"::"External Document No.");
@@ -242,8 +248,10 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
                 TempVATEntry.Amount := 0;
                 TempVATEntry."Advance Base" := 0;
                 repeat
-                    TempVATEntry.Base += TempVATEntryGlobal.Base;
-                    TempVATEntry.Amount += TempVATEntryGlobal.Amount;
+#pragma warning disable AL0432
+                    TempVATEntry.Base += TempVATEntryGlobal.Base - TempVATEntryGlobal."VAT Amount (Non Deductible)";
+                    TempVATEntry.Amount += TempVATEntryGlobal.Amount + TempVATEntryGlobal."VAT Amount (Non Deductible)";
+#pragma warning restore AL0432
                     TempVATEntry."Advance Base" += TempVATEntryGlobal."Advance Base";
 
                     if TempVATEntryGlobal."Entry No." <> TempVATEntry."Entry No." then begin

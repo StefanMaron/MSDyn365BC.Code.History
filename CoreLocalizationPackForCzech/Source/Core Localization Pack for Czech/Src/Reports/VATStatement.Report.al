@@ -395,6 +395,18 @@ report 11769 "VAT Statement CZL"
                                 VATEntry.CalcSums("Remaining Unrealized Base", "Add.-Curr. Rem. Unreal. Base");
                                 Amount := ConditionalAdd(0, VATEntry."Remaining Unrealized Base", VATEntry."Add.-Curr. Rem. Unreal. Base");
                             end;
+#pragma warning disable AL0432
+                        VATStmtLine2."Amount Type"::"VAT Amount (Non Deductible)":
+                            begin
+                                VATEntry.CalcSums("VAT Amount (Non Deductible)");
+                                Amount := ConditionalAdd(0, VATEntry."VAT Amount (Non Deductible)", 0);
+                            end;
+                        VATStmtLine2."Amount Type"::"VAT Base (Non Deductible)":
+                            begin
+                                VATEntry.CalcSums("VAT Base (Non Deductible)");
+                                Amount := ConditionalAdd(0, VATEntry."VAT Base (Non Deductible)", 0);
+                            end;
+#pragma warning restore AL0432
                     end;
                     OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine2, VATEntry, Amount, UseAmtsInAddCurr);
                     CalcTotalAmount(VATStmtLine2, TotalAmount);

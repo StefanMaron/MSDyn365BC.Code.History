@@ -130,12 +130,22 @@ codeunit 11746 "Gen. Journal Line Handler CZL"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnAfterCheckGenJnlLine', '', false, false)]
     local procedure CheckVatDateOnAfterCheckGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
     var
+        VATPostingSetup: Record "VAT Posting Setup";
         VATDateHandler: Codeunit "VAT Date Handler CZL";
+        VATDateNeeded: Boolean;
         MustBeLessOrEqualErr: Label 'must be less or equal to %1', Comment = '%1 = fieldcaption of VAT Date CZL';
     begin
         GLSetup.Get();
         if GLSetup."Use VAT Date CZL" then begin
-            VATDateHandler.CheckVATDateCZL(GenJournalLine);
+            VATDateNeeded := false;
+            if GenJournalLine."Gen. Posting Type" <> Enum::"General Posting Type"::" " then
+                if VATPostingSetup.Get(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group") then
+                    VATDateNeeded := true;
+            if GenJournalLine."Bal. Gen. Posting Type" <> Enum::"General Posting Type"::" " then
+                if VATPostingSetup.Get(GenJournalLine."Bal. VAT Bus. Posting Group", GenJournalLine."Bal. VAT Prod. Posting Group") then
+                    VATDateNeeded := true;
+            if VATDateNeeded then
+                VATDateHandler.CheckVATDateCZL(GenJournalLine);
             if (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor) and (GenJournalLine."Document Type" <> GenJournalLine."Document Type"::" ") then
                 GenJournalLine.TestField("Original Doc. VAT Date CZL");
             if GenJournalLine."Original Doc. VAT Date CZL" > GenJournalLine."VAT Date CZL" then

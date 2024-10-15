@@ -328,9 +328,12 @@ table 31051 "Credit Line"
         key(Key1; "Credit No.", "Line No.")
         {
             Clustered = true;
-            SumIndexFields = "Ledg. Entry Rem. Amt. (LCY)", "Amount (LCY)";
         }
         key(Key2; "Source Type", "Source No.")
+        {
+            SumIndexFields = "Ledg. Entry Rem. Amt. (LCY)", "Amount (LCY)";
+        }
+        key(key3; "Credit No.", "Source Type", "Source Entry No.")
         {
             SumIndexFields = "Ledg. Entry Rem. Amt. (LCY)", "Amount (LCY)";
         }

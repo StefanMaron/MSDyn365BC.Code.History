@@ -355,7 +355,10 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                             VATEntry2: Record "VAT Entry";
                         begin
                             // Calculate amount and base
-                            VATEntry.CalcSums(Base, Amount, "Additional-Currency Base", "Additional-Currency Amount", "Advance Base");
+                            VATEntry.CalcSums(Base, Amount, "Additional-Currency Base", "Additional-Currency Amount", "Advance Base",
+#pragma warning disable AL0432
+                                "VAT Amount (Non Deductible)");
+#pragma warning restore AL0432
                             ReversingEntry := false;
 
                             // Balancing entries to VAT accounts
@@ -410,10 +413,16 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                                                     PostGenJnlLine(GenJnlLine);
 
                                                 CreateGenJnlLine(GenJnlLine2, "VAT Posting Setup".GetRevChargeAccount(false));
+#pragma warning disable AL0432
+                                                GenJnlLine2.Amount += VATEntry."VAT Amount (Non Deductible)";
+#pragma warning restore AL0432
                                                 SetVatPostingSetupToGenJnlLine(GenJnlLine2, "VAT Posting Setup");
                                                 if PostSettlement then
                                                     PostGenJnlLine(GenJnlLine2);
                                                 ReversingEntry := true;
+#pragma warning disable AL0432
+                                                VATAmount := VATAmount - VATEntry."VAT Amount (Non Deductible)";
+#pragma warning restore AL0432
                                             end;
                                         VATEntry.Type::Sale:
                                             begin

@@ -3428,6 +3428,7 @@ codeunit 31020 "Purchase-Post Advances"
         TempPurchAdvanceLetterEntry."VAT Amount (LCY)" := VATEntry.Amount;
         TempPurchAdvanceLetterEntry."VAT Entry No." := VATEntry."Entry No.";
         TempPurchAdvanceLetterEntry."VAT Date" := VATEntry."VAT Date";
+        OnBeforeModifyTempPurchAdvanceLetterEntryOnFillVATFieldsOfDeductionEntry(TempPurchAdvanceLetterEntry, VATEntry);
         TempPurchAdvanceLetterEntry.Modify();
     end;
 
@@ -5978,6 +5979,11 @@ codeunit 31020 "Purchase-Post Advances"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateAdvanceEntryOnBeforeInsertTempPurchAdvanceLetterEntry(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; var TempPurchAdvanceLetterEntry: Record "Purch. Advance Letter Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyTempPurchAdvanceLetterEntryOnFillVATFieldsOfDeductionEntry(var TempPurchAdvanceLetterEntry: Record "Purch. Advance Letter Entry"; VATEntry: Record "VAT Entry")
     begin
     end;
 

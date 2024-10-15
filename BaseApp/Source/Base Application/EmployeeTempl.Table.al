@@ -133,6 +133,11 @@ table 1384 "Employee Templ."
                 "Company E-Mail" := CopyStr(EmailAddress, 1, MaxStrLen("Company E-Mail"));
             end;
         }
+        field(53; "No. Series"; Code[20])
+        {
+            Caption = 'No. Series';
+            TableRelation = "No. Series";
+        }
         field(55; "Employee Posting Group"; Code[20])
         {
             Caption = 'Employee Posting Group';

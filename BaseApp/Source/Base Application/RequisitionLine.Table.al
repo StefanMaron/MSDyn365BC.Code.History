@@ -2427,6 +2427,7 @@
         "Ref. Order Type" := "Ref. Order Type"::Purchase;
         "Ref. Line No." := PurchLine."Line No.";
         "Vendor No." := PurchLine."Buy-from Vendor No.";
+        Validate("Currency Code", PurchLine."Currency Code");
 
         OnAfterTransferFromPurchaseLine(Rec, PurchLine);
 

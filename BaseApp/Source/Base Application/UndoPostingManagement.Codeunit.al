@@ -757,7 +757,7 @@
                     FieldError("Document Type");
             end;
             Modify;
-            RevertPostedItemTracking(TempUndoneItemLedgEntry, "Expected Receipt Date");
+            RevertPostedItemTracking(TempUndoneItemLedgEntry, "Expected Receipt Date", false);
             xPurchLine."Quantity (Base)" := 0;
             ReservePurchLine.VerifyQuantity(PurchLine, xPurchLine);
 
@@ -805,7 +805,7 @@
                     FieldError("Document Type");
             end;
             Modify;
-            RevertPostedItemTracking(TempUndoneItemLedgEntry, "Shipment Date");
+            RevertPostedItemTracking(TempUndoneItemLedgEntry, "Shipment Date", false);
             xSalesLine."Quantity (Base)" := 0;
             ReserveSalesLine.VerifyQuantity(SalesLine, xSalesLine);
 
@@ -836,7 +836,7 @@
                     FieldError("Document Type");
             end;
             Modify;
-            RevertPostedItemTracking(TempUndoneItemLedgEntry, "Posting Date");
+            RevertPostedItemTracking(TempUndoneItemLedgEntry, "Posting Date", false);
             xServLine."Quantity (Base)" := 0;
             ReserveServLine.VerifyQuantity(ServLine, xServLine);
 
@@ -881,13 +881,13 @@
                     FieldError("Document Type");
             end;
             Modify;
-            RevertPostedItemTracking(TempUndoneItemLedgEntry, "Posting Date");
+            RevertPostedItemTracking(TempUndoneItemLedgEntry, "Posting Date", false);
             xServLine."Quantity (Base)" := 0;
             ReserveServLine.VerifyQuantity(ServLine, xServLine);
         end;
     end;
 
-    local procedure RevertPostedItemTracking(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; AvailabilityDate: Date)
+    procedure RevertPostedItemTracking(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; AvailabilityDate: Date; RevertInvoiced: Boolean)
     var
         TrackingSpecification: Record "Tracking Specification";
         ReservEntry: Record "Reservation Entry";
@@ -902,6 +902,8 @@
                         ReservEntry.Init();
                         ReservEntry.TransferFields(TrackingSpecification);
                         ReservEntry.Validate("Quantity (Base)");
+                        if RevertInvoiced then
+                            ReservEntry."Quantity Invoiced (Base)" -= TrackingSpecification."Quantity Invoiced (Base)";
                         ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Surplus;
                         if ReservEntry.Positive then
                             ReservEntry."Expected Receipt Date" := AvailabilityDate

@@ -226,8 +226,8 @@ report 11757 "Documentation for VAT CZL"
                         CalculatedVATBase := CalcVATBase("VAT Entry");
                         CalculatedVATAmount := CalcVATAmount("VAT Entry");
 
-                        if CalcVATBase("VAT Entry") <> CalculatedVATBase then
-                            VATBase := CalcVATBase("VAT Entry");
+                        if CalcVATBaseIncludingAdvance("VAT Entry") <> CalculatedVATBase then
+                            VATBase := CalcVATBaseIncludingAdvance("VAT Entry");
                         if Amount <> CalculatedVATAmount then
                             VATAmount := Amount;
 
@@ -239,8 +239,10 @@ report 11757 "Documentation for VAT CZL"
                         VATEntrySubtotalAmt[6] += VATAmount;
 
                         VATEntry.SetFilter("VAT Calculation Type", '<>%1', VATEntry."VAT Calculation Type"::"Reverse Charge VAT");
-                        VATEntry.CalcSums(Base, Amount, "Additional-Currency Base", "Additional-Currency Amount", "Advance Base");
-
+                        VATEntry.CalcSums(Base, Amount, "Additional-Currency Base", "Additional-Currency Amount", "Advance Base",
+#pragma warning disable AL0432
+                            "VAT Base (Non Deductible)", "VAT Amount (Non Deductible)");
+#pragma warning restore AL0432
                         case "VAT Posting Setup"."VAT Calculation Type" of
                             "VAT Posting Setup"."VAT Calculation Type"::"Normal VAT",
                           "VAT Posting Setup"."VAT Calculation Type"::"Full VAT",
@@ -527,14 +529,33 @@ report 11757 "Documentation for VAT CZL"
         if VATPeriodCZL.Get(StartDateReq) then;
     end;
 
+    local procedure GetCoefficient(VATEntry: Record "VAT Entry"): Integer
+    begin
+        if VATEntry.Base < 0 then
+            exit(-1);
+        exit(1);
+    end;
+
+    local procedure CalcVATAmountNonDeductible(VATEntry: Record "VAT Entry"): Decimal
+    begin
+#pragma warning disable AL0432
+        exit(GetCoefficient(VATEntry) * Abs(VATEntry."VAT Amount (Non Deductible)"));
+#pragma warning restore AL0432
+    end;
+
     local procedure CalcVATBase(VATEntry: Record "VAT Entry"): Decimal
+    begin
+        exit(VATEntry.Base + VATEntry."Advance Base" - CalcVATAmountNonDeductible(VATEntry));
+    end;
+
+    local procedure CalcVATBaseIncludingAdvance(VATEntry: Record "VAT Entry"): Decimal
     begin
         exit(VATEntry.Base + VATEntry."Advance Base");
     end;
 
     local procedure CalcVATAmount(VATEntry: Record "VAT Entry"): Decimal
     begin
-        exit(VATEntry.Amount);
+        exit(VATEntry.Amount + CalcVATAmountNonDeductible(VATEntry));
     end;
 
     local procedure AddTotal(VATEntry: Record "VAT Entry")
@@ -555,8 +576,8 @@ report 11757 "Documentation for VAT CZL"
                 begin
                     VATBasePurchTotal[1] += CalculatedVATBase1;
                     VATAmountPurchTotal[1] += CalculatedVATAmount1;
-                    VATBasePurchTotal[2] += CalculatedVATBase1;
-                    VATAmountPurchTotal[2] += CalculatedVATAmount1;
+                    VATBasePurchTotal[2] += CalcVATBaseIncludingAdvance(VATEntry);
+                    VATAmountPurchTotal[2] += VATEntry.Amount;
 
                     if VATEntry."VAT Calculation Type" = VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then begin
                         VATBaseReverseChargeVATTotal[1] -= CalculatedVATBase1;
@@ -569,8 +590,8 @@ report 11757 "Documentation for VAT CZL"
                 begin
                     VATBaseSaleTotal[1] += CalculatedVATBase1;
                     VATAmountSaleTotal[1] += CalculatedVATAmount1;
-                    VATBaseSaleTotal[2] += CalculatedVATBase1;
-                    VATAmountSaleTotal[2] += CalculatedVATAmount1;
+                    VATBaseSaleTotal[2] += CalcVATBaseIncludingAdvance(VATEntry);
+                    VATAmountSaleTotal[2] += VATEntry.Amount;
                 end;
         end;
 

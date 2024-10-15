@@ -50,4 +50,13 @@
       <Cmt Name="Dev"><![CDATA[%1=Vendor No.;%2=VAT Registration No.]D;]A;(LookupHint=Codeunit Unreliable Payer CZL - NamedType VendUnrVATPayerQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3753419350 - Method 1030885232 - NamedType 3598109445" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Closed must be equal to 'No'  in VAT Period: Starting Date=%1. Current value is 'Yes'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Starting Date of VAT period]D;]A;(LookupHint=Codeunit VAT Date CZL - Method GenJnlLinePostWithVATToClosedVATPeriod - NamedType TestClosedFieldErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

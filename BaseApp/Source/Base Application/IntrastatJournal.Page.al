@@ -65,6 +65,7 @@
                     ApplicationArea = BasicEU;
                     StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies the name of the item.';
+                    Caption = 'Item Name';
                 }
                 field("Tariff No."; "Tariff No.")
                 {
@@ -84,17 +85,30 @@
                 field("Item Description"; "Item Description")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies a description of the item.';
+                    ToolTip = 'Specifies the name of the tariff no. that is associated with the item.';
+                    Caption = 'Tariff No. Description';
                 }
                 field("Country/Region Code"; "Country/Region Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
+                field("Partner VAT ID"; "Partner VAT ID")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
+                    Visible = false;
+                }
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the origin country/region code.';
+                }
+                field("Area"; Area)
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
+                    Visible = false;
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
@@ -116,12 +130,6 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the code of either the port of entry where the items passed into your country/region or the port of exit.';
-                    Visible = false;
-                }
-                field("Area"; Area)
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
                 field("Shpt. Method Code"; "Shpt. Method Code")
@@ -226,12 +234,6 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the source entry date of the intrastat journal line';
-                    Visible = false;
-                }
-                field("Partner VAT ID"; "Partner VAT ID")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the counter party''s VAT number.';
                     Visible = false;
                 }
                 field("Location Code"; "Location Code")

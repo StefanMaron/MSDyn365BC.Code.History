@@ -1,6 +1,8 @@
 #pragma warning disable AL0432
 codeunit 31097 "Substitute Report Handler CZL"
 {
+    Permissions = TableData "NAV App Installed App" = r;
+
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
 
@@ -106,9 +108,9 @@ codeunit 31097 "Substitute Report Handler CZL"
 
     local procedure IsTestingEnvironment(): Boolean
     var
-        ExtensionManagement: Codeunit "Extension Management";
+        NAVAppInstalledApp: Record "NAV App Installed App";
     begin
-        exit(ExtensionManagement.IsInstalledByAppId('fa3e2564-a39e-417f-9be6-c0dbe3d94069')); // application "Tests-ERM"
+        exit(NAVAppInstalledApp.Get('fa3e2564-a39e-417f-9be6-c0dbe3d94069')); // application "Tests-ERM"
     end;
 
     local procedure GetSubstituteGeneralReportsNotificationId(): Guid
