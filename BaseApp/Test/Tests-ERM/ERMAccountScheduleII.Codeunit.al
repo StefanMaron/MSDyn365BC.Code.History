@@ -22,6 +22,9 @@ codeunit 134994 "ERM Account Schedule II"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryCostAccounting: Codeunit "Library - Cost Accounting";
+        LibraryCashFlow: Codeunit "Library - Cash Flow";
+        LibraryCashFlowHelper: Codeunit "Library - Cash Flow Helper";
         DimFilterErr: Label 'Wrong Dimension filter.';
         DimFilterStrTok: Label '%1 FILTER';
         DimFilterStringTok: Label 'Dimension 1 Filter: %1, Dimension 2 Filter: %2, Dimension 3 Filter: %3, Dimension 4 Filter: %4';
@@ -30,8 +33,7 @@ codeunit 134994 "ERM Account Schedule II"
         SystemGeneratedAccSchedQst: Label 'This account schedule may be automatically updated by the system, so any changes you make may be lost. Do you want to make a copy?';
         TargetExistsErr: Label 'The new account schedule already exists.';
         TargetNameMissingErr: Label 'You must specify a name for the new account schedule.';
-        LibraryCostAccounting: Codeunit "Library - Cost Accounting";
-        LibraryCashFlow: Codeunit "Library - Cash Flow";
+        IncorrectValueInTotalingValueErr: Label 'Incorrect Value in Totaling Value';
         IsInitialized: Boolean;
 
     [Test]
@@ -503,6 +505,46 @@ codeunit 134994 "ERM Account Schedule II"
         LibraryReportValidation.VerifyEmptyCellByRef('A', 22, 1);
         LibraryReportValidation.VerifyEmptyCellByRef('A', 24, 1);
         LibraryReportValidation.VerifyEmptyCellByRef('A', 26, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteAccountScheduleLinesAndVerifyTotaling()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleLine2: Record "Acc. Schedule Line";
+        AccScheduleLine3: Record "Acc. Schedule Line";
+        AccScheduleLine4: Record "Acc. Schedule Line";
+        AccountSchedulePage: TestPage "Account Schedule";
+        AccountScheduleNames: TestPage "Account Schedule Names";
+        TotalingValue: Text[250];
+    begin
+        // [SCENARIO 441229] Delete Lines from Account Schedule and ensure not modifies the value in Totalling
+        Initialize();
+
+        // [GIVEN] An account schedule with four lines
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name, AccScheduleLine."Totaling Type"::"Total Accounts", '1110');
+        CreateAccScheduleLine(AccScheduleLine2, AccScheduleName.Name, AccScheduleLine."Totaling Type"::"Total Accounts", '1120');
+        CreateAccScheduleLine(AccScheduleLine3, AccScheduleName.Name, AccScheduleLine."Totaling Type"::"Total Accounts", '1120');
+        CreateAccScheduleLine(AccScheduleLine4, AccScheduleName.Name, AccScheduleLine."Totaling Type"::"Total Accounts", '1110');
+
+        // [GIVEN] Open the Account Schedule Page
+        AccountScheduleNames.OpenEdit();
+        AccountScheduleNames.Filter.SetFilter(Name, AccScheduleName.Name);
+        AccountSchedulePage.Trap();
+        AccountScheduleNames.EditAccountSchedule.Invoke();
+        AccountSchedulePage.GoToRecord(AccScheduleLine2);
+        TotalingValue := AccountSchedulePage.Totaling.Value();
+
+        // [WHEN] Delete two Account Schedule Lines and go to existing line
+        AccScheduleLine2.Delete(true);
+        AccScheduleLine3.Delete(true);
+        AccountSchedulePage.GoToRecord(AccScheduleLine);
+
+        // [THEN] Verify Totaling Values are not equal after deletion of Account Schedule Lines
+        Assert.AreNotEqual(AccountSchedulePage.Totaling.Value, TotalingValue, IncorrectValueInTotalingValueErr);
     end;
 
     local procedure VerifyAccSchedColumnIndentationCalc(Indentation: Integer; ShowIndentation: Option; ExpectZero: Boolean)
@@ -1809,6 +1851,80 @@ codeunit 134994 "ERM Account Schedule II"
         // check that request page has correct data
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('AccScheduleOverviewPageHandler')]
+    procedure VerifyBudgetValuefromCashFlowEntry()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        CashFlowAccount: Record "Cash Flow Account";
+        CashFlowForecast: Record "Cash Flow Forecast";
+        ColumnLayout: Record "Column Layout";
+        GLBudgetName: Record "G/L Budget Name";
+        GLBudgetEntry: Record "G/L Budget Entry";
+        GLAccount: Record "G/L Account";
+        CFAccount: Record "Cash Flow Account";
+        FinancialReport: Record "Acc. Schedule Name";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+        FinancialReports: TestPage "Account Schedule Names";
+        Amount: Decimal;
+    begin
+        // [SCENARIO 439186] Account Schedule , does not give the budget values when it is designed through Cash Flow ledger entries
+        Initialize();
+
+        // [GIVEN] Set amount valur in variablr to verify on AccSchedule Overview Matrix
+        Amount := LibraryRandom.RandDec(1000, 2);
+
+        // [GIVEN] Create Cash Flow Account as Entry Account Type and Account Schedule Lines with created Cash Flow Account as Entry Account Type.
+        LibraryCashFlowHelper.FindCFBudgetAccount(CFAccount);
+        LibraryERM.CreateGLBudgetName(GLBudgetName);
+
+        // [GIVEN] Update coulmnlayout for getting Budget value from Cashflow Ledger Entries.
+        CreateColumnLayout(ColumnLayout);
+        ColumnLayout.Validate("Column Type", ColumnLayout."Column Type"::"Net Change");
+        ColumnLayout.Validate("Ledger Entry Type", ColumnLayout."Ledger Entry Type"::"Budget Entries");
+        ColumnLayout.Validate("Amount Type", ColumnLayout."Amount Type"::"Net Amount");
+        ColumnLayout.Validate("Budget Name", GLBudgetName.Name);
+        ColumnLayout.Modify();
+
+        // [GIVEN] Create Accscheduleline for Cash Flow entry.
+        SetupAccountSchedule(
+          AccScheduleLine, CFAccount."No.", AccScheduleLine."Totaling Type"::"Cash Flow Entry Accounts");
+
+        // [GIVEN] Create Cashflow forecast and update G/L Budget Name.
+        LibraryCashFlow.CreateCashFlowCard(CashFlowForecast);
+        CashFlowForecast.Validate("G/L Budget From", WorkDate());
+        CashFlowForecast.Validate("G/L Budget To", WorkDate());
+        CashFlowForecast.Validate("Default G/L Budget Name", GLBudgetName.Name);
+        CashFlowForecast.Modify(true);
+
+        // [THEN] GL budget selected on Cashflow forecast
+        LibraryCashFlowHelper.FindFirstGLAccFromCFAcc(GLAccount, CFAccount);
+        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, CashFlowForecast."G/L Budget To", GLAccount."No.", GLBudgetName.Name);
+        GLBudgetEntry.Validate(Amount, Amount);
+        GLBudgetEntry.Modify();
+
+        // [THEN] Create Cashflow ledger entries for GL Budget selected on Cash flow forecast.
+        LibraryCashFlow.FillBudgetJournal(false, CashFlowForecast."No.", GLBudgetName.Name);
+        LibraryCashFlow.PostJournal;
+
+        // [GIVEN] Update Columna layout in Financial report.
+        FinancialReport.Get(AccScheduleLine."Schedule Name");
+        FinancialReport.Validate("Default Column Layout", ColumnLayout."Column Layout Name");
+        FinancialReport.Modify();
+
+        // [THEN] Enquew the values to check the ABudget amount on matrix.
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.Enqueue(AccScheduleLine."Row No.");
+        LibraryVariableStorage.Enqueue(-1 * Amount);
+
+        // [VERIFY] Open Account Schedule Overview Matrix from Account Schedule Name through AccScheduleOverviewPageHandler.
+        // and verify the budget amount.
+        FinancialReports.OpenView();
+        FinancialReports.FILTER.SetFilter(Name, AccScheduleLine."Schedule Name");
+        FinancialReports.Overview.Invoke();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2184,6 +2300,32 @@ codeunit 134994 "ERM Account Schedule II"
         AccountSchedulePage.Overview.Invoke;
     end;
 
+    local procedure SetupAccountSchedule(var AccScheduleLine: Record "Acc. Schedule Line"; AccountNo: Code[10]; TotalingType: Enum "Acc. Schedule Line Totaling Type")
+    begin
+        CreateAccountScheduleAndLine(AccScheduleLine, AccountNo);
+        UpdateAccScheduleLine(AccScheduleLine, AccountNo, TotalingType, AccountNo);
+    end;
+
+    local procedure CreateAccountScheduleAndLine(var AccScheduleLine: Record "Acc. Schedule Line"; RowNo: Code[10])
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+    begin
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Row No.", RowNo);
+        AccScheduleLine.Validate("Totaling Type", AccScheduleLine."Totaling Type"::Formula);
+        AccScheduleLine.Validate(Totaling, AccScheduleName.Name);
+        AccScheduleLine.Modify(true);
+    end;
+
+    local procedure UpdateAccScheduleLine(var AccScheduleLine: Record "Acc. Schedule Line"; Totalling: Text[250]; TotalingType: Enum "Acc. Schedule Line Totaling Type"; RowNo: Code[10])
+    begin
+        AccScheduleLine.Validate("Row No.", RowNo);
+        AccScheduleLine.Validate("Totaling Type", TotalingType);
+        AccScheduleLine.Validate(Totaling, Totalling);
+        AccScheduleLine.Modify(true);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHAccountSchedule(var AccountSchedule: TestRequestPage "Account Schedule")
@@ -2295,6 +2437,23 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         AccountSchedule.CurrentSchedName.AssertEquals(CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(AccScheduleName.Name)));
         AccountSchedule.Show.SetValue(AccScheduleLine.Show::No);
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure AccScheduleOverviewPageHandler(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
+    var
+        RowNo: Variant;
+        CurrentColumnName: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(CurrentColumnName);
+        LibraryVariableStorage.Dequeue(RowNo);
+        AccScheduleOverview.CurrentColumnName.SetValue(CurrentColumnName);
+        AccScheduleOverview.UseAmtsInAddCurr.SetValue(true);
+        AccScheduleOverview."Row No.".AssertEquals(RowNo);
+        AccScheduleOverview.ColumnValues1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        AccScheduleOverview.UseAmtsInAddCurr.SetValue(false);
+        AccScheduleOverview.OK.Invoke;
     end;
 
     [RequestPageHandler]

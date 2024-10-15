@@ -12,6 +12,10 @@ table 10004 "MX Electronic Invoicing Setup"
         {
             Caption = 'Enabled';
         }
+        field(3; "Download XML with Requests"; Boolean)
+        {
+            Caption = 'Download XML with Requests';
+        }
     }
 
     keys

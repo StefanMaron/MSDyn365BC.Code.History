@@ -833,6 +833,18 @@
                                     end;
                             end;
                         end;
+                ColumnLayout."Ledger Entry Type"::"Budget Entries":
+                    if AccSchedName."Analysis View Name" = '' then
+                        with CFForecastEntry do begin
+                            SetCFEntryFiltersForBudgetEntries(CFAccount, CFForecastEntry, AccSchedLine, ColumnLayout);
+                            case ColumnLayout."Amount Type" of
+                                ColumnLayout."Amount Type"::"Net Amount":
+                                    begin
+                                        CalcSums("Amount (LCY)");
+                                        ColValue := "Amount (LCY)";
+                                    end;
+                            end;
+                        end
             end;
 
         exit(ColValue);
@@ -1247,6 +1259,7 @@
             AccSchedLine.CopyFilter("Cash Flow Forecast Filter", "Cash Flow Forecast No.");
             AccSchedLine.CopyFilter("Dimension 1 Filter", "Global Dimension 1 Code");
             AccSchedLine.CopyFilter("Dimension 2 Filter", "Global Dimension 2 Code");
+            AccSchedLine.CopyFilter("G/L Budget Filter", "G/L Budget Name");
             FilterGroup(2);
             SetFilter("Global Dimension 1 Code", AccSchedLine."Dimension 1 Totaling");
             SetFilter("Global Dimension 2 Code", AccSchedLine."Dimension 2 Totaling");
@@ -2499,6 +2512,33 @@
         if GLSetup."Additional Reporting Currency" <> '' then
             exit(Round(ExchangeAmtAddCurrToLCY(ColValue), AddRepCurrency."Amount Rounding Precision"));
         exit(0);
+    end;
+
+    local procedure SetCFEntryFiltersForBudgetEntries(var CFAccount: Record "Cash Flow Account"; var CFForecastEntry: Record "Cash Flow Forecast Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
+    begin
+        with CFForecastEntry do begin
+            SetCurrentKey(
+            "G/L Budget Name", "Cash Flow Account No.", "Cash Flow Forecast No.",
+            "Global Dimension 1 Code", "Global Dimension 2 Code", "Cash Flow Date");
+            if CFAccount.Totaling = '' then
+                SetRange("Cash Flow Account No.", CFAccount."No.")
+            else
+                SetFilter("Cash Flow Account No.", CFAccount.Totaling);
+            CFAccount.CopyFilter("Date Filter", "Cash Flow Date");
+            AccSchedLine.CopyFilter("Cash Flow Forecast Filter", "Cash Flow Forecast No.");
+            AccSchedLine.CopyFilter("Dimension 1 Filter", "Global Dimension 1 Code");
+            AccSchedLine.CopyFilter("Dimension 2 Filter", "Global Dimension 2 Code");
+            if ColumnLayout."Budget Name" <> '' then
+                SetRange("G/L Budget Name", ColumnLayout."Budget Name")
+            else
+                AccSchedLine.CopyFilter("G/L Budget Filter", "G/L Budget Name");
+            SetFilter("Global Dimension 1 Code", AccSchedLine."Dimension 1 Totaling");
+            SetFilter("Global Dimension 2 Code", AccSchedLine."Dimension 2 Totaling");
+            FilterGroup(8);
+            SetFilter("Global Dimension 1 Code", GetDimTotalingFilter(1, ColumnLayout."Dimension 1 Totaling"));
+            SetFilter("Global Dimension 2 Code", GetDimTotalingFilter(2, ColumnLayout."Dimension 2 Totaling"));
+            FilterGroup(0);
+        end;
     end;
 
     [IntegrationEvent(false, false)]

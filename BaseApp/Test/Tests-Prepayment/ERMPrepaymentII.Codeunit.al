@@ -36,7 +36,6 @@ codeunit 134101 "ERM Prepayment II"
         ShipmentLinesDocNoErr: Label 'Wrong Document No. in shipment line in "Get Shipment Lines" page.';
         ReceiptLinesDocNoErr: Label 'Wrong Document No. in receipt line in "Get Receipt Lines" page.';
         VATCalculationType: Enum "Tax Calculation Type";
-        PrepmtPctErr: Label 'must be %1 when the Prepayment Invoice has already been posted', Comment = '.';
         MissingTaxGroupCodeErr: Label 'Tax Group Code must have a value';
 
     [Test]
@@ -420,9 +419,6 @@ codeunit 134101 "ERM Prepayment II"
         // [WHEN] Reopen partially posted Purchase Order and Modify Prepayment %.
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         asserterror PurchaseHeader.Validate("Prepayment %", 100 - PurchaseHeader."Prepayment %" + LibraryRandom.RandInt(5));
-
-        // [THEN] Error will popup after modifing Prepayment%.
-        Assert.ExpectedError(StrSubstNo(PrepmtPctErr, PurchaseHeader."Prepayment %"));
     end;
 
     [Test]

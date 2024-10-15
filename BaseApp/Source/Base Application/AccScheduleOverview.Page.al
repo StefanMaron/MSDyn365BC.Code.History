@@ -352,11 +352,15 @@
                     end;
 
                     trigger OnValidate()
+                    var
+                        CurrentGLBudgetFilter: Text;
                     begin
                         if GLBudgetFilter = '' then
                             SetRange("G/L Budget Filter")
                         else
                             SetFilter("G/L Budget Filter", GLBudgetFilter);
+                        CurrentGLBudgetFilter := GLBudgetFilter;
+                        GLBudgetFilter := CopyStr(CurrentGLBudgetFilter, 1, MaxStrLen(GLBudgetFilter));
                         CurrPage.Update();
                     end;
                 }
@@ -988,6 +992,8 @@
     end;
 
     local procedure SetDimFilters(DimNo: Integer; DimValueFilter: Text)
+    var
+        CurrentGLBudgetFilter: Text;
     begin
         case DimNo of
             1:
@@ -1019,8 +1025,10 @@
                     SetFilter("Dimension 4 Filter", DimValueFilter);
                 end;
         end;
+        CurrentGLBudgetFilter := GLBudgetFilter;
 
         OnAfterSetDimFilters(Rec, DimNo, DimValueFilter, CostCenterFilter, CostObjectFilter);
+        GLBudgetFilter := CopyStr(CurrentGLBudgetFilter, 1, MaxStrLen(GLBudgetFilter));
         CurrPage.Update();
     end;
 

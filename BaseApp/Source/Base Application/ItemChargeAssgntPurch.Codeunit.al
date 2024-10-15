@@ -335,9 +335,10 @@
         ItemChargeAssgntPurch.SetRange("Document No.", PurchLine."Document No.");
         ItemChargeAssgntPurch.SetRange("Document Line No.", PurchLine."Line No.");
 
-        if ItemChargeAssgntPurch.FindFirst() then begin
+        if not ItemChargeAssgntPurch.IsEmpty() then begin
             ItemChargeAssgntPurch.ModifyAll("Amount to Assign", 0);
             ItemChargeAssgntPurch.ModifyAll("Qty. to Assign", 0);
+            ItemChargeAssgntPurch.FindSet();
 
             case SelectionTxt of
                 AssignEquallyMenuText():
@@ -349,11 +350,11 @@
                 AssignByVolumeMenuText():
                     AssignByVolume(ItemChargeAssgntPurch, Currency, TotalQtyToAssign);
                 else begin
-                        OnAssignItemCharges(
-                          SelectionTxt, ItemChargeAssgntPurch, Currency, PurchHeader, TotalQtyToAssign, TotalAmtToAssign, ItemChargesAssigned);
-                        if not ItemChargesAssigned then
-                            Error(ItemChargesNotAssignedErr);
-                    end;
+                    OnAssignItemCharges(
+                      SelectionTxt, ItemChargeAssgntPurch, Currency, PurchHeader, TotalQtyToAssign, TotalAmtToAssign, ItemChargesAssigned);
+                    if not ItemChargesAssigned then
+                        Error(ItemChargesNotAssignedErr);
+                end;
             end;
         end;
     end;

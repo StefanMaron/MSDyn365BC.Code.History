@@ -447,7 +447,6 @@ page 7001 "Price List Lines"
         Rec.FilterGroup(0);
         UpdateColumnVisibility();
         CurrPage.Update(false);
-        CurrPage.Activate(true);
     end;
 
     local procedure UpdateSourceType()
