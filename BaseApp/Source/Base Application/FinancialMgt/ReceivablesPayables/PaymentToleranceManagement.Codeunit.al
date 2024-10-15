@@ -171,6 +171,8 @@
         if (TempGenJnlLine."Applies-to Doc. No." = '') and (TempGenJnlLine."Applies-to ID" = '') then
             exit(true);
 
+        OnPmtTolGenJnlOnAfterCheckConditions(TempGenJnlLine, SuppressCommit, Result);
+
         case true of
             (TempGenJnlLine."Account Type" = TempGenJnlLine."Account Type"::Customer) or
           (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Customer):
@@ -2338,6 +2340,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPutVendPmtTolAmountOnAfterVendLedgEntrySetFilters(var AppliedVendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPmtTolGenJnlOnAfterCheckConditions(GenJournalLine: Record "Gen. Journal Line"; var SuppressCommit: Boolean; var Result: Boolean)
     begin
     end;
 }

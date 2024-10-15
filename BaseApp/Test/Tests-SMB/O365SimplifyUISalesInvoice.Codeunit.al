@@ -2904,17 +2904,13 @@
     var
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
-        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
         Initialize();
         LibrarySmallBusiness.CreateVendor(Vendor);
         VendorCard.OpenView;
         VendorCard.Filter.SetFilter("No.", Vendor."No.");
         LibraryVariableStorage.Enqueue(Vendor.Name);
-        PurchaseCreditMemo.Trap;
         VendorCard.NewPurchaseCrMemo.Invoke;
-        PurchaseCreditMemo."Buy-from Vendor Name".AssertEquals(Vendor.Name);
-        PurchaseCreditMemo.OK.Invoke;
     end;
 
     [Test]

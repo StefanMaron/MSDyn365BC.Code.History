@@ -9,7 +9,6 @@ codeunit 5069 "Word Template Interactions"
     var
         TempDeliverySorterBuffer: Record "Delivery Sorter" temporary;
         InteractionLogEntry: Record "Interaction Log Entry";
-        FileMgt: Codeunit "File Management";
         ZipTempBlob: Codeunit "Temp Blob";
         LastAttachmentNo: Integer;
         LastCorrType: Enum "Correspondence Type";
@@ -22,16 +21,16 @@ codeunit 5069 "Word Template Interactions"
         ZipInStream: InStream;
         ZipOutStream: OutStream;
     begin
-        Window.Open(
+        WindowDialog.Open(
           MergingInWordTxt +
           '#1############ @2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\' +
           '#3############ @4@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\\' +
           '#5############ #6################################');
 
-        Window.Update(1, PreparingTxt);
-        Window.Update(5, ProgramStatusTxt);
+        WindowDialog.Update(1, PreparingTxt);
+        WindowDialog.Update(5, ProgramStatusTxt);
 
-        Window.Update(6, PreparingMergeTxt);
+        WindowDialog.Update(6, PreparingMergeTxt);
         TempDeliverySorterWord.SetCurrentKey(
           "Attachment No.", "Correspondence Type", Subject, "Send Word Docs. as Attmt.");
         TempDeliverySorterWord.SetFilter("Correspondence Type", '<>0');
@@ -42,8 +41,8 @@ codeunit 5069 "Word Template Interactions"
         LastAttachmentNo := 0;
         repeat
             LineCount := LineCount + 1;
-            Window.Update(2, Round(LineCount / NoOfRecords * 10000, 1));
-            Window.Update(3, Format(TempDeliverySorterWord."Correspondence Type"));
+            WindowDialog.Update(2, Round(LineCount / NoOfRecords * 10000, 1));
+            WindowDialog.Update(3, Format(TempDeliverySorterWord."Correspondence Type"));
 
             if FirstRecord and (TempDeliverySorterWord."Word Template Code" = '') and (NoOfRecords > 1) then
                 EnableZipArchive();
@@ -80,19 +79,18 @@ codeunit 5069 "Word Template Interactions"
                 ZipFileName := SegmentLbl + ' ' + InteractionLogEntry."Segment No." + ZipExtensionLbl
             else
                 ZipFileName := TempDeliverySorterWord.Subject + ZipExtensionLbl;
-            FileMgt.DownloadFromStreamHandler(ZipInStream, '', '', '', ZipFileName);
+            FileManagement.DownloadFromStreamHandler(ZipInStream, '', '', '', ZipFileName);
         end;
-        Window.Close();
+        WindowDialog.Close();
     end;
 
     local procedure ExecuteMerge(var TempDeliverySorter: Record "Delivery Sorter" temporary)
     var
         Attachment: Record Attachment;
-        InteractLogEntry: Record "Interaction Log Entry";
-        TempSegLine: Record "Segment Line" temporary;
+        InteractionLogEntry: Record "Interaction Log Entry";
+        TempSegmentLine: Record "Segment Line" temporary;
         InteractionMergeData: Record "Interaction Merge Data";
         WordTemplates: Codeunit "Word Template";
-        FileMgt: Codeunit "File Management";
         AttachmentWordTemplateFileName: Text;
         NoOfRecords: Integer;
         Row: Integer;
@@ -103,7 +101,7 @@ codeunit 5069 "Word Template Interactions"
         DocumentInStream: InStream;
         SaveFormat: Enum "Word Templates Save Format";
     begin
-        Window.Update(6, TransferringDataToMergeTxt);
+        WindowDialog.Update(6, TransferringDataToMergeTxt);
 
         if TempDeliverySorter.Find('-') then
             NoOfRecords := TempDeliverySorter.Count();
@@ -111,51 +109,83 @@ codeunit 5069 "Word Template Interactions"
         Row := 2;
 
         if TempDeliverySorter."Word Template Code" <> '' then begin
-            Window.Update(6, MergingTxt);
+            WindowDialog.Update(6, MergingTxt);
 
             repeat
-                InteractLogEntry.Get(TempDeliverySorter."No.");
+                InteractionLogEntry.Get(TempDeliverySorter."No.");
                 InteractionMergeData.SetRange(ID);
                 InteractionMergeData.Id := CreateGuid();
-                InteractionMergeData."Contact No." := InteractLogEntry."Contact No.";
-                InteractionMergeData."Salesperson Code" := InteractLogEntry."Salesperson Code";
-                InteractionMergeData."Log Entry Number" := InteractLogEntry."Entry No.";
+                InteractionMergeData."Contact No." := InteractionLogEntry."Contact No.";
+                InteractionMergeData."Salesperson Code" := InteractionLogEntry."Salesperson Code";
+                InteractionMergeData."Log Entry Number" := InteractionLogEntry."Entry No.";
                 InteractionMergeData.Insert();
 
-                MailToValue := GetMailToAddress(InteractLogEntry, TempDeliverySorter);
+                MailToValue := GetMailToAddress(InteractionLogEntry, TempDeliverySorter);
 
+#if not CLEAN23
                 if TempDeliverySorter."Correspondence Type" in [TempDeliverySorter."Correspondence Type"::"Hard Copy",
                                                                 TempDeliverySorter."Correspondence Type"::Fax] then
+#else
+                if TempDeliverySorter."Correspondence Type" = TempDeliverySorter."Correspondence Type"::"Hard Copy" then
+#endif
                     InteractionMergeData.Mark(true)
                 else begin
                     InteractionMergeData.SetRange(ID, InteractionMergeData.ID); // A filter to current Record is needed
-                    WordTemplates.Load(InteractLogEntry."Word Template Code");
 
                     EditDoc := TempDeliverySorter."Wizard Action" = Enum::"Interaction Template Wizard Action"::Open;
+                    if not InteractionLogEntry.Merged then begin
+                        if TempDeliverySorter."Attachment No." > 0 then begin
+                            Attachment.Get(TempDeliverySorter."Attachment No.");
+                            Attachment.CalcFields("Attachment File");
+                            Attachment."Attachment File".CreateInStream(DocumentInStream);
+                            WordTemplates.Load(DocumentInStream, InteractionLogEntry."Word Template Code");
+                        end else
+                            WordTemplates.Load(InteractionLogEntry."Word Template Code");
 
-                    if TempDeliverySorter."Send Word Docs. as Attmt." then
-                        WordTemplates.Merge(InteractionMergeData, false, Enum::"Word Templates Save Format"::Docx, EditDoc) // Only one document
-                    else
-                        WordTemplates.Merge(InteractionMergeData, false, Enum::"Word Templates Save Format"::Html, false); // Only one document and no edit because Email Editor will open
-                    WordTemplates.GetDocument(DocumentInStream);
-                    SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractLogEntry);
+                        if TempDeliverySorter."Send Word Docs. as Attmt." then
+                            WordTemplates.Merge(InteractionMergeData, false, Enum::"Word Templates Save Format"::Docx, EditDoc) // Only one document
+                        else
+                            WordTemplates.Merge(InteractionMergeData, false, Enum::"Word Templates Save Format"::Html); // Only one document and no edit because Email Editor will open
+                        WordTemplates.GetDocument(DocumentInStream);
+                    end else begin
+                        Attachment.Get(TempDeliverySorter."Attachment No.");
+                        Attachment.CalcFields("Attachment File");
+                        Attachment."Attachment File".CreateInStream(DocumentInStream);
+
+                        if not TempDeliverySorter."Send Word Docs. as Attmt." then begin
+                            WordTemplates.Load(DocumentInStream);
+                            WordTemplates.Merge(InteractionMergeData, false, Enum::"Word Templates Save Format"::Html);
+                            WordTemplates.GetDocument(DocumentInStream);
+                        end;
+                    end;
+                    SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractionLogEntry);
                     InteractionMergeData.Delete();
                 end;
                 Row := Row + 1;
-                Window.Update(4, Round(Row / NoOfRecords * 10000, 1));
+                WindowDialog.Update(4, Round(Row / NoOfRecords * 10000, 1));
             until TempDeliverySorter.Next() = 0;
 
+#if not CLEAN23
             if TempDeliverySorter."Correspondence Type" in [TempDeliverySorter."Correspondence Type"::"Hard Copy",
                                                             TempDeliverySorter."Correspondence Type"::Fax] then begin
-                WordTemplates.Load(InteractLogEntry."Word Template Code");
+#else
+            if TempDeliverySorter."Correspondence Type" = TempDeliverySorter."Correspondence Type"::"Hard Copy" then begin
+#endif
+                if TempDeliverySorter."Attachment No." > 0 then begin
+                    Attachment.Get(TempDeliverySorter."Attachment No.");
+                    Attachment.CalcFields("Attachment File");
+                    Attachment."Attachment File".CreateInStream(DocumentInStream);
+                    WordTemplates.Load(DocumentInStream, InteractionLogEntry."Word Template Code");
+                end else
+                    WordTemplates.Load(InteractionLogEntry."Word Template Code");
 
                 InteractionMergeData.MarkedOnly(true);
                 SaveFormat := SaveFormat::PDF;
-                OnExecuteMergeOnBeforeMergeWordTemplates(TempDeliverySorter, InteractLogEntry, SaveFormat);
-                EditDoc := (TempDeliverySorter."Wizard Action" = Enum::"Interaction Template Wizard Action"::Open);
+                OnExecuteMergeOnBeforeMergeWordTemplates(TempDeliverySorter, InteractionLogEntry, SaveFormat);
+                EditDoc := (TempDeliverySorter."Wizard Action" = Enum::"Interaction Template Wizard Action"::Open) and (not InteractionLogEntry.Merged);
 
                 if EditDoc then begin
-                    WordTemplates.Merge(InteractionMergeData, false, SaveFormat::Docx, EditDoc);
+                    WordTemplates.Merge(InteractionMergeData, false, SaveFormat::Docx, EditDoc, Enum::"Doc. Sharing Conflict Behavior"::Replace);
                     WordTemplates.GetDocument(DocumentInStream);
                     WordTemplates.Load(DocumentInStream);
                     InteractionMergeData.DeleteAll();
@@ -163,7 +193,7 @@ codeunit 5069 "Word Template Interactions"
 
                 WordTemplates.Merge(InteractionMergeData, false, SaveFormat); // Only merge, do not edit as the document has been edited.
                 WordTemplates.GetDocument(DocumentInStream);
-                SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractLogEntry);
+                SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractionLogEntry);
                 InteractionMergeData.DeleteAll();
             end;
         end else begin
@@ -173,7 +203,7 @@ codeunit 5069 "Word Template Interactions"
             TempDeliverySorter.SetCurrentKey("Attachment No.", "Correspondence Type", Subject);
             TempDeliverySorter.Find('-');
 
-            AttachmentWordTemplateFileName := FileMgt.ServerTempFileName('doc');
+            AttachmentWordTemplateFileName := FileManagement.ServerTempFileName('doc');
             Attachment.Get(TempDeliverySorter."Attachment No.");
             Attachment.CalcFields("Attachment File");
             if not IsWordDocumentExtension(Attachment."File Extension") then
@@ -182,58 +212,60 @@ codeunit 5069 "Word Template Interactions"
             if not Attachment.ExportAttachmentToServerFile(AttachmentWordTemplateFileName) then
                 Error(AttachmentFileErr);
 
-            Window.Update(6, MergingTxt);
+            WindowDialog.Update(6, MergingTxt);
             Attachment.CalcFields("Merge Source");
             if Attachment."Merge Source".HasValue() then
                 repeat
-                    InteractLogEntry.Get(TempDeliverySorter."No.");
+                    InteractionLogEntry.Get(TempDeliverySorter."No.");
 
                     MergeSourceText := GetMergeSourceText(Attachment, TempDeliverySorter."No.", TempDeliverySorter."Correspondence Type".AsInteger());
                     DataSource := GetDataSource(MergeSourceText);
                     GetMergedDocumentStream(AttachmentWordTemplateFileName, DataSource, TempDeliverySorter, DocumentInStream);
-                    SendMergedDocument(DocumentInStream, TempDeliverySorter, '', InteractLogEntry);
+                    SendMergedDocument(DocumentInStream, TempDeliverySorter, '', InteractionLogEntry);
 
                     Row := Row + 1;
-                    Window.Update(4, Round(Row / NoOfRecords * 10000, 1))
+                    WindowDialog.Update(4, Round(Row / NoOfRecords * 10000, 1))
                 until TempDeliverySorter.Next() = 0
             else begin
                 if (TempDeliverySorter.Count > 1) and not IsZipArchive() then
                     EnableZipArchive();
                 repeat
-                    InteractLogEntry.Get(TempDeliverySorter."No.");
+                    InteractionLogEntry.Get(TempDeliverySorter."No.");
 
-                    MailToValue := GetMailToAddress(InteractLogEntry, TempDeliverySorter);
-                    DataSource := GetDataSource(InteractLogEntry, TempSegLine, MailToValue);
+                    MailToValue := GetMailToAddress(InteractionLogEntry, TempDeliverySorter);
+                    DataSource := GetDataSource(InteractionLogEntry, TempSegmentLine, MailToValue);
                     GetMergedDocumentStream(AttachmentWordTemplateFileName, DataSource, TempDeliverySorter, DocumentInStream);
-                    SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractLogEntry);
+                    SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractionLogEntry);
 
                     Row := Row + 1;
-                    Window.Update(4, Round(Row / NoOfRecords * 10000, 1))
+                    WindowDialog.Update(4, Round(Row / NoOfRecords * 10000, 1))
                 until TempDeliverySorter.Next() = 0;
             end;
-            FileMgt.DeleteServerFile(AttachmentWordTemplateFileName);
+            FileManagement.DeleteServerFile(AttachmentWordTemplateFileName);
         end;
 
         // Update delivery status on Interaction Log Entry
         if TempDeliverySorter.Find('-') then begin
-            InteractLogEntry.LockTable();
+            InteractionLogEntry.LockTable();
             repeat
-                InteractLogEntry.Get(TempDeliverySorter."No.");
-                InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::" ";
-                InteractLogEntry.Modify();
+                InteractionLogEntry.Get(TempDeliverySorter."No.");
+                InteractionLogEntry."Delivery Status" := InteractionLogEntry."Delivery Status"::" ";
+                InteractionLogEntry.Modify();
             until TempDeliverySorter.Next() = 0;
             Commit();
         end;
     end;
 
-    local procedure GetMailToAddress(var InteractLogEntry: Record "Interaction Log Entry"; var TempDeliverySorter: Record "Delivery Sorter" temporary) MailToValue: Text
+    local procedure GetMailToAddress(var InteractionLogEntry: Record "Interaction Log Entry"; var TempDeliverySorter: Record "Delivery Sorter" temporary) MailToValue: Text
     begin
         // Specify the recipient of the merged document
         case TempDeliverySorter."Correspondence Type" of
+#if not CLEAN23
             TempDeliverySorter."Correspondence Type"::Fax:
-                MailToValue := AttachmentManagement.InteractionFax(InteractLogEntry);
+                MailToValue := AttachmentManagement.InteractionFax(InteractionLogEntry);
+#endif
             TempDeliverySorter."Correspondence Type"::Email:
-                MailToValue := AttachmentManagement.InteractionEMail(InteractLogEntry);
+                MailToValue := AttachmentManagement.InteractionEMail(InteractionLogEntry);
             TempDeliverySorter."Correspondence Type"::"Hard Copy":
                 MailToValue := '';
         end;
@@ -244,7 +276,6 @@ codeunit 5069 "Word Template Interactions"
         Contact: Record Contact;
         Attachment: Record Attachment;
         DocumentMailing: Codeunit "Document-Mailing";
-        FileMgt: Codeunit "File Management";
         DummyTempBlob: Codeunit "Temp Blob";
         DummyInStream: InStream;
         TempServerFileName: Text;
@@ -264,8 +295,10 @@ codeunit 5069 "Word Template Interactions"
         Attachment."Read Only" := true;
 
         case TempDeliverySorter."Correspondence Type" of
+#if not CLEAN23
             TempDeliverySorter."Correspondence Type"::Fax:
-                DocumentMailing.EmailFile(MergedDocumentInStream, TempDeliverySorter.Subject, '', TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template");
+                DocumentMailing.EmailFile(MergedDocumentInStream, TempDeliverySorter.Subject + '.pdf', '', TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template");
+#endif
             TempDeliverySorter."Correspondence Type"::Email:
                 begin
                     SourceTableIDs.Add(Database::"Interaction Log Entry");
@@ -291,14 +324,14 @@ codeunit 5069 "Word Template Interactions"
 
                         DocumentMailing.EmailFile(MergedDocumentInStream, FileName, '', TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
                     end else begin
-                        TempServerFileName := FileMgt.InstreamExportToServerFile(MergedDocumentInStream, 'html');
+                        TempServerFileName := FileManagement.InstreamExportToServerFile(MergedDocumentInStream, 'html');
 
                         Attachment."File Extension" := 'html';
 
                         DummyTempBlob.CreateInStream(DummyInStream);
                         Commit();
                         DocumentMailing.EmailFile(DummyInStream, TempDeliverySorter.Subject, TempServerFileName, TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
-                        FileMgt.DeleteServerFile(TempServerFileName);
+                        FileManagement.DeleteServerFile(TempServerFileName);
                     end;
                     Attachment.Insert(true);
 
@@ -318,17 +351,17 @@ codeunit 5069 "Word Template Interactions"
                     if IsZipArchive() then begin
                         if Contact.Get(InteractionLogEntry."Contact No.") then
                             if (Contact.Type = Contact.Type::Person) and (Contact."Company Name" <> '') then
-                                SaveToFile := FileMgt.GetSafeFileName(Contact."Company Name" + ' - ' + Contact.Name) + '.pdf'
+                                SaveToFile := FileManagement.GetSafeFileName(Contact."Company Name" + ' - ' + Contact.Name) + '.pdf'
                             else
-                                SaveToFile := FileMgt.GetSafeFileName(Contact.Name) + '.pdf';
+                                SaveToFile := FileManagement.GetSafeFileName(Contact.Name) + '.pdf';
                         DataCompression.AddEntry(MergedDocumentInStream, SaveToFile);
                     end else begin
                         if TempDeliverySorter.Subject = '' then
                             SaveToFile := 'default.pdf'
                         else
-                            SaveToFile := FileMgt.GetSafeFileName(TempDeliverySorter.Subject) + '.pdf';
+                            SaveToFile := FileManagement.GetSafeFileName(TempDeliverySorter.Subject) + '.pdf';
 
-                        FileMgt.DownloadFromStreamHandler(MergedDocumentInStream, '', '', '', SaveToFile);
+                        FileManagement.DownloadFromStreamHandler(MergedDocumentInStream, '', '', '', SaveToFile);
                     end;
                 end;
 
@@ -339,10 +372,12 @@ codeunit 5069 "Word Template Interactions"
     var
         EditDoc: Boolean;
     begin
-        EditDoc := TempDeliverySorter."Wizard Action" = Enum::"Interaction Template Wizard Action"::Open;
+        EditDoc := (TempDeliverySorter."Wizard Action" = Enum::"Interaction Template Wizard Action"::Open) and (TempDeliverySorter."Word Template Code" <> '');
         case TempDeliverySorter."Correspondence Type" of
+#if not CLEAN23
             TempDeliverySorter."Correspondence Type"::Fax:
                 MergedDocumentInStream := GetMergedDocument(AttachmentWordTemplateFileName, DataSource, Enum::"Word Templates Save Format"::PDF, EditDoc);
+#endif
             TempDeliverySorter."Correspondence Type"::Email:
                 MergedDocumentInStream := GetMergedDocument(AttachmentWordTemplateFileName, DataSource, Enum::"Word Templates Save Format"::Html, EditDoc);
             TempDeliverySorter."Correspondence Type"::"Hard Copy":
@@ -358,7 +393,6 @@ codeunit 5069 "Word Template Interactions"
     procedure RunMergedDocument(var SegLine: Record "Segment Line"; var Attachment: Record Attachment)
     var
         TempInteractLogEntry: Record "Interaction Log Entry" temporary;
-        FileMgt: Codeunit "File Management";
         AttachmentWordTemplateFileName: Text;
         MergedDocFilename: Text;
         MergeSourceText: Text;
@@ -367,7 +401,7 @@ codeunit 5069 "Word Template Interactions"
         if not IsWordDocumentExtension(Attachment."File Extension") then
             Error(IncorrectExtensionErr, Attachment."No.");
 
-        AttachmentWordTemplateFileName := FileMgt.ServerTempFileName('doc');
+        AttachmentWordTemplateFileName := FileManagement.ServerTempFileName('doc');
 
         if not Attachment.ExportAttachmentToServerFile(AttachmentWordTemplateFileName) then
             Error(AttachmentFileErr);
@@ -381,7 +415,7 @@ codeunit 5069 "Word Template Interactions"
 
         MergedDocFilename := 'Attachment for contact ' + Format(SegLine."Contact No.") + '.pdf';
         DownloadFromStream(GetMergedDocument(AttachmentWordTemplateFileName, DataSource, Enum::"Word Templates Save Format"::PDF, false), DownloadAttachmentQst, '', '', MergedDocFilename);
-        FileMgt.DeleteServerFile(AttachmentWordTemplateFileName);
+        FileManagement.DeleteServerFile(AttachmentWordTemplateFileName);
     end;
 
     local procedure GetMergedDocument(AttachmentWordTemplateFileName: Text; DataSource: Dictionary of [Text, Text]; WordTemplatesSaveFormat: Enum "Word Templates Save Format"; EditDoc: Boolean): InStream
@@ -449,8 +483,10 @@ codeunit 5069 "Word Template Interactions"
             end;
             if InteractLogEntry.Get(EntryNo) then
                 case CorrespondenceType of
+#if not CLEAN23
                     CorrespondenceType::Fax:
                         MergeSourceText += '<td>' + AttachmentManagement.InteractionFax(InteractLogEntry) + '</td>';
+#endif
                     CorrespondenceType::Email:
                         MergeSourceText += '<td>' + AttachmentManagement.InteractionEMail(InteractLogEntry) + '</td>';
                     CorrespondenceType::"Hard Copy":
@@ -663,11 +699,12 @@ codeunit 5069 "Word Template Interactions"
     end;
 
     var
+        FileManagement: Codeunit "File Management";
         WordTemplate: Codeunit "Word Template";
         AttachmentManagement: Codeunit AttachmentManagement;
         DataCompression: Codeunit "Data Compression";
         ZipArchive: Boolean;
-        Window: Dialog;
+        WindowDialog: Dialog;
         IncorrectExtensionErr: Label 'Attachment %1 must have file extension doc or docx.', Comment = '%1 = Attachment No.';
         AttachmentFileErr: Label 'Could not get attachment content.';
         FaxMailToTxt: Label 'FaxMailTo';

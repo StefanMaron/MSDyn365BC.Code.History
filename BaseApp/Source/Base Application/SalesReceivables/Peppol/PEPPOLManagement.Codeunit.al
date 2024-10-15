@@ -21,6 +21,7 @@
         UoMforPieceINUNECERec20ListIDTxt: Label 'EA', Locked = true;
         NoUnitOfMeasureErr: Label 'The %1 %2 contains lines on which the %3 field is empty.', Comment = '1: document type, 2: document no 3 Unit of Measure Code';
         ExportPathGreaterThan250Err: Label 'The export path is longer than 250 characters.';
+        PeppolTelemetryTok: Label 'PEPPOL', Locked = true;	
         TAXTxt: Label 'TAX', Locked = true;
         BusinessEnterprisesTxt: Label 'Foretaksregisteret', Locked = true;
         AllowanceChargeReasonReminderTxt: Label 'REM', Locked = true;
@@ -29,7 +30,10 @@
     procedure GetGeneralInfo(SalesHeader: Record "Sales Header"; var ID: Text; var IssueDate: Text; var InvoiceTypeCode: Text; var InvoiceTypeCodeListID: Text; var Note: Text; var TaxPointDate: Text; var DocumentCurrencyCode: Text; var DocumentCurrencyCodeListID: Text; var TaxCurrencyCode: Text; var TaxCurrencyCodeListID: Text; var AccountingCost: Text)
     var
         GLSetup: Record "General Ledger Setup";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000KOS', GetPeppolTelemetryTok(), Enum::"Feature Uptake Status"::Used);
+
         ID := SalesHeader."No.";
 
         IssueDate := Format(SalesHeader."Document Date", 0, 9);
@@ -88,6 +92,8 @@
         DocumentTypeCode := '';
         ContractRefDocTypeCodeListID := GetUNCL1001ListID();
         DocumentType := '';
+
+        OnAfterGetContractDocRefInfo(SalesHeader, ContractDocumentReferenceID, DocumentTypeCode, ContractRefDocTypeCodeListID, DocumentType);
     end;
 
     [Obsolete('Replaced by GetAdditionalDocRefInfo() extended with SalesHeader parameter', '18.0')]
@@ -1014,6 +1020,11 @@
             TaxExemptionReasonTxt := VATProductPostingGroupCategory.Description;
     end;
 
+    procedure GetPeppolTelemetryTok(): Text
+    begin
+        exit(PeppolTelemetryTok);
+    end;
+
     local procedure GetInvoiceTypeCode(): Text
     begin
         exit('380');
@@ -1693,7 +1704,12 @@
     local procedure OnAfterGetLineItemInfo(SalesLine: Record "Sales Line"; var Description: Text; var Name: Text; var SellersItemIdentificationID: Text; var StandardItemIdentificationID: Text; var StdItemIdIDSchemeID: Text; var OriginCountryIdCode: Text; var OriginCountryIdCodeListID: Text)
     begin
     end;
-    
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetContractDocRefInfo(SalesHeader: Record "Sales Header"; var ContractDocumentReferenceID: Text; var DocumentTypeCode: Text; var ContractRefDocTypeCodeListID: Text; var DocumentType: Text)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountingSupplierPartyLegalEntityByFormat(var PartyLegalEntityRegName: Text; var PartyLegalEntityCompanyID: Text; var PartyLegalEntitySchemeID: Text; var SupplierRegAddrCityName: Text; var SupplierRegAddrCountryIdCode: Text; var SupplRegAddrCountryIdListId: Text; IsBISBilling: Boolean)
     begin

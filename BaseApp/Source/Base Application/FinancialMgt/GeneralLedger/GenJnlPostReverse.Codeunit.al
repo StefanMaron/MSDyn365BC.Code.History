@@ -610,7 +610,7 @@
         NewDtldCustLedgEntry."Entry No." := NextDtldCustLedgEntryEntryNo;
         NextDtldCustLedgEntryEntryNo := NextDtldCustLedgEntryEntryNo + 1;
         IsHandled := false;
-        OnApplyCustLedgEntryByReversalOnBeforeInsertDtldCustLedgEntry(NewDtldCustLedgEntry, DtldCustLedgEntry2, IsHandled, GenJnlPostLine);
+        OnApplyCustLedgEntryByReversalOnBeforeInsertDtldCustLedgEntry(NewDtldCustLedgEntry, DtldCustLedgEntry2, IsHandled, GenJnlPostLine, NextDtldCustLedgEntryEntryNo);
         if not IsHandled then
             NewDtldCustLedgEntry.Insert(true);
 
@@ -642,7 +642,7 @@
         NewDtldVendLedgEntry."Entry No." := NextDtldVendLedgEntryEntryNo;
         NextDtldVendLedgEntryEntryNo := NextDtldVendLedgEntryEntryNo + 1;
         IsHandled := false;
-        OnApplyVendLedgEntryByReversalOnBeforeInsertDtldVendLedgEntry(NewDtldVendLedgEntry, DtldVendLedgEntry2, IsHandled, GenJnlPostLine);
+        OnApplyVendLedgEntryByReversalOnBeforeInsertDtldVendLedgEntry(NewDtldVendLedgEntry, DtldVendLedgEntry2, IsHandled, GenJnlPostLine, NextDtldVendLedgEntryEntryNo);
         if not IsHandled then
             NewDtldVendLedgEntry.Insert(true);
         OnApplyVendLedgEntryByReversalOnAfterInsertDtldVendLedgEntry(NewDtldVendLedgEntry, VendLedgEntry2);
@@ -1005,7 +1005,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyCustLedgEntryByReversalOnBeforeInsertDtldCustLedgEntry(var NewDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnApplyCustLedgEntryByReversalOnBeforeInsertDtldCustLedgEntry(var NewDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var NextDtldCustLedgEntryEntryNo: Integer)
     begin
     end;
 
@@ -1015,7 +1015,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyVendLedgEntryByReversalOnBeforeInsertDtldVendLedgEntry(var NewDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnApplyVendLedgEntryByReversalOnBeforeInsertDtldVendLedgEntry(var NewDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var NextDtldVendLedgEntryEntryNo: Integer)
     begin
     end;
 

@@ -2313,6 +2313,7 @@
 
         OnGetVendorNoOpenCardOnAfterMarkCustomersWithSimilarName(Vendor);
 
+        OnGetVendorNoOpenCardOnBeforeSelectVendor(Vendor);
         if Vendor.Count = 0 then begin
             if Vendor.WritePermission then
                 case StrMenu(StrSubstNo('%1,%2', StrSubstNo(CreateNewVendTxt, VendorText), SelectVendTxt), 1, VendNotRegisteredTxt) of
@@ -2934,6 +2935,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetVendorNoOpenCardOnAfterMarkCustomersWithSimilarName(var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVendorNoOpenCardOnBeforeSelectVendor(var Vendor: Record Vendor)
     begin
     end;
 }

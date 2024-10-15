@@ -64,5 +64,12 @@ page 1701 "Deferral Template List"
     actions
     {
     }
+    trigger OnOpenPage();
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+    begin
+        FeatureTelemetry.LogUptake('0000KLD', 'Deferral', Enum::"Feature Uptake Status"::Discovered);
+        FeatureTelemetry.LogUptake('0000KMS', 'Deferral', Enum::"Feature Uptake Status"::"Set up");
+    end;
 }
 

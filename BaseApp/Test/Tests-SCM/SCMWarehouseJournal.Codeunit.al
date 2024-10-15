@@ -3608,6 +3608,38 @@ codeunit 137153 "SCM Warehouse - Journal"
         VerifyWarehousePhysicalJournalLineExist(Bin."Zone Code", Bin.Code, Item."No.", Format(2), Format(2), 5);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BinCodeShouldNotFilteredOnPageBinContentSuggestedLine()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        ItemCard: TestPage "Item Card";
+        BinContentPage: TestPage "Bin Content";
+    begin
+        // [SCENARIO 474955] Zone Code is filtered on page Bin Content
+        Initialize();
+
+        // [GIVEN] Setup: Create Item, Create Bin Content.
+        CreateItem(Item, '');
+        FindBin(Bin, LocationWhite.Code, true);  // Find Bin for From Bin Code.
+
+        // [THEN] Exercise: Open Bin Content Page from Item Card and insert new line information.
+        ItemCard.OpenView;
+        ItemCard.GoToRecord(Item);
+        BinContentPage.Trap();
+        ItemCard."&Bin Contents".Invoke();
+        BinContentPage."Location Code".SetValue(Bin."Location Code");
+        BinContentPage."Bin Code".SetValue(Bin.Code);
+
+        // [WHEN] Set the current row of the test page to an empty row in a data set
+        BinContentPage.New();
+
+        // [VERIFY] Verify: Bin Code is blank on New Suggested Line, and also ensure Location Code copied from previous line
+        BinContentPage."Location Code".AssertEquals(Bin."Location Code");
+        BinContentPage."Bin Code".AssertEquals('');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
