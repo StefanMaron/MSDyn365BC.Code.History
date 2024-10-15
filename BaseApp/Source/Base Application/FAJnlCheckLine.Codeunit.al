@@ -332,7 +332,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                 GLIntegration := false;
         end;
 
-        OnAfterSetGLIntegration(FAPostingType, GLIntegration, GenJnlPosting);
+        OnAfterSetGLIntegration(FAPostingType, GLIntegration, GenJnlPosting, DeprBook);
 
         if GLIntegration and not GenJnlPosting then
             FAJnlLine.FieldError(
@@ -611,7 +611,7 @@ codeunit 5631 "FA Jnl.-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetGLIntegration(FAPostingType: Enum "FA Journal Line FA Posting Type"; var GLIntegration: Boolean; var GnlJnlPosting: Boolean)
+    local procedure OnAfterSetGLIntegration(FAPostingType: Enum "FA Journal Line FA Posting Type"; var GLIntegration: Boolean; var GnlJnlPosting: Boolean; DeprBook: Record "Depreciation Book")
     begin
     end;
 

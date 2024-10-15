@@ -53,6 +53,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
                         "Currency Code" := PaymentLine."Currency Code";
                         Validate("Transfer Amount", PaymentLine."Credit Amount");
                         Validate("Mandate ID", PaymentLine."Direct Debit Mandate ID");
+                        OnCreateTempCollectionEntriesOnBeforeInsert(ToDirectDebitCollectionEntry, PaymentHeader, PaymentLine);
                         Insert;
                         SEPADDCheckLine.CheckCollectionEntry(ToDirectDebitCollectionEntry);
                     end;
@@ -68,6 +69,11 @@ codeunit 1232 "SEPA DD-Prepare Source"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateTempCollectionEntries(var FromDirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var ToDirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempCollectionEntriesOnBeforeInsert(var ToDirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; PaymentHeader: Record "Payment Header"; PaymentLine: Record "Payment Line")
     begin
     end;
 }

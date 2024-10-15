@@ -120,7 +120,9 @@ page 5050 "Contact Card"
 
                     trigger OnDrillDown()
                     begin
+                        CurrPage.SaveRecord();
                         Rec.ShowBusinessRelation("Contact Business Relation Link To Table"::" ", true);
+                        CurrPage.Update(false);
                     end;
                 }
 #if not CLEAN19
@@ -1480,6 +1482,8 @@ page 5050 "Contact Card"
         "APE CodeEnable" := Type = Type::Company;
         "Legal FormEnable" := Type = Type::Company;
         "Stock CapitalEnable" := Type = Type::Company;
+
+        OnAfterEnableFields(CompanyGroupEnabled, PersonGroupEnabled, CurrencyCodeEnable, VATRegistrationNoEnable, CompanyNameEnable, OrganizationalLevelCodeEnable);
     end;
 
     local procedure SetEnabledRelatedActions()
@@ -1520,6 +1524,11 @@ page 5050 "Contact Card"
             "Parental Consent Received" := false;
             ParentalConsentReceivedEnable := false;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterEnableFields(var CompanyGroupEnabled: Boolean; var PersonGroupEnabled: Boolean; var CurrencyCodeEnable: Boolean; var VATRegistrationNoEnable: Boolean; var CompanyNameEnable: Boolean; var OrganizationalLevelCodeEnable: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
