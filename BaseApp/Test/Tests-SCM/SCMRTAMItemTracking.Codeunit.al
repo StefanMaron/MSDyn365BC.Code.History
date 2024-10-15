@@ -2621,7 +2621,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingPageHandler,ItemTrackingSummaryPageHandler')]
+    [HandlerFunctions('ItemTrackingPageHandler,ItemTrackingSummaryFindLastModalPageHandler')]
     [Scope('OnPrem')]
     procedure SalesOrderWithLotItemTracking()
     var
@@ -2950,6 +2950,42 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
         // [THEN] Service Items generated have got Serial Numbers
         VerifyServiceItemSerialNoIsNotEmpty(Item."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesAssistEditLotNoModalPageHandler,ItemTrackingSummaryVerifyLotModalPageHandler')]
+    procedure EntrySummaryPositionedOnCurrentLot()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LotNos: array[3] of Code[20];
+        Qty: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Entry Summary]
+        // [SCENARIO 433723] When Stan clicks AssistEdit on Lot No. field in item tracking, the system will open Entry Summary page positioned on the current lot.
+        Initialize();
+        Qty := LibraryRandom.RandInt(100);
+
+        LibraryItemTracking.CreateLotItem(Item);
+
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', ArrayLen(LotNos) * Qty);
+        for i := 1 to ArrayLen(LotNos) do begin
+            LotNos[i] := LibraryUtility.GenerateGUID();
+            LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNos[i], Qty);
+        end;
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate());
+        LibraryVariableStorage.Enqueue(LotNos[2]);
+        LibraryVariableStorage.Enqueue(LotNos[2]);
+        SalesLine.OpenItemTrackingLines();
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -5045,6 +5081,28 @@ codeunit 137052 "SCM RTAM Item Tracking"
     begin
         SalesList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
         SalesList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesAssistEditLotNoModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Lot No.".AssistEdit();
+        ItemTrackingLines.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingSummaryVerifyLotModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary."Lot No.".AssertEquals(LibraryVariableStorage.DequeueText());
+        ItemTrackingSummary.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingSummaryFindLastModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.Last();
+        ItemTrackingSummary.OK.Invoke();
     end;
 }
 

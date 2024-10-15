@@ -192,6 +192,7 @@ page 10736 "Customer/Vendor Warnings 349"
         PrevFiscalYear: Code[4];
         PrevPeriod: Code[2];
         NumFiscalYear: Integer;
+        ExcludeGenProductPostingGroupFilter: Text;
         Text1100000: Label 'Incorrect Fiscal Year.';
         Text1100006: Label 'At least one of the lines marked for correction has a Fiscal Year \and Period which is not previous to current declaration period. \Please correct them before proceeding with the file generation.';
         Text1100007: Label 'Only corrections marked as "%1", and with a valid %2 and %3 will be included in the file. \Are you sure you want to continue and generate the text file?.';
@@ -207,6 +208,11 @@ page 10736 "Customer/Vendor Warnings 349"
             PrevPeriod := RFPeriod
         else
             PrevPeriod := Format(RFPeriod, 2, '<Text,2><Filler Character,0>');
+    end;
+
+    procedure SetExcludeGenProductPostingGroupFilter(FilterText: Text)
+    begin
+        ExcludeGenProductPostingGroupFilter := FilterText;
     end;
 
     [Scope('OnPrem')]
@@ -299,6 +305,8 @@ page 10736 "Customer/Vendor Warnings 349"
             SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
             SetRange("Bill-to/Pay-to No.", CustVendNo);
             SetRange("Posting Date", FromDate, ToDate);
+            if ExcludeGenProductPostingGroupFilter <> '' then
+                SetFilter("Gen. Prod. Posting Group", ExcludeGenProductPostingGroupFilter);
             if FindSet then
                 repeat
                     if not IsCorrectiveCrMemoDiffPeriod(StartDateFormula, EndDateFormula) then

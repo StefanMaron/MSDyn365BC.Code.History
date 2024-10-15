@@ -19,6 +19,7 @@ codeunit 1408 "Sales Credit Memo Hdr. - Edit"
         SalesCrMemoHeader."Cr. Memo Type" := "Cr. Memo Type";
         SalesCrMemoHeader."Correction Type" := "Correction Type";
         SalesCrMemoHeader."Corrected Invoice No." := "Corrected Invoice No.";
+        SalesCrMemoHeader."Issued By Third Party" := "Issued By Third Party";
         OnBeforeSalesCrMemoHeaderModify(SalesCrMemoHeader, Rec);
         SalesCrMemoHeader.TestField("No.", "No.");
         SalesCrMemoHeader.Modify();
@@ -51,6 +52,7 @@ codeunit 1408 "Sales Credit Memo Hdr. - Edit"
         SIIDocUploadState.IDType := SalesCrMemoHeader."ID Type";
         SIIDocUploadState."Succeeded Company Name" := SalesCrMemoHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := SalesCrMemoHeader."Succeeded VAT Registration No.";
+        SIIDocUploadState."Issued By Third Party" := SIIDocUploadState."Issued By Third Party";
         SIIDocUploadState.Modify();
     end;
 

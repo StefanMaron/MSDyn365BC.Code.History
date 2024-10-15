@@ -83,6 +83,19 @@ page 747 "VAT Clauses"
                 RunPageLink = "VAT Clause Code" = FIELD(Code);
                 ToolTip = 'View or edit VAT clause descriptions by document type.';
             }
+            action("E&xtended Texts")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'E&xtended Texts';
+                Image = Text;
+                Promoted = true;
+                PromotedCategory = Process;
+                RunObject = Page "Extended Text List";
+                RunPageLink = "Table Name" = CONST ("VAT Clause"),
+                              "No." = FIELD (Code);
+                RunPageView = SORTING ("Table Name", "No.", "Language Code", "All Language Codes", "Starting Date", "Ending Date");
+                ToolTip = 'View additional information that has been added to the description for the VAT clause.';
+            }
         }
     }
 }

@@ -500,7 +500,10 @@
             FillSucceededCompanyInfo(XMLNode, SIIDocUploadState);
             if AddNodeForTotals then
                 FillMacrodatoNode(XMLNode, TotalAmount);
-
+		
+            if SIIDocUploadState."Issued By Third Party" then
+                XMLDOMManagement.AddElementWithPrefix(XMLNode, 'EmitidaPorTercerosODestinatario', 'S', 'sii', SiiTxt, TempXMLNode);
+		
             OnBeforeContraparteNode(XMLNode, CustLedgerEntry);
             if IncludeContraparteNodeBySalesInvType(InvoiceType) then begin
                 XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Contraparte', '', 'sii', SiiTxt, XMLNode);
@@ -1240,6 +1243,9 @@
         FillSucceededCompanyInfo(XMLNode, SIIDocUploadState);
         FillMacrodatoNode(XMLNode, TotalAmount);
 
+        if SIIDocUploadState."Issued By Third Party" then
+            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'EmitidaPorTercerosODestinatario', 'S', 'sii', SiiTxt, TempXMLNode);
+
         if IncludeContraparteNodeByCrMemoType(SIIDocUploadState."Sales Cr. Memo Type") then begin
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Contraparte', '', 'sii', SiiTxt, XMLNode);
             FillThirdPartyId(
@@ -1607,6 +1613,10 @@
         FillSucceededCompanyInfo(XMLNode, SIIDocUploadState);
         FillMacrodatoNode(XMLNode, TotalAmount);
         UpdateSalesCrMemoTypeFromCorrInvType(SIIDocUploadState);
+
+        if SIIDocUploadState."Issued By Third Party" then
+            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'EmitidaPorTercerosODestinatario', 'S', 'sii', SiiTxt, TempXMLNode);
+
         if IncludeContraparteNodeByCrMemoType(SIIDocUploadState."Sales Cr. Memo Type") then begin
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Contraparte', '', 'sii', SiiTxt, XMLNode);
             FillThirdPartyId(

@@ -69,6 +69,11 @@ page 10769 "Posted Serv. Cr. Memo - Update"
                     Editable = true;
                     ToolTip = 'Specifies the Credit Memo Type.';
                 }
+                field("Issued By Third Party"; "Issued By Third Party")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the credit memo was issued by a third party.';
+                }
             }
         }
     }
@@ -102,7 +107,8 @@ page 10769 "Posted Serv. Cr. Memo - Update"
           ("Operation Description" <> xServiceCrMemoHeader."Operation Description") or
           ("Operation Description 2" <> xServiceCrMemoHeader."Operation Description 2") or
           ("Special Scheme Code" <> xServiceCrMemoHeader."Special Scheme Code") or
-          ("Cr. Memo Type" <> xServiceCrMemoHeader."Cr. Memo Type");
+          ("Cr. Memo Type" <> xServiceCrMemoHeader."Cr. Memo Type") or
+          ("Issued By Third Party" <> xServiceCrMemoHeader."Issued By Third Party");
 
         OnAfterRecordIsChanged(Rec, xServiceCrMemoHeader, RecordIsChanged);
     end;

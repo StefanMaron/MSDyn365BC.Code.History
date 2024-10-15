@@ -115,9 +115,6 @@
 
                 InitHeaderDefaults();
                 TestStatusDraft();
-
-                if "Asset Type" = "Asset Type"::"Item Discount Group" then
-                    Validate("Amount Type", "Amount Type"::Discount);
             end;
         }
         field(8; "Asset No."; Code[20])
@@ -267,8 +264,8 @@
 
                 TestStatusDraft();
                 VerifyAmountTypeForSourceType("Amount Type");
-                if "Asset Type" = "Asset Type"::"Item Discount Group" then
-                    TestField("Amount Type", "Amount Type"::Discount);
+                if PriceAsset."Amount Type" <> "Price Amount Type"::Any then
+                    TestField("Amount Type", PriceAsset."Amount Type");
 
                 case "Amount Type" of
                     "Amount Type"::Price:
@@ -742,6 +739,8 @@
 
     procedure CopyFrom(PriceAsset: Record "Price Asset")
     begin
+        if PriceAsset."Amount Type" <> PriceAsset."Amount Type"::Any then
+            "Amount Type" := PriceAsset."Amount Type";
         "Price Type" := PriceAsset."Price Type";
         "Asset Type" := PriceAsset."Asset Type";
         SetAssetNo(PriceAsset."Asset No.");
