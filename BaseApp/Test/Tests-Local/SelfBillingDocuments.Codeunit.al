@@ -234,7 +234,7 @@ codeunit 144206 "Self-Billing Documents"
         NoSeriesManagement: Codeunit NoSeriesManagement;
         ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
         ProgressiveNo: Code[20];
-        ServerFilePath: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [SCENARIO 303491] Stan can export a single Self-Billing Document
@@ -252,12 +252,12 @@ codeunit 144206 "Self-Billing Documents"
         LibraryLowerPermissions.AddLocal;
 
         // [WHEN] Export posted Self-Billing Document to XML
-        ExportSelfBillingDocuments.RunWithFileNameSave(ServerFilePath, ClientFileName, VATEntry, VATEntry);
+        ExportSelfBillingDocuments.RunWithStreamSave(TempBlob, ClientFileName, VATEntry, VATEntry);
 
         // [THEN] The structure of single XML document for Self-Billing Document is correct
         // [THEN] (325589) Value for the ImportoTotaleDocumento tag is equal to sum VatEntry.Base and VatEntry.Amount without negative sign.
         // [THEN] (409700) Value for the DatiFattureCollegate tag is taken from the "External Document No." field of the purchase document
-        VerifySingleSelfBillingDocument(ServerFilePath, ProgressiveNo, VATEntry);
+        VerifySingleSelfBillingDocument(TempBlob, ProgressiveNo, VATEntry);
     end;
 
     [Test]
@@ -277,7 +277,7 @@ codeunit 144206 "Self-Billing Documents"
         FatturaDocHelper: Codeunit "Fattura Doc. Helper";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         ProgressiveNo: Code[20];
-        ServerFilePath: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [SCENARIO 303491] Stan can export a single Self-Billing Document contains multiple VAT Entries
@@ -302,11 +302,11 @@ codeunit 144206 "Self-Billing Documents"
         LibraryLowerPermissions.AddLocal;
 
         // [WHEN] Export posted Self-Billing Document to XML
-        ExportSelfBillingDocuments.RunWithFileNameSave(
-          ServerFilePath, ClientFileName, TempSelectedVATEntry, TempAllVATEntry);
+        ExportSelfBillingDocuments.RunWithStreamSave(
+          TempBlob, ClientFileName, TempSelectedVATEntry, TempAllVATEntry);
 
         // [THEN] The structure of XML document for single Self-Billing Document with two VAT entries is correct
-        VerifySingleSelfBillingDocumentOfMultipleVATEntries(TempAllVATEntry, ServerFilePath, ProgressiveNo);
+        VerifySingleSelfBillingDocumentOfMultipleVATEntries(TempAllVATEntry, TempBlob, ProgressiveNo);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -323,7 +323,7 @@ codeunit 144206 "Self-Billing Documents"
         ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         ProgressiveNo: array[2] of Code[20];
-        ServerFilePath: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
         i: Integer;
     begin
@@ -346,11 +346,11 @@ codeunit 144206 "Self-Billing Documents"
         LibraryLowerPermissions.AddLocal;
 
         // [WHEN] Export posted Self-Billing Documents to XML in one row
-        ExportSelfBillingDocuments.RunWithFileNameSave(
-          ServerFilePath, ClientFileName, TempVATEntry, TempVATEntry);
+        ExportSelfBillingDocuments.RunWithStreamSave(
+          TempBlob, ClientFileName, TempVATEntry, TempVATEntry);
 
         // [THEN] The zip archive contains two XML files, the structure of both is fine
-        VerifyMultipleSelfBillingDocuments(TempVATEntry, ClientFileName, ServerFilePath, ProgressiveNo);
+        VerifyMultipleSelfBillingDocuments(TempVATEntry, ClientFileName, TempBlob, ProgressiveNo);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -364,7 +364,7 @@ codeunit 144206 "Self-Billing Documents"
         VATPostingSetup: Record "VAT Posting Setup";
         TempXMLBuffer: Record "XML Buffer" temporary;
         ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
-        ServerFilePath: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [SCENARIO 373967] Stan can export a single Self-Billing Document with "Fattura Document Type" taken from VAT Entry
@@ -384,10 +384,10 @@ codeunit 144206 "Self-Billing Documents"
         LibraryLowerPermissions.AddLocal();
 
         // [WHEN] Export posted Self-Billing Document to XML
-        ExportSelfBillingDocuments.RunWithFileNameSave(ServerFilePath, ClientFileName, VATEntry, VATEntry);
+        ExportSelfBillingDocuments.RunWithStreamSave(TempBlob, ClientFileName, VATEntry, VATEntry);
 
         // [THEN] TipoDocumento has value "X"
-        TempXMLBuffer.Load(ServerFilePath);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento');
         AssertElementValue(TempXMLBuffer, 'TipoDocumento', VATEntry."Fattura Document Type");
     end;
@@ -401,7 +401,7 @@ codeunit 144206 "Self-Billing Documents"
         VATPostingSetup: Record "VAT Posting Setup";
         TempXMLBuffer: Record "XML Buffer" temporary;
         ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
-        ServerFilePath: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [SCENARIO 373967] Stan can export a single Self-Billing Document with "Fattura Document Type" taken from VAT Posting Setup
@@ -419,10 +419,10 @@ codeunit 144206 "Self-Billing Documents"
         LibraryLowerPermissions.AddLocal();
 
         // [WHEN] Export posted Self-Billing Document to XML
-        ExportSelfBillingDocuments.RunWithFileNameSave(ServerFilePath, ClientFileName, VATEntry, VATEntry);
+        ExportSelfBillingDocuments.RunWithStreamSave(TempBlob, ClientFileName, VATEntry, VATEntry);
 
         // [THEN] TipoDocumento has value "X"
-        TempXMLBuffer.Load(ServerFilePath);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento');
         AssertElementValue(TempXMLBuffer, 'TipoDocumento', VATPostingSetup."Fattura Document Type");
     end;
@@ -436,7 +436,7 @@ codeunit 144206 "Self-Billing Documents"
         TempXMLBuffer: Record "XML Buffer" temporary;
         ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
         FatturaDocHelper: Codeunit "Fattura Doc. Helper";
-        ServerFilePath: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [SCENARIO 373967] Stan can export a single Self-Billing Document with default "Fattura Document Type"
@@ -451,10 +451,10 @@ codeunit 144206 "Self-Billing Documents"
         LibraryLowerPermissions.AddLocal();
 
         // [WHEN] Export posted Self-Billing Document to XML
-        ExportSelfBillingDocuments.RunWithFileNameSave(ServerFilePath, ClientFileName, VATEntry, VATEntry);
+        ExportSelfBillingDocuments.RunWithStreamSave(TempBlob, ClientFileName, VATEntry, VATEntry);
 
         // [THEN] TipoDocumento has value "TD01"
-        TempXMLBuffer.Load(ServerFilePath);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento');
         AssertElementValue(TempXMLBuffer, 'TipoDocumento', FatturaDocHelper.GetDefaultFatturaDocType);
     end;
@@ -533,7 +533,7 @@ codeunit 144206 "Self-Billing Documents"
         Vendor: Record Vendor;
         NoSeriesManagement: Codeunit NoSeriesManagement;
         ExportSelfBillingDocuments: Codeunit "Export Self-Billing Documents";
-        ServerFilePath: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [SCENARIO 303491] Stan can export a single Self-Billing Document with "Fattura Vendor No." setup
@@ -555,10 +555,10 @@ codeunit 144206 "Self-Billing Documents"
         LibraryLowerPermissions.AddLocal();
 
         // [WHEN] Export posted Self-Billing Document to XML
-        ExportSelfBillingDocuments.RunWithFileNameSave(ServerFilePath, ClientFileName, VATEntry, VATEntry);
+        ExportSelfBillingDocuments.RunWithStreamSave(TempBlob, ClientFileName, VATEntry, VATEntry);
 
         // [THEN] The structure of a single XML document with "Fattura Vendor No." for Self-Billing Document is correct
-        VerifyFatturaVendorNoInformation(ServerFilePath, Vendor);
+        VerifyFatturaVendorNoInformation(TempBlob, Vendor);
     end;
 
     local procedure Initialize()
@@ -693,13 +693,6 @@ codeunit 144206 "Self-Billing Documents"
         exit(Format(DateToFormat, 0, TypeHelper.GetXMLDateFormat));
     end;
 
-    local procedure DeleteServerFile(ServerFileName: Text)
-    var
-        FileManagement: Codeunit "File Management";
-    begin
-        FileManagement.DeleteServerFile(ServerFileName);
-    end;
-
     local procedure AssertElementValue(var TempXMLBuffer: Record "XML Buffer" temporary; ElementName: Text; ElementValue: Text)
     begin
         FindNextElement(TempXMLBuffer);
@@ -725,11 +718,11 @@ codeunit 144206 "Self-Billing Documents"
             end;
     end;
 
-    local procedure VerifySingleSelfBillingDocument(ServerFileName: Text[250]; ProgressiveNo: Code[20]; VATEntry: Record "VAT Entry")
+    local procedure VerifySingleSelfBillingDocument(TempBlob: Codeunit "Temp Blob"; ProgressiveNo: Code[20]; VATEntry: Record "VAT Entry")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         VerifyHeader(TempXMLBuffer, ProgressiveNo);
         VATEntry.TestField(Amount);
         VATEntry.TestField(Base);
@@ -743,18 +736,18 @@ codeunit 144206 "Self-Billing Documents"
     begin
         TempXMLBuffer.Load(DocumentStream);
         VerifyHeader(TempXMLBuffer, ProgressiveNo);
-	    VATEntry.TestField(Amount);
+        VATEntry.TestField(Amount);
         VATEntry.TestField(Base);
         VerifyDocHeader(TempXMLBuffer, VATEntry, Abs(VATEntry.Amount) + Abs(VATEntry.Base));
         VerifyDocLine(TempXMLBuffer, VATEntry, 1);
     end;
 
-    local procedure VerifySingleSelfBillingDocumentOfMultipleVATEntries(var TempVATEntry: Record "VAT Entry" temporary; ServerFileName: Text[250]; ProgressiveNo: Code[20])
+    local procedure VerifySingleSelfBillingDocumentOfMultipleVATEntries(var TempVATEntry: Record "VAT Entry" temporary; TempBlob: Codeunit "Temp Blob"; ProgressiveNo: Code[20])
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         i: Integer;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         VerifyHeader(TempXMLBuffer, ProgressiveNo);
         TempVATEntry.Reset();
         TempVATEntry.CalcSums(Amount, Base);
@@ -772,46 +765,40 @@ codeunit 144206 "Self-Billing Documents"
         until TempVATEntry.Next = 0;
     end;
 
-    local procedure VerifyMultipleSelfBillingDocuments(var TempVATEntry: Record "VAT Entry" temporary; ZipClientFileName: Text[250]; ZipServerFileName: Text[250]; ProgressiveNo: array[2] of Code[20])
+    local procedure VerifyMultipleSelfBillingDocuments(var TempVATEntry: Record "VAT Entry" temporary; ZipClientFileName: Text[250]; TempBlob: Codeunit "Temp Blob"; ProgressiveNo: array[2] of Code[20])
     var
         FileManagement: Codeunit "File Management";
         DataCompression: Codeunit "Data Compression";
-        TempBlob: Codeunit "Temp Blob";
+        ZipTempBlob: Codeunit "Temp Blob";
         EntryList: List of [Text];
-        ZipServerFile: File;
-        ZipServerFileInStream: InStream;
         FirstFileInStream: InStream;
         SecondFileInStream: InStream;
         FirstFileOutStream: OutStream;
         SecondFileOutStream: OutStream;
         Length: Integer;
     begin
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ZipClientFileName));
-        ZipServerFile.OPEN(ZipServerFileName);
-        ZipServerFile.CREATEINSTREAM(ZipServerFileInStream);
-        DataCompression.OpenZipArchive(ZipServerFileInStream, false);
+        DataCompression.OpenZipArchive(TempBlob, false);
         DataCompression.GetEntryList(EntryList);
 
         // verify first file
         VerifyFileName(FileManagement.GetFileNameWithoutExtension(EntryList.Get(1)));
-        TempBlob.CreateOutStream(FirstFileOutStream);
+        ZipTempBlob.CreateOutStream(FirstFileOutStream);
         DataCompression.ExtractEntry(EntryList.Get(1), FirstFileOutStream, Length);
-        TempBlob.CreateInStream(FirstFileInStream);
+        ZipTempBlob.CreateInStream(FirstFileInStream);
         TempVATEntry.Reset();
         TempVATEntry.FindSet();
         VerifySingleSelfBillingDocumentFromStream(FirstFileInStream, ProgressiveNo[1], TempVATEntry);
 
         // verify second file
+        clear(ZipTempBlob);
         VerifyFileName(FileManagement.GetFileNameWithoutExtension(EntryList.Get(2)));
-        TempBlob.CreateOutStream(SecondFileOutStream);
+        ZipTempBlob.CreateOutStream(SecondFileOutStream);
         DataCompression.ExtractEntry(EntryList.Get(2), SecondFileOutStream, Length);
-        TempBlob.CreateInStream(SecondFileInStream);
-        TempVATEntry.Next;
+        ZipTempBlob.CreateInStream(SecondFileInStream);
+        TempVATEntry.Next();
         VerifySingleSelfBillingDocumentFromStream(SecondFileInStream, ProgressiveNo[2], TempVATEntry);
 
         DataCompression.CloseZipArchive();
-        ZipServerFile.Close();
-        DeleteServerFile(ZipServerFileName);
     end;
 
     local procedure VerifyHeader(var TempXMLBuffer: Record "XML Buffer" temporary; ProgressiveNo: Code[20])
@@ -924,11 +911,11 @@ codeunit 144206 "Self-Billing Documents"
                                              CompanyInformation."Fiscal Code" + '_')) = 1, '');
     end;
 
-    local procedure VerifyFatturaVendorNoInformation(ServerFileName: Text[250]; Vendor: Record Vendor)
+    local procedure VerifyFatturaVendorNoInformation(TempBlob: Codeunit "Temp Blob"; Vendor: Record Vendor)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CedentePrestatore');
         TempXMLBuffer.Reset();

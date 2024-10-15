@@ -1868,6 +1868,8 @@
 
         GetCurrencyExchRate(GenJnlLine);
         TempGLEntryBuf.DeleteAll();
+        if not GLEntryInconsistent then
+            TempGLEntryPreview.DeleteAll();
         CalculateCurrentBalance(
           GenJnlLine."Account No.", GenJnlLine."Bal. Account No.", GenJnlLine.IncludeVATAmount,
           GenJnlLine."Amount (LCY)", GenJnlLine."VAT Amount");

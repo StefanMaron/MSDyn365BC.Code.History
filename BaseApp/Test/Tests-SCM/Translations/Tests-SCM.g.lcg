@@ -734,6 +734,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Order Functions - NamedType UpdateDimCnfm)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1551810128 - NamedType 3860864280" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You may have changed a dimension.\\Do you want to update the lines?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Order Functions - NamedType UpdateDimOnSalesLinesMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3425900309 - NamedType 642557744" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to update the Dimensions on the lines?]]></Val>
@@ -3857,6 +3866,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Journals - NamedType ItemJournalLineDimErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 901483511 - NamedType 587687321" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 with Variant %2, Location %3, Bin %4 should be empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Journals - NamedType ItemJournalLineExistsErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 901483511 - NamedType 2012889747" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 with Variant %2, Location %3, Bin %4 is not exist.]]></Val>
@@ -5947,7 +5965,7 @@
   </Item>
   <Item ItemId=";Codeunit 4274535345 - NamedType 3063714316" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The %1 does not match the quantity defined in item tracking.]]></Val>
+      <Val><![CDATA[The %1 does not match the quantity defined in item tracking for item %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -12414,6 +12432,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = Document No., %2 = Line No., %3 = Quantity]D;]A;(LookupHint=Codeunit SCM Reservation IV - NamedType ReservedQtyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3764345726 - NamedType 1100077041" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Non-inventory and service items must have the reserve type Never]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Reservation IV - NamedType ReserveMustBeNeverErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3764345726 - NamedType 63584038" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

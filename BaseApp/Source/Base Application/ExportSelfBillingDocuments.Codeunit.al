@@ -26,10 +26,15 @@ codeunit 12185 "Export Self-Billing Documents"
         TempBlob: Codeunit "Temp Blob";
         FilePath: Text;
     begin
-        ExportSelfBillingDocuments(TempBlob, ClientFileName, SelectedVATEntry, AllVATEntry);
+        RunWithStreamSave(TempBlob, ClientFileName, SelectedVATEntry, AllVATEntry);
         FilePath := FileManagement.ServerTempFileName(FileManagement.GetExtension(ClientFileName));
         FileManagement.BLOBExportToServerFile(TempBlob, FilePath);
         ServerFilePath := CopyStr(FilePath, 1, MaxStrLen(ServerFilePath));
+    end;
+
+    procedure RunWithStreamSave(var TempBlob: Codeunit "Temp Blob"; var ClientFileName: Text[250]; var SelectedVATEntry: Record "VAT Entry"; var AllVATEntry: Record "VAT Entry")
+    begin
+        ExportSelfBillingDocuments(TempBlob, ClientFileName, SelectedVATEntry, AllVATEntry);
     end;
 
     local procedure ExportSelfBillingDocuments(var TempBlob: Codeunit "Temp Blob"; var ClientFileName: Text[250]; var SelectedVATEntry: Record "VAT Entry"; var AllVATEntry: Record "VAT Entry")

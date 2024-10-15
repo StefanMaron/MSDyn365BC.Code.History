@@ -161,7 +161,9 @@ page 12190 "Vendor Bill List Sent Card"
 
                     trigger OnAction()
                     begin
+                        FeatureTelemetry.LogUptake('1000HQ8', ITPaymentBillTok, Enum::"Feature Uptake Status"::"Used");
                         ExportToFile;
+                        FeatureTelemetry.LogUsage('1000HQ9', ITPaymentBillTok, 'IT Vendor Payments and Customer Bills Exported');
                     end;
                 }
             }
@@ -232,5 +234,7 @@ page 12190 "Vendor Bill List Sent Card"
 
     var
         VendBillListChangeStatus: Codeunit "Vend. Bill List-Change Status";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ITPaymentBillTok: Label 'IT Issue Vendor Payments and Customer Bills', Locked = true;
 }
 

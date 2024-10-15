@@ -216,7 +216,11 @@ table 12116 "Withholding Tax"
     end;
 
     trigger OnInsert()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ITTaxTok: Label 'IT Withholding Tax', Locked = true;
     begin
+        FeatureTelemetry.LogUptake('1000HQ3', ITTaxTok, Enum::"Feature Uptake Status"::"Set up");
         WithholdingTax.LockTable();
         WithholdingTax.Reset();
         if WithholdingTax.FindLast() then

@@ -80,7 +80,7 @@ codeunit 5626 "FA General Report"
         end;
     end;
 
-    procedure CalcFAPostedAmount(FANo: Code[20]; PostingType: Integer; Period: Option "Before Starting Date","Net Change","at Ending Date"; StartingDate: Date; EndingDate: Date; DeprBookCode: Code[10]; BeforeAmount: Decimal; UntilAmount: Decimal; OnlyReclassified: Boolean; OnlyBookValue: Boolean): Decimal
+    procedure CalcFAPostedAmount(FANo: Code[20]; PostingType: Integer; Period: Option "Before Starting Date","Net Change","at Ending Date"; StartingDate: Date; EndingDate: Date; DeprBookCode: Code[10]; BeforeAmount: Decimal; UntilAmount: Decimal; OnlyReclassified: Boolean; OnlyBookValue: Boolean) Result: Decimal
     begin
         ClearAll;
         if PostingType = 0 then
@@ -152,8 +152,10 @@ codeunit 5626 "FA General Report"
                     Period::"at Ending Date":
                         Amount := Amount + UntilAmount;
                 end;
-            exit(Amount);
+            Result := Amount;
         end;
+
+        OnAfterCalcFAPostedAmount(FALedgEntry, PostingType, Period, BeforeAmount, UntilAmount, Result);
     end;
 
     procedure CalcGLPostedAmount(FANo: Code[20]; PostingType: Integer; Period: Option " ",Disposal,"Bal. Disposal"; StartingDate: Date; EndingDate: Date; DeprBookCode: Code[10]): Decimal
@@ -323,6 +325,11 @@ codeunit 5626 "FA General Report"
             CalcSums(Amount);
             exit(Amount);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcFAPostedAmount(var FALedgerEntry: Record "FA Ledger Entry"; PostingType: Integer; Period: Option "Before Starting Date","Net Change","at Ending Date"; BeforeAmount: Decimal; UntilAmount: Decimal; var Result: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

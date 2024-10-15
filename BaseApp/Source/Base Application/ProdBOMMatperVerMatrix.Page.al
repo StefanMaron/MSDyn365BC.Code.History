@@ -504,7 +504,14 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
     end;
 
     local procedure MATRIX_OnAfterGetRecord(MATRIX_ColumnOrdinal: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMATRIX_OnAfterGetRecord(Rec, ProdBOM, MatrixRecords, MATRIX_CellData, MATRIX_ColumnOrdinal, ComponentNeed, IsHandled);
+        if IsHandled then
+            exit;
+
         ComponentNeed := BOMMatrixMgt.GetComponentNeed("Item No.", "Variant Code", MatrixRecords[MATRIX_ColumnOrdinal]."Version Code");
         MATRIX_CellData[MATRIX_ColumnOrdinal] := ComponentNeed;
     end;
@@ -548,6 +555,11 @@ page 9287 "Prod. BOM Mat. per Ver. Matrix"
     procedure SetCaption(): Text
     begin
         exit(ProdBOM."No." + ' ' + ProdBOM.Description);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMATRIX_OnAfterGetRecord(var ProductionMatrixBOMLine: Record "Production Matrix BOM Line"; var ProductionBOMHeader: Record "Production BOM Header"; var MatrixRecords: array[32] of Record "Production BOM Version"; var MATRIX_CellData: array[32] of Decimal; MATRIX_ColumnOrdinal: Integer; var ComponentNeed: Decimal; var IsHandled: Boolean)
+    begin
     end;
 }
 

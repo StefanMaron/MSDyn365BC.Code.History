@@ -158,12 +158,26 @@
         PaymentTermsLine.SetRange(PaymentTermsLine.Code, Code);
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced with GetDescriptionInCurrentLanguageFullLength.', '21.0')]
     procedure GetDescriptionInCurrentLanguage(): Text[50]
     var
         PaymentTermTranslation: Record "Payment Term Translation";
         Language: Codeunit Language;
     begin
         if PaymentTermTranslation.Get(Code, Language.GetUserLanguageCode) then
+            exit(CopyStr(PaymentTermTranslation.Description, 1, 50));
+
+        exit(CopyStr(Description, 1, 50));
+    end;
+#endif
+
+    procedure GetDescriptionInCurrentLanguageFullLength(): Text[100]
+    var
+        PaymentTermTranslation: Record "Payment Term Translation";
+        Language: Codeunit Language;
+    begin
+        if PaymentTermTranslation.Get(Code, Language.GetUserLanguageCode()) then
             exit(PaymentTermTranslation.Description);
 
         exit(Description);
@@ -197,4 +211,3 @@
     begin
     end;
 }
-

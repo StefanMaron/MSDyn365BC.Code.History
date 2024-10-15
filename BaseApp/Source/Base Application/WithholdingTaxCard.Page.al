@@ -101,7 +101,7 @@ page 12112 "Withholding Tax Card"
                     ApplicationArea = Basic, Suite;
                     OptionCaption = ' ,,2,,6,,8,9,,,,13,4,14,21,22,23,24';
                     ToolTip = 'Specifies the type of non-taxable income.';
-                    Visible = false;					
+                    Visible = false;
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by Withholding Tax Lines';
                     ObsoleteTag = '19.0';
@@ -234,12 +234,15 @@ page 12112 "Withholding Tax Card"
 
     trigger OnOpenPage()
     begin
+        FeatureTelemetry.LogUptake('1000HQ2', ITTaxTok, Enum::"Feature Uptake Status"::Discovered);
         SetBaseExcludedStyleExpr();
     end;
 
     var
         Vendor: Record Vendor;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ClearNonTaxableIncomeTypeQst: Label 'To distribute Non-Taxable Amount between several Income Types you must have Non-Taxable Income Type on this Withholding Tax Entry empty. \\ Do you want to clear Non-Taxable Income Type and continue?';
+        ITTaxTok: Label 'IT Withholding Tax', Locked = true;
         BaseExcludedStyleExpr: Boolean;
 
     local procedure SetBaseExcludedStyleExpr()

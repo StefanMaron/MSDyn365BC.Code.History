@@ -32,7 +32,7 @@ codeunit 144204 "FatturaPA Discount"
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Invoice] [Invoice Discount]
         // [SCENARIO 298793] Invoice Discount Amount of Sales Invoice exports to multiple nodes in FatturaPA file
@@ -49,7 +49,7 @@ codeunit 144204 "FatturaPA Discount"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Importo node under DatiGenerali has value 20
@@ -60,7 +60,7 @@ codeunit 144204 "FatturaPA Discount"
         // [THEN] An invoice discount amount under ScontoMaggiorazione xml node has eight decimal places
         // TFS ID 348540: Changes in the format of Italian electronic invoices
         VerifyInvDiscAmount(
-          ServerFileName, SalesLine.Quantity, SalesLine."Line Amount" - Round(SalesLine."Inv. Discount Amount" / SalesLine.Quantity),
+          TempBlob, SalesLine.Quantity, SalesLine."Line Amount" - Round(SalesLine."Inv. Discount Amount" / SalesLine.Quantity),
           SalesLine."Inv. Discount Amount");
     end;
 
@@ -75,7 +75,7 @@ codeunit 144204 "FatturaPA Discount"
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Credit Memo] [Invoice Discount]
         // [SCENARIO 298793] Invoice Discount Amount of Sales Credit Memo exports to multiple nodes in FatturaPA file
@@ -92,7 +92,7 @@ codeunit 144204 "FatturaPA Discount"
         SalesCrMemoHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Importo node under DatiGenerali has value 20
@@ -103,7 +103,7 @@ codeunit 144204 "FatturaPA Discount"
         // [THEN] An invoice discount amount under ScontoMaggiorazione xml node has eight decimal places
         // TFS ID 348540: Changes in the format of Italian electronic invoices
         VerifyInvDiscAmount(
-          ServerFileName, SalesLine.Quantity, SalesLine."Line Amount" - Round(SalesLine."Inv. Discount Amount" / SalesLine.Quantity),
+          TempBlob, SalesLine.Quantity, SalesLine."Line Amount" - Round(SalesLine."Inv. Discount Amount" / SalesLine.Quantity),
           SalesLine."Inv. Discount Amount");
     end;
 
@@ -118,7 +118,7 @@ codeunit 144204 "FatturaPA Discount"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Service] [Invoice] [Invoice Discount]
         // [SCENARIO 298066] Invoice Discount Amount of Service Invoice exports to multiple nodes in FatturaPA file
@@ -135,7 +135,7 @@ codeunit 144204 "FatturaPA Discount"
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Importo node under DatiGenerali has value 20
@@ -149,7 +149,7 @@ codeunit 144204 "FatturaPA Discount"
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.FindFirst();
         VerifyInvDiscAmount(
-          ServerFileName, ServiceLine.Quantity, ServiceLine."Line Amount" - Round(ServiceLine."Inv. Discount Amount" / ServiceLine.Quantity),
+          TempBlob, ServiceLine.Quantity, ServiceLine."Line Amount" - Round(ServiceLine."Inv. Discount Amount" / ServiceLine.Quantity),
           ServiceLine."Inv. Discount Amount");
     end;
 
@@ -164,7 +164,7 @@ codeunit 144204 "FatturaPA Discount"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Service] [Credit Memo] [Invoice Discount]
         // [SCENARIO 298066] Invoice Discount Amount of Service Credit Memo exports to multiple nodes in FatturaPA file
@@ -181,7 +181,7 @@ codeunit 144204 "FatturaPA Discount"
         ServiceCrMemoHeader.SetRange("Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Importo node under DatiGenerali has value 20
@@ -195,7 +195,7 @@ codeunit 144204 "FatturaPA Discount"
         ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
         ServiceCrMemoLine.FindFirst();
         VerifyInvDiscAmount(
-          ServerFileName, ServiceLine.Quantity, ServiceLine."Line Amount" - Round(ServiceLine."Inv. Discount Amount" / ServiceLine.Quantity),
+          TempBlob, ServiceLine.Quantity, ServiceLine."Line Amount" - Round(ServiceLine."Inv. Discount Amount" / ServiceLine.Quantity),
           ServiceLine."Inv. Discount Amount");
     end;
 
@@ -210,7 +210,7 @@ codeunit 144204 "FatturaPA Discount"
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Invoice] [Line Discount]
         // [SCENARIO 298793] Line Discount Percent of Sales Invoice must be exported to Percentuale node
@@ -227,13 +227,13 @@ codeunit 144204 "FatturaPA Discount"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Importo node under DatiGenerali does not exist
         // [THEN] Importo node under DettaglioLinee does not exist
         // [THEN] Percentuale node under DettaglioLinee has value 5
-        VerifyLineDiscPct(ServerFileName, SalesLine."Line Discount %");
+        VerifyLineDiscPct(TempBlob, SalesLine."Line Discount %");
     end;
 
     [Test]
@@ -247,7 +247,7 @@ codeunit 144204 "FatturaPA Discount"
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Credit Memo] [Line Discount]
         // [SCENARIO 298793] Line Discount Percent of Sales Credit Memo must be exported to Percentuale node
@@ -264,13 +264,13 @@ codeunit 144204 "FatturaPA Discount"
         SalesCrMemoHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Importo node under DatiGenerali does not exist
         // [THEN] Importo node under DettaglioLinee does not exist
         // [THEN] Percentuale node under DettaglioLinee has value 5
-        VerifyLineDiscPct(ServerFileName, SalesLine."Line Discount %");
+        VerifyLineDiscPct(TempBlob, SalesLine."Line Discount %");
     end;
 
     [Test]
@@ -283,7 +283,7 @@ codeunit 144204 "FatturaPA Discount"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Service] [Invoice] [Line Discount]
         // [SCENARIO 298066] Line Discount Percent of Service Invoice must be exported to Percentuale node
@@ -300,13 +300,13 @@ codeunit 144204 "FatturaPA Discount"
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Importo node under DatiGenerali does not exist
         // [THEN] Importo node under DettaglioLinee does not exist
         // [THEN] Percentuale node under DettaglioLinee has value 5
-        VerifyLineDiscPct(ServerFileName, ServiceLine."Line Discount %");
+        VerifyLineDiscPct(TempBlob, ServiceLine."Line Discount %");
     end;
 
     [Test]
@@ -319,7 +319,7 @@ codeunit 144204 "FatturaPA Discount"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Service] [Credit Memo] [Line Discount]
         // [SCENARIO 298066] Line Discount Percent of Service Credit Memo must be exported to Percentuale node
@@ -336,13 +336,13 @@ codeunit 144204 "FatturaPA Discount"
         ServiceCrMemoHeader.SetRange("Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Importo node under DatiGenerali does not exist
         // [THEN] Importo node under DettaglioLinee does not exist
         // [THEN] Percentuale node under DettaglioLinee has value 5
-        VerifyLineDiscPct(ServerFileName, ServiceLine."Line Discount %");
+        VerifyLineDiscPct(TempBlob, ServiceLine."Line Discount %");
     end;
 
     [Test]
@@ -356,7 +356,7 @@ codeunit 144204 "FatturaPA Discount"
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Invoice] [Line Discount] [Invoice Discount]
         // [SCENARIO 298793] Line Discount Percent and Invoice Discount Amount of Sales Invoice must be exported to specific nodes of FatturaPA file
@@ -373,13 +373,13 @@ codeunit 144204 "FatturaPA Discount"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Importo node under DatiGenerali does not exist
         // [THEN] Importo node under DettaglioLinee does not exist
         // [THEN] Percentuale node under DettaglioLinee has value 5
-        VerifyLineDiscPct(ServerFileName, SalesLine."Line Discount %");
+        VerifyLineDiscPct(TempBlob, SalesLine."Line Discount %");
     end;
 
     [Test]
@@ -393,7 +393,7 @@ codeunit 144204 "FatturaPA Discount"
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Credit Memo] [Line Discount] [Invoice Discount]
         // [SCENARIO 298793] Line Discount Percent and Invoice Discount Amount of Sales Credit Memo must be exported to specific nodes of FatturaPA file
@@ -410,13 +410,13 @@ codeunit 144204 "FatturaPA Discount"
         SalesCrMemoHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Importo node under DatiGenerali does not exist
         // [THEN] Importo node under DettaglioLinee does not exist
         // [THEN] Percentuale node under DettaglioLinee has value 5
-        VerifyLineDiscPct(ServerFileName, SalesLine."Line Discount %");
+        VerifyLineDiscPct(TempBlob, SalesLine."Line Discount %");
     end;
 
     [Test]
@@ -429,7 +429,7 @@ codeunit 144204 "FatturaPA Discount"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Service] [Invoice] [Line Discount] [Invoice Discount]
         // [SCENARIO 298066] Line Discount Percent and Invoice Discount Amount of Service Invoice must be exported to specific nodes of FatturaPA file
@@ -446,13 +446,13 @@ codeunit 144204 "FatturaPA Discount"
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Importo node under DatiGenerali does not exist
         // [THEN] Importo node under DettaglioLinee does not exist
         // [THEN] Percentuale node under DettaglioLinee has value 5
-        VerifyLineDiscPct(ServerFileName, ServiceLine."Line Discount %");
+        VerifyLineDiscPct(TempBlob, ServiceLine."Line Discount %");
     end;
 
     [Test]
@@ -465,7 +465,7 @@ codeunit 144204 "FatturaPA Discount"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Service] [Credit Memo] [Line Discount] [Invoice Discount]
         // [SCENARIO 298066] Line Discount Percent and Invoice Discount Amount of Service Credit Memo must be exported to specific nodes of FatturaPA file
@@ -482,13 +482,13 @@ codeunit 144204 "FatturaPA Discount"
         ServiceCrMemoHeader.SetRange("Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Importo node under DatiGenerali does not exist
         // [THEN] Importo node under DettaglioLinee does not exist
         // [THEN] Percentuale node under DettaglioLinee has value 5
-        VerifyLineDiscPct(ServerFileName, ServiceLine."Line Discount %");
+        VerifyLineDiscPct(TempBlob, ServiceLine."Line Discount %");
     end;
 
     [Test]
@@ -500,7 +500,7 @@ codeunit 144204 "FatturaPA Discount"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Line Discount]
         // [SCENARIO 300725] FatturaPA file has line XML nodes if Line Amount is zero because of hundred percent line discount
@@ -516,11 +516,11 @@ codeunit 144204 "FatturaPA Discount"
         SalesInvoiceHeader.SetRange("No.", LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Line node PrezzoTotale exists and the value is zero
-        VerifyLineAmount(ServerFileName, 0);
+        VerifyLineAmount(TempBlob, 0);
     end;
 
     [Test]
@@ -533,7 +533,7 @@ codeunit 144204 "FatturaPA Discount"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         Item: Record Item;
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Invoice] [Prices Including VAT] [Line Discount]
         // [SCENARIO 323459] PrezzoUnitario and PrezzoTotale get exported correctly when Document uses "Prices Including VAT" and Line Discount
@@ -550,11 +550,11 @@ codeunit 144204 "FatturaPA Discount"
         SalesInvoiceHeader.SetRange("No.", LibrarySales.PostSalesDocument(SalesHeader, false, true));
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] PrezzoUnitario = "100" and PrezzoTotale = "400"
-        VerifyLineAndUnitPriceAmount(ServerFileName, SalesLine.Amount, Item."Unit Price");
+        VerifyLineAndUnitPriceAmount(TempBlob, SalesLine.Amount, Item."Unit Price");
     end;
 
     [Test]
@@ -568,7 +568,7 @@ codeunit 144204 "FatturaPA Discount"
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 422467] PrezzoTotale considers both line discount and invoice discount of sales invoice
@@ -586,13 +586,13 @@ codeunit 144204 "FatturaPA Discount"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Import node has value of 20
         // [THEN] PrezzoTotale node has value 86 (100 - 10 - 20/5)
         VerifyLineAmountWithInvDisc(
-          ServerFileName, SalesLine."Line Amount" - Round(SalesLine."Inv. Discount Amount" / SalesLine.Quantity),
+          TempBlob, SalesLine."Line Amount" - Round(SalesLine."Inv. Discount Amount" / SalesLine.Quantity),
           SalesLine."Inv. Discount Amount");
     end;
 
@@ -606,7 +606,7 @@ codeunit 144204 "FatturaPA Discount"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Service]
         // [SCENARIO 422467] PrezzoTotale considers both line discount and invoice discount of service invoice
@@ -624,13 +624,13 @@ codeunit 144204 "FatturaPA Discount"
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Import node has value of 20
         // [THEN] PrezzoTotale node has value 86 (100 - 10 - 20/5)
         VerifyLineAmountWithInvDisc(
-          ServerFileName,
+          TempBlob,
           ServiceLine."Line Amount" - Round(ServiceLine."Inv. Discount Amount" / ServiceLine.Quantity),
           ServiceLine."Inv. Discount Amount");
     end;
@@ -645,13 +645,6 @@ codeunit 144204 "FatturaPA Discount"
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         IsInitialized := true;
-    end;
-
-    local procedure DeleteServerFile(ServerFileName: Text)
-    var
-        FileManagement: Codeunit "File Management";
-    begin
-        FileManagement.DeleteServerFile(ServerFileName);
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type")
@@ -787,11 +780,11 @@ codeunit 144204 "FatturaPA Discount"
         ServiceLine.Modify(true);
     end;
 
-    local procedure VerifyInvDiscAmount(ServerFileName: Text[250]; Quantity: Decimal; LineAmount: Decimal; InvDiscAmount: Decimal)
+    local procedure VerifyInvDiscAmount(TempBlob: Codeunit "Temp Blob"; Quantity: Decimal; LineAmount: Decimal; InvDiscAmount: Decimal)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/ScontoMaggiorazione/Importo',
           FormatAmountEightDecimalPlaces(InvDiscAmount));
@@ -801,41 +794,36 @@ codeunit 144204 "FatturaPA Discount"
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/ScontoMaggiorazione/Importo',
           FormatAmountEightDecimalPlaces(Round(InvDiscAmount / Quantity)));
-
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyLineAmountWithInvDisc(ServerFileName: Text[250]; LineAmount: Decimal; InvDiscAmount: Decimal)
+    local procedure VerifyLineAmountWithInvDisc(TempBlob: Codeunit "Temp Blob"; LineAmount: Decimal; InvDiscAmount: Decimal)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/ScontoMaggiorazione/Importo',
           FormatAmountEightDecimalPlaces(InvDiscAmount));
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoTotale',
           FormatAmount(LineAmount));
-
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyLineAmount(ServerFileName: Text[250]; LineAmount: Decimal)
+    local procedure VerifyLineAmount(TempBlob: Codeunit "Temp Blob"; LineAmount: Decimal)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoTotale',
           FormatAmount(LineAmount));
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyLineDiscPct(ServerFileName: Text[250]; LineDiscPct: Decimal)
+    local procedure VerifyLineDiscPct(TempBlob: Codeunit "Temp Blob"; LineDiscPct: Decimal)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         AssertElementDoesNotExist(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/ScontoMaggiorazione/Importo');
         AssertElementDoesNotExist(
@@ -843,15 +831,13 @@ codeunit 144204 "FatturaPA Discount"
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/ScontoMaggiorazione/Percentuale',
           FormatAmount(LineDiscPct));
-
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyLineAndUnitPriceAmount(ServerFileName: Text[250]; LineAmount: Decimal; UnitPrice: Decimal)
+    local procedure VerifyLineAndUnitPriceAmount(TempBlob: Codeunit "Temp Blob"; LineAmount: Decimal; UnitPrice: Decimal)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
 
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoUnitario',
@@ -859,8 +845,6 @@ codeunit 144204 "FatturaPA Discount"
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoTotale',
           FormatAmount(LineAmount));
-
-        DeleteServerFile(ServerFileName);
     end;
 
     local procedure AssertCurrentElementValue(var TempXMLBuffer: Record "XML Buffer" temporary; XPath: Text; ExpectedValue: Text)

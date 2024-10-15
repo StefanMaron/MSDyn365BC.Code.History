@@ -904,13 +904,16 @@
 
     trigger OnPostReport()
     begin
+        FeatureTelemetry.LogUptake('1000HR2', ITIntrastatTok, Enum::"Feature Uptake Status"::"Used");
         "Intra - form Buffer".Reset();
         "Intra - form Buffer".SetFilter("User ID", UserId);
         "Intra - form Buffer".DeleteAll();
+        FeatureTelemetry.LogUsage('1000HR3', ITIntrastatTok, 'IT Intrastat Report Printed');
     end;
 
     trigger OnPreReport()
     begin
+        FeatureTelemetry.LogUptake('1000HR1', ITIntrastatTok, Enum::"Feature Uptake Status"::"Set up");
         BatchNameFilter := "Intrastat Jnl. Line".GetFilter("Journal Batch Name");
         CompanyInfo.Get();
         CompanyInfo."VAT Registration No." := ConvertStr(CompanyInfo."VAT Registration No.", Text001, '    ');
@@ -920,7 +923,14 @@
         "Intra - form Buffer".DeleteAll();
     end;
 
+    trigger OnInitReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HR0', ITIntrastatTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ITIntrastatTok: Label 'IT Print Intrastat Report', Locked = true;
         Text001: Label 'WwWw';
         Text002: Label 'Statistics Period: %1';
         Text003: Label 'All amounts are in %1';

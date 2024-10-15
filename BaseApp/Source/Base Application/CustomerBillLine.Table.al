@@ -78,7 +78,14 @@ table 12175 "Customer Bill Line"
             Caption = 'Cumulative Bank Receipts';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateCumulativeBankReceipts(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Direct Debit Mandate ID", '');
             end;
         }
@@ -100,7 +107,13 @@ table 12175 "Customer Bill Line"
             trigger OnValidate()
             var
                 SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateDirectDebitMandateID(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if SEPADirectDebitMandate.Get("Direct Debit Mandate ID") then begin
                     "Customer Bank Acc. No." := SEPADirectDebitMandate."Customer Bank Account Code";
                     TestField("Cumulative Bank Receipts", false);
@@ -144,6 +157,16 @@ table 12175 "Customer Bill Line"
         GenJnlLine."Document No." := "Customer Bill No.";
         GenJnlLine."Line No." := "Line No.";
         GenJnlLine.DeletePaymentFileErrors;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCumulativeBankReceipts(var CustomerBillLine: Record "Customer Bill Line"; xCustomerBillLine: Record "Customer Bill Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDirectDebitMandateID(var CustomerBillLine: Record "Customer Bill Line"; xCustomerBillLine: Record "Customer Bill Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

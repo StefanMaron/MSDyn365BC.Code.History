@@ -513,7 +513,16 @@ codeunit 143000 "Library - IT Localization"
         if TempNameValueBuffer.FindSet() then
             repeat
                 FileManagement.DeleteServerFile(TempNameValueBuffer.Name);
-            until TempNameValueBuffer.Next = 0;
+            until TempNameValueBuffer.Next() = 0;
+    end;
+
+    [Scope('OnPrem')]
+    procedure LoadTempXMLBufferFromTempBlob(var TempXMLBuffer: Record "XML Buffer" temporary; TempBlob: Codeunit "Temp Blob")
+    var
+        InStr: InStream;
+    begin
+        TempBlob.CreateInStream(InStr);
+        TempXMLBuffer.LoadFromStream(InStr);
     end;
 }
 

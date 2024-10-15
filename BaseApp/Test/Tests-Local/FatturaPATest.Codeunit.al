@@ -72,11 +72,12 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        InStr: InStream;
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 270181] Export Sales Invoice with item GTIN
@@ -91,7 +92,7 @@ codeunit 144200 "FatturaPA Test"
         // [GIVEN] "LCY Code" is "EUR" in "General Ledger Setup"
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file is valid according to XSD Schema
@@ -101,11 +102,12 @@ codeunit 144200 "FatturaPA Test"
         // [THEN] "Divisa" = "EUR" (BUG 308849)
         // TFS ID: 365067
         // [THEN] IdPaese and IdCodice specified for regular customer (non-individual person)
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ClientFileName));
+        TempBlob.CreateInStream(InStr);
+        TempXMLBuffer.LoadFromStream(InStr);
         VerifyFatturaPAFileHeaderPublicCompany(TempXMLBuffer, DocumentRecRef, CustomerNo);
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef, CustLedgerEntry."Document Type"::Invoice, ExportFromType::Sales, '', true, '');
-        VerifyXSDSchema(ServerFileName);
+        VerifyXSDSchemaForStream(InStr);
     end;
 
     [Test]
@@ -116,11 +118,12 @@ codeunit 144200 "FatturaPA Test"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         TempXMLBuffer: Record "XML Buffer" temporary;
         SalesInvoiceLine: Record "Sales Invoice Line";
+        TempBlob: Codeunit "Temp Blob";
+        InStr: InStream;
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 270181] Export Sales Invoice with blank item GTIN
@@ -136,16 +139,17 @@ codeunit 144200 "FatturaPA Test"
         UpdateItemGTIN(SalesInvoiceLine."No.", '');
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file is valid according to XSD Schema
         // [THEN] Line data exported without 'CodiceArticolo' node
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ClientFileName));
+        TempBlob.CreateInStream(InStr);
+        TempXMLBuffer.LoadFromStream(InStr);
         VerifyFatturaPAFileHeader(TempXMLBuffer, DocumentRecRef, CustomerNo);
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef, CustLedgerEntry."Document Type"::Invoice, ExportFromType::Sales, '', false, '');
-        VerifyXSDSchema(ServerFileName);
+        VerifyXSDSchemaForStream(InStr);
     end;
 
     [Test]
@@ -155,11 +159,12 @@ codeunit 144200 "FatturaPA Test"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        InStr: InStream;
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo]
         Initialize();
@@ -171,16 +176,17 @@ codeunit 144200 "FatturaPA Test"
         SalesCrMemoHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file is valid according to XSD Schema
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ClientFileName));
+        TempBlob.CreateInStream(InStr);
+        TempXMLBuffer.LoadFromStream(InStr);
         VerifyFatturaPAFileHeaderPublicCompany(TempXMLBuffer, DocumentRecRef, CustomerNo);
         VerifyFatturaPAFileBody(
           TempXMLBuffer, DocumentRecRef, CustLedgerEntry."Document Type"::"Credit Memo", ExportFromType::Sales, '', true, '');
-        VerifyXSDSchema(ServerFileName);
+        VerifyXSDSchemaForStream(InStr);
     end;
 
     [Test]
@@ -190,11 +196,12 @@ codeunit 144200 "FatturaPA Test"
         ServiceInvoiceHeader: Record "Service Invoice Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
+        InStr: InStream;
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Invoice]
         Initialize();
@@ -206,16 +213,17 @@ codeunit 144200 "FatturaPA Test"
         ServiceInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file is valid according to XSD Schema
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ClientFileName));
+        TempBlob.CreateInStream(InStr);
+        TempXMLBuffer.LoadFromStream(InStr);
         VerifyFatturaPAFileHeaderPublicCompany(TempXMLBuffer, DocumentRecRef, CustomerNo);
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef,
           CustLedgerEntry."Document Type"::Invoice, ExportFromType::Service, '', true, '');
-        VerifyXSDSchema(ServerFileName);
+        VerifyXSDSchemaForStream(InStr);
     end;
 
     [Test]
@@ -225,11 +233,12 @@ codeunit 144200 "FatturaPA Test"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
+        InStr: InStream;
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Credit Memo]
         Initialize();
@@ -241,16 +250,17 @@ codeunit 144200 "FatturaPA Test"
         ServiceCrMemoHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file is valid according to XSD Schema
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ClientFileName));
+        TempBlob.CreateInStream(InStr);
+        TempXMLBuffer.LoadFromStream(InStr);
         VerifyFatturaPAFileHeaderPublicCompany(TempXMLBuffer, DocumentRecRef, CustomerNo);
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef,
           CustLedgerEntry."Document Type"::"Credit Memo", ExportFromType::Service, '', true, '');
-        VerifyXSDSchema(ServerFileName);
+        VerifyXSDSchemaForStream(InStr);
     end;
 
     [Test]
@@ -260,13 +270,13 @@ codeunit 144200 "FatturaPA Test"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef1: RecordRef;
         DocumentRecRef2: RecordRef;
         ClientFileName: Text[250];
         DocumentNo1: Code[20];
         CustomerNo: Code[20];
         DocumentNo2: Code[20];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice] [Batch]
         Initialize();
@@ -280,14 +290,14 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader.SetFilter("No.", '%1|%2', DocumentNo1, DocumentNo2);
 
         // [WHEN] The documents are exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] A zip file is exported
         // [THEN] The zip file contains two FatturaPA XML files
         // [THEN] The two FatturaPA files contains values according to the documents
         VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, ClientFileName,
-          ServerFileName, ExportFromType::Sales, CustLedgerEntry."Document Type"::Invoice);
+          TempBlob, ExportFromType::Sales, CustLedgerEntry."Document Type"::Invoice);
     end;
 
     [Test]
@@ -297,6 +307,7 @@ codeunit 144200 "FatturaPA Test"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef1: RecordRef;
         DocumentRecRef2: RecordRef;
         ClientFileName: Text[250];
@@ -304,7 +315,6 @@ codeunit 144200 "FatturaPA Test"
         CustomerNo1: Code[20];
         DocumentNo2: Code[20];
         CustomerNo2: Code[20];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Invoice] [Batch]
         Initialize();
@@ -320,14 +330,14 @@ codeunit 144200 "FatturaPA Test"
         ServiceInvoiceHeader.SetFilter("No.", '%1|%2', DocumentNo1, DocumentNo2);
 
         // [WHEN] The documents are exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] A zip file is exported
         // [THEN] The zip file contains two FatturaPA XML files
         // [THEN] The two FatturaPA files contains values according to the documents
         VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, ClientFileName,
-          ServerFileName, ExportFromType::Service, CustLedgerEntry."Document Type"::Invoice);
+          TempBlob, ExportFromType::Service, CustLedgerEntry."Document Type"::Invoice);
     end;
 
     [Test]
@@ -337,13 +347,13 @@ codeunit 144200 "FatturaPA Test"
         ElectronicDocumentFormat: Record "Electronic Document Format";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef1: RecordRef;
         DocumentRecRef2: RecordRef;
         ClientFileName: Text[250];
         DocumentNo1: Code[20];
         CustomerNo: Code[20];
         DocumentNo2: Code[20];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo] [Batch]
         Initialize();
@@ -357,13 +367,13 @@ codeunit 144200 "FatturaPA Test"
         SalesCrMemoHeader.SetFilter("No.", '%1|%2', DocumentNo1, DocumentNo2);
 
         // [WHEN] The documents are exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] A zip file is exported
         // [THEN] The zip file contains two FatturaPA XML files
         // [THEN] The two FatturaPA files contains values according to the documents
-        VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, ClientFileName, ServerFileName,
+        VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, ClientFileName, TempBlob,
           ExportFromType::Sales, CustLedgerEntry."Document Type"::"Credit Memo");
     end;
 
@@ -374,6 +384,7 @@ codeunit 144200 "FatturaPA Test"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef1: RecordRef;
         DocumentRecRef2: RecordRef;
         ClientFileName: Text[250];
@@ -381,7 +392,6 @@ codeunit 144200 "FatturaPA Test"
         CustomerNo1: Code[20];
         DocumentNo2: Code[20];
         CustomerNo2: Code[20];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Credit Memo] [Batch]
         Initialize();
@@ -397,13 +407,13 @@ codeunit 144200 "FatturaPA Test"
         ServiceCrMemoHeader.SetFilter("No.", '%1|%2', DocumentNo1, DocumentNo2);
 
         // [WHEN] The documents are exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] A zip file is exported
         // [THEN] The zip file contains two FatturaPA XML files
         // [THEN] The two FatturaPA files contains values according to the documents
-        VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, ClientFileName, ServerFileName,
+        VerifyZipArchive(DocumentRecRef1, DocumentRecRef2, ClientFileName, TempBlob,
           ExportFromType::Service, CustLedgerEntry."Document Type"::"Credit Memo");
     end;
 
@@ -415,10 +425,10 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesHeader: Record "Sales Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 286713] Export Sales Invoice with split payment
@@ -434,7 +444,7 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file has values according to the invoice
@@ -442,14 +452,10 @@ codeunit 144200 "FatturaPA Test"
         // [THEN] The value of ImportoTotaleDocumento node is 100
         // BUG 316477: Split payment line does not consider for Imposta XML node calculation
         // [THEN] "Imposta" node has value 18
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         VerifyFatturaPAFileHeaderPublicCompany(TempXMLBuffer, DocumentRecRef, SalesInvoiceHeader."Sell-to Customer No.");
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef,
           CustLedgerEntry."Document Type"::Invoice, ExportFromType::Sales, '', true, '');
-
-        // Tear down
-        DeleteServerFile(ServerFileName);
     end;
 
     [Test]
@@ -461,10 +467,10 @@ codeunit 144200 "FatturaPA Test"
         SalesHeader: Record "Sales Header";
         VATPostingSetup: Record "VAT Posting Setup";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice] [Unrealized VAT]
         // [SCENARIO 281319] The XML file contains tag <Natura> when VAT Rate = 0
@@ -479,19 +485,15 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The exported XML file is valid according to XSD Schema
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file has values according to the invoice
         // [THEN] The value of field 2.2.2.7 "EsigibilitaIVA" is "D"
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         VerifyFatturaPAFileHeaderPublicCompany(TempXMLBuffer, DocumentRecRef, SalesInvoiceHeader."Sell-to Customer No.");
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef,
           CustLedgerEntry."Document Type"::Invoice, ExportFromType::Sales, '', true, VATPostingSetup."VAT Transaction Nature");
-
-        // Tear down
-        DeleteServerFile(ServerFileName);
     end;
 
     [Test]
@@ -678,10 +680,10 @@ codeunit 144200 "FatturaPA Test"
         Customer: Record Customer;
         TaxRepresentativeVendor: Record Vendor;
         TransmissionIntermediaryVendor: Record Vendor;
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         Initialize();
@@ -705,7 +707,7 @@ codeunit 144200 "FatturaPA Test"
 
         // [WHEN] The document is exported to FatturaPA
         LibraryErrorMessage.TrapErrorMessages;
-        asserterror ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        asserterror ElectronicDocumentFormat.SendElectronically(TempBlob,
             ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Errors are logged for all mandatory fields
@@ -729,10 +731,10 @@ codeunit 144200 "FatturaPA Test"
         PaymentMethod: Record "Payment Method";
         PaymentTerms: Record "Payment Terms";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo]
         Initialize();
@@ -756,7 +758,7 @@ codeunit 144200 "FatturaPA Test"
 
         // [WHEN] The document is exported to FatturaPA
         LibraryErrorMessage.TrapErrorMessages;
-        asserterror ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        asserterror ElectronicDocumentFormat.SendElectronically(TempBlob,
             ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Errors are logged for all mandatory fields
@@ -782,10 +784,10 @@ codeunit 144200 "FatturaPA Test"
         Customer: Record Customer;
         TaxRepresentativeVendor: Record Vendor;
         TransmissionIntermediaryVendor: Record Vendor;
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Invoice]
         Initialize();
@@ -809,7 +811,7 @@ codeunit 144200 "FatturaPA Test"
 
         // [WHEN] The document is exported to FatturaPA
         LibraryErrorMessage.TrapErrorMessages;
-        asserterror ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        asserterror ElectronicDocumentFormat.SendElectronically(TempBlob,
             ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Errors are logged for all mandatory fields
@@ -833,10 +835,10 @@ codeunit 144200 "FatturaPA Test"
         TransmissionIntermediaryVendor: Record Vendor;
         PaymentMethod: Record "Payment Method";
         PaymentTerms: Record "Payment Terms";
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Credit Memo]
         Initialize();
@@ -860,7 +862,7 @@ codeunit 144200 "FatturaPA Test"
 
         // [WHEN] The document is exported to FatturaPA
         LibraryErrorMessage.TrapErrorMessages;
-        asserterror ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        asserterror ElectronicDocumentFormat.SendElectronically(TempBlob,
             ClientFileName, ServiceCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Errors are logged for all mandatory fields
@@ -886,9 +888,9 @@ codeunit 144200 "FatturaPA Test"
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
-        ClientFileName: Text[250];
-        ServerFileNameFirstSend: Text[250];
-        ServerFileNameSecondSend: Text[250];
+        TempBlob: Codeunit "Temp Blob";
+        ClientFileNameFirstSend: Text[250];
+        ClientFileNameSecondSend: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 269125] File Name increments by one when next FatturaPA is exported.
@@ -900,19 +902,15 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [GIVEN] The document is exported to FatturaPA.
-        ElectronicDocumentFormat.SendElectronically(ServerFileNameFirstSend,
-          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
+          ClientFileNameFirstSend, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [WHEN] The document is exported second time to FatturaPA.
-        ElectronicDocumentFormat.SendElectronically(ServerFileNameSecondSend,
-          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
+          ClientFileNameSecondSend, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The name of the second file is equal to the name of the first file incremented by one.
-        Assert.AreEqual(IncStr(ServerFileNameFirstSend), ServerFileNameSecondSend, FileNameIncrementErr);
-
-        // Tear down
-        DeleteServerFile(ServerFileNameFirstSend);
-        DeleteServerFile(ServerFileNameSecondSend);
+        Assert.AreEqual(IncStr(ClientFileNameFirstSend), ClientFileNameSecondSend, FileNameIncrementErr);
     end;
 
     [Test]
@@ -922,8 +920,8 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedInvNo: Code[20];
         CustomerNo: Code[20];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 269121] DatiGenerali has two DatiOrdineAcquisto with RiferimentoNumeroLinea and IdDocumento each when Sales Invoice is posted for two different Shipments.
@@ -941,20 +939,18 @@ codeunit 144200 "FatturaPA Test"
 
         // [WHEN] The document is exported to FatturaPA.
         SalesInvoiceHeader.SetRange("No.", PostedInvNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The DatiGenerali node has two DatiOrdineAcquisto nodes.
         // [THEN] First DatiOrdineAcquisto node has RiferimentoNumeroLinea = 2 and IdDocumento = "X".
         // [THEN] Second DatiOrdineAcquisto node has RiferimentoNumeroLinea = 4, RiferimentoNumeroLinea = 5 and IdDocumento = "SO2" number.
         SalesInvoiceHeader.Get(PostedInvNo);
-        VerifyDatiOrdineAcquistoForMultipleShipments(ServerFileName, SalesInvoiceHeader."Customer Purchase Order No.");
+        VerifyDatiOrdineAcquistoForMultipleShipments(TempBlob, SalesInvoiceHeader."Customer Purchase Order No.");
 
         // [THEN] No RiferimentoTesto node exports
         // TFS 313364: If you get more than one posted shipments in a Sale Invoice, the E-Invoice xml file is not accepted due to the the shipment description reported
-        VerifyNoRiferimentoTestoNodes(ServerFileName);
-
-        DeleteServerFile(ServerFileName);
+        VerifyNoRiferimentoTestoNodes(TempBlob);
     end;
 
     [Test]
@@ -964,8 +960,8 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         PostedInvNo: Code[20];
         CustomerNo: Code[20];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 269121] DatiGenerali has one DatiOrdineAcquisto with two RiferimentoNumeroLinea and one IdDocumento when Sales Invoice is posted for Shipment with two lines.
@@ -982,19 +978,17 @@ codeunit 144200 "FatturaPA Test"
 
         // [WHEN] The document is exported to FatturaPA.
         SalesInvoiceHeader.SetRange("No.", PostedInvNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The DatiGenerali node has one DatiOrdineAcquisto node.
         // [THEN] DatiOrdineAcquisto node IdDocumento = "X" and no RiferimentoNumeroLinea nodes.
         SalesInvoiceHeader.Get(PostedInvNo);
-        VerifyDatiOrdineAcquistoForShipmentWithMultipleLines(ServerFileName, SalesInvoiceHeader."Customer Purchase Order No.");
+        VerifyDatiOrdineAcquistoForShipmentWithMultipleLines(TempBlob, SalesInvoiceHeader."Customer Purchase Order No.");
 
         // [THEN] No RiferimentoTesto node exports
         // TFS 313364: If you get more than one posted shipments in a Sale Invoice, the E-Invoice xml file is not accepted due to the the shipment description reported
-        VerifyNoRiferimentoTestoNodes(ServerFileName);
-
-        DeleteServerFile(ServerFileName);
+        VerifyNoRiferimentoTestoNodes(TempBlob);
     end;
 
     [Test]
@@ -1004,11 +998,11 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice] [Line Discount]
         // [SCENARIO 273569] Importo node has value of Unit Price Discount Amount when send Sales Invoice
@@ -1023,18 +1017,14 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file is valid according to XSD Schema
         // [THEN] Line data exported with 'Importo' node with value 50 ("Unit Price" * "Line Discount %" / 100)
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         VerifyFatturaPAFileHeader(TempXMLBuffer, DocumentRecRef, CustomerNo);
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef, CustLedgerEntry."Document Type"::Invoice, ExportFromType::Sales, '', true, '');
-
-        // Tear down
-        DeleteServerFile(ServerFileName);
     end;
 
     [Test]
@@ -1044,11 +1034,11 @@ codeunit 144200 "FatturaPA Test"
         ServiceInvoiceHeader: Record "Service Invoice Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Invoice] [Line Discount]
         // [SCENARIO 273569] Importo node has value of Unit Price Discount Amount when send Service Invoice
@@ -1063,19 +1053,15 @@ codeunit 144200 "FatturaPA Test"
         ServiceInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file is valid according to XSD Schema
         // [THEN] Line data exported with 'Importo' node with value 50 ("Unit Price" * "Line Discount %" / 100)
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         VerifyFatturaPAFileHeader(TempXMLBuffer, DocumentRecRef, CustomerNo);
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef,
           CustLedgerEntry."Document Type"::Invoice, ExportFromType::Service, '', true, '');
-
-        // Tear down
-        DeleteServerFile(ServerFileName);
     end;
 
     [Test]
@@ -1085,11 +1071,11 @@ codeunit 144200 "FatturaPA Test"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo] [Line Discount]
         // [SCENARIO 273569] Importo node has value of Unit Price Discount Amount when send Sales Invoice
@@ -1104,19 +1090,15 @@ codeunit 144200 "FatturaPA Test"
         SalesCrMemoHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file is valid according to XSD Schema
         // [THEN] Line data exported with 'Importo' node with value 50 ("Unit Price" * "Line Discount %" / 100)
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         VerifyFatturaPAFileHeader(TempXMLBuffer, DocumentRecRef, CustomerNo);
         VerifyFatturaPAFileBody(
           TempXMLBuffer, DocumentRecRef, CustLedgerEntry."Document Type"::"Credit Memo", ExportFromType::Sales, '', true, '');
-
-        // Tear down
-        DeleteServerFile(ServerFileName);
     end;
 
     [Test]
@@ -1126,11 +1108,11 @@ codeunit 144200 "FatturaPA Test"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Credit Memo] [Line Discount]
         // [SCENARIO 273569] Importo node has value of Unit Price Discount Amount when send Service Invoice
@@ -1145,19 +1127,15 @@ codeunit 144200 "FatturaPA Test"
         ServiceCrMemoHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file is valid according to XSD Schema
         // [THEN] Line data exported with 'Importo' node with value 50 ("Unit Price" * "Line Discount %" / 100)
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         VerifyFatturaPAFileHeader(TempXMLBuffer, DocumentRecRef, CustomerNo);
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef,
           CustLedgerEntry."Document Type"::"Credit Memo", ExportFromType::Service, '', true, '');
-
-        // Tear down
-        DeleteServerFile(ServerFileName);
     end;
 
     [Test]
@@ -1196,11 +1174,12 @@ codeunit 144200 "FatturaPA Test"
         DummySalesInvoiceHeader: Record "Sales Invoice Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
+        InStr: InStream;
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 259342] Export Sales Invoice with customer "PA Code" = "1234567" (private company)
@@ -1212,17 +1191,17 @@ codeunit 144200 "FatturaPA Test"
         DummySalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, DummySalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file is valid according to XSD Schema
         // [THEN] "FormatoTrasmissione" = "FPR12"
         // [THEN] "CodiceDestinatario" = "1234567"
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        TempBlob.CreateInStream(InStr);
+        TempXMLBuffer.LoadFromStream(InStr);
         VerifyFatturaPAFileHeaderPrivateCompany(TempXMLBuffer, DocumentRecRef, CustomerNo);
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef, CustLedgerEntry."Document Type"::Invoice, ExportFromType::Sales, '', true, '');
-        VerifyXSDSchema(ServerFileName);
+        VerifyXSDSchemaForStream(InStr);
     end;
 
     [Test]
@@ -1232,11 +1211,12 @@ codeunit 144200 "FatturaPA Test"
         DummySalesInvoiceHeader: Record "Sales Invoice Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        TempBlob: Codeunit "Temp Blob";
+        InStr: InStream;
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 287428] A value of "PEC E-mail Address" of Customer used when export Sales Invoice with customer "PA Code" = "0000000" (private company)
@@ -1248,19 +1228,19 @@ codeunit 144200 "FatturaPA Test"
         DummySalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, DummySalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file is valid according to XSD Schema
         // [THEN] "FormatoTrasmissione" = "FPR12"
         // [THEN] "PECDestinatario" = "private@customer.com"
         // [THEN] "CodiceDestinatario" = "0000000"
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        TempBlob.CreateInStream(InStr);
+        TempXMLBuffer.LoadFromStream(InStr);
         VerifyFatturaPAFileHeaderPrivateCompany(TempXMLBuffer, DocumentRecRef, CustomerNo);
         VerifyCustomerEmail(TempXMLBuffer, CustomerNo);
         VerifyFatturaPAFileBody(TempXMLBuffer, DocumentRecRef, CustLedgerEntry."Document Type"::Invoice, ExportFromType::Sales, '', true, '');
-        VerifyXSDSchema(ServerFileName);
+        VerifyXSDSchemaForStream(InStr);
     end;
 
     [Test]
@@ -1270,8 +1250,8 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
         TempXMLBufferPart: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
         UnitPrice: Decimal;
         Quantity: Decimal;
         DocumentNo: Code[20];
@@ -1286,9 +1266,8 @@ codeunit 144200 "FatturaPA Test"
 
         // [WHEN] A Fattura PA document is created for this Sales Invoice
         ElectronicDocumentFormat.SendElectronically(
-          ServerFileName, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
-        FileManagement.GetFileNameWithoutExtension(ServerFileName);
-        TempXMLBuffer.Load(ServerFileName);
+          TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
 
         // [THEN] There is only one "Quantita" element
         TempXMLBuffer.FindNodesByXPath(TempXMLBufferPart, 'Quantita');
@@ -1312,10 +1291,10 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
         TempXMLBufferPart: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         ClientFileName: Text[250];
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 334296] Exporting a document with local customer, populates 'CAP' element with its Post Code
@@ -1327,9 +1306,8 @@ codeunit 144200 "FatturaPA Test"
 
         // [WHEN] A Fattura PA document is created for this Sales Invoice
         ElectronicDocumentFormat.SendElectronically(
-          ServerFileName, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
-        FileManagement.GetFileNameWithoutExtension(ServerFileName);
-        TempXMLBuffer.Load(ServerFileName);
+          TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
 
         // [THEN] 'CAP' element is populated with local Customer's Post Code
         TempXMLBuffer.FindNodesByXPath(TempXMLBufferPart, 'CessionarioCommittente/Sede/CAP');
@@ -1345,10 +1323,10 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
         TempXMLBufferPart: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         ClientFileName: Text[250];
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 334296] Exporting a document with foreign customer, populates 'CAP' element with '00000'
@@ -1361,9 +1339,8 @@ codeunit 144200 "FatturaPA Test"
 
         // [WHEN] A Fattura PA document is created for this Sales Invoice
         ElectronicDocumentFormat.SendElectronically(
-          ServerFileName, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
-        FileManagement.GetFileNameWithoutExtension(ServerFileName);
-        TempXMLBuffer.Load(ServerFileName);
+          TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
 
         // [THEN] 'CAP' element is populated with '00000' for a foreign Customer
         TempXMLBuffer.FindNodesByXPath(TempXMLBufferPart, 'CessionarioCommittente/Sede/CAP');
@@ -1379,8 +1356,8 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [SCENARIO 364606] The XML file contains the PrezzoUnitario xml node with unit price without rounding
 
@@ -1399,18 +1376,14 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader.SetRecFilter();
 
         // [WHEN] Generate XML file
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file has the PrezzoUnitario xml node with value of 0.073
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ServerFileName));
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoUnitario',
           Format(SalesLine."Unit Price", 0, '<Precision,2:5><Standard Format,9>'));
-
-        // Tear down
-        DeleteServerFile(ServerFileName);
     end;
 
     [Test]
@@ -1420,10 +1393,10 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
         Customer: Record Customer;
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 393032] Stan can export sales invoice with customer that only has fiscal code but no VAT registratio no.
@@ -1438,11 +1411,11 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Exported file does not have IdFiscaleIVA xml block related to VAT registration no.
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         AssertElementDoesNotExist(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente/DatiAnagrafici/IdFiscaleIVA');
         // [THEN] Exported file has CodiceFiscale = "Y"
@@ -1460,10 +1433,10 @@ codeunit 144200 "FatturaPA Test"
         Customer: Record Customer;
         CurrCustomer: Record Customer;
         CountryRegion: Record "Country/Region";
+        TempBlob: Codeunit "Temp Blob";
         DocumentRecRef: RecordRef;
         DocumentNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 391793] CodiceFiscale xml node does not exist in the exported file for the sales invoice with foreign customer
@@ -1485,11 +1458,11 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Exported file does not have CodiceFiscale
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         AssertElementDoesNotExist(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente/DatiAnagrafici/CodiceFiscale');
     end;
@@ -1500,8 +1473,8 @@ codeunit 144200 "FatturaPA Test"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
         Amount: Decimal;
     begin
         // [FEATURE] [Sales] [Invoice]
@@ -1514,11 +1487,11 @@ codeunit 144200 "FatturaPA Test"
           "No.", CreateAndPostSalesInvoiceWithSecondLineZeroUnitPrice(CreatePaymentMethod(), CreatePaymentTerms(), CreateCustomer()));
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file has two PrezzoUnitario xml nodes. The second one has value of "0.00"
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoUnitario');
         Assert.RecordCount(TempXMLBuffer, 2);
@@ -1533,8 +1506,8 @@ codeunit 144200 "FatturaPA Test"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [SCENARIO 429214] Export sales invoice with extended text
         Initialize();
@@ -1544,11 +1517,11 @@ codeunit 144200 "FatturaPA Test"
           "No.", CreateAndPostSalesInvoiceWithExtText(CreatePaymentMethod(), CreatePaymentTerms(), CreateCustomer()));
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] The exported XML file has 3 RiferimentoTesto xml nodes.
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/AltriDatiGestionali/RiferimentoTesto');
         Assert.RecordCount(TempXMLBuffer, 3);
@@ -1567,13 +1540,6 @@ codeunit 144200 "FatturaPA Test"
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         IsInitialized := true;
-    end;
-
-    local procedure DeleteServerFile(ServerFileName: Text)
-    var
-        FileManagement: Codeunit "File Management";
-    begin
-        FileManagement.DeleteServerFile(ServerFileName);
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type")
@@ -2530,13 +2496,11 @@ codeunit 144200 "FatturaPA Test"
         end;
     end;
 
-    local procedure VerifyZipArchive(DocumentRecRef1: RecordRef; DocumentRecRef2: RecordRef; ZipClientFileName: Text[250]; ZipServerFileName: Text[250]; ExportFromType: Option Sales,Service; DocumentType: Enum "Gen. Journal Document Type")
+    local procedure VerifyZipArchive(DocumentRecRef1: RecordRef; DocumentRecRef2: RecordRef; ZipClientFileName: Text[250]; TempBlob: Codeunit "Temp Blob"; ExportFromType: Option Sales,Service; DocumentType: Enum "Gen. Journal Document Type")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
-        TempBlob: Codeunit "Temp Blob";
+        ZipTempBlob: Codeunit "Temp Blob";
         EntryList: List of [Text];
-        ZipServerFile: File;
-        ZipServerFileInStream: InStream;
         FirstFileInStream: InStream;
         SecondFileInStream: InStream;
         FirstFileOutStream: OutStream;
@@ -2546,16 +2510,13 @@ codeunit 144200 "FatturaPA Test"
         Length: Integer;
     begin
         // verify zip file
-        VerifyFileName(FileManagement.GetFileNameWithoutExtension(ZipClientFileName));
-        ZipServerFile.Open(ZipServerFileName);
-        ZipServerFile.CreateInStream(ZipServerFileInStream);
-        DataCompression.OpenZipArchive(ZipServerFileInStream, false);
+        DataCompression.OpenZipArchive(TempBlob, false);
         DataCompression.GetEntryList(EntryList);
 
         // verify first file
-        TempBlob.CreateOutStream(FirstFileOutStream);
+        ZipTempBlob.CreateOutStream(FirstFileOutStream);
         DataCompression.ExtractEntry(EntryList.Get(1), FirstFileOutStream, Length);
-        TempBlob.CreateInStream(FirstFileInStream);
+        ZipTempBlob.CreateInStream(FirstFileInStream);
         VerifyFileName(FileManagement.GetFileNameWithoutExtension(EntryList.Get(1)));
         TempXMLBuffer.LoadFromStream(FirstFileInStream);
         CustomerNo1 := DocumentRecRef1.Field(CustomerNoFieldNo).Value;
@@ -2564,9 +2525,13 @@ codeunit 144200 "FatturaPA Test"
         VerifyXSDSchemaForStream(FirstFileInStream);
 
         // verify second file
-        TempBlob.CreateOutStream(SecondFileOutStream);
+        clear(ZipTempBlob);
+        Clear(TempXMLBuffer);
+        TempXMLBuffer.DeleteAll();
+
+        ZipTempBlob.CreateOutStream(SecondFileOutStream);
         DataCompression.ExtractEntry(EntryList.Get(2), SecondFileOutStream, Length);
-        TempBlob.CreateInStream(SecondFileInStream);
+        ZipTempBlob.CreateInStream(SecondFileInStream);
         VerifyFileName(FileManagement.GetFileNameWithoutExtension(EntryList.Get(2)));
         TempXMLBuffer.LoadFromStream(SecondFileInStream);
         CustomerNo2 := DocumentRecRef2.Field(CustomerNoFieldNo).Value;
@@ -2575,24 +2540,6 @@ codeunit 144200 "FatturaPA Test"
         VerifyXSDSchemaForStream(SecondFileInStream);
 
         DataCompression.CloseZipArchive();
-        ZipServerFile.Close();
-        DeleteServerFile(ZipServerFileName);
-    end;
-
-    local procedure VerifyXSDSchema(XmlPath: Text)
-    var
-        LibraryVerifyXMLSchema: Codeunit "Library - Verify XML Schema";
-        Message: Text;
-        SignatureXsdPath: Text;
-        XsdPath: Text;
-        InetRoot: Text;
-    begin
-        InetRoot := LibraryUtility.GetInetRoot + InetRootRelativePathTxt;
-        SignatureXsdPath := InetRoot + SignatureXSDRelativePathTxt;
-        XsdPath := InetRoot + XSDRelativePathTxt;
-        LibraryVerifyXMLSchema.SetAdditionalSchemaPath(SignatureXsdPath);
-        Assert.IsTrue(LibraryVerifyXMLSchema.VerifyXMLAgainstSchema(XmlPath, XsdPath, Message), Message);
-        DeleteServerFile(XmlPath);
     end;
 
     local procedure VerifyXSDSchemaForStream(XmlInStream: InStream)
@@ -2610,11 +2557,11 @@ codeunit 144200 "FatturaPA Test"
         Assert.IsTrue(LibraryVerifyXMLSchema.VerifyXMLStreamAgainstSchema(XmlInStream, XsdPath, Message), Message);
     END;
 
-    local procedure VerifyDatiOrdineAcquistoForMultipleShipments(ServerFileName: Text[250]; DocumentNo: Text)
+    local procedure VerifyDatiOrdineAcquistoForMultipleShipments(TempBlob: Codeunit "Temp Blob"; DocumentNo: Text)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto');
         AssertElementValue(TempXMLBuffer, 'RiferimentoNumeroLinea', '2');
         AssertElementValue(TempXMLBuffer, 'IdDocumento', DocumentNo);
@@ -2624,11 +2571,11 @@ codeunit 144200 "FatturaPA Test"
         AssertElementValue(TempXMLBuffer, 'IdDocumento', DocumentNo);
     end;
 
-    local procedure VerifyDatiOrdineAcquistoForShipmentWithMultipleLines(ServerFileName: Text[250]; SalesOrderNo: Text)
+    local procedure VerifyDatiOrdineAcquistoForShipmentWithMultipleLines(TempBlob: Codeunit "Temp Blob"; SalesOrderNo: Text)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto');
         AssertElementValue(TempXMLBuffer, 'IdDocumento', SalesOrderNo);
     end;
@@ -2641,16 +2588,15 @@ codeunit 144200 "FatturaPA Test"
         AssertElementValue(XMLBuffer, 'PECDestinatario', Customer."PEC E-Mail Address");
     end;
 
-    local procedure VerifyNoRiferimentoTestoNodes(ServerFileName: Text[250])
+    local procedure VerifyNoRiferimentoTestoNodes(TempBlob: Codeunit "Temp Blob")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer,
           '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/AltriDatiGestionali/RiferimentoTesto');
         Assert.RecordCount(TempXMLBuffer, 0);
-        DeleteServerFile(ServerFileName);
     end;
 
     local procedure SumUpServiceDiscountAmount(LineRecRef: RecordRef)

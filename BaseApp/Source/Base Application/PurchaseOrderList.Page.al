@@ -174,6 +174,7 @@ page 9307 "Purchase Order List"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether the record is open, waiting to be approved, invoiced for prepayment, or released to the next stage of processing.';
+                    StyleExpr = StatusStyleTxt;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
@@ -530,9 +531,10 @@ page 9307 "Purchase Order List"
 
                     trigger OnAction()
                     var
-                        ReleasePurchDoc: Codeunit "Release Purchase Document";
+                        PurchaseHeader: Record "Purchase Header";
                     begin
-                        ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.SetSelectionFilter(PurchaseHeader);
+                        Rec.PerformManualRelease(PurchaseHeader);
                     end;
                 }
                 action(Reopen)
@@ -547,9 +549,10 @@ page 9307 "Purchase Order List"
 
                     trigger OnAction()
                     var
-                        ReleasePurchDoc: Codeunit "Release Purchase Document";
+                        PurchaseHeader: Record "Purchase Header";
                     begin
-                        ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.SetSelectionFilter(PurchaseHeader);
+                        Rec.PerformManualReopen(PurchaseHeader);
                     end;
                 }
             }
@@ -781,6 +784,11 @@ page 9307 "Purchase Order List"
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        StatusStyleTxt := Rec.GetStatusStyleText();
+    end;
+
     trigger OnAfterGetCurrRecord()
     begin
         SetControlAppearance;
@@ -815,6 +823,8 @@ page 9307 "Purchase Order List"
         ReadyToPostQst: Label 'The number of orders that will be posted is %1. \Do you want to continue?', Comment = '%1 - selected count';
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
+        [InDataSet]
+        StatusStyleTxt: Text;
 
     local procedure SetControlAppearance()
     var

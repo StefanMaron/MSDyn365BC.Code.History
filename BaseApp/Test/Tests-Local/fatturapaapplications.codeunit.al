@@ -34,7 +34,7 @@ codeunit 144207 "FatturaPA Applications"
         FatturaProjectCode: Code[15];
         FatturaTenderCode: Code[15];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 305069] An information about the sales invoice applied to credit memo from document exists in FatturaPA XML File under node DatiFattureCollegate
@@ -55,7 +55,7 @@ codeunit 144207 "FatturaPA Applications"
         SalesInvoiceHeader.SetRange("No.", DocNo);
 
         // [WHEN] Export Sales Invoice
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] XML file has the following XML nodes under node DatiFattureCollegate
@@ -64,7 +64,7 @@ codeunit 144207 "FatturaPA Applications"
         // [THEN] "CodiceCUP" = "A"
         // [THEN] "CodiceCIG" = "B"
         VerifyApplicationInformation(
-          ServerFileName, CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
+          TempBlob, CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
     end;
 
     [Test]
@@ -77,7 +77,7 @@ codeunit 144207 "FatturaPA Applications"
         FatturaProjectCode: Code[15];
         FatturaTenderCode: Code[15];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 305069] An information about the sales credit memo applied from invoice after posting exists in FatturaPA XML File under node DatiFattureCollegate
@@ -97,7 +97,7 @@ codeunit 144207 "FatturaPA Applications"
         SalesInvoiceHeader.SetRange("No.", InvCustLedgerEntry."Document No.");
 
         // [WHEN] Export Sales Invoice
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] XML file has the following XML nodes under node DatiFattureCollegate
@@ -106,7 +106,7 @@ codeunit 144207 "FatturaPA Applications"
         // [THEN] "CodiceCUP" = "A"
         // [THEN] "CodiceCIG" = "B"
         VerifyApplicationInformation(
-          ServerFileName, CrMemoCustLedgerEntry."Document No.", CrMemoCustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
+          TempBlob, CrMemoCustLedgerEntry."Document No.", CrMemoCustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
     end;
 
     [Test]
@@ -119,7 +119,7 @@ codeunit 144207 "FatturaPA Applications"
         FatturaProjectCode: Code[15];
         FatturaTenderCode: Code[15];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 305069] An information about the sales credit memo applied to invoice after posting exists in FatturaPA XML File under node DatiFattureCollegate
@@ -139,7 +139,7 @@ codeunit 144207 "FatturaPA Applications"
         SalesInvoiceHeader.SetRange("No.", InvCustLedgerEntry."Document No.");
 
         // [WHEN] Export Sales Invoice
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] XML file has the following XML nodes under node DatiFattureCollegate
@@ -148,7 +148,7 @@ codeunit 144207 "FatturaPA Applications"
         // [THEN] "CodiceCUP" = "A"
         // [THEN] "CodiceCIG" = "B"
         VerifyApplicationInformation(
-          ServerFileName, CrMemoCustLedgerEntry."Document No.", CrMemoCustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
+          TempBlob, CrMemoCustLedgerEntry."Document No.", CrMemoCustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
     end;
 
     [Test]
@@ -162,7 +162,7 @@ codeunit 144207 "FatturaPA Applications"
         FatturaProjectCode: Code[15];
         FatturaTenderCode: Code[15];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 305069] An information about the sales credit invoice applied to credit memo from document exists in FatturaPA XML File under node DatiFattureCollegate
@@ -183,7 +183,7 @@ codeunit 144207 "FatturaPA Applications"
         SalesCrMemoHeader.SetRange("No.", DocNo);
 
         // [WHEN] Export Sales Credit Memo
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] XML file has the following XML nodes under node DatiFattureCollegate
@@ -192,7 +192,7 @@ codeunit 144207 "FatturaPA Applications"
         // [THEN] "CodiceCUP" = "A"
         // [THEN] "CodiceCIG" = "B"
         VerifyApplicationInformation(
-          ServerFileName, CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
+          TempBlob, CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
     end;
 
     [Test]
@@ -205,7 +205,7 @@ codeunit 144207 "FatturaPA Applications"
         FatturaProjectCode: Code[15];
         FatturaTenderCode: Code[15];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 305069] An information about the sales invoice applied from credit memo after posting exists in FatturaPA XML File under node DatiFattureCollegate
@@ -225,7 +225,7 @@ codeunit 144207 "FatturaPA Applications"
         SalesCrMemoHeader.SetRange("No.", CrMemoCustLedgerEntry."Document No.");
 
         // [WHEN] Export Sales Credit Memo
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] XML file has the following XML nodes under node DatiFattureCollegate
@@ -234,7 +234,7 @@ codeunit 144207 "FatturaPA Applications"
         // [THEN] "CodiceCUP" = "A"
         // [THEN] "CodiceCIG" = "B"
         VerifyApplicationInformation(
-          ServerFileName, InvCustLedgerEntry."Document No.", InvCustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
+          TempBlob, InvCustLedgerEntry."Document No.", InvCustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
     end;
 
     [Test]
@@ -247,7 +247,7 @@ codeunit 144207 "FatturaPA Applications"
         FatturaProjectCode: Code[15];
         FatturaTenderCode: Code[15];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 305069] An information about the sales invoice applied to credit memo after posting exists in FatturaPA XML File under node DatiFattureCollegate
@@ -267,7 +267,7 @@ codeunit 144207 "FatturaPA Applications"
         SalesCrMemoHeader.SetRange("No.", CrMemoCustLedgerEntry."Document No.");
 
         // [WHEN] Export Sales Credit Memo
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] XML file has the following XML nodes under node DatiFattureCollegate
@@ -276,7 +276,7 @@ codeunit 144207 "FatturaPA Applications"
         // [THEN] "CodiceCUP" = "A"
         // [THEN] "CodiceCIG" = "B"
         VerifyApplicationInformation(
-          ServerFileName, InvCustLedgerEntry."Document No.", InvCustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
+          TempBlob, InvCustLedgerEntry."Document No.", InvCustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
     end;
 
     [Test]
@@ -289,11 +289,11 @@ codeunit 144207 "FatturaPA Applications"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
         NoSeriesManagement: Codeunit NoSeriesManagement;
+        TempBlob: Codeunit "Temp Blob";
         ProgressiveNo: Code[20];
         FatturaProjectCode: Code[15];
         FatturaTenderCode: Code[15];
         ClientFileName: Text;
-        ServerFileName: Text;
         ExpectedFileName: Text;
     begin
         // [SCENARIO 435433] To verify if file name with Electronic Document option from Posted Sales Invoice is following a nomenclature : country code + the transmitter's unique identity code + ‘_’ + unique progressive number of the file
@@ -309,7 +309,7 @@ codeunit 144207 "FatturaPA Applications"
         // [WHEN] Export Sales Invoice
         SalesInvoiceHeader.SetRange("No.", CustLedgerEntry."Document No.");
         ElectronicDocumentFormat.SendElectronically(
-          ServerFileName,
+          TempBlob,
           ClientFileName,
           SalesInvoiceHeader,
           CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
@@ -396,11 +396,11 @@ codeunit 144207 "FatturaPA Applications"
         exit(Format(DateToFormat, 0, TypeHelper.GetXMLDateFormat));
     end;
 
-    local procedure DeleteServerFile(ServerFileName: Text)
+    local procedure DeleteServerFile(TempBlob: Text)
     var
         FileManagement: Codeunit "File Management";
     begin
-        FileManagement.DeleteServerFile(ServerFileName);
+        FileManagement.DeleteServerFile(TempBlob);
     end;
 
     local procedure AssertElementValue(var TempXMLBuffer: Record "XML Buffer" temporary; ElementName: Text; ElementValue: Text)
@@ -428,17 +428,16 @@ codeunit 144207 "FatturaPA Applications"
             end;
     end;
 
-    local procedure VerifyApplicationInformation(ServerFileName: Text[250]; DocNo: Code[20]; PostingDate: Date; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15])
+    local procedure VerifyApplicationInformation(TempBlob: Codeunit "Temp Blob"; DocNo: Code[20]; PostingDate: Date; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15])
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiFattureCollegate');
         AssertElementValue(TempXMLBuffer, 'IdDocumento', DocNo);
         AssertElementValue(TempXMLBuffer, 'Data', FormatDate(PostingDate));
         AssertElementValue(TempXMLBuffer, 'CodiceCUP', FatturaProjectCode);
         AssertElementValue(TempXMLBuffer, 'CodiceCIG', FatturaTenderCode);
-        DeleteServerFile(ServerFileName);
     end;
 
     procedure GetFatturaFileName(ProgressiveNo: Code[20]): Text[40]

@@ -26,7 +26,7 @@
         Text011: Label '%1 %2 -> Credit Memo %3';
         Text012: Label 'Prepayment %1, %2 %3.';
         Text1130004: Label 'Total Reg. %1 is different from total Document %2.', Comment = '%1 and %2 - Total Amounts';
-        Text1130007: Label 'To specify the installment to apply to please select the %1 or use the function Apply Entries.', Comment = '%1 = Applies-to Occurrence No.';             
+        Text1130007: Label 'To specify the installment to apply to please select the %1 or use the function Apply Entries.', Comment = '%1 = Applies-to Occurrence No.';
         Text1130008: Label 'must not be prior to %1', Comment = '%1 = Date';
         PostingDateNotAllowedErr: Label '%1 is not within your range of allowed posting dates.', Comment = '%1 - Posting Date field caption';
         SpecifyInvNoSerieTok: Label 'Specify the code for the number series that will be used to assign numbers to posted purchase prepayment invoices.';
@@ -115,7 +115,7 @@
         OnBeforePostPrepayments(PurchHeader2, DocumentType, SuppressCommit);
 
         PurchHeader := PurchHeader2;
-        GLSetup.Get();
+        GLSetup.GetRecordOnce();
         PurchSetup.Get();
         with PurchHeader do begin
             CheckPrepmtDoc(PurchHeader, DocumentType);
@@ -249,6 +249,7 @@
 
             // Post vendor entry
             Window.Update(4, 1);
+            OnCodeOnBeforePostVendorEntry(PurchHeader, TempPrepmtInvLineBuffer);
             PostVendorEntry(
               PurchHeader, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, DocumentType, PostingDescription,
               GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PostingNoSeriesCode, CalcPmtDiscOnCrMemos);
@@ -260,6 +261,7 @@
             // Balancing account
             if "Bal. Account No." <> '' then begin
                 Window.Update(5, 1);
+                OnCodeOnBeforePostBalancingEntry(PurchHeader, TempPrepmtInvLineBuffer);
                 PostBalancingEntry(
                   PurchHeader, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, VendLedgEntry, DocumentType,
                   GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PostingNoSeriesCode);
@@ -442,10 +444,17 @@
                     NoSeriesMgt.TestDateOrder("Reverse Sales VAT No. Series");
                     "Reverse Sales VAT No." :=
                       NoSeriesMgt.GetNextNo("Reverse Sales VAT No. Series", "Posting Date", true);
-                    Modify;
-                    Commit();
+                      
+                    if not PreviewMode and ModifyHeader then begin
+                        Modify;
+                        if not SuppressCommit then
+                            Commit();
+                    end;
                 end;
         end;
+
+        if PreviewMode and GLSetup."Journal Templ. Name Mandatory" then
+            GenJournalTemplate.Get(PurchHeader."Journal Templ. Name");
     end;
 
     local procedure UpdateInvoiceDocNos(var PurchHeader: Record "Purchase Header"; var ModifyHeader: Boolean)
@@ -2022,6 +2031,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePostedPurchaseDocument(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; DocumentType: Option Invoice,"Credit Memo"; var IsHandled: Boolean; DocumentNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforePostBalancingEntry(var PurchaseHeader: Record "Purchase Header"; var TempPrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforePostVendorEntry(var PurchaseHeader: Record "Purchase Header"; var TempPrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary)
     begin
     end;
 

@@ -227,6 +227,7 @@ codeunit 1004 "Job Transfer Line"
         JobSetup: Record "Jobs Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
     begin
         JobPlanningLine.TestField("Qty. to Transfer to Journal");
 
@@ -299,7 +300,11 @@ codeunit 1004 "Job Transfer Line"
         OnAfterFromPlanningLineToJnlLine(JobJnlLine, JobPlanningLine);
 
         JobJnlLine.UpdateDimensions();
-        ItemTrackingMgt.CopyItemTracking(JobPlanningLine.RowID1(), JobJnlLine.RowID1(), false);
+
+        IsHandled := false;
+        OnFromPlanningLineToJnlLineOnBeforeCopyItemTracking(JobJnlLine, JobPlanningLine, IsHandled);
+        if not IsHandled then
+            ItemTrackingMgt.CopyItemTracking(JobPlanningLine.RowID1(), JobJnlLine.RowID1(), false);
 
         JobJnlLine.Insert(true);
     end;
@@ -889,6 +894,11 @@ codeunit 1004 "Job Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnFromPurchaseLineToJnlLineOnAfterCalcUnitCostLCY(var JobJnlLine: Record "Job Journal Line"; var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFromPlanningLineToJnlLineOnBeforeCopyItemTracking(var JobJournalLine: Record "Job Journal Line"; var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 }

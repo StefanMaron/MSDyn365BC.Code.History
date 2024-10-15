@@ -48,5 +48,13 @@ table 12179 "Bill Posting Group"
     fieldgroups
     {
     }
+
+    trigger OnInsert()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ITPaymentBillTok: Label 'IT Issue Vendor Payments and Customer Bills', Locked = true;
+    begin
+        FeatureTelemetry.LogUptake('1000HQ7', ITPaymentBillTok, Enum::"Feature Uptake Status"::"Set up");
+    end;
 }
 

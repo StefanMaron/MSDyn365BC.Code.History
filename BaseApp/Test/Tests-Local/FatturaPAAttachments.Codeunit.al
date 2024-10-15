@@ -27,7 +27,7 @@ codeunit 144205 "FatturaPA Attachments"
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         RecRef: RecordRef;
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 302532] Posted sales invoice without attachment
@@ -37,14 +37,13 @@ codeunit 144205 "FatturaPA Attachments"
         CreatePostSalesInvoice(RecRef);
 
         // [WHEN] Export Fattura PA for the posted document
-        ExportFaturaPA(RecRef, ServerFileName);
+        ExportFaturaPA(RecRef, TempBlob);
 
         // [THEN] Exported XML doesn't have "FatturaElettronicaBody\Allegati" node
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         Assert.IsFalse(
           TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, 'FatturaElettronicaBody/Allegati'),
           'Unexpected Attachment node in the exported Fatttura PA XML');
-        DeleteServerFile(ServerFileName);
     end;
 
     [Test]
@@ -52,7 +51,7 @@ codeunit 144205 "FatturaPA Attachments"
     procedure SalesInvoiceSingleAttachment()
     var
         RecRef: RecordRef;
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         FileName: Text;
         Extension: Text;
         Base64String: Text;
@@ -68,11 +67,11 @@ codeunit 144205 "FatturaPA Attachments"
         MockAttachment(RecRef, FileName, Extension, Base64String, LibraryRandom.RandIntInRange(100, 200));
 
         // [WHEN] Export Fattura PA for the posted document
-        ExportFaturaPA(RecRef, ServerFileName);
+        ExportFaturaPA(RecRef, TempBlob);
 
         // [THEN] Exported XML has "FatturaElettronicaBody\Allegati" node with the following values:
         // [THEN] "NomeAttachment" = "FILE", "FormatoAttachment" = "EXT", "Attachment" = "X", where "X" = base64Encoding("TEXT")
-        VerifySingleAttachment(ServerFileName, FileName, Extension, Base64String);
+        VerifySingleAttachment(TempBlob, FileName, Extension, Base64String);
     end;
 
     [Test]
@@ -80,7 +79,7 @@ codeunit 144205 "FatturaPA Attachments"
     procedure SalesInvoiceSingleBigAttachment()
     var
         RecRef: RecordRef;
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         FileName: Text;
         Extension: Text;
         Base64String: Text;
@@ -96,11 +95,11 @@ codeunit 144205 "FatturaPA Attachments"
         MockAttachment(RecRef, FileName, Extension, Base64String, LibraryRandom.RandIntInRange(1000, 2000));
 
         // [WHEN] Export Fattura PA for the posted document
-        ExportFaturaPA(RecRef, ServerFileName);
+        ExportFaturaPA(RecRef, TempBlob);
 
         // [THEN] Exported XML has "FatturaElettronicaBody\Allegati" node with the following values:
         // [THEN] "NomeAttachment" = "FILE", "FormatoAttachment" = "EXT", "Attachment" = "X", where "X" = base64Encoding("TEXT..")
-        VerifySingleAttachment(ServerFileName, FileName, Extension, Base64String);
+        VerifySingleAttachment(TempBlob, FileName, Extension, Base64String);
     end;
 
     [Test]
@@ -108,7 +107,7 @@ codeunit 144205 "FatturaPA Attachments"
     procedure SalesInvoiceTwoAttachments()
     var
         RecRef: RecordRef;
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         FileName: array[2] of Text;
         Extension: array[2] of Text;
         Base64String: array[2] of Text;
@@ -127,12 +126,12 @@ codeunit 144205 "FatturaPA Attachments"
             MockAttachment(RecRef, FileName[i], Extension[i], Base64String[i], LibraryRandom.RandIntInRange(100, 200));
 
         // [WHEN] Export Fattura PA for the posted document
-        ExportFaturaPA(RecRef, ServerFileName);
+        ExportFaturaPA(RecRef, TempBlob);
 
         // [THEN] Exported XML has two "FatturaElettronicaBody\Allegati" nodes with the following values:
         // [THEN] 1st: "NomeAttachment" = "FILE1", "FormatoAttachment" = "EXT1", "Attachment" = "X1", where "X1" = base64Encoding("TEXT1")
         // [THEN] 2nd: "NomeAttachment" = "FILE2", "FormatoAttachment" = "EXT2", "Attachment" = "X2", where "X2" = base64Encoding("TEXT2")
-        VerifyTwoAttachments(ServerFileName, FileName, Extension, Base64String);
+        VerifyTwoAttachments(TempBlob, FileName, Extension, Base64String);
     end;
 
     [Test]
@@ -140,7 +139,7 @@ codeunit 144205 "FatturaPA Attachments"
     procedure SalesCrMemoSingleAttachment()
     var
         RecRef: RecordRef;
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         FileName: Text;
         Extension: Text;
         Base64String: Text;
@@ -156,11 +155,11 @@ codeunit 144205 "FatturaPA Attachments"
         MockAttachment(RecRef, FileName, Extension, Base64String, LibraryRandom.RandIntInRange(100, 200));
 
         // [WHEN] Export Fattura PA for the posted document
-        ExportFaturaPA(RecRef, ServerFileName);
+        ExportFaturaPA(RecRef, TempBlob);
 
         // [THEN] Exported XML has "FatturaElettronicaBody\Allegati" node with the following values:
         // [THEN] "NomeAttachment" = "FILE", "FormatoAttachment" = "EXT", "Attachment" = "X", where "X" = base64Encoding("TEXT")
-        VerifySingleAttachment(ServerFileName, FileName, Extension, Base64String);
+        VerifySingleAttachment(TempBlob, FileName, Extension, Base64String);
     end;
 
     [Test]
@@ -171,7 +170,7 @@ codeunit 144205 "FatturaPA Attachments"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         RecRef: RecordRef;
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         FileName: Text;
         Extension: Text;
         Base64String: Text;
@@ -191,11 +190,11 @@ codeunit 144205 "FatturaPA Attachments"
         MockAttachment(RecRef, FileName, Extension, Base64String, LibraryRandom.RandIntInRange(100, 200));
 
         // [WHEN] Export Fattura PA for the posted document
-        ExportFaturaPA(RecRef, ServerFileName);
+        ExportFaturaPA(RecRef, TempBlob);
 
         // [THEN] Exported XML has "FatturaElettronicaBody\Allegati" node with the following values:
         // [THEN] "NomeAttachment" = "FILE", "FormatoAttachment" = "EXT", "Attachent" = "X", where "X" = base64Encoding("TEXT")
-        VerifySingleAttachment(ServerFileName, FileName, Extension, Base64String);
+        VerifySingleAttachment(TempBlob, FileName, Extension, Base64String);
     end;
 
     local procedure Initialize()
@@ -211,13 +210,13 @@ codeunit 144205 "FatturaPA Attachments"
         IsInitialized := true;
     end;
 
-    local procedure ExportFaturaPA(Document: Variant; var ServerFileName: Text[250])
+    local procedure ExportFaturaPA(Document: Variant; var TempBlob: Codeunit "Temp Blob")
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
         ClientFileName: Text[250];
     begin
         ElectronicDocumentFormat.SendElectronically(
-          ServerFileName, ClientFileName, Document, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+          TempBlob, ClientFileName, Document, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
     end;
 
     local procedure MockAttachment(RecRef: RecordRef; var FileNameWithoutExtension: Text; var FileNameExtension: Text; var Base64String: Text; TextLength: Integer)
@@ -300,37 +299,28 @@ codeunit 144205 "FatturaPA Attachments"
         exit(LibraryITLocalization.CreateFatturaPaymentTermsCode);
     end;
 
-    local procedure DeleteServerFile(ServerFileName: Text)
-    var
-        FileManagement: Codeunit "File Management";
-    begin
-        FileManagement.DeleteServerFile(ServerFileName);
-    end;
-
-    local procedure VerifySingleAttachment(ServerFileName: Text; Name: Text; Format: Text; Attachment: Text)
+    local procedure VerifySingleAttachment(TempBlob: Codeunit "Temp Blob"; Name: Text; Format: Text; Attachment: Text)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/Allegati');
         Assert.RecordCount(TempXMLBuffer, 1);
         VerifyAttachmentDetails(TempXMLBuffer, Name, Format, Attachment);
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyTwoAttachments(ServerFileName: Text; Name: array[2] of Text; Format: array[2] of Text; Attachment: array[2] of Text)
+    local procedure VerifyTwoAttachments(TempBlob: Codeunit "Temp Blob"; Name: array[2] of Text; Format: array[2] of Text; Attachment: array[2] of Text)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         i: Integer;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/Allegati');
         Assert.RecordCount(TempXMLBuffer, 2);
         for i := 1 to ArrayLen(Name) do begin
             VerifyAttachmentDetails(TempXMLBuffer, Name[i], Format[i], Attachment[i]);
-            TempXMLBuffer.Next;
+            TempXMLBuffer.Next();
         end;
-        DeleteServerFile(ServerFileName);
     end;
 
     local procedure VerifyAttachmentDetails(var XMLBuffer: Record "XML Buffer"; Name: Text; Format: Text; Attachment: Text)

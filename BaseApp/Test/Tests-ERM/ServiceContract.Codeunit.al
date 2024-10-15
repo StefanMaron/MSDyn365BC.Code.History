@@ -655,6 +655,37 @@ codeunit 136100 "Service Contract"
         ServiceContractHeader.TestField("Change Status", ServiceContractHeader."Change Status"::Locked);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmDialog,SelectTemplate,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DimensionTransferServiceContractToServiceInvoice()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceHeader: Record "Service Header";
+        CreateContractInvoices: Report "Create Contract Invoices";
+    begin
+        // [FEATURE] [Dimension]
+        // [SCENARIO 438613] Dimensions should be copied from Service Contract to Service Invoice
+        Initialize();
+
+        // [GIVEN] Service Contract with "Dimension Set ID" = 'X', "Shortcut Dimension 1/2 Code" = 'SH1C/SH2C'
+        ConfirmType := ConfirmType::Create;
+        CreateServiceContractWithAnnualAmount(ServiceContractHeader);
+        UpdateGlobalDimensionCodesInServiceContract(ServiceContractHeader);
+
+        // [WHEN] Service Contract signed and Service Invoice created
+        SignContract(ServiceContractHeader."Contract No.");
+        Commit();
+
+        // [THEN] Service Invoice created with "Dimension Set ID" = 'X', "Shortcut Dimension 1/2 Code" = 'SH1C/SH2C'
+        ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
+        ServiceHeader.FindFirst();
+        ServiceHeader.TestField("Shortcut Dimension 1 Code", ServiceContractHeader."Shortcut Dimension 1 Code");
+        ServiceHeader.TestField("Shortcut Dimension 2 Code", ServiceContractHeader."Shortcut Dimension 2 Code");
+        ServiceHeader.TestField("Dimension Set ID", ServiceContractHeader."Dimension Set ID");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1106,6 +1137,18 @@ codeunit 136100 "Service Contract"
         LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
         ServiceContractHeader.Find;
         ServiceContractHeader.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
+        ServiceContractHeader.Modify(true);
+    end;
+
+    local procedure UpdateGlobalDimensionCodesInServiceContract(var ServiceContractHeader: Record "Service Contract Header")
+    var
+        DimensionValue: Array[2] of Record "Dimension Value";
+    begin
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], LibraryERM.GetGlobalDimensionCode(2));
+        ServiceContractHeader.Find();
+        ServiceContractHeader.Validate("Shortcut Dimension 1 Code", DimensionValue[1].Code);
+        ServiceContractHeader.Validate("Shortcut Dimension 2 Code", DimensionValue[2].Code);
         ServiceContractHeader.Modify(true);
     end;
 

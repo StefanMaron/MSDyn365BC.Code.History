@@ -192,6 +192,12 @@ table 12170 "Payment Lines"
     begin
         TempPaymentLines.CopyFilters(Rec);
 
+        if TempPaymentLines.GetFilter(Code) = '' then begin
+            TempPaymentLines.SetRange("Sales/Purchase", Rec."Sales/Purchase");
+            TempPaymentLines.SetRange(Type, Rec.Type);
+            TempPaymentLines.SetRange(Code, Rec.Code);
+        end;
+
         if TempPaymentLines.CalcSums("Payment %") then
             TotalPaymentPerc := TempPaymentLines."Payment %" + NewValue;
 

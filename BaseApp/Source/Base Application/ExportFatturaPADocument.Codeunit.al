@@ -8,8 +8,10 @@ codeunit 12179 "Export FatturaPA Document"
         RecordExportBuffer: Record "Record Export Buffer";
         TempFatturaHeader: Record "Fattura Header" temporary;
         TempFatturaLine: Record "Fattura Line" temporary;
+        TempBlob: Codeunit "Temp Blob";
         HeaderRecRef: RecordRef;
-        XMLServerPath: Text[250];
+        InStr: InStream;
+        OutStr: OutStream;
     begin
         Session.LogMessage('0000CQ6', ExportFatturaMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
 
@@ -27,13 +29,17 @@ codeunit 12179 "Export FatturaPA Document"
                 ZipFileName := RecordExportBuffer.ZipFileName;
             ClientFileName := FatturaDocHelper.GetFileName(TempFatturaHeader."Progressive No.") + '.xml';
         end;
-        if not FatturaDocHelper.HasErrors then
-            XMLServerPath := GenerateXMLFile(TempFatturaLine, TempFatturaHeader, ClientFileName)
+        if not FatturaDocHelper.HasErrors() then
+            GenerateXMLFile(TempBlob, TempFatturaLine, TempFatturaHeader, ClientFileName)
         else
             Session.LogMessage('0000CQ7', DocumentValidationErrMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
 
-        ServerFilePath := XMLServerPath;
-        Modify;
+        If TempBlob.HasValue() then begin
+            TempBlob.CreateInStream(InStr);
+            "File Content".CreateOutStream(OutStr);
+            CopyStream(OutStr, InStr);
+        end;
+        Modify();
 
         Session.LogMessage('0000CQ8', ExportFatturaSuccMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
     end;

@@ -275,6 +275,7 @@
         RevUnitCostLCY: Decimal;
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        ThrowItemReturnedError: Boolean;
     begin
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         if PurchInvLine.Find('-') then
@@ -289,7 +290,9 @@
                         if Item.IsInventoriableType then
                             if (PurchInvLine.Quantity > 0) and (PurchInvLine."Job No." = '') and WasNotCancelled(PurchInvHeader."No.") then begin
                                 PurchInvLine.CalcReceivedPurchNotReturned(ReceivedQtyNoReturned, RevUnitCostLCY, false);
-                                if PurchInvLine.Quantity <> ReceivedQtyNoReturned then
+                                ThrowItemReturnedError := PurchInvLine.Quantity <> ReceivedQtyNoReturned;
+                                OnTestPurchaseLinesOnAfterCalcThrowItemReturnedError(PurchInvHeader, PurchInvLine, ThrowItemReturnedError);
+                                if ThrowItemReturnedError then
                                     ErrorHelperLine("Correct Purch. Inv. Error Type"::ItemIsReturned, PurchInvLine);
                             end;
 
@@ -853,6 +856,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeCreateCopyDocument(var PurchInvHeader: Record "Purch. Inv. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestPurchaseLinesOnAfterCalcThrowItemReturnedError(PurchInvHeader: Record "Purch. Inv. Header"; PurchInvLine: Record "Purch. Inv. Line"; var ThrowItemReturnedError: Boolean)
     begin
     end;
 

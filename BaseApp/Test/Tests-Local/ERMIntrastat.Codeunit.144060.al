@@ -2033,12 +2033,13 @@ codeunit 144060 "ERM Intrastat"
           TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1) + Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, 100, 13, 0);
 
         // [THEN] Amount in file on the 1st line equals to ROUND(Line[1].Amount) = ROUND(0.01) = 0
+        // Bug id 432374: The length of service export entry is 131
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1)), 13), 1, GetLineOffset(0) + 43, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1)), 13), 1, GetServiceLineOffset(0) + 43, 13, 0);
 
         // [THEN] Amount in file on the 2nd line equals to ROUND(Line[2].Amount) = ROUND(1.49) = 1
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, GetLineOffset(3) + 43, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, GetServiceLineOffset(3) + 43, 13, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2115,8 +2116,9 @@ codeunit 144060 "ERM Intrastat"
 
         // [THEN] "Service Tariff No." in the file equals to "123450".
         LibraryTextFileValidation.ReadTextFile(FileName, TextFile);
+        // Bug id 432374: The length of service export entry is 131
         LibrarySpesometro.VerifyValue(
-          TextFile, PadStr(CopyStr(IntrastatJnlLine."Service Tariff No.", 1, 5), 6, '0'), 1, GetLineOffset(0) + 90, 6, 0);
+          TextFile, PadStr(CopyStr(IntrastatJnlLine."Service Tariff No.", 1, 5), 6, '0'), 1, GetServiceLineOffset(0) + 90, 6, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2151,8 +2153,9 @@ codeunit 144060 "ERM Intrastat"
 
         // [THEN] "Service Tariff No." in the file equals to "123400".
         LibraryTextFileValidation.ReadTextFile(FileName, TextFile);
+        // Bug id 432374: The length of service export entry is 131
         LibrarySpesometro.VerifyValue(
-          TextFile, PadStr(CopyStr(IntrastatJnlLine."Service Tariff No.", 1, 5), 6, '0'), 1, GetLineOffset(0) + 90, 6, 0);
+          TextFile, PadStr(CopyStr(IntrastatJnlLine."Service Tariff No.", 1, 5), 6, '0'), 1, GetServiceLineOffset(0) + 90, 6, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2215,7 +2218,8 @@ codeunit 144060 "ERM Intrastat"
         // [THEN] Every line of file starts with constant sting 'EUROX'.
         LibraryTextFileValidation.ReadTextFile(FileName, TextFile);
         LibrarySpesometro.VerifyValue(TextFile, 'EUROX', 1, 1, 5, 0);
-        LibrarySpesometro.VerifyValue(TextFile, 'EUROX', 1, GetLineOffset(0) + 1, 5, 0);
+        // Bug id 432374: The length of service export entry is 131
+        LibrarySpesometro.VerifyValue(TextFile, 'EUROX', 1, GetServiceLineOffset(0) + 1, 5, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -3147,6 +3151,11 @@ codeunit 144060 "ERM Intrastat"
         exit(GetLineOffsetByType(LineType, GetPurchEndingPosition));
     end;
 
+    local procedure GetServiceLineOffset(LineType: Integer): Integer
+    begin
+        exit(GetLineOffsetByType(LineType, GetServEndingPosition));
+    end;
+
     local procedure GetLineOffsetByType(LineType: Integer; EndingPosition: Integer): Integer
     var
         Offset: Integer;
@@ -3173,6 +3182,11 @@ codeunit 144060 "ERM Intrastat"
     end;
 
     local procedure GetPurchEndingPosition(): Integer
+    begin
+        exit(132);
+    end;
+
+    local procedure GetServEndingPosition(): Integer
     begin
         exit(132);
     end;

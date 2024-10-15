@@ -2484,6 +2484,7 @@ page 30 "Item Card"
 
     trigger OnAfterGetCurrRecord()
     begin
+        EnableControls();
         if GuiAllowed() then
             OnAfterGetCurrRecordFunc();
     end;
@@ -2495,7 +2496,6 @@ page 30 "Item Card"
     begin
         CreateItemFromTemplate;
 
-        EnableControls;
         if CRMIntegrationEnabled then begin
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
             if "No." <> xRec."No." then
@@ -2674,7 +2674,7 @@ page 30 "Item Card"
         if IsNonInventoriable then
             "Stockout Warning" := "Stockout Warning"::No;
 
-        if Type = Type::Inventory then begin
+        if GuiAllowed() and (Type = Type::Inventory) then begin
             ItemLedgerEntry.SetRange("Item No.", "No.");
             UnitCostEditable := ItemLedgerEntry.IsEmpty;
         end else

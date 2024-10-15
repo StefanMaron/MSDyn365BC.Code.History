@@ -1067,6 +1067,121 @@ codeunit 134377 "ERM Sales Blanket Order"
         SalesLine.TestField("Blanket Order Line No.", BlanketSalesLine."Line No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketSalesOrderQtyShipZeroPartialPost()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesHeader2: Record "Sales Header";
+        SalesLine2: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        // [SCENARIO 435438] Blanket Order - Qty. to Ship should be zero if related Order has not been fully shipped.
+
+        // Setup: Set Stock out Warnings to No in Sales and Receivables Setup.
+        Initialize();
+        UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
+
+        // [GIVEN] Blanket Sales Order with Quantity = X, "Qty. to Ship"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, 2 + LibraryRandom.RandInt(10));
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity - 1);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Sales Order created from Blanket Sales Order
+        CODEUNIT.Run(CODEUNIT::"Blanket Sales Order to Order", SalesHeader);
+        FindOrderLineFromBlanket(SalesLine2, SalesHeader);
+        SalesHeader2.Get(SalesLine2."Document Type", SalesLine2."Document No.");
+
+        // [GIVEN] Sales Order "Qty. to Ship" = X - 2
+        SalesLine2.Validate("Qty. to Ship", SalesLine2."Qty. to Ship" - 1);
+        SalesLine2.Modify();
+
+        // [WHEN] Sales Order Posted (partial)
+        LibrarySales.PostSalesDocument(SalesHeader2, true, true);
+
+        // [THEN] Blanket Sales Order "Qty. to Ship" = 0
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        Assert.AreEqual(0, SalesLine."Qty. to Ship", SalesLine.FieldName("Qty. to Ship"));
+        Assert.AreEqual(0, SalesLine."Qty. to Ship (Base)", SalesLine.FieldName("Qty. to Ship"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketSalesOrderQtyShipFullPost()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesHeader2: Record "Sales Header";
+        SalesLine2: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        // [SCENARIO 435438] Blanket Order - Qty. to Ship should be zero if related Order has not been fully shipped.
+
+        // Setup: Set Stock out Warnings to No in Sales and Receivables Setup.
+        Initialize();
+        UpdateSalesReceivablesSetup(SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
+
+        // [GIVEN] Blanket Sales Order with Quantity = X, "Qty. to Ship" = X - 1
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, 2 + LibraryRandom.RandInt(10));
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity - 1);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Sales Order created from Blanket Sales Order
+        CODEUNIT.Run(CODEUNIT::"Blanket Sales Order to Order", SalesHeader);
+        FindOrderLineFromBlanket(SalesLine2, SalesHeader);
+        SalesHeader2.Get(SalesLine2."Document Type", SalesLine2."Document No.");
+
+        // [WHEN] Sales Order Posted (full)
+        LibrarySales.PostSalesDocument(SalesHeader2, true, true);
+
+        // [THEN] Blanket Sales Order "Qty. to Ship" = Quantity - Quantity(Shipped)
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        Assert.AreEqual(SalesLine.Quantity - SalesLine."Quantity Shipped", SalesLine."Qty. to Ship", SalesLine.FieldName("Qty. to Ship"));
+        Assert.AreEqual(
+            SalesLine."Quantity (Base)" - SalesLine."Qty. Shipped (Base)",
+            SalesLine."Qty. to Ship (Base)", SalesLine.FieldName("Qty. to Ship (Base)"));
+    end;
+
+    [Test]
+    procedure DoNotCheckForBlockedItemWhenQtyToShipZero()
+    var
+        Item: Record Item;
+        BlockedItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        BlanketSalesOrderToOrder: Codeunit "Blanket Sales Order to Order";
+    begin
+        // [FEATURE] [Blocked]
+        // [SCENARIO 438283] Do not check if the item is blocked when "Qty. to Ship" = 0.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(BlockedItem);
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order", '',
+          Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, BlockedItem."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Qty. to Ship", 0);
+        SalesLine.Modify(true);
+
+        BlockedItem.Validate(Blocked, true);
+        BlockedItem.Modify(true);
+
+        BlanketSalesOrderToOrder.SetHideValidationDialog(true);
+        BlanketSalesOrderToOrder.Run(SalesHeader);
+
+        SalesLine.SetRange("No.", Item."No.");
+        FindSalesLine(SalesLine, SalesLine."Document Type"::Order, SalesHeader."Sell-to Customer No.");
+
+        SalesLine.SetRange("No.", BlockedItem."No.");
+        asserterror FindSalesLine(SalesLine, SalesLine."Document Type"::Order, SalesHeader."Sell-to Customer No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

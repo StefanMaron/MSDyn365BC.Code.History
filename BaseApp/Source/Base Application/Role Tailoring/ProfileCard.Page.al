@@ -317,8 +317,15 @@ page 9170 "Profile Card"
             ConfPersonalizationMgt.ChangeDefaultRoleCenter(Rec);
     end;
 
-    trigger OnDeleteRecord(): Boolean
+    trigger OnDeleteRecord() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDeleteRecord(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ConfPersonalizationMgt.ValidateDeleteProfile(Rec);
 
         if not ConfPersonalizationMgt.CanDeleteProfile(Rec) then begin
@@ -390,5 +397,10 @@ page 9170 "Profile Card"
         IsWebClient: Boolean;
         HasCustomizedPages: Boolean;
         AppName: Text;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDeleteRecord(var AllProfile: Record "All Profile"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
 }
 

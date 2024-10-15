@@ -541,6 +541,7 @@ report 12121 "G/L Book - Print"
 
     trigger OnInitReport()
     begin
+        FeatureTelemetry.LogUptake('1000HP8', ITGLBookTok, Enum::"Feature Uptake Status"::Discovered);
         GLSetup.Get();
 
         LastDate := GLSetup."Last Gen. Jour. Printing Date";
@@ -554,6 +555,7 @@ report 12121 "G/L Book - Print"
 
     trigger OnPostReport()
     begin
+        FeatureTelemetry.LogUptake('1000HQ0', ITGLBookTok, Enum::"Feature Uptake Status"::"Used");
         if not CurrReport.Preview and
            (ReportType = ReportType::"Final Print")
         then begin
@@ -573,12 +575,14 @@ report 12121 "G/L Book - Print"
             Message(Text1036);
             Message(Text12100, GLSetup.FieldCaption("Last Printed G/L Book Page"), GLSetup.TableCaption);
         end;
+        FeatureTelemetry.LogUsage('1000HQ1', ITGLBookTok, 'IT GL Books and VAT Registers Printed');
     end;
 
     trigger OnPreReport()
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
+        FeatureTelemetry.LogUptake('1000HP9', ITGLBookTok, Enum::"Feature Uptake Status"::"Set up");
         if (EndDate <> 0D) and
            (StartDate > EndDate)
         then
@@ -611,6 +615,8 @@ report 12121 "G/L Book - Print"
     end;
 
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ITGLBookTok: Label 'IT Print and Reprint GL Books and VAT Registers', Locked = true;
         Text1034: Label 'Starting Date must not be greater than %1.';
         Text1035: Label 'You cannot print entries of two different accounting periods.';
         Text1036: Label 'The G/L entries printed have been marked.';

@@ -37,9 +37,9 @@
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         PostedInvNo: Code[20];
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice] [Shipment]
@@ -57,13 +57,13 @@
 
         // [WHEN] The document is exported to FatturaPA.
         SalesInvoiceHeader.SetRange("No.", PostedInvNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] DatiGenerali node has three DatiDDT nodes per each Sales Invoice Line with shipment information
         // TFS 313364: If you get more than one posted shipments in a Sale Invoice, the E-Invoice xml file is not accepted due to the the shipment description reported
         // BUG ID 415421: The line number for the RiferimentoNumeroLinea must be taken from the original line no.
-        VerifyDatiDDTForMultipleSalesShipments(ServerFileName, PostedInvNo);
+        VerifyDatiDDTForMultipleSalesShipments(TempBlob, PostedInvNo);
     end;
 
     [Test]
@@ -72,8 +72,8 @@
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Service] [Invoice] [Shipment]
@@ -91,12 +91,12 @@
 
         // [WHEN] The document is exported to FatturaPA.
         ServiceInvoiceHeader.SetRange("No.", ServiceInvoiceHeader."No.");
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] DatiGenerali node has three DatiDDT nodes per each Service Invoice Line with shipment information
         // BUG ID 415421: The line number for the RiferimentoNumeroLinea must be taken from the original line no.
-        VerifyDatiDDTForMultipleServiceShipments(ServerFileName, ServiceInvoiceHeader."No.");
+        VerifyDatiDDTForMultipleServiceShipments(TempBlob, ServiceInvoiceHeader."No.");
     end;
 
     [Test]
@@ -105,8 +105,8 @@
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Order] [Shipment]
@@ -120,11 +120,11 @@
 
         // [WHEN] The document is exported to FatturaPA.
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] DatiGenerali node has three DatiDDT nodes per each Sales Shipment Line created by "Ship" posting
-        VerifyDatiDDTForMultipleSalesOrderShipments(ServerFileName, CustomerNo);
+        VerifyDatiDDTForMultipleSalesOrderShipments(TempBlob, CustomerNo);
     end;
 
     [Test]
@@ -133,8 +133,8 @@
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Service] [Order] [Shipment]
@@ -148,11 +148,11 @@
 
         // [WHEN] The document is exported to FatturaPA.
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] DatiGenerali node has three DatiDDT nodes per each Service Shipment Line created by "Ship" posting
-        VerifyDatiDDTForMultipleServiceOrderShipments(ServerFileName, CustomerNo);
+        VerifyDatiDDTForMultipleServiceOrderShipments(TempBlob, CustomerNo);
     end;
 
     [Test]
@@ -161,8 +161,8 @@
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Order] [Shipment]
@@ -176,11 +176,11 @@
 
         // [WHEN] The document is exported to FatturaPA.
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] DatiOrdineAcquisto node has information about Sales Shipment Lines of the first shipment of Sales Order
-        VerifyDatiOrdineAcquistoForFirstSalesOrderShipment(ServerFileName, CustomerNo);
+        VerifyDatiOrdineAcquistoForFirstSalesOrderShipment(TempBlob, CustomerNo);
     end;
 
     [Test]
@@ -189,8 +189,8 @@
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Service] [Order] [Shipment]
@@ -204,12 +204,12 @@
 
         // [WHEN] The document is exported to FatturaPA.
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] DatiOrdineAcquisto node has information about Service Shipment Lines of the first shipment of Service Order
         // BUG ID 415421: The line number for the RiferimentoNumeroLinea must be taken from the original line no.
-        VerifyDatiOrdineAcquistoForFirstServiceOrderShipment(ServerFileName, CustomerNo);
+        VerifyDatiOrdineAcquistoForFirstServiceOrderShipment(TempBlob, CustomerNo);
     end;
 
     [Test]
@@ -219,9 +219,9 @@
         CompanyInformation: Record "Company Information";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         DocumentNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 284632] IdCodice node has value of company information's fiscal code if it's specified
@@ -238,11 +238,11 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] "ID Codice" node has value "A"
-        VerifyIDCodiceNode(ServerFileName, CompanyInformation."Fiscal Code");
+        VerifyIDCodiceNode(TempBlob, CompanyInformation."Fiscal Code");
     end;
 
     [Test]
@@ -252,9 +252,9 @@
         CompanyInformation: Record "Company Information";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         DocumentNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 284632] IdCodice node has value of company information's VAT registration code if fiscal code is not specified
@@ -272,11 +272,11 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] "ID Codice" node has value "b"
-        VerifyIDCodiceNode(ServerFileName, CompanyInformation."VAT Registration No.");
+        VerifyIDCodiceNode(TempBlob, CompanyInformation."VAT Registration No.");
     end;
 
     [Test]
@@ -285,9 +285,9 @@
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         DocumentNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 284632] Multiple DettaglioPagamento nodes to be exported for payment terms with split payment lines
@@ -299,11 +299,11 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Two DettaglioPagamento nodes exported per each Customer Ledger ENtry
-        VerifyDettaglioPagamentoMultipleInvoices(ServerFileName, DocumentNo);
+        VerifyDettaglioPagamentoMultipleInvoices(TempBlob, DocumentNo);
     end;
 
     [Test]
@@ -314,11 +314,11 @@
         SalesLine: Record "Sales Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         ExpectedAmount: array[2] of Decimal;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 270181] VAT Entries are grouped by VAT percent to be exported to Dati Riepilogo node
@@ -341,13 +341,13 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Two DatiRiepilogo nodes exported with the following values for node Imposta
         // [THEN] First node - 50
         // [THEN] Second node - 60
-        VerifyMultipleDatiRiepilogoNodes(ServerFileName, ExpectedAmount);
+        VerifyMultipleDatiRiepilogoNodes(TempBlob, ExpectedAmount);
     end;
 
     [Test]
@@ -359,10 +359,10 @@
         SalesLine: Record "Sales Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 270181] Natura node has value of "VAT Nature" of VAT Posting Setup associated with Sales Invoice Line in case of zero VAT percent
@@ -376,11 +376,11 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Natura node has value "X"
-        VerifyNaturaNode(ServerFileName, VATPostingSetup."VAT Transaction Nature");
+        VerifyNaturaNode(TempBlob, VATPostingSetup."VAT Transaction Nature");
     end;
 
     [Test]
@@ -389,10 +389,10 @@
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
         PostedInvNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEAUTURE] [Sales] [Invoice] [Shipment]
         // [SCENARIO 286708] IDDocument is blank if "Customer Purchase Order No." is not specified in Sales Invoice
@@ -408,11 +408,11 @@
         SalesInvoiceHeader.SetRange("No.", PostedInvNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] IdDocumento is "X" in exported xml file
-        VerifyIDDocumentoNode(ServerFileName, '');
+        VerifyIDDocumentoNode(TempBlob, '');
     end;
 
     [Test]
@@ -421,9 +421,9 @@
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEAUTURE] [Sales] [Invoice] [Shipment]
         // [SCENARIO 286708] IDDocument is blank if "Customer Purchase Order No." is not specified in Service Invoice
@@ -439,11 +439,11 @@
         ServiceInvoiceHeader.SetRange("No.", ServiceInvoiceHeader."No.");
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] IdDocumento is "X" in exported xml file
-        VerifyIDDocumentoNode(ServerFileName, '');
+        VerifyIDDocumentoNode(TempBlob, '');
     end;
 
     [Test]
@@ -553,9 +553,9 @@
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         StandardText: Record "Standard Text";
+        TempBlob: Codeunit "Temp Blob";
         ItemNo: Code[20];
         DocumentNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEAUTURE] [Sales] [Invoice] [Extended Text] [Standard Text]
@@ -571,7 +571,7 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Each extended texts separated by length 60 and 40 with results in 2 RiferimentoTesto nodes, total 6 nodes for 3 extended texts
@@ -579,7 +579,7 @@
         // [THEN] item's "AltriDatiGestionali"."TipoDato" = "TXTITEM012" (10 chars length) (TFS 296782)
         // [THEN] standard text's "AltriDatiGestionali"."TipoDato" = "STDTEXT012" (10 chars length) (TFS 296782)
         // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
-        VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
+        VerifyAltriDatiGestionaliByExtTexts(TempBlob, ItemNo, StandardText);
     end;
 
     [Test]
@@ -590,9 +590,9 @@
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         StandardText: Record "Standard Text";
+        TempBlob: Codeunit "Temp Blob";
         ItemNo: Code[20];
         DocumentNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEAUTURE] [Sales] [Credit Memo] [Extended Text] [Standard Text]
@@ -609,13 +609,13 @@
         SalesCrMemoHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Each extended texts separated by length 60 and 40 with results in 2 RiferimentoTesto nodes, total 6 nodes for 3 extended texts
         // [THEN] One more RiferimentoTesto has value of "Y1"
         // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
-        VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
+        VerifyAltriDatiGestionaliByExtTexts(TempBlob, ItemNo, StandardText);
     end;
 
     [Test]
@@ -626,9 +626,9 @@
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         StandardText: Record "Standard Text";
+        TempBlob: Codeunit "Temp Blob";
         ItemNo: Code[20];
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEAUTURE] [Service] [Invoice] [Extended Text] [Standard Text]
@@ -645,13 +645,13 @@
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Each extended texts separated by length 60 and 40 with results in 2 RiferimentoTesto nodes, total 6 nodes for 3 extended texts
         // [THEN] One more RiferimentoTesto has value of "Y1"
         // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
-        VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
+        VerifyAltriDatiGestionaliByExtTexts(TempBlob, ItemNo, StandardText);
     end;
 
     [Test]
@@ -662,9 +662,9 @@
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         StandardText: Record "Standard Text";
+        TempBlob: Codeunit "Temp Blob";
         ItemNo: Code[20];
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEAUTURE] [Service] [Credit Memo] [Extended Text] [Standard Text]
@@ -681,13 +681,13 @@
         ServiceCrMemoHeader.SetRange("Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Each extended texts separated by length 60 and 40 with results in 2 RiferimentoTesto nodes, total 6 nodes for 3 extended texts
         // [THEN] One more RiferimentoTesto has value of "Y1"
         // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
-        VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
+        VerifyAltriDatiGestionaliByExtTexts(TempBlob, ItemNo, StandardText);
     end;
 
     [Test]
@@ -697,11 +697,11 @@
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         PaidInCapital: Decimal;
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [SCENARIO 287253] A value of "Paid-In Capital" expors to CapitaleSociale node
 
@@ -719,11 +719,11 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] CapitaleSociale node has value 100
-        VerifyCapitaleSociale(ServerFileName, PaidInCapital);
+        VerifyCapitaleSociale(TempBlob, PaidInCapital);
     end;
 
     [Test]
@@ -733,9 +733,9 @@
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice] [Prepayment]
         // [SCENARIO 287458] The node "TipoDocumento" has value "TD02" for sales prepayment invoice
@@ -749,11 +749,11 @@
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] TipoDocumento is "TD02" in exported file
-        VerifyTipoDocumento(ServerFileName, 'TD02');
+        VerifyTipoDocumento(TempBlob, 'TD02');
     end;
 
     [Test]
@@ -763,9 +763,9 @@
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo] [Prepayment]
         // [SCENARIO 287458] The node "TipoDocumento" has value "TD02" for sales prepayment credit memo
@@ -780,11 +780,11 @@
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] TipoDocumento is "TD02" in exported file
-        VerifyTipoDocumento(ServerFileName, 'TD02');
+        VerifyTipoDocumento(TempBlob, 'TD02');
     end;
 
     [Test]
@@ -794,9 +794,9 @@
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 287458] The node "TipoDocumento" has value "TD01" for sales  invoice
@@ -810,11 +810,11 @@
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] TipoDocumento is "TD01" in exported file
-        VerifyTipoDocumento(ServerFileName, 'TD01');
+        VerifyTipoDocumento(TempBlob, 'TD01');
     end;
 
     [Test]
@@ -824,9 +824,9 @@
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 287458] The node "TipoDocumento" has value "TD04" for sales credit memo
@@ -840,11 +840,11 @@
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] TipoDocumento is "TD04" in exported file
-        VerifyTipoDocumento(ServerFileName, 'TD04');
+        VerifyTipoDocumento(TempBlob, 'TD04');
     end;
 
     [Test]
@@ -854,9 +854,9 @@
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 298050] The node "TipoDocumento" has value "TD20" for self-billing sales invoice when "VAT Registration No." of Company Information matches to same number in customer card
@@ -874,11 +874,11 @@
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] TipoDocumento is "TD01" in exported file
-        VerifyTipoDocumento(ServerFileName, 'TD20');
+        VerifyTipoDocumento(TempBlob, 'TD20');
     end;
 
     [Test]
@@ -888,9 +888,9 @@
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 298050] The node "TipoDocumento" has value "TD20" for self-billing sales credit memo when "VAT Registration No." of Company Information matches to same number in customer card
@@ -907,11 +907,11 @@
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] TipoDocumento is "TD04" in exported file
-        VerifyTipoDocumento(ServerFileName, 'TD20');
+        VerifyTipoDocumento(TempBlob, 'TD20');
     end;
 
     [Test]
@@ -924,10 +924,10 @@
         SalesLine: Record "Sales Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 294603] RiferimentoNormativo node has value of VAT Identifier description
@@ -942,12 +942,12 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] RiferimentoNormativo node has value "X"
         VATIdentifier.Get(SalesLine."VAT Identifier");
-        VerifyRiferimentoNormativoNode(ServerFileName, VATIdentifier.Description);
+        VerifyRiferimentoNormativoNode(TempBlob, VATIdentifier.Description);
     end;
 
     [Test]
@@ -962,10 +962,10 @@
         ElectronicDocumentFormat: Record "Electronic Document Format";
         VATExemption: Record "VAT Exemption";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        TempBlob: Codeunit "Temp Blob";
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 294603] RiferimentoNormativo node has value of VAT Identifier description and VAT Exemption No. and Date formatted to dd/mm/yyyy
@@ -984,13 +984,13 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] RiferimentoNormativo node has value "X Dich.Intento n. Y del 02/01/2019"
         VATIdentifier.Get(SalesLine."VAT Identifier");
         VerifyRiferimentoNormativoNode(
-          ServerFileName, StrSubstNo('%1 %2 %3', VATIdentifier.Description, VATExemptionPrefixTok,
+          TempBlob, StrSubstNo('%1 %2 %3', VATIdentifier.Description, VATExemptionPrefixTok,
             StrSubstNo(ExemptionDataMsg, VATExemption."VAT Exempt. No.",
               Format(VATExemption."VAT Exempt. Date", 0, '<Day,2>/<Month,2>/<Year4>'))));
 
@@ -1012,10 +1012,10 @@
         ElectronicDocumentFormat: Record "Electronic Document Format";
         VATExemption: Record "VAT Exemption";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        TempBlob: Codeunit "Temp Blob";
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
         ExpectedVATExemptNo: Text;
     begin
         // [FEATURE] [Sales] [Invoice]
@@ -1037,14 +1037,14 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] RiferimentoNormativo node has value "X Dich.Intento n. Y-001 del 02/01/2019"
         ExpectedVATExemptNo := VATExemption."VAT Exempt. No." + '-' + VATExemption."Consecutive VAT Exempt. No.";
         VATIdentifier.Get(SalesLine."VAT Identifier");
         VerifyRiferimentoNormativoNode(
-          ServerFileName, StrSubstNo('%1 %2 %3', VATIdentifier.Description, VATExemptionPrefixTok,
+          TempBlob, StrSubstNo('%1 %2 %3', VATIdentifier.Description, VATExemptionPrefixTok,
             StrSubstNo(ExemptionDataMsg, ExpectedVATExemptNo,
               Format(VATExemption."VAT Exempt. Date", 0, '<Day,2>/<Month,2>/<Year4>'))));
 
@@ -1061,9 +1061,9 @@
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceLine: Record "Sales Invoice Line";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         ItemNo: Code[20];
         DocumentNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEAUTURE] [Sales] [Irder] [Extended Text] [Standard Text]
@@ -1081,16 +1081,15 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] No AltriDatiGestionali node exported
-        VerifyNoAltriDatiGestionaliNodes(ServerFileName);
+        VerifyNoAltriDatiGestionaliNodes(TempBlob);
         FindSalesInvoiceLine(SalesInvoiceLine, DocumentNo);
 
         // [THEN] DatiBeniServizi located under FattiraElectronicBody
-        VerifyDatiBeniServiziHasLineData(ServerFileName, SalesInvoiceLine.Description, 1);
-        DeleteServerFile(ServerFileName);
+        VerifyDatiBeniServiziHasLineData(TempBlob, SalesInvoiceLine.Description, 1);
     end;
 
     [Test]
@@ -1100,9 +1099,9 @@
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceInvoiceLine: Record "Service Invoice Line";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         ItemNo: Code[20];
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEAUTURE] [Service] [Order] [Extended Text] [Standard Text]
@@ -1121,16 +1120,15 @@
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] No AltriDatiGestionali node exported
-        VerifyNoAltriDatiGestionaliNodes(ServerFileName);
+        VerifyNoAltriDatiGestionaliNodes(TempBlob);
         FindServiceInvoiceLine(ServiceInvoiceLine, CustomerNo);
 
         // [THEN] DatiBeniServizi located under FattiraElectronicBody
-        VerifyDatiBeniServiziHasLineData(ServerFileName, ServiceInvoiceLine.Description, 1);
-        DeleteServerFile(ServerFileName);
+        VerifyDatiBeniServiziHasLineData(TempBlob, ServiceInvoiceLine.Description, 1);
     end;
 
     [Test]
@@ -1140,9 +1138,9 @@
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         ItemNo: Code[20];
         DocumentNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEAUTURE] [Sales] [Invoice] [Extended Text] [Standard Text]
@@ -1159,11 +1157,11 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] No AltriDatiGestionali node in the exported XML file
-        VerifyNoAltriDatiGestionaliNode(ServerFileName);
+        VerifyNoAltriDatiGestionaliNode(TempBlob);
     end;
 
     [Test]
@@ -1172,8 +1170,8 @@
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Order] [Shipment]
@@ -1187,11 +1185,11 @@
 
         // [WHEN] The document is exported to FatturaPA.
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] No DatiOrdineAcquisto node exists in the exported XML file
-        VerifyNoDatiOrdineAcquistoNode(ServerFileName);
+        VerifyNoDatiOrdineAcquistoNode(TempBlob);
     end;
 
     [Test]
@@ -1202,7 +1200,7 @@
         SalesLine: array[2] of Record "Sales Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
         LineAmount: Decimal;
     begin
@@ -1219,14 +1217,13 @@
 
         // [WHEN] The document is exported to FatturaPA.
         ElectronicDocumentFormat.SendElectronically(
-          ServerFileName, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+          TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] "ImportoTotaleDocumento" = 0 (total document amount)
         // [THEN] "DatiBeniServizi" is printed for both document lines
-        VerifyDocumentTotalAmount(ServerFileName, 0);
-        VerifyDatiBeniServiziHasLineData(ServerFileName, SalesLine[1].Description, 1);
-        VerifyDatiBeniServiziHasLineData(ServerFileName, SalesLine[2].Description, 2);
-        DeleteServerFile(ServerFileName);
+        VerifyDocumentTotalAmount(TempBlob, 0);
+        VerifyDatiBeniServiziHasLineData(TempBlob, SalesLine[1].Description, 1);
+        VerifyDatiBeniServiziHasLineData(TempBlob, SalesLine[2].Description, 2);
     end;
 
     [Test]
@@ -1239,9 +1236,9 @@
         ElectronicDocumentFormat: Record "Electronic Document Format";
         StandardText: Record "Standard Text";
         TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
         ItemNo: Code[20];
         DocumentNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
         EuroChar: Char;
     begin
@@ -1263,14 +1260,13 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Euro special character replaced with 'EUR' text
         // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
-        VerifyAltriDatiGestionaliByExtTextLines(TempXMLBuffer, ServerFileName, ItemNo);
+        VerifyAltriDatiGestionaliByExtTextLines(TempXMLBuffer, TempBlob, ItemNo);
         VerifyAltriDatiGestionaliShortText(TempXMLBuffer, StandardText.Code, StandardText.Description);
-        DeleteServerFile(ServerFileName);
     end;
 
     [Test]
@@ -1280,7 +1276,7 @@
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice] [Rounding]
@@ -1294,10 +1290,10 @@
 
         // [WHEN] The document is exported to FatturaPA.
         ElectronicDocumentFormat.SendElectronically(
-          ServerFileName, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+          TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Imposta node has correctly rounded value
-        VerifySingleDatiRiepilogo(ServerFileName, 176.63);
+        VerifySingleDatiRiepilogo(TempBlob, 176.63);
     end;
 
     [Test]
@@ -1307,7 +1303,7 @@
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo] [Rounding]
@@ -1321,10 +1317,10 @@
 
         // [WHEN] The document is exported to FatturaPA.
         ElectronicDocumentFormat.SendElectronically(
-          ServerFileName, ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+          TempBlob, ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Imposta node has correctly rounded value
-        VerifySingleDatiRiepilogo(ServerFileName, 176.63);
+        VerifySingleDatiRiepilogo(TempBlob, 176.63);
     end;
 
     [Test]
@@ -1334,7 +1330,7 @@
         ServiceHeader: Record "Service Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Service] [Invoice] [Rounding]
@@ -1349,10 +1345,10 @@
 
         // [WHEN] The document is exported to FatturaPA.
         ElectronicDocumentFormat.SendElectronically(
-          ServerFileName, ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+          TempBlob, ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Imposta node has correctly rounded value
-        VerifySingleDatiRiepilogo(ServerFileName, 176.63);
+        VerifySingleDatiRiepilogo(TempBlob, 176.63);
     end;
 
     [Test]
@@ -1362,7 +1358,7 @@
         ServiceHeader: Record "Service Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Service] [Invoice] [Rounding]
@@ -1377,10 +1373,10 @@
 
         // [WHEN] The document is exported to FatturaPA.
         ElectronicDocumentFormat.SendElectronically(
-          ServerFileName, ClientFileName, ServiceCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+          TempBlob, ClientFileName, ServiceCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Imposta node has correctly rounded value
-        VerifySingleDatiRiepilogo(ServerFileName, 176.63);
+        VerifySingleDatiRiepilogo(TempBlob, 176.63);
     end;
 
     [Test]
@@ -1391,7 +1387,7 @@
         SalesLine: Record "Sales Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [SCENARIO 298038] A value in XML node for Quantity has five decimal places
@@ -1409,10 +1405,10 @@
 
         // [WHEN] The document is exported to FatturaPA.
         ElectronicDocumentFormat.SendElectronically(
-          ServerFileName, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+          TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Quantita XML node has value "2.33333"
-        VerifyQuantitaNode(ServerFileName, Format(SalesLine.Quantity, 0, '<Precision,2:5><Standard Format,9>'));
+        VerifyQuantitaNode(TempBlob, Format(SalesLine.Quantity, 0, '<Precision,2:5><Standard Format,9>'));
     end;
 
     [Test]
@@ -1423,7 +1419,7 @@
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [SCENARIO 299242] A "CodiceFiscale" node used in exported XML file instead of "IDCodice" for Individual Person
@@ -1438,12 +1434,12 @@
 
         // [WHEN] The document is exported to FatturaPA.
         ElectronicDocumentFormat.SendElectronically(
-          ServerFileName, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+          TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] A "CodiceFiscale" node has value "X"
         // TFS ID: 365067
         // [THEN] IdFiscaleIVA parent node does not exist
-        VerifyIndividualPersonData(ServerFileName, Customer."Fiscal Code");
+        VerifyIndividualPersonData(TempBlob, Customer."Fiscal Code");
     end;
 
     [Test]
@@ -1455,9 +1451,9 @@
         SalesLine: Record "Sales Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         DocumentNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
         AmountArray: array[2] of Decimal;
     begin
         // [FEATURE] [Sales] [Invoice]
@@ -1471,12 +1467,12 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Two DatiRiepilogo exported, one with "X" and one with "Y"
         GetVATEntryAmounts(AmountArray, DocumentNo, SalesHeader."Posting Date");
-        VerifyMultipleDatiRiepilogoNodes(ServerFileName, AmountArray);
+        VerifyMultipleDatiRiepilogoNodes(TempBlob, AmountArray);
     end;
 
     [Test]
@@ -1486,9 +1482,9 @@
         CompanyInformation: Record "Company Information";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         DocumentNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [SCENARIO 311977] A liquidation status StatoLiqudazione has value "LS" if "Liquidation Status" is "In Liquidation"
 
@@ -1504,11 +1500,11 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] "StatoLiqudazione" node has value "LS"
-        VerifyStatoLiqudazioneNode(ServerFileName, 'LS');
+        VerifyStatoLiqudazioneNode(TempBlob, 'LS');
     end;
 
     [Test]
@@ -1518,9 +1514,9 @@
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         DocNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
         VATAmount: array[2] of Decimal;
     begin
         // [SCENARIO 314517] ImponibileImporto node has either positive or negative value depends on the sign of original sales invoice
@@ -1535,13 +1531,13 @@
         SalesInvoiceHeader.SetRange("No.", DocNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Two ImponibleImporto nodes exported
         // [THEN] First one has value 20
         // [THEN] Second one has value -15
-        VerifyImponibileImportoNodes(ServerFileName, VATAmount);
+        VerifyImponibileImportoNodes(TempBlob, VATAmount);
     end;
 
     [Test]
@@ -1551,9 +1547,9 @@
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         DocNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
         VATAmount: array[2] of Decimal;
     begin
         // [SCENARIO 314517] ImponibileImporto node has either positive or negative value depends on the sign of original sales credit memo
@@ -1568,13 +1564,13 @@
         SalesCrMemoHeader.SetRange("No.", DocNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Two ImponibleImporto nodes exported
         // [THEN] First one has value 20
         // [THEN] Second one has value -15
-        VerifyImponibileImportoNodes(ServerFileName, VATAmount);
+        VerifyImponibileImportoNodes(TempBlob, VATAmount);
     end;
 
     [Test]
@@ -1583,9 +1579,9 @@
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         PostedInvNo: Code[20];
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice] [Shipment]
@@ -1602,11 +1598,11 @@
 
         // [WHEN] The document is exported to FatturaPA.
         SalesInvoiceHeader.SetRange("No.", PostedInvNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] RiferimentoNumeroLinea does not exist in the exported file
-        VerifyNoRiferimentoNumeroLineaNodeExists(ServerFileName);
+        VerifyNoRiferimentoNumeroLineaNodeExists(TempBlob);
     end;
 
     [Test]
@@ -1615,8 +1611,8 @@
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Service] [Invoice] [Shipment]
@@ -1633,11 +1629,11 @@
 
         // [WHEN] The document is exported to FatturaPA.
         ServiceInvoiceHeader.SetRange("No.", ServiceInvoiceHeader."No.");
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] RiferimentoNumeroLinea does not exist in the exported file
-        VerifyNoRiferimentoNumeroLineaNodeExists(ServerFileName);
+        VerifyNoRiferimentoNumeroLineaNodeExists(TempBlob);
     end;
 
     [Test]
@@ -1647,7 +1643,7 @@
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [SCENARIO 392702] Fattura Project and Fattura Tender codes export under the DatiOrdine XML node for the line with G/L Account
@@ -1659,13 +1655,13 @@
 
         // [WHEN] The document is exported to FatturaPA.
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] DatiOrdineAcquisto node has three child nodes with values "X" and "Y"
         // TFS ID 412546: DatiOrdineAcquisto only generates when "Customer Purchase Order" is specified
         VerifyDatiOrdineAcquistoWithFatturaCodes(
-          ServerFileName, SalesHeader."Customer Purchase Order No.", SalesHeader."Fattura Project Code", SalesHeader."Fattura Tender Code");
+          TempBlob, SalesHeader."Customer Purchase Order No.", SalesHeader."Fattura Project Code", SalesHeader."Fattura Tender Code");
     end;
 
     [Test]
@@ -1676,9 +1672,9 @@
         SalesLine: Record "Sales Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         PostedInvNo: Code[20];
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
         i: Integer;
     begin
@@ -1707,13 +1703,13 @@
 
         // [WHEN] The document is exported to FatturaPA
         SalesInvoiceHeader.SetRange("No.", PostedInvNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Two DatiOrderLineAcquisto xml nodes
         // [THEN] The first one has all the data from the first shipped order (X1, X2, X3)
         // [THEN] The second one has all the data from the second shipped order (Y1, Y2, Y3)
-        VerifyDatiOrdineAcquistoFatturaDataFromMultipleSalesOrders(ServerFileName, SalesHeader);
+        VerifyDatiOrdineAcquistoFatturaDataFromMultipleSalesOrders(TempBlob, SalesHeader);
     end;
 
     [Test]
@@ -1725,8 +1721,8 @@
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceItem: Record "Service Item";
         ElectronicDocumentFormat: Record "Electronic Document Format";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
         i: Integer;
     begin
@@ -1757,13 +1753,13 @@
 
         // [WHEN] The document is exported to FatturaPA.
         ServiceInvoiceHeader.SetRange("No.", ServiceInvoiceHeader."No.");
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Two DatiOrderLineAcquisto xml nodes
         // [THEN] The first one has all the data from the first shipped order (X1, X2, X3)
         // [THEN] The second one has all the data from the second shipped order (Y1, Y2, Y3)
-        VerifyDatiOrdineAcquistoFatturaDataFromMultipleServiceOrders(ServerFileName, ServiceHeader);
+        VerifyDatiOrdineAcquistoFatturaDataFromMultipleServiceOrders(TempBlob, ServiceHeader);
     end;
 
     [Test]
@@ -1776,9 +1772,9 @@
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         VATPostingSetup: Record "VAT Posting Setup";
+        TempBlob: Codeunit "Temp Blob";
         CustomerNo: Code[20];
         GLAccNo: Code[20];
-        ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales]
@@ -1800,11 +1796,11 @@
 
         // [WHEN] The document is exported to FatturaPA.
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] DatiDDT xml node does not exist in the exported file
-        VerifyDatiDDTCount(ServerFileName);
+        VerifyDatiDDTCount(TempBlob);
     end;
 
     [Test]
@@ -1818,10 +1814,10 @@
         ElectronicDocumentFormat: Record "Electronic Document Format";
         VATExemption: Record "VAT Exemption";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        TempBlob: Codeunit "Temp Blob";
         DocumentNo: Code[20];
         CustomerNo: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 422917] AltriDatiGestionali node generates when VAT Exemption No. created for the document
@@ -1840,14 +1836,14 @@
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] AltriDatiGestionali node generates with the following subnodes:
         // [THEN] TipoDato = 'INTENTO'
         // [THEN] RiferimentoTesto = "Y-001"
         // [THEN] RiferimentoData = 01.01.2022
-        VerifyAltriDatiGestionaliFromVATExemption(ServerFileName, VATExemption);
+        VerifyAltriDatiGestionaliFromVATExemption(TempBlob, VATExemption);
 
         // Tear down
         VATBusinessPostingGroup.Get(SalesHeader."VAT Bus. Posting Group");
@@ -1867,13 +1863,6 @@
         LibrarySetupStorage.SaveSalesSetup;
         LibrarySetupStorage.SavePurchasesSetup;
         IsInitialized := true;
-    end;
-
-    local procedure DeleteServerFile(ServerFileName: Text)
-    var
-        FileManagement: Codeunit "File Management";
-    begin
-        FileManagement.DeleteServerFile(ServerFileName);
     end;
 
     local procedure PostSalesInvoice(PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]): Code[20]
@@ -2018,7 +2007,8 @@
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateServDocWithItemAndStandardText(var StandardText: Record "Standard Text"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20])
+    local procedure CreateServDocWithItemAndStandardText(var StandardText: Record "Standard Text"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20];
+                                                                                                                ItemNo: Code[20])
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -2331,7 +2321,8 @@
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocWithPrepmt(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20]; PrepmtPct: Integer)
+    local procedure CreateSalesDocWithPrepmt(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20];
+                                                                                                  PrepmtPct: Integer)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -2651,13 +2642,13 @@
         CompanyInformation.Modify(true);
     end;
 
-    local procedure VerifyDatiDDTForMultipleSalesShipments(ServerFileName: Text[250]; InvNo: Code[20])
+    local procedure VerifyDatiDDTForMultipleSalesShipments(TempBlob: Codeunit "Temp Blob"; InvNo: Code[20])
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         SalesInvoiceLine: Record "Sales Invoice Line";
         i: Integer;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT');
         SalesInvoiceLine.SetRange("Document No.", InvNo);
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
@@ -2673,16 +2664,15 @@
             VerifyDatiDDTData(
               TempXMLBuffer, SalesInvoiceLine."Shipment No.", SalesInvoiceLine."Shipment Date", i);
         end;
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyDatiDDTForMultipleServiceShipments(ServerFileName: Text[250]; InvNo: Code[20])
+    local procedure VerifyDatiDDTForMultipleServiceShipments(TempBlob: Codeunit "Temp Blob"; InvNo: Code[20])
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         ServiceInvoiceLine: Record "Service Invoice Line";
         i: Integer;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT');
         ServiceInvoiceLine.SetRange("Document No.", InvNo);
         ServiceInvoiceLine.SetRange(Type, ServiceInvoiceLine.Type::Item);
@@ -2697,16 +2687,15 @@
             VerifyDatiDDTData(
               TempXMLBuffer, ServiceInvoiceLine."Shipment No.", ServiceInvoiceLine."Posting Date", i);
         end;
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyDatiDDTForMultipleSalesOrderShipments(ServerFileName: Text[250]; CustomerNo: Code[20])
+    local procedure VerifyDatiDDTForMultipleSalesOrderShipments(TempBlob: Codeunit "Temp Blob"; CustomerNo: Code[20])
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         SalesShipmentLine: Record "Sales Shipment Line";
         i: Integer;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT');
         SalesShipmentLine.SetRange("Sell-to Customer No.", CustomerNo);
         SalesShipmentLine.FindSet();
@@ -2717,16 +2706,15 @@
             FindNextElement(TempXMLBuffer);
             VerifyDatiDDTData(TempXMLBuffer, SalesShipmentLine."Document No.", SalesShipmentLine."Shipment Date", i);
         end;
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyDatiDDTForMultipleServiceOrderShipments(ServerFileName: Text[250]; CustomerNo: Code[20])
+    local procedure VerifyDatiDDTForMultipleServiceOrderShipments(TempBlob: Codeunit "Temp Blob"; CustomerNo: Code[20])
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         ServiceShipmentLine: Record "Service Shipment Line";
         i: Integer;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT');
         ServiceShipmentLine.SetRange("Customer No.", CustomerNo);
         ServiceShipmentLine.FindSet();
@@ -2737,15 +2725,14 @@
             FindNextElement(TempXMLBuffer);
             VerifyDatiDDTData(TempXMLBuffer, ServiceShipmentLine."Document No.", ServiceShipmentLine."Posting Date", i);
         end;
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyDatiOrdineAcquistoForFirstSalesOrderShipment(ServerFileName: Text[250]; CustomerNo: Code[20])
+    local procedure VerifyDatiOrdineAcquistoForFirstSalesOrderShipment(TempBlob: Codeunit "Temp Blob"; CustomerNo: Code[20])
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto');
         SalesShipmentLine.SetRange("Sell-to Customer No.", CustomerNo);
         SalesShipmentLine.FindFirst();
@@ -2753,17 +2740,16 @@
         SalesShipmentLine.FindSet();
         repeat
             AssertElementValue(TempXMLBuffer, 'RiferimentoNumeroLinea', Format(SalesShipmentLine."Order Line No." / 10000));
-        until SalesShipmentLine.Next = 0;
-        DeleteServerFile(ServerFileName);
+        until SalesShipmentLine.Next() = 0;
     end;
 
-    local procedure VerifyDatiOrdineAcquistoForFirstServiceOrderShipment(ServerFileName: Text[250]; CustomerNo: Code[20])
+    local procedure VerifyDatiOrdineAcquistoForFirstServiceOrderShipment(TempBlob: Codeunit "Temp Blob"; CustomerNo: Code[20])
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         ServiceShipmentLine: Record "Service Shipment Line";
         i: Integer;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT');
         ServiceShipmentLine.SetRange("Customer No.", CustomerNo);
         ServiceShipmentLine.FindFirst();
@@ -2778,15 +2764,14 @@
             VerifyDatiDDTData(
               TempXMLBuffer, ServiceShipmentLine."Document No.", ServiceShipmentLine."Posting Date", i);
         end;
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyDatiOrdineAcquistoWithFatturaCodes(ServerFileName: Text[250]; CustomerPurchaseOrder: Text[35]; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15])
+    local procedure VerifyDatiOrdineAcquistoWithFatturaCodes(TempBlob: Codeunit "Temp Blob"; CustomerPurchaseOrder: Text[35]; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15])
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         TempResultElementXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto');
         TempXMLBuffer.FindChildElements(TempResultElementXMLBuffer);
         Assert.RecordCount(TempResultElementXMLBuffer, 3);
@@ -2795,15 +2780,14 @@
         AssertCurrentElementValue(TempResultElementXMLBuffer, FatturaProjectCode);
         FindNextElement(TempResultElementXMLBuffer);
         AssertCurrentElementValue(TempResultElementXMLBuffer, FatturaTenderCode);
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyDatiOrdineAcquistoFatturaDataFromMultipleSalesOrders(ServerFileName: Text[250]; SalesHeader: array[2] of Record "Sales Header")
+    local procedure VerifyDatiOrdineAcquistoFatturaDataFromMultipleSalesOrders(TempBlob: Codeunit "Temp Blob"; SalesHeader: array[2] of Record "Sales Header")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         i: Integer;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto');
         for i := 1 to ArrayLen(SalesHeader) do begin
             AssertElementValue(TempXMLBuffer, 'RiferimentoNumeroLinea', Format(i * 2));
@@ -2812,15 +2796,14 @@
             AssertElementValue(TempXMLBuffer, 'CodiceCIG', SalesHeader[i]."Fattura Tender Code");
             FindNextElement(TempXMLBuffer);
         end;
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyDatiOrdineAcquistoFatturaDataFromMultipleServiceOrders(ServerFileName: Text[250]; ServiceHeader: array[2] of Record "Service Header")
+    local procedure VerifyDatiOrdineAcquistoFatturaDataFromMultipleServiceOrders(TempBlob: Codeunit "Temp Blob"; ServiceHeader: array[2] of Record "Service Header")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         i: Integer;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto');
         for i := 1 to ArrayLen(ServiceHeader) do begin
             AssertElementValue(TempXMLBuffer, 'RiferimentoNumeroLinea', Format(i * 2));
@@ -2829,17 +2812,15 @@
             AssertElementValue(TempXMLBuffer, 'CodiceCIG', ServiceHeader[i]."Fattura Tender Code");
             FindNextElement(TempXMLBuffer);
         end;
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyNoDatiOrdineAcquistoNode(ServerFileName: Text[250])
+    local procedure VerifyNoDatiOrdineAcquistoNode(TempBlob: Codeunit "Temp Blob")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto');
         Assert.RecordCount(TempXMLBuffer, 0);
-        DeleteServerFile(ServerFileName);
     end;
 
     local procedure VerifyDatiDDTData(var TempXMLBuffer: Record "XML Buffer" temporary; ShipmentNo: Text; ShipmentDate: Date; LineNumber: Integer)
@@ -2849,35 +2830,34 @@
         AssertElementValue(TempXMLBuffer, 'RiferimentoNumeroLinea', Format(LineNumber));
     end;
 
-    local procedure VerifyNoRiferimentoNumeroLineaNodeExists(ServerFileName: Text[250])
+    local procedure VerifyNoRiferimentoNumeroLineaNodeExists(TempBlob: Codeunit "Temp Blob")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT/RiferimentoNumeroLinea');
         Assert.IsTrue(TempXMLBuffer.IsEmpty(), 'RiferimentoNumeroLinea xml node exists');
     end;
 
-    local procedure VerifyIDCodiceNode(ServerFileName: Text[250]; ExpectedValue: Text)
+    local procedure VerifyIDCodiceNode(TempBlob: Codeunit "Temp Blob"; ExpectedValue: Text)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/DatiTrasmissione/IdTrasmittente/IdCodice');
         AssertCurrentElementValue(TempXMLBuffer, ExpectedValue);
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyDettaglioPagamentoMultipleInvoices(ServerFileName: Text[250]; DocNo: Code[20])
+    local procedure VerifyDettaglioPagamentoMultipleInvoices(TempBlob: Codeunit "Temp Blob"; DocNo: Code[20])
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         PaymentMethod: Record "Payment Method";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiPagamento/DettaglioPagamento');
         SalesInvoiceHeader.Get(DocNo);
         PaymentMethod.Get(SalesInvoiceHeader."Payment Method Code");
@@ -2889,7 +2869,6 @@
             FindNextElement(TempXMLBuffer);
             VerifyDettaglioPagamentoData(TempXMLBuffer, PaymentMethod."Fattura PA Payment Method", CustLedgerEntry);
         end;
-        DeleteServerFile(ServerFileName);
     end;
 
     local procedure VerifyDettaglioPagamentoData(var TempXMLBuffer: Record "XML Buffer" temporary; FatturaPAMethodCode: Code[4]; CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -2905,24 +2884,22 @@
         AssertElementValue(TempXMLBuffer, 'IBAN', CompanyInformation.IBAN);
     end;
 
-    local procedure VerifyMultipleDatiRiepilogoNodes(ServerFileName: Text[250]; ExpectedAmount: array[2] of Decimal)
+    local procedure VerifyMultipleDatiRiepilogoNodes(TempBlob: Codeunit "Temp Blob"; ExpectedAmount: array[2] of Decimal)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         VerifyDatiRiepilogo(TempXMLBuffer, FormatAmount(ExpectedAmount[1]));
         FindNextElement(TempXMLBuffer);
         AssertCurrentElementValue(TempXMLBuffer, FormatAmount(ExpectedAmount[2]));
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifySingleDatiRiepilogo(ServerFileName: Text[250]; ExpectedAmount: Decimal)
+    local procedure VerifySingleDatiRiepilogo(TempBlob: Codeunit "Temp Blob"; ExpectedAmount: Decimal)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         VerifyDatiRiepilogo(TempXMLBuffer, FormatAmount(ExpectedAmount));
-        DeleteServerFile(ServerFileName);
     end;
 
     local procedure VerifyDatiRiepilogo(var TempXMLBuffer: Record "XML Buffer" temporary; ExpectedValue: Text)
@@ -2932,62 +2909,60 @@
         AssertCurrentElementValue(TempXMLBuffer, ExpectedValue);
     end;
 
-    local procedure VerifyNaturaNode(ServerFileName: Text[250]; VATTransactionNature: Code[4])
+    local procedure VerifyNaturaNode(TempBlob: Codeunit "Temp Blob"; VATTransactionNature: Code[4])
     begin
         VerifySpecificNode(
-          ServerFileName, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DatiRiepilogo/Natura', VATTransactionNature);
+          TempBlob, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DatiRiepilogo/Natura', VATTransactionNature);
     end;
 
-    local procedure VerifyRiferimentoNormativoNode(ServerFileName: Text[250]; ExpectedValue: Text)
+    local procedure VerifyRiferimentoNormativoNode(TempBlob: Codeunit "Temp Blob"; ExpectedValue: Text)
     begin
         VerifySpecificNode(
-          ServerFileName, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DatiRiepilogo/RiferimentoNormativo',
+          TempBlob, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DatiRiepilogo/RiferimentoNormativo',
           ExpectedValue);
     end;
 
-    local procedure VerifyIDDocumentoNode(ServerFileName: Text[250]; DocumentNo: Text[35])
+    local procedure VerifyIDDocumentoNode(TempBlob: Codeunit "Temp Blob"; DocumentNo: Text[35])
     begin
         VerifySpecificNode(
-          ServerFileName, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto/IdDocumento', DocumentNo);
+          TempBlob, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto/IdDocumento', DocumentNo);
     end;
 
-    local procedure VerifySpecificNode(ServerFileName: Text[250]; XPath: Text; ExpectedElementValue: Text)
+    local procedure VerifySpecificNode(TempBlob: Codeunit "Temp Blob"; XPath: Text; ExpectedElementValue: Text)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, XPath);
         AssertCurrentElementValue(TempXMLBuffer, ExpectedElementValue);
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyNoAltriDatiGestionaliNodes(ServerFileName: Text[250])
+    local procedure VerifyNoAltriDatiGestionaliNodes(TempBlob: Codeunit "Temp Blob")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         XPath: Text;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         XPath := '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/AltriDatiGestionali/TipoDato';
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, XPath);
         Assert.RecordCount(TempXMLBuffer, 0);
     end;
 
-    local procedure VerifyAltriDatiGestionaliByExtTexts(ServerFileName: Text[250]; ItemNo: Code[20]; StandardText: Record "Standard Text")
+    local procedure VerifyAltriDatiGestionaliByExtTexts(TempBlob: Codeunit "Temp Blob"; ItemNo: Code[20]; StandardText: Record "Standard Text")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        VerifyAltriDatiGestionaliByExtTextLines(TempXMLBuffer, ServerFileName, ItemNo);
+        VerifyAltriDatiGestionaliByExtTextLines(TempXMLBuffer, TempBlob, ItemNo);
         VerifyAltriDatiGestionaliLongText(TempXMLBuffer, StandardText.Code, StandardText.Description);
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyAltriDatiGestionaliByExtTextLines(var TempXMLBuffer: Record "XML Buffer" temporary; ServerFileName: Text[250]; ItemNo: Code[20])
+    local procedure VerifyAltriDatiGestionaliByExtTextLines(var TempXMLBuffer: Record "XML Buffer" temporary; TempBlob: Codeunit "Temp Blob"; ItemNo: Code[20])
     var
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
         XPath: Text;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         XPath := '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/AltriDatiGestionali';
         Assert.IsTrue(TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, XPath), '');
 
@@ -3031,11 +3006,11 @@
         AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedText, 1, XMLFieldLength));
     end;
 
-    local procedure VerifyAltriDatiGestionaliFromVATExemption(ServerFileName: Text[250]; VATExemption: Record "VAT Exemption")
+    local procedure VerifyAltriDatiGestionaliFromVATExemption(TempBlob: Codeunit "Temp Blob"; VATExemption: Record "VAT Exemption")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         Assert.IsTrue(
           TempXMLBuffer.FindNodesByXPath(
             TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/AltriDatiGestionali'), '');
@@ -3044,37 +3019,36 @@
         AssertElementValue(TempXMLBuffer, 'RiferimentoData', FormatDate(VATExemption."VAT Exempt. Date"));
     end;
 
-    local procedure VerifyNoAltriDatiGestionaliNode(ServerFileName: Text[250])
+    local procedure VerifyNoAltriDatiGestionaliNode(TempBlob: Codeunit "Temp Blob")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         XPath: Text;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         XPath := '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/AltriDatiGestionali';
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, XPath);
         Assert.RecordCount(TempXMLBuffer, 0);
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyCapitaleSociale(ServerFileName: Text[250]; ExpectedElementValue: Decimal)
+    local procedure VerifyCapitaleSociale(TempBlob: Codeunit "Temp Blob"; ExpectedElementValue: Decimal)
     begin
         VerifySpecificNode(
-          ServerFileName, '/p:FatturaElettronica/FatturaElettronicaHeader/CedentePrestatore/IscrizioneREA/CapitaleSociale',
+          TempBlob, '/p:FatturaElettronica/FatturaElettronicaHeader/CedentePrestatore/IscrizioneREA/CapitaleSociale',
           FormatAmount(ExpectedElementValue));
     end;
 
-    local procedure VerifyTipoDocumento(ServerFileName: Text[250]; ExpectedElementValue: Text)
+    local procedure VerifyTipoDocumento(TempBlob: Codeunit "Temp Blob"; ExpectedElementValue: Text)
     begin
         VerifySpecificNode(
-          ServerFileName, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/TipoDocumento',
+          TempBlob, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/TipoDocumento',
           ExpectedElementValue);
     end;
 
-    local procedure VerifyDatiBeniServiziHasLineData(ServerFileName: Text[250]; Description: Text[100]; Occurrence: Integer)
+    local procedure VerifyDatiBeniServiziHasLineData(TempBlob: Codeunit "Temp Blob"; Description: Text[100]; Occurrence: Integer)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/NumeroLinea');
         TempXMLBuffer.Next(Occurrence - 1);
@@ -3085,32 +3059,31 @@
         AssertCurrentElementValue(TempXMLBuffer, Description);
     end;
 
-    local procedure VerifyDocumentTotalAmount(ServerFileName: Text; ExpectedAmount: Decimal)
+    local procedure VerifyDocumentTotalAmount(TempBlob: Codeunit "Temp Blob"; ExpectedAmount: Decimal)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/ImportoTotaleDocumento');
         AssertCurrentElementValue(TempXMLBuffer, FormatAmount(ExpectedAmount));
     end;
 
-    local procedure VerifyQuantitaNode(ServerFileName: Text; ExpectedValue: Text)
+    local procedure VerifyQuantitaNode(TempBlob: Codeunit "Temp Blob"; ExpectedValue: Text)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/Quantita');
         AssertCurrentElementValue(TempXMLBuffer, ExpectedValue);
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyIndividualPersonData(ServerFileName: Text; ExpectedValue: Text)
+    local procedure VerifyIndividualPersonData(TempBlob: Codeunit "Temp Blob"; ExpectedValue: Text)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente/DatiAnagrafici/CodiceFiscale');
         AssertCurrentElementValue(TempXMLBuffer, ExpectedValue);
@@ -3118,25 +3091,24 @@
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CessionarioCommittente/IdFiscaleIVA');
         Assert.RecordCount(TempXMLBuffer, 0);
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyStatoLiqudazioneNode(ServerFileName: Text; ExpectedValue: Text)
+    local procedure VerifyStatoLiqudazioneNode(TempBlob: Codeunit "Temp Blob"; ExpectedValue: Text)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaHeader/CedentePrestatore/IscrizioneREA/StatoLiquidazione');
         AssertCurrentElementValue(TempXMLBuffer, ExpectedValue);
     end;
 
-    local procedure VerifyImponibileImportoNodes(ServerFileName: Text[250]; VATAmount: array[2] of Decimal)
+    local procedure VerifyImponibileImportoNodes(TempBlob: Codeunit "Temp Blob"; VATAmount: array[2] of Decimal)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         i: Integer;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DatiRiepilogo/ImponibileImporto');
         Assert.RecordCount(TempXMLBuffer, ArrayLen(VATAmount));
@@ -3144,14 +3116,13 @@
             TempXMLBuffer.SetRange(Value, FormatAmount(VATAmount[i]));
             TempXMLBuffer.FindFirst();
         end;
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyDatiDDTCount(ServerFileName: Text[250])
+    local procedure VerifyDatiDDTCount(TempBlob: Codeunit "Temp Blob")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT');
         Assert.RecordCount(TempXMLBuffer, 0);
     end;

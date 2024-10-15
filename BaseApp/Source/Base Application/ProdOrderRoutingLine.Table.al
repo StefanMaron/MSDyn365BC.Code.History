@@ -94,7 +94,7 @@ table 5409 "Prod. Order Routing Line"
                             if SubcontractingManagement.FindSubcOrder(Rec, PurchLine, PurchHeader) then
                                 Error(Text1130001, Status, TableCaption, "Operation No.", PurchLine."Document No.");
                         if (xRec."No." <> "No.") and ("Routing Link Code" <> '') then
-                            SubcontractingManagement.UpdLinkedComponents(Rec, true);
+                            SubcontractingManagement.UpdLinkedComponents(Rec, not HideValidationDialog);
                     end;
 
                 SetRecalcStatus();
@@ -317,7 +317,7 @@ table 5409 "Prod. Order Routing Line"
                             SubcontractingManagement.UpdLinkedComponents(Rec, false);
                     end else
                         if "Routing Link Code" <> '' then
-                            SubcontractingManagement.UpdLinkedComponents(Rec, true);
+                            SubcontractingManagement.UpdLinkedComponents(Rec, not HideValidationDialog);
 
                 if "Routing Link Code" <> '' then
                     TestField("WIP Item", false);

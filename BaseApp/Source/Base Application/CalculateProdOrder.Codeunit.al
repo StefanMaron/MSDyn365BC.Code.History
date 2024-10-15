@@ -251,6 +251,7 @@
         Item2: Record Item;
         ComponentSKU: Record "Stockkeeping Unit";
     begin
+        ProdOrderComp.Reset();
         ProdOrderComp.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.", "Item No.");
         ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
         ProdOrderComp.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
@@ -753,6 +754,8 @@
             CalculateRouting(Direction, LetDueDateDecrease);
         CalculateComponents;
         ProdOrderLine2 := ProdOrderLine;
+
+        OnAfterRecalculateProcedure(ProdOrderLine2);
     end;
 
     procedure BlockDynamicTracking(SetBlock: Boolean)
@@ -1099,6 +1102,12 @@
     local procedure OnAfterRecalculate(var ProdOrderLine: Record "Prod. Order Line"; CalcRouting: Boolean; CalcComponents: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecalculateProcedure(var ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
 
     [IntegrationEvent(false, false)]
     procedure OnRecalculateOnBeforeCalculateRouting(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)

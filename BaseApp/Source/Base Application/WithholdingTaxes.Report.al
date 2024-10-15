@@ -281,7 +281,15 @@ report 12101 "Withholding Taxes"
     {
     }
 
+    trigger OnPostReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HQ4', ITTaxTok, Enum::"Feature Uptake Status"::"Used");
+        FeatureTelemetry.LogUsage('1000HQ5', ITTaxTok, 'IT Set Up Withholding  Tax Completed');
+    end;
+
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ITTaxTok: Label 'IT Withholding Tax', Locked = true;
         Text1033: Label 'Period %1/%2 has already been printed. Do you want to print it again?';
         Vend: Record Vendor;
         WithholdingTaxPayment: Record "Withholding Tax Payment";

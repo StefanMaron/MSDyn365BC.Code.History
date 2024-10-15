@@ -330,7 +330,7 @@ codeunit 12133 "Flat File Management"
         if Splits > 75 then
             Error(BlockValueToBigErr);
 
-        if CurrentPosition + 24 * Splits > ConstMaxRecordLength - 10 then
+        if CurrentPosition + GetBlockLength() * Splits > ConstMaxRecordLength - 10 then
             Error(RecordToBigErr);
 
         Offset := 1;
@@ -343,10 +343,17 @@ codeunit 12133 "Flat File Management"
                 Concat := '+';
             end;
 
-            WriteValue(CurrentPosition, 24, Code + FormatPadding(ValueFormat, Concat + CopyStr(Value, Offset, SplitSize), 16));
-            CurrentPosition += 24;
+            WriteValue(CurrentPosition, GetBlockLength(), Code + FormatPadding(ValueFormat, Concat + CopyStr(Value, Offset, SplitSize), 16));
+            CurrentPosition += GetBlockLength();
             Offset += SplitSize;
         end
+    end;
+
+    [Scope('OnPrem')]
+    procedure WriteBlankValue(ValueFormat: Option)
+    begin
+        WriteValue(CurrentPosition, GetBlockLength(), FormatPadding(ValueFormat, '', GetBlockLength()));
+        CurrentPosition += GetBlockLength();
     end;
 
     procedure WriteValue(Position: Integer; Length: Integer; Value: Text)
@@ -369,6 +376,11 @@ codeunit 12133 "Flat File Management"
         if StrPos(FileName, '\') <> 0 then
             Directory := FileMgt.GetDirectoryName(FileName) + '\';
         exit(Directory + FileMgt.GetFileNameWithoutExtension(FileName) + Format(FileNo) + '.' + FileMgt.GetExtension(FileName));
+    end;
+
+    local procedure GetBlockLength(): Integer
+    begin
+        exit(24);
     end;
 }
 

@@ -161,16 +161,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
                                 "Journal Batch Name" := FAJnlBatch.Name;
                             end;
 
-                    FAJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
-                    if (FAJnlBatch."No. Series" = '') and not FAJnlLine3.FindLast() then begin
-                        FAJnlLine3.Init();
-                        FAJnlLine3."Journal Template Name" := "Journal Template Name";
-                        FAJnlLine3."Journal Batch Name" := "Journal Batch Name";
-                        FAJnlLine3."Line No." := 10000;
-                        FAJnlLine3.Insert();
-                        FAJnlLine3.SetUpNewLine(FAJnlLine2);
-                        FAJnlLine3.Modify();
-                    end;
+                    CreateNewFAJnlLine();
                 end;
             if FAJnlBatch."No. Series" <> '' then
                 NoSeriesMgt.SaveNoSeries;
@@ -191,6 +182,29 @@ codeunit 5633 "FA Jnl.-Post Batch"
         end;
         UpdateAnalysisView.UpdateAll(0, true);
         Commit();
+    end;
+
+    local procedure CreateNewFAJnlLine()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateNewFAJnlLine(FAJnlLine, FAJnlLine2, FAJnlLine3, IsHandled);
+        if IsHandled then
+            exit;
+
+        with FAJnlLine do begin
+            FAJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
+            if (FAJnlBatch."No. Series" = '') and not FAJnlLine3.FindLast() then begin
+                FAJnlLine3.Init();
+                FAJnlLine3."Journal Template Name" := "Journal Template Name";
+                FAJnlLine3."Journal Batch Name" := "Journal Batch Name";
+                FAJnlLine3."Line No." := 10000;
+                FAJnlLine3.Insert();
+                FAJnlLine3.SetUpNewLine(FAJnlLine2);
+                FAJnlLine3.Modify();
+            end;
+        end;
     end;
 
     local procedure CheckRecurringLine(var FAJnlLine2: Record "FA Journal Line")
@@ -458,6 +472,11 @@ codeunit 5633 "FA Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCommit(FARegNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateNewFAJnlLine(var FAJnlLine: Record "FA Journal Line"; var FAJnlLine2: Record "FA Journal Line"; var FAJnlLine3: Record "FA Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

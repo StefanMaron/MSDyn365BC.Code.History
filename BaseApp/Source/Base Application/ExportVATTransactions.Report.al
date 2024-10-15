@@ -188,13 +188,27 @@ report 12193 "Export VAT Transactions"
 
     trigger OnInitReport()
     begin
+        FeatureTelemetry.LogUptake('1000HP4', ITVATTok, Enum::"Feature Uptake Status"::Discovered);
         CompanyInfo.Get();
+    end;
+
+    trigger OnPreReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HP5', ITVATTok, Enum::"Feature Uptake Status"::"Set up");
+    end;
+
+    trigger OnPostReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HP6', ITVATTok, Enum::"Feature Uptake Status"::"Used");
+        FeatureTelemetry.LogUsage('1000HP7', ITVATTok, 'IT VAT Transaction Report Exported');
     end;
 
     var
         CompanyInfo: Record "Company Information";
         CurrentVATEntity: Record "VAT Entry";
         Spesometro: Codeunit "Spesometro Export";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ITVATTok: Label 'IT Export VAT Transaction Report', Locked = true;
         FileName: Text[250];
         DetailedExport: Boolean;
         ConstRecordType: Option A,B,C,D,E,G,H,Z;

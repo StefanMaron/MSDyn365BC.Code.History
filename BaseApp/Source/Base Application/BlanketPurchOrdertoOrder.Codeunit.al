@@ -60,7 +60,7 @@ codeunit 97 "Blanket Purch. Order to Order"
                         else
                             PurchOrderLine.Validate("Order Date", PurchOrderHeader."Order Date");
                         UpdatePurchOrderLineDirectUnitCost();
-                        PurchOrderLine.Validate("Line Discount %", PurchBlanketOrderLine."Line Discount %");
+                        PurchOrderLineValidateLineDiscountPct(PurchOrderLine, PurchBlanketOrderLine);
                         if PurchOrderLine.Quantity <> 0 then
                             PurchOrderLine.Validate("Inv. Discount Amount", PurchBlanketOrderLine."Inv. Discount Amount");
                         PurchBlanketOrderLine.CalcFields("Reserved Qty. (Base)");
@@ -245,12 +245,24 @@ codeunit 97 "Blanket Purch. Order to Order"
     var
         IsHandled: Boolean;
     begin
-        IsHandled := FALSE;
+        IsHandled := false;
         OnBeforePurchOrderLineValidateQuantity(PurchaseOrderLine, BlanketOrderPurchLine, IsHandled);
         if IsHandled then
             exit;
 
         PurchaseOrderLine.Validate(Quantity, BlanketOrderPurchLine."Qty. to Receive");
+    end;
+
+    local procedure PurchOrderLineValidateLineDiscountPct(var PurchaseOrderLine: Record "Purchase Line"; BlanketOrderPurchLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePurchOrderLineValidateLineDiscountPct(PurchaseOrderLine, BlanketOrderPurchLine, PurchOrderHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchOrderLine.Validate("Line Discount %", PurchBlanketOrderLine."Line Discount %");
     end;
 
     local procedure ResetQuantityFields(var TempPurchLine: Record "Purchase Line")
@@ -355,6 +367,11 @@ codeunit 97 "Blanket Purch. Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchOrderLineValidateQuantity(var PurchOrderLine: Record "Purchase Line"; BlanketOrderPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchOrderLineValidateLineDiscountPct(var PurchaseOrderLine: Record "Purchase Line"; BlanketOrderPurchaseLine: Record "Purchase Line"; PurchaseOrderHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

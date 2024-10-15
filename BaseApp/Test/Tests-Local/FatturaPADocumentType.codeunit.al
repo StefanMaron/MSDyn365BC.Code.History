@@ -176,7 +176,7 @@ codeunit 144210 "FatturaPA Document Type"
         DocumentNo: Code[20];
         FatturaDocType: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Export]
         // [SCENARIO 352458] A FatturaPA xml file has Fattura Document Type code manually entered in the sales document
@@ -187,11 +187,11 @@ codeunit 144210 "FatturaPA Document Type"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] TipoDocumento is "TD02" in exported file
-        VerifyTipoDocumento(ServerFileName, FatturaDocType);
+        VerifyTipoDocumento(TempBlob, FatturaDocType);
     end;
 
     [Test]
@@ -203,7 +203,7 @@ codeunit 144210 "FatturaPA Document Type"
         CustomerNo: Code[20];
         FatturaDocType: Code[20];
         ClientFileName: Text[250];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Sales] [Export]
         // [SCENARIO 352458] A FatturaPA xml file has Fattura Document Type code manually entered in the service document
@@ -214,11 +214,11 @@ codeunit 144210 "FatturaPA Document Type"
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
 
         // [WHEN] The document is exported to FatturaPA
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] TipoDocumento is "TD02" in exported file
-        VerifyTipoDocumento(ServerFileName, FatturaDocType);
+        VerifyTipoDocumento(TempBlob, FatturaDocType);
     end;
 
     [Test]
@@ -751,16 +751,15 @@ codeunit 144210 "FatturaPA Document Type"
         ServiceMgtSetup.Modify(true);
     end;
 
-    local procedure VerifyTipoDocumento(ServerFileName: Text[250]; ExpectedElementValue: Text)
+    local procedure VerifyTipoDocumento(TempBlob: Codeunit "Temp Blob"; ExpectedElementValue: Text)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         FileManagement: Codeunit "File Management";
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/TipoDocumento');
         Assert.AreEqual(ExpectedElementValue, TempXMLBuffer.Value,
           StrSubstNo(UnexpectedElementValueErr, TempXMLBuffer.GetElementName, ExpectedElementValue, TempXMLBuffer.Value));
-        FileManagement.DeleteServerFile(ServerFileName);
     end;
 
     [ConfirmHandler]

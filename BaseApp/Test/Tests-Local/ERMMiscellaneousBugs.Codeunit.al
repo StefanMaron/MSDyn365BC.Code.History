@@ -1,119 +1,5 @@
 codeunit 144105 "ERM Miscellaneous Bugs"
 {
-    // Test for miscellaneous Bugs.
-    // 1. Verify Resident, Individual Person, Resident Address, Residence Post Code after updating First Name.
-    // 2. Verify that Purchase Invoice must posted without error using Include in VAT Transac. Rep. TRUE on VAT Posting Setup.
-    // 3. Verify Vendor Ledger Entry after Post Application from Apply Vendor Entries.
-    // 4. Verify Cust. Ledger Entry after Post Application from Gen. Journal Line.
-    // 5. Verify that a GL Book Entry must exist after reversal of Customer Ledger Entry.
-    // 6. Verify Remaining Amount on Vendor Ledger Entry after Post Vendor Bill Issued.
-    // 7. Verify program populates correct entries on report "VAT Register - Print" without any blank page.
-    // 8. Verify Program update correct Value on field Documents type in Purchase Comment Line after adding comments on Posted purchase invoice.
-    // 9. Verify Program update correct Value on field Documents type in Purchase Comment Line after adding comments on Posted purchase credit memo.
-    // 10.Verify Sales Invoice intrastat journal use the Reverse Charge VAT serial No. as Document No.
-    // 11.Verify Sales Credit memo intrastat journal use the Reverse Charge VAT serial No. as Document No.
-    // 12.Verify Purchase Invoice intrastat journal use the Reverse Charge VAT serial No. as Document No.
-    // 13.Verify Sales Invoice Successfully Posted With Black Listed Country.
-    // 14.Verify Program updates the Operation Occurred Date as Posting date on Service Header with Document Type Invoice.
-    // 15.Verify Program updates the Operation Occurred Date as Posting date on Service Header with Document Type Credit Memo.
-    // 16.Verify Program updates the Operation Occurred Date as Posting date on Service Header with Document Type Order.
-    // 17.Verify program populates correct entries on Report "Vendor Account Bill List" with Only Opened Entries as False.
-    // 18.Verify program populates correct entries on Report "Vendor Account Bill List" with Only Opened Entries as True.
-    // 19.Verify program populates correct entries on Report "Customer Bills List" with Only Opened Entries as False.
-    // 20.Verify program populates correct entries on Report "Customer Bills List" with Only Opened Entries as True.
-    // 21.Verify program populates correct entries on Report "Withholding Taxes" after Calculating Withholding Taxes Soc. Security on Payment Journal and apply Posted Purchase Invoice.
-    // 22.Verify Amount on Sales Invoice Intrastat Journal Lines with Item Charged Amount.
-    // 23.Verify Amount on Sales Credit Memo Intrastat Journal Lines with Item Charged Amount.
-    // 24.Verify Amount on Purchase Invoice Intrastat Journal Lines with Item Charged Amount.
-    // 25.Verify Program Populates only Posted Purchase Credit memos which one is greater than the Threshold Amount.
-    // 26.Verify Program Populates only Posted Sales Credit memos which one is greater than the Threshold Amount.
-    // 27.Verify Program Populates Correct Entries after Unapply Payment On Vendor Ledger Entries.
-    // 28.Verify Program Populates Correct Entries after Unapply Payment On Customer Ledger Entries.
-    // 29.Verify G/L Entry and Customer Ledger Entry after Posting Sales Invoice with more than one Payment Number.
-    // 30.Verify G/L Entry and Customer Ledger Entry after running Report - Issuing Customer Bill with more than one Payment Number.
-    // 31.Verify Subform Customer Bill Line after running Report - Suggest Customer Bills with more than one Payment Number.
-    // 32.Verify Posted Sales Invoice after running Report - Customer Bills List with more than one Payment Number.
-    // 33.Verify Vendor Name after posting Purchase Invoice on the VAT Register - Print Report.
-    // 34.Verify Vendor Name after posting Purchase Credit Memo on the VAT Register - Print Report.
-    // 35.Verify Intrastat - Make Disk Tax Auth report with Reference Period equals blank.
-    // 36.Verify Intrastat - Make Disk Tax Auth report with Reference Period not equals Statistics Period.
-    // 37.Verify VAT entries for Individual persons with VAT Reg. No suggest in VAT report
-    // 38.Verify "FULL VAT" VAT entries suggested in VAT Report
-    // 
-    // Covers Test Cases for WI - 345070
-    // ------------------------------------------------------------------------------------
-    // Test Function Name                                                            TFS ID
-    // ------------------------------------------------------------------------------------
-    // FirstNameValueOnVendor                                                        344385
-    // PostedPurchInvWithVATTransacRepOnVATPostingSetup                              324329
-    // PostApplicationWithVendorBillPayment                                          344604
-    // PmtToleranceUsingGeneralLedgerSetup                                   339719, 332668
-    // UnapplyPaymentAndReverseLine                                                  341529
-    // 
-    // Covers Test Cases for IT - 345527
-    // ------------------------------------------------------------------------------------
-    // Test Function Name                                                            TFS ID
-    // ------------------------------------------------------------------------------------
-    // PostVendorBillIssueWithVendorBillPayment                                      343688
-    // CorrectEntriesOnVATRegisterPrint                                              341006
-    // DocumentTypeOnPurchCommentLineForPurchInvoice                                 340243
-    // DocumentTypeOnPurchCommentLineForPurchCreditMemo
-    // DocumentNoOnSalesInvoiceIntrastatJournal                                      343075
-    // DocumentNoOnSalesCreditMemoIntrastatJournal
-    // DocumentNoOnPurchaseInvoiceIntrastatJournal                                   340120
-    // 
-    // Covers Test Cases for IT - 345653
-    // ------------------------------------------------------------------------------------
-    // Test Function Name                                                            TFS ID
-    // ------------------------------------------------------------------------------------
-    // OperationOccurredDateOnServiceInvoice                                 340111, 339553
-    // OperationOccurredDateOnServiceCreditMemo
-    // OperationOccurredDateOnServiceOrder
-    // OnlyOpenedEntriesFalseOnVendorAccountBillList                                 344853
-    // OnlyOpenedEntriesTrueOnVendorAccountBillList
-    // OnlyOpenedEntriesFalseOnCustomerBillList
-    // OnlyOpenedEntriesTrueOnCustomerBillList
-    // 
-    // Covers Test Cases for IT - 345071
-    // ------------------------------------------------------------------------------------
-    // Test Function Name                                                            TFS ID
-    // ------------------------------------------------------------------------------------
-    // PaymentJournalWithholdTaxesSocSecurityOnWithholdingTax                        343900
-    // AmountOnSalesInvoiceWithChargeItemIntrastatJournal                    341696, 333988
-    // AmountOnSalesCreditMemoWithChargeItemIntrastatJournal
-    // AmountOnPurchaseInvoiceWithChargeItemIntrastatJournal
-    // PurchaseCreditMemoThresholdAmountOnVatReport                                  315326
-    // SalesCreditMemoThresholdAmountOnVatReport
-    // UnapplyPaymentOnVendorLedgerEntries                                           341015
-    // UnapplyPaymentOnCustomerLedgerEntries
-    // 
-    // Covers Test Cases for WI - 349081.
-    // ------------------------------------------------------------------------------------
-    // Test Function Name                                                            TFS ID
-    // ------------------------------------------------------------------------------------
-    // SalesInvoiceWithMorePaymentNos,
-    // SalesInvoiceIssuingCustomerBillWithMorePaymentNos,
-    // SalesInvoiceSuggestCustomerBillsWithMorePaymentNos,
-    // SalesInvoiceCustomerBillsListWithMorePaymentNos                               345386
-    // 
-    // Covers Test Cases for IT
-    // ------------------------------------------------------------------------------------
-    // Test Function Name                                                            TFS ID
-    // ------------------------------------------------------------------------------------
-    // VendorNameOnVATRegisterPrintForPurchInvoice
-    // VendorNameOnVATRegisterPrintForCrMemo                                         73305
-    // 
-    // Covers Test Cases for IT
-    // ------------------------------------------------------------------------------------
-    // Test Function Name                                                            TFS ID
-    // ------------------------------------------------------------------------------------
-    // BlankReferencePeriod                                                           89578
-    // ReferencePeriodNotEqualsStatisticsPeriod                                       89578
-    // 
-    // PurchaseInvoiceForeignIndividualVendorOnVatReport                              90512
-    // FullVATSalesInvoiceOnVatReport                                                 90512
-    // FullVATSalesCreditMemoOnVatReport                                              90512
-
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -1708,6 +1594,86 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VendorBillLine.TestField("Withholding Tax Amount", PurchWithhContribution."Withholding Tax Amount");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorBillIsCorrectAfterApplyingPartialPmtToInvoice()
+    var
+        BankAccount: Record "Bank Account";
+        BillPostingGroup: Record "Bill Posting Group";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorBillHeader: Record "Vendor Bill Header";
+        VendorBillLine: Record "Vendor Bill Line";
+        PurchWithhContribution: Record "Purch. Withh. Contribution";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorBillWithholdingTax: Record "Vendor Bill Withholding Tax";
+        VendorNo: Code[20];
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 427450] "Total Amount" does not included remaining amount of partial payment when payment's amount is greater than withholding tax amount.
+
+        Initialize;
+
+        VendorNo := CreateVendorWithholdCode;
+        LibraryVariableStorage.Clear;
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, BankAccount."No.", FindPaymentMethod);
+        LibraryITLocalization.CreateVendorBillHeader(VendorBillHeader);
+        VendorBillHeader.Validate("Bank Account No.", BankAccount."No.");
+        VendorBillHeader.Validate("Payment Method Code", BillPostingGroup."Payment Method");
+        VendorBillHeader.Modify(true);
+
+        UpdateTaxPerscentsOnVendorWitholdingTax(VendorNo, 20, 100);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Payment Method Code", 'BANKTRANSF');
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateAndUpdateGLAccount, 1);
+        PurchaseLine.Validate("Direct Unit Cost", 1000);
+        PurchaseLine.Modify(true);
+
+        UpdateCheckTotalOnPuchaseDocument(PurchaseHeader, PurchaseLine."Amount Including VAT");
+
+        OpenWithholdTaxesContributionCardUsingPurchInvoicePage(PurchaseHeader);
+        PurchWithhContribution.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::Vendor, VendorNo, 200);
+        GenJournalLine.Validate("Payment Method Code", '');
+        GenJournalLine.Modify(true);
+        GenJournalLine.TestField("Debit Amount", 200);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        LibraryERM.ApplyVendorLedgerEntries(
+          VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Document Type"::" ",
+          InvoiceNo, GenJournalLine."Document No.");
+
+        RunSuggestVendorBillsForVendorNo(VendorBillHeader, VendorNo);
+
+        Commit;
+
+        VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
+        VendorBillLine.SetRange("Document Type", VendorBillLine."Document Type"::Invoice);
+        VendorBillLine.SetRange("Document No.", InvoiceNo);
+        VendorBillLine.FindFirst;
+        VendorBillLine.TestField("Withholding Tax Amount", PurchWithhContribution."Withholding Tax Amount");
+
+        VendorBillWithholdingTax.Get(VendorBillHeader."No.", VendorBillLine."Line No.");
+        VendorBillWithholdingTax.TestField("Total Amount", 1000);
+        VendorBillWithholdingTax.TestField("Withholding Tax Amount", 200);
+        VendorBillWithholdingTax.TestField("Non Taxable Amount", 0);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -2891,6 +2857,19 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         ChangePaymentTolerance.InitializeRequest(true, '', 0, MaxPaymentToleranceAmount);
         ChangePaymentTolerance.UseRequestPage(false);
         ChangePaymentTolerance.Run();
+    end;
+
+    local procedure UpdateTaxPerscentsOnVendorWitholdingTax(VendorNo: Code[20]; WithholdingTaxPercent: Decimal; TaxableBasePercent: Decimal)
+    var
+        Vendor: Record Vendor;
+        WithholdCodeLine: Record "Withhold Code Line";
+    begin
+        Vendor.Get(VendorNo);
+        WithholdCodeLine.SetRange("Withhold Code", Vendor."Withholding Tax Code");
+        WithholdCodeLine.FindFirst;
+        WithholdCodeLine.Validate("Withholding Tax %", WithholdingTaxPercent);
+        WithholdCodeLine.Validate("Taxable Base %", TaxableBasePercent);
+        WithholdCodeLine.Modify(true);
     end;
 
     local procedure VerifyAmountInclVATAndBaseAmountOnVATReportSubformPage(DocumentNo: Code[20]; Amount: Decimal; AmountIncludingVAT: Decimal)

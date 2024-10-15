@@ -31,7 +31,7 @@ codeunit 144203 "FatturaPA Stamp"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         DocNo: Code[20];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Order]
@@ -41,10 +41,10 @@ codeunit 144203 "FatturaPA Stamp"
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::Order, true);
 
         SalesInvoiceHeader.SetRange("No.", DocNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        VerifyStampInXmlFile(ServerFileName, SalesHeader."Fattura Stamp Amount");
+        VerifyStampInXmlFile(TempBlob, SalesHeader."Fattura Stamp Amount");
     end;
 
     [Test]
@@ -55,7 +55,7 @@ codeunit 144203 "FatturaPA Stamp"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         DocNo: Code[20];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
@@ -65,10 +65,10 @@ codeunit 144203 "FatturaPA Stamp"
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::Invoice, true);
 
         SalesInvoiceHeader.SetRange("No.", DocNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        VerifyStampInXmlFile(ServerFileName, SalesHeader."Fattura Stamp Amount");
+        VerifyStampInXmlFile(TempBlob, SalesHeader."Fattura Stamp Amount");
     end;
 
     [Test]
@@ -79,7 +79,7 @@ codeunit 144203 "FatturaPA Stamp"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         DocNo: Code[20];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo]
@@ -89,10 +89,10 @@ codeunit 144203 "FatturaPA Stamp"
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::"Credit Memo", true);
 
         SalesCrMemoHeader.SetRange("No.", DocNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        VerifyStampInXmlFile(ServerFileName, SalesHeader."Fattura Stamp Amount");
+        VerifyStampInXmlFile(TempBlob, SalesHeader."Fattura Stamp Amount");
     end;
 
     [Test]
@@ -102,7 +102,7 @@ codeunit 144203 "FatturaPA Stamp"
         ServiceHeader: Record "Service Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Service] [Order]
@@ -112,10 +112,10 @@ codeunit 144203 "FatturaPA Stamp"
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::Order, true);
 
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        VerifyStampInXmlFile(ServerFileName, ServiceHeader."Fattura Stamp Amount");
+        VerifyStampInXmlFile(TempBlob, ServiceHeader."Fattura Stamp Amount");
     end;
 
     [Test]
@@ -125,7 +125,7 @@ codeunit 144203 "FatturaPA Stamp"
         ServiceHeader: Record "Service Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Service] [Invoice]
@@ -135,10 +135,10 @@ codeunit 144203 "FatturaPA Stamp"
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::Invoice, true);
 
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        VerifyStampInXmlFile(ServerFileName, ServiceHeader."Fattura Stamp Amount");
+        VerifyStampInXmlFile(TempBlob, ServiceHeader."Fattura Stamp Amount");
     end;
 
     [Test]
@@ -148,7 +148,7 @@ codeunit 144203 "FatturaPA Stamp"
         ServiceHeader: Record "Service Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Service] [Credit Memo]
@@ -158,10 +158,10 @@ codeunit 144203 "FatturaPA Stamp"
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", true);
 
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        VerifyStampInXmlFile(ServerFileName, ServiceHeader."Fattura Stamp Amount");
+        VerifyStampInXmlFile(TempBlob, ServiceHeader."Fattura Stamp Amount");
     end;
 
     [Test]
@@ -172,7 +172,7 @@ codeunit 144203 "FatturaPA Stamp"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         DocNo: Code[20];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Order]
@@ -182,10 +182,10 @@ codeunit 144203 "FatturaPA Stamp"
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::Order, false);
 
         SalesInvoiceHeader.SetRange("No.", DocNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        VerifyNoStampInXmlFile(ServerFileName);
+        VerifyNoStampInXmlFile(TempBlob);
     end;
 
     [Test]
@@ -196,7 +196,7 @@ codeunit 144203 "FatturaPA Stamp"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         DocNo: Code[20];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
@@ -206,10 +206,10 @@ codeunit 144203 "FatturaPA Stamp"
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::Invoice, false);
 
         SalesInvoiceHeader.SetRange("No.", DocNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        VerifyNoStampInXmlFile(ServerFileName);
+        VerifyNoStampInXmlFile(TempBlob);
     end;
 
     [Test]
@@ -220,7 +220,7 @@ codeunit 144203 "FatturaPA Stamp"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         DocNo: Code[20];
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo]
@@ -230,10 +230,10 @@ codeunit 144203 "FatturaPA Stamp"
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::"Credit Memo", false);
 
         SalesCrMemoHeader.SetRange("No.", DocNo);
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        VerifyNoStampInXmlFile(ServerFileName);
+        VerifyNoStampInXmlFile(TempBlob);
     end;
 
     [Test]
@@ -243,7 +243,7 @@ codeunit 144203 "FatturaPA Stamp"
         ServiceHeader: Record "Service Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Service] [Order]
@@ -253,10 +253,10 @@ codeunit 144203 "FatturaPA Stamp"
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::Order, false);
 
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        VerifyNoStampInXmlFile(ServerFileName);
+        VerifyNoStampInXmlFile(TempBlob);
     end;
 
     [Test]
@@ -266,7 +266,7 @@ codeunit 144203 "FatturaPA Stamp"
         ServiceHeader: Record "Service Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Service] [Invoice]
@@ -276,10 +276,10 @@ codeunit 144203 "FatturaPA Stamp"
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::Invoice, false);
 
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        VerifyNoStampInXmlFile(ServerFileName);
+        VerifyNoStampInXmlFile(TempBlob);
     end;
 
     [Test]
@@ -289,7 +289,7 @@ codeunit 144203 "FatturaPA Stamp"
         ServiceHeader: Record "Service Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
-        ServerFileName: Text[250];
+        TempBlob: Codeunit "Temp Blob";
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Service] [Credit Memo]
@@ -299,10 +299,10 @@ codeunit 144203 "FatturaPA Stamp"
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", false);
 
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
-        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+        ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        VerifyNoStampInXmlFile(ServerFileName);
+        VerifyNoStampInXmlFile(TempBlob);
     end;
 
     [Test]
@@ -461,13 +461,6 @@ codeunit 144203 "FatturaPA Stamp"
         IsInitialized := true;
     end;
 
-    local procedure DeleteServerFile(ServerFileName: Text)
-    var
-        FileManagement: Codeunit "File Management";
-    begin
-        FileManagement.DeleteServerFile(ServerFileName);
-    end;
-
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
@@ -539,32 +532,30 @@ codeunit 144203 "FatturaPA Stamp"
           StrSubstNo(UnexpectedElementValueErr, TempXMLBuffer.GetElementName, ExpectedValue, TempXMLBuffer.Value));
     end;
 
-    local procedure VerifyStampInXmlFile(ServerFileName: Text[250]; ExpectedStampAmount: Decimal)
+    local procedure VerifyStampInXmlFile(TempBlob: Codeunit "Temp Blob"; ExpectedStampAmount: Decimal)
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/DatiBollo/BolloVirtuale');
         AssertCurrentElementValue(TempXMLBuffer, YesTok);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/DatiBollo/ImportoBollo');
         AssertCurrentElementValue(TempXMLBuffer, FormatAmount(ExpectedStampAmount));
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyNoStampInXmlFile(ServerFileName: Text[250])
+    local procedure VerifyNoStampInXmlFile(TempBlob: Codeunit "Temp Blob")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
-        TempXMLBuffer.Load(ServerFileName);
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         Assert.IsFalse(
           TempXMLBuffer.FindNodesByXPath(
             TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/DatiBollo/BolloVirtuale'), '');
         Assert.IsFalse(
           TempXMLBuffer.FindNodesByXPath(
             TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/DatiBollo/ImportoBollo'), '');
-        DeleteServerFile(ServerFileName);
     end;
 }
 
