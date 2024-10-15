@@ -538,12 +538,7 @@ codeunit 1385 "Vendor Templ. Mgt."
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Config. Template Management", 'OnBeforeInsertRecordWithKeyFields', '', false, false)]
     local procedure OnBeforeInsertRecordWithKeyFieldsHandler(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
     begin
-        if RecRef.Number = Database::Vendor then begin
-            if ConfigTemplateHeader."Instance No. Series" = '' then
-                exit;
-
-            FillVendorKeyFromInitSeries(RecRef, ConfigTemplateHeader);
-        end;
+        FillVendorKeyFromInitSeries(RecRef, ConfigTemplateHeader);
     end;
 
     procedure FillVendorKeyFromInitSeries(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
@@ -552,10 +547,15 @@ codeunit 1385 "Vendor Templ. Mgt."
         NoSeriesManagement: Codeunit NoSeriesManagement;
         FldRef: FieldRef;
     begin
-        NoSeriesManagement.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Vendor."No.", Vendor."No. Series");
-        FldRef := RecRef.Field(Vendor.FieldNo("No."));
-        FldRef.Value := Vendor."No.";
-        FldRef := RecRef.Field(Vendor.FieldNo("No. Series"));
-        FldRef.Value := Vendor."No. Series";
+        if RecRef.Number = Database::Vendor then begin
+            if ConfigTemplateHeader."Instance No. Series" = '' then
+                exit;
+
+            NoSeriesManagement.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Vendor."No.", Vendor."No. Series");
+            FldRef := RecRef.Field(Vendor.FieldNo("No."));
+            FldRef.Value := Vendor."No.";
+            FldRef := RecRef.Field(Vendor.FieldNo("No. Series"));
+            FldRef.Value := Vendor."No. Series";
+        end;
     end;
 }

@@ -4110,6 +4110,76 @@
 
     [Test]
     [Scope('OnPrem')]
+    procedure PartialShipmentWith100PctPrepayment()
+    var
+        Customer: Record customer;
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 448221] To ensure that document with 100 prepayment can be partial shipped
+        Initialize();
+
+        // [GIVEN] Create a prepayment sales document.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreateFullPrepaymentSalesHeader(SalesHeader, VATPostingSetup."VAT Bus. Posting Group", true);
+
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 5);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 1));
+        SalesLine.Modify(true);
+
+        LibraryERM.UpdateSalesPrepmtAccountVATGroup(
+            SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
+
+        DocumentNo := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+        // [GIVEN] Qty To shp has been lowered
+        UpdateSalesQtyToShip(SalesLine, 3);
+        // [WHEN] Order gets released
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PartialRecievementWith100PctPrepayment()
+    var
+        //ala
+        Vendor: Record Vendor;
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 448221] To ensure that document with 100 prepayment can be partial shipped
+        Initialize();
+
+        // [GIVEN] Create a prepayment Purchase document.
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreateFullPrepaymentPurchHeader(PurchaseHeader, VATPostingSetup."VAT Bus. Posting Group", true);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 5);
+
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 1));
+        PurchaseLine.Modify(true);
+
+
+        LibraryERM.UpdatePurchPrepmtAccountVATGroup(
+           PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group");
+
+        DocumentNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+        // [GIVEN] Qty To shp has been lowered
+        UpdatePurchQtyToReceive(PurchaseLine, 3);
+
+        // [WHEN] Order gets released
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CheckPurchPrepAmountToDeductToSmallErrorIfInvoiceMultipleReceipts()
     var
         OrderPurchaseHeader: Record "Purchase Header";
@@ -5802,4 +5872,3 @@
     begin
     end;
 }
-

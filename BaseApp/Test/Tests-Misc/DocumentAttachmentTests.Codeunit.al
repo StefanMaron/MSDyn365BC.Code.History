@@ -33,6 +33,7 @@ codeunit 134776 "Document Attachment Tests"
         ConfirmConvertToOrderQst: Label 'Do you want to convert the quote to an order?';
         DeleteAttachmentsConfirmQst: Label 'Do you want to delete the attachments for this document?';
         ConfirmOpeningNewOrderAfterQuoteToOrder: Label 'Do you want to open the new order?';
+        AttachedDateInvalidErr: Label 'Attached date is invalid';
 
     [Test]
     [Scope('OnPrem')]
@@ -2203,6 +2204,53 @@ codeunit 134776 "Document Attachment Tests"
         PurchaseCreditMemos.AttachedDocuments.Documents.AssertEquals(2);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('QuoteToOrderConfirmHandler')]
+    procedure EnsureAttachedDateEqualWhenQuoteConvertedToOrder()
+    var
+        Customer: Record Customer;
+        SalesHeaderQuote: Record "Sales Header";
+        SalesHaderOrder: Record "Sales Header";
+        DocumentAttachment: Record "Document Attachment";
+        SalesQuotes: TestPage "Sales Quotes";
+        RecRef: RecordRef;
+        SalesQuoteAttachedDate: DateTime;
+        SalesHeaderQuoteNo: Code[20];
+    begin
+        // [SCENARIO 449418] Time stamp change of attachments when converting a sales quote into a sales order
+        Initialize();
+
+        // [GIVEN] Create customer, sales quote
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeaderQuote, Customer."No.");
+        SalesHeaderQuoteNo := SalesHeaderQuote."No.";
+
+        // [GIVEN] Attached documents for the quote
+        RecRef.GetTable(SalesHeaderQuote);
+        CreateDocumentAttachment(DocumentAttachment, RecRef, 'foo.jpeg');
+
+        // [GIVEN] The sales quotes list is open- navigate to the created quote 
+        SalesQuotes.OpenView();
+        while SalesQuotes."No.".Value() <> SalesHeaderQuote."No." do begin
+            if not SalesQuotes.Next() then
+                break;
+        end;
+
+        DocumentAttachment.Reset();
+        DocumentAttachment.SetRange("Table ID", Database::"Sales Header");
+        DocumentAttachment.SetRange("Document Type", SalesHeaderQuote."Document Type"::Quote);
+        DocumentAttachment.SetRange("No.", SalesHeaderQuoteNo);
+        if DocumentAttachment.FindFirst() then
+            SalesQuoteAttachedDate := DocumentAttachment."Attached Date";
+
+        // [WHEN] Quote is converted to order
+        SalesQuotes.MakeOrder.Invoke();
+
+        // [THEN] Verify Time stamp change of attachments are equal
+        CheckDocAttachmentAttachedDate(SalesHeaderQuoteNo, SalesQuoteAttachedDate);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2472,6 +2520,25 @@ codeunit 134776 "Document Attachment Tests"
         CompInfo.get();
         CompInfo."Allow Blank Payment Info." := true;
         CompInfo.Modify();
+    end;
+
+    local procedure CheckDocAttachmentAttachedDate(SalesQuoteNo: Code[20]; SalesQuoteAttachedDate: DateTime)
+    var
+        SalesHaderOrder: Record "Sales Header";
+        DocumentAttachment: Record "Document Attachment";
+    begin
+        SalesHaderOrder.Reset();
+        SalesHaderOrder.SetRange("Document Type", SalesHaderOrder."Document Type"::Order);
+        SalesHaderOrder.SetRange("Quote No.", SalesQuoteNo);
+        SalesHaderOrder.FindFirst();
+
+        DocumentAttachment.Reset();
+        DocumentAttachment.SetRange("Table ID", Database::"Sales Header");
+        DocumentAttachment.SetRange("Document Type", SalesHaderOrder."Document Type"::Order);
+        DocumentAttachment.SetRange("No.", SalesHaderOrder."No.");
+        if DocumentAttachment.FindFirst() then;
+
+        Assert.AreEqual(SalesQuoteAttachedDate, DocumentAttachment."Attached Date", AttachedDateInvalidErr);
     end;
 
     procedure SetupReportSelection(ReportUsage: Enum "Report Selection Usage"; ReportId: Integer)

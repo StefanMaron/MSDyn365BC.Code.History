@@ -7,6 +7,7 @@ page 104 "Account Schedule"
     PageType = Worksheet;
     PromotedActionCategories = 'New,Process,Report,Insert';
     SourceTable = "Acc. Schedule Line";
+    RefreshOnActivate = true;
 
     layout
     {
@@ -429,18 +430,12 @@ page 104 "Account Schedule"
 
     trigger OnAfterGetRecord()
     begin
-        if not DimCaptionsInitialized then
-            DimCaptionsInitialized := true;
+       FormatLines();
+    end;
 
-        if "Totaling Type" in ["Totaling Type"::"Cost Type", "Totaling Type"::"Cost Type Total"] then begin
-            CostObjectTotallingEnabled := true;
-            CostCenterTotallingEnabled := true;
-        end;
-
-        if Rec."Totaling Type" = Rec."Totaling Type"::"Account Category" then
-            TotalingDisplayed := GetAccountCategoryTotalingToDisplay()
-        else
-            TotalingDisplayed := Rec.Totaling;
+    trigger OnAfterGetCurrRecord()
+    begin
+       FormatLines();
     end;
 
     trigger OnOpenPage()
@@ -471,6 +466,22 @@ page 104 "Account Schedule"
         CurrPage.SaveRecord;
         AccSchedManagement.SetName(CurrentSchedName, Rec);
         CurrPage.Update(false);
+    end;
+
+    local procedure FormatLines()
+    begin
+        if not DimCaptionsInitialized then
+            DimCaptionsInitialized := true;
+
+        if "Totaling Type" in ["Totaling Type"::"Cost Type", "Totaling Type"::"Cost Type Total"] then begin
+            CostObjectTotallingEnabled := true;
+            CostCenterTotallingEnabled := true;
+        end;
+
+        if Rec."Totaling Type" = Rec."Totaling Type"::"Account Category" then
+            TotalingDisplayed := GetAccountCategoryTotalingToDisplay()
+        else
+            TotalingDisplayed := Rec.Totaling;
     end;
 
     procedure SetupAccSchedLine(var AccSchedLine: Record "Acc. Schedule Line")

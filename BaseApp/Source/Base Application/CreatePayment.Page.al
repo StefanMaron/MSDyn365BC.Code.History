@@ -205,6 +205,7 @@ page 1190 "Create Payment"
         PaymentAmt: Decimal;
         SummarizePerVend: Boolean;
         VendorLedgerEntryView: Text;
+        GenJournalDocType: Enum "Gen. Journal Document Type";
     begin
         TempPaymentBuffer.Reset();
         TempPaymentBuffer.DeleteAll();
@@ -213,6 +214,8 @@ page 1190 "Create Payment"
         VendorLedgerEntry.SetCurrentKey("Entry No.");
         if VendorLedgerEntry.Find('-') then
             repeat
+                if Vendor.Get(VendorLedgerEntry."Vendor No.") then
+                    Vendor.CheckBlockedVendOnJnls(Vendor, GenJournalDocType::Payment, true);
                 if PostingDate < VendorLedgerEntry."Posting Date" then
                     Error(EarlierPostingDateErr, VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
                 if VendorLedgerEntry."Applies-to ID" = '' then begin

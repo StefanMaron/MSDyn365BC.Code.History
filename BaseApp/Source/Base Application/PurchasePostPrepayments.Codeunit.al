@@ -418,7 +418,7 @@
                     end;
             end;
 
-        if PreviewMode and GLSetup."Journal Templ. Name Mandatory" then
+        if GLSetup."Journal Templ. Name Mandatory" then
             GenJournalTemplate.Get(PurchHeader."Journal Templ. Name");
     end;
 

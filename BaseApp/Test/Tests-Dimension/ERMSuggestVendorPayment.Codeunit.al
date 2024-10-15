@@ -35,6 +35,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         AmountMustBeNegativeErr: Label 'Amount must be negative in Gen. Journal Line';
         PaymentsLineErr: Label 'There are payments in %1 %2, %3 %4, %5 %6', Comment = 'There are payments in Journal Template Name PAYMENT, Journal Batch Name GENERAL, Applies-to Doc. No. 101321';
         EarlierPostingDateErr: Label 'You cannot create a payment with an earlier posting date for %1 %2.';
+        AppliesToIdErr: Label 'Applies-to ID is not blank.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -2331,6 +2332,84 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryVariableStorage.Enqueue(GenJournalLine."Account No.");
         SuggestVendorPayments.Run();
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePaymentModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyAppliesToidforBlockedVendorPayment()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        TempGenJournalTemplate: Record "Gen. Journal Template" temporary;
+        Vendor: Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        PaymentJournal: TestPage "Payment Journal";
+        VendorNoFilter: Text[40];
+    begin
+        // [SCENARIO 440630] The Applies-to ID does not get removed in certain circumstances if you get an error during the Create Payment routine.
+        Initialize();
+
+        // [GIVEN] Create Gen Journal Template and Batch.
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Payments);
+        GenJournalTemplate.Get(GenJournalBatch."Journal Template Name");
+
+        // [GIVEN] Created and posted Vendor's invoice
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine,
+          GenJournalBatch."Journal Template Name",
+          GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Vendor,
+          LibraryPurchase.CreateVendorNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account",
+          LibraryERM.CreateGLAccountNo,
+          -LibraryRandom.RandDecInRange(10, 100, 2));
+
+        // [THEN] Modify the Posting Date of First Vendor.
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Modify();
+
+        // [THEN] Modify Vendor Status to Blocked Payment
+        VendorNoFilter := GenJournalLine."Account No.";
+        Vendor.Get(VendorNoFilter);
+        Vendor.Validate(Blocked, Vendor.Blocked::Payment);
+        Vendor.Modify();
+
+        // [THEN] Post Fisrt vendor Ledger Entry with blocked Payment.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Created 2nd Vendor's invoice
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine,
+          GenJournalBatch."Journal Template Name",
+          GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Vendor,
+          LibraryPurchase.CreateVendorNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account",
+          LibraryERM.CreateGLAccountNo,
+          -LibraryRandom.RandDecInRange(10, 100, 2));
+
+        // [THEN] Saveboth Vendor in a variable.
+        VendorNoFilter := VendorNoFilter + '|' + GenJournalLine."Account No.";
+
+        // [THEN] Post 2nd Vendor Ledger entry with block Status "".
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Open VEndor LEdger Entries page and Create Payment.
+        VendorLedgerEntries.OpenEdit;
+        VendorLedgerEntries.FILTER.SetFilter("Vendor No.", VendorNoFilter);
+
+        // [VERIFY] Vendor Payment blocked for Vendor 1 error will come.
+        asserterror VendorLedgerEntries."Create Payment".Invoke;
+
+        // [VERIFY] Vendor Ledger entry of blocked vendor have blank Applies-To ID.
+        VendorLedgerEntry.SetFilter("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.FindFirst();
+        Assert.AreEqual('', VendorLedgerEntry."Applies-to ID", AppliesToIdErr);
     end;
 
     local procedure Initialize()

@@ -1,4 +1,4 @@
-﻿table 60 "Document Sending Profile"
+table 60 "Document Sending Profile"
 {
     Caption = 'Document Sending Profile';
     LookupPageID = "Document Sending Profiles";
@@ -149,8 +149,7 @@
         UpdateAssCustomerQst: Label 'If you delete document sending profile %1, it will also be deleted on customer cards that use the profile.\\Do you want to continue?';
         CannotDeleteErr: Label 'Cannot delete the document sending profile.';
         CannotSendMultipleSalesDocsErr: Label 'You can only send one electronic sales document at a time.';
-        ProfileSelectionCustomerQst: Label 'Confirm the first profile and use it for all selected customers.,Confirm the profile for each customer.,Use the default profile for all selected customers without confirmation.', Comment = 'Translation should contain comma separators between variants as ENU value does. No other commas should be there.';
-        ProfileSelectionVendorQst: Label 'Confirm the first profile and use it for all selected vendors.,Confirm the profile for each vendor.,Use the default profile for all selected vendors without confirmation.', Comment = 'Translation should contain comma separators between variants as ENU value does. No other commas should be there.';
+        ProfileSelectionQst: Label 'Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confirmation.', Comment = 'Translation should contain comma separators between variants as ENU value does. No other commas should be there.';
         CustomerProfileSelectionInstrTxt: Label 'Customers on the selected documents might use different document sending profiles. Choose one of the following options: ';
         VendorProfileSelectionInstrTxt: Label 'Vendors on the selected documents might use different document sending profiles. Choose one of the following options: ';
         InvoicesTxt: Label 'Invoices';
@@ -354,52 +353,33 @@
         SingleCustomerSelected: Boolean;
         ShowDialog: Boolean;
         IsHandled: Boolean;
-        Nos: Dictionary of [Code[20], Code[20]];
     begin
         IsHandled := false;
         OnBeforeSendCustomerRecords(ReportUsage, RecordVariant, DocName, CustomerNo, DocumentNo, CustomerFieldNo, DocumentFieldNo, IsHandled);
-
         if not IsHandled then begin
             SingleCustomerSelected := IsSingleRecordSelected(RecordVariant, CustomerNo, CustomerFieldNo);
 
             if not CheckShowProfileSelectionMethodDialog(SingleCustomerSelected, ProfileSelectionMethod, CustomerNo, true) then
                 exit;
 
-            if SingleCustomerSelected then begin
+            if SingleCustomerSelected or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault) then begin
                 ShowDialog := true;
                 OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend, SingleCustomerSelected, ShowDialog);
                 if DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog) then
                     DocumentSendingProfile.Send(ReportUsage, RecordVariant, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
             end else begin
-                ShowDialog := (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach);
-
-                if ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault then begin
-                    ShowDialog := true;
-                    OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend, SingleCustomerSelected, ShowDialog);
-                    DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog);
-                end;
-
+                ShowDialog := ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach;
                 RecRefSource.GetTable(RecordVariant);
-                GetDistinctCustomerVendor(RecRefSource, CustomerFieldNo, Nos);
-
-                foreach CustomerNo in Nos.Keys() do begin
-                    if ProfileSelectionMethod = ProfileSelectionMethod::UseDefault then begin
-                        ShowDialog := false;
-                        OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend, SingleCustomerSelected, ShowDialog);
-                        DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog);
-                    end;
-                    RecRefToSend := RecRefSource.Duplicate();
-                    RecRefToSend.Field(CustomerFieldNo).SetRange(CustomerNo);
-                    if RecRefToSend.FindSet() then begin
+                if RecRefSource.FindSet() then
+                    repeat
+                        RecRefToSend := RecRefSource.Duplicate();
+                        RecRefToSend.SetRecFilter();
+                        CustomerNo := RecRefToSend.Field(CustomerFieldNo).Value;
                         DocumentNo := RecRefToSend.Field(DocumentFieldNo).Value;
                         OnSendCustomerRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, CustomerNo, RecRefToSend, SingleCustomerSelected, ShowDialog);
-                        if ProfileSelectionMethod <> ProfileSelectionMethod::ConfirmPerEach then
-                            DocumentSendingProfile.Send(ReportUsage, RecRefToSend, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo)
-                        else
-                            if DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog) then
-                                DocumentSendingProfile.Send(ReportUsage, RecRefToSend, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
-                    end;
-                end;
+                        if DocumentSendingProfile.LookupProfile(CustomerNo, true, ShowDialog) then
+                            DocumentSendingProfile.Send(ReportUsage, RecRefToSend, DocumentNo, CustomerNo, DocName, CustomerFieldNo, DocumentFieldNo);
+                    until RecRefSource.Next() = 0;
             end;
         end;
 
@@ -415,7 +395,6 @@
         SingleVendorSelected: Boolean;
         ShowDialog: Boolean;
         Handled: Boolean;
-        Nos: Dictionary of [Code[20], Code[20]];
     begin
         OnBeforeSendVendorRecords(ReportUsage, RecordVariant, DocName, VendorNo, DocumentNo, VendorFieldNo, DocumentFieldNo, Handled);
         if Handled then
@@ -426,42 +405,24 @@
         if not CheckShowProfileSelectionMethodDialog(SingleVendorSelected, ProfileSelectionMethod, VendorNo, false) then
             exit;
 
-        if SingleVendorSelected then begin
+        if SingleVendorSelected or (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault) then begin
             ShowDialog := true;
             OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo, RecRef2, SingleVendorSelected, ShowDialog);
             if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog) then
                 DocumentSendingProfile.SendVendor(ReportUsage, RecordVariant, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
         end else begin
-            ShowDialog := (ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach);
-
-            if ProfileSelectionMethod = ProfileSelectionMethod::ConfirmDefault then begin
-                ShowDialog := true;
-                OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo, RecRef2, SingleVendorSelected, ShowDialog);
-                DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog);
-            end;
-
+            ShowDialog := ProfileSelectionMethod = ProfileSelectionMethod::ConfirmPerEach;
             RecRef.GetTable(RecordVariant);
-            GetDistinctCustomerVendor(RecRef, VendorFieldNo, Nos);
-
-            foreach VendorNo in Nos.Keys() do begin
-                if ProfileSelectionMethod = ProfileSelectionMethod::UseDefault then begin
-                    ShowDialog := false;
-                    OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo, RecRef2, SingleVendorSelected, ShowDialog);
-                    DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog);
-                end;
-
-                RecRef2 := RecRef.Duplicate();
-                RecRef2.Field(VendorFieldNo).Setrange(VendorNo);
-                if RecRef2.FindSet() then begin
+            if RecRef.FindSet() then
+                repeat
+                    RecRef2 := RecRef.Duplicate();
+                    RecRef2.SetRecFilter();
+                    VendorNo := RecRef2.Field(VendorFieldNo).Value;
                     DocumentNo := RecRef2.Field(DocumentFieldNo).Value;
                     OnSendVendorRecordsOnBeforeLookupProfile(ReportUsage, RecordVariant, VendorNo, RecRef2, SingleVendorSelected, ShowDialog);
-                    if ProfileSelectionMethod <> ProfileSelectionMethod::ConfirmPerEach then
-                        DocumentSendingProfile.SendVendor(ReportUsage, RecRef2, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo)
-                    else
-                        if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog) then
-                            DocumentSendingProfile.SendVendor(ReportUsage, RecRef2, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
-                end;
-            end;
+                    if DocumentSendingProfile.LookUpProfileVendor(VendorNo, true, ShowDialog) then
+                        DocumentSendingProfile.SendVendor(ReportUsage, RecRef2, DocumentNo, VendorNo, DocName, VendorFieldNo, DocumentFieldNo);
+                until RecRef.Next() = 0;
         end;
     end;
 
@@ -483,12 +444,16 @@
 
     procedure Send(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToCust: Code[20]; DocName: Text[150]; CustomerFieldNo: Integer; DocumentNoFieldNo: Integer)
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeSend(ReportUsage, RecordVariant, DocNo, ToCust, DocName, CustomerFieldNo, DocumentNoFieldNo, IsHandled);
         if IsHandled then
             exit;
+
+        if Rec."Combine Email Documents" then
+            FeatureTelemetry.LogUsage('0000II3', 'Document Sending Profile - Combine PDF', 'Combine');
 
         SendToVAN(RecordVariant);
         SendToPrinter("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, CustomerFieldNo);
@@ -501,12 +466,16 @@
 
     procedure SendVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToVendor: Code[20]; DocName: Text[150]; VendorNoFieldNo: Integer; DocumentNoFieldNo: Integer)
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeSendVendor(ReportUsage, RecordVariant, DocNo, ToVendor, DocName, VendorNoFieldNo, DocumentNoFieldNo, IsHandled);
         if IsHandled then
             exit;
+
+        if Rec."Combine Email Documents" then
+            FeatureTelemetry.LogUsage('0000II4', 'Document Sending Profile - Combine PDF', 'Combine');
 
         SendToVAN(RecordVariant);
         SendToPrinterVendor("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, VendorNoFieldNo);
@@ -596,9 +565,9 @@
                 DocumentNo := GetMultipleDocumentsNo(RecRef, DocumentNoFieldNo);
                 DocName := GetMultipleDocumentsName(DocName, ReportUsage, RecRef);
                 if IsCustomer then
-                    SendToEMail(ReportUsage, RecToSendCombine, DocumentNo, DocName, CustomerVendorNo, DocumentNoFieldNo)
+                    SendToEMail(ReportUsage, RecToSendCombine, DocumentNo, DocName, CustomerVendorNo)
                 else
-                    SendToEMailVendor(ReportUsage, RecToSendCombine, DocumentNo, DocName, CustomerVendorNo, DocumentNoFieldNo);
+                    SendToEMailVendor(ReportUsage, RecToSendCombine, DocumentNo, DocName, CustomerVendorNo);
             end;
         end
         else
@@ -610,9 +579,9 @@
                     DocumentNo := RecToSend.Field(DocumentNoFieldNo).Value;
                     DocName := ReportDistributionMgt.GetFullDocumentTypeText(RecToSend);
                     if IsCustomer then
-                        SendToEMail(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo, DocumentNoFieldNo)
+                        SendToEMail(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo)
                     else
-                        SendToEMailVendor(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo, DocumentNoFieldNo);
+                        SendToEMailVendor(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo);
                 until RecRef.Next() = 0;
     end;
 
@@ -708,7 +677,7 @@
         ReportSelections.PrintWithDialogForVend(ReportUsage, RecordVariant, ShowRequestForm, VendorNoFieldNo);
     end;
 
-    local procedure SendToEMail(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToCust: Code[20]; DocNoFieldNo: Integer)
+    local procedure SendToEMail(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToCust: Code[20])
     var
         ReportSelections: Record "Report Selections";
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -735,7 +704,7 @@
 
         case "E-Mail Attachment" of
             "E-Mail Attachment"::PDF:
-                ReportSelections.SendEmailToCust(ReportUsage.AsInteger(), RecordVariant, DocNo, DocName, ShowDialog, ToCust, DocNoFieldNo);
+                ReportSelections.SendEmailToCust(ReportUsage.AsInteger(), RecordVariant, DocNo, DocName, ShowDialog, ToCust);
             "E-Mail Attachment"::"Electronic Document":
                 begin
                     ReportSelections.GetEmailBodyForCust(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToCust, SendToEmailAddress);
@@ -772,7 +741,7 @@
         OnAfterSendToEMail(Rec, ReportUsage, RecordVariant, DocNo, DocName, ToCust);
     end;
 
-    local procedure SendToEmailVendor(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToVendor: Code[20]; VendorNoFieldNo: Integer)
+    local procedure SendToEmailVendor(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ToVendor: Code[20])
     var
         ReportSelections: Record "Report Selections";
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -798,7 +767,7 @@
 
         case "E-Mail Attachment" of
             "E-Mail Attachment"::PDF:
-                ReportSelections.SendEmailToVendor(ReportUsage.AsInteger(), RecordVariant, DocNo, DocName, ShowDialog, ToVendor, VendorNoFieldNo);
+                ReportSelections.SendEmailToVendor(ReportUsage.AsInteger(), RecordVariant, DocNo, DocName, ShowDialog, ToVendor);
             "E-Mail Attachment"::"Electronic Document":
                 begin
                     ReportSelections.GetEmailBodyForVend(ServerEmailBodyFilePath, ReportUsage, RecordVariant, ToVendor, SendToEmailAddress);
@@ -923,14 +892,14 @@
 
     procedure ProfileSelectionMethodDialog(var ProfileSelectionMethod: Option ConfirmDefault,ConfirmPerEach,UseDefault; IsCustomer: Boolean): Boolean
     var
-        Selection: Integer;
+        ProfileSelectionInstruction: Text;
     begin
         if IsCustomer then
-            Selection := StrMenu(ProfileSelectionCustomerQst, 3, CustomerProfileSelectionInstrTxt)
+            ProfileSelectionInstruction := CustomerProfileSelectionInstrTxt
         else
-            Selection := StrMenu(ProfileSelectionVendorQst, 3, VendorProfileSelectionInstrTxt);
+            ProfileSelectionInstruction := VendorProfileSelectionInstrTxt;
 
-        case Selection of
+        case StrMenu(ProfileSelectionQst, 3, ProfileSelectionInstruction) of
             0:
                 exit(false);
             1:
