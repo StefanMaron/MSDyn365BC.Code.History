@@ -1,3 +1,28 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.Consolidation;
+using Microsoft.Foundation.Comment;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Customer;
+using Microsoft.Finance.Dimension;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Service.Contract;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Inventory.Item;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Calculation;
+
 permissionset 4123 "General Ledger Accounts - View"
 {
     Access = Public;

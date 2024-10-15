@@ -1,3 +1,8 @@
+namespace System.Device;
+
+using System;
+using System.Environment;
+
 codeunit 9655 "Init. Server Printer Table"
 {
     TableNo = Printer;

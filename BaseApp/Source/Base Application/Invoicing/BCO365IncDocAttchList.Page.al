@@ -58,7 +58,7 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
             {
                 ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'View File';
-                Enabled = "Line No." <> 0;
+                Enabled = Rec."Line No." <> 0;
                 Image = Picture;
                 Promoted = true;
                 PromotedCategory = Category4;
@@ -76,7 +76,7 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
             {
                 ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Delete';
-                Enabled = "Line No." <> 0;
+                Enabled = Rec."Line No." <> 0;
                 Image = Delete;
                 Promoted = true;
                 PromotedCategory = Category4;
@@ -85,7 +85,7 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
 
                 trigger OnAction()
                 begin
-                    Delete();
+                    Rec.Delete();
                     CurrPage.Update();
                 end;
             }

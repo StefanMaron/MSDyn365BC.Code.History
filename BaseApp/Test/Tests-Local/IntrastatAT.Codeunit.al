@@ -1,9 +1,15 @@
+#if not CLEAN22
 codeunit 144061 "Intrastat AT"
 {
     // // [FEATURE] [Intrastat]
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -71,161 +77,6 @@ codeunit 144061 "Intrastat AT"
 
         // Verify: Verify Intrastat Journal gets the right entry.
         VerifyIntrastatJnlLineExists(IntrastatJnlBatch, Item."No.");
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatMakeDiskTaxAuthReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure QuantityOfSupplementaryUnitsInIntrastatDeclaration()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        Item: Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        FilenamePurchase: Text;
-        FilenameSales: Text;
-        Filepath: Text;
-        SupplementaryUnitsCount: Integer;
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO 376253] Intrastat file should contain quatity of Supplementary Units in a section called "CNT+19"
-
-        Initialize();
-
-        // [GIVEN] Item with Tarriff No having "Supplementary Units" = TRUE
-        LibraryInventory.CreateItemWithTariffNo(Item, CreateTariffNo(true));
-
-        // [GIVEN] Posted Purchase Invoice for 9 created Items
-        SupplementaryUnitsCount := LibraryRandom.RandInt(9);
-        CreateAndPostPurchDoc(
-          PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, Item."No.", SupplementaryUnitsCount);
-
-        // Because of report's design there should be a shipment to call it without file saving UI
-        CreateAndPostPurchDoc(
-          PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo, Item."No.", LibraryRandom.RandInt(9));
-
-        // [GIVEN] Suggested Intrastat Journal Line for Posted Invoice
-        PrepareIntrastatBatch(IntrastatJnlBatch);
-        RemoveExtraLinesFromIntrastatJnlBatch(IntrastatJnlBatch.Name, Item."Tariff No.");
-        GetIntrastatFilenames(Filepath, FilenameSales, FilenamePurchase, IntrastatJnlBatch);
-
-        // [WHEN] Run "Make Diskette"
-        RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, Filepath);
-
-        // [THEN] "CNT+19" section of file contains 'CNT+19:0000000000009'
-        VerifyCNT19Section(FilenamePurchase, Format(SupplementaryUnitsCount));
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatMakeDiskTaxAuthReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure QuantityOfNonSupplementaryUnitsInIntrastatDeclaration()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Item: Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        FilenamePurchase: Text;
-        FilenameSales: Text;
-        Filepath: Text;
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO 376253] Intrastat file should not contain quatity of non Supplementary Units in a section called "CNT+19"
-
-        Initialize();
-
-        // [GIVEN] Item with Tarriff No having "Supplementary Units" = FALSE
-        LibraryInventory.CreateItemWithTariffNo(Item, CreateTariffNo(false));
-
-        // [GIVEN] Posted Purchase Invoice for 9 created Items
-        CreateAndPostPurchDoc(
-          PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, Item."No.", LibraryRandom.RandInt(9));
-
-        // Because of report's design there should be a shipment to call it without file saving UI
-        CreateAndPostPurchDoc(
-          PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo, Item."No.", LibraryRandom.RandInt(9));
-
-        // [GIVEN] Intrastat Journal Line containing Invoice's data
-        PrepareIntrastatBatch(IntrastatJnlBatch);
-        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.SetFilter("Tariff No.", '<%1', Item."Tariff No.");
-        if not IntrastatJnlLine.IsEmpty() then
-            IntrastatJnlLine.DeleteAll();
-        Commit();
-        GetIntrastatFilenames(Filepath, FilenameSales, FilenamePurchase, IntrastatJnlBatch);
-
-        // [WHEN] Run "Make Diskette"
-        RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, Filepath);
-
-        // [THEN] "CNT+19" section of file contains 'CNT+19:0000000000000'
-        VerifyCNT19Section(FilenamePurchase, Format(0));
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatMakeDiskTaxAuthReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure QuantityOfSupplementaryUnitsInMixedIntrastatDeclaration()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ItemNoSupp: Record Item;
-        ItemSupp: Record Item;
-        PurchaseHeader: Record "Purchase Header";
-        FilenamePurchase: Text;
-        FilenameSales: Text;
-        Filepath: Text;
-        QtyOfSupplementaryItems: array[2] of Integer;
-    begin
-        // [FEATURE] [Supplementary Units] [Tariff No.]
-        // [SCENARIO 376862] Intrastat file must contain quantity of only Supplementary Units in a section called "CNT+19"
-
-        Initialize();
-
-        // [GIVEN] Item "X" with Tarriff No having "Supplementary Units" = TRUE
-        LibraryInventory.CreateItemWithTariffNo(ItemSupp, CreateTariffNo(true));
-
-        // [GIVEN] Item "Y" with Tarriff No having "Supplementary Units" = FALSE
-        LibraryInventory.CreateItemWithTariffNo(ItemNoSupp, CreateTariffNo(false));
-
-        // [GIVEN] Posted Purchase Invoice for 4 created Items "X"
-        QtyOfSupplementaryItems[1] := LibraryRandom.RandInt(4);
-        CreateAndPostPurchDoc(
-          PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, ItemSupp."No.", QtyOfSupplementaryItems[1]);
-
-        // [GIVEN] Posted Purchase Invoice for 3 created Items "X"
-        QtyOfSupplementaryItems[2] := LibraryRandom.RandInt(4);
-        CreateAndPostPurchDoc(
-          PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, ItemSupp."No.", QtyOfSupplementaryItems[2]);
-
-        // [GIVEN] Posted Purchase Invoice for 13 created Items "Y"
-        CreateAndPostPurchDoc(
-          PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, ItemNoSupp."No.", LibraryRandom.RandIntInRange(10, 20));
-
-        // Because of report's design there should be a shipment to call it without file saving UI
-        CreateAndPostPurchDoc(
-          PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo, ItemSupp."No.", LibraryRandom.RandInt(9));
-
-        // [GIVEN] Intrastat Journal Line containing Invoice's data
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
-        Commit();
-        RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
-
-        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.SetFilter("Tariff No.", '<>%1&<>%2', ItemSupp."Tariff No.", ItemNoSupp."Tariff No.");
-        if not IntrastatJnlLine.IsEmpty() then
-            IntrastatJnlLine.DeleteAll();
-
-        LibraryERM.SetMandatoryFieldsOnIntrastatJnlLines(
-          IntrastatJnlLine, IntrastatJnlBatch, FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType,
-          FindOrCreateIntrastatTransactionSpecification, LibraryRandom.RandDecInRange(1, 10, 2));
-        Commit();
-
-        GetIntrastatFilenames(Filepath, FilenameSales, FilenamePurchase, IntrastatJnlBatch);
-
-        // [WHEN] Run "Make Diskette"
-        RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, Filepath);
-
-        // [THEN] "CNT+19" section of file contains 'CNT+19:0000000000007'
-        VerifyCNT19Section(FilenamePurchase, Format(QtyOfSupplementaryItems[1] + QtyOfSupplementaryItems[2]));
     end;
 
     [Test]
@@ -725,7 +576,6 @@ codeunit 144061 "Intrastat AT"
         FileInStream: InStream;
         FileOutStream: OutStream;
         FilesList: List of [Text];
-        FileLength: Integer;
         FileName: Text;
     begin
         ZipFileTempBlob.CreateInStream(FileInStream);
@@ -733,7 +583,7 @@ codeunit 144061 "Intrastat AT"
         DataCompression.GetEntryList(FilesList);
         FilesList.Get(1, FileName);
         FileBlob.CreateOutStream(FileOutStream);
-        DataCompression.ExtractEntry(FileName, FileOutStream, FileLength);
+        DataCompression.ExtractEntry(FileName, FileOutStream);
         DataCompression.CloseZipArchive();
     end;
 
@@ -937,4 +787,4 @@ codeunit 144061 "Intrastat AT"
         IntrastatChecklistReqPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
-
+#endif

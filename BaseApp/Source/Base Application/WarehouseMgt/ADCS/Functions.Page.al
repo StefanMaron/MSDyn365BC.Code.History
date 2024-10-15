@@ -1,3 +1,5 @@
+namespace Microsoft.Warehouse.ADCS;
+
 page 7704 Functions
 {
     ApplicationArea = ADCS;
@@ -14,7 +16,7 @@ page 7704 Functions
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies the code that represents the function used on the handheld device.';
@@ -24,7 +26,7 @@ page 7704 Functions
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies a short description of what the function is or how it functions.';
                 }
-                field(KeyDef; KeyDef)
+                field(KeyDef; Rec.KeyDef)
                 {
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies the key that will trigger the function.';

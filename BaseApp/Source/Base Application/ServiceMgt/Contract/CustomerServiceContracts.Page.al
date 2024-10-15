@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Contract;
+
 page 6065 "Customer Service Contracts"
 {
     Caption = 'Customer Service Contracts';
@@ -5,7 +7,7 @@ page 6065 "Customer Service Contracts"
     Editable = false;
     PageType = List;
     SourceTable = "Service Contract Header";
-    SourceTableView = WHERE("Contract Type" = FILTER(Contract));
+    SourceTableView = where("Contract Type" = filter(Contract));
 
     layout
     {
@@ -92,8 +94,8 @@ page 6065 "Customer Service Contracts"
                     Caption = '&Card';
                     Image = EditLines;
                     RunObject = Page "Service Contract";
-                    RunPageLink = "Contract Type" = FIELD("Contract Type"),
-                                  "Contract No." = FIELD("Contract No.");
+                    RunPageLink = "Contract Type" = field("Contract Type"),
+                                  "Contract No." = field("Contract No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information for the service contract.';
                 }

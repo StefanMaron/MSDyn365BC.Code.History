@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Graph;
+
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.API.Upgrade;
+
 codeunit 5479 "Graph Mgt - Customer Payments"
 {
 
@@ -56,9 +65,6 @@ codeunit 5479 "Graph Mgt - Customer Payments"
             if FindSet() then begin
                 repeat
                     UpdateCustomerID();
-#if not CLEAN20                    
-                    UpdateGraphContactId();
-#endif
                     UpdateAppliesToInvoiceID();
                     UpdateJournalBatchID();
                     Modify(false);

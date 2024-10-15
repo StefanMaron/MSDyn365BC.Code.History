@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.Finance.Analysis;
+
 table 333 "Column Layout Name"
 {
     Caption = 'Column Layout Name';

@@ -2305,6 +2305,7 @@ codeunit 139183 "CRM Integration Mapping"
 
         IntegrationFieldMapping.Init();
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+        IntegrationFieldMapping.SetRange(Status, IntegrationFieldMapping.Status::Enabled);
         Assert.RecordCount(IntegrationFieldMapping, FieldCount);
 
         // Insert one row that should be removed by ResetConfiguration

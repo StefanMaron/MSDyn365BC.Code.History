@@ -1,7 +1,13 @@
+#if not CLEAN22
 codeunit 142081 "Test Intrastat DACH"
 {
     // // [FEATURE] [Intrastat]
     // Test Cases for Intrastat Journal.
+    ObsoleteState = Pending;
+#pragma warning disable AS0072    
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072    
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     Subtype = Test;
     TestPermissions = Disabled;
@@ -211,4 +217,4 @@ codeunit 142081 "Test Intrastat DACH"
         end;
     end;
 }
-
+#endif

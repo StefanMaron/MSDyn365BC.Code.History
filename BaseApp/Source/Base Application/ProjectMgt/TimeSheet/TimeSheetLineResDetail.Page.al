@@ -1,3 +1,9 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
 page 965 "Time Sheet Line Res. Detail"
 {
     Caption = 'Time Sheet Line Res. Detail';
@@ -34,8 +40,8 @@ page 965 "Time Sheet Line Res. Detail"
 
     trigger OnAfterGetCurrRecord()
     begin
-        AllowEdit := GetAllowEdit(0, ManagerRole);
-        WorkTypeCodeAllowEdit := GetAllowEdit(FieldNo("Work Type Code"), ManagerRole);
+        AllowEdit := Rec.GetAllowEdit(0, ManagerRole);
+        WorkTypeCodeAllowEdit := Rec.GetAllowEdit(Rec.FieldNo("Work Type Code"), ManagerRole);
     end;
 
     protected var
@@ -46,7 +52,7 @@ page 965 "Time Sheet Line Res. Detail"
     procedure SetParameters(TimeSheetLine: Record "Time Sheet Line"; NewManagerRole: Boolean)
     begin
         Rec := TimeSheetLine;
-        Insert();
+        Rec.Insert();
         ManagerRole := NewManagerRole;
     end;
 }

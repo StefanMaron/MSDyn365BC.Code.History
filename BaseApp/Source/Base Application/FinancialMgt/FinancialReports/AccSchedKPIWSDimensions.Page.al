@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using System.Environment;
+
 page 198 "Acc. Sched. KPI WS Dimensions"
 {
     Caption = 'Account Schedule KPI WS Dimensions';
@@ -24,7 +28,7 @@ page 198 "Acc. Sched. KPI WS Dimensions"
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = false;
                 }
-                field(Date; Date)
+                field(Date; Rec.Date)
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the date on which the KPI figures are calculated.';
@@ -114,17 +118,17 @@ page 198 "Acc. Sched. KPI WS Dimensions"
 
     trigger OnAfterGetRecord()
     begin
-        Number := "No.";
+        Number := Rec."No.";
     end;
 
     trigger OnOpenPage()
     var
         ViewTxt: Text;
     begin
-        ViewTxt := GetView();
+        ViewTxt := Rec.GetView();
         Initialize();
         PrecalculateData();
-        SetView(ViewTxt);
+        Rec.SetView(ViewTxt);
     end;
 
     var
@@ -243,8 +247,8 @@ page 198 "Acc. Sched. KPI WS Dimensions"
             end;
             InsertAccSchedulePeriod(TempAccSchedKPIBuffer, ForecastFromBudget);
         end;
-        Reset();
-        FindFirst();
+        Rec.Reset();
+        Rec.FindFirst();
     end;
 
     local procedure InsertAccSchedulePeriod(var TempAccSchedKPIBuffer: Record "Acc. Sched. KPI Buffer" temporary; ForecastFromBudget: Boolean)
@@ -269,9 +273,9 @@ page 198 "Acc. Sched. KPI WS Dimensions"
     var
         TempAccScheduleLine2: Record "Acc. Schedule Line" temporary;
     begin
-        Init();
-        "No." += 1;
-        TransferFields(AccSchedKPIBuffer, false);
+        Rec.Init();
+        Rec."No." += 1;
+        Rec.TransferFields(AccSchedKPIBuffer, false);
 
         with TempAccScheduleLine2 do begin
             Copy(TempAccScheduleLine, true);
@@ -280,31 +284,31 @@ page 198 "Acc. Sched. KPI WS Dimensions"
             FindFirst();
         end;
 
-        "Net Change Actual" :=
-          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, "Net Change Actual");
-        "Balance at Date Actual" :=
-          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, "Balance at Date Actual");
-        "Net Change Budget" :=
-          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, "Net Change Budget");
-        "Balance at Date Budget" :=
-          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, "Balance at Date Budget");
-        "Net Change Actual Last Year" :=
-          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, "Net Change Actual Last Year");
-        "Balance at Date Act. Last Year" :=
-          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, "Balance at Date Act. Last Year");
-        "Net Change Budget Last Year" :=
-          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, "Net Change Budget Last Year");
-        "Balance at Date Bud. Last Year" :=
-          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, "Balance at Date Bud. Last Year");
+        Rec."Net Change Actual" :=
+          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, Rec."Net Change Actual");
+        Rec."Balance at Date Actual" :=
+          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, Rec."Balance at Date Actual");
+        Rec."Net Change Budget" :=
+          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, Rec."Net Change Budget");
+        Rec."Balance at Date Budget" :=
+          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, Rec."Balance at Date Budget");
+        Rec."Net Change Actual Last Year" :=
+          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, Rec."Net Change Actual Last Year");
+        Rec."Balance at Date Act. Last Year" :=
+          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, Rec."Balance at Date Act. Last Year");
+        Rec."Net Change Budget Last Year" :=
+          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, Rec."Net Change Budget Last Year");
+        Rec."Balance at Date Bud. Last Year" :=
+          AccSchedKPIDimensions.PostProcessAmount(TempAccScheduleLine2, Rec."Balance at Date Bud. Last Year");
 
         if ForecastFromBudget then begin
-            "Net Change Forecast" := "Net Change Budget";
-            "Balance at Date Forecast" := "Balance at Date Budget";
+            Rec."Net Change Forecast" := Rec."Net Change Budget";
+            Rec."Balance at Date Forecast" := Rec."Balance at Date Budget";
         end else begin
-            "Net Change Forecast" := "Net Change Actual";
-            "Balance at Date Forecast" := "Balance at Date Actual";
+            Rec."Net Change Forecast" := Rec."Net Change Actual";
+            Rec."Balance at Date Forecast" := Rec."Balance at Date Actual";
         end;
-        Insert();
+        Rec.Insert();
     end;
 }
 

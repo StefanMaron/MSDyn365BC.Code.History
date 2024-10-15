@@ -729,7 +729,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('AccNo', GenJournalLine."Account No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFound, 'AccNo', GenJournalLine."Account No."));
+            Error(RowNotFound, 'AccNo', GenJournalLine."Account No.");
     end;
 
     local procedure PostPurchaseInvoiceOnDate(var PurchaseHeader: Record "Purchase Header"; NewPostingDate: Date)
@@ -779,7 +779,7 @@ codeunit 142062 "ERM Reports DACH"
         BankAccountPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFound, 'Bank_Posting_GroupsCaption', 'Bank Posting Groups'));
+                Error(RowNotFound, 'Bank_Posting_GroupsCaption', 'Bank Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('Bank_Account_Posting_Group_Code', BankAccountPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'Bank_Account_Posting_Group__G_L_Bank_Account_No__', BankAccountPostingGroup."G/L Account No.");
@@ -794,7 +794,7 @@ codeunit 142062 "ERM Reports DACH"
         CustomerPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFound, 'Customer_Posting_GroupsCaption', 'Customer Posting Groups'));
+                Error(RowNotFound, 'Customer_Posting_GroupsCaption', 'Customer Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('Customer_Posting_Group_Code', CustomerPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'Customer_Posting_Group__Receivables_Account_', CustomerPostingGroup."Receivables Account");
@@ -819,7 +819,7 @@ codeunit 142062 "ERM Reports DACH"
         GenBusinessPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFound, 'Gen__Business_Posting_GroupsCaption', 'Gen. Business Posting Groups'));
+                Error(RowNotFound, 'Gen__Business_Posting_GroupsCaption', 'Gen. Business Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('Gen__Business_Posting_Group_Code', GenBusinessPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'Gen__Business_Posting_Group_Description', GenBusinessPostingGroup.Description);
@@ -838,7 +838,7 @@ codeunit 142062 "ERM Reports DACH"
         GeneralPostingSetup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFound, 'Gen__Posting_SetupCaption', 'Gen. Posting Setup'));
+                Error(RowNotFound, 'Gen__Posting_SetupCaption', 'Gen. Posting Setup');
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'General_Posting_Setup__Gen__Bus__Posting_Group_', GeneralPostingSetup."Gen. Bus. Posting Group");
             LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -876,7 +876,7 @@ codeunit 142062 "ERM Reports DACH"
         GenProductPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFound, 'Gen__Product_Posting_GroupsCaption', 'Gen. Product Posting Groups'));
+                Error(RowNotFound, 'Gen__Product_Posting_GroupsCaption', 'Gen. Product Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('Gen__Product_Posting_Group_Code', GenProductPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals('Gen__Product_Posting_Group_Description', GenProductPostingGroup.Description);
             LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -896,7 +896,7 @@ codeunit 142062 "ERM Reports DACH"
         GeneralLedgerSetup.Get();
         LibraryReportDataset.SetRange('COMPANYNAME', CompanyInformation.Name);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFound, 'COMPANYNAME', CompanyInformation.Name));
+            Error(RowNotFound, 'COMPANYNAME', CompanyInformation.Name);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'General_Ledger_Setup__Appln__Rounding_Precision_', GeneralLedgerSetup."Appln. Rounding Precision");
         LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -939,7 +939,7 @@ codeunit 142062 "ERM Reports DACH"
           'General_Ledger_Setup__Global_Dimension_2_Code_', GeneralLedgerSetup."Global Dimension 2 Code");
 
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFound, 'COMPANYNAME', CompanyInformation.Name));
+            Error(RowNotFound, 'COMPANYNAME', CompanyInformation.Name);
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'Company_Information__Ship_to_Post_Code_', CompanyInformation."Ship-to Post Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('Company_Information__Post_Code_', CompanyInformation."Post Code");
@@ -968,7 +968,7 @@ codeunit 142062 "ERM Reports DACH"
         InventoryPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFound, 'Inventory_Posting_GroupsCaption', 'Inventory Posting Groups'));
+                Error(RowNotFound, 'Inventory_Posting_GroupsCaption', 'Inventory Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('Inventory_Posting_Group_Code', InventoryPostingGroup.Code);
         until InventoryPostingGroup.Next() = 0;
     end;
@@ -998,7 +998,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_Item', ItemJournalLine."Item No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFound, 'No_Item', ItemJournalLine."Item No."));
+            Error(RowNotFound, 'No_Item', ItemJournalLine."Item No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('InvntPostingGroup_Item', ItemJournalLine."Inventory Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals('ABC', 'A');  // Value required for test.
         LibraryReportDataset.AssertCurrentRowValueEquals('Pct', 100);  // Value required for test.
@@ -1009,7 +1009,7 @@ codeunit 142062 "ERM Reports DACH"
     begin
         LibraryReportDataset.SetRange('ItemNo', ItemNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFound, 'ItemNo', ItemNo));
+            Error(RowNotFound, 'ItemNo', ItemNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemNetChange', Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('InvoicedQuantity', InvoicedQuantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('CostAmountTotal', ExpectedAmount + ActualAmount);
@@ -1023,7 +1023,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('G_L_Account___No__', GenJournalLine."Account No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFound, 'G_L_Account___No__', GenJournalLine."Account No."));
+            Error(RowNotFound, 'G_L_Account___No__', GenJournalLine."Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('ProvBalance', -GenJournalLine.Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals('ProvAmt', GenJournalLine.Amount);
     end;
@@ -1032,7 +1032,7 @@ codeunit 142062 "ERM Reports DACH"
     begin
         LibraryReportDataset.SetRange('PostingGroupCode', InventoryPostingGroupCode);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFound, 'PostingGroupCode', InventoryPostingGroupCode));
+            Error(RowNotFound, 'PostingGroupCode', InventoryPostingGroupCode);
         LibraryReportDataset.AssertCurrentRowValueEquals('PostingGroupInvValuationActual', ActualAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('PostingGroupInvValuationExp', ExpectedAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('PostingGroupInvPostedtoGL', ActualAmount);
@@ -1047,7 +1047,7 @@ codeunit 142062 "ERM Reports DACH"
         SourceCode.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFound, 'SourceCaption', 'Source'));
+                Error(RowNotFound, 'SourceCaption', 'Source');
             LibraryReportDataset.AssertCurrentRowValueEquals('Source_Code_Code', SourceCode.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals('Source_Code_Description', SourceCode.Description);
         until SourceCode.Next() = 0;
@@ -1060,7 +1060,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.SetRange('Source_SetupCaption', 'Source Setup');
         SourceCodeSetup.Get();
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFound, 'Source_SetupCaption', 'Source Setup'));
+            Error(RowNotFound, 'Source_SetupCaption', 'Source Setup');
         LibraryReportDataset.AssertCurrentRowValueEquals('Source_Code_Setup__General_Journal_', SourceCodeSetup."General Journal");
         LibraryReportDataset.AssertCurrentRowValueEquals('Source_Code_Setup_Sales', SourceCodeSetup.Sales);
         LibraryReportDataset.AssertCurrentRowValueEquals('Source_Code_Setup_Purchases', SourceCodeSetup.Purchases);
@@ -1081,7 +1081,7 @@ codeunit 142062 "ERM Reports DACH"
         VATBusinessPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFound, 'VAT_Posting_GroupsCaption', 'VAT Posting Groups'));
+                Error(RowNotFound, 'VAT_Posting_GroupsCaption', 'VAT Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('VAT_Business_Posting_Group_Code', VATBusinessPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals('VAT_Business_Posting_Group_Description', VATBusinessPostingGroup.Description);
         until VATBusinessPostingGroup.Next() = 0;
@@ -1095,7 +1095,7 @@ codeunit 142062 "ERM Reports DACH"
         VATProductPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFound, 'VAT_Product_Posting_GroupsCaption', 'VAT Product Posting Groups'));
+                Error(RowNotFound, 'VAT_Product_Posting_GroupsCaption', 'VAT Product Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('VAT_Product_Posting_Group_Code', VATProductPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals('VAT_Product_Posting_Group_Description', VATProductPostingGroup.Description);
         until VATProductPostingGroup.Next() = 0;
@@ -1109,7 +1109,7 @@ codeunit 142062 "ERM Reports DACH"
         VATPostingSetup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFound, 'VAT_SetupCaption', 'VAT Setup'));
+                Error(RowNotFound, 'VAT_SetupCaption', 'VAT Setup');
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'VAT_Posting_Setup__VAT_Bus__Posting_Group_', VATPostingSetup."VAT Bus. Posting Group");
             LibraryReportDataset.AssertCurrentRowValueEquals(
@@ -1162,7 +1162,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('AccNo', GenJournalLine."Account No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFound, 'AccNo', GenJournalLine."Account No."));
+            Error(RowNotFound, 'AccNo', GenJournalLine."Account No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('TempVendorLedgerEntry__Document_No__', GenJournalLine."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('PaymentLCY', -GenJournalLine.Amount);
     end;
@@ -1189,7 +1189,7 @@ codeunit 142062 "ERM Reports DACH"
         VendorPostingGroup.FindSet();
         repeat
             if not LibraryReportDataset.GetNextRow then
-                Error(StrSubstNo(RowNotFound, 'Vendor_Posting_GroupsCaption', 'Vendor Posting Groups'));
+                Error(RowNotFound, 'Vendor_Posting_GroupsCaption', 'Vendor Posting Groups');
             LibraryReportDataset.AssertCurrentRowValueEquals('Vendor_Posting_Group_Code', VendorPostingGroup.Code);
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'Vendor_Posting_Group__Payables_Account_', VendorPostingGroup."Payables Account");

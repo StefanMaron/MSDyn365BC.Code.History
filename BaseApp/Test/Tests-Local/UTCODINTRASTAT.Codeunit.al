@@ -1,7 +1,13 @@
+#if not CLEAN22
 codeunit 142036 "UT COD INTRASTAT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
 
     trigger OnRun()
     begin
@@ -200,4 +206,4 @@ codeunit 142036 "UT COD INTRASTAT"
     begin
     end;
 }
-
+#endif

@@ -2328,9 +2328,6 @@ codeunit 142006 "Export Business Data"
         AddField(DataExportRecField, CompanyInformation.FieldNo("Ship-to Address"));
         AddField(DataExportRecField, CompanyInformation.FieldNo("Ship-to Address 2"));
         AddField(DataExportRecField, CompanyInformation.FieldNo("Ship-to Contact"));
-#if not CLEAN20
-        AddField(DataExportRecField, CompanyInformation.FieldNo("IC Inbox Details"));
-#endif
         AddField(DataExportRecField, CompanyInformation.FieldNo("Custom System Indicator Text"));
         AddField(DataExportRecField, CompanyInformation.FieldNo("Tax Office Name"));
         AddField(DataExportRecField, CompanyInformation.FieldNo("Tax Office Name 2"));
@@ -2701,7 +2698,6 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         NoOfLinesInFile: Integer;
         ActualEntryNo: Integer;
         NoOfLinesExpected: Integer;
@@ -2710,7 +2706,7 @@ codeunit 142006 "Export Business Data"
         TempEntryNo.FindSet();
         NoOfLinesExpected := TempEntryNo.Count();
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, ExportedFileName, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ZipFilePath, ExportedFileName, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream);
         NoOfLinesInFile := 0;
         while not ExtractedFileInStream.EOS do begin
@@ -2742,12 +2738,11 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         DataLine: Text;
         ExpectedSubstring: Text;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ExportPath, IndexFileTxt, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ExportPath, IndexFileTxt, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream);
 
         ExtractedFileInStream.ReadText(DataLine);
@@ -2761,13 +2756,12 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         ActualCount: Integer;
         XmlText: Text;
         DataLine: Text;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, IndexFileTxt, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ZipFilePath, IndexFileTxt, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream, TEXTENCODING::UTF8);
         while NOT ExtractedFileInStream.EOS do begin
             ExtractedFileInStream.ReadText(DataLine);
@@ -2783,12 +2777,11 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         XmlText: Text;
         DataLine: Text;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, IndexFileTxt, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ZipFilePath, IndexFileTxt, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream, TEXTENCODING::UTF8);
         while not ExtractedFileInStream.EOS do begin
             ExtractedFileInStream.READTEXT(DataLine);
@@ -2805,12 +2798,11 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         DataLine: Text;
         ActualAmount: Decimal;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream);
         ExtractedFileInStream.ReadText(DataLine);
         while StrPos(DataLine, ';') > 0 do
@@ -2997,11 +2989,10 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         DataLine: Text;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, ExportedFileName, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ZipFilePath, ExportedFileName, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream);
         while not ExtractedFileInStream.EOS do begin
             ExtractedFileInStream.ReadText(DataLine);
@@ -3018,11 +3009,10 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         DataLine: Text;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, ExportedFileName, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ZipFilePath, ExportedFileName, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream);
         while not ExtractedFileInStream.EOS do begin
             ExtractedFileInStream.ReadText(DataLine);
@@ -3040,11 +3030,10 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         DataLine: Text;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, ExportedFileName, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ZipFilePath, ExportedFileName, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream);
         while not ExtractedFileInStream.EOS do begin
             ExtractedFileInStream.ReadText(DataLine);
@@ -3075,9 +3064,6 @@ codeunit 142006 "Export Business Data"
             "Ship-to Address" := CompanyInformation."Ship-to Address";
             "Ship-to Address 2" := CompanyInformation."Ship-to Address 2";
             "Ship-to Contact" := CompanyInformation."Ship-to Contact";
-#if not CLEAN20
-            "IC Inbox Details" := CompanyInformation."IC Inbox Details";
-#endif
             "Custom System Indicator Text" := CompanyInformation."Custom System Indicator Text";
             "Tax Office Name" := CompanyInformation."Tax Office Name";
             "Tax Office Name 2" := CompanyInformation."Tax Office Name 2";
@@ -3122,9 +3108,9 @@ codeunit 142006 "Export Business Data"
         FieldRef := RecRef.Field(FieldNo);
         RecRef.FindSet();
         repeat
-            Customer.Get(RecRef.Field(1));
+            Customer.Get(RecRef.Field(1).Value());
             Assert.AreEqual(
-              CalcNetChange(Customer), FieldRef.Value, FlowFilterRecExportErr)
+              CalcNetChange(Customer), FieldRef.Value(), FlowFilterRecExportErr)
         until RecRef.Next() = 0;
     end;
 
@@ -3163,11 +3149,10 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         DataLine: Text;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ExportPath, ExportedFileName, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ExportPath, ExportedFileName, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream);
         ExtractedFileInStream.ReadText(DataLine);
         Assert.AreEqual('', DataLine, StrSubstNo(EmptyFileErr, ExportedFileName));
@@ -3213,13 +3198,12 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         DataLine: Text;
         ExpectedSubStr: Text;
         i: Integer;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(FileName, LogFileTxt, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(FileName, LogFileTxt, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream);
 
         for i := 1 to 3 + TableLineNo do
@@ -3235,10 +3219,9 @@ codeunit 142006 "Export Business Data"
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
         DataLine: Text;
-        DummyFileLength: Integer;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream);
         ExtractedFileInStream.ReadText(DataLine);
         Assert.IsTrue(StrLen(DataLine) > 1024, ValueErr);
@@ -3249,11 +3232,10 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         DataLine: Text;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(FileName, LogFileTxt, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(FileName, LogFileTxt, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream);
         ExtractedFileInStream.ReadText(DataLine);
 
@@ -3266,13 +3248,12 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         DataLine: Text;
         Duration: Duration;
         DurationValueText: Text;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(FileName, LogFileTxt, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(FileName, LogFileTxt, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream);
         while not ExtractedFileInStream.EOS do
             ExtractedFileInStream.ReadText(DataLine);
@@ -3287,13 +3268,12 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         DataLine: Text;
         ActualAmt: Integer;
         i: Integer;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(FileName, LogFileTxt, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(FileName, LogFileTxt, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream);
         for i := 1 to 6 do
             ExtractedFileInStream.ReadText(DataLine);
@@ -3375,9 +3355,6 @@ codeunit 142006 "Export Business Data"
             "Ship-to Address" := GenerateRandomCode(50);
             "Ship-to Address 2" := GenerateRandomCode(50);
             "Ship-to Contact" := GenerateRandomCode(50);
-#if not CLEAN20
-            "IC Inbox Details" := GenerateRandomCode(240);
-#endif
             "Custom System Indicator Text" := GenerateRandomCode(240);
             "Tax Office Name" := GenerateRandomCode(50);
             "Tax Office Name 2" := GenerateRandomCode(50);
@@ -3496,11 +3473,10 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         DataLine: Text;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream, TEXTENCODING::UTF8);
         ExtractedFileInStream.ReadText(DataLine);
         Assert.AreEqual(Format(DataLine), Value, WrongValueErr);
@@ -3511,11 +3487,10 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         DataLine: Text;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream, TEXTENCODING::UTF8);
         ExtractedFileInStream.ReadText(DataLine);
         Assert.AreNotEqual(0, StrPos(DataLine, Value), WrongValueErr);
@@ -3526,11 +3501,10 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         TextLine: Text;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream, TEXTENCODING::UTF8);
         ExtractedFileInStream.ReadText(TextLine);
         Assert.IsTrue(StrPos(TextLine, ';"' + OptionValue + '"') > 0, OptionValueErr);
@@ -3541,12 +3515,11 @@ codeunit 142006 "Export Business Data"
         TempBlob: Codeunit "Temp Blob";
         ExtractedFileOutStream: OutStream;
         ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
         DataLine: Text;
         ActualNoOfLines: Integer;
     begin
         TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream, DummyFileLength);
+        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream);
         TempBlob.CreateInStream(ExtractedFileInStream, TEXTENCODING::UTF8);
         while not ExtractedFileInStream.EOS do begin
             ExtractedFileInStream.ReadText(DataLine);
@@ -3575,7 +3548,7 @@ codeunit 142006 "Export Business Data"
         Reply := true;
     end;
 
-    local procedure ExtractEntryFromZipFile(ZipFilePath: Text; EntryName: Text; ExtractedEntryOutStream: OutStream; ExtractedEntryLength: Integer);
+    local procedure ExtractEntryFromZipFile(ZipFilePath: Text; EntryName: Text; ExtractedEntryOutStream: OutStream);
     var
         ZipFile: File;
         ZipFileInStream: InStream;
@@ -3583,7 +3556,7 @@ codeunit 142006 "Export Business Data"
         ZipFile.Open(ZipFilePath);
         ZipFile.CreateInStream(ZipFileInStream);
         DataCompression.OpenZipArchive(ZipFileInStream, false);
-        DataCompression.ExtractEntry(EntryName, ExtractedEntryOutStream, ExtractedEntryLength);
+        DataCompression.ExtractEntry(EntryName, ExtractedEntryOutStream);
         DataCompression.CloseZipArchive();
         ZipFile.Close();
     end;

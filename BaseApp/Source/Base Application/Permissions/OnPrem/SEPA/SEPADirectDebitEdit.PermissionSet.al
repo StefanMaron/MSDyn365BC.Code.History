@@ -1,3 +1,13 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.Setup;
+using Microsoft.Bank.Reconciliation;
+using System.IO;
+using Microsoft.Bank.DirectDebit;
+using Microsoft.Bank.BankAccount;
+using System.Xml;
+using Microsoft.Bank.Payment;
+
 permissionset 5047 "SEPA Direct Debit - Edit"
 {
     Access = Public;
@@ -21,7 +31,7 @@ permissionset 5047 "SEPA Direct Debit - Edit"
                   tabledata "Data Exch. Field Grouping" = R,
                   tabledata "Data Exch. FlowField Gr. Buff." = R,
                   tabledata "Data Exchange Type" = Rimd,
-				  tabledata "Data Exch. Table Filter" = Rimd,
+                  tabledata "Data Exch. Table Filter" = Rimd,
                   tabledata "Direct Debit Collection" = RIMD,
                   tabledata "Direct Debit Collection Entry" = RIMD,
                   tabledata "Intermediate Data Import" = Rimd,

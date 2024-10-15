@@ -34,7 +34,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         isInitialized: Boolean;
-        ItemFilter: Label '%1|%2';
+        ItemFilter: Label '%1|%2', Locked = true;
         UnexpectedErrorMsg: Label 'Unexpected message';
         NoTrackingLines: Label 'There are no order tracking entries for this line';
         ControlOptions: Option Purchase,Sale,Verification;

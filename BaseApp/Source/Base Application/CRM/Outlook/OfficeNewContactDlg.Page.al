@@ -1,3 +1,8 @@
+﻿namespace Microsoft.CRM.Outlook;
+
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Contact;
+
 page 1604 "Office New Contact Dlg"
 {
     Caption = 'Do you want to add a new contact?';
@@ -25,7 +30,7 @@ page 1604 "Office New Contact Dlg"
 
                     trigger OnDrillDown()
                     begin
-                        CreateNewContact(Type::Person);
+                        CreateNewContact(Rec.Type::Person);
                     end;
                 }
                 field(LinkContact; LinkContactLbl)
@@ -130,7 +135,7 @@ page 1604 "Office New Contact Dlg"
             if NotLinked(Contact) then
                 Page.Run(Page::"Contact Card", Contact)
             else
-                Contact.ShowBusinessRelation("Contact Business Relation Link To Table"::" ", false);
+                Contact.ShowBusinessRelation(Enum::"Contact Business Relation Link To Table"::" ", false);
             CurrPage.Close();
         end;
     end;

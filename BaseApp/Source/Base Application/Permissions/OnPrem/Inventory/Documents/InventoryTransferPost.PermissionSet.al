@@ -1,3 +1,15 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Inventory.Transfer;
+using Microsoft.Inventory.Comment;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Warehouse.History;
+using Microsoft.Inventory.Location;
+using Microsoft.Warehouse.Request;
+using Microsoft.Foundation.Shipping;
+
 permissionset 5127 "Inventory Transfer - Post"
 {
     Access = Public;

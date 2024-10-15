@@ -24,7 +24,7 @@ codeunit 132460 "Background Sessions Test Lib"
         Timeout := 60000;
         Flagged := SessionManagement.StopAllOnCurrentServerInstance(ActiveSession."Client Type"::Background);
         if not SessionManagement.WaitForAllToStopOnCurrentServerInstance(Timeout) then
-            Error(StrSubstNo(Text002, Flagged, ServiceInstanceId, SessionId, Timeout, GetSessionEventDump));
+            Error(Text002, Flagged, ServiceInstanceId, SessionId, Timeout, GetSessionEventDump);
     end;
 
     [Scope('OnPrem')]
@@ -36,7 +36,7 @@ codeunit 132460 "Background Sessions Test Lib"
         if not SessionManagement.WaitForSessionToStop(Session, Timeout) then begin
             if AbortOnTimeout then
                 Abort(Session);
-            Error(StrSubstNo(Text001, Session, ServiceInstanceId, Timeout, SessionId, GetSessionEventDump));
+            Error(Text001, Session, ServiceInstanceId, Timeout, SessionId, GetSessionEventDump);
         end;
     end;
 
@@ -55,7 +55,7 @@ codeunit 132460 "Background Sessions Test Lib"
     begin
         Timeout := 20000;
         if not SessionManagement.SynchronousStopSession(Session, Timeout) then
-            Error(StrSubstNo(Text003, Session, ServiceInstanceId, SessionId, Timeout, GetSessionEventDump));
+            Error(Text003, Session, ServiceInstanceId, SessionId, Timeout, GetSessionEventDump);
     end;
 
     [Scope('OnPrem')]

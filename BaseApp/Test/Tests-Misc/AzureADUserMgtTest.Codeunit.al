@@ -141,7 +141,7 @@ codeunit 132907 AzureADUserMgtTest
         LibraryPermissions.AddUserToPlan(UserSecurityId(), PlanIds.GetEssentialPlanId());
         UserAuthenticationId := LibraryPermissions.CreateAzureActiveDirectoryUser(User, '');
         MockGraphQueryTestLibrary.AddGraphUserWithoutPlan(UserAuthenticationId, User."Full Name", '', User."Authentication Email");
-        MockGraphQueryTestLibrary.AddUserRole(UserAuthenticationId, PlanIds.GetInternalAdminPlanId(), 'Global administrator', 'Global administrator', true);
+        MockGraphQueryTestLibrary.AddUserRole(UserAuthenticationId, PlanIds.GetGlobalAdminPlanId(), 'Global administrator', 'Global administrator', true);
         MockGraphQueryTestLibrary.AddGraphUserWithInDevicesGroup(UserAuthenticationId, User."User Name", '', '');
 
         // [WHEN] The user logs in (at first userlogin)
@@ -150,7 +150,40 @@ codeunit 132907 AzureADUserMgtTest
         // [THEN] User is assigned admin plan
         LibraryLowerPermissions.SetO365BusFull();
         Assert.IsFalse(IsUserInPlan(User."User Security ID", PlanIds.GetDevicePlanId()), 'Device plan is assigned');
-        Assert.IsTrue(IsUserInPlan(User."User Security ID", PlanIds.GetInternalAdminPlanId()), 'Internal Admin plan is not assigned');
+        Assert.IsTrue(IsUserInPlan(User."User Security ID", PlanIds.GetGlobalAdminPlanId()), 'Internal Admin plan is not assigned');
+        TearDown();
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [CommitBehavior(CommitBehavior::Ignore)]
+    [Scope('OnPrem')]
+    procedure TestDeviceUsersWhoHadD365AdminRoleIsAssignedAdminPlan()
+    var
+        User: Record User;
+        PlanIds: Codeunit "Plan Ids";
+        UserAuthenticationId: Guid;
+    begin
+        // [SCENARIO] When device user who also happens to have a plan assigned signs in, device plan is not assigned to the user
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        LibraryLowerPermissions.AddSecurity();
+
+        // [GIVEN] A user belonging to a device plan
+        CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
+        LibraryPermissions.AddUserToPlan(UserSecurityId(), PlanIds.GetEssentialPlanId());
+        UserAuthenticationId := LibraryPermissions.CreateAzureActiveDirectoryUser(User, '');
+        MockGraphQueryTestLibrary.AddGraphUserWithoutPlan(UserAuthenticationId, User."Full Name", '', User."Authentication Email");
+        MockGraphQueryTestLibrary.AddUserRole(UserAuthenticationId, PlanIds.GetD365AdminPlanId(), 'Dynamics 365 administrator', 'Dynamics 365 administrator', true);
+        MockGraphQueryTestLibrary.AddGraphUserWithInDevicesGroup(UserAuthenticationId, User."User Name", '', '');
+
+        // [WHEN] The user logs in (at first userlogin)
+        AzureADUserMgtTestLibrary.Run(User."User Security ID");
+
+        // [THEN] User is assigned admin plan
+        LibraryLowerPermissions.SetO365BusFull();
+        Assert.IsFalse(IsUserInPlan(User."User Security ID", PlanIds.GetDevicePlanId()), 'Device plan is assigned');
+        Assert.IsTrue(IsUserInPlan(User."User Security ID", PlanIds.GetD365AdminPlanId()), 'Dynamics 365 admin plan is not assigned');
         TearDown();
     end;
 

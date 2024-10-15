@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Contract;
+
 enum 6057 "Contract Line Selection"
 {
     Extensible = true;

@@ -1,3 +1,11 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Foundation.Comment;
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Projects.Resources.Resource;
+
 permissionset 4445 "Resources - Read"
 {
     Access = Public;

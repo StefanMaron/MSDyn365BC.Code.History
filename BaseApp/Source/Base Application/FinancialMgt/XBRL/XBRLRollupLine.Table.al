@@ -1,14 +1,15 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.XBRL;
+
 table 398 "XBRL Rollup Line"
 {
     Caption = 'XBRL Rollup Line';
     ObsoleteReason = 'XBRL feature will be discontinued';
-#if not CLEAN20
-    ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
-#endif
     ReplicateData = false;
 
     fields
@@ -21,26 +22,26 @@ table 398 "XBRL Rollup Line"
         field(2; "XBRL Taxonomy Line No."; Integer)
         {
             Caption = 'XBRL Taxonomy Line No.';
-            TableRelation = "XBRL Taxonomy Line"."Line No." WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"));
+            TableRelation = "XBRL Taxonomy Line"."Line No." where("XBRL Taxonomy Name" = field("XBRL Taxonomy Name"));
         }
         field(4; "From XBRL Taxonomy Line No."; Integer)
         {
             Caption = 'From XBRL Taxonomy Line No.';
-            TableRelation = "XBRL Taxonomy Line"."Line No." WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"));
+            TableRelation = "XBRL Taxonomy Line"."Line No." where("XBRL Taxonomy Name" = field("XBRL Taxonomy Name"));
         }
         field(5; "From XBRL Taxonomy Line Name"; Text[250])
         {
-            CalcFormula = Lookup("XBRL Taxonomy Line".Name WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
-                                                                  "Line No." = FIELD("From XBRL Taxonomy Line No.")));
+            CalcFormula = Lookup("XBRL Taxonomy Line".Name where("XBRL Taxonomy Name" = field("XBRL Taxonomy Name"),
+                                                                  "Line No." = field("From XBRL Taxonomy Line No.")));
             Caption = 'From XBRL Taxonomy Line Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(6; "From XBRL Taxonomy Line Label"; Text[250])
         {
-            CalcFormula = Lookup("XBRL Taxonomy Label".Label WHERE("XBRL Taxonomy Name" = FIELD("XBRL Taxonomy Name"),
-                                                                    "XBRL Taxonomy Line No." = FIELD("From XBRL Taxonomy Line No."),
-                                                                    "XML Language Identifier" = FIELD("Label Language Filter")));
+            CalcFormula = Lookup("XBRL Taxonomy Label".Label where("XBRL Taxonomy Name" = field("XBRL Taxonomy Name"),
+                                                                    "XBRL Taxonomy Line No." = field("From XBRL Taxonomy Line No."),
+                                                                    "XML Language Identifier" = field("Label Language Filter")));
             Caption = 'From XBRL Taxonomy Line Label';
             Editable = false;
             FieldClass = FlowField;

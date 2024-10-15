@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using System.Diagnostics;
+
 permissionset 8929 "Changelog - Edit"
 {
     Access = Public;

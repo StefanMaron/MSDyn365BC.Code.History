@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Deferral;
+
+using System.Telemetry;
+
 page 1701 "Deferral Template List"
 {
     ApplicationArea = Suite;

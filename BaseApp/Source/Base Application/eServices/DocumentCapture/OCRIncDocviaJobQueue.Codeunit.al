@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
+
+using System.Threading;
+
 codeunit 137 "OCR Inc. Doc. via Job Queue"
 {
     Permissions = TableData "Job Queue Entry" = rimd;
@@ -9,8 +17,8 @@ codeunit 137 "OCR Inc. Doc. via Job Queue"
         SendIncomingDocumentToOCR: Codeunit "Send Incoming Document to OCR";
         RecRef: RecordRef;
     begin
-        TestField("Record ID to Process");
-        RecRef.Get("Record ID to Process");
+        Rec.TestField("Record ID to Process");
+        RecRef.Get(Rec."Record ID to Process");
         RecRef.SetTable(IncomingDocument);
         IncomingDocument.Find();
         SetJobQueueStatus(IncomingDocument, IncomingDocument."Job Queue Status"::Processing);

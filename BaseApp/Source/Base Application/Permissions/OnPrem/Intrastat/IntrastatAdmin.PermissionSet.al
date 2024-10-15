@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Inventory.Intrastat;
+
 permissionset 4384 "Intrastat - Admin"
 {
     Access = Public;

@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 page 537 "Dimension Values"
 {
     Caption = 'Dimension Values';
@@ -21,7 +23,7 @@ page 537 "Dimension Values"
                     Visible = false;
                     ToolTip = 'Specifies the code for the dimension.';
                 }
-                field("Code"; Rec."Code")
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Dimensions;
                     Style = Strong;
@@ -40,7 +42,7 @@ page 537 "Dimension Values"
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the purpose of the dimension value.';
                 }
-                field(Totaling; Totaling)
+                field(Totaling; Rec.Totaling)
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies an account interval or a list of account numbers. The entries of the account will be totaled to give a total balance. How entries are totaled depends on the value in the Account Type field.';
@@ -51,7 +53,7 @@ page 537 "Dimension Values"
                         DimValList: Page "Dimension Value List";
                     begin
                         DimVal := Rec;
-                        DimVal.SetRange("Dimension Code", "Dimension Code");
+                        DimVal.SetRange("Dimension Code", Rec."Dimension Code");
                         DimValList.SetTableView(DimVal);
                         DimValList.LookupMode := true;
                         if DimValList.RunModal() = ACTION::LookupOK then begin
@@ -62,7 +64,7 @@ page 537 "Dimension Values"
                         exit(false);
                     end;
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
@@ -138,25 +140,23 @@ page 537 "Dimension Values"
     var
         DimensionCode: Code[20];
     begin
-        if GetFilter("Dimension Code") <> '' then
-            DimensionCode := GetRangeMin("Dimension Code");
+        if Rec.GetFilter("Dimension Code") <> '' then
+            DimensionCode := Rec.GetRangeMin("Dimension Code");
         if DimensionCode <> '' then begin
-            FilterGroup(2);
-            SetRange("Dimension Code", DimensionCode);
-            FilterGroup(0);
+            Rec.FilterGroup(2);
+            Rec.SetRange("Dimension Code", DimensionCode);
+            Rec.FilterGroup(0);
         end;
     end;
 
     var
-        [InDataSet]
         Emphasize: Boolean;
-        [InDataSet]
         NameIndent: Integer;
 
     local procedure FormatLine()
     begin
-        Emphasize := "Dimension Value Type" <> "Dimension Value Type"::Standard;
-        NameIndent := Indentation;
+        Emphasize := Rec."Dimension Value Type" <> Rec."Dimension Value Type"::Standard;
+        NameIndent := Rec.Indentation;
     end;
 }
 

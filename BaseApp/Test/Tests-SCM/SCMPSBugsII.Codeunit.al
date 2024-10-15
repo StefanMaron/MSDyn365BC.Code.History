@@ -23,8 +23,11 @@ codeunit 137036 "SCM PS Bugs - II"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
-        ErrMsgDimension: Label 'Values Must Match.';
-        DeletePickedLinesQst: Label 'Components for production order %1 have already been picked. Do you want to continue?', Comment = 'Production order no.: Components for production order 101001 have already been picked. Do you want to continue?';
+        UnexpectedOrderLineDimValueErr: Label 'Unexpected dimension value on the production order line.';
+        DeletePickedLinesQst: Label 'Components for production order %1 have already been picked. Do you want to continue?',
+            Comment = '%1 = Production order no.: Components for production order 101001 have already been picked. Do you want to continue?';
+        CircularReferenceErr: Label 'The production BOM %1 has a circular reference', Comment = '%1: Production BOM No.';
+        ProdBOMMustBeCertifiedErr: Label 'Production BOM must be certified';
 
     [Test]
     [Scope('OnPrem')]
@@ -40,7 +43,7 @@ codeunit 137036 "SCM PS Bugs - II"
     begin
         // Setup: Create two Sales Orders with different Item lines.
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
 
         SalesOrderNo :=
@@ -79,7 +82,7 @@ codeunit 137036 "SCM PS Bugs - II"
     begin
         // Setup: Create Sales Blanket Order and Make Order.
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
 
         BlanketOrderNo :=
@@ -132,14 +135,12 @@ codeunit 137036 "SCM PS Bugs - II"
         ProductionOrder: Record "Production Order";
         ItemNo: Code[20];
         ChildItemNo: Code[20];
-        ChildItemNo2: Code[20];
         NewDimSetId: Integer;
     begin
         Initialize();
 
         // Create Child Items with Default Dimensions. Create Production BOM.
-        ChildItemNo := CreateItemWithDimension;
-        ChildItemNo2 := CreateItemWithDimension;
+        ChildItemNo := CreateItemWithDimension();
         LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ChildItemNo, ChildItemNo, 1);  // Value important.
 
         // Create Parent Item and attach Production BOM to it. Create Released Production Order and Refresh.
@@ -164,14 +165,12 @@ codeunit 137036 "SCM PS Bugs - II"
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderComponent: Record "Prod. Order Component";
         ChildItemNo: Code[20];
-        ChildItemNo2: Code[20];
         ParentItemNo: Code[20];
     begin
         Initialize();
 
         // Setup Items with dimensions for production order
-        ChildItemNo := CreateItemWithDimension;
-        ChildItemNo2 := CreateItemWithDimension;
+        ChildItemNo := CreateItemWithDimension();
         LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ChildItemNo, ChildItemNo, 1);
         ParentItemNo := CreateItemWithProductionBOM(ProductionBOMHeader."No.");
         AddDimensionToItem(ParentItemNo, true);
@@ -213,7 +212,7 @@ codeunit 137036 "SCM PS Bugs - II"
 
         // Setup: Setup Items with dimensions for production order
         Initialize();
-        ChildItemNo := CreateItemWithDimension;
+        ChildItemNo := CreateItemWithDimension();
         LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, ChildItemNo, LibraryRandom.RandInt(5));
         ParentItemNo := CreateItemWithProductionBOM(ProductionBOMHeader."No.");
         AddDimensionToItem(ParentItemNo, false);
@@ -241,7 +240,7 @@ codeunit 137036 "SCM PS Bugs - II"
 
         // Setup: Setup Items with dimensions for production order
         Initialize();
-        ChildItemNo := CreateItemWithDimension;
+        ChildItemNo := CreateItemWithDimension();
         LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ChildItemNo, ChildItemNo, 1);
         ParentItemNo := CreateItemWithProductionBOM(ProductionBOMHeader."No.");
         AddDimensionToItem(ParentItemNo, false);
@@ -273,7 +272,7 @@ codeunit 137036 "SCM PS Bugs - II"
 
         // Setup: Setup Items with dimensions for production order
         Initialize();
-        ChildItemNo := CreateItemWithDimension;
+        ChildItemNo := CreateItemWithDimension();
         LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, ChildItemNo, LibraryRandom.RandInt(5));
         ParentItemNo := CreateItemWithProductionBOM(ProductionBOMHeader."No.");
         AddDimensionToItem(ParentItemNo, false);
@@ -304,7 +303,7 @@ codeunit 137036 "SCM PS Bugs - II"
 
         // Setup: Setup Items with dimensions for production order.
         Initialize();
-        ChildItemNo := CreateItemWithDimension;
+        ChildItemNo := CreateItemWithDimension();
         LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ChildItemNo, ChildItemNo, 1);
         ParentItemNo := CreateItemWithProductionBOM(ProductionBOMHeader."No.");
         AddDimensionToItem(ParentItemNo, false);
@@ -561,25 +560,165 @@ codeunit 137036 "SCM PS Bugs - II"
         ProdOrderLine.TestField(Quantity, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerFalse')]
+    procedure CertifyBOMWithCyclicalReferenceError()
+    var
+        ProductionBOMHeader: array[2] of Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ManufacturingItem: Record Item;
+        ComponentItem: array[2] of Record Item;
+    begin
+        // [FEATURE] [Production BOM]
+        // [SCENARIO] Certification of a production BOM fails with an error if it contains a cyclic reference 
+
+        Initialize();
+
+        // [GIVEN] Set "Dynamic Low-Level Code" in Manufacturing Setup to false
+        SetDynamicLowLevelCode(false);
+
+        // [GIVEN] Top level production item "PI" and two components "CI1" and "CI2"
+        LibraryInventory.CreateItem(ManufacturingItem);
+        LibraryInventory.CreateItem(ComponentItem[1]);
+        LibraryInventory.CreateItem(ComponentItem[2]);
+
+        // [GIVEN] Create a production BOM "BOM1" with two lines. Line type is "Item" in both, component items are "CI1" and "CI2"
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[1], ManufacturingItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader[1], ProductionBOMLine, '', Enum::"Production BOM Line Type"::Item, ComponentItem[1]."No.", 1);
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader[1], ProductionBOMLine, '', Enum::"Production BOM Line Type"::Item, ComponentItem[2]."No.", 1);
+
+        // [GIVEN] Assign the "BOM1" to the production item "PI"
+        AssignItemProductionBOM(ManufacturingItem, ProductionBOMHeader[1]."No.");
+
+        // [GIVEN] Create a production BOM "BOM2" with the item "PI" as a component and assign this BOM to the item "CI2"
+        CreateProductionBOMWithOneLine(ProductionBOMHeader[2], ComponentItem[2]."Base Unit of Measure", ManufacturingItem."No.");
+        AssignItemProductionBOM(ComponentItem[2], ProductionBOMheader[2]."No.");
+
+        // [GIVEN] Change the status of "BOM2" to "Certified"
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[2], Enum::"BOM Status"::Certified);
+
+        // [WHEN] Try to change the status of "BOM1" to "Certified"
+        asserterror LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[1], Enum::"BOM Status"::Certified);
+
+        // [THEN] Error message: Production BOM has a circular reference
+        Assert.ExpectedError(StrSubstNo(CircularReferenceErr, ProductionBOMHeader[1]."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerFalse')]
+    procedure CertifyBOMWithCyclicalReferenceChildBOMHasActiveVersion()
+    var
+        ProductionBOMHeader: array[2] of Record "Production BOM Header";
+        ManufacturingItem: Record Item;
+        ComponentItem: array[2] of Record Item;
+    begin
+        // [FEATURE] [Production BOM] [BOM Version]
+        // [SCENARIO] Certification of a production BOM fails with an error if its active version contains a cyclic reference 
+
+        Initialize();
+
+        // [GIVEN] Set "Dynamic Low-Level Code" in Manufacturing Setup to false
+        SetDynamicLowLevelCode(false);
+
+        // [GIVEN] Top level production item "PI" and two components "CI1" and "CI2"
+        LibraryInventory.CreateItem(ManufacturingItem);
+        LibraryInventory.CreateItem(ComponentItem[1]);
+        LibraryInventory.CreateItem(ComponentItem[2]);
+
+        // [GIVEN] Create a production BOM "BOM1" with the item "CI1" as a component and assign this BOM to the item "PI"
+        CreateProductionBOMWithOneLine(ProductionBOMHeader[1], ManufacturingItem."Base Unit of Measure", ComponentItem[1]."No.");
+        AssignItemProductionBOM(ManufacturingItem, ProductionBOMHeader[1]."No.");
+
+        // [GIVEN] Create a production BOM "BOM2" with the item "CI2" as a component and assign it to the item "CI1"
+        CreateProductionBOMWithOneLine(ProductionBOMHeader[2], ManufacturingItem."Base Unit of Measure", ComponentItem[2]."No.");
+        AssignItemProductionBOM(ComponentItem[1], ProductionBOMHeader[2]."No.");
+
+        // [GIVEN] Create a version of "BOM2" with one component "PI", version is active on the work date
+        CreateProductionBOMVersion(ProductionBOMHeader[2], ComponentItem[1]."Base Unit of Measure", WorkDate(), ManufacturingItem."No.");
+
+        // [GIVEN] Change the status of "BOM2" to "Certified"
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[2], Enum::"BOM Status"::Certified);
+
+        // [GIVEN] Try to change the status of "BOM1" to "Certified"
+        asserterror LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[1], Enum::"BOM Status"::Certified);
+
+        // [THEN] Error message: Production BOM has a circular reference
+        Assert.ExpectedError(StrSubstNo(CircularReferenceErr, ProductionBOMHeader[1]."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerFalse')]
+    procedure CertifyBOMInactiveVersionWithCyclicalReference()
+    var
+        ProductionBOMHeader: array[2] of Record "Production BOM Header";
+        ManufacturingItem: Record Item;
+        ComponentItem: array[3] of Record Item;
+    begin
+        // [FEATURE] [Production BOM] [BOM Version]
+        // [SCENARIO] Production BOM can be certified if its inactive version has a cyclic reference, but the active version is correct
+
+        Initialize();
+
+        // [GIVEN] Set "Dynamic Low-Level Code" in Manufacturing Setup to false
+        SetDynamicLowLevelCode(false);
+
+        // [GIVEN] Top level production item "PI" and three components "CI1", "CI2", "CI3"
+        LibraryInventory.CreateItem(ManufacturingItem);
+        LibraryInventory.CreateItem(ComponentItem[1]);
+        LibraryInventory.CreateItem(ComponentItem[2]);
+        LibraryInventory.CreateItem(ComponentItem[3]);
+
+        // [GIVEN] Create a production BOM "BOM1" with the item "CI1" as a component and assign this BOM to the item "PI"
+        CreateProductionBOMWithOneLine(ProductionBOMHeader[1], ManufacturingItem."Base Unit of Measure", ComponentItem[1]."No.");
+        AssignItemProductionBOM(ManufacturingItem, ProductionBOMHeader[1]."No.");
+
+        // [GIVEN] Create a production BOM "BOM2" with the item "CI2" as a component and assign this BOM to the item "CI1"
+        CreateProductionBOMWithOneLine(ProductionBOMHeader[2], ManufacturingItem."Base Unit of Measure", ComponentItem[2]."No.");
+        AssignItemProductionBOM(ComponentItem[1], ProductionBOMHeader[2]."No.");
+
+        // [GIVEN] Create a version of "BOM2" with "PI" as a component, version is active on a previous date (WorkDate - 1)
+        CreateProductionBOMVersion(ProductionBOMHeader[2], ComponentItem[1]."Base Unit of Measure", WorkDate() - 1, ManufacturingItem."No.");
+
+        // [GIVEN] Create a version of "BOM2" with "CI3" as a component, version is active on the current date
+        CreateProductionBOMVersion(ProductionBOMHeader[2], ComponentItem[1]."Base Unit of Measure", WorkDate(), ComponentItem[3]."No.");
+
+        // [GIVEN] Certify both production BOMs "BOM2" and "BOM1"
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[2], Enum::"BOM Status"::Certified);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[1], Enum::"BOM Status"::Certified);
+
+        // [THEN] Both production BOMs are certified without errors
+        Assert.AreEqual(Enum::"BOM Status"::Certified, ProductionBOMHeader[1].Status, ProdBOMMustBeCertifiedErr);
+        Assert.AreEqual(Enum::"BOM Status"::Certified, ProductionBOMHeader[2].Status, ProdBOMMustBeCertifiedErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM PS Bugs - II");
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM PS Bugs - II");
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
-        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM PS Bugs - II");
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"SCM PS Bugs - II");
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.Save(Database::"Sales & Receivables Setup");
+        LibrarySetupStorage.Save(Database::"Manufacturing Setup");
 
         isInitialized := true;
         Commit();
-        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM PS Bugs - II");
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"SCM PS Bugs - II");
+    end;
+
+    local procedure AssignItemProductionBOM(var Item: Record Item; ProductionBOMNo: Code[20])
+    begin
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Modify(true);
     end;
 
     local procedure CreateAndRefreshProdOrderWithTwoComponents(var ProductionOrder: Record "Production Order"; ComponentQtyPer: Decimal; Quantity: Decimal)
@@ -633,10 +772,10 @@ codeunit 137036 "SCM PS Bugs - II"
     begin
         // Setup: Create Item with New Category Code and create Sales Order with Drop Shipment.
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
 
-        ItemNo := CreateItemWithCategory;
+        ItemNo := CreateItemWithCategory();
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, ItemNo);
 
         // Update Sales Lines with Purchasing Code for Drop Shipment.
@@ -714,6 +853,17 @@ codeunit 137036 "SCM PS Bugs - II"
         ProductionBOMLine.Modify(true);
     end;
 
+    local procedure CreateProductionBOMVersion(var ProductionBOMHeader: Record "Production BOM Header"; UoMCode: Code[10]; StartingDate: Date; ComponentNo: Code[20])
+    var
+        ProductionBOMVersion: Record "Production BOM Version";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMVersion(ProductionBOMVersion, ProductionBOMHeader."No.", LibraryUtility.GenerateGUID(), UoMCode, StartingDate);
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine, ProductionBOMVersion."Version Code", Enum::"Production BOM Line Type"::Item, ComponentNo, 1);
+        LibraryManufacturing.UpdateProductionBOMVersionStatus(ProductionBOMVersion, Enum::"BOM Status"::Certified);
+    end;
+
     local procedure CreateProductionBOMWithComponentInTwoPositions(var ProductionBOMHeader: Record "Production BOM Header"; UoMCode: Code[10]; ComponentItemNo: Code[20]; QtyPer: Decimal)
     var
         ProductionBOMLine: Record "Production BOM Line";
@@ -724,6 +874,15 @@ codeunit 137036 "SCM PS Bugs - II"
         CreateProductionBOMLineInSpecifiedPosition(
           ProductionBOMHeader, ProductionBOMLine, ComponentItemNo, QtyPer, LibraryUtility.GenerateGUID());
         LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure CreateProductionBOMWithOneLine(var ProductionBOMHeader: Record "Production BOM Header"; UoMCode: Code[10]; ComponentItemNo: Code[20])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UoMCode);
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProductionBOMHeader, ProductionBOMLine, '', Enum::"Production BOM Line Type"::Item, ComponentItemNo, 1);
     end;
 
     local procedure CreatePurchOrderDropShipment(var PurchaseHeader: Record "Purchase Header"; SalesLine: Record "Sales Line")
@@ -872,6 +1031,15 @@ codeunit 137036 "SCM PS Bugs - II"
         exit(LibraryDimension.CreateDimSet(OldDimSetID, Dimension.Code, DimensionValue.Code));
     end;
 
+    local procedure SetDynamicLowLevelCode(NewDynamicLowLevelCode: Boolean)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Dynamic Low-Level Code", NewDynamicLowLevelCode);
+        ManufacturingSetup.Modify(true);
+    end;
+
     local procedure UpdateProdOrderLinesDimension(ProductionOrderNo: Code[20]; OldDimSetID: Integer; DimensionSetID: Integer)
     var
         ProdOrderLine: Record "Prod. Order Line";
@@ -963,7 +1131,6 @@ codeunit 137036 "SCM PS Bugs - II"
         ProductionOrder: Record "Production Order";
         DimensionSetEntry: Record "Dimension Set Entry";
         ProdOrderLine: Record "Prod. Order Line";
-        Assert: Codeunit Assert;
         DimensionCode: Code[20];
         ExpectedDimValueCode: Code[20];
     begin
@@ -978,7 +1145,7 @@ codeunit 137036 "SCM PS Bugs - II"
             DimensionSetEntry.SetRange("Dimension Set ID", ProdOrderLine."Dimension Set ID");
             DimensionSetEntry.SetRange("Dimension Code", DimensionCode);
             DimensionSetEntry.FindFirst();
-            Assert.AreEqual(ExpectedDimValueCode, DimensionSetEntry."Dimension Value Code", ErrMsgDimension);
+            Assert.AreEqual(ExpectedDimValueCode, DimensionSetEntry."Dimension Value Code", UnexpectedOrderLineDimValueErr);
         until ProdOrderLine.Next() = 0;
     end;
 
@@ -1020,10 +1187,17 @@ codeunit 137036 "SCM PS Bugs - II"
 
     [ConfirmHandler]
     [Scope('OnPrem')]
+    procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
     procedure RefreshPickedConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(StrSubstNo(DeletePickedLinesQst, LibraryVariableStorage.DequeueText), Question);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.ExpectedMessage(StrSubstNo(DeletePickedLinesQst, LibraryVariableStorage.DequeueText()), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

@@ -12,7 +12,7 @@ report 11012 "Intrastat - Form DE"
     {
         dataitem("Intrastat Jnl. Batch"; "Intrastat Jnl. Batch")
         {
-            DataItemTableView = SORTING("Journal Template Name", Name);
+            DataItemTableView = sorting("Journal Template Name", Name);
             PrintOnlyIfDetail = true;
             RequestFilterFields = "Journal Template Name", Name;
             column(Intrastat_Jnl__Batch_Journal_Template_Name; "Journal Template Name")
@@ -23,8 +23,8 @@ report 11012 "Intrastat - Form DE"
             }
             dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", Area, "Transaction Specification", "Country/Region of Origin Code");
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", Area, "Transaction Specification", "Country/Region of Origin Code");
                 RequestFilterFields = Type;
                 column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
                 {

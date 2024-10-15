@@ -226,13 +226,6 @@ codeunit 104100 "Upg Local Functionality"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetReportSelectionForGLVATReconciliationTag());
     end;
 
-#if not CLEAN20
-    [Obsolete('Function will be removed', '20.0')]
-    procedure UpgradeCheckPartnerVATID()
-    begin
-    end;
-#endif
-
     procedure UpdateVendorRegistrationNo()
     var
         Vendor: Record Vendor;

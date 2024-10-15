@@ -1396,15 +1396,21 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     [Test]
     [Scope('OnPrem')]
     procedure ExportDateTimeStandardFormattingXml()
+    var
+        CurrDateTime: DateTime;
     begin
-        VerifyFieldMapping(DMY2Date(27, 1, 2016), '2016-01-27T00:00:00Z', 82, DataExchColDefType."Data Type"::DateTime, '', 0, 1, '', 0);
+        CurrDateTime := CurrentDateTime();
+        VerifyFieldMapping(CurrDateTime, Format(CurrDateTime, 0, 9), 132571, DataExchColDefType."Data Type"::DateTime, '', 0, 1, '', 0);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ExportDateTimeCustomFormattingXml()
+    var
+        CurrDateTime: DateTime;
     begin
-        VerifyFieldMapping(DMY2Date(27, 1, 2016), '2701160100', 82, DataExchColDefType."Data Type"::DateTime,
+        CurrDateTime := CurrentDateTime();
+        VerifyFieldMapping(CurrDateTime, Format(CurrDateTime, 0, '<Day,2><Month,2><Year,2><Hours24,2><Minutes,2>'), 132571, DataExchColDefType."Data Type"::DateTime,
           '<Day,2><Month,2><Year,2><Hours24,2><Minutes,2>', 0, 1, '', 0);
     end;
 
@@ -1440,16 +1446,21 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     [Test]
     [Scope('OnPrem')]
     procedure ExportDateTimeStandardFormattingVariableText()
+    var
+        CurrDateTime: DateTime;
     begin
-        VerifyFieldMapping(DMY2Date(27, 1, 2016), Format(CreateDateTime(DMY2Date(27, 1, 2016), 010000T)),
-          82, DataExchColDefType."Data Type"::DateTime, '', 0, 1, '', 1);
+        CurrDateTime := CurrentDateTime();
+        VerifyFieldMapping(CurrDateTime, Format(CurrDateTime), 132571, DataExchColDefType."Data Type"::DateTime, '', 0, 1, '', 1);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ExportDateTimeCustomFormattingVariableText()
+    var
+        CurrDateTime: DateTime;
     begin
-        VerifyFieldMapping(DMY2Date(27, 1, 2016), '2701160100', 82, DataExchColDefType."Data Type"::DateTime,
+        CurrDateTime := CurrentDateTime();
+        VerifyFieldMapping(CurrDateTime, Format(CurrDateTime, 0, '<Day,2><Month,2><Year,2><Hours24,2><Minutes,2>'), 132571, DataExchColDefType."Data Type"::DateTime,
           '<Day,2><Month,2><Year,2><Hours24,2><Minutes,2>', 0, 1, '', 1);
     end;
 
@@ -1457,19 +1468,138 @@ codeunit 132571 "Payment Export Mgt Unit Test"
     [Scope('OnPrem')]
     procedure ExportDateTimeStandardFormattingFixedWidth()
     var
+        CurrDateTime: DateTime;
         ExpDateTime: Text;
     begin
-        ExpDateTime := Format(CreateDateTime(DMY2Date(27, 1, 2016), 010000T));
+        CurrDateTime := CurrentDateTime();
+        ExpDateTime := Format(CurrDateTime);
+        VerifyFieldMapping(CurrDateTime, ExpDateTime, 132571, DataExchColDefType."Data Type"::DateTime, '', StrLen(ExpDateTime), 1, '', 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportDateTimeCustomFormattingFixedWidth()
+    var
+        CurrDateTime: DateTime;
+    begin
+        CurrDateTime := CurrentDateTime();
+        VerifyFieldMapping(CurrDateTime, Format(CurrDateTime, 0, '<Day,2><Month,2><Year,2><Hours24,2><Minutes,2>'), 132571, DataExchColDefType."Data Type"::DateTime,
+          '<Day,2><Month,2><Year,2><Hours24,2><Minutes,2>', 10, 1, '', 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportDateAsDateTimeStandardFormattingXml()
+    begin
+        VerifyFieldMapping(DMY2Date(27, 1, 2016), Format(CreateDateTime(DMY2Date(27, 1, 2016), 0T), 0, 9), 82, DataExchColDefType."Data Type"::DateTime, '', 0, 1, '', 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportDateAsDateTimeCustomFormattingXml()
+    begin
+        VerifyFieldMapping(DMY2Date(27, 1, 2016), Format(CreateDateTime(DMY2Date(27, 1, 2016), 0T), 0, '<Day,2><Month,2><Year,2><Hours24,2><Minutes,2>'), 82, DataExchColDefType."Data Type"::DateTime,
+          '<Day,2><Month,2><Year,2><Hours24,2><Minutes,2>', 0, 1, '', 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportDateAsDateTimeStandardFormattingVariableText()
+    begin
+        VerifyFieldMapping(DMY2Date(27, 1, 2016), Format(CreateDateTime(DMY2Date(27, 1, 2016), 0T)),
+          82, DataExchColDefType."Data Type"::DateTime, '', 0, 1, '', 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportDateAsDateTimeCustomFormattingVariableText()
+    begin
+        VerifyFieldMapping(DMY2Date(27, 1, 2016), Format(CreateDateTime(DMY2Date(27, 1, 2016), 0T), 0, '<Day,2><Month,2><Year,2><Hours24,2><Minutes,2>'), 82, DataExchColDefType."Data Type"::DateTime,
+          '<Day,2><Month,2><Year,2><Hours24,2><Minutes,2>', 0, 1, '', 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportDateAsDateTimeStandardFormattingFixedWidth()
+    var
+        ExpDateTime: Text;
+    begin
+        ExpDateTime := Format(CreateDateTime(DMY2Date(27, 1, 2016), 0T));
         VerifyFieldMapping(DMY2Date(27, 1, 2016), ExpDateTime,
           82, DataExchColDefType."Data Type"::DateTime, '', StrLen(ExpDateTime), 1, '', 2);
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure ExportDateTimeCustomFormattingFixedWidth()
+    procedure ExportDateAsDateTimeCustomFormattingFixedWidth()
     begin
-        VerifyFieldMapping(DMY2Date(27, 1, 2016), '2701160100', 82, DataExchColDefType."Data Type"::DateTime,
+        VerifyFieldMapping(DMY2Date(27, 1, 2016), Format(CreateDateTime(DMY2Date(27, 1, 2016), 0T), 0, '<Day,2><Month,2><Year,2><Hours24,2><Minutes,2>'), 82, DataExchColDefType."Data Type"::DateTime,
           '<Day,2><Month,2><Year,2><Hours24,2><Minutes,2>', 10, 1, '', 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportTimeStandardFormattingXml()
+    var
+        CurrTime: Time;
+    begin
+        CurrTime := Time();
+        VerifyFieldMapping(CurrTime, Format(CreateDateTime(Today(), CurrTime), 0, 9), 132572, DataExchColDefType."Data Type"::DateTime, '', 0, 1, '', 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportTimeCustomFormattingXml()
+    var
+        CurrTime: Time;
+    begin
+        CurrTime := Time();
+        VerifyFieldMapping(CurrTime, Format(CreateDateTime(Today(), CurrTime), 0, '<Hours24,2><Minutes,2>'), 132572, DataExchColDefType."Data Type"::DateTime,
+          '<Hours24,2><Minutes,2>', 0, 1, '', 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportTimeStandardFormattingVariableText()
+    var
+        CurrTime: Time;
+    begin
+        CurrTime := Time();
+        VerifyFieldMapping(CurrTime, Format(CreateDateTime(Today(), CurrTime)), 132572, DataExchColDefType."Data Type"::DateTime, '', 0, 1, '', 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportTimeCustomFormattingVariableText()
+    var
+        CurrTime: Time;
+    begin
+        CurrTime := Time();
+        VerifyFieldMapping(CurrTime, Format(CreateDateTime(Today(), CurrTime), 0, '<Hours24,2><Minutes,2>'), 132572, DataExchColDefType."Data Type"::DateTime,
+          '<Hours24,2><Minutes,2>', 0, 1, '', 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportTimeStandardFormattingFixedWidth()
+    var
+        CurrTime: Time;
+        ExpDateTime: Text;
+    begin
+        CurrTime := Time();
+        ExpDateTime := Format(CreateDateTime(Today(), CurrTime));
+        VerifyFieldMapping(CurrTime, ExpDateTime, 132572, DataExchColDefType."Data Type"::DateTime, '', StrLen(ExpDateTime), 1, '', 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportTimeCustomFormattingFixedWidth()
+    var
+        CurrTime: Time;
+    begin
+        CurrTime := Time();
+        VerifyFieldMapping(CurrTime, Format(CreateDateTime(Today(), CurrTime), 0, '<Hours24,2><Minutes,2>'), 132572, DataExchColDefType."Data Type"::DateTime,
+          '<Hours24,2><Minutes,2>', 4, 1, '', 2);
     end;
 
     [Test]

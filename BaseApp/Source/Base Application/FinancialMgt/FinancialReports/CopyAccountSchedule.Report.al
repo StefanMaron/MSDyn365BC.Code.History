@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 report 26 "Copy Account Schedule"
 {
     Caption = 'Copy Rows';
@@ -7,7 +9,7 @@ report 26 "Copy Account Schedule"
     {
         dataitem(SourceAccScheduleName; "Acc. Schedule Name")
         {
-            DataItemTableView = SORTING(Name) ORDER(Ascending);
+            DataItemTableView = sorting(Name) order(Ascending);
 
             trigger OnAfterGetRecord()
             var

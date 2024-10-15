@@ -28,14 +28,6 @@ codeunit 9997 "Upgrade Tag Def - Country"
         exit('MS-327839-CleanupPhysOrders-20191007');
     end;
 
-#if not CLEAN20
-    [Obsolete('Function will be removed', '20.0')]
-    procedure GetCheckPartnerVATIDTag(): Code[250]
-    begin
-        exit('MS-392540-CheckPartnerVATID-20210317');
-    end;
-#endif
-
     procedure GetVendorRegistrationNoTag(): Code[250]
     begin
         exit('MS-359959-GetVendorRegistrationNo-20230208');

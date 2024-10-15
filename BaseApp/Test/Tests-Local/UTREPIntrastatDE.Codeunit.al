@@ -1,8 +1,14 @@
-﻿codeunit 142039 "UT REP Intrastat DE"
+﻿#if not CLEAN22
+codeunit 142039 "UT REP Intrastat DE"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
 
     trigger OnRun()
     begin
@@ -820,19 +826,5 @@
         IntrastatChecklistDE."Intrastat Jnl. Line".SetFilter("Journal Batch Name", LibraryVariableStorage.DequeueText);
         IntrastatChecklistDE.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
-
-    local procedure ExtractEntryFromZipFile(ZipFilePath: Text; EntryName: Text; ExtractedEntryOutStream: OutStream; ExtractedEntryLength: Integer);
-    var
-        DataCompression: Codeunit "Data Compression";
-        ZipFile: File;
-        ZipFileInStream: InStream;
-    begin
-        ZipFile.Open(ZipFilePath);
-        ZipFile.CreateInStream(ZipFileInStream);
-        DataCompression.OpenZipArchive(ZipFileInStream, false);
-        DataCompression.ExtractEntry(EntryName, ExtractedEntryOutStream, ExtractedEntryLength);
-        DataCompression.CloseZipArchive();
-        ZipFile.Close();
-    end;
 }
-
+#endif

@@ -1,3 +1,5 @@
+namespace Microsoft.Bank.PositivePay;
+
 page 1232 "Positive Pay Entry Details"
 {
     Caption = 'Positive Pay Entry Details';
@@ -46,7 +48,7 @@ page 1232 "Positive Pay Entry Details"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the payment amount.';
                 }
-                field(Payee; Payee)
+                field(Payee; Rec.Payee)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the recipient of the payment.';

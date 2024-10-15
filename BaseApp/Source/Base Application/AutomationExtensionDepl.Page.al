@@ -1,3 +1,5 @@
+namespace System.Apps;
+
 page 5448 "Automation Extension Depl."
 {
     APIGroup = 'automation';
@@ -38,7 +40,7 @@ page 5448 "Automation Extension Depl."
                     Caption = 'operationType', Locked = true;
                     ToolTip = 'Specifies the deployment type.';
                 }
-                field(status; Status)
+                field(status; Rec.Status)
                 {
                     ApplicationArea = All;
                     Caption = 'status', Locked = true;
@@ -58,7 +60,7 @@ page 5448 "Automation Extension Depl."
                     ToolTip = 'Specifies the version of the App.';
                     Width = 6;
                 }
-                field(startedOn; "Started On")
+                field(startedOn; Rec."Started On")
                 {
                     ApplicationArea = All;
                     Caption = 'startedOn', Locked = true;
@@ -79,21 +81,21 @@ page 5448 "Automation Extension Depl."
     var
         ExtensionManagement: Codeunit "Extension Management";
     begin
-        if "Operation Type" = 0 then
+        if Rec."Operation Type" = 0 then
             OperationType := OperationType::Install
         else
             OperationType := OperationType::Upload;
 
-        ExtensionManagement.GetDeployOperationInfo("Operation ID", Version, Schedule, Publisher, AppName, Description);
+        ExtensionManagement.GetDeployOperationInfo(Rec."Operation ID", Version, Schedule, Publisher, AppName, Rec.Description);
 
-        if Status = Status::InProgress then
-            ExtensionManagement.RefreshStatus("Operation ID");
+        if Rec.Status = Rec.Status::InProgress then
+            ExtensionManagement.RefreshStatus(Rec."Operation ID");
     end;
 
     trigger OnOpenPage()
     begin
-        SetCurrentKey("Started On");
-        Ascending(false);
+        Rec.SetCurrentKey("Started On");
+        Rec.Ascending(false);
     end;
 
     var

@@ -1,3 +1,25 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.HumanResources.Absence;
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Sales.Archive;
+using System.Privacy;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Finance.AuditFileExport;
+using Microsoft.Finance.GeneralLedger.Reports;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Counting;
+#if not CLEAN22
+using Microsoft;
+#endif
+
 codeunit 1752 "Data Class. Eval. Data Country"
 {
 
@@ -32,7 +54,9 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales VAT Advance Notification");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Transmission Log Entry");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Electronic VAT Decl. Setup");
+#if not CLEAN22
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::Certificate);
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Key Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Number Series Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"DACH Report Selections");

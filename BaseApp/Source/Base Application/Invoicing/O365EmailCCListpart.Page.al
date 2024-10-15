@@ -9,7 +9,7 @@ page 2126 "O365 Email CC Listpart"
     PageType = ListPart;
     PromotedActionCategories = 'New,Process,Report,Manage';
     SourceTable = "O365 Email Setup";
-    SourceTableView = WHERE(RecipientType = CONST(CC));
+    SourceTableView = where(RecipientType = const(CC));
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
@@ -20,7 +20,7 @@ page 2126 "O365 Email CC Listpart"
         {
             repeater(Group)
             {
-                field(Email; Email)
+                field(Email; Rec.Email)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     ExtendedDatatype = EMail;
@@ -61,7 +61,7 @@ page 2126 "O365 Email CC Listpart"
                 begin
                     if not Confirm(DeleteQst, true) then
                         exit;
-                    Delete(true);
+                    Rec.Delete(true);
                     CurrPage.Update();
                 end;
             }
@@ -70,7 +70,7 @@ page 2126 "O365 Email CC Listpart"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        RecipientType := RecipientType::CC;
+        Rec.RecipientType := Rec.RecipientType::CC;
     end;
 
     var

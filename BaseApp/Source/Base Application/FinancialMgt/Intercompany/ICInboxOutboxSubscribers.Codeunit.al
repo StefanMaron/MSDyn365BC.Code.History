@@ -1,14 +1,23 @@
+﻿namespace Microsoft.Intercompany;
+
+using Microsoft.Intercompany.DataExchange;
+using Microsoft.Intercompany.GLAccount;
+using Microsoft.Intercompany.Inbox;
+using Microsoft.Intercompany.Outbox;
+using Microsoft.Intercompany.Partner;
+using System.Telemetry;
+
 codeunit 790 "IC Inbox Outbox Subscribers"
 {
     TableNo = "IC Inbox Transaction";
 
     trigger OnRun()
     begin
-        SetRecFilter();
-        "Line Action" := "Line Action"::Accept;
-        Modify();
+        Rec.SetRecFilter();
+        Rec."Line Action" := Rec."Line Action"::Accept;
+        Rec.Modify();
         REPORT.Run(REPORT::"Complete IC Inbox Action", false, false, Rec);
-        Reset();
+        Rec.Reset();
     end;
 
     var
@@ -21,42 +30,28 @@ codeunit 790 "IC Inbox Outbox Subscribers"
         exit(TransactionSource = ICInboxTransaction."Transaction Source"::"Returned by Partner");
     end;
 
-    local procedure EnqueueAutoAcceptJobQueueEntry(ICInboxTransactionRecordId: RecordId; PartnerCompanyName: Text)
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-    begin
-        JobQueueEntry.ChangeCompany(PartnerCompanyName);
-
-        JobQueueEntry.Init();
-        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
-        JobQueueEntry."Object ID to Run" := Codeunit::"IC Inbox Outbox Subs. Runner";
-        JobQueueEntry."Record ID to Process" := ICInboxTransactionRecordId;
-        JobQueueEntry."Job Queue Category Code" := 'ICAUTOACC';
-        JobQueueEntry.Insert(true);
-
-        TaskScheduler.CreateTask(Codeunit::"Job Queue Dispatcher", 0, true, PartnerCompanyName, 0DT, JobQueueEntry.RecordId);
-    end;
-
     [EventSubscriber(ObjectType::Report, Report::"Move IC Trans. to Partner Comp", 'OnICInboxTransactionCreated', '', false, false)]
     local procedure AcceptOnAfterInsertICInboxTransaction(var Sender: Report "Move IC Trans. to Partner Comp"; var ICInboxTransaction: Record "IC Inbox Transaction"; PartnerCompanyName: Text)
     var
-        ICSetup: Record "IC Setup";
         ICPartner: Record "IC Partner";
+        TempRegisteredPartner: Record "IC Partner" temporary;
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ICMapping: Codeunit "IC Mapping";
+        ICDataExchange: Interface "IC Data Exchange";
     begin
-        ICSetup.Get();
-        ICPartner.ChangeCompany(PartnerCompanyName);
-
-        if not ICPartner.Get(ICSetup."IC Partner Code") then
+        ICPartner.SetRange("Inbox Details", PartnerCompanyName);
+        if not ICPartner.FindFirst() then
             exit;
+
+        ICDataExchange := ICPartner."Data Exchange Type";
+        ICDataExchange.GetICPartnerFromICPartner(ICPartner, TempRegisteredPartner);
 
         FeatureTelemetry.LogUptake('0000IIX', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000IIY', ICMapping.GetFeatureTelemetryName(), 'IC Inbox Transaction Created');
 
-        if ICPartner."Auto. Accept Transactions" then
+        if TempRegisteredPartner."Auto. Accept Transactions" then
             if not IsICInboxTransactionReturnedByPartner(ICInboxTransaction."Transaction Source") then
-                EnqueueAutoAcceptJobQueueEntry(ICInboxTransaction.RecordId, PartnerCompanyName);
+                ICDataExchange.EnqueueAutoAcceptedICInboxTransaction(ICPartner, ICInboxTransaction);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"ICInboxOutboxMgt", 'OnInsertICOutboxPurchDocTransaction', '', false, false)]

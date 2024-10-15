@@ -1,7 +1,13 @@
+﻿#if not CLEAN22
 codeunit 134153 "Test Intrastat"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -147,48 +153,6 @@ codeunit 134153 "Test Intrastat"
         Assert.IsTrue(IntrastatJournal."Statistical Value".Editable, '');
     end;
 
-    [Test]
-    [HandlerFunctions('IntrastatMakeDiskTaxAuthReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure IntrastatMakeDiskStatisticalValue()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Filename: Text;
-        FilenameSales: Text;
-        FilenamePurchase: Text;
-    begin
-        // [FEATURE] [Report] [Export]
-        // [SCENARIO 331036] 'Intrastat - Make Disk Tax Auth' report with Amount = 0 and given Statistical Value
-        Initialize();
-
-        // [GIVEN] Intrastat Journal Line has blank Item No., Amount = 0 and Statistical Value = 100, all mandatory fields are filled in.
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
-        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
-        IntrastatJnlLine.Validate("Source Type", 0);
-        IntrastatJnlLine.Validate("Item No.", '');
-        IntrastatJnlLine.Validate("Tariff No.", CreateTariffNo);
-        IntrastatJnlLine.Validate(Amount, 0);
-        IntrastatJnlLine.Validate("Statistical Value", LibraryRandom.RandDecInRange(100, 200, 2));
-        IntrastatJnlLine.Validate("Country/Region Code", FindCountryRegionCode);
-        IntrastatJnlLine.VALIDATE(Date, WorkDate());
-        IntrastatJnlLine.Modify(true);
-        LibraryERM.SetMandatoryFieldsOnIntrastatJnlLines(IntrastatJnlLine, IntrastatJnlBatch,
-          FindOrCreateIntrastatTransportMethod, FindOrCreateIntrastatTransactionType,
-          FindOrCreateIntrastatTransactionSpecification, LibraryRandom.RandDecInRange(1, 10, 2));
-        IntrastatJnlLine.Find();
-        IntrastatJnlLine.Validate("Total Weight", LibraryRandom.RandIntInRange(100, 200));
-        IntrastatJnlLine.Modify(true);
-        Commit();
-        // [WHEN] Run 'Intrastat - Make Disk Tax Auth' report
-        Filename := FileManagement.ServerTempFileName('txt');
-        GetIntrastatFilenames(FileName, FilenameSales, FilenamePurchase, IntrastatJnlBatch);
-        RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, Filename);
-
-        // [THEN] The file is created
-        Assert.IsTrue(FileManagement.ServerFileExists(FilenamePurchase), FileNotCreatedErr);
-    end;
-
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -280,16 +244,6 @@ codeunit 134153 "Test Intrastat"
         IntrastatJournal.GetEntries.Invoke;
         VerifyIntrastatJnlLinesExist(IntrastatJnlBatch);
         IntrastatJournal.Close();
-    end;
-
-    local procedure RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; Path: Text)
-    var
-        IntrastatDiskTaxAuthAT: Report "Intrastat - Disk Tax Auth AT";
-    begin
-        LibraryVariableStorage.Enqueue(IntrastatJnlBatch."Journal Template Name");
-        LibraryVariableStorage.Enqueue(IntrastatJnlBatch.Name);
-        IntrastatDiskTaxAuthAT.InitializeRequest(Path);
-        IntrastatDiskTaxAuthAT.Run();
     end;
 
     local procedure RunIntrastatJournalForm(Type: Option)
@@ -466,15 +420,6 @@ codeunit 134153 "Test Intrastat"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure IntrastatMakeDiskTaxAuthReqPageHandler(var IntrastatMakeDiskTaxAuthReqPage: TestRequestPage "Intrastat - Disk Tax Auth AT")
-    begin
-        IntrastatMakeDiskTaxAuthReqPage."Intrastat Jnl. Batch".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText);
-        IntrastatMakeDiskTaxAuthReqPage."Intrastat Jnl. Batch".SetFilter(Name, LibraryVariableStorage.DequeueText);
-        IntrastatMakeDiskTaxAuthReqPage.OK.Invoke;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure IntratstatJnlFormReqPageHandler(var IntrastatFormReqPage: TestRequestPage "Intrastat - Form AT")
     var
         Type: Variant;
@@ -485,3 +430,4 @@ codeunit 134153 "Test Intrastat"
     end;
 }
 
+#endif

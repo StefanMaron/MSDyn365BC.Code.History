@@ -364,6 +364,24 @@ codeunit 138300 "RS Pack Content - Standard"
         Assert.RecordCount(O365PaymentServiceLogo, 3);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReportLayoutSelections()
+    begin
+        // [SCENARIO 215679] There should be BLUESIMPLE custom layouts defined for report layout selections
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'StandardSalesQuoteBlue.docx');
+        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'StandardSalesInvoiceBlueSimple.docx');
+    end;
+
+    local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutName: Text[250])
+    var
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
+    begin
+        TenantReportLayoutSelection.SetRange("Report ID", ReportID);
+        TenantReportLayoutSelection.SetRange("Layout Name", CustomReportLayoutName);
+        Assert.RecordIsNotEmpty(TenantReportLayoutSelection);
+    end;
+
     local procedure ValidateNoSeriesExists(NoSeriesCode: Code[20])
     var
         NoSeries: Record "No. Series";

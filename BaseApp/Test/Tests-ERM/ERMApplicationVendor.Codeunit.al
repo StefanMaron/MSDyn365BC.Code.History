@@ -217,7 +217,7 @@
                   0.9, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
             end;
     end;
-
+#if not CLEAN23
     [Test]
     [HandlerFunctions('AdjExchRateReportHandler')]
     [Scope('OnPrem')]
@@ -326,7 +326,7 @@
         LastTransactionNo[1] := GetLastTransactionNo;
 
         // [WHEN] Run the Adjust Exchange Rates Batch job on (Workdate + 1)
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(
           CurrencyCode, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
 #else
@@ -351,7 +351,7 @@
             Assert.AreEqual(GLEntry.Amount, TotalAmount, WrongBalancePerTransNoErr);
         end;
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure UT_ApplyMultipleLedgEntriesBySetAppliesToId()
@@ -1057,7 +1057,7 @@
         Desc := GenerateDocument(GenJournalBatch, Vendor, PmtType, InvType, PmtAmount, InvAmount, '<1D>', '', Currency.Code);
 
         // Run the Adjust Exchange Rates Batch job.
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(
             Currency.Code, CalcDate('<1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
 #else
@@ -1862,13 +1862,13 @@
     procedure MessageHandler(Message: Text[1024])
     begin
     end;
-
+#if not CLEAN23
     [ReportHandler]
     [Scope('OnPrem')]
     procedure AdjExchRateReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
     begin
     end;
-
+#endif
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyVendorEntriesPageHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")

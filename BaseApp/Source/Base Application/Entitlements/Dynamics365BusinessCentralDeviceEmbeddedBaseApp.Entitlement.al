@@ -1,10 +1,11 @@
+namespace System.Security.AccessControl;
+
 entitlement "Dynamics 365 Business Central Device - Embedded BaseApp"
 {
     Type = ConcurrentUserServicePlan;
     GroupName = 'Dynamics 365 Business Central Device Users';
     Id = 'a98d0c4a-a52f-4771-a609-e20366102d2a';
-    ObjectEntitlements = "BaseApp Login",
-                         "BaseApp Objects - Exec",
+    ObjectEntitlements = "BaseApp Objects - Exec",
                          "D365 BASIC",
                          "D365 BUS FULL ACCESS",
                          "D365 BUS PREMIUM",

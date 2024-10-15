@@ -1,3 +1,17 @@
+namespace Microsoft.Finance.ReceivablesPayables;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Setup;
+using System.Threading;
+
 codeunit 441 "Prepayment Mgt."
 {
 

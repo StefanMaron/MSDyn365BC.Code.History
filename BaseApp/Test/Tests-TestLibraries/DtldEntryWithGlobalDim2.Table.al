@@ -14,11 +14,11 @@ table 134486 "Dtld. Entry With Global Dim 2"
         }
         field(3; "Initial Entry Global Dim. 1"; Code[20])
         {
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
         }
         field(4; "Initial Entry Global Dim. 2"; Code[20])
         {
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
         }
     }
 

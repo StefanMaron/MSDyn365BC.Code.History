@@ -1,3 +1,7 @@
+namespace Microsoft.CRM.Outlook;
+
+using System;
+
 page 1600 "Outlook Mail Engine"
 {
     Caption = 'Outlook Mail Engine';
@@ -16,7 +20,7 @@ page 1600 "Outlook Mail Engine"
         {
             repeater(Group)
             {
-                field(Email; Email)
+                field(Email; Rec.Email)
                 {
                     ApplicationArea = Basic, Suite;
                     ExtendedDatatype = EMail;
@@ -37,7 +41,7 @@ page 1600 "Outlook Mail Engine"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved document.';
                 }
-                field(Company; Company)
+                field(Company; Rec.Company)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -69,7 +73,7 @@ page 1600 "Outlook Mail Engine"
         GetDetailsFromFilters();
         SendTelemetryOnAddinStarted();
 
-        if Email = 'donotreply@contoso.com' then
+        if Rec.Email = 'donotreply@contoso.com' then
             Page.Run(Page::"Office Welcome Dlg")
         else
             OfficeMgt.InitializeContext(Rec);
@@ -133,7 +137,7 @@ page 1600 "Outlook Mail Engine"
         end;
         FieldValuesText := DelChr(FieldValuesText, '>', ',');
 
-        Session.LogMessage('0000BOY', StrSubstNo(OfficeAddinStartedTelemetryMsg, GetFilters(), FieldValuesText), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
+        Session.LogMessage('0000BOY', StrSubstNo(OfficeAddinStartedTelemetryMsg, Rec.GetFilters(), FieldValuesText), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
     end;
 }
 

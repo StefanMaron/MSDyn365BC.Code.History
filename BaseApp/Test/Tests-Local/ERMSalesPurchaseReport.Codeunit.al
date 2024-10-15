@@ -796,7 +796,7 @@ codeunit 142060 "ERM Sales/Purchase Report"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Registration No.", LibraryUtility.GenerateGUID());
+        Vendor.Validate("Registration Number", LibraryUtility.GenerateGUID());
         Vendor.Modify(true);
         FindDimensionValue(DimensionValue);
         LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, Vendor."No.", DimensionValue."Dimension Code", DimensionValue.Code);

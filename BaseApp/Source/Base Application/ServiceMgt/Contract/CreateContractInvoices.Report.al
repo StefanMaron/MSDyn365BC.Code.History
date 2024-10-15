@@ -1,3 +1,10 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Reports;
+using System.Utilities;
+
 report 6030 "Create Contract Invoices"
 {
     ApplicationArea = Service;
@@ -9,7 +16,7 @@ report 6030 "Create Contract Invoices"
     {
         dataitem("Service Contract Header"; "Service Contract Header")
         {
-            DataItemTableView = SORTING("Bill-to Customer No.", "Contract Type", "Combine Invoices", "Next Invoice Date") WHERE("Contract Type" = CONST(Contract), Status = CONST(Signed), "Change Status" = CONST(Locked));
+            DataItemTableView = sorting("Bill-to Customer No.", "Contract Type", "Combine Invoices", "Next Invoice Date") where("Contract Type" = const(Contract), Status = const(Signed), "Change Status" = const(Locked));
             RequestFilterFields = "Bill-to Customer No.", "Contract No.";
 
             trigger OnAfterGetRecord()

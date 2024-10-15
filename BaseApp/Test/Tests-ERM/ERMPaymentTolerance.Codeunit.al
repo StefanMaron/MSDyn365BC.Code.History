@@ -622,7 +622,7 @@ codeunit 134022 "ERM Payment Tolerance"
         VerifyVendorPaymentRemainingAmountIsZero(GenJournalLine."Document No.");
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('MessageHandler,ApplyCustomerEntryPageHandlerForMultipleDocument,PostApplicationHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
@@ -712,7 +712,7 @@ codeunit 134022 "ERM Payment Tolerance"
         VerifyRefundAndCreditMemoRemainingAmountIsZero(CustomerNoToApply);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('MessageHandler,ApplyVendorEntryPageHandlerForMultipleDocument,PostApplicationHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
@@ -5265,11 +5265,13 @@ codeunit 134022 "ERM Payment Tolerance"
         // This is a dummy Handler
     end;
 
+#if not CLEAN23
     [ReportHandler]
     [Scope('OnPrem')]
     procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
     begin
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

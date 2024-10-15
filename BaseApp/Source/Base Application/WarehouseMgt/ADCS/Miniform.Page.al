@@ -1,3 +1,7 @@
+namespace Microsoft.Warehouse.ADCS;
+
+using System.Reflection;
+
 page 7700 Miniform
 {
     Caption = 'Miniform';
@@ -12,7 +16,7 @@ page 7700 Miniform
             group(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies a unique code for a specific miniform.';
@@ -52,7 +56,7 @@ page 7700 Miniform
             part(Control9; "Miniform Subform")
             {
                 ApplicationArea = ADCS;
-                SubPageLink = "Miniform Code" = FIELD(Code);
+                SubPageLink = "Miniform Code" = field(Code);
             }
         }
         area(factboxes)
@@ -84,7 +88,7 @@ page 7700 Miniform
                     Caption = '&Functions';
                     Image = "Action";
                     RunObject = Page "Miniform Functions";
-                    RunPageLink = "Miniform Code" = FIELD(Code);
+                    RunPageLink = "Miniform Code" = field(Code);
                     ToolTip = 'Access functions to set up the ADCS interface.';
                 }
             }

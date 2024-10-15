@@ -22,7 +22,7 @@ codeunit 137008 "SCM Planning Options"
         LibraryRandom: Codeunit "Library - Random";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         Initialized: Boolean;
-        WrongFieldValueErr: Label '%1 is incorrect in %2', Comment = 'Direct Unit Cost is incorrect in Requisition Line';
+        WrongFieldValueErr: Label '%1 is incorrect in %2', Comment = '%1: Field name; %2: Table name. Example: "Direct Unit Cost is incorrect in Requisition Line"';
 
     [Test]
     [Scope('OnPrem')]
@@ -522,11 +522,11 @@ codeunit 137008 "SCM Planning Options"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         PurchPayablesSetup.Get();
-        PurchPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchPayablesSetup.Modify(true);
     end;
 
@@ -607,7 +607,7 @@ codeunit 137008 "SCM Planning Options"
 
         // [GIVEN] Create sales order for "X" pcs item "I" as demand for planning
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.",
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.",
           LibraryRandom.RandInt(10), Location.Code, WorkDate());
 
         // [WHEN] Calculate net change plan
@@ -650,7 +650,7 @@ codeunit 137008 "SCM Planning Options"
 
         // [GIVEN] Create a sales order for "X" pcs of item "I"
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.",
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.",
           LibraryRandom.RandInt(10), Location.Code, WorkDate());
 
         // [WHEN] Calculate net change plan
@@ -689,7 +689,7 @@ codeunit 137008 "SCM Planning Options"
         SKU.Modify(true);
 
         // [GIVEN] Create a sales order for "X" pcs item "I" as demand for planning
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLineOnLocation(SalesLine, SalesHeader, Item."No.", LibraryRandom.RandInt(10), Location.Code);
 
         // [GIVEN] Calculate net change plan
@@ -733,12 +733,12 @@ codeunit 137008 "SCM Planning Options"
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, Item."No.", '');
 
         // [GIVEN] "Vendor No." is "X" and "Vendor Item No." is "Y" in the SKU card
-        StockkeepingUnit.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        StockkeepingUnit.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         StockkeepingUnit.Validate("Vendor Item No.", LibraryUtility.GenerateGUID());
         StockkeepingUnit.Modify(true);
 
         // [GIVEN] Manually create a requisition line in the planning worksheet and set "Item No." = "I"
-        ReqWorksheet.OpenEdit;
+        ReqWorksheet.OpenEdit();
         ReqWorksheet.Type.SetValue(RequisitionLine.Type::Item);
         ReqWorksheet."No.".SetValue(Item."No.");
 
@@ -775,7 +775,7 @@ codeunit 137008 "SCM Planning Options"
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Manually create a requisition line in the planning worksheet and set "Item No." = "I", "Vendor No." = "V".
-        ReqWorksheet.OpenEdit;
+        ReqWorksheet.OpenEdit();
         ReqWorksheet.Type.SetValue(RequisitionLine.Type::Item);
         ReqWorksheet."No.".SetValue(Item."No.");
         ReqWorksheet."Vendor No.".SetValue(Vendor."No.");
@@ -814,10 +814,12 @@ codeunit 137008 "SCM Planning Options"
 
         PlanningLineManagement.CalculatePlanningLineDates(RequisitionLine);
 
-        RequisitionLine.TestField(
-          "Starting Date-Time", CreateDateTime(PlanningRoutingLine."Starting Date", PlanningRoutingLine."Starting Time"));
-        RequisitionLine.TestField(
-          "Ending Date-Time", CreateDateTime(PlanningRoutingLine."Ending Date", PlanningRoutingLine."Ending Time"));
+        Assert.AreEqual(
+            CreateDateTime(PlanningRoutingLine."Starting Date", PlanningRoutingLine."Starting Time"), RequisitionLine."Starting Date-Time",
+            StrSubstNo(WrongFieldValueErr, RequisitionLine.FieldName("Starting Date-Time"), RequisitionLine.TableName()));
+        Assert.AreEqual(
+            CreateDateTime(PlanningRoutingLine."Ending Date", PlanningRoutingLine."Ending Time"), RequisitionLine."Ending Date-Time",
+            StrSubstNo(WrongFieldValueErr, RequisitionLine.FieldName("Starting Date-Time"), RequisitionLine.TableName()));
     end;
 
     [Test]
@@ -857,11 +859,11 @@ codeunit 137008 "SCM Planning Options"
         SKU.Modify(true);
 
         // [GIVEN] Sales order for item "I" on location "B", "Quantity" = "Y"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLineOnLocation(SalesLine, SalesHeader, Item."No.", LibraryRandom.RandInt(20), Location[2].Code);
 
         // [WHEN] Calculate requisition plan for item "I" and location "B" with the option "Respect Planning Parameters for Supply Triggered Safety Stock"
-        CalculatePlanInRequisitionWorksheet(Item, Location[2].Code, WorkDate(), WorkDate + 1);
+        CalculatePlanInRequisitionWorksheet(Item, Location[2].Code, WorkDate(), WorkDate() + 1);
 
         // [THEN] Quantity planned for replenishment "X" + "Y", transfer is planned on work date
         FindRequisitionLine(RequisitionLine, Item."No.");
@@ -893,7 +895,7 @@ codeunit 137008 "SCM Planning Options"
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Manually create a requisition line in the planning worksheet and set "Item No." and Location Code
-        ReqWorksheet.OpenEdit;
+        ReqWorksheet.OpenEdit();
         ReqWorksheet.Type.SetValue(RequisitionLine.Type::Item);
         ReqWorksheet."No.".SetValue(Item."No.");
         ReqWorksheet."Location Code".SetValue(Location.Code);
@@ -931,7 +933,7 @@ codeunit 137008 "SCM Planning Options"
         LibraryPurchase.CreateVendorWithLocationCode(Vendor, Location[2].Code);
 
         // [GIVEN] Manually create a requisition line in the planning worksheet and set "Item No." and Location Code
-        ReqWorksheet.OpenEdit;
+        ReqWorksheet.OpenEdit();
         ReqWorksheet.Type.SetValue(RequisitionLine.Type::Item);
         ReqWorksheet."No.".SetValue(Item."No.");
         ReqWorksheet."Location Code".SetValue(Location[1].Code);
@@ -949,7 +951,7 @@ codeunit 137008 "SCM Planning Options"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning Options");
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         if Initialized then
             exit;
@@ -970,7 +972,7 @@ codeunit 137008 "SCM Planning Options"
         Item: Record Item;
     begin
         Item.SetRange("No.", ItemNo);
-        LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate(), WorkDate, true);
+        LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate(), WorkDate(), true);
     end;
 
     local procedure CalculatePlanInRequisitionWorksheet(var Item: Record Item; LocationCode: Code[10]; PlanningStartDate: Date; PlanningEndDate: Date)

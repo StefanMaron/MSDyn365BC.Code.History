@@ -1,3 +1,15 @@
+﻿namespace Microsoft.Foundation.Reporting;
+
+using Microsoft.CRM.Outlook;
+using Microsoft.EServices.EDocument;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using System.Email;
+using System.IO;
+using System.Reflection;
+using System.Telemetry;
+using System.Utilities;
+
 table 60 "Document Sending Profile"
 {
     Caption = 'Document Sending Profile';

@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Sales.Receivables;
+
 codeunit 5971 "Service Header Apply"
 {
     TableNo = "Service Header";

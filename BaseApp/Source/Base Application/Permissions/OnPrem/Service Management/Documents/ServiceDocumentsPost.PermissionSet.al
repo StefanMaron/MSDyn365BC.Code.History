@@ -1,10 +1,87 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.CRM.Team;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Inventory.Location;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.Analysis;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Ledger;
+using Microsoft.CRM.Campaign;
+using Microsoft.Bank.Check;
+using Microsoft.Foundation.Comment;
+using Microsoft.CRM.Contact;
+using Microsoft.Foundation.Address;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Receivables;
+using Microsoft.Finance.Dimension;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Intercompany.BankAccount;
+using Microsoft.Intercompany.GLAccount;
+using Microsoft.Intercompany.Partner;
+using Microsoft.Intercompany.Setup;
+using Microsoft.CRM.Interaction;
+using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Inventory.Costing;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Service.Maintenance;
+using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Service.Resources;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Pricing;
+using Microsoft.CRM.Segment;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.History;
+using Microsoft.Service.Document;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Setup;
+using Microsoft.Service.Posting;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Inventory.Transfer;
+using System.Security.User;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Worksheet;
+using Microsoft.Foundation.Period;
+using Microsoft.Foundation.BatchProcessing;
+
 permissionset 8322 "Service Documents - Post"
 {
     Access = Public;
     Assignable = false;
     Caption = 'Post service orders etc.';
-
-    IncludedPermissionSets = "Language - Read";
 
     Permissions = tabledata "Accounting Period" = r,
                   tabledata "Alt. Customer Posting Group" = R,
@@ -51,7 +128,7 @@ permissionset 8322 "Service Documents - Post"
                   tabledata "Interaction Tmpl. Language" = R,
                   tabledata "Inventory Posting Group" = r,
                   tabledata "Inventory Posting Setup" = R,
-#if not CLEAN20
+#if not CLEAN23
                   tabledata "Invoice Post. Buffer" = RIMD,
 #endif
                   tabledata "Invoice Posting Buffer" = RIMD,

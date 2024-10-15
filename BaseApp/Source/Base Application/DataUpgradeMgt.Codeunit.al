@@ -1,3 +1,7 @@
+namespace System.Environment.Configuration;
+
+using System.Upgrade;
+
 codeunit 9900 "Data Upgrade Mgt."
 {
 
