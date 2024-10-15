@@ -1,3 +1,27 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Inventory.Location;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Pricing;
+using Microsoft.Service.Comment;
+using Microsoft.Service.History;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Posting;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Setup;
+using Microsoft.Warehouse.Document;
+using System.Utilities;
+
 page 5905 "Service Lines"
 {
     AutoSplitKey = true;
@@ -70,8 +94,8 @@ page 5905 "Service Lines"
                     var
                         Item: Record "Item";
                     begin
-                        if "Variant Code" = '' then
-                            VariantCodeMandatory := Item.IsVariantMandatory(type = type::Item, "No.");
+                        if Rec."Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
                         NoOnAfterValidate();
                     end;
                 }
@@ -86,11 +110,11 @@ page 5905 "Service Lines"
                     var
                         Item: Record "Item";
                     begin
-                        if "Variant Code" = '' then
-                            VariantCodeMandatory := Item.IsVariantMandatory(type = type::Item, "No.");
+                        if Rec."Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
                     end;
                 }
-                field(Nonstock; Nonstock)
+                field(Nonstock; Rec.Nonstock)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the item is a catalog item.';
@@ -129,7 +153,7 @@ page 5905 "Service Lines"
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
-                field(Control134; Reserve)
+                field(Control134; Rec.Reserve)
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies whether a reservation can be made for items on this line.';
@@ -206,6 +230,17 @@ page 5905 "Service Lines"
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies how many units of the item on the line have been posted as shipped.';
+
+                    trigger OnDrillDown()
+                    var
+                        ServiceShipmentLine: Record "Service Shipment Line";
+                    begin
+                        ServiceShipmentLine.SetCurrentKey("Document No.", "No.", "Posting Date");
+                        ServiceShipmentLine.SetRange("Order No.", Rec."Document No.");
+                        ServiceShipmentLine.SetRange("Order Line No.", Rec."Line No.");
+                        ServiceShipmentLine.SetFilter(Quantity, '<>%1', 0);
+                        Page.RunModal(0, ServiceShipmentLine);
+                    end;
                 }
                 field("Qty. to Invoice"; Rec."Qty. to Invoice")
                 {
@@ -218,6 +253,17 @@ page 5905 "Service Lines"
                     ApplicationArea = Service;
                     BlankZero = true;
                     ToolTip = 'Specifies how many units of the item on the line have been posted as invoiced.';
+
+                    trigger OnDrillDown()
+                    var
+                        ServiceInvoiceLine: Record "Service Invoice Line";
+                    begin
+                        ServiceInvoiceLine.SetCurrentKey("Document No.", "No.", "Posting Date");
+                        ServiceInvoiceLine.SetRange("Order No.", Rec."Document No.");
+                        ServiceInvoiceLine.SetRange("Line No.", Rec."Line No.");
+                        ServiceInvoiceLine.SetFilter(Quantity, '<>%1', 0);
+                        Page.RunModal(0, ServiceInvoiceLine);
+                    end;
                 }
                 field("Qty. to Consume"; Rec."Qty. to Consume")
                 {
@@ -323,7 +369,7 @@ page 5905 "Service Lines"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the contract discount is excluded for the item, resource, or cost on this line.';
                 }
-                field(Warranty; Warranty)
+                field(Warranty; Rec.Warranty)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that a warranty discount is available on this line of type Item or Resource.';
@@ -447,84 +493,84 @@ page 5905 "Service Lines"
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,3';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(3),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(3),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(3, ShortcutDimCode[3]);
+                        Rec.ValidateShortcutDimCode(3, ShortcutDimCode[3]);
                     end;
                 }
                 field("ShortcutDimCode[4]"; ShortcutDimCode[4])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,4';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(4),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(4),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(4, ShortcutDimCode[4]);
+                        Rec.ValidateShortcutDimCode(4, ShortcutDimCode[4]);
                     end;
                 }
                 field("ShortcutDimCode[5]"; ShortcutDimCode[5])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,5';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(5),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(5),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(5, ShortcutDimCode[5]);
+                        Rec.ValidateShortcutDimCode(5, ShortcutDimCode[5]);
                     end;
                 }
                 field("ShortcutDimCode[6]"; ShortcutDimCode[6])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,6';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(6),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(6, ShortcutDimCode[6]);
+                        Rec.ValidateShortcutDimCode(6, ShortcutDimCode[6]);
                     end;
                 }
                 field("ShortcutDimCode[7]"; ShortcutDimCode[7])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,7';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(7),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(7),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(7, ShortcutDimCode[7]);
+                        Rec.ValidateShortcutDimCode(7, ShortcutDimCode[7]);
                     end;
                 }
                 field("ShortcutDimCode[8]"; ShortcutDimCode[8])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,8';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(8),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(8),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = false;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(8, ShortcutDimCode[8]);
+                        Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
             }
@@ -534,9 +580,9 @@ page 5905 "Service Lines"
             part(Control1904739907; "Service Line FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("Document No."),
-                              "Line No." = FIELD("Line No.");
+                SubPageLink = "Document Type" = field("Document Type"),
+                              "Document No." = field("Document No."),
+                              "Line No." = field("Line No.");
                 Visible = false;
             }
             systempart(Control1900383207; Links)
@@ -566,8 +612,8 @@ page 5905 "Service Lines"
                     Caption = 'Service Ledger E&ntries';
                     Image = ServiceLedger;
                     RunObject = Page "Service Ledger Entries";
-                    RunPageLink = "Service Order No." = FIELD("Document No.");
-                    RunPageView = SORTING("Service Order No.", "Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.", "Posting Date", Open, Type);
+                    RunPageLink = "Service Order No." = field("Document No.");
+                    RunPageView = sorting("Service Order No.", "Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.", "Posting Date", Open, Type);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents.';
                 }
@@ -577,8 +623,8 @@ page 5905 "Service Lines"
                     Caption = '&Warranty Ledger Entries';
                     Image = WarrantyLedger;
                     RunObject = Page "Warranty Ledger Entries";
-                    RunPageLink = "Service Order No." = FIELD("Document No.");
-                    RunPageView = SORTING("Service Order No.", "Posting Date", "Document No.");
+                    RunPageLink = "Service Order No." = field("Document No.");
+                    RunPageView = sorting("Service Order No.", "Posting Date", "Document No.");
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents that contain warranty agreements.';
                 }
                 action("&Job Ledger Entries")
@@ -587,9 +633,9 @@ page 5905 "Service Lines"
                     Caption = '&Job Ledger Entries';
                     Image = JobLedger;
                     RunObject = Page "Job Ledger Entries";
-                    RunPageLink = "Service Order No." = FIELD("Document No.");
-                    RunPageView = SORTING("Service Order No.", "Posting Date")
-                                  WHERE("Entry Type" = CONST(Usage));
+                    RunPageLink = "Service Order No." = field("Document No.");
+                    RunPageView = sorting("Service Order No.", "Posting Date")
+                                  where("Entry Type" = const(Usage));
                     ToolTip = 'View all the job ledger entries that result from posting transactions in the service document that involve a job.';
                 }
                 action("&Customer Card")
@@ -598,7 +644,7 @@ page 5905 "Service Lines"
                     Caption = '&Customer Card';
                     Image = Customer;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Customer No.");
+                    RunPageLink = "No." = field("Customer No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View detailed information about the customer.';
                 }
@@ -608,10 +654,10 @@ page 5905 "Service Lines"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Header"),
-                                  "Table Subtype" = FIELD("Document Type"),
-                                  "No." = FIELD("Document No."),
-                                  Type = CONST(General);
+                    RunPageLink = "Table Name" = const("Service Header"),
+                                  "Table Subtype" = field("Document Type"),
+                                  "No." = field("Document No."),
+                                  Type = const(General);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("S&hipments")
@@ -627,7 +673,7 @@ page 5905 "Service Lines"
                     begin
                         ServShptHeader.Reset();
                         ServShptHeader.FilterGroup(2);
-                        ServShptHeader.SetRange("Order No.", "Document No.");
+                        ServShptHeader.SetRange("Order No.", Rec."Document No.");
                         ServShptHeader.FilterGroup(0);
                         PAGE.RunModal(0, ServShptHeader)
                     end;
@@ -645,7 +691,7 @@ page 5905 "Service Lines"
                     begin
                         ServInvHeader.Reset();
                         ServInvHeader.FilterGroup(2);
-                        ServInvHeader.SetRange("Order No.", "Document No.");
+                        ServInvHeader.SetRange("Order No.", Rec."Document No.");
                         ServInvHeader.FilterGroup(0);
                         PAGE.RunModal(0, ServInvHeader)
                     end;
@@ -656,12 +702,12 @@ page 5905 "Service Lines"
                     Caption = 'Warehouse Shipment Lines';
                     Image = ShipmentLines;
                     RunObject = Page "Whse. Shipment Lines";
-                    RunPageLink = "Source Type" = CONST(5902),
+                    RunPageLink = "Source Type" = const(5902),
 #pragma warning disable AL0603
-                                  "Source Subtype" = FIELD("Document Type"),
+                                  "Source Subtype" = field("Document Type"),
 #pragma warning restore AL0603
-                                  "Source No." = FIELD("Document No.");
-                    RunPageView = SORTING("Source Type", "Source Subtype", "Source No.", "Source Line No.");
+                                  "Source No." = field("Document No.");
+                    RunPageView = sorting("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     ToolTip = 'View ongoing warehouse shipments for the document, in advanced warehouse configurations.';
                 }
             }
@@ -680,7 +726,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 group("Item Availability by")
@@ -775,7 +821,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        ShowReservationEntries(true);
+                        Rec.ShowReservationEntries(true);
                     end;
                 }
                 action(ItemTrackingLines)
@@ -788,7 +834,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines();
+                        Rec.OpenItemTrackingLines();
                     end;
                 }
                 action(SelectItemSubstitution)
@@ -802,10 +848,10 @@ page 5905 "Service Lines"
                     trigger OnAction()
                     begin
                         CurrPage.SaveRecord();
-                        ShowItemSub();
+                        Rec.ShowItemSub();
                         CurrPage.Update(true);
-                        if (Reserve = Reserve::Always) and ("No." <> xRec."No.") then begin
-                            AutoReserve();
+                        if (Rec.Reserve = Rec.Reserve::Always) and (Rec."No." <> xRec."No.") then begin
+                            Rec.AutoReserve();
                             CurrPage.Update(false);
                         end;
                     end;
@@ -832,7 +878,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        ShowOrderPromisingLine();
+                        Rec.ShowOrderPromisingLine();
                     end;
                 }
             }
@@ -889,7 +935,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        SplitResourceLine();
+                        Rec.SplitResourceLine();
                     end;
                 }
                 action(Reserve)
@@ -901,7 +947,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        ShowReservation();
+                        Rec.ShowReservation();
                     end;
                 }
                 action("Order &Tracking")
@@ -913,7 +959,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        ShowTracking();
+                        Rec.ShowTracking();
                     end;
                 }
                 action("Ca&talog Items")
@@ -926,7 +972,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        ShowNonstock();
+                        Rec.ShowNonstock();
                         CurrPage.Update();
                     end;
                 }
@@ -943,7 +989,7 @@ page 5905 "Service Lines"
                         ConfirmManagement: Codeunit "Confirm Management";
                     begin
                         if ConfirmManagement.GetResponseOrDefault(Text012, true) then begin
-                            ServHeader.Get("Document Type", "Document No.");
+                            ServHeader.Get(Rec."Document Type", Rec."Document No.");
                             TimeSheetMgt.CreateServDocLinesFromTS(ServHeader);
                         end;
                     end;
@@ -962,7 +1008,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        PickPrice();
+                        Rec.PickPrice();
                         CurrPage.Update();
                     end;
                 }
@@ -977,7 +1023,7 @@ page 5905 "Service Lines"
                     var
                         ServPriceMgmt: Codeunit "Service Price Management";
                     begin
-                        ServItemLine.Get("Document Type", "Document No.", ServItemLineNo);
+                        ServItemLine.Get(Rec."Document Type", Rec."Document No.", ServItemLineNo);
                         ServPriceMgmt.ShowPriceAdjustment(ServItemLine);
                     end;
                 }
@@ -1014,7 +1060,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        PickDiscount();
+                        Rec.PickDiscount();
                         CurrPage.Update();
                     end;
                 }
@@ -1030,7 +1076,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        PickDiscount();
+                        Rec.PickDiscount();
                         CurrPage.Update();
                     end;
                 }
@@ -1065,7 +1111,7 @@ page 5905 "Service Lines"
                         TempServLine: Record "Service Line" temporary;
                     begin
                         Clear(ServLine);
-                        Modify(true);
+                        Rec.Modify(true);
                         CurrPage.SaveRecord();
                         CurrPage.SetSelectionFilter(ServLine);
 
@@ -1078,13 +1124,13 @@ page 5905 "Service Lines"
                         else
                             exit;
 
-                        ServHeader.Get("Document Type", "Document No.");
+                        ServHeader.Get(Rec."Document Type", Rec."Document No.");
                         ServHeader.SendToPostWithLines(Codeunit::"Service-Post (Yes/No)", TempServLine);
 
                         ServLine.SetRange("Document Type", ServHeader."Document Type");
                         ServLine.SetRange("Document No.", ServHeader."No.");
                         if not ServLine.Find('-') then begin
-                            Reset();
+                            Rec.Reset();
                             CurrPage.Close();
                         end else
                             CurrPage.Update();
@@ -1113,11 +1159,11 @@ page 5905 "Service Lines"
                                 TempServLine.Init();
                                 TempServLine := ServLine;
                                 if TempServLine.Insert() then;
-                            until Next() = 0
+                            until Rec.Next() = 0
                         else
                             exit;
 
-                        ServHeader.Get("Document Type", "Document No.");
+                        ServHeader.Get(Rec."Document Type", Rec."Document No.");
                         ServPostYesNo.PreviewDocumentWithLines(ServHeader, TempServLine);
                     end;
                 }
@@ -1192,16 +1238,16 @@ page 5905 "Service Lines"
     var
         Item: Record Item;
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
-        if "Variant Code" = '' then
-            VariantCodeMandatory := Item.IsVariantMandatory(type = type::Item, "No.");
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
+        if Rec."Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
     var
         ServiceLineReserve: Codeunit "Service Line-Reserve";
     begin
-        if (Quantity <> 0) and ItemExists("No.") then begin
+        if (Rec.Quantity <> 0) and Rec.ItemExists(Rec."No.") then begin
             Commit();
             if not ServiceLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
@@ -1212,21 +1258,21 @@ page 5905 "Service Lines"
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         if not AddExtendedText then
-            "Line No." := GetLineNo();
+            Rec."Line No." := Rec.GetLineNo();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Clear(ShortcutDimCode);
 
-        if ServHeader.Get("Document Type", "Document No.") then begin
+        if ServHeader.Get(Rec."Document Type", Rec."Document No.") then begin
             if ServHeader."Link Service to Service Item" then
                 if SelectionFilter <> SelectionFilter::"Lines Not Item Related" then
-                    Validate("Service Item Line No.", ServItemLineNo)
+                    Rec.Validate("Service Item Line No.", ServItemLineNo)
                 else
-                    Validate("Service Item Line No.", 0)
+                    Rec.Validate("Service Item Line No.", 0)
             else
-                Validate("Service Item Line No.", 0);
+                Rec.Validate("Service Item Line No.", 0);
         end;
     end;
 
@@ -1288,13 +1334,9 @@ page 5905 "Service Lines"
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
-        [InDataSet]
         FaultAreaCodeVisible: Boolean;
-        [InDataSet]
         SymptomCodeVisible: Boolean;
-        [InDataSet]
         FaultCodeVisible: Boolean;
-        [InDataSet]
         ResolutionCodeVisible: Boolean;
         SelectionFilter: Option "All Service Lines","Lines per Selected Service Item","Lines Not Item Related";
 
@@ -1313,11 +1355,11 @@ page 5905 "Service Lines"
         OnBeforeSetSelectionFilter(SelectionFilter, Rec);
         case SelectionFilter of
             SelectionFilter::"All Service Lines":
-                SetRange("Service Item Line No.");
+                Rec.SetRange("Service Item Line No.");
             SelectionFilter::"Lines per Selected Service Item":
-                SetRange("Service Item Line No.", ServItemLineNo);
+                Rec.SetRange("Service Item Line No.", ServItemLineNo);
             SelectionFilter::"Lines Not Item Related":
-                SetRange("Service Item Line No.", 0);
+                Rec.SetRange("Service Item Line No.", 0);
         end;
         CurrPage.Update(false);
     end;
@@ -1369,10 +1411,10 @@ page 5905 "Service Lines"
                   ServSetup.FieldCaption("Fault Reporting Level"),
                   ServSetup."Fault Reporting Level", ServSetup.TableCaption());
         end;
-        ServItemLine.Get("Document Type", "Document No.", "Service Item Line No.");
+        ServItemLine.Get(Rec."Document Type", Rec."Document No.", Rec."Service Item Line No.");
         Clear(FaultResolutionRelation);
-        FaultResolutionRelation.SetDocument(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Line No.");
-        FaultResolutionRelation.SetFilters("Symptom Code", "Fault Code", "Fault Area Code", ServItemLine."Service Item Group Code");
+        FaultResolutionRelation.SetDocument(DATABASE::"Service Line", Rec."Document Type".AsInteger(), Rec."Document No.", Rec."Line No.");
+        FaultResolutionRelation.SetFilters(Rec."Symptom Code", Rec."Fault Code", Rec."Fault Area Code", ServItemLine."Service Item Group Code");
         FaultResolutionRelation.RunModal();
         CurrPage.Update(false);
     end;
@@ -1381,24 +1423,24 @@ page 5905 "Service Lines"
     begin
         InsertExtendedText(false);
 
-        if (Reserve = Reserve::Always) and
-           ("Outstanding Qty. (Base)" <> 0) and
-           ("No." <> xRec."No.")
+        if (Rec.Reserve = Rec.Reserve::Always) and
+           (Rec."Outstanding Qty. (Base)" <> 0) and
+           (Rec."No." <> xRec."No.")
         then begin
             CurrPage.SaveRecord();
-            AutoReserve();
+            Rec.AutoReserve();
             CurrPage.Update(false);
         end;
     end;
 
     procedure LocationCodeOnAfterValidate()
     begin
-        if (Reserve = Reserve::Always) and
-           ("Outstanding Qty. (Base)" <> 0) and
-           ("Location Code" <> xRec."Location Code")
+        if (Rec.Reserve = Rec.Reserve::Always) and
+           (Rec."Outstanding Qty. (Base)" <> 0) and
+           (Rec."Location Code" <> xRec."Location Code")
         then begin
             CurrPage.SaveRecord();
-            AutoReserve();
+            Rec.AutoReserve();
         end;
         CurrPage.Update(true);
     end;
@@ -1407,25 +1449,25 @@ page 5905 "Service Lines"
     var
         UpdateIsDone: Boolean;
     begin
-        if Type = Type::Item then
-            case Reserve of
-                Reserve::Always:
+        if Rec.Type = Rec.Type::Item then
+            case Rec.Reserve of
+                Rec.Reserve::Always:
                     begin
                         CurrPage.SaveRecord();
-                        AutoReserve();
+                        Rec.AutoReserve();
                         CurrPage.Update(false);
                         UpdateIsDone := true;
                     end;
-                Reserve::Optional:
-                    if (Quantity < xRec.Quantity) and (xRec.Quantity > 0) then begin
+                Rec.Reserve::Optional:
+                    if (Rec.Quantity < xRec.Quantity) and (xRec.Quantity > 0) then begin
                         CurrPage.SaveRecord();
                         CurrPage.Update(false);
                         UpdateIsDone := true;
                     end;
             end;
 
-        if (Type = Type::Item) and
-           ((Quantity <> xRec.Quantity) or ("Line No." = 0)) and
+        if (Rec.Type = Rec.Type::Item) and
+           ((Rec.Quantity <> xRec.Quantity) or (Rec."Line No." = 0)) and
            not UpdateIsDone
         then
             CurrPage.Update(true);
@@ -1433,12 +1475,12 @@ page 5905 "Service Lines"
 
     procedure PostingDateOnAfterValidate()
     begin
-        if (Reserve = Reserve::Always) and
-           ("Outstanding Qty. (Base)" <> 0) and
-           ("Posting Date" <> xRec."Posting Date")
+        if (Rec.Reserve = Rec.Reserve::Always) and
+           (Rec."Outstanding Qty. (Base)" <> 0) and
+           (Rec."Posting Date" <> xRec."Posting Date")
         then begin
             CurrPage.SaveRecord();
-            AutoReserve();
+            Rec.AutoReserve();
             CurrPage.Update(false);
         end;
     end;

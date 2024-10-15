@@ -1303,6 +1303,45 @@ codeunit 137088 "SCM Order Planning - III"
     end;
 
     [Test]
+    procedure OtherBlockedItemVariantDoesNotPreventCreatePurchaseFromSales()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Variant] [Sales] [Purchase] [Order]
+        // [SCENARIO] Other blocked item variants do not interfere with creating purchase from sales.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Items "A" and "B".
+        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItem(Item));
+        LibraryInventory.CreateItem(Item2);
+        Item2.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item2.Modify(true);
+
+        // [GIVEN] Sales order for item "A" with variant I.
+        // [GIVEN] Sales order for item "B".
+        CreateSalesOrderWithItemVariant(SalesHeader, Item."No.", ItemVariant.Code, '', Qty, Qty);
+        CreateSalesOrder(SalesHeader, Item2."No.", '', Qty, Qty);
+
+        // [GIVEN] Block item variant "I".
+        ItemVariant.Validate(Blocked, true);
+        ItemVariant.Modify(true);
+
+        // [WHEN] Run "Create Purchase Order" from the sales order for item "B".
+        CreatePurchaseOrderFromSalesOrder(SalesHeader."No.", true);
+
+        // [THEN] A new purchase order for "B" is successfully created.
+        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item2."No.");
+        PurchaseHeader.TestField("Buy-from Vendor No.", Item2."Vendor No.");
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure PlanningTwoSalesOrdersOneSupplyCoversBoth()
     var
@@ -3080,10 +3119,17 @@ codeunit 137088 "SCM Order Planning - III"
     end;
 
     local procedure CreateSalesLine(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[10]; ShipmentDate: Date; Quantity: Decimal; QuantityToShip: Decimal)
+    begin
+        CreateSalesLine(SalesHeader, ItemNo, '', LocationCode, ShipmentDate, Quantity, QuantityToShip);
+    end;
+
+    local procedure CreateSalesLine(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; ItemVariantCode: Code[10]; LocationCode: Code[10]; ShipmentDate: Date; Quantity: Decimal; QuantityToShip: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        if ItemVariantCode <> '' then
+            SalesLine."Variant Code" := ItemVariantCode;
         SalesLine.Validate("Qty. to Ship", QuantityToShip);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Validate("Location Code", LocationCode);
@@ -3099,6 +3145,17 @@ codeunit 137088 "SCM Order Planning - III"
         SalesHeader.Validate("Location Code", LocationCode);
         SalesHeader.Modify(true);
         CreateSalesLine(SalesHeader, ItemNo, LocationCode, WorkDate(), Quantity, QtyToShip);
+    end;
+
+    local procedure CreateSalesOrderWithItemVariant(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; ItemVariantCode: Code[10]; LocationCode: Code[10]; Quantity: Decimal; QtyToShip: Decimal)
+    begin
+        // Random values used are not important for test.
+        Clear(SalesHeader);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Modify(true);
+
+        CreateSalesLine(SalesHeader, ItemNo, ItemVariantCode, LocationCode, WorkDate(), Quantity, QtyToShip);
     end;
 
     local procedure CreateSalesOrderWithPurchasingCode(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; PurchasingCode: Code[10])

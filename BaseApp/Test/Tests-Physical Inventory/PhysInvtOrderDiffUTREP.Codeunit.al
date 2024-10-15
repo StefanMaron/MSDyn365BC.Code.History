@@ -160,7 +160,7 @@ codeunit 137454 "Phys. Invt. Order Diff. UT REP"
         DimensionSetEntry: Record "Dimension Set Entry";
         DimensionSetEntry2: Record "Dimension Set Entry";
     begin
-        // [SCENARIO] validate the LineDimensionLoop OnAfterGetRecord of the Phys. Invt. Order Diff. List Report for ELSE condition.
+        // [SCENARIO] validate the LineDimensionLoop OnAfterGetRecord of the Phys. Invt. Order Diff. List Report for else condition.
 
         // [GIVEN] Create Phys. Inventory Order. Update Phys. Inventory Order Line. Create and update Dimension Set Entry on Phys. Inventory Order Line.
         CreatePhysInventoryOrder(PhysInvtOrderHeader, PhysInvtOrderLine, CreateItem);

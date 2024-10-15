@@ -1,3 +1,13 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
+#if not CLEAN22
+using System.Reflection;
+#endif
+
 table 261 "Intrastat Jnl. Template"
 {
     Caption = 'Intrastat Jnl. Template';
@@ -27,14 +37,14 @@ table 261 "Intrastat Jnl. Template"
         {
             Caption = 'Checklist Report ID';
 #if not CLEAN22
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Report));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Report));
 #endif
         }
         field(6; "Page ID"; Integer)
         {
             Caption = 'Page ID';
 #if not CLEAN22
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Page));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Page));
 
             trigger OnValidate()
             begin
@@ -47,8 +57,8 @@ table 261 "Intrastat Jnl. Template"
         field(15; "Checklist Report Caption"; Text[250])
         {
 #if not CLEAN22
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Report),
-                                                                           "Object ID" = FIELD("Checklist Report ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+                                                                           "Object ID" = field("Checklist Report ID")));
             Caption = 'Checklist Report Caption';
             Editable = false;
             FieldClass = FlowField;
@@ -57,8 +67,8 @@ table 261 "Intrastat Jnl. Template"
         field(16; "Page Caption"; Text[250])
         {
 #if not CLEAN22
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
-                                                                           "Object ID" = FIELD("Page ID")));
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+                                                                           "Object ID" = field("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
             FieldClass = FlowField;

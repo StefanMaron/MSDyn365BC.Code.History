@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 page 480 "Edit Dimension Set Entries"
 {
     Caption = 'Edit Dimension Set Entries';
@@ -16,7 +18,7 @@ page 480 "Edit Dimension Set Entries"
                 field("Dimension Code"; Rec."Dimension Code")
                 {
                     ApplicationArea = Dimensions;
-                    Editable = "Dimension Value Code" = '';
+                    Editable = Rec."Dimension Value Code" = '';
                     ToolTip = 'Specifies the dimension.';
                 }
                 field("Dimension Name"; Rec."Dimension Name")
@@ -25,7 +27,7 @@ page 480 "Edit Dimension Set Entries"
                     ToolTip = 'Specifies the descriptive name of the Dimension Code field.';
                     Visible = false;
                 }
-                field(DimensionValueCode; "Dimension Value Code")
+                field(DimensionValueCode; Rec."Dimension Value Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension value.';
@@ -50,7 +52,7 @@ page 480 "Edit Dimension Set Entries"
 
     trigger OnOpenPage()
     begin
-        DimSetID := GetRangeMin("Dimension Set ID");
+        DimSetID := Rec.GetRangeMin("Dimension Set ID");
         DimMgt.GetDimensionSet(Rec, DimSetID);
         if FormCaption <> '' then
             CurrPage.Caption := FormCaption;

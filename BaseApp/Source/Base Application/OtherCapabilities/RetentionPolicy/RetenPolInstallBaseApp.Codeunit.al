@@ -1,3 +1,18 @@
+namespace System.DataAdministration;
+
+using Microsoft.EServices.EDocument;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Foundation.Company;
+using Microsoft.Purchases.Archive;
+using Microsoft.Sales.Archive;
+using Microsoft.Utilities;
+using System.Upgrade;
+using System.Diagnostics;
+using System.Automation;
+using System.Environment.Configuration;
+using System.Threading;
+
 #pragma warning disable AA0235
 codeunit 3999 "Reten. Pol. Install - BaseApp"
 #pragma warning restore AA0235
@@ -67,6 +82,13 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
             AddChangeLogEntryToAllowedTables(IsInitialSetup);
             if IsInitialSetup then
                 UpgradeTag.SetUpgradeTag(GetRetenPolProtectedChangeLogUpgradeTag());
+        end;
+
+        IsInitialSetup := not UpgradeTag.HasUpgradeTag(GetRetenPolSentNotifcationEntryUpgradeTag());
+        if IsInitialSetup or ForceUpdate then begin
+            AddSentNotifcationEntryToAllowedTables();
+            if IsInitialSetup then
+                UpgradeTag.SetUpgradeTag(GetRetenPolSentNotifcationEntryUpgradeTag());
         end;
     end;
 
@@ -146,6 +168,18 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         EnableRetentionPolicySetup(Database::"Dataverse Entity Change");
     end;
 
+    local procedure AddSentNotifcationEntryToAllowedTables()
+    var
+        SentNotificationEntry: Record "Sent Notification Entry";
+        RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
+        RecRef: RecordRef;
+        TableFilters: JsonArray;
+    begin
+        RecRef.GetTable(SentNotificationEntry);
+        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, Enum::"Retention Period Enum"::"6 Months", SentNotificationEntry.FieldNo("Sent Date-Time"), true, false, RecRef);  // not locked
+        RetenPolAllowedTables.AddAllowedTable(Database::"Sent Notification Entry", SentNotificationEntry.FieldNo("Sent Date-Time"), TableFilters);
+    end;
+
     local procedure FindOrCreateRetentionPeriod(RetentionPeriodEnum: Enum "Retention Period Enum"): Code[20]
     var
         RetentionPolicySetup: Codeunit "Retention Policy Setup";
@@ -210,6 +244,11 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
     local procedure GetRetenPolProtectedChangeLogUpgradeTag(): Code[250]
     begin
         exit('MS-447066-RetenPolProtectedChangeLog-20221003');
+    end;
+
+    local procedure GetRetenPolSentNotifcationEntryUpgradeTag(): Code[250]
+    begin
+        exit('MS-GIT-422-RetenPolSentNotifcationEntry-20230829');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reten. Pol. Allowed Tables", 'OnRefreshAllowedTables', '', false, false)]

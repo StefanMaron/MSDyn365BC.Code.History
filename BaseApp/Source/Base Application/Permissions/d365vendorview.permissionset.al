@@ -1,3 +1,10 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Purchases.Payables;
+using Microsoft.Inventory.Intrastat;
+
 permissionset 6555 "D365 VENDOR, VIEW"
 {
     Assignable = true;

@@ -1,3 +1,8 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using System.Text;
+
 page 560 "Dimension Value List"
 {
     Caption = 'Dimension Value List';
@@ -16,7 +21,7 @@ page 560 "Dimension Value List"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Dimensions;
                     Style = Strong;
@@ -36,13 +41,13 @@ page 560 "Dimension Value List"
                     ToolTip = 'Specifies the purpose of the dimension value.';
                     Visible = false;
                 }
-                field(Totaling; Totaling)
+                field(Totaling; Rec.Totaling)
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies an account interval or a list of account numbers. The entries of the account will be totaled to give a total balance. How entries are totaled depends on the value in the Account Type field.';
                     Visible = false;
                 }
-                field(Blocked; Blocked)
+                field(Blocked; Rec.Blocked)
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
@@ -89,9 +94,7 @@ page 560 "Dimension Value List"
     var
         GLSetup: Record "General Ledger Setup";
         Text000: Label 'Shortcut Dimension %1';
-        [InDataSet]
         Emphasize: Boolean;
-        [InDataSet]
         NameIndent: Integer;
 
     procedure GetSelectionFilter(): Text
@@ -110,40 +113,40 @@ page 560 "Dimension Value List"
 
     local procedure GetFormCaption(): Text[250]
     begin
-        if GetFilter("Dimension Code") <> '' then
-            exit(GetFilter("Dimension Code"));
+        if Rec.GetFilter("Dimension Code") <> '' then
+            exit(Rec.GetFilter("Dimension Code"));
 
-        if GetFilter("Global Dimension No.") = '1' then
+        if Rec.GetFilter("Global Dimension No.") = '1' then
             exit(GLSetup."Global Dimension 1 Code");
 
-        if GetFilter("Global Dimension No.") = '2' then
+        if Rec.GetFilter("Global Dimension No.") = '2' then
             exit(GLSetup."Global Dimension 2 Code");
 
-        if GetFilter("Global Dimension No.") = '3' then
+        if Rec.GetFilter("Global Dimension No.") = '3' then
             exit(GLSetup."Shortcut Dimension 3 Code");
 
-        if GetFilter("Global Dimension No.") = '4' then
+        if Rec.GetFilter("Global Dimension No.") = '4' then
             exit(GLSetup."Shortcut Dimension 4 Code");
 
-        if GetFilter("Global Dimension No.") = '5' then
+        if Rec.GetFilter("Global Dimension No.") = '5' then
             exit(GLSetup."Shortcut Dimension 5 Code");
 
-        if GetFilter("Global Dimension No.") = '6' then
+        if Rec.GetFilter("Global Dimension No.") = '6' then
             exit(GLSetup."Shortcut Dimension 6 Code");
 
-        if GetFilter("Global Dimension No.") = '7' then
+        if Rec.GetFilter("Global Dimension No.") = '7' then
             exit(GLSetup."Shortcut Dimension 7 Code");
 
-        if GetFilter("Global Dimension No.") = '8' then
+        if Rec.GetFilter("Global Dimension No.") = '8' then
             exit(GLSetup."Shortcut Dimension 8 Code");
 
-        exit(StrSubstNo(Text000, "Global Dimension No."));
+        exit(StrSubstNo(Text000, Rec."Global Dimension No."));
     end;
 
     local procedure FormatLines()
     begin
-        Emphasize := "Dimension Value Type" <> "Dimension Value Type"::Standard;
-        NameIndent := Indentation;
+        Emphasize := Rec."Dimension Value Type" <> Rec."Dimension Value Type"::Standard;
+        NameIndent := Rec.Indentation;
     end;
 }
 

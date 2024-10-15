@@ -1,3 +1,11 @@
+namespace Microsoft.Service.Item;
+
+using Microsoft.Inventory.Item;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Maintenance;
+
 page 5988 "Service Items"
 {
     Caption = 'Service Items';
@@ -96,9 +104,9 @@ page 5988 "Service Items"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Item"),
-                                  "Table Subtype" = CONST("0"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const("Service Item"),
+                                  "Table Subtype" = const("0"),
+                                  "No." = field("No.");
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("Service Ledger E&ntries")
@@ -107,11 +115,11 @@ page 5988 "Service Items"
                     Caption = 'Service Ledger E&ntries';
                     Image = ServiceLedger;
                     RunObject = Page "Service Ledger Entries";
-                    RunPageLink = "Service Item No. (Serviced)" = FIELD("No."),
-                                  "Service Order No." = FIELD("Service Order Filter"),
-                                  "Service Contract No." = FIELD("Contract Filter"),
-                                  "Posting Date" = FIELD("Date Filter");
-                    RunPageView = SORTING("Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.", Type, "Posting Date");
+                    RunPageLink = "Service Item No. (Serviced)" = field("No."),
+                                  "Service Order No." = field("Service Order Filter"),
+                                  "Service Contract No." = field("Contract Filter"),
+                                  "Posting Date" = field("Date Filter");
+                    RunPageView = sorting("Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.", Type, "Posting Date");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents.';
                 }
@@ -121,8 +129,8 @@ page 5988 "Service Items"
                     Caption = '&Warranty Ledger Entries';
                     Image = WarrantyLedger;
                     RunObject = Page "Warranty Ledger Entries";
-                    RunPageLink = "Service Item No. (Serviced)" = FIELD("No.");
-                    RunPageView = SORTING("Service Item No. (Serviced)", "Posting Date", "Document No.");
+                    RunPageLink = "Service Item No. (Serviced)" = field("No.");
+                    RunPageView = sorting("Service Item No. (Serviced)", "Posting Date", "Document No.");
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents that contain warranty agreements.';
                 }
                 action(Statistics)
@@ -131,7 +139,7 @@ page 5988 "Service Items"
                     Caption = 'Statistics';
                     Image = Statistics;
                     RunObject = Page "Service Item Statistics";
-                    RunPageLink = "No." = FIELD("No.");
+                    RunPageLink = "No." = field("No.");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
@@ -141,7 +149,7 @@ page 5988 "Service Items"
                     Caption = '&Trendscape';
                     Image = Trendscape;
                     RunObject = Page "Service Item Trendscape";
-                    RunPageLink = "No." = FIELD("No.");
+                    RunPageLink = "No." = field("No.");
                     ToolTip = 'View a scrollable summary of service ledger entries that are related to a specific service item. This summary is generated for a specific time period.';
                 }
                 action("L&og")
@@ -150,7 +158,7 @@ page 5988 "Service Items"
                     Caption = 'L&og';
                     Image = Approve;
                     RunObject = Page "Service Item Log";
-                    RunPageLink = "Service Item No." = FIELD("No.");
+                    RunPageLink = "Service Item No." = field("No.");
                     ToolTip = 'View the list of the service item changes that have been logged, for example, when the warranty has changed or a component has been added. This window displays the field that was changed, the old value and the new value, and the date and time that the field was changed.';
                 }
                 action("Com&ponents")
@@ -159,9 +167,9 @@ page 5988 "Service Items"
                     Caption = 'Com&ponents';
                     Image = Components;
                     RunObject = Page "Service Item Component List";
-                    RunPageLink = Active = CONST(true),
-                                  "Parent Service Item No." = FIELD("No.");
-                    RunPageView = SORTING(Active, "Parent Service Item No.", "Line No.");
+                    RunPageLink = Active = const(true),
+                                  "Parent Service Item No." = field("No.");
+                    RunPageView = sorting(Active, "Parent Service Item No.", "Line No.");
                     ToolTip = 'View the list of components in the service item.';
                 }
                 separator(Action38)
@@ -177,8 +185,8 @@ page 5988 "Service Items"
                         Caption = 'Service Item Group';
                         Image = ServiceItemGroup;
                         RunObject = Page "Troubleshooting Setup";
-                        RunPageLink = Type = CONST("Service Item Group"),
-                                      "No." = FIELD("Service Item Group Code");
+                        RunPageLink = Type = const("Service Item Group"),
+                                      "No." = field("Service Item Group Code");
                         ToolTip = 'View or edit groupings of service items.';
                     }
                     action(ServiceItem)
@@ -187,8 +195,8 @@ page 5988 "Service Items"
                         Caption = 'Service Item';
                         Image = "Report";
                         RunObject = Page "Troubleshooting Setup";
-                        RunPageLink = Type = CONST("Service Item"),
-                                      "No." = FIELD("No.");
+                        RunPageLink = Type = const("Service Item"),
+                                      "No." = field("No.");
                         ToolTip = 'Create a new service item.';
                     }
                     action(Item)
@@ -197,8 +205,8 @@ page 5988 "Service Items"
                         Caption = 'Item';
                         Image = Item;
                         RunObject = Page "Troubleshooting Setup";
-                        RunPageLink = Type = CONST(Item),
-                                      "No." = FIELD("Item No.");
+                        RunPageLink = Type = const(Item),
+                                      "No." = field("Item No.");
                         ToolTip = 'View and edit detailed information for the item.';
                     }
                 }
@@ -227,17 +235,17 @@ page 5988 "Service Items"
         Item: Record Item;
     begin
         case true of
-            GetFilter("Customer No.") <> '':
+            Rec.GetFilter("Customer No.") <> '':
                 begin
-                    if Cust.Get(GetRangeMin("Customer No.")) then
+                    if Cust.Get(Rec.GetRangeMin("Customer No.")) then
                         exit(StrSubstNo(Text000, Cust."No.", Cust.Name));
-                    exit(StrSubstNo('%1 %2', GetRangeMin("Customer No.")));
+                    exit(StrSubstNo('%1 %2', Rec.GetRangeMin("Customer No.")));
                 end;
-            GetFilter("Item No.") <> '':
+            Rec.GetFilter("Item No.") <> '':
                 begin
-                    if Item.Get(GetRangeMin("Item No.")) then
+                    if Item.Get(Rec.GetRangeMin("Item No.")) then
                         exit(StrSubstNo(Text001, Item."No.", Item.Description));
-                    exit(StrSubstNo('%1 %2', GetRangeMin("Item No.")));
+                    exit(StrSubstNo('%1 %2', Rec.GetRangeMin("Item No.")));
                 end;
             else
                 exit('');

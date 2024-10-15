@@ -7789,6 +7789,65 @@ codeunit 134327 "ERM Purchase Order"
 
     [Test]
     [Scope('OnPrem')]
+    procedure PostingPurchaseReceiptOnPurchaseDocTwice()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        VendorInvoiceDisc: Record "Vendor Invoice Disc.";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        VendorNo: Code[20];
+        ServiceChargeAmt: Decimal;
+        PurchaseOrderTestPage: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [Take me there] [Warehouse Receipt]
+        Initialize();
+
+        // [GIVEN] Enable invoice discount calculation on "Purchases & Payables Setup".
+        // [GIVEN] Set "Service Charge" = 10 in "Vendor Invoice Discount" setting for vendor "V".
+        LibraryPurchase.SetCalcInvDiscount(true);
+        VendorNo := CreateVendorInvDiscount;
+        ServiceChargeAmt := LibraryRandom.RandDecInDecimalRange(10, 20, 2);
+        VendorInvoiceDisc.SetRange(Code, VendorNo);
+        VendorInvoiceDisc.FindFirst();
+        VendorInvoiceDisc.Validate("Service Charge", ServiceChargeAmt);
+        VendorInvoiceDisc.Modify(true);
+
+        // [GIVEN] Location "L" set up for required receive.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Purchase order with vendor = "V" and location = "L".
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, VendorNo,
+          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), Location.Code, WorkDate());
+
+        // [GIVEN] Releasing the purchase order adds a service charge purchase line to the order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Update "Service Charge" to 20 in "Vendor Invoice Discount" setting for vendor "V".
+        VendorInvoiceDisc.Validate("Service Charge", 2 * ServiceChargeAmt);
+        VendorInvoiceDisc.Modify(true);
+
+        // [GIVEN] Create warehouse receipt from the purchase order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [THEN] The receipt is posted without an error.
+        PurchaseLine.Find();
+
+        // [GIVEN] Try to invoke the warehouse Reciept action again.
+        PurchaseOrderTestPage.OpenEdit();
+        PurchaseOrderTestPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrderTestPage.GotoRecord(PurchaseHeader);
+        asserterror PurchaseOrderTestPage."Create &Whse. Receipt_Promoted".Invoke();
+
+        // [THEN] validate error message is thrown.
+        assert.ExpectedError('This usually happens');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure VerifyJobNoOnReleasePurchaseOrder()
     var
         Job: Record Job;
@@ -9860,7 +9919,7 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderCharge, true, true);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPreparePurchase', '', false, false)]
     local procedure OnAfterInvPostBufferPreparePurchase(var PurchaseLine: Record "Purchase Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin

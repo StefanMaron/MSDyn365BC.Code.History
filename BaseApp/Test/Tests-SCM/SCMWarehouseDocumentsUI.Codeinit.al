@@ -15,8 +15,11 @@ codeunit 137081 "SCM Warehouse Documents UI"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPatterns: Codeunit "Library - Patterns";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
+        UserIsNotWhseEmployeeAtWMSLocationErr: Label 'You must first set up user %1 as a warehouse employee at a location with the Bin Mandatory setting.', Comment = '%1: USERID';
+        DefaultLocationNotDirectedPutawayPickErr: Label 'You must set up a default location with the Directed Put-away and Pick setting and assign it to user %1.', Comment = '%1: USERID';
 
     [Test]
     procedure ViewWhsePutAwayFromPurchOrder()
@@ -633,6 +636,144 @@ codeunit 137081 "SCM Warehouse Documents UI"
         LocationsWithWarehouseList.Close();
     end;
 
+    [Test]
+    procedure WarehouseEmployeeForWMSLocationExists()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WMSManagement: Codeunit "WMS Management";
+        CurrentLocationCode: Code[10];
+    begin
+        // [FEATURE] [Warehouse Employee]
+        // [SCENARIO 445825] The user has been set up as a warehouse employee at location with bin mandatory.
+        Initialize();
+        WarehouseEmployee.DeleteAll();
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        WMSManagement.GetWMSLocation(CurrentLocationCode);
+
+        Assert.AreEqual(Location.Code, CurrentLocationCode, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('WarehouseEmployeesAddMeModalPageHandler,LocationListModalPageHandler,ConfirmHandlerYes')]
+    procedure WarehouseEmployeeForWMSLocationShowConfirmYesAddMe()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WMSManagement: Codeunit "WMS Management";
+        CurrentLocationCode: Code[10];
+    begin
+        // [FEATURE] [Warehouse Employee]
+        // [SCENARIO 445825] The user is not a warehouse employee at location with bin mandatory, they receive confirm message, set themselves up properly, and continue transaction.
+        Initialize();
+        WarehouseEmployee.DeleteAll();
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        LibraryVariableStorage.Enqueue(Location.Code);
+        WMSManagement.GetWMSLocation(CurrentLocationCode);
+
+        Assert.AreEqual(Location.Code, CurrentLocationCode, '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('WarehouseEmployeesAddMeModalPageHandler,LocationListModalPageHandler,ConfirmHandlerYes')]
+    procedure WarehouseEmployeeForWMSLocationShowConfirmYesDoNotAdd()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WMSManagement: Codeunit "WMS Management";
+        CurrentLocationCode: Code[10];
+    begin
+        // [FEATURE] [Warehouse Employee]
+        // [SCENARIO 445825] The user is not a warehouse employee at location with bin mandatory, they receive confirm message, set themselves up at location with no bins, and get error.
+        Initialize();
+        WarehouseEmployee.DeleteAll();
+
+        LibraryWarehouse.CreateLocation(Location);
+
+        LibraryVariableStorage.Enqueue(Location.Code);
+        asserterror WMSManagement.GetWMSLocation(CurrentLocationCode);
+
+        Assert.ExpectedError(StrSubstNo(UserIsNotWhseEmployeeAtWMSLocationErr, UserId()));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    procedure WarehouseEmployeeForWMSLocationShowConfirmNo()
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+        WMSManagement: Codeunit "WMS Management";
+        CurrentLocationCode: Code[10];
+    begin
+        // [FEATURE] [Warehouse Employee]
+        // [SCENARIO 445825] The user is not a warehouse employee at location with bin mandatory, they receive confirm message, respond No, and get error.
+        Initialize();
+        WarehouseEmployee.DeleteAll();
+
+        asserterror WMSManagement.GetWMSLocation(CurrentLocationCode);
+
+        Assert.ExpectedError(StrSubstNo(UserIsNotWhseEmployeeAtWMSLocationErr, UserId()));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('WarehouseEmployeesDefaultModalPageHandler,ConfirmHandlerYes')]
+    procedure WarehouseEmployeeForDPnPLocationShowConfirmYesAddMe()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WMSManagement: Codeunit "WMS Management";
+        CurrentLocationCode: Code[10];
+    begin
+        // [FEATURE] [Warehouse Employee]
+        // [SCENARIO 445825] The user is not a warehouse employee at directed put-away and pick location, they receive confirm message, set themselves up properly, and continue transaction.
+        Initialize();
+        WarehouseEmployee.DeleteAll();
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+        Location."Directed Put-away and Pick" := true;
+        Location.Modify();
+
+        LibraryVariableStorage.Enqueue(Location.Code);
+        CurrentLocationCode := WMSManagement.GetDefaultDirectedPutawayAndPickLocation();
+
+        Assert.AreEqual(Location.Code, CurrentLocationCode, '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('WarehouseEmployeesDefaultModalPageHandler,ConfirmHandlerYes')]
+    procedure WarehouseEmployeeForDPnPLocationShowConfirmYesDoNotAdd()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WMSManagement: Codeunit "WMS Management";
+    begin
+        // [FEATURE] [Warehouse Employee]
+        // [SCENARIO 445825] The user is not a warehouse employee at directed put-away and pick (DPnP) location, they receive confirm message, set themselves up at non-DPnP location, and get error.
+        Initialize();
+        WarehouseEmployee.DeleteAll();
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, true, true);
+
+        LibraryVariableStorage.Enqueue(Location.Code);
+        asserterror WMSManagement.GetDefaultDirectedPutawayAndPickLocation();
+
+        Assert.ExpectedError(StrSubstNo(DefaultLocationNotDirectedPutawayPickErr, UserId()));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         WarehouseSetup: Record "Warehouse Setup";
@@ -640,6 +781,9 @@ codeunit 137081 "SCM Warehouse Documents UI"
         LibraryService: Codeunit "Library - Service";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Warehouse Documents UI");
+
+        LibraryVariableStorage.Clear();
+
         // Lazy Setup.
         if isInitialized then
             exit;
@@ -700,5 +844,42 @@ codeunit 137081 "SCM Warehouse Documents UI"
         PostedWhseReceiptHeader.SetRange("Whse. Receipt No.", WhseReceiptHeader."No.");
         PostedWhseReceiptHeader.FindFirst();
         exit(PostedWhseReceiptHeader."No.");
+    end;
+
+    [ModalPageHandler]
+    procedure WarehouseEmployeesAddMeModalPageHandler(var WarehouseEmployees: TestPage "Warehouse Employees")
+    begin
+        WarehouseEmployees."Add Me".Invoke();
+        WarehouseEmployees.OK().Invoke();
+    end;
+
+
+    [ModalPageHandler]
+    procedure WarehouseEmployeesDefaultModalPageHandler(var WarehouseEmployees: TestPage "Warehouse Employees")
+    begin
+        WarehouseEmployees.New();
+        WarehouseEmployees."User ID".SetValue(UserId());
+        WarehouseEmployees."Location Code".SetValue(LibraryVariableStorage.DequeueText());
+        WarehouseEmployees.Default.SetValue(true);
+        WarehouseEmployees.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure LocationListModalPageHandler(var LocationList: TestPage "Location List")
+    begin
+        LocationList.Filter.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        LocationList.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerYes(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }

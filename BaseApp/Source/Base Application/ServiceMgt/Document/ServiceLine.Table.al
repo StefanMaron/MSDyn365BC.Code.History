@@ -1,4 +1,59 @@
-﻿table 5902 "Service Line"
+﻿namespace Microsoft.Service.Document;
+
+using Microsoft.CRM.Team;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Clause;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Planning;
+#if not CLEAN21
+using Microsoft.Projects.Resources.Pricing;
+#endif
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Pricing;
+using Microsoft.Sales.Setup;
+using Microsoft.Service.Contract;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Posting;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Setup;
+using Microsoft.Utilities;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Warehouse.Structure;
+using System.Environment.Configuration;
+using System.Reflection;
+using System.Utilities;
+
+table 5902 "Service Line"
 {
     Caption = 'Service Line';
     DrillDownPageID = "Service Line List";
@@ -19,7 +74,7 @@
         field(3; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            TableRelation = "Service Header"."No." WHERE("Document Type" = FIELD("Document Type"));
+            TableRelation = "Service Header"."No." where("Document Type" = field("Document Type"));
         }
         field(4; "Line No."; Integer)
         {
@@ -40,7 +95,7 @@
                 TestField("Shipment No.", '');
 
                 if xRec.Type = xRec.Type::Item then
-                    WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
+                    ServiceWarehouseMgt.ServiceLineVerifyChange(Rec, xRec);
 
                 if Type = Type::Item then begin
                     GetLocation("Location Code");
@@ -69,15 +124,15 @@
         field(6; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = IF (Type = CONST(" ")) "Standard Text"
-            ELSE
-            IF (Type = CONST("G/L Account")) "G/L Account"
-            ELSE
-            IF (Type = CONST(Item)) Item WHERE(Blocked = CONST(false))
-            ELSE
-            IF (Type = CONST(Resource)) Resource
-            ELSE
-            IF (Type = CONST(Cost)) "Service Cost";
+            TableRelation = if (Type = const(" ")) "Standard Text"
+            else
+            if (Type = const("G/L Account")) "G/L Account"
+            else
+            if (Type = const(Item)) Item where(Blocked = const(false))
+            else
+            if (Type = const(Resource)) Resource
+            else
+            if (Type = const(Cost)) "Service Cost";
 
             trigger OnValidate()
             var
@@ -187,7 +242,7 @@
                 GetServHeader();
                 if Type = Type::Item then begin
                     if Quantity <> 0 then
-                        WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
+                        ServiceWarehouseMgt.ServiceLineVerifyChange(Rec, xRec);
                     if "Location Code" <> xRec."Location Code" then begin
                         TestField("Reserved Quantity", 0);
                         TestField("Shipment No.", '');
@@ -205,7 +260,7 @@
         {
             Caption = 'Posting Group';
             Editable = false;
-            TableRelation = IF (Type = CONST(Item)) "Inventory Posting Group";
+            TableRelation = if (Type = const(Item)) "Inventory Posting Group";
         }
         field(11; Description; Text[100])
         {
@@ -283,7 +338,7 @@
                     PlanPriceCalcByField(FieldNo(Quantity));
 
                 if Type = Type::Item then begin
-                    WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
+                    ServiceWarehouseMgt.ServiceLineVerifyChange(Rec, xRec);
                     UpdateReservation(FieldNo(Quantity));
                     UpdateWithWarehouseShip();
                     if ("Quantity (Base)" * xRec."Quantity (Base)" <= 0) and ("No." <> '') then begin
@@ -415,7 +470,7 @@
         }
         field(22; "Unit Price"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 2;
             CaptionClass = GetCaptionClass(FieldNo("Unit Price"));
             Caption = 'Unit Price';
@@ -519,7 +574,7 @@
         }
         field(28; "Line Discount Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Line Discount Amount';
 
@@ -537,7 +592,7 @@
         }
         field(29; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
             Editable = false;
@@ -582,7 +637,7 @@
         }
         field(30; "Amount Including VAT"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount Including VAT';
             Editable = false;
@@ -695,24 +750,24 @@
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
-                                                          Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
+                                                          Blocked = const(false));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+                Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
         }
         field(41; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
-                                                          Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
+                                                          Blocked = const(false));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+                Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
         }
         field(42; "Customer Price Group"; Code[10])
@@ -733,7 +788,7 @@
         field(45; "Job No."; Code[20])
         {
             Caption = 'Job No.';
-            TableRelation = Job."No." WHERE("Bill-to Customer No." = FIELD("Bill-to Customer No."));
+            TableRelation = Job."No." where("Bill-to Customer No." = field("Bill-to Customer No."));
 
             trigger OnValidate()
             var
@@ -759,7 +814,7 @@
         field(46; "Job Task No."; Code[20])
         {
             Caption = 'Job Task No.';
-            TableRelation = "Job Task"."Job Task No." WHERE("Job No." = FIELD("Job No."));
+            TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
 
             trigger OnValidate()
             var
@@ -812,7 +867,7 @@
         }
         field(57; "Outstanding Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Outstanding Amount';
             Editable = false;
@@ -843,7 +898,7 @@
         }
         field(59; "Shipped Not Invoiced"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Shipped Not Invoiced';
             Editable = false;
@@ -935,6 +990,10 @@
             Caption = 'Shipment Line No.';
             Editable = false;
         }
+        field(65; "Order No."; Code[20])
+        {
+            Caption = 'Order No.';
+        }
         field(68; "Bill-to Customer No."; Code[20])
         {
             Caption = 'Bill-to Customer No.';
@@ -943,7 +1002,7 @@
         }
         field(69; "Inv. Discount Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Inv. Discount Amount';
             Editable = false;
@@ -1003,8 +1062,8 @@
         {
             Caption = 'Attached to Line No.';
             Editable = false;
-            TableRelation = "Service Line"."Line No." WHERE("Document Type" = FIELD("Document Type"),
-                                                             "Document No." = FIELD("Document No."));
+            TableRelation = "Service Line"."Line No." where("Document Type" = field("Document Type"),
+                                                             "Document No." = field("Document No."));
         }
         field(81; "Exit Point"; Code[10])
         {
@@ -1113,13 +1172,13 @@
         }
         field(95; "Reserved Quantity"; Decimal)
         {
-            CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
-                                                                   "Source Ref. No." = FIELD("Line No."),
-                                                                   "Source Type" = CONST(5902),
+            CalcFormula = - sum("Reservation Entry".Quantity where("Source ID" = field("Document No."),
+                                                                   "Source Ref. No." = field("Line No."),
+                                                                   "Source Type" = const(5902),
 #pragma warning disable AL0603
-                                                                   "Source Subtype" = FIELD("Document Type"),
+                                                                   "Source Subtype" = field("Document Type"),
 #pragma warning restore
-                                                                   "Reservation Status" = CONST(Reservation)));
+                                                                   "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1150,14 +1209,14 @@
         }
         field(99; "VAT Base Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Base Amount';
             Editable = false;
         }
         field(100; "Unit Cost"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 2;
             Caption = 'Unit Cost';
             Editable = false;
@@ -1169,7 +1228,7 @@
         }
         field(103; "Line Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             CaptionClass = GetCaptionClass(FieldNo("Line Amount"));
             Caption = 'Line Amount';
@@ -1194,14 +1253,14 @@
         }
         field(104; "VAT Difference"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Difference';
             Editable = false;
         }
         field(105; "Inv. Disc. Amount to Invoice"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Inv. Disc. Amount to Invoice';
             Editable = false;
@@ -1213,7 +1272,7 @@
         }
         field(145; "Pmt. Discount Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Pmt. Discount Amount';
 
@@ -1231,7 +1290,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions();
+                Rec.ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -1247,13 +1306,13 @@
         field(951; "Time Sheet Line No."; Integer)
         {
             Caption = 'Time Sheet Line No.';
-            TableRelation = "Time Sheet Line"."Line No." WHERE("Time Sheet No." = FIELD("Time Sheet No."));
+            TableRelation = "Time Sheet Line"."Line No." where("Time Sheet No." = field("Time Sheet No."));
         }
         field(952; "Time Sheet Date"; Date)
         {
             Caption = 'Time Sheet Date';
-            TableRelation = "Time Sheet Detail".Date WHERE("Time Sheet No." = FIELD("Time Sheet No."),
-                                                            "Time Sheet Line No." = FIELD("Time Sheet Line No."));
+            TableRelation = "Time Sheet Detail".Date where("Time Sheet No." = field("Time Sheet No."),
+                                                            "Time Sheet Line No." = field("Time Sheet Line No."));
         }
         field(1019; "Job Planning Line No."; Integer)
         {
@@ -1340,7 +1399,7 @@
         field(1032; "Job Remaining Total Cost"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Job Remaining Total Cost';
             Editable = false;
@@ -1355,7 +1414,7 @@
         field(1034; "Job Remaining Line Amount"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Job Remaining Line Amount';
             Editable = false;
@@ -1363,7 +1422,7 @@
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = IF (Type = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("No."));
+            TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false));
 
             trigger OnValidate()
             var
@@ -1387,12 +1446,12 @@
                     GetUnitCost();
                     if "Variant Code" <> xRec."Variant Code" then
                         PlanPriceCalcByField(FieldNo("Variant Code"));
-                    WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
+                    ServiceWarehouseMgt.ServiceLineVerifyChange(Rec, xRec);
                 end;
 
                 GetDefaultBin();
 
-                if "Variant Code" = '' then begin
+                if Rec."Variant Code" = '' then begin
                     if Type = Type::Item then begin
                         GetItem(Item);
                         Description := Item.Description;
@@ -1418,15 +1477,15 @@
         field(5403; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
-            TableRelation = IF ("Document Type" = FILTER(Order | Invoice),
-                                "Location Code" = FILTER(<> ''),
-                                Type = CONST(Item)) "Bin Content"."Bin Code" WHERE("Location Code" = FIELD("Location Code"),
-                                                                                  "Item No." = FIELD("No."),
-                                                                                  "Variant Code" = FIELD("Variant Code"))
-            ELSE
-            IF ("Document Type" = FILTER("Credit Memo"),
-                                                                                           "Location Code" = FILTER(<> ''),
-                                                                                           Type = CONST(Item)) Bin.Code WHERE("Location Code" = FIELD("Location Code"));
+            TableRelation = if ("Document Type" = filter(Order | Invoice),
+                                "Location Code" = filter(<> ''),
+                                Type = const(Item)) "Bin Content"."Bin Code" where("Location Code" = field("Location Code"),
+                                                                                  "Item No." = field("No."),
+                                                                                  "Variant Code" = field("Variant Code"))
+            else
+            if ("Document Type" = filter("Credit Memo"),
+                                                                                           "Location Code" = filter(<> ''),
+                                                                                           Type = const(Item)) Bin.Code where("Location Code" = field("Location Code"));
 
             trigger OnLookup()
             var
@@ -1494,10 +1553,10 @@
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."))
-            ELSE
-            IF (Type = CONST(Resource)) "Resource Unit of Measure".Code WHERE("Resource No." = FIELD("No."))
-            ELSE
+            TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."))
+            else
+            if (Type = const(Resource)) "Resource Unit of Measure".Code where("Resource No." = field("No."))
+            else
             "Unit of Measure";
 
             trigger OnValidate()
@@ -1530,7 +1589,7 @@
                     Type::Item:
                         begin
                             if Quantity <> 0 then
-                                WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
+                                ServiceWarehouseMgt.ServiceLineVerifyChange(Rec, xRec);
                             GetItem(Item);
                             GetUnitCost();
                             if "Unit of Measure Code" <> xRec."Unit of Measure Code" then
@@ -1676,13 +1735,13 @@
         }
         field(5495; "Reserved Qty. (Base)"; Decimal)
         {
-            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
-                                                                            "Source Ref. No." = FIELD("Line No."),
-                                                                            "Source Type" = CONST(5902),
+            CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Source ID" = field("Document No."),
+                                                                            "Source Ref. No." = field("Line No."),
+                                                                            "Source Type" = const(5902),
 #pragma warning disable AL0603
-                                                                            "Source Subtype" = FIELD("Document Type"),
+                                                                            "Source Subtype" = field("Document Type"),
 #pragma warning restore
-                                                                            "Reservation Status" = CONST(Reservation)));
+                                                                            "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1714,9 +1773,9 @@
         }
         field(5702; "Substitution Available"; Boolean)
         {
-            CalcFormula = Exist("Item Substitution" WHERE(Type = CONST(Item),
-                                                           "No." = FIELD("No."),
-                                                           "Substitute Type" = CONST(Item)));
+            CalcFormula = exist("Item Substitution" where(Type = const(Item),
+                                                           "No." = field("No."),
+                                                           "Substitute Type" = const(Item)));
             Caption = 'Substitution Available';
             Editable = false;
             FieldClass = FlowField;
@@ -1741,12 +1800,12 @@
         field(5750; "Whse. Outstanding Qty. (Base)"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum("Warehouse Shipment Line"."Qty. Outstanding (Base)" WHERE("Source Type" = CONST(5902),
+            CalcFormula = sum("Warehouse Shipment Line"."Qty. Outstanding (Base)" where("Source Type" = const(5902),
 #pragma warning disable AL0603
-                                                                                         "Source Subtype" = FIELD("Document Type"),
+                                                                                         "Source Subtype" = field("Document Type"),
 #pragma warning restore
-                                                                                         "Source No." = FIELD("Document No."),
-                                                                                         "Source Line No." = FIELD("Line No.")));
+                                                                                         "Source No." = field("Document No."),
+                                                                                         "Source Line No." = field("Line No.")));
             Caption = 'Whse. Outstanding Qty. (Base)';
             Editable = false;
             FieldClass = FlowField;
@@ -1823,7 +1882,7 @@
         field(5797; "Shipping Agent Service Code"; Code[10])
         {
             Caption = 'Shipping Agent Service Code';
-            TableRelation = "Shipping Agent Services".Code WHERE("Shipping Agent Code" = FIELD("Shipping Agent Code"));
+            TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
 
             trigger OnValidate()
             var
@@ -1936,8 +1995,8 @@
         field(5904; "Service Item Line No."; Integer)
         {
             Caption = 'Service Item Line No.';
-            TableRelation = "Service Item Line"."Line No." WHERE("Document Type" = FIELD("Document Type"),
-                                                                  "Document No." = FIELD("Document No."));
+            TableRelation = "Service Item Line"."Line No." where("Document Type" = field("Document Type"),
+                                                                  "Document No." = field("Document No."));
 
             trigger OnValidate()
             begin
@@ -1990,9 +2049,9 @@
         }
         field(5906; "Service Item Line Description"; Text[100])
         {
-            CalcFormula = Lookup("Service Item Line".Description WHERE("Document Type" = FIELD("Document Type"),
-                                                                        "Document No." = FIELD("Document No."),
-                                                                        "Line No." = FIELD("Service Item Line No.")));
+            CalcFormula = Lookup("Service Item Line".Description where("Document Type" = field("Document Type"),
+                                                                        "Document No." = field("Document No."),
+                                                                        "Line No." = field("Service Item Line No.")));
             Caption = 'Service Item Line Description';
             Editable = false;
             FieldClass = FlowField;
@@ -2035,7 +2094,7 @@
         {
             Caption = 'Ship-to Code';
             Editable = false;
-            TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Customer No."));
+            TableRelation = "Ship-to Address".Code where("Customer No." = field("Customer No."));
         }
         field(5917; "Qty. to Consume"; Decimal)
         {
@@ -2152,8 +2211,8 @@
         field(5931; "Fault Code"; Code[10])
         {
             Caption = 'Fault Code';
-            TableRelation = "Fault Code".Code WHERE("Fault Area Code" = FIELD("Fault Area Code"),
-                                                     "Symptom Code" = FIELD("Symptom Code"));
+            TableRelation = "Fault Code".Code where("Fault Area Code" = field("Fault Area Code"),
+                                                     "Symptom Code" = field("Symptom Code"));
         }
         field(5932; "Resolution Code"; Code[10])
         {
@@ -2223,7 +2282,7 @@
         field(5936; "Contract No."; Code[20])
         {
             Caption = 'Contract No.';
-            TableRelation = "Service Contract Header"."Contract No." WHERE("Contract Type" = CONST(Contract));
+            TableRelation = "Service Contract Header"."Contract No." where("Contract Type" = const(Contract));
 
             trigger OnLookup()
             var
@@ -2431,9 +2490,9 @@
         field(5968; "Replaced Item No."; Code[20])
         {
             Caption = 'Replaced Item No.';
-            TableRelation = IF ("Replaced Item Type" = CONST(Item)) Item
-            ELSE
-            IF ("Replaced Item Type" = CONST("Service Item")) "Service Item";
+            TableRelation = if ("Replaced Item Type" = const(Item)) Item
+            else
+            if ("Replaced Item Type" = const("Service Item")) "Service Item";
         }
         field(5969; "Exclude Contract Discount"; Boolean)
         {
@@ -2657,7 +2716,7 @@
 
         TestStatusOpen();
         if Type = Type::Item then
-            WhseValidateSourceLine.ServiceLineDelete(Rec);
+            ServiceWarehouseMgt.ServiceLineDelete(Rec);
         if Type in [Type::"G/L Account", Type::Cost, Type::Resource] then
             TestField("Qty. Shipped Not Invoiced", 0);
 
@@ -2667,7 +2726,7 @@
         if CheckServiceDocumentType then
             Error(Text045);
 
-        if (Quantity <> 0) and ItemExists("No.") then begin
+        if (Rec.Quantity <> 0) and Rec.ItemExists(Rec."No.") then begin
             ServiceLineReserve.DeleteLine(Rec);
             CalcFields("Reserved Qty. (Base)");
             TestField("Reserved Qty. (Base)", 0);
@@ -2772,7 +2831,7 @@
         UOMMgt: Codeunit "Unit of Measure Management";
         CatalogItemMgt: Codeunit "Catalog Item Management";
         ServiceLineReserve: Codeunit "Service Line-Reserve";
-        WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
+        ServiceWarehouseMgt: Codeunit "Service Warehouse Mgt.";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         FieldCausedPriceCalculation: Integer;
         Select: Integer;
@@ -2872,52 +2931,6 @@
 
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
-    procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
-    var
-        SourceCodeSetup: Record "Source Code Setup";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-        DimensionSetID: Integer;
-        IsHandled: Boolean;
-        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
-    begin
-        IsHandled := false;
-        OnBeforeCreateDim(Rec, CurrFieldNo, IsHandled);
-        if IsHandled then
-            exit;
-
-        SourceCodeSetup.Get();
-        GetServHeader();
-        if not ServItemLine.Get(ServHeader."Document Type", ServHeader."No.", "Service Item Line No.") then
-            ServItemLine.Init();
-
-        TableID[1] := Type1;
-        No[1] := No1;
-        TableID[2] := Type2;
-        No[2] := No2;
-        TableID[3] := Type3;
-        No[3] := No3;
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
-
-        "Shortcut Dimension 1 Code" := '';
-        "Shortcut Dimension 2 Code" := '';
-        DimensionSetID := ServItemLine."Dimension Set ID";
-        if DimensionSetID = 0 then
-            DimensionSetID := ServHeader."Dimension Set ID";
-        UpdateDimSetupFromDimSetID(TableID, No, DimensionSetID);
-        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
-        "Dimension Set ID" :=
-          DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup."Service Management",
-            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", DimensionSetID, DATABASE::Customer);
-        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-
-        OnAfterCreateDim(Rec, CurrFieldNo);
-    end;
-#endif
-
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -2933,10 +2946,6 @@
         GetServHeader();
         if not ServItemLine.Get(ServHeader."Document Type", ServHeader."No.", "Service Item Line No.") then
             ServItemLine.Init();
-
-#if not CLEAN20
-        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
-#endif
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
@@ -2977,12 +2986,12 @@
             exit;
 
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
-        ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
+        Rec.ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
     end;
 
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
-        DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
+        DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
     end;
 
     protected procedure ReplaceServItem(): Boolean
@@ -3212,7 +3221,7 @@
         else
             Discounts[2] := "Contract Disc. %";
 
-        ServHeader.Get("Document Type", "Document No.");
+        ServHeader.Get(Rec."Document Type", Rec."Document No.");
 
         ApplyDiscount(ServHeader);
         Discounts[3] := "Line Discount %";
@@ -3250,7 +3259,7 @@
         LineWithPrice: Interface "Line With Price";
     begin
         if (ServiceHeader."No." = '') and ("Document No." <> '') then
-            ServiceHeader.Get("Document Type", "Document No.");
+            ServiceHeader.Get(Rec."Document Type", Rec."Document No.");
         GetLineWithPrice(LineWithPrice);
         LineWithPrice.SetLine(PriceType, ServiceHeader, Rec);
         PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
@@ -3358,7 +3367,7 @@
 
         GetServHeader();
 
-        if "Line Amount" <> xRec."Line Amount" then
+        if Rec."Line Amount" <> xRec."Line Amount" then
             "VAT Difference" := 0;
         ExpectedLineAmount :=
             Round(CalcChargeableQty() * "Unit Price", Currency."Amount Rounding Precision") - "Line Discount Amount";
@@ -3415,7 +3424,7 @@
     begin
         TestField("Document No.");
         if ("Document Type" <> ServHeader."Document Type") or ("Document No." <> ServHeader."No.") then begin
-            ServHeader.Get("Document Type", "Document No.");
+            ServHeader.Get(Rec."Document Type", Rec."Document No.");
             if ServHeader."Currency Code" = '' then
                 Currency.InitRoundingPrecision()
             else begin
@@ -3482,7 +3491,7 @@
 
             if Type = Type::Item then begin
                 if (xRec."No." <> "No.") and (Quantity <> 0) then
-                    WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
+                    ServiceWarehouseMgt.ServiceLineVerifyChange(Rec, xRec);
                 GetLocation("Location Code");
             end;
 
@@ -3579,7 +3588,7 @@
         OnBeforeUpdateUnitPrice(Rec, xRec, CalledByFieldNo, CurrFieldNo);
 
         TestField("Qty. per Unit of Measure");
-        ServHeader.Get("Document Type", "Document No.");
+        ServHeader.Get(Rec."Document Type", Rec."Document No.");
 
         CalculateDiscount();
         ApplyPrice(PriceType::Sale, ServHeader, CalledByFieldNo);
@@ -3685,7 +3694,7 @@
             if (not FullAutoReservation) and (not ServiceMgtSetup."Skip Manual Reservation") and ShowReservationForm then begin
                 Commit();
                 if ConfirmManagement.GetResponse(ManualReserveQst, true) then begin
-                    ShowReservation();
+                    Rec.ShowReservation();
                     Find();
                 end;
             end;
@@ -3918,7 +3927,7 @@
                             ServItemComponent.SetRange("Parent Service Item No.", ServItem."No.");
                             if PAGE.RunModal(0, ServItemComponent) = ACTION::LookupOK then begin
                                 "Replaced Item Type" :=
-                                    "Replaced Service Item Component Type".FromInteger(ServItemComponent.Type.AsInteger() + 1);
+                                    Enum::"Replaced Service Item Component Type".FromInteger(ServItemComponent.Type.AsInteger() + 1);
                                 "Replaced Item No." := ServItemComponent."No.";
                                 "Component Line No." := ServItemComponent."Line No.";
                                 CheckIfServItemReplacement("Component Line No.");
@@ -4062,7 +4071,7 @@
             OnInsertItemTrackingOnBeforeCreateEntry(Rec);
             CreateReservEntry.CreateEntry(
                 ServiceLine."No.", ServiceLine."Variant Code", ServiceLine."Location Code", ServiceLine.Description,
-                0D, ServiceLine."Posting Date", 0, "Reservation Status"::Surplus);
+                0D, ServiceLine."Posting Date", 0, Enum::"Reservation Status"::Surplus);
             TempTrackingSpecification.DeleteAll();
         end;
     end;
@@ -5136,7 +5145,7 @@
         end;
     end;
 
-    local procedure UpdateRemainingCostsAndAmounts()
+    procedure UpdateRemainingCostsAndAmounts()
     var
         TotalPrice: Decimal;
         AmountRoundingPrecision: Decimal;
@@ -5419,6 +5428,7 @@
 
         IsHandled := false;
         OnBeforeUpdateWithWarehouseShipOnAfterVerifyType(Rec, IsHandled);
+
         if IsHandled then
             exit;
 
@@ -5434,6 +5444,7 @@
     var
         Location2: Record Location;
         WhseSetup: Record "Warehouse Setup";
+        WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         ShowDialog: Option " ",Message,Error;
         DialogText: Text[100];
         IsHandled: Boolean;
@@ -5516,7 +5527,7 @@
     var
         ServHeader: Record "Service Header";
     begin
-        ServHeader.Get("Document Type", "Document No.");
+        ServHeader.Get(Rec."Document Type", Rec."Document No.");
         OnBeforeTestStatusOpen(Rec, ServHeader);
 
         if StatusCheckSuspended then
@@ -5768,81 +5779,12 @@
         exit(Item.IsInventoriableType());
     end;
 
-#if not CLEAN20
-    local procedure UpdateDimSetupFromDimSetID(var TableID: array[10] of Integer; var No: array[10] of Code[20]; InheritFromDimSetID: Integer)
-    var
-        TempDimSetEntry: Record "Dimension Set Entry" temporary;
-        LastAddedTableID: Integer;
-    begin
-        DimMgt.GetDimensionSet(TempDimSetEntry, InheritFromDimSetID);
-        ServHeader.Get("Document Type", "Document No.");
-        LastAddedTableID := 3;
-        UpdateDimSetupByDefaultDim(
-          DATABASE::"Service Order Type", ServHeader."Service Order Type", TempDimSetEntry, TableID, No, LastAddedTableID);
-        UpdateDimSetupByDefaultDim(
-          DATABASE::Customer, ServHeader."Bill-to Customer No.", TempDimSetEntry, TableID, No, LastAddedTableID);
-        UpdateDimSetupByDefaultDim(
-          DATABASE::"Salesperson/Purchaser", ServHeader."Salesperson Code", TempDimSetEntry, TableID, No, LastAddedTableID);
-        UpdateDimSetupByDefaultDim(
-          DATABASE::"Service Contract Header", ServHeader."Contract No.", TempDimSetEntry, TableID, No, LastAddedTableID);
-        UpdateDimSetupByDefaultDim(
-          DATABASE::"Service Item", ServItemLine."Service Item No.", TempDimSetEntry, TableID, No, LastAddedTableID);
-        UpdateDimSetupByDefaultDim(
-          DATABASE::"Service Item Group", ServItemLine."Service Item Group Code", TempDimSetEntry, TableID, No, LastAddedTableID);
-    end;
-
-    local procedure UpdateDimSetupByDefaultDim(SourceID: Integer; SourceNo: Code[20]; var TempDimSetEntry: Record "Dimension Set Entry" temporary; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var LastAddedTableID: Integer)
-    var
-        DefaultDim: Record "Default Dimension";
-        SourceCodeSetup: Record "Source Code Setup";
-        DefaultDimensionPriority: Record "Default Dimension Priority";
-        TableAdded: Boolean;
-    begin
-        if SourceNo = '' then
-            exit;
-
-        SourceCodeSetup.Get();
-        DefaultDimensionPriority.SetRange("Source Code", SourceCodeSetup."Service Management");
-        DefaultDimensionPriority.SetRange("Table ID", SourceID);
-        if DefaultDimensionPriority.IsEmpty() then
-            exit;
-
-        DefaultDim.SetRange("Table ID", SourceID);
-        DefaultDim.SetRange("No.", SourceNo);
-        if DefaultDim.FindSet() then
-            repeat
-                TempDimSetEntry.SetRange("Dimension Code", DefaultDim."Dimension Code");
-                TempDimSetEntry.SetRange("Dimension Value Code", DefaultDim."Dimension Value Code");
-                if TempDimSetEntry.FindFirst() then begin
-                    UpdateDimSetup(TableID, No, DefaultDim."Table ID", DefaultDim."No.", LastAddedTableID);
-                    TableAdded := true;
-                end;
-            until (DefaultDim.Next() = 0) or TableAdded;
-    end;
-
-    local procedure UpdateDimSetup(var TableID: array[10] of Integer; var No: array[10] of Code[20]; NewTableID: Integer; NewNo: Code[20]; var LastAddedTableID: Integer)
-    var
-        TableAlreadyAdded: Boolean;
-        i: Integer;
-    begin
-        for i := 1 to LastAddedTableID do
-            if TableID[i] = NewTableID then
-                TableAlreadyAdded := true;
-
-        if not TableAlreadyAdded then begin
-            LastAddedTableID += 1;
-            TableID[LastAddedTableID] := NewTableID;
-            No[LastAddedTableID] := NewNo;
-        end;
-    end;
-#endif
-
     local procedure UpdateDimSetupFromDimSetID(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; InheritFromDimSetID: Integer)
     var
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
         DimMgt.GetDimensionSet(TempDimSetEntry, InheritFromDimSetID);
-        ServHeader.Get("Document Type", "Document No.");
+        ServHeader.Get(Rec."Document Type", Rec."Document No.");
         UpdateDimSetupByDefaultDim(Database::"Service Order Type", ServHeader."Service Order Type", TempDimSetEntry, DefaultDimSource);
         UpdateDimSetupByDefaultDim(Database::Customer, ServHeader."Bill-to Customer No.", TempDimSetEntry, DefaultDimSource);
         UpdateDimSetupByDefaultDim(Database::"Salesperson/Purchaser", ServHeader."Salesperson Code", TempDimSetEntry, DefaultDimSource);
@@ -5985,47 +5927,33 @@
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
-#if not CLEAN20
-    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    procedure CheckIfServiceLineMeetsReservedFromStockSetting(QtyToPost: Decimal; ReservedFromStock: Enum "Reservation From Stock") Result: Boolean
     var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        QtyReservedFromStock: Decimal;
     begin
-        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Service Line", DefaultDimSource, TableID, No);
+        Result := true;
+
+        if not Rec.IsInventoriableItem() then
+            exit(true);
+
+        if ReservedFromStock = ReservedFromStock::" " then
+            exit(true);
+
+        QtyReservedFromStock := ServiceLineReserve.GetReservedQtyFromInventory(Rec);
+
+        case ReservedFromStock of
+            ReservedFromStock::Full:
+                if QtyToPost <> QtyReservedFromStock then
+                    Result := false;
+            ReservedFromStock::"Full and Partial":
+                if QtyReservedFromStock = 0 then
+                    Result := false;
+            else
+                OnCheckIfServiceLineMeetsReservedFromStockSetting(QtyToPost, ReservedFromStock, Result);
+        end;
+
+        exit(Result);
     end;
-
-    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
-    var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
-    begin
-        DimArrayConversionHelper.CreateDimTableIDs(Database::"Service Line", DefaultDimSource, TableID, No);
-    end;
-
-    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
-    var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
-        if IsHandled then
-            exit;
-
-        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Service Line") then
-            exit;
-
-        CreateDimTableIDs(DefaultDimSource, TableID, No);
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
-        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
-    end;
-
-    [Obsolete('Temporary event for compatibility', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var ServiceLine: Record "Service Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ServiceLine: Record "Service Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -6215,13 +6143,6 @@
     begin
     end;
 
-#if not CLEAN20
-    [Obsolete('Temporary event for compatibility', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDimTableIDs(var ServiceLine: Record "Service Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesTaxCalculate(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Currency: Record Currency)
     begin
@@ -6237,13 +6158,6 @@
     begin
     end;
 
-#if not CLEAN20
-    [Obsolete('Event is never raised.', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; ServiceLine: Record "Service Line")
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowNonstock(var ServiceLine: Record "Service Line")
     begin
@@ -6716,6 +6630,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckErrorSelectedSI(var ServiceLine: Record "Service Line"; var ServItemLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckIfServiceLineMeetsReservedFromStockSetting(QtyToPost: Decimal; ReservedFromStock: Enum "Reservation From Stock"; var Result: Boolean)
     begin
     end;
 }

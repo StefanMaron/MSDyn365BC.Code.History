@@ -1,3 +1,16 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Location;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Warehouse.Comment;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Foundation.UOM;
+
 permissionset 4667 "Warehouse Documents - Read"
 {
     Access = Public;

@@ -1,3 +1,11 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Service.Comment;
+using Microsoft.Service.History;
+using Microsoft.Service.Posting;
+using Microsoft.Warehouse.Request;
+using System.Automation;
+
 report 5914 "Delete Invoiced Service Orders"
 {
     AccessByPermission = TableData "Service Header" = RD;
@@ -10,7 +18,7 @@ report 5914 "Delete Invoiced Service Orders"
     {
         dataitem("Service Header"; "Service Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Order));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Order));
             RequestFilterFields = "No.", "Customer No.", "Bill-to Customer No.";
             RequestFilterHeading = 'Service Order';
 

@@ -1,3 +1,7 @@
+namespace Microsoft.CRM.Outlook;
+
+using Microsoft.CRM.Contact;
+
 codeunit 6703 "Exchange Contact Sync."
 {
 

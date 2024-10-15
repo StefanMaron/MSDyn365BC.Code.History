@@ -1,3 +1,78 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Company;
+
+using Microsoft.Assembly.Setup;
+using Microsoft.Bank.Check;
+using Microsoft.Bank.DirectDebit;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Bank.Setup;
+using Microsoft.CRM.Interaction;
+using Microsoft.CRM.Setup;
+using Microsoft.CashFlow.Setup;
+using Microsoft.CostAccounting.Setup;
+using Microsoft.EServices.EDocument;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.Registration;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.FixedAssets.Insurance;
+using Microsoft.FixedAssets.Journal;
+using Microsoft.FixedAssets.Ledger;
+using Microsoft.FixedAssets.Maintenance;
+using Microsoft.FixedAssets.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Reporting;
+using Microsoft.HumanResources.Setup;
+using Microsoft.Intercompany.Setup;
+using Microsoft.Inventory;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Inventory.Costing;
+using Microsoft.Inventory.Counting.Document;
+using Microsoft.Inventory.Counting.Journal;
+using Microsoft.Inventory.Document;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Setup;
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Journal;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Setup;
+using Microsoft.Projects.Project.WIP;
+using Microsoft.Projects.Resources.Journal;
+using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Projects.Resources.Setup;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Setup;
+using Microsoft.Sales.Peppol;
+using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Setup;
+using Microsoft.Service.Setup;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Utilities;
+using System.Automation;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Integration;
+using System.Globalization;
+using System.Feedback;
+using System.IO;
+using System.Reflection;
+#if not CLEAN22
+using System.Security.AccessControl;
+#endif
+using System.Upgrade;
+
 codeunit 2 "Company-Initialize"
 {
     Permissions = TableData "Company Information" = i,
@@ -397,7 +472,7 @@ codeunit 2 "Company-Initialize"
                 InsertSourceCode(Purchases, Text003, Text004);
                 InsertSourceCode("Deleted Document", Text005, DocumentCreatedToAvoidGapInNoSeriesTxt);
                 InsertSourceCode("Inventory Post Cost", Text006, ReportName(REPORT::"Post Inventory Cost to G/L"));
-#if not CLEAN20
+#if not CLEAN23
                 InsertSourceCode("Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Adjust Exchange Rates"));
 #else
                 InsertSourceCode("Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Exch. Rate Adjustment"));

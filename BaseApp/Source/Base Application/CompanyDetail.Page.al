@@ -1,3 +1,20 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using Microsoft.CashFlow.Forecast;
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.RoleCenters;
+using Microsoft.Foundation.Task;
+using Microsoft.Integration.Entity;
+using Microsoft.Purchases.Document;
+using Microsoft.RoleCenters;
+using Microsoft.Sales.Receivables;
+using System.Integration.PowerBI;
+
 page 1156 "Company Detail"
 {
     Caption = 'Company Details';
@@ -46,7 +63,7 @@ page 1156 "Company Detail"
                             begin
                                 SelectedUserTaskFilterTile := PendingUserTasksFilterTxt;
                                 TotalUserTasks := CalculatePendingUserTasks();
-                                CurrPage.UserTasksCtrl.PAGE.SetFilterForPendingTasks();
+                                CurrPage.UserTasksCtrl.Page.SetFilterForPendingTasks();
                             end;
                         }
                         field("<Due Today>"; UserTasksDueToday)
@@ -60,7 +77,7 @@ page 1156 "Company Detail"
                             begin
                                 SelectedUserTaskFilterTile := UserTasksDueTodayFilterTxt;
                                 TotalUserTasks := CalculateUserTasksDueToday();
-                                CurrPage.UserTasksCtrl.PAGE.SetFilterForTasksDueToday();
+                                CurrPage.UserTasksCtrl.Page.SetFilterForTasksDueToday();
                             end;
                         }
                         field("<Due This Week>"; UserTasksDueThisWeek)
@@ -74,7 +91,7 @@ page 1156 "Company Detail"
                             begin
                                 SelectedUserTaskFilterTile := UserTasksDueThisWeekFilterTxt;
                                 TotalUserTasks := CalculateUserTasksDueThisWeek();
-                                CurrPage.UserTasksCtrl.PAGE.SetFilterForTasksDueThisWeek();
+                                CurrPage.UserTasksCtrl.Page.SetFilterForTasksDueThisWeek();
                             end;
                         }
                     }
@@ -150,7 +167,7 @@ page 1156 "Company Detail"
                             begin
                                 SelectedPurchFilterTile := OverduePurchInvoiceAmtFilterTxt;
                                 TotalPurch := OverDuePurchInvoiceAmt;
-                                CurrPage.PurchaseDocumentsCtrl.PAGE.SetFilterForOverduePurInvoiceAmount();
+                                CurrPage.PurchaseDocumentsCtrl.Page.SetFilterForOverduePurInvoiceAmount();
                             end;
                         }
                         field("<PurchDocsDueToday>"; PurchDocsDueToday)
@@ -165,7 +182,7 @@ page 1156 "Company Detail"
                             begin
                                 SelectedPurchFilterTile := PurchDocsDueTodayFilterTxt;
                                 TotalPurch := PurchDocsDueToday;
-                                CurrPage.PurchaseDocumentsCtrl.PAGE.SetFilterForPurchDocsDueToday();
+                                CurrPage.PurchaseDocumentsCtrl.Page.SetFilterForPurchDocsDueToday();
                             end;
                         }
                         field(PurchInvoicesDueNextWeek; PurchInvoicesDueNextWeek)
@@ -180,7 +197,7 @@ page 1156 "Company Detail"
                             begin
                                 SelectedPurchFilterTile := PurchInvoicesDueNextWeekFilterTxt;
                                 TotalPurch := PurchInvoicesDueNextWeek;
-                                CurrPage.PurchaseDocumentsCtrl.PAGE.SetFilterForPurchInvoicesDueNextWeek();
+                                CurrPage.PurchaseDocumentsCtrl.Page.SetFilterForPurchInvoicesDueNextWeek();
                             end;
                         }
                     }
@@ -229,7 +246,7 @@ page 1156 "Company Detail"
                             begin
                                 SelectedSalesFilterTile := OverdueSalesInvoiceAmtFilterTxt;
                                 TotalSales := OverDueSalesInvoiceAmt;
-                                CurrPage.SalesDocumentsCtrl.PAGE.SetFilterForOverdueSalesInvoiceAmount();
+                                CurrPage.SalesDocumentsCtrl.Page.SetFilterForOverdueSalesInvoiceAmount();
                             end;
                         }
                         field("<SalesDocsDueToday>"; SalesDocsDueToday)
@@ -244,7 +261,7 @@ page 1156 "Company Detail"
                             begin
                                 SelectedSalesFilterTile := SalesDocsDueTodayFilterTxt;
                                 TotalSales := SalesDocsDueToday;
-                                CurrPage.SalesDocumentsCtrl.PAGE.SetFilterForSalesDocsDueToday();
+                                CurrPage.SalesDocumentsCtrl.Page.SetFilterForSalesDocsDueToday();
                             end;
                         }
                         field("<SalesDocsDueNextWeek>"; SalesDocsDueNextWeek)
@@ -259,7 +276,7 @@ page 1156 "Company Detail"
                             begin
                                 SelectedSalesFilterTile := SalesDocsDueNextWeekFilterTxt;
                                 TotalSales := SalesDocsDueNextWeek;
-                                CurrPage.SalesDocumentsCtrl.PAGE.SetFilterForSalesDocsDueNextWeek();
+                                CurrPage.SalesDocumentsCtrl.Page.SetFilterForSalesDocsDueNextWeek();
                             end;
                         }
                     }
@@ -424,12 +441,12 @@ page 1156 "Company Detail"
 
 #if not CLEAN21
         // Set up context for power bi part pages.
-        CurrPage.PowerBIPartOne.PAGE.SetContext(PowerBiPartOneIdTxt);
-        CurrPage.PowerBIPartTwo.PAGE.SetContext(PowerBiPartTwoIdTxt);
+        CurrPage.PowerBIPartOne.Page.SetContext(PowerBiPartOneIdTxt);
+        CurrPage.PowerBIPartTwo.Page.SetContext(PowerBiPartTwoIdTxt);
 #endif
 
-        CurrPage.PowerBIEmbeddedReportPart1.PAGE.SetPageContext(PowerBiPartOneIdTxt);
-        CurrPage.PowerBIEmbeddedReportPart2.PAGE.SetPageContext(PowerBiPartTwoIdTxt);
+        CurrPage.PowerBIEmbeddedReportPart1.Page.SetPageContext(PowerBiPartOneIdTxt);
+        CurrPage.PowerBIEmbeddedReportPart2.Page.SetPageContext(PowerBiPartTwoIdTxt);
     end;
 
     var

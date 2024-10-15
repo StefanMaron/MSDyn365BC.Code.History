@@ -1,3 +1,24 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.GST.Purchase;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GST.Base;
+using Microsoft.Finance.TaxBase;
+using Microsoft.Finance.TaxEngine.TaxTypeHandler;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Posting;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Utilities;
+
 codeunit 18080 "GST Purchase Subscribers"
 {
     var
@@ -39,19 +60,6 @@ codeunit 18080 "GST Purchase Subscribers"
     begin
         SetPayToVendorFieldsForPurchase(PurchaseHeader);
     end;
-
-#if not CLEAN20      
-    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnBeforeUpdateLocationCode', '', false, false)]
-    [Obsolete('Not actual after Non Inventoriable Item refactoring', '20.0')]
-    local procedure HandledOnBeforeUpdateLocationCode(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
-    var
-        Item: Record Item;
-    begin
-        if Item.Get(PurchaseLine."No.") then
-            if (Item."HSN/SAC Code" <> '') and (Item."GST Group Code" <> '') then
-                IsHandled := true;
-    end;
-#endif
 
     //CopyDocument 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Copy Document Mgt.", 'OnAfterCopyPostedPurchInvoice', '', false, false)]

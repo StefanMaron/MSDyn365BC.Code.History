@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Maintenance;
+
+using Microsoft.Service.Document;
+
 table 5927 "Repair Status"
 {
     Caption = 'Repair Status';
@@ -268,11 +272,11 @@ table 5927 "Repair Status"
             RepairStatus2."Quote Finished":
                 RepairStatus.SetRange("Quote Finished", true);
             else begin
-                    IsHandled := false;
-                    OnReturnStatusCodeElseCase(RepairStatus2, RepairStatus, IsHandled);
-                    if not IsHandled then
-                        exit('');
-                end;
+                IsHandled := false;
+                OnReturnStatusCodeElseCase(RepairStatus2, RepairStatus, IsHandled);
+                if not IsHandled then
+                    exit('');
+            end;
         end;
         if RepairStatus.FindFirst() then
             exit(RepairStatus.Code);

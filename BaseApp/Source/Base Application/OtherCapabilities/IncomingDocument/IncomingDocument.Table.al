@@ -1,3 +1,29 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Utilities;
+using System;
+using System.Automation;
+using System.Environment.Configuration;
+using System.IO;
+using System.Reflection;
+using System.Security.AccessControl;
+using System.Threading;
+using System.Utilities;
+
 table 130 "Incoming Document"
 {
     Caption = 'Incoming Document';
@@ -30,7 +56,7 @@ table 130 "Incoming Document"
         }
         field(5; "Created By User Name"; Code[50])
         {
-            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Created By User ID")));
+            CalcFormula = Lookup(User."User Name" where("User Security ID" = field("Created By User ID")));
             Caption = 'Created By User Name';
             Editable = false;
             FieldClass = FlowField;
@@ -54,7 +80,7 @@ table 130 "Incoming Document"
         }
         field(9; "Released By User Name"; Code[50])
         {
-            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Released By User ID")));
+            CalcFormula = Lookup(User."User Name" where("User Security ID" = field("Released By User ID")));
             Caption = 'Released By User Name';
             Editable = false;
             FieldClass = FlowField;
@@ -73,7 +99,7 @@ table 130 "Incoming Document"
         }
         field(12; "Last Modified By User Name"; Code[50])
         {
-            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Last Modified By User ID")));
+            CalcFormula = Lookup(User."User Name" where("User Security ID" = field("Last Modified By User ID")));
             Caption = 'Last Modified By User Name';
             Editable = false;
             FieldClass = FlowField;
@@ -213,7 +239,7 @@ table 130 "Incoming Document"
         }
         field(39; "OCR Service Doc. Template Name"; Text[50])
         {
-            CalcFormula = Lookup("OCR Service Document Template".Name WHERE(Code = FIELD("OCR Service Doc. Template Code")));
+            CalcFormula = Lookup("OCR Service Document Template".Name where(Code = field("OCR Service Doc. Template Code")));
             Caption = 'OCR Service Doc. Template Name';
             Editable = false;
             FieldClass = FlowField;
@@ -258,19 +284,19 @@ table 130 "Incoming Document"
         }
         field(51; "Amount Excl. VAT"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount Excl. VAT';
         }
         field(52; "Amount Incl. VAT"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount Incl. VAT';
         }
         field(53; "VAT Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'VAT Amount';
         }
@@ -306,9 +332,9 @@ table 130 "Incoming Document"
             var
                 JobQueueEntry: Record "Job Queue Entry";
             begin
-                if "Job Queue Status" = "Job Queue Status"::" " then
+                if Rec."Job Queue Status" = Rec."Job Queue Status"::" " then
                     exit;
-                JobQueueEntry.ShowStatusMsg("Job Queue Entry ID");
+                JobQueueEntry.ShowStatusMsg(Rec."Job Queue Entry ID");
             end;
         }
         field(161; "Job Queue Entry ID"; Guid)
@@ -366,7 +392,7 @@ table 130 "Incoming Document"
         if not IncomingDocumentAttachment.IsEmpty() then
             IncomingDocumentAttachment.DeleteAll();
 
-        ActivityLog.SetRange("Record ID", RecordId);
+        ActivityLog.SetRange("Record ID", Rec.RecordId);
         if not ActivityLog.IsEmpty() then
             ActivityLog.DeleteAll();
 
@@ -453,7 +479,7 @@ table 130 "Incoming Document"
         if IsHandled then
             exit;
 
-        ApprovalsMgmt.DeleteApprovalEntries(RecordId);
+        ApprovalsMgmt.DeleteApprovalEntries(Rec.RecordId);
     end;
 
     [Scope('OnPrem')]
@@ -502,7 +528,7 @@ table 130 "Incoming Document"
         CreateWithDataExchange("Document Type"::" ");
         GetRecord(Variant);
         RecordRef.GetTable(Variant);
-        if RecordRef.Number <> DATABASE::"Purchase Header" then
+        if RecordRef.Number <> Database::"Purchase Header" then
             exit;
         RecordRef.SetTable(PurchaseHeader);
         ReleasePurchaseDocument.PerformManualRelease(PurchaseHeader);
@@ -548,7 +574,7 @@ table 130 "Incoming Document"
             exit;
         end;
 
-        ErrorMessage.SetContext(RecordId);
+        ErrorMessage.SetContext(Rec.RecordId);
         if ErrorMessage.HasErrors(false) then begin
             SetProcessFailed('');
             exit;
@@ -731,7 +757,7 @@ table 130 "Incoming Document"
 
         CreateWithDataExchange("Document Type"::Journal);
 
-        ErrorMessage.SetContext(RecordId);
+        ErrorMessage.SetContext(Rec.RecordId);
         if not ErrorMessage.HasErrors(false) then
             OnAfterCreateGenJnlLineFromIncomingDocSuccess(Rec)
         else
@@ -771,17 +797,17 @@ table 130 "Incoming Document"
         Modify();
     end;
 
-    local procedure RemoveIncomingDocumentEntryNoFromUnpostedDocument()
+    procedure RemoveIncomingDocumentEntryNoFromUnpostedDocument()
     var
         SalesHeader: Record "Sales Header";
         DataTypeManagement: Codeunit "Data Type Management";
         RelatedRecordRecordRef: RecordRef;
         RelatedRecordFieldRef: FieldRef;
-        RelatedRecord: Variant;
+        RelatedRecordVariant: Variant;
     begin
-        if not GetUnpostedRecord(RelatedRecord) then
+        if not GetUnpostedRecord(RelatedRecordVariant) then
             exit;
-        RelatedRecordRecordRef.GetTable(RelatedRecord);
+        RelatedRecordRecordRef.GetTable(RelatedRecordVariant);
         DataTypeManagement.FindFieldByName(
           RelatedRecordRecordRef, RelatedRecordFieldRef, SalesHeader.FieldName("Incoming Document Entry No."));
         RelatedRecordFieldRef.Value := 0;
@@ -1283,7 +1309,7 @@ table 130 "Incoming Document"
         end;
 
         if ErrorMsg <> '' then begin
-            ErrorMessage.SetContext(RecordId);
+            ErrorMessage.SetContext(Rec.RecordId);
             ErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Error, ErrorMsg);
         end;
 
@@ -1346,9 +1372,9 @@ table 130 "Incoming Document"
     var
         ErrorMessage: Record "Error Message";
     begin
-        ErrorMessage.SetRange("Context Record ID", RecordId);
+        ErrorMessage.SetRange("Context Record ID", Rec.RecordId);
         ErrorMessage.DeleteAll();
-        TempErrorMessage.SetRange("Context Record ID", RecordId);
+        TempErrorMessage.SetRange("Context Record ID", Rec.RecordId);
         TempErrorMessage.DeleteAll();
     end;
 
@@ -1507,37 +1533,37 @@ table 130 "Incoming Document"
 
         case FieldNumber of
             FieldNo("Vendor Name"):
-                exit(DataExchLineDef.GetPath(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor Name")));
+                exit(DataExchLineDef.GetPath(Database::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor Name")));
             FieldNo("Vendor Id"):
-                exit(DataExchLineDef.GetPath(DATABASE::Vendor, Vendor.FieldNo(SystemId)));
+                exit(DataExchLineDef.GetPath(Database::Vendor, Vendor.FieldNo(SystemId)));
             FieldNo("Vendor No."):
-                exit(DataExchLineDef.GetPath(DATABASE::Vendor, Vendor.FieldNo("No.")));
+                exit(DataExchLineDef.GetPath(Database::Vendor, Vendor.FieldNo("No.")));
             FieldNo("Vendor VAT Registration No."):
-                exit(DataExchLineDef.GetPath(DATABASE::Vendor, Vendor.FieldNo("VAT Registration No.")));
+                exit(DataExchLineDef.GetPath(Database::Vendor, Vendor.FieldNo("VAT Registration No.")));
             FieldNo("Vendor IBAN"):
-                exit(DataExchLineDef.GetPath(DATABASE::"Vendor Bank Account", VendorBankAccount.FieldNo(IBAN)));
+                exit(DataExchLineDef.GetPath(Database::"Vendor Bank Account", VendorBankAccount.FieldNo(IBAN)));
             FieldNo("Vendor Bank Branch No."):
-                exit(DataExchLineDef.GetPath(DATABASE::"Vendor Bank Account", VendorBankAccount.FieldNo("Bank Branch No.")));
+                exit(DataExchLineDef.GetPath(Database::"Vendor Bank Account", VendorBankAccount.FieldNo("Bank Branch No.")));
             FieldNo("Vendor Bank Account No."):
-                exit(DataExchLineDef.GetPath(DATABASE::"Vendor Bank Account", VendorBankAccount.FieldNo("Bank Account No.")));
+                exit(DataExchLineDef.GetPath(Database::"Vendor Bank Account", VendorBankAccount.FieldNo("Bank Account No.")));
             FieldNo("Vendor Phone No."):
-                exit(DataExchLineDef.GetPath(DATABASE::Vendor, Vendor.FieldNo("Phone No.")));
+                exit(DataExchLineDef.GetPath(Database::Vendor, Vendor.FieldNo("Phone No.")));
             FieldNo("Vendor Invoice No."):
-                exit(DataExchLineDef.GetPath(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Vendor Invoice No.")));
+                exit(DataExchLineDef.GetPath(Database::"Purchase Header", PurchaseHeader.FieldNo("Vendor Invoice No.")));
             FieldNo("Document Date"):
-                exit(DataExchLineDef.GetPath(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Document Date")));
+                exit(DataExchLineDef.GetPath(Database::"Purchase Header", PurchaseHeader.FieldNo("Document Date")));
             FieldNo("Due Date"):
-                exit(DataExchLineDef.GetPath(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Due Date")));
+                exit(DataExchLineDef.GetPath(Database::"Purchase Header", PurchaseHeader.FieldNo("Due Date")));
             FieldNo("Currency Code"):
-                exit(DataExchLineDef.GetPath(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Currency Code")));
+                exit(DataExchLineDef.GetPath(Database::"Purchase Header", PurchaseHeader.FieldNo("Currency Code")));
             FieldNo("Amount Excl. VAT"):
-                exit(DataExchLineDef.GetPath(DATABASE::"Purchase Header", PurchaseHeader.FieldNo(Amount)));
+                exit(DataExchLineDef.GetPath(Database::"Purchase Header", PurchaseHeader.FieldNo(Amount)));
             FieldNo("Amount Incl. VAT"):
-                exit(DataExchLineDef.GetPath(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Amount Including VAT")));
+                exit(DataExchLineDef.GetPath(Database::"Purchase Header", PurchaseHeader.FieldNo("Amount Including VAT")));
             FieldNo("Order No."):
-                exit(DataExchLineDef.GetPath(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Vendor Order No.")));
+                exit(DataExchLineDef.GetPath(Database::"Purchase Header", PurchaseHeader.FieldNo("Vendor Order No.")));
             FieldNo("VAT Amount"):
-                exit(DataExchLineDef.GetPath(DATABASE::"G/L Entry", GLEntry.FieldNo("VAT Amount")));
+                exit(DataExchLineDef.GetPath(Database::"G/L Entry", GLEntry.FieldNo("VAT Amount")));
             else begin
                 OnGetDataExchangePath(DataExchLineDef, FieldNumber, DataExchangePath);
                 if DataExchangePath <> '' then
@@ -1783,21 +1809,21 @@ table 130 "Incoming Document"
             exit('');
 
         case RelatedRecordRef.Number of
-            DATABASE::"Sales Header":
+            Database::"Sales Header":
                 RecCaption := StrSubstNo('%1 %2', SalesTxt, GetRecordCaption(RelatedRecordRef));
-            DATABASE::"Sales Invoice Header":
+            Database::"Sales Invoice Header":
                 RecCaption := StrSubstNo('%1 - %2', SalesInvoiceTxt, GetRecordCaption(RelatedRecordRef));
-            DATABASE::"Sales Cr.Memo Header":
+            Database::"Sales Cr.Memo Header":
                 RecCaption := StrSubstNo('%1 - %2', SalesCreditMemoTxt, GetRecordCaption(RelatedRecordRef));
-            DATABASE::"Purchase Header":
+            Database::"Purchase Header":
                 RecCaption := StrSubstNo('%1 %2', PurchaseTxt, GetRecordCaption(RelatedRecordRef));
-            DATABASE::"Purch. Inv. Header":
+            Database::"Purch. Inv. Header":
                 RecCaption := StrSubstNo('%1 - %2', PurchaseInvoiceTxt, GetRecordCaption(RelatedRecordRef));
-            DATABASE::"Purch. Cr. Memo Hdr.":
+            Database::"Purch. Cr. Memo Hdr.":
                 RecCaption := StrSubstNo('%1 - %2', PurchaseCreditMemoTxt, GetRecordCaption(RelatedRecordRef));
-            DATABASE::"G/L Entry":
+            Database::"G/L Entry":
                 RecCaption := StrSubstNo('%1 - %2', "Document Type", GeneralLedgerEntriesTxt);
-            DATABASE::"Gen. Journal Line":
+            Database::"Gen. Journal Line":
                 if Posted then
                     RecCaption := StrSubstNo('%1 - %2', "Document Type", GeneralLedgerEntriesTxt)
                 else begin

@@ -1,3 +1,9 @@
+﻿namespace Microsoft.Finance.Consolidation;
+
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Foundation.Enums;
+using System.Utilities;
+
 report 18 "Consolidated Trial Balance (4)"
 {
     DefaultLayout = RDLC;
@@ -10,7 +16,7 @@ report 18 "Consolidated Trial Balance (4)"
     {
         dataitem("Business Unit"; "Business Unit")
         {
-            DataItemTableView = SORTING(Code) WHERE(Consolidate = CONST(true));
+            DataItemTableView = sorting(Code) where(Consolidate = const(true));
 
             trigger OnAfterGetRecord()
             begin
@@ -33,7 +39,7 @@ report 18 "Consolidated Trial Balance (4)"
         }
         dataitem("G/L Account"; "G/L Account")
         {
-            DataItemTableView = SORTING("No.");
+            DataItemTableView = sorting("No.");
             RequestFilterFields = "No.", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "Business Unit Filter";
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
@@ -124,7 +130,7 @@ report 18 "Consolidated Trial Balance (4)"
             }
             dataitem(BlankLineCounter; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
 
                 trigger OnPreDataItem()
                 begin
@@ -133,7 +139,7 @@ report 18 "Consolidated Trial Balance (4)"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(G_L_Account___No__; "G/L Account"."No.")
                 {
                 }

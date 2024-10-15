@@ -1259,20 +1259,6 @@ codeunit 134475 "ERM Dimension Sales"
             StrSubstNo(DimensionValueCodeError, SalesLine.FieldCaption("Shortcut Dimension 1 Code"), DimensionValue.Code));
     end;
 
-#if not CLEAN20
-    [Test]
-    [Scope('OnPrem')]
-    procedure CheckTypeToTableID()
-    var
-        DimensionManagement: Codeunit DimensionManagement;
-        TableId: Integer;
-    begin
-        TableId := DimensionManagement.TypeToTableID3(2); // Item
-
-        Assert.AreEqual(Database::Item, TableId, 'Retutn value should be 27.');
-    end;
-#endif
-
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";

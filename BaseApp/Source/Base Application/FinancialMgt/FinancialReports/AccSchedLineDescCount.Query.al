@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 query 762 "Acc. Sched. Line Desc. Count"
 {
     Caption = 'Acc. Sched. Line Desc. Count';
@@ -11,11 +13,11 @@ query 762 "Acc. Sched. Line Desc. Count"
             }
             column(Description; Description)
             {
-                ColumnFilter = Description = FILTER(<> '');
+                ColumnFilter = Description = filter(<> '');
             }
             column(Count_)
             {
-                ColumnFilter = Count_ = FILTER(> 1);
+                ColumnFilter = Count_ = filter(> 1);
                 Method = Count;
             }
         }

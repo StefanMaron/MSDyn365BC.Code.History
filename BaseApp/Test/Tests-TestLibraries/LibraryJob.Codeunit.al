@@ -772,7 +772,7 @@ codeunit 131920 "Library - Job"
                 JobJournalLine."Document No."));
 
             FindFirst();
-            Precision := Max(GetAmountRoundingPrecision(''), GetAmountRoundingPrecision(JobJournalLine."Currency Code"));
+            Precision := max(GetAmountRoundingPrecision(''), GetAmountRoundingPrecision(JobJournalLine."Currency Code"));
             Assert.AreEqual(JobJournalLine."Job No.", "Job No.", FieldCaption("Job No."));
             Assert.AreEqual(JobJournalLine."Job Task No.", "Job Task No.", FieldCaption("Job Task No."));
             Assert.AreNearlyEqual(JobJournalLine."Unit Cost (LCY)", "Unit Cost (LCY)", Precision * 10, FieldCaption("Unit Cost (LCY)"));
@@ -810,7 +810,7 @@ codeunit 131920 "Library - Job"
             end;
 
             // Verify Unit Cost, Price.
-            Precision := Max(GetAmountRoundingPrecision(''), GetAmountRoundingPrecision(JobJournalLine."Currency Code"));
+            Precision := max(GetAmountRoundingPrecision(''), GetAmountRoundingPrecision(JobJournalLine."Currency Code"));
             if FindSet() then
                 repeat
                     Assert.AreEqual(JobJournalLine.Quantity, Quantity, FieldCaption(Quantity));

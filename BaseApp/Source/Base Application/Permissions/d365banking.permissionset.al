@@ -1,9 +1,54 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.AllocationAccount;
+using Microsoft.Finance.Analysis;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Statement;
+using Microsoft.Bank.Setup;
+using Microsoft.Bank.Check;
+using Microsoft.CRM.Duplicates;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Customer;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Purchases.Payables;
+using Microsoft.Bank.DirectDebit;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.CRM.Interaction;
+using System.IO;
+using Microsoft.CRM.Opportunity;
+using Microsoft.Bank.PositivePay;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Archive;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Archive;
+using Microsoft.CRM.Task;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Foundation.BatchProcessing;
+using Microsoft.Bank.Payment;
+using Microsoft.Foundation.Period;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Reporting;
+
 permissionset 5759 "D365 BANKING"
 {
     Assignable = true;
 
     Caption = 'Dynamics 365 Banking';
-    Permissions = tabledata "Analysis View" = rimd,
+    Permissions =
+                  tabledata "Alloc. Account Distribution" = RIMD,
+                  tabledata "Allocation Account" = RIMD,
+                  tabledata "Allocation Line" = RIMD,
+                  tabledata "Analysis View" = rimd,
                   tabledata "Analysis View Entry" = rim,
                   tabledata "Analysis View Filter" = r,
                   tabledata "Applied Payment Entry" = RIMD,

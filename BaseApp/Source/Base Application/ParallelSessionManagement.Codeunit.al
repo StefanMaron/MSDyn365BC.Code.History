@@ -1,3 +1,9 @@
+namespace System.Threading;
+
+using System.Environment;
+using System.IO;
+using System.Utilities;
+
 codeunit 490 "Parallel Session Management"
 {
 

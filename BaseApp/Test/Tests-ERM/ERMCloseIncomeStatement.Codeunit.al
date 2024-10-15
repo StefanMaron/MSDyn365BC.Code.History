@@ -938,7 +938,7 @@ codeunit 134228 "ERM Close Income Statement"
             ConfirmDeleteGLAccountQst:
                 Reply := LibraryVariableStorage.DequeueBoolean;
             else
-                Error(StrSubstNo(UnexpectedConfirmErr, Question));
+                Error(UnexpectedConfirmErr, Question);
         end;
     end;
 

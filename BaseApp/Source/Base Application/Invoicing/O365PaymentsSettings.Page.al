@@ -24,7 +24,7 @@ page 2138 "O365 Payments Settings"
                     ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment terms';
                     QuickEntry = false;
-                    TableRelation = "Payment Terms" WHERE("Discount %" = CONST(0));
+                    TableRelation = "Payment Terms" where("Discount %" = const(0));
                     ToolTip = 'Specifies the payment terms that you select from on customer cards to define when the customer must pay, such as within 14 days.';
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -44,7 +44,7 @@ page 2138 "O365 Payments Settings"
                     ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Payment method';
                     QuickEntry = false;
-                    TableRelation = "Payment Method" WHERE("Use for Invoicing" = CONST(true));
+                    TableRelation = "Payment Method" where("Use for Invoicing" = const(true));
                     ToolTip = 'Specifies the payment methods that you select from on customer cards to define how the customer must pay, such as bank transfer.';
 
                     trigger OnLookup(var Text: Text): Boolean

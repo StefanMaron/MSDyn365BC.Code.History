@@ -1,3 +1,7 @@
+namespace Microsoft.Warehouse.Worksheet;
+
+using Microsoft.Warehouse.Journal;
+
 page 7346 "Worksheet Names List"
 {
     Caption = 'Worksheet Names List';
@@ -77,7 +81,7 @@ page 7346 "Worksheet Names List"
 
     trigger OnInit()
     begin
-        SetRange("Worksheet Template Name");
+        Rec.SetRange("Worksheet Template Name");
     end;
 
     trigger OnOpenPage()

@@ -1,3 +1,17 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Family;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Manufacturing.Comment;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.WorkCenter;
+
 permissionset 1159 "D365PREM MFG, VIEW"
 {
     Assignable = true;

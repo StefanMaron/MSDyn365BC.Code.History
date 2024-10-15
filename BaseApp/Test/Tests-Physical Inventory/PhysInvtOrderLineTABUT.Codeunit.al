@@ -399,6 +399,97 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         Assert.ExpectedError(ItemReference.FieldCaption("Unit of Measure") + ' must not be ' + ItemReference."Unit of Measure" + ' in ' + ItemReference.TableCaption());
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ItemReferenceList2ItemReferencesModalPageHandler')]
+    procedure ItemReferenceOnValidatePhysInvtRecordLine()
+    var
+        Item: Record Item;
+        ItemReference, AdditionalItemReference : Record "Item Reference";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        PhysInvtRecordingSubform: TestPage "Phys. Invt. Recording Subform";
+    begin
+        // [GIVEN] Physical Inventory Recording line
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, CreatePhysInventoryOrderHeader());
+        LibraryInventory.CreatePhysInvtRecordHeader(PhysInvtRecordHeader, PhysInvtOrderLine."Document No.");
+        LibraryInventory.CreatePhysInvtRecordLine(PhysInvtRecordLine, PhysInvtOrderLine, PhysInvtRecordHeader."Recording No.", 1);
+
+        // [GIVEN] Different item references exist
+        CreateDifferentItemReferencesWithSameReferenceNo(ItemReference);
+
+        // [WHEN] Validate item reference no using existing refernce no
+        PhysInvtRecordingSubform.OpenEdit();
+        PhysInvtRecordingSubform.GoToRecord(PhysInvtRecordLine);
+        PhysInvtRecordingSubform."Item Reference No.".Value(ItemReference."Reference No.");
+        PhysInvtRecordingSubform.Close();
+
+        // [THEN] Info from item reference is copied
+        TestPhysInvtRecordLineReferenceFields(PhysInvtRecordLine, ItemReference);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ItemReferenceList1ItemReferenceModalPageHandler')]
+    procedure ItemReferenceOnLookupPhysInvtRecordLine()
+    var
+        Item: Record Item;
+        ItemReference, AdditionalItemReference : Record "Item Reference";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        PhysInvtRecordingSubform: TestPage "Phys. Invt. Recording Subform";
+    begin
+        // [GIVEN] Physical Inventory Recording line
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, CreatePhysInventoryOrderHeader());
+        LibraryInventory.CreatePhysInvtRecordHeader(PhysInvtRecordHeader, PhysInvtOrderLine."Document No.");
+        LibraryInventory.CreatePhysInvtRecordLine(PhysInvtRecordLine, PhysInvtOrderLine, PhysInvtRecordHeader."Recording No.", 1);
+
+        // [GIVEN] Different item references exist
+        CreateDifferentItemReferencesWithSameReferenceNo(ItemReference);
+
+        // [WHEN] Lookup references
+        PhysInvtRecordingSubform.OpenEdit();
+        PhysInvtRecordingSubform.GoToRecord(PhysInvtRecordLine);
+        PhysInvtRecordingSubform."Item Reference No.".Lookup();
+        PhysInvtRecordingSubform.Close();
+
+        // [THEN] Info from item reference is copied
+        TestPhysInvtRecordLineReferenceFields(PhysInvtRecordLine, ItemReference);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemReferenceBarCodeOnValidatePhysInvtRecordLineNonBaseUoM()
+    var
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+    begin
+        // [GIVEN] Physical Inventory Recording line
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, CreatePhysInventoryOrderHeader());
+        LibraryInventory.CreatePhysInvtRecordHeader(PhysInvtRecordHeader, PhysInvtOrderLine."Document No.");
+        LibraryInventory.CreatePhysInvtRecordLine(PhysInvtRecordLine, PhysInvtOrderLine, PhysInvtRecordHeader."Recording No.", 1);
+
+        // [GIVEN] Item Reference for Item exists with non-base UoM code
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 2);
+        LibraryItemReference.CreateItemReference(ItemReference, Item."No.", '', ItemUnitOfMeasure.Code, "Item Reference Type"::"Bar Code", '', LibraryUtility.GenerateRandomCode(ItemReference.FieldNo("Reference No."), Database::"Item Reference"));
+
+        ItemReference.Validate("Unit of Measure", ItemUnitOfMeasure.Code);
+        ItemReference.Modify(true);
+
+        // [WHEN] Validate item reference no using existing refernce no that has non-base unit of measure
+        asserterror PhysInvtRecordLine.Validate("Item Reference No.", ItemReference."Reference No.");
+
+        // [THEN] Verify error
+        Assert.ExpectedError(ItemReference.FieldCaption("Unit of Measure") + ' must not be ' + ItemReference."Unit of Measure" + ' in ' + ItemReference.TableCaption());
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -482,6 +573,18 @@ codeunit 137452 "Phys. Invt. Order Line TAB UT"
         PhysInvtOrderLine.TestField("Item Reference Type", ItemReference."Reference Type");
         PhysInvtOrderLine.TestField("Item Reference Type No.", ItemReference."Reference Type No.");
         PhysInvtOrderLine.TestField("Item Reference Unit of Measure", ItemReference."Unit of Measure");
+    end;
+
+    local procedure TestPhysInvtRecordLineReferenceFields(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; ItemReference: Record "Item Reference")
+    begin
+        PhysInvtRecordLine.SetRecFilter();
+        PhysInvtRecordLine.FindFirst();
+        PhysInvtRecordLine.TestField("Item No.", ItemReference."Item No.");
+        PhysInvtRecordLine.TestField("Description", ItemReference."Description");
+        PhysInvtRecordLine.TestField("Description 2", ItemReference."Description 2");
+        PhysInvtRecordLine.TestField("Item Reference Type", ItemReference."Reference Type");
+        PhysInvtRecordLine.TestField("Item Reference Type No.", ItemReference."Reference Type No.");
+        PhysInvtRecordLine.TestField("Item Reference Unit of Measure", ItemReference."Unit of Measure");
     end;
 
     [ModalPageHandler]

@@ -1,3 +1,18 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Reports;
+
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GST.Base;
+using Microsoft.Finance.TaxBase;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Receivables;
+using System.IO;
+using System.Utilities;
+
 report 18049 "GSTR-1 File Format"
 {
     Caption = 'GSTR-1 File Format';
@@ -477,6 +492,7 @@ report 18049 "GSTR-1 File Format"
         GSTR1B2CInterCess: Query GSTR1B2CInterCess;
         GSTR1B2CSIntraAmt: Query GSTR1B2CSIntra;
         GSTR1B2CSInter: Query GSTR1B2CSInter;
+        GSTR1B2CSCrMemo: Query GSTR1B2CSCrMemo;
         GSTR1B2CSIntraCess: Query GSTR1B2CIntraCess;
         GSTRB2CSIntraAmount: Decimal;
         GSTR1B2CSInterBaseAmt: Decimal;
@@ -502,10 +518,22 @@ report 18049 "GSTR-1 File Format"
         GSTR1B2CSInter.SetRange(e_Comm__Operator_GST_Reg__No_, GSTR1B2CSQuery.e_Comm__Operator_GST_Reg__No_);
         GSTR1B2CSInter.SetRange(GSTR1B2CSInter.Buyer_Seller_State_Code, GSTR1B2CSQuery.Buyer_Seller_State_Code);
         GSTR1B2CSInter.SetRange(GST__, GSTR1B2CSQuery.GST__);
-        GSTR1B2CSInter.SetFilter(Document_Type, '%1|%2', "GST Document Type"::Invoice, "GST Document Type"::"Credit Memo");
+        GSTR1B2CSInter.SetRange(Document_Type, "GST Document Type"::Invoice);
         GSTR1B2CSInter.Open();
         while GSTR1B2CSInter.Read() do
             GSTR1B2CSInterBaseAmt := GSTR1B2CSInter.GST_Base_Amount;
+
+        GSTR1B2CSCrMemo.SetRange(Location__Reg__No_, LocationGSTIN);
+        GSTR1B2CSCrMemo.SetRange(Posting_Date, StartDate, EndDate);
+        GSTR1B2CSCrMemo.SetFilter(GST_Customer_Type, '%1', "GST Customer Type"::Unregistered);
+        GSTR1B2CSCrMemo.SetRange(e_Comm__Operator_GST_Reg__No_, GSTR1B2CSQuery.e_Comm__Operator_GST_Reg__No_);
+        GSTR1B2CSCrMemo.SetRange(GSTR1B2CSCrMemo.Buyer_Seller_State_Code, GSTR1B2CSQuery.Buyer_Seller_State_Code);
+        GSTR1B2CSCrMemo.SetRange(GST__, GSTR1B2CSQuery.GST__);
+        GSTR1B2CSCrMemo.SetRange(Document_Type, "GST Document Type"::"Credit Memo");
+        GSTR1B2CSCrMemo.Open();
+        while GSTR1B2CSCrMemo.Read() do
+            GSTR1B2CSInterBaseAmt += GSTR1B2CSCrMemo.GST_Base_Amount;
+        GSTR1B2CSCrMemo.Close();
 
         TotalBaseAmount := Abs(GSTR1B2CSInterBaseAmt + GSTRB2CSIntraAmount);
 

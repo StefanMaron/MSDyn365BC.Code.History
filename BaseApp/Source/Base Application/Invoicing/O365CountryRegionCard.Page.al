@@ -14,7 +14,7 @@ page 2195 "O365 Country/Region Card"
     {
         area(content)
         {
-            field("Code"; Code)
+            field("Code"; Rec.Code)
             {
                 ApplicationArea = Invoicing, Basic, Suite;
                 ToolTip = 'Specifies the ISO code of the country or region.';

@@ -12,7 +12,6 @@ codeunit 137006 "SCM PAC Output Consumption"
     var
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -20,12 +19,12 @@ codeunit 137006 "SCM PAC Output Consumption"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
-        ErrMessageConsumptionMissing: Label 'The Actual consumption Quantity must be same as Expected Consumption quantity';
-        ErrMessagePartialOutput: Label 'There must be some Output Missing';
-        ErrMessageRefreshComponentEql: Label 'No of Component must be equal';
-        ErrMessageRefreshNotEql: Label 'Number of Component cannot be equal';
-        ErrMessageRefreshRoutingEql: Label 'Number of Routing must be equal';
-        ErrMessageRefreshRoutingNotEql: Label 'Number of Routing cannot be equal';
+        ConsumptionMissingErr: Label 'The Actual consumption Quantity must be same as Expected Consumption quantity';
+        PartialOutputMissingErr: Label 'There must be some Output Missing';
+        NoOfComponentsMustBeEqualErr: Label 'No of Component must be equal';
+        NoOfComponentsMustNotBeEqualErr: Label 'Number of Component cannot be equal';
+        NoOfRoutingsMustBeEqualErr: Label 'Number of Routing must be equal';
+        NoOfRoutingsMustNotBeEqualErr: Label 'Number of Routing cannot be equal';
 
     [Test]
     [HandlerFunctions('CalcStdCostMenuHandler,ConfirmHandler')]
@@ -35,11 +34,8 @@ codeunit 137006 "SCM PAC Output Consumption"
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
         ItemJournalBatch: Record "Item Journal Batch";
         ManufacturingSetup: Record "Manufacturing Setup";
-        WorkCenterGroup: Record "Work Center Group";
-        Item: Record Item;
         ProductionBOMHeader: Record "Production BOM Header";
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         ProductionOrder: Record "Production Order";
         RoutingLink: Record "Routing Link";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
@@ -50,9 +46,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         WorkCenterNo: Code[20];
         WorkCenterNo2: Code[20];
         RoutingNo: Code[20];
-        ItemNo: Code[20];
-        ItemNo2: Code[20];
-        ItemNo3: Code[20];
+        ItemNos: array[3] of Code[20];
         ReleasedProductionOrderNo: Code[20];
         UnitCostCalculation: Option Time,Units;
         ProdOrderQuantity: Decimal;
@@ -64,12 +58,11 @@ codeunit 137006 "SCM PAC Output Consumption"
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
         Initialize();
-        LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
-        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays();
 
         // Create Work Centers and Machine Center with Flushing method -Manual.
         // Create Routing Link code and Routing.
@@ -81,37 +74,25 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // Create Items with Flushing method - Forward with the third Item containing Routing No. and Production BOM No.
         // Update Routing link Code on specified BOM component Lines.
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, '', '');
-        ItemNo := Item."No.";
-        Clear(Item);
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, '', '');
-        ItemNo2 := Item."No.";
-        Clear(Item);
-        ProductionBOMNo :=
-          LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
-            ProductionBOMHeader, ItemNo, ItemNo2, LibraryRandom.RandInt(1));
-        UpdateBOMHeader(ProductionBOMNo, ItemNo2, RoutingLinkCode);
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, RoutingNo, ProductionBOMNo);
-        ItemNo3 := Item."No.";
+        ItemNos[1] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", "Flushing Method"::Forward);
+        ItemNos[2] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", "Flushing Method"::Forward);
+        ProductionBOMNo := LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ItemNos[1], ItemNos[2], 1);
+        UpdateBOMHeader(ProductionBOMNo, ItemNos[2], RoutingLinkCode);
+
+        ItemNos[3] := CreateItemManufacturing(
+            Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", "Flushing Method"::Forward, RoutingNo, ProductionBOMNo);
 
         // Calculate Standard Cost for third Item.
         // Calculate Calendar for Work Center with dates having a difference of 5 weeks.
         // Create and Post Purchase Order as Receive and Invoice.
         // Create Refresh and Update Planned Production Order.
-        CalculateStandardCost.CalcItem(ItemNo3, false);
+        CalculateStandardCost.CalcItem(ItemNos[3], false);
         CalculateMachCenterCalendar(MachineCenterNo, WorkCenterNo, WorkCenterNo2);
-        CreatePurchOrderTwoPurchLine(
-          PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, LibraryRandom.RandInt(100) + 10, LibraryRandom.RandInt(100) + 10);
+        CreatePurchOrderTwoPurchLine(PurchaseHeader, ItemNos[1], ItemNos[2], 100, 100);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         ProdOrderQuantity := LibraryRandom.RandInt(10);
         LibraryManufacturing.CreateProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNo3, ProdOrderQuantity);
+          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNos[3], ProdOrderQuantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
         UpdatePlannedProductionOrder(ProductionOrder."No.");
 
@@ -119,14 +100,14 @@ codeunit 137006 "SCM PAC Output Consumption"
         ReleasedProductionOrderNo := ChangeStatusPlannedToReleased(ProductionOrder."No.");
 
         // 3.1 Verify Item Ledger Entry : Consumption booked for Item without Routing Link Code.
-        VerifyConsumptionQuantity(ReleasedProductionOrderNo, ItemNo, '', "Production Order Status"::Released, false);
+        VerifyConsumptionQuantity(ReleasedProductionOrderNo, ItemNos[1], '', "Production Order Status"::Released, false);
 
         // 2.2 Execute : Create, Calculate and Post Consumption Journal.
         // Create, Explode Routing, Update and Post Output Journal.
         LibraryInventory.CreateItemJournal(
-          ItemJournalBatch, ItemNo, ItemJournalBatch."Template Type"::Consumption, ReleasedProductionOrderNo);
+          ItemJournalBatch, ItemNos[1], ItemJournalBatch."Template Type"::Consumption, ReleasedProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo3, ItemJournalBatch."Template Type"::Output, ReleasedProductionOrderNo);
+        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNos[3], ItemJournalBatch."Template Type"::Output, ReleasedProductionOrderNo);
         UpdateLessQtyOutputJournal(ReleasedProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
@@ -137,7 +118,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         LibraryManufacturing.ChangeStatusReleasedToFinished(ReleasedProductionOrderNo);
 
         // 3.3 Verify Item Ledger Entry : Partial output.
-        VerifyFinishedItemLedgerEntry(ReleasedProductionOrderNo, ItemNo3, ProdOrderQuantity);
+        VerifyFinishedItemLedgerEntry(ReleasedProductionOrderNo, ItemNos[3], ProdOrderQuantity);
     end;
 
     [Test]
@@ -148,11 +129,8 @@ codeunit 137006 "SCM PAC Output Consumption"
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
         ItemJournalBatch: Record "Item Journal Batch";
         ManufacturingSetup: Record "Manufacturing Setup";
-        WorkCenterGroup: Record "Work Center Group";
-        Item: Record Item;
         ProductionBOMHeader: Record "Production BOM Header";
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         ProductionOrder: Record "Production Order";
         RoutingLink: Record "Routing Link";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
@@ -163,9 +141,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         WorkCenterNo: Code[20];
         WorkCenterNo2: Code[20];
         RoutingNo: Code[20];
-        ItemNo: Code[20];
-        ItemNo2: Code[20];
-        ItemNo3: Code[20];
+        ItemNos: array[3] of Code[20];
         ProductionOrderNo: Code[20];
         UnitCostCalculation: Option Time,Units;
         ProductionOrderQuantity: Decimal;
@@ -177,12 +153,11 @@ codeunit 137006 "SCM PAC Output Consumption"
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
         Initialize();
-        LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
-        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays();
 
         // Create Work Centers and Machine Center with Flushing method -Manual.
         // Create Routing Link code and Routing.
@@ -194,49 +169,39 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // Create Items with Flushing method - Backward with the third Item containing Routing No. and Production BOM No.
         // Update Routing link Code on specified BOM component Lines.
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Backward, '', '');
-        ItemNo := Item."No.";
-        Clear(Item);
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Backward, '', '');
-        ItemNo2 := Item."No.";
-        Clear(Item);
-        ProductionBOMNo :=
-          LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
-            ProductionBOMHeader, ItemNo, ItemNo2, LibraryRandom.RandInt(10));
-        UpdateBOMHeader(ProductionBOMNo, ItemNo2, RoutingLinkCode);
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Backward, RoutingNo, ProductionBOMNo);
-        ItemNo3 := Item."No.";
+        ItemNos[1] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Backward);
+        ItemNos[2] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Backward);
+
+        ProductionBOMNo := LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ItemNos[1], ItemNos[2], LibraryRandom.RandInt(10));
+        UpdateBOMHeader(ProductionBOMNo, ItemNos[2], RoutingLinkCode);
+
+        ItemNos[3] := CreateItemManufacturing(
+          Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Backward, RoutingNo, ProductionBOMNo);
 
         // Calculate Standard Cost for third Item.
         // Calculate Calendar for Work Center with dates having a difference of 5 weeks.
         // Create and Post Purchase Order as Receive and Invoice.
         // Create Refresh and Update Planned Production Order.
-        CalculateStandardCost.CalcItem(ItemNo3, false);
+        CalculateStandardCost.CalcItem(ItemNos[3], false);
         CalculateMachCenterCalendar(MachineCenterNo, WorkCenterNo, WorkCenterNo2);
-        CreatePurchOrderTwoPurchLine(
-          PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, LibraryRandom.RandInt(100) + 10, LibraryRandom.RandInt(100) + 10);
+        // Maximum demand for each components is ProductionOrderQuantity * "Production BOM Line"."Quantity per" = 100
+        CreatePurchOrderTwoPurchLine(PurchaseHeader, ItemNos[1], ItemNos[2], 100, 100);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         ProductionOrderQuantity := LibraryRandom.RandInt(10);
         LibraryManufacturing.CreateProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNo3, ProductionOrderQuantity);
+          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNos[3], ProductionOrderQuantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
         UpdatePlannedProductionOrder(ProductionOrder."No.");
 
         // 2.1 Execute : Change Status of Production Order from Planned to Released.
         // Create, Explode Routing, Update and Post Output Journal.
         ProductionOrderNo := ChangeStatusPlannedToReleased(ProductionOrder."No.");
-        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNo3, ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
+        LibraryInventory.CreateItemJournal(ItemJournalBatch, ItemNos[3], ItemJournalBatch."Template Type"::Output, ProductionOrderNo);
         UpdateLessQtyOutputJournal(ProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // 3.1 Verify Item Ledger Entry : Consumption booked for Item with Routing Link Code.
-        VerifyConsumptionQuantity(ProductionOrderNo, ItemNo2, RoutingLinkCode, "Production Order Status"::Released, true);
+        VerifyConsumptionQuantity(ProductionOrderNo, ItemNos[2], RoutingLinkCode, "Production Order Status"::Released, true);
 
         // 2.2 Execute : Change Status of Production Order from Released to Finished.
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrderNo);
@@ -244,7 +209,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         // 3.2 Verify Item Ledger Entry : All Consumption booked with or without Routing Link Code.
         // Verify Item Ledger Entry : Partial output.
         VerifyConsumptionQuantity(ProductionOrderNo, '', RoutingLinkCode, "Production Order Status"::Finished, false);
-        VerifyFinishedItemLedgerEntry(ProductionOrderNo, ItemNo3, ProductionOrderQuantity);
+        VerifyFinishedItemLedgerEntry(ProductionOrderNo, ItemNos[3], ProductionOrderQuantity);
     end;
 
     [Test]
@@ -255,11 +220,8 @@ codeunit 137006 "SCM PAC Output Consumption"
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
         ItemJournalBatch: Record "Item Journal Batch";
         ManufacturingSetup: Record "Manufacturing Setup";
-        WorkCenterGroup: Record "Work Center Group";
-        Item: Record Item;
         ProductionBOMHeader: Record "Production BOM Header";
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         ProductionOrder: Record "Production Order";
         RoutingLink: Record "Routing Link";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
@@ -270,12 +232,9 @@ codeunit 137006 "SCM PAC Output Consumption"
         WorkCenterNo: Code[20];
         WorkCenterNo2: Code[20];
         RoutingNo: Code[20];
-        ItemNo: Code[20];
-        ItemNo2: Code[20];
-        ItemNo3: Code[20];
+        ItemNos: array[3] of Code[20];
         ReleasedProductionOrderNo: Code[20];
         UnitCostCalculation: Option Time,Units;
-        Status: Option Simulated,Planned,"Firm Planned",Released,Finished;
         ProductionOrderQuantity: Decimal;
     begin
         // [FEATURE] [Output] [Flushing Method] [Manual]
@@ -285,12 +244,11 @@ codeunit 137006 "SCM PAC Output Consumption"
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
         Initialize();
-        LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
-        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays();
 
         // Create Work Centers and Machine Center with Flushing method -Forward.
         // Create Routing Link code and Routing.
@@ -302,38 +260,25 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // Create Items with Flushing method - Manual with the third Item containing Routing No. and Production BOM No.
         // Update Routing link Code on required BOM component Lines.
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Manual, '', '');
-        ItemNo := Item."No.";
-        Clear(Item);
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Manual, '', '');
-        ItemNo2 := Item."No.";
-        Clear(Item);
-        ProductionBOMNo :=
-          LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
-            ProductionBOMHeader, ItemNo, ItemNo2, LibraryRandom.RandInt(1));
-        UpdateBOMHeader(ProductionBOMNo, ItemNo2, RoutingLinkCode);
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Manual,
-          RoutingNo, ProductionBOMNo);
-        ItemNo3 := Item."No.";
+        ItemNos[1] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Manual);
+        ItemNos[2] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Manual);
+        ProductionBOMNo := LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ItemNos[1], ItemNos[2], 1);
+        UpdateBOMHeader(ProductionBOMNo, ItemNos[2], RoutingLinkCode);
+
+        ItemNos[3] := CreateItemManufacturing(
+            Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Manual, RoutingNo, ProductionBOMNo);
 
         // Calculate Standard Cost for third Item.
         // Calculate Calendar for Work Center with dates having a difference of 5 weeks.
         // Create and Post Purchase Order as Receive and Invoice.
         // Create Refresh and Update Planned Production Order.
-        CalculateStandardCost.CalcItem(ItemNo3, false);
+        CalculateStandardCost.CalcItem(ItemNos[3], false);
         CalculateMachCenterCalendar(MachineCenterNo, WorkCenterNo, WorkCenterNo2);
-        CreatePurchOrderTwoPurchLine(
-          PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, LibraryRandom.RandInt(100) + 10, LibraryRandom.RandInt(100) + 10);
+        CreatePurchOrderTwoPurchLine(PurchaseHeader, ItemNos[1], ItemNos[2], 100, 100);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         ProductionOrderQuantity := LibraryRandom.RandInt(10);
         LibraryManufacturing.CreateProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNo3, ProductionOrderQuantity);
+          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNos[3], ProductionOrderQuantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
         UpdatePlannedProductionOrder(ProductionOrder."No.");
 
@@ -341,7 +286,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         // Create, Calculate and Post Consumption Journal,Explode Routing and Post Output Journal.
         ReleasedProductionOrderNo := ChangeStatusPlannedToReleased(ProductionOrder."No.");
         LibraryInventory.CreateItemJournal(
-          ItemJournalBatch, ItemNo, ItemJournalBatch."Template Type"::Consumption, ReleasedProductionOrderNo);
+          ItemJournalBatch, ItemNos[1], ItemJournalBatch."Template Type"::Consumption, ReleasedProductionOrderNo);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // 3. Verify Item Ledger Entry : All Consumption booked with or without Routing Link Code.
@@ -354,12 +299,9 @@ codeunit 137006 "SCM PAC Output Consumption"
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
         ManufacturingSetup: Record "Manufacturing Setup";
-        WorkCenterGroup: Record "Work Center Group";
-        Item: Record Item;
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMLine: Record "Production BOM Line";
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         ProductionOrder: Record "Production Order";
         RoutingLink: Record "Routing Link";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
@@ -371,13 +313,9 @@ codeunit 137006 "SCM PAC Output Consumption"
         WorkCenterNo: Code[20];
         WorkCenterNo2: Code[20];
         RoutingNo: Code[20];
-        ItemNo: Code[20];
-        ItemNo2: Code[20];
-        ItemNo3: Code[20];
-        ItemNo4: Code[20];
+        ItemNos: array[4] of Code[20];
         ReleasedProductionOrderNo: Code[20];
         UnitCostCalculation: Option Time,Units;
-        Status: Option Simulated,Planned,"Firm Planned",Released,Finished;
         ProductionOrderQuantity: Decimal;
     begin
         // [FEATURE] [Output] [Flushing Method] [Forward]
@@ -387,12 +325,11 @@ codeunit 137006 "SCM PAC Output Consumption"
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
         Initialize();
-        LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
-        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays();
 
         // Create Work Centers and Machine Center with Flushing method -Backward.
         // Create Routing Link code and Routing.
@@ -405,44 +342,28 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // Create Items with Flushing method - Forward with the Fourth Item containing Routing No. and Production BOM No.
         // Update Routing link Code on required BOM component Lines.
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, '', '');
-        ItemNo := Item."No.";
-        Clear(Item);
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, '', '');
-        ItemNo2 := Item."No.";
-        Clear(Item);
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, '', '');
-        ItemNo3 := Item."No.";
-        Clear(Item);
-        ProductionBOMNo :=
-          CreateProductionBOM(
-            ProductionBOMHeader, ProductionBOMLine, ItemNo, ItemNo2, ItemNo3, LibraryRandom.RandInt(1));
-        UpdateBOMHeader(ProductionBOMNo, ItemNo2, RoutingLinkCode);
-        UpdateBOMHeader(ProductionBOMNo, ItemNo3, RoutingLinkCode2);
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, RoutingNo, ProductionBOMNo);
-        ItemNo4 := Item."No.";
+        ItemNos[1] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Forward);
+        ItemNos[2] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Forward);
+        ItemNos[3] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Forward);
+
+        ProductionBOMNo := CreateProductionBOM(ProductionBOMHeader, ProductionBOMLine, ItemNos[1], ItemNos[2], ItemNos[3], 1);
+        UpdateBOMHeader(ProductionBOMNo, ItemNos[2], RoutingLinkCode);
+        UpdateBOMHeader(ProductionBOMNo, ItemNos[3], RoutingLinkCode2);
+
+        ItemNos[4] := CreateItemManufacturing(
+            Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Forward, RoutingNo, ProductionBOMNo);
 
         // Calculate Standard Cost for third Item.
         // Calculate Calendar for Work Center with dates having a difference of 5 weeks.
         // Create and Post Purchase Order as Receive and Invoice.
         // Create Refresh and Update Planned Production Order.
-        CalculateStandardCost.CalcItem(ItemNo3, false);
+        CalculateStandardCost.CalcItem(ItemNos[3], false);
         CalculateMachCenterCalendar(MachineCenterNo, WorkCenterNo, WorkCenterNo2);
-        CreatePurchOrderThreePurchLine(
-          PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, ItemNo3, LibraryRandom.RandInt(100) + 10,
-          LibraryRandom.RandInt(100) + 10, LibraryRandom.RandInt(100) + 10);
+        CreatePurchOrderThreePurchLine(PurchaseHeader, ItemNos[1], ItemNos[2], ItemNos[3], 100, 100, 100);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         ProductionOrderQuantity := LibraryRandom.RandInt(10);
         LibraryManufacturing.CreateProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNo4, ProductionOrderQuantity);
+          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNos[4], ProductionOrderQuantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
         UpdatePlannedProductionOrder(ProductionOrder."No.");
 
@@ -460,11 +381,8 @@ codeunit 137006 "SCM PAC Output Consumption"
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
         ManufacturingSetup: Record "Manufacturing Setup";
-        WorkCenterGroup: Record "Work Center Group";
-        Item: Record Item;
         ProductionBOMHeader: Record "Production BOM Header";
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         ProductionOrder: Record "Production Order";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
         ShopCalendarCode: Code[10];
@@ -473,13 +391,9 @@ codeunit 137006 "SCM PAC Output Consumption"
         WorkCenterNo: Code[20];
         WorkCenterNo2: Code[20];
         RoutingNo: Code[20];
-        ItemNo: Code[20];
-        ItemNo2: Code[20];
-        ItemNo3: Code[20];
-        Type: Enum "Capacity Unit of Measure";
+        ItemNos: array[3] of Code[20];
         UnitCostCalculation: Option Time,Units;
         CountProductionOrderComponent: Integer;
-        CountProductionOrderRouting: Integer;
         ProductionOrderQuantity: Decimal;
     begin
         // [FEATURE] [Component] [Routing]
@@ -489,12 +403,11 @@ codeunit 137006 "SCM PAC Output Consumption"
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
         Initialize();
-        LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
-        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, Type::Minutes);
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, Enum::"Capacity Unit of Measure"::Minutes);
         UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
-        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays();
 
         // Create Work Centers and Machine Center with Flushing method -Forward.
         // Create Routing Link code and Routing.
@@ -504,49 +417,36 @@ codeunit 137006 "SCM PAC Output Consumption"
         CreateRouting(RoutingNo, MachineCenterNo, WorkCenterNo, WorkCenterNo2, '', '', false);
 
         // Create Items with Flushing method - Forward with the third Item containing Routing No. and Production BOM No.
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, '', '');
-        ItemNo := Item."No.";
-        Clear(Item);
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, '', '');
-        ItemNo2 := Item."No.";
-        Clear(Item);
-        ProductionBOMNo :=
-          LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
-            ProductionBOMHeader, ItemNo, ItemNo2, LibraryRandom.RandInt(10));
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, RoutingNo, ProductionBOMNo);
-        ItemNo3 := Item."No.";
+        ItemNos[1] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Forward);
+        ItemNos[2] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Forward);
+        ProductionBOMNo := LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ItemNos[1], ItemNos[2], LibraryRandom.RandInt(10));
+
+        ItemNos[3] := CreateItemManufacturing(
+            Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Forward, RoutingNo, ProductionBOMNo);
 
         // Calculate Standard Cost for third Item.
         // Calculate Calendar for Work Center with dates having a difference of 5 weeks.
         // Create and Post Purchase Order as Receive and Invoice.
         // Create Refresh and Update Planned Production Order.
-        CalculateStandardCost.CalcItem(ItemNo3, false);
+        CalculateStandardCost.CalcItem(ItemNos[3], false);
         CalculateMachCenterCalendar(MachineCenterNo, WorkCenterNo, WorkCenterNo2);
-        CreatePurchOrderTwoPurchLine(
-          PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, LibraryRandom.RandInt(100) + 10, LibraryRandom.RandInt(100) + 10);
+        CreatePurchOrderTwoPurchLine(PurchaseHeader, ItemNos[1], ItemNos[2], 100, 100);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         ProductionOrderQuantity := LibraryRandom.RandInt(10);
         LibraryManufacturing.CreateProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNo3, ProductionOrderQuantity);
+          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNos[3], ProductionOrderQuantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
         // 2. Execute: Remove Component and Routing from Production Order,Refresh Production Order.
         // Count number of Production order component and Routing.
-        RemoveProdOrderComponent(ProductionOrder."No.", ItemNo);
+        RemoveProdOrderComponent(ProductionOrder."No.", ItemNos[1]);
         RemoveProdOrderRoutingLine(ProductionOrder."No.", WorkCenterNo);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
         CountProductionOrderComponent := CountProductionComponents(ProductionOrder."No.");
-        CountProductionOrderRouting := CountProductionRoutingLines(ProductionOrder."No.");
 
         // 3. Verify : Production Components and Routing Lines.
         VerifyComponentAfterRefresh(ProductionBOMNo, CountProductionOrderComponent, true);
-        VerifyRoutingAfterRefresh(RoutingNo, CountProductionOrderRouting, true);
+        Assert.AreEqual(CountRoutingLines(RoutingNo), CountProductionRoutingLines(ProductionOrder."No."), NoOfRoutingsMustBeEqualErr)
     end;
 
     [Test]
@@ -556,11 +456,8 @@ codeunit 137006 "SCM PAC Output Consumption"
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
         ManufacturingSetup: Record "Manufacturing Setup";
-        WorkCenterGroup: Record "Work Center Group";
-        Item: Record Item;
         ProductionBOMHeader: Record "Production BOM Header";
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         ProductionOrder: Record "Production Order";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
         ShopCalendarCode: Code[10];
@@ -569,9 +466,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         WorkCenterNo: Code[20];
         WorkCenterNo2: Code[20];
         RoutingNo: Code[20];
-        ItemNo: Code[20];
-        ItemNo2: Code[20];
-        ItemNo3: Code[20];
+        ItemNos: array[3] of Code[20];
         UnitCostCalculation: Option Time,Units;
         CountProductionOrderComponent: Integer;
         ProductionOrderQuantity: Decimal;
@@ -583,12 +478,11 @@ codeunit 137006 "SCM PAC Output Consumption"
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
         Initialize();
-        LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
-        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays();
 
         // Create Work Centers and Machine Center with Flushing method -Forward.
         // Create Routing Link code and Routing.
@@ -598,42 +492,29 @@ codeunit 137006 "SCM PAC Output Consumption"
         CreateRouting(RoutingNo, MachineCenterNo, WorkCenterNo, WorkCenterNo2, '', '', false);
 
         // Create Items with Flushing method - Forward with the third Item containing Routing No. and Production BOM No.
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, '', '');
-        ItemNo := Item."No.";
-        Clear(Item);
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, '', '');
-        ItemNo2 := Item."No.";
-        Clear(Item);
-        ProductionBOMNo :=
-          LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
-            ProductionBOMHeader, ItemNo, ItemNo2, LibraryRandom.RandInt(1));
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward,
-          RoutingNo, ProductionBOMNo);
-        ItemNo3 := Item."No.";
+        ItemNos[1] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Forward);
+        ItemNos[2] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Forward);
+        ProductionBOMNo := LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ItemNos[1], ItemNos[2], 1);
+
+        ItemNos[3] := CreateItemManufacturing(
+            Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Forward, RoutingNo, ProductionBOMNo);
 
         // Calculate Standard Cost for third Item.
         // Calculate Calendar for Work Center with dates having a difference of 5 weeks.
         // Create and Post Purchase Order as Receive and Invoice.
         // Create Refresh and Update Planned Production Order.
-        CalculateStandardCost.CalcItem(ItemNo3, false);
+        CalculateStandardCost.CalcItem(ItemNos[3], false);
         CalculateMachCenterCalendar(MachineCenterNo, WorkCenterNo, WorkCenterNo2);
-        CreatePurchOrderTwoPurchLine(
-          PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, LibraryRandom.RandInt(100) + 10, LibraryRandom.RandInt(100) + 10);
+        CreatePurchOrderTwoPurchLine(PurchaseHeader, ItemNos[1], ItemNos[2], 100, 100);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         ProductionOrderQuantity := LibraryRandom.RandInt(10);
         LibraryManufacturing.CreateProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNo3, ProductionOrderQuantity);
+          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNos[3], ProductionOrderQuantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
         // 2. Execute: Remove one Component from Production Order and Refresh Production Order.
         // Count number of Production order component.
-        RemoveProdOrderComponent(ProductionOrder."No.", ItemNo);
+        RemoveProdOrderComponent(ProductionOrder."No.", ItemNos[1]);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, true, false, false);
         CountProductionOrderComponent := CountProductionComponents(ProductionOrder."No.");
 
@@ -648,11 +529,8 @@ codeunit 137006 "SCM PAC Output Consumption"
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
         ManufacturingSetup: Record "Manufacturing Setup";
-        WorkCenterGroup: Record "Work Center Group";
-        Item: Record Item;
         ProductionBOMHeader: Record "Production BOM Header";
         PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
         ProductionOrder: Record "Production Order";
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
         ShopCalendarCode: Code[10];
@@ -661,11 +539,8 @@ codeunit 137006 "SCM PAC Output Consumption"
         WorkCenterNo: Code[20];
         WorkCenterNo2: Code[20];
         RoutingNo: Code[20];
-        ItemNo: Code[20];
-        ItemNo2: Code[20];
-        ItemNo3: Code[20];
+        ItemNos: array[3] of Code[20];
         UnitCostCalculation: Option Time,Units;
-        CountProdOrderRouting: Integer;
         ProductionOrderQuantity: Decimal;
     begin
         // [FEATURE] [Routing]
@@ -675,12 +550,11 @@ codeunit 137006 "SCM PAC Output Consumption"
         // 1. Create required setups.
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
         Initialize();
-        LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         UpdateInventorySetup();
 
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
-        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays();
 
         // Create Work Centers and Machine Center with Flushing method -Forward.
         // Create Routing Link code and Routing.
@@ -690,36 +564,24 @@ codeunit 137006 "SCM PAC Output Consumption"
         CreateRouting(RoutingNo, MachineCenterNo, WorkCenterNo, WorkCenterNo2, '', '', false);
 
         // Create Items with Flushing method - Forward with the third Item containing Routing No. and Production BOM No.
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, '', '');
-        ItemNo := Item."No.";
-        Clear(Item);
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, '', '');
-        ItemNo2 := Item."No.";
-        Clear(Item);
-        ProductionBOMNo :=
-          LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
-            ProductionBOMHeader, ItemNo, ItemNo2, LibraryRandom.RandInt(1));
-        LibraryManufacturing.CreateItemManufacturing(
-          Item, Item."Costing Method"::Standard, LibraryRandom.RandInt(10), Item."Reordering Policy"::"Lot-for-Lot",
-          "Flushing Method"::Forward, RoutingNo, ProductionBOMNo);
-        ItemNo3 := Item."No.";
+        ItemNos[1] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Forward);
+        ItemNos[2] := CreateItemManufacturing(Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Forward);
+        ProductionBOMNo := LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ItemNos[1], ItemNos[2], 1);
+
+        ItemNos[3] := CreateItemManufacturing(
+            Enum::"Costing Method"::Standard, Enum::"Reordering Policy"::"Lot-for-Lot", Enum::"Flushing Method"::Forward, RoutingNo, ProductionBOMNo);
 
         // Calculate Standard Cost for third Item.
         // Calculate Calendar for Work Center with dates having a difference of 5 weeks.
         // Create and Post Purchase Order as Receive and Invoice.
         // Create Refresh and Update Planned Production Order.
-        CalculateStandardCost.CalcItem(ItemNo3, false);
+        CalculateStandardCost.CalcItem(ItemNos[3], false);
         CalculateMachCenterCalendar(MachineCenterNo, WorkCenterNo, WorkCenterNo2);
-        CreatePurchOrderTwoPurchLine(
-          PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, LibraryRandom.RandInt(100) + 10, LibraryRandom.RandInt(100) + 10);
+        CreatePurchOrderTwoPurchLine(PurchaseHeader, ItemNos[1], ItemNos[2], 100, 100);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         ProductionOrderQuantity := LibraryRandom.RandInt(10);
         LibraryManufacturing.CreateProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNo3, ProductionOrderQuantity);
+          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, ItemNos[3], ProductionOrderQuantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
         // 2. Execute : Remove one Routing from Production Order and Refresh Production Order.
@@ -727,10 +589,9 @@ codeunit 137006 "SCM PAC Output Consumption"
         RemoveProdOrderRoutingLine(ProductionOrder."No.", WorkCenterNo);
         UpdateOperationNo(ProductionOrder."No.");
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, false, true, false);
-        CountProdOrderRouting := CountProductionRoutingLines(ProductionOrder."No.");
 
         // 3. Verify : Production Order Routing Lines.
-        VerifyRoutingAfterRefresh(RoutingNo, CountProdOrderRouting, false);
+        Assert.AreNotEqual(CountRoutingLines(RoutingNo), CountProductionRoutingLines(ProductionOrder."No."), NoOfRoutingsMustNotBeEqualErr);
     end;
 
     local procedure Initialize()
@@ -751,6 +612,21 @@ codeunit 137006 "SCM PAC Output Consumption"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM PAC Output Consumption");
+    end;
+
+    local procedure CreateItemManufacturing(CostingMethod: Enum "Costing Method"; ReorderingPolicy: Enum "Reordering Policy"; FlushingMethod: Enum "Flushing Method";
+        RoutingNo: Code[20]; ProductionBOMNo: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryManufacturing.CreateItemManufacturing(
+            Item, CostingMethod, LibraryRandom.RandInt(10), ReorderingPolicy, FlushingMethod, RoutingNo, ProductionBOMNo);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateItemManufacturing(CostingMethod: Enum "Costing Method"; ReorderingPolicy: Enum "Reordering Policy"; FlushingMethod: Enum "Flushing Method"): Code[20]
+    begin
+        exit(CreateItemManufacturing(CostingMethod, ReorderingPolicy, FlushingMethod, '', ''));
     end;
 
     [Normal]
@@ -871,11 +747,9 @@ codeunit 137006 "SCM PAC Output Consumption"
         // Update Routing link Code on specified BOM component Lines.
         ProductionBOMHeader.SetRange("No.", ProductionBOMNo);
         ProductionBOMHeader.FindFirst();
-        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::"Under Development");
-        ProductionBOMHeader.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::"Under Development");
         UpdateBOMLineRoutingLinkCode(ProductionBOMHeader, ProductionBOMLine, ItemNo, RoutingLinkCode);
-        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
-        ProductionBOMHeader.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
     end;
 
     [Normal]
@@ -922,21 +796,23 @@ codeunit 137006 "SCM PAC Output Consumption"
         exit(ProductionBOMHeader."No.");
     end;
 
-    local procedure CreatePurchOrderThreePurchLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; ItemNo2: Code[20]; ItemNo3: Code[20]; Quantity: Decimal; Quantity2: Decimal; Quantity3: Decimal)
+    local procedure CreatePurchOrderThreePurchLine(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; ItemNo2: Code[20]; ItemNo3: Code[20]; Quantity: Decimal; Quantity2: Decimal; Quantity3: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
     begin
         CreatePurchaseHeader(PurchaseHeader);
 
         // Create Three Purchase Lines.
-        CreatePurchaseLines(PurchaseLine, PurchaseHeader, ItemNo, ItemNo2, Quantity, Quantity2);
+        CreatePurchaseLines(PurchaseHeader, ItemNo, ItemNo2, Quantity, Quantity2);
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, ItemNo3, Quantity3);
     end;
 
-    local procedure CreatePurchOrderTwoPurchLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; ItemNo2: Code[20]; Quantity: Decimal; Quantity2: Decimal)
+    local procedure CreatePurchOrderTwoPurchLine(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; ItemNo2: Code[20]; Quantity: Decimal; Quantity2: Decimal)
     begin
         CreatePurchaseHeader(PurchaseHeader);
 
         // Create Two Purchase Lines.
-        CreatePurchaseLines(PurchaseLine, PurchaseHeader, ItemNo, ItemNo2, Quantity, Quantity2);
+        CreatePurchaseLines(PurchaseHeader, ItemNo, ItemNo2, Quantity, Quantity2);
     end;
 
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
@@ -944,7 +820,9 @@ codeunit 137006 "SCM PAC Output Consumption"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
     end;
 
-    local procedure CreatePurchaseLines(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; ItemNo2: Code[20]; Quantity: Decimal; Quantity2: Decimal)
+    local procedure CreatePurchaseLines(PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; ItemNo2: Code[20]; Quantity: Decimal; Quantity2: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
     begin
         // Create Two Purchase Lines.
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, ItemNo, Quantity);
@@ -962,7 +840,7 @@ codeunit 137006 "SCM PAC Output Consumption"
     begin
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(false);
-        LibraryInventory.SetAutomaticCostAdjmtNever;
+        LibraryInventory.SetAutomaticCostAdjmtNever();
         LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
     end;
 
@@ -1025,12 +903,10 @@ codeunit 137006 "SCM PAC Output Consumption"
     local procedure CountProductionComponents(ProductionNo: Code[20]): Integer
     var
         ProdOrderComponent: Record "Prod. Order Component";
-        CountComponent: Integer;
     begin
         ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Planned);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionNo);
-        CountComponent := ProdOrderComponent.Count();
-        exit(CountComponent);
+        exit(ProdOrderComponent.Count());
     end;
 
     [Normal]
@@ -1077,22 +953,18 @@ codeunit 137006 "SCM PAC Output Consumption"
     local procedure CountBOMComponents(ProductionBOMNo: Code[20]): Integer
     var
         ProductionBOMLine: Record "Production BOM Line";
-        CountBOMComponents: Integer;
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
-        CountBOMComponents := ProductionBOMLine.Count();
-        exit(CountBOMComponents);
+        exit(ProductionBOMLine.Count());
     end;
 
     [Normal]
     local procedure CountRoutingLines(RoutingNo: Code[20]): Integer
     var
         RoutingLine: Record "Routing Line";
-        CountRoutingLines: Integer;
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        CountRoutingLines := RoutingLine.Count();
-        exit(CountRoutingLines);
+        exit(RoutingLine.Count());
     end;
 
     [Normal]
@@ -1135,36 +1007,26 @@ codeunit 137006 "SCM PAC Output Consumption"
 
     [Normal]
     local procedure ItemLedgerOutputQuantity(var ItemLedgerEntry: Record "Item Ledger Entry"; ProductionOrderNo: Code[20]; ItemNo: Code[20]): Decimal
-    var
-        Quantity: Decimal;
     begin
         // Select Item Ledger Entry with specified filters.
         ItemLedgerEntry.SetRange("Document No.", ProductionOrderNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindSet();
-        repeat
-            Quantity += ItemLedgerEntry.Quantity;
-        until ItemLedgerEntry.Next() = 0;
-        exit(Quantity);
+        ItemLedgerEntry.CalcSums(Quantity);
+        exit(ItemLedgerEntry.Quantity);
     end;
 
     local procedure VerifyConsumptionQuantity(ProductionOrderNo: Code[20]; ItemNo: Code[20]; RoutingLinkCode: Code[10]; Status: Enum "Production Order Status"; RoutingLinkCodeExist: Boolean)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
-        Assert: Codeunit Assert;
         CalculatedQuantity: Decimal;
         ActualConsumptionQuantity: Decimal;
     begin
         // Select set of Item Ledger Entries for the specified Consumption Quantity.
         CalculatedQuantity := ItemLedgerConsumptionQuantity(ItemLedgerEntry, ProductionOrderNo, ItemNo, RoutingLinkCodeExist);
+        ActualConsumptionQuantity := ActProdOrderComponentQuantity(ProductionOrderNo, RoutingLinkCode, Status, RoutingLinkCodeExist);
 
-        if RoutingLinkCodeExist then
-            ActualConsumptionQuantity := ActProdOrderComponentQuantity(ProductionOrderNo, RoutingLinkCode, Status, true)
-        else
-            ActualConsumptionQuantity := ActProdOrderComponentQuantity(ProductionOrderNo, RoutingLinkCode, Status, false);
-
-        Assert.AreEqual(ActualConsumptionQuantity, CalculatedQuantity, ErrMessageConsumptionMissing);
+        Assert.AreEqual(ActualConsumptionQuantity, CalculatedQuantity, ConsumptionMissingErr);
     end;
 
     [Normal]
@@ -1174,7 +1036,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         CalulatedOutputQuantity: Decimal;
     begin
         CalulatedOutputQuantity := ItemLedgerOutputQuantity(ItemLedgerEntry, ProductionOrderNo, ItemNo);
-        Assert.AreNotEqual(CalulatedOutputQuantity, ProductionOrderQuantity, ErrMessagePartialOutput)
+        Assert.AreNotEqual(CalulatedOutputQuantity, ProductionOrderQuantity, PartialOutputMissingErr)
     end;
 
     [Normal]
@@ -1187,24 +1049,9 @@ codeunit 137006 "SCM PAC Output Consumption"
 
         // Verify :Compare BOM components with Production Order Components.
         if RefreshComponents then
-            Assert.AreEqual(CountProductionBomComponent, CountComponents, ErrMessageRefreshComponentEql)
+            Assert.AreEqual(CountProductionBomComponent, CountComponents, NoOfComponentsMustBeEqualErr)
         else
-            Assert.AreNotEqual(CountComponents, CountProductionBomComponent, ErrMessageRefreshNotEql);
-    end;
-
-    [Normal]
-    local procedure VerifyRoutingAfterRefresh(RoutingNo: Code[20]; CountProductionRouting: Integer; RefreshRouting: Boolean)
-    var
-        CountRoutingLine: Integer;
-    begin
-        // Count Routing Line of Item
-        CountRoutingLine := CountRoutingLines(RoutingNo);
-
-        // Verify :Compare Routing lines with Production Order routing line.
-        if RefreshRouting then
-            Assert.AreEqual(CountProductionRouting, CountRoutingLine, ErrMessageRefreshRoutingEql)
-        else
-            Assert.AreNotEqual(CountRoutingLine, CountProductionRouting, ErrMessageRefreshRoutingNotEql);
+            Assert.AreNotEqual(CountComponents, CountProductionBomComponent, NoOfComponentsMustNotBeEqualErr);
     end;
 
     [StrMenuHandler]

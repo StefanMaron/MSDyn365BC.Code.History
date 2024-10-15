@@ -1,3 +1,11 @@
+namespace Microsoft.Service.Maintenance;
+
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Item;
+using Microsoft.Service.Document;
+using Microsoft.Service.Item;
+using Microsoft.Service.Setup;
+
 table 5943 "Troubleshooting Header"
 {
     Caption = 'Troubleshooting Header';

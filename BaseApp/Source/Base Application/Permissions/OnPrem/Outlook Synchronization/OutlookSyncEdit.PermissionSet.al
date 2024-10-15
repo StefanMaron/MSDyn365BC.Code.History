@@ -1,3 +1,9 @@
+namespace System.Security.AccessControl;
+
+using System.Environment;
+using System.Diagnostics;
+using System.Threading;
+
 permissionset 7871 "Outlook Sync. - Edit"
 {
     Access = Public;

@@ -1,3 +1,10 @@
+namespace Microsoft.CRM.Outlook;
+
+using Microsoft.Inventory.Item;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using System;
+
 codeunit 1639 "Office Line Generation"
 {
     // This codeunit contains algorithms for finding item references within text.

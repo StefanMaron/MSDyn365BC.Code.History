@@ -1,9 +1,13 @@
+namespace Microsoft.AccountantPortal;
+
+using Microsoft.Foundation.Task;
+
 page 1316 "Accountant Portal User Tasks"
 {
     Caption = 'Accountant Portal User Tasks';
     PageType = List;
     SourceTable = "User Task";
-    SourceTableView = SORTING(ID);
+    SourceTableView = sorting(ID);
 
     layout
     {
@@ -11,13 +15,13 @@ page 1316 "Accountant Portal User Tasks"
         {
             group(Task)
             {
-                field(ID; ID)
+                field(ID; Rec.ID)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'ID', Locked = true;
                     ToolTip = 'Specifies the ID that applies.';
                 }
-                field(Title; Title)
+                field(Title; Rec.Title)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Subject', Locked = true;
@@ -35,7 +39,7 @@ page 1316 "Accountant Portal User Tasks"
                     Caption = '% Complete', Locked = true;
                     ToolTip = 'Specifies the progress of the task.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Priority', Locked = true;
@@ -93,16 +97,16 @@ page 1316 "Accountant Portal User Tasks"
 
     trigger OnAfterGetRecord()
     begin
-        CalcFields("Created By User Name");
-        CreatedByName := "Created By User Name";
+        Rec.CalcFields("Created By User Name");
+        CreatedByName := Rec."Created By User Name";
         Link := GetUrl(CLIENTTYPE::Web, CompanyName, OBJECTTYPE::Page, 1171, Rec) + '&Mode=Edit';
-        if IsNullGuid("Assigned To") then
-            "Assigned To" := UserSecurityId();
+        if IsNullGuid(Rec."Assigned To") then
+            Rec."Assigned To" := UserSecurityId();
     end;
 
     trigger OnOpenPage()
     begin
-        Reset();
+        Rec.Reset();
         UserTaskManagement.SetFiltersToShowMyUserTasks(Rec, DueDateFilterOptions::NONE);
     end;
 

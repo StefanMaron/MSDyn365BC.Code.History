@@ -1,3 +1,14 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.Dimension;
+using Microsoft.Projects.Resources.Journal;
+using Microsoft.Projects.Resources.Ledger;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Foundation.Period;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Projects.TimeSheet;
+
 permissionset 3300 "Resources Journals - Post"
 {
     Access = Public;

@@ -1,3 +1,5 @@
+namespace System.Email;
+
 enumextension 8891 "Base Email Scenario" extends "Email Scenario"
 {
     value(1; "Invite External Accountant")

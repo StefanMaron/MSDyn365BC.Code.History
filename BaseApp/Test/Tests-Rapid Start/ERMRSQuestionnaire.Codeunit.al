@@ -584,6 +584,7 @@ codeunit 136600 "ERM RS Questionnaire"
         XMLNode: DotNet XmlNode;
         QuestionnaireCode: Code[10];
         QuestionAreaCode: Code[10];
+        InnerText: Text;
     begin
         SetupQuestionnaireTestScenario(ConfigQuestionnaire, ConfigQuestionArea, FindTable);
 
@@ -603,8 +604,9 @@ codeunit 136600 "ERM RS Questionnaire"
         XMLNode := XMLNodes.Item(0);
         XMLNode := XMLNode.SelectSingleNode(QuestionnaireManagement.GetElementName(ConfigQuestion.FieldName("No.")));
 
+        InnerText := XMLNode.InnerText;
         Assert.IsTrue(
-          ConfigQuestion.Get(QuestionnaireCode, QuestionAreaCode, XMLNode.InnerText),
+          ConfigQuestion.Get(QuestionnaireCode, QuestionAreaCode, InnerText),
           StrSubstNo(XMLCodeNotGeneratedError, ConfigQuestion.TableCaption()));
     end;
 

@@ -1,10 +1,68 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Utilities;
+using Microsoft.Sales.Customer;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Archive;
+using Microsoft.CRM.Team;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Inventory.Location;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Projects.Project.Posting;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Foundation.UOM;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Inventory.BOM;
+using Microsoft.CRM.Opportunity;
+using Microsoft.Foundation.Comment;
+using Microsoft.Foundation.Address;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Receivables;
+using Microsoft.Finance.Dimension;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Item.Substitution;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Inventory.Planning;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Projects.Resources.Resource;
+#if not CLEAN21
+using Microsoft.Projects.Resources.Pricing;
+#endif
+using Microsoft.Sales.History;
+using Microsoft.Sales.Comment;
+using Microsoft.Sales.Pricing;
+using Microsoft.Finance.SalesTax;
+using Microsoft.CRM.Task;
+using System.Security.User;
+
 permissionset 8651 "Recievables Documents - Edit"
 {
     Access = Public;
     Assignable = false;
     Caption = 'Create sales orders etc.';
-
-    IncludedPermissionSets = "Language - Read";
 
     Permissions = tabledata "Alt. Customer Posting Group" = R,
                   tabledata "Bank Account" = R,
