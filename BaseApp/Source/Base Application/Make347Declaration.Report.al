@@ -538,6 +538,12 @@ report 10707 "Make 347 Declaration"
     trigger OnInitReport()
     begin
         CompanyInfo.Get();
+        if CopyStr(CompanyInfo."VAT Registration No.", 1, StrLen(CompanyInfo."Country/Region Code")) =
+           CompanyInfo."Country/Region Code"
+        then
+            CompanyInfo."VAT Registration No." :=
+              CopyStr(CompanyInfo."VAT Registration No.", StrLen(CompanyInfo."Country/Region Code") + 1,
+                MaxStrLen(CompanyInfo."VAT Registration No."));
         VATRegNo := CopyStr(DelChr(CompanyInfo."VAT Registration No.", '=', '.-/'), 1, 9);
         while StrLen(VATRegNo) < 9 do
             VATRegNo := '0' + VATRegNo;

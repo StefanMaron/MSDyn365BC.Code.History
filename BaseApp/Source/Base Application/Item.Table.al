@@ -7,7 +7,8 @@
     Permissions = TableData "Reservation Entry" = d,
                   TableData "Service Item" = rm,
                   TableData "Service Item Component" = rm,
-                  TableData "Bin Content" = d;
+                  TableData "Bin Content" = d,
+                  TableData "Planning Assignment" = d;
 
     fields
     {

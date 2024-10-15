@@ -1366,6 +1366,8 @@
         // [THEN] SalesLine."Prepmt. Line Amount" = 400
         SalesLine.TestField(Amount, 400);
         SalesLine.TestField("Prepmt. Line Amount", 400);
+
+        SalesHeader.Delete(true); // avoid breaking further tests
     end;
 
     [Test]
@@ -1392,6 +1394,8 @@
         // [THEN] SalesLine."Prepmt. Line Amount" = 400
         SalesLine.TestField("Amount Including VAT", 400);
         SalesLine.TestField("Prepmt. Line Amount", 400);
+
+        SalesHeader.Delete(true); // avoid breaking further tests
     end;
 
     [Test]
@@ -1418,6 +1422,8 @@
         // [THEN] SalesLine."Prepmt. Line Amount" = 0
         SalesLine.TestField(Amount, -400);
         SalesLine.TestField("Prepmt. Line Amount", 0);
+
+        SalesHeader.Delete(true); // avoid breaking further tests
     end;
 
     [Test]
@@ -3859,6 +3865,54 @@
         TearDownVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group");
     end;
 
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure StatisticsSalesOrderWith100PctPrepmtAndLineDiscAfterPartialPost()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 428300] User can open and close statisctics page for partially posted sales order with 100 % prepayment and line discount
+        Initialize();
+
+        // [GIVEN] Partially posted sales order with 100 % prepayment and line discount
+        CreateVATPostingSetup(VATPostingSetup, 25);
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        UpdateSalesPrepmtAccount(
+            CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup),
+            GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Order,
+            LibrarySales.CreateCustomerWithBusPostingGroups(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+        SalesHeader.Validate("Prepayment %", 100);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item,
+            LibraryInventory.CreateItemNoWithPostingSetup(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"), 75.088);
+        SalesLine.Validate("Unit Price", 44.7);
+        SalesLine.Validate("Line Discount %", 10);
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.Validate("Qty. to Ship", 60.3278);
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Run statistics page
+        SalesOrder.OpenView();
+        SalesOrder.GoToRecord(SalesHeader);
+        SalesOrder.Statistics.Invoke();
+
+        // [THEN] Statistics page can be closed without error (processed in SalesOrderStatisticsHandler)
+        // [THEN] Sales order posted
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5204,6 +5258,12 @@
     procedure YesConfirmHandler(Message: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
     end;
 }
 
