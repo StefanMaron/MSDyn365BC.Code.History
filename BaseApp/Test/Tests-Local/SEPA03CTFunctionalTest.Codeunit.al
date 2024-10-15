@@ -5,6 +5,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
 
     trigger OnRun()
     begin
+        // [FEATURE] [SEPA] [Credit Transfer]
     end;
 
     var
@@ -18,6 +19,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         LibraryRandom: Codeunit "Library - Random";
         StringConversionManagement: Codeunit StringConversionManagement;
         LibraryXMLRead: Codeunit "Library - XML Read";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         isInitialized: Boolean;
         UnexpectedEmptyNodeErr: Label 'Unexpected empty value for node <%1> of subtree <%2>.';
         SEPACTCode: Code[20];
@@ -149,6 +151,29 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         SetPreserveNonLatinCharacters(true);
         InitializeTestDataAndExportSEPAFile(PaymentHeader, PaymentLine);
         VerifyCreditor(PaymentLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('PaymentClassHandler')]
+    [Scope('OnPrem')]
+    procedure ExportSEPACTSvcLvlCd()
+    var
+        PaymentHeader: Record "Payment Header";
+        PaymentLine: Record "Payment Line";
+        ExportedFilePath: Text;
+    begin
+        // [SCENARIO 344720] SEPA Export File contains element PmtInf/PmtTpInf/SvcLvl/Cd with value 'SEPA'.
+        Initialize;
+
+        // [GIVEN] Payment Slip.
+        CreatePaymentSlip(PaymentHeader, PaymentLine);
+
+        // [WHEN] Export SEPA CT file.
+        ExportedFilePath := ExportSEPAFile(PaymentHeader);
+
+        // [THEN] SEPA CT file contains element PmtInf/PmtTpInf/SvcLvl/Cd with value 'SEPA'.
+        LibraryXPathXMLReader.Initialize(ExportedFilePath, GetISO20022V03NameSpace);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//PmtInf/PmtTpInf/SvcLvl/Cd', 'SEPA');
     end;
 
     local procedure Initialize()
@@ -334,6 +359,11 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         exit(BankExportImportSetup."Preserve Non-Latin Characters");
     end;
 
+    local procedure GetISO20022V03NameSpace(): Text
+    begin
+        exit('urn:iso:std:iso:20022:tech:xsd:pain.001.001.03');
+    end;
+
     local procedure InitializeTestDataAndExportSEPAFile(var PaymentHeader: Record "Payment Header"; var PaymentLine: Record "Payment Line")
     var
         ExportedFilePath: Text;
@@ -413,7 +443,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         LibraryXMLRead.VerifyNodeValueInSubtree('InitgPty', 'Nm', CompanyInformation.Name);
         LibraryXMLRead.VerifyNodeValueInSubtree('InitgPty', 'Id', CompanyInformation."VAT Registration No.");
         // TFSID: 327225 Removal of 'PstlAdr' tag since the scheme has been changed
-        LibraryXMLRead.VerifyNodeAbsenceInSubtree('InitgPty','PstlAdr');
+        LibraryXMLRead.VerifyNodeAbsenceInSubtree('InitgPty', 'PstlAdr');
     end;
 
     local procedure VerifyPaymentInformationHeader(PaymentLine: Record "Payment Line")

@@ -48,7 +48,6 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         NothingToReleaseErr: Label 'There is nothing to release for the incoming document';
         NoDocCreatedForChoiceErr: Label 'Nothing has been created for choice %1.', Comment = '%1 = choice (number)';
         UnknownChoiceErr: Label 'Unknown choice %1.', Comment = '%1=Choice (number)';
-        PEPPOLVersion: Option "2.0","2.1";
 
     [Test]
     [Scope('OnPrem')]
@@ -323,7 +322,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
           CreateSalesDocument(SalesHeader."Document Type"::Invoice, false));
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        XmlPath := ExportPEPPOLInvoice(SalesInvoiceHeader, PEPPOLVersion::"2.1");
+        XmlPath := ExportPEPPOLInvoice(SalesInvoiceHeader);
         SetupCompanyForInvoiceImport(SalesInvoiceHeader);
 
         // Setup: configure data exchange setup and create incoming document
@@ -376,7 +375,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         // Setup: export XML
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, CreateSalesDocument(SalesHeader."Document Type"::Invoice, true));
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        XmlPath := ExportPEPPOLInvoice(SalesInvoiceHeader, PEPPOLVersion::"2.1");
+        XmlPath := ExportPEPPOLInvoice(SalesInvoiceHeader);
 
         // Setup: create data exchange setup
         DataExchDef.Get('PEPPOLINVOICE');
@@ -402,36 +401,20 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
-    procedure TestPeppol21InvoiceImportLCY()
+    procedure TestPeppolInvoiceImportLCY()
     begin
-        PEPPOLInvoiceImport(true, PEPPOLVersion::"2.1");
+        PEPPOLInvoiceImport(true);
     end;
 
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
-    procedure TestPeppol21InvoiceImportNonLCY()
+    procedure TestPeppolInvoiceImportNonLCY()
     begin
-        PEPPOLInvoiceImport(false, PEPPOLVersion::"2.1");
+        PEPPOLInvoiceImport(false);
     end;
 
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure TestPeppol20InvoiceImportLCY()
-    begin
-        PEPPOLInvoiceImport(true, PEPPOLVersion::"2.0");
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure TestPeppol20InvoiceImportNonLCY()
-    begin
-        PEPPOLInvoiceImport(false, PEPPOLVersion::"2.0");
-    end;
-
-    local procedure PEPPOLInvoiceImport(InvoiceCurrencyIsLCY: Boolean; Version: Option)
+    local procedure PEPPOLInvoiceImport(InvoiceCurrencyIsLCY: Boolean)
     var
         DataExchDef: Record "Data Exch. Def";
         SalesHeader: Record "Sales Header";
@@ -450,7 +433,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
           CreateSalesDocument(SalesHeader."Document Type"::Invoice, InvoiceCurrencyIsLCY));
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        XmlPath := ExportPEPPOLInvoice(SalesInvoiceHeader, Version);
+        XmlPath := ExportPEPPOLInvoice(SalesInvoiceHeader);
         SetupCompanyForInvoiceImport(SalesInvoiceHeader);
 
         // Setup: configure data exchange setup and create incoming document
@@ -491,36 +474,20 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
-    procedure TestPeppol21ServiceInvoiceImportLCY()
+    procedure TestPeppolServiceInvoiceImportLCY()
     begin
-        PEPPOLServiceInvoiceImport(true, PEPPOLVersion::"2.1");
+        PEPPOLServiceInvoiceImport(true);
     end;
 
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
-    procedure TestPeppol21ServiceInvoiceImportNonLCY()
+    procedure TestPeppolServiceInvoiceImportNonLCY()
     begin
-        PEPPOLServiceInvoiceImport(false, PEPPOLVersion::"2.1");
+        PEPPOLServiceInvoiceImport(false);
     end;
 
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure TestPeppol20ServiceInvoiceImportLCY()
-    begin
-        PEPPOLServiceInvoiceImport(true, PEPPOLVersion::"2.0");
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure TestPeppol20ServiceInvoiceImportNonLCY()
-    begin
-        PEPPOLServiceInvoiceImport(false, PEPPOLVersion::"2.0");
-    end;
-
-    local procedure PEPPOLServiceInvoiceImport(InvoiceCurrencyIsLCY: Boolean; Version: Option)
+    local procedure PEPPOLServiceInvoiceImport(InvoiceCurrencyIsLCY: Boolean)
     var
         DataExchDef: Record "Data Exch. Def";
         ServiceInvoiceHeader: Record "Service Invoice Header";
@@ -536,7 +503,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         // Setup: export XML
         CreateServiceInvoiceAndPost(ServiceInvoiceHeader, InvoiceCurrencyIsLCY);
 
-        XmlPath := ExportPEPPOLInvoice(ServiceInvoiceHeader, Version);
+        XmlPath := ExportPEPPOLInvoice(ServiceInvoiceHeader);
         SetupCompanyForServiceInvoiceImport(ServiceInvoiceHeader);
 
         // Setup: configure data exchange setup and create incoming document
@@ -622,7 +589,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
           CreateSalesDocument(SalesHeader."Document Type"::Invoice, false));
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        XmlPath := ExportPEPPOLInvoice(SalesInvoiceHeader, PEPPOLVersion::"2.1");
+        XmlPath := ExportPEPPOLInvoice(SalesInvoiceHeader);
         VendorNo := SetupCompanyForInvoiceImport(SalesInvoiceHeader);
 
         // break the Vendor.GLN link, so that we have to set up a Bal. Account No. mapping
@@ -713,7 +680,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
           CreateSalesDocument(SalesHeader."Document Type"::Invoice, InvoiceCurrencyIsLCY));
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        XmlPath := ExportPEPPOLInvoice(SalesInvoiceHeader, PEPPOLVersion::"2.1");
+        XmlPath := ExportPEPPOLInvoice(SalesInvoiceHeader);
         VendorNo := SetupCompanyForInvoiceImport(SalesInvoiceHeader);
 
         // break the Vendor.GLN link, so that we have to set up a Bal. Account No. mapping
@@ -806,36 +773,20 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
-    procedure TestPeppol21CreditMemoImportLCY()
+    procedure TestPeppolCreditMemoImportLCY()
     begin
-        PEPPOLCreditMemoImport(true, PEPPOLVersion::"2.1");
+        PEPPOLCreditMemoImport(true);
     end;
 
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
-    procedure TestPeppol21CreditMemoImportNonLCY()
+    procedure TestPeppolCreditMemoImportNonLCY()
     begin
-        PEPPOLCreditMemoImport(false, PEPPOLVersion::"2.1");
+        PEPPOLCreditMemoImport(false);
     end;
 
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure TestPeppol20CreditMemoImportLCY()
-    begin
-        PEPPOLCreditMemoImport(true, PEPPOLVersion::"2.0");
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure TestPeppol20CreditMemoImportNonLCY()
-    begin
-        PEPPOLCreditMemoImport(false, PEPPOLVersion::"2.0");
-    end;
-
-    local procedure PEPPOLCreditMemoImport(InvoiceCurrencyIsLCY: Boolean; Version: Option)
+    local procedure PEPPOLCreditMemoImport(InvoiceCurrencyIsLCY: Boolean)
     var
         DataExchDef: Record "Data Exch. Def";
         SalesHeader: Record "Sales Header";
@@ -854,7 +805,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
           CreateSalesDocument(SalesHeader."Document Type"::"Credit Memo", InvoiceCurrencyIsLCY));
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        XmlPath := ExportPEPPOLCreditMemo(SalesCrMemoHeader, Version);
+        XmlPath := ExportPEPPOLCreditMemo(SalesCrMemoHeader);
 
         SetupCompanyForCreditMemoImport(SalesCrMemoHeader);
 
@@ -897,36 +848,20 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
-    procedure TestPeppol21ServiceCreditMemoImportLCY()
+    procedure TestPeppolServiceCreditMemoImportLCY()
     begin
-        PEPPOLServiceCreditMemoImport(true, PEPPOLVersion::"2.1");
+        PEPPOLServiceCreditMemoImport(true);
     end;
 
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
-    procedure TestPeppol21ServiceCreditMemoImportNonLCY()
+    procedure TestPeppolServiceCreditMemoImportNonLCY()
     begin
-        PEPPOLServiceCreditMemoImport(false, PEPPOLVersion::"2.1");
+        PEPPOLServiceCreditMemoImport(false);
     end;
 
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure TestPeppol20ServiceCreditMemoImportLCY()
-    begin
-        PEPPOLServiceCreditMemoImport(true, PEPPOLVersion::"2.0");
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure TestPeppol20ServiceCreditMemoImportNonLCY()
-    begin
-        PEPPOLServiceCreditMemoImport(false, PEPPOLVersion::"2.0");
-    end;
-
-    local procedure PEPPOLServiceCreditMemoImport(InvoiceCurrencyIsLCY: Boolean; Version: Option)
+    local procedure PEPPOLServiceCreditMemoImport(InvoiceCurrencyIsLCY: Boolean)
     var
         DataExchDef: Record "Data Exch. Def";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
@@ -942,7 +877,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         // Setup: export XML
         CreateServiceCreditMemoAndPost(ServiceCrMemoHeader, InvoiceCurrencyIsLCY);
 
-        XmlPath := ExportPEPPOLCreditMemo(ServiceCrMemoHeader, Version);
+        XmlPath := ExportPEPPOLCreditMemo(ServiceCrMemoHeader);
         SetupCompanyForServiceCreditMemoImport(ServiceCrMemoHeader);
 
         // Setup: configure data exchange setup and create incoming document
@@ -1026,7 +961,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
           CreateSalesDocument(SalesHeader."Document Type"::"Credit Memo", InvoiceCurrencyIsLCY));
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        XmlPath := ExportPEPPOLCreditMemo(SalesCrMemoHeader, PEPPOLVersion::"2.0");
+        XmlPath := ExportPEPPOLCreditMemo(SalesCrMemoHeader);
         CompanyInformation.Get;
         VendorNo := SetupCompanyForCreditMemoImport(SalesCrMemoHeader);
 
@@ -1126,7 +1061,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, CreateSalesDocument(SalesHeader."Document Type"::Invoice, true));
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
-        XmlPath := ExportPEPPOLInvoice(SalesInvoiceHeader, PEPPOLVersion::"2.1");
+        XmlPath := ExportPEPPOLInvoice(SalesInvoiceHeader);
 
         SetupCompanyForInvoiceImport(SalesInvoiceHeader);
 
@@ -1485,7 +1420,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
           '/Document/Invoice/cbc:ID', 'InvoiceID');
         ColumnNo += 1;
         CreateDataExchangeColumnDef(DataExchColumnDef, SalesHeaderDataExchLineDef, ColumnNo,
-          '/Document/Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID[@schemeID=''GLN'']',
+          '/Document/Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID[@schemeID=''0088'']',
           'VendorGLN');
         ColumnNo := 1;
         CreateDataExchangeColumnDef(DataExchColumnDef, SalesLineDataExchLineDef, ColumnNo,
@@ -1526,7 +1461,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
           '/Document/Invoice/ID', 'InvoiceID');
         ColumnNo += 1;
         CreateDataExchangeColumnDef(DataExchColumnDef, SalesHeaderDataExchLineDef, ColumnNo,
-          '/Document/Invoice/AccountingSupplierParty/Party/EndpointID[@schemeID=''GLN'']', 'VendorGLN');
+          '/Document/Invoice/AccountingSupplierParty/Party/EndpointID[@schemeID=''0088'']', 'VendorGLN');
         ColumnNo := 1;
         CreateDataExchangeColumnDef(DataExchColumnDef, SalesLineDataExchLineDef, ColumnNo,
           '/Document/Invoice/InvoiceLine/InvoicedQuantity', 'Quantity');
@@ -1557,7 +1492,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
           '/Document/Invoice/cbc:ID', 'InvoiceID');
         ColumnNo += 1;
         CreateDataExchangeColumnDef(DataExchColumnDef, DataExchLineDef, ColumnNo,
-          '/Document/Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID[@schemeID=''GLN'']',
+          '/Document/Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID[@schemeID=''0088'']',
           'VendorGLN');
     end;
 
@@ -1577,7 +1512,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
           '/Document/Invoice/ID', 'InvoiceID');
         ColumnNo += 1;
         CreateDataExchangeColumnDef(DataExchColumnDef, DataExchLineDef, ColumnNo,
-          '/Document/Invoice/AccountingSupplierParty/Party/EndpointID[@schemeID=''GLN'']', 'VendorGLN');
+          '/Document/Invoice/AccountingSupplierParty/Party/EndpointID[@schemeID=''0088'']', 'VendorGLN');
     end;
 
     local procedure CreateDataExch(var DataExch: Record "Data Exch."; DataExchDef: Record "Data Exch. Def"; TempBlob: Codeunit "Temp Blob")
@@ -1926,6 +1861,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         if CompanyInfo."VAT Registration No." = '' then
             CompanyInfo."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInfo."Country/Region Code");
 
+        CompanyInfo."Use GLN in Electronic Document" := true;
         CompanyInfo.Modify(true);
     end;
 
@@ -1951,6 +1887,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         Cust.Validate("Post Code", LibraryUtility.GenerateRandomCode(Cust.FieldNo("Post Code"), DATABASE::Customer));
         Cust."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CountryRegion.Code);
         Cust.Validate(GLN, '1234567891231');
+        Cust."Use GLN in Electronic Document" := true;
         Cust.Modify(true);
 
         exit(Cust."No.");
@@ -2098,30 +2035,18 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         VATPostingSetup.ModifyAll("Tax Category", 'AA');
     end;
 
-    local procedure ExportPEPPOLInvoice(VariantRec: Variant; Version: Option): Text
+    local procedure ExportPEPPOLInvoice(VariantRec: Variant): Text
     var
-        ExportSalesInvPEPPOL21: Codeunit "Export Sales Inv. - PEPPOL 2.1";
-        ExportSalesInvPEPPOL20: Codeunit "Export Sales Inv. - PEPPOL 2.0";
+        ExpSalesInvPEPPOLBIS30: Codeunit "Exp. Sales Inv. PEPPOL BIS3.0";
     begin
-        case Version of
-            PEPPOLVersion::"2.0":
-                exit(ExportSalesInvPEPPOL20.GenerateXMLFile(VariantRec));
-            PEPPOLVersion::"2.1":
-                exit(ExportSalesInvPEPPOL21.GenerateXMLFile(VariantRec));
-        end;
+        exit(ExpSalesInvPEPPOLBIS30.GenerateXMLFile(VariantRec));
     end;
 
-    local procedure ExportPEPPOLCreditMemo(VariantRec: Variant; Version: Option): Text
+    local procedure ExportPEPPOLCreditMemo(VariantRec: Variant): Text
     var
-        ExportSalesCrMPEPPOL21: Codeunit "Export Sales Cr.M. - PEPPOL2.1";
-        ExportSalesCrMPEPPOL20: Codeunit "Export Sales Cr.M. - PEPPOL2.0";
+        ExpSalesCrMPEPPOLBIS30: Codeunit "Exp. Sales CrM. PEPPOL BIS3.0";
     begin
-        case Version of
-            PEPPOLVersion::"2.0":
-                exit(ExportSalesCrMPEPPOL20.GenerateXMLFile(VariantRec));
-            PEPPOLVersion::"2.1":
-                exit(ExportSalesCrMPEPPOL21.GenerateXMLFile(VariantRec));
-        end;
+        exit(ExpSalesCrMPEPPOLBIS30.GenerateXMLFile(VariantRec));
     end;
 
     local procedure WriteInvoiceFileWithNestingAndWithNoNamespaces(OutStream: OutStream; Encoding: Text)
@@ -2134,7 +2059,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  <ID>TOSL108</ID>');
         WriteLine(OutStream, '  <AccountingSupplierParty>');
         WriteLine(OutStream, '    <Party>');
-        WriteLine(OutStream, '      <EndpointID schemeID="GLN">5790989675432</EndpointID>');
+        WriteLine(OutStream, '      <EndpointID schemeID="0088">5790989675432</EndpointID>');
         WriteLine(OutStream, '      <PartyName>');
         WriteLine(OutStream, '        <Name>SubscriptionSeller.</Name>');
         WriteLine(OutStream, '      </PartyName>');
@@ -2142,7 +2067,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </AccountingSupplierParty>');
         WriteLine(OutStream, '  <AccountingCustomerParty>');
         WriteLine(OutStream, '    <Party>');
-        WriteLine(OutStream, '      <EndpointID schemeID="GLN">5790000435975</EndpointID>');
+        WriteLine(OutStream, '      <EndpointID schemeID="0088">5790000435975</EndpointID>');
         WriteLine(OutStream, '      <PartyName>');
         WriteLine(OutStream, '        <Name>Buyercompany ltd</Name>');
         WriteLine(OutStream, '      </PartyName>');
@@ -2150,7 +2075,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </AccountingCustomerParty>');
         WriteLine(OutStream, '  <InvoiceLine>');
         WriteLine(OutStream, '    <ID>1</ID>');
-        WriteLine(OutStream, '    <InvoicedQuantity unitCode="EA" unitCodeListID="UNECERec20">1</InvoicedQuantity>');
+        WriteLine(OutStream, '    <InvoicedQuantity unitCode="EA">1</InvoicedQuantity>');
         WriteLine(OutStream, '    <LineExtensionAmount currencyID="DKK">800.00</LineExtensionAmount>');
         WriteLine(OutStream, '    <Item>');
         WriteLine(OutStream, '      <Description>Paper Subscription fee 1st quarter</Description>');
@@ -2162,7 +2087,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </InvoiceLine>');
         WriteLine(OutStream, '  <InvoiceLine>');
         WriteLine(OutStream, '    <ID>2</ID>');
-        WriteLine(OutStream, '    <InvoicedQuantity unitCode="EA" unitCodeListID="UNECERec20">1</InvoicedQuantity>');
+        WriteLine(OutStream, '    <InvoicedQuantity unitCode="EA">1</InvoicedQuantity>');
         WriteLine(OutStream, '    <LineExtensionAmount currencyID="DKK">2800.00</LineExtensionAmount>');
         WriteLine(OutStream, '    <Item>');
         WriteLine(OutStream, '      <Description>Bicycle</Description>');
@@ -2177,7 +2102,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  <ID>TOSL109</ID>');
         WriteLine(OutStream, '  <AccountingSupplierParty>');
         WriteLine(OutStream, '    <Party>');
-        WriteLine(OutStream, '      <EndpointID schemeID="GLN">5790989675432</EndpointID>');
+        WriteLine(OutStream, '      <EndpointID schemeID="0088">5790989675432</EndpointID>');
         WriteLine(OutStream, '      <PartyName>');
         WriteLine(OutStream, '        <Name>SubscriptionSeller.</Name>');
         WriteLine(OutStream, '      </PartyName>');
@@ -2185,7 +2110,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </AccountingSupplierParty>');
         WriteLine(OutStream, '  <AccountingCustomerParty>');
         WriteLine(OutStream, '    <Party>');
-        WriteLine(OutStream, '      <EndpointID schemeID="GLN">5790000435975</EndpointID>');
+        WriteLine(OutStream, '      <EndpointID schemeID="0088">5790000435975</EndpointID>');
         WriteLine(OutStream, '      <PartyName>');
         WriteLine(OutStream, '        <Name>Buyercompany ltd</Name>');
         WriteLine(OutStream, '      </PartyName>');
@@ -2193,7 +2118,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </AccountingCustomerParty>');
         WriteLine(OutStream, '  <InvoiceLine>');
         WriteLine(OutStream, '    <ID>3</ID>');
-        WriteLine(OutStream, '    <InvoicedQuantity unitCode="EA" unitCodeListID="UNECERec20">1</InvoicedQuantity>');
+        WriteLine(OutStream, '    <InvoicedQuantity unitCode="EA">1</InvoicedQuantity>');
         WriteLine(OutStream, '    <LineExtensionAmount currencyID="DKK">8000.00</LineExtensionAmount>');
         WriteLine(OutStream, '    <Item>');
         WriteLine(OutStream, '      <Description>Computer</Description>');
@@ -2220,7 +2145,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  <cbc:ID>TOSL108</cbc:ID>');
         WriteLine(OutStream, '  <cac:AccountingSupplierParty>');
         WriteLine(OutStream, '    <cac:Party>');
-        WriteLine(OutStream, '      <cbc:EndpointID schemeID="GLN">5790989675432</cbc:EndpointID>');
+        WriteLine(OutStream, '      <cbc:EndpointID schemeID="0088">5790989675432</cbc:EndpointID>');
         WriteLine(OutStream, '      <cac:PartyName>');
         WriteLine(OutStream, '        <cbc:Name>SubscriptionSeller.</cbc:Name>');
         WriteLine(OutStream, '      </cac:PartyName>');
@@ -2228,7 +2153,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </cac:AccountingSupplierParty>');
         WriteLine(OutStream, '  <cac:AccountingCustomerParty>');
         WriteLine(OutStream, '    <cac:Party>');
-        WriteLine(OutStream, '      <cbc:EndpointID schemeID="GLN">5790000435975</cbc:EndpointID>');
+        WriteLine(OutStream, '      <cbc:EndpointID schemeID="0088">5790000435975</cbc:EndpointID>');
         WriteLine(OutStream, '      <cac:PartyName>');
         WriteLine(OutStream, '        <cbc:Name>Buyercompany ltd</cbc:Name>');
         WriteLine(OutStream, '      </cac:PartyName>');
@@ -2236,7 +2161,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </cac:AccountingCustomerParty>');
         WriteLine(OutStream, '  <cac:InvoiceLine>');
         WriteLine(OutStream, '    <cbc:ID>1</cbc:ID>');
-        WriteLine(OutStream, '    <cbc:InvoicedQuantity unitCode="EA" unitCodeListID="UNECERec20">1</cbc:InvoicedQuantity>');
+        WriteLine(OutStream, '    <cbc:InvoicedQuantity unitCode="EA">1</cbc:InvoicedQuantity>');
         WriteLine(OutStream, '    <cbc:LineExtensionAmount currencyID="DKK">800.00</cbc:LineExtensionAmount>');
         WriteLine(OutStream, '    <cac:Item>');
         WriteLine(OutStream, '      <cbc:Description>Paper Subscription fee 1st quarter</cbc:Description>');
@@ -2248,7 +2173,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </cac:InvoiceLine>');
         WriteLine(OutStream, '  <cac:InvoiceLine>');
         WriteLine(OutStream, '    <cbc:ID>2</cbc:ID>');
-        WriteLine(OutStream, '    <cbc:InvoicedQuantity unitCode="EA" unitCodeListID="UNECERec20">1</cbc:InvoicedQuantity>');
+        WriteLine(OutStream, '    <cbc:InvoicedQuantity unitCode="EA">1</cbc:InvoicedQuantity>');
         WriteLine(OutStream, '    <cbc:LineExtensionAmount currencyID="DKK">2800.00</cbc:LineExtensionAmount>');
         WriteLine(OutStream, '    <cac:Item>');
         WriteLine(OutStream, '      <cbc:Description>Bicycle</cbc:Description>');
@@ -2263,7 +2188,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  <cbc:ID>TOSL109</cbc:ID>');
         WriteLine(OutStream, '  <cac:AccountingSupplierParty>');
         WriteLine(OutStream, '    <cac:Party>');
-        WriteLine(OutStream, '      <cbc:EndpointID schemeID="GLN">5790989675432</cbc:EndpointID>');
+        WriteLine(OutStream, '      <cbc:EndpointID schemeID="0088">5790989675432</cbc:EndpointID>');
         WriteLine(OutStream, '      <cac:PartyName>');
         WriteLine(OutStream, '        <cbc:Name>SubscriptionSeller.</cbc:Name>');
         WriteLine(OutStream, '      </cac:PartyName>');
@@ -2271,7 +2196,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </cac:AccountingSupplierParty>');
         WriteLine(OutStream, '  <cac:AccountingCustomerParty>');
         WriteLine(OutStream, '    <cac:Party>');
-        WriteLine(OutStream, '      <cbc:EndpointID schemeID="GLN">5790000435975</cbc:EndpointID>');
+        WriteLine(OutStream, '      <cbc:EndpointID schemeID="0088">5790000435975</cbc:EndpointID>');
         WriteLine(OutStream, '      <cac:PartyName>');
         WriteLine(OutStream, '        <cbc:Name>Buyercompany ltd</cbc:Name>');
         WriteLine(OutStream, '      </cac:PartyName>');
@@ -2279,7 +2204,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </cac:AccountingCustomerParty>');
         WriteLine(OutStream, '  <cac:InvoiceLine>');
         WriteLine(OutStream, '    <cbc:ID>3</cbc:ID>');
-        WriteLine(OutStream, '    <cbc:InvoicedQuantity unitCode="EA" unitCodeListID="UNECERec20">1</cbc:InvoicedQuantity>');
+        WriteLine(OutStream, '    <cbc:InvoicedQuantity unitCode="EA">1</cbc:InvoicedQuantity>');
         WriteLine(OutStream, '    <cbc:LineExtensionAmount currencyID="DKK">8000.00</cbc:LineExtensionAmount>');
         WriteLine(OutStream, '    <cac:Item>');
         WriteLine(OutStream, '      <cbc:Description>Computer</cbc:Description>');
@@ -2303,7 +2228,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  <ID>TOSL108</ID>');
         WriteLine(OutStream, '  <AccountingSupplierParty>');
         WriteLine(OutStream, '    <Party>');
-        WriteLine(OutStream, '      <EndpointID schemeID="GLN">5790989675432</EndpointID>');
+        WriteLine(OutStream, '      <EndpointID schemeID="0088">5790989675432</EndpointID>');
         WriteLine(OutStream, '      <PartyName>');
         WriteLine(OutStream, '        <Name>SubscriptionSeller.</Name>');
         WriteLine(OutStream, '      </PartyName>');
@@ -2311,7 +2236,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </AccountingSupplierParty>');
         WriteLine(OutStream, '  <AccountingCustomerParty>');
         WriteLine(OutStream, '    <Party>');
-        WriteLine(OutStream, '      <EndpointID schemeID="GLN">5790000435975</EndpointID>');
+        WriteLine(OutStream, '      <EndpointID schemeID="0088">5790000435975</EndpointID>');
         WriteLine(OutStream, '      <PartyName>');
         WriteLine(OutStream, '        <Name>Buyercompany ltd</Name>');
         WriteLine(OutStream, '      </PartyName>');
@@ -2322,7 +2247,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  <ID>TOSL109</ID>');
         WriteLine(OutStream, '  <AccountingSupplierParty>');
         WriteLine(OutStream, '    <Party>');
-        WriteLine(OutStream, '      <EndpointID schemeID="GLN">5790989675432</EndpointID>');
+        WriteLine(OutStream, '      <EndpointID schemeID="0088">5790989675432</EndpointID>');
         WriteLine(OutStream, '      <PartyName>');
         WriteLine(OutStream, '        <Name>SubscriptionSeller.</Name>');
         WriteLine(OutStream, '      </PartyName>');
@@ -2330,7 +2255,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </AccountingSupplierParty>');
         WriteLine(OutStream, '  <AccountingCustomerParty>');
         WriteLine(OutStream, '    <Party>');
-        WriteLine(OutStream, '      <EndpointID schemeID="GLN">5790000435975</EndpointID>');
+        WriteLine(OutStream, '      <EndpointID schemeID="0088">5790000435975</EndpointID>');
         WriteLine(OutStream, '      <PartyName>');
         WriteLine(OutStream, '        <Name>Buyercompany ltd</Name>');
         WriteLine(OutStream, '      </PartyName>');
@@ -2353,7 +2278,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  <cbc:ID>TOSL108</cbc:ID>');
         WriteLine(OutStream, '  <cac:AccountingSupplierParty>');
         WriteLine(OutStream, '    <cac:Party>');
-        WriteLine(OutStream, '      <cbc:EndpointID schemeID="GLN">5790989675432</cbc:EndpointID>');
+        WriteLine(OutStream, '      <cbc:EndpointID schemeID="0088">5790989675432</cbc:EndpointID>');
         WriteLine(OutStream, '      <cac:PartyName>');
         WriteLine(OutStream, '        <cbc:Name>SubscriptionSeller.</cbc:Name>');
         WriteLine(OutStream, '      </cac:PartyName>');
@@ -2361,7 +2286,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </cac:AccountingSupplierParty>');
         WriteLine(OutStream, '  <cac:AccountingCustomerParty>');
         WriteLine(OutStream, '    <cac:Party>');
-        WriteLine(OutStream, '      <cbc:EndpointID schemeID="GLN">5790000435975</cbc:EndpointID>');
+        WriteLine(OutStream, '      <cbc:EndpointID schemeID="0088">5790000435975</cbc:EndpointID>');
         WriteLine(OutStream, '      <cac:PartyName>');
         WriteLine(OutStream, '        <cbc:Name>Buyercompany ltd</cbc:Name>');
         WriteLine(OutStream, '      </cac:PartyName>');
@@ -2372,7 +2297,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  <cbc:ID>TOSL109</cbc:ID>');
         WriteLine(OutStream, '  <cac:AccountingSupplierParty>');
         WriteLine(OutStream, '    <cac:Party>');
-        WriteLine(OutStream, '      <cbc:EndpointID schemeID="GLN">5790989675432</cbc:EndpointID>');
+        WriteLine(OutStream, '      <cbc:EndpointID schemeID="0088">5790989675432</cbc:EndpointID>');
         WriteLine(OutStream, '      <cac:PartyName>');
         WriteLine(OutStream, '        <cbc:Name>SubscriptionSeller.</cbc:Name>');
         WriteLine(OutStream, '      </cac:PartyName>');
@@ -2380,7 +2305,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         WriteLine(OutStream, '  </cac:AccountingSupplierParty>');
         WriteLine(OutStream, '  <cac:AccountingCustomerParty>');
         WriteLine(OutStream, '    <cac:Party>');
-        WriteLine(OutStream, '      <cbc:EndpointID schemeID="GLN">5790000435975</cbc:EndpointID>');
+        WriteLine(OutStream, '      <cbc:EndpointID schemeID="0088">5790000435975</cbc:EndpointID>');
         WriteLine(OutStream, '      <cac:PartyName>');
         WriteLine(OutStream, '        <cbc:Name>Buyercompany ltd</cbc:Name>');
         WriteLine(OutStream, '      </cac:PartyName>');

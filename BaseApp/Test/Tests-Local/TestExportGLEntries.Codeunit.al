@@ -13,6 +13,7 @@ codeunit 144563 "Test Export G/L Entries"
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
@@ -23,6 +24,8 @@ codeunit 144563 "Test Export G/L Entries"
         FilterErr: Label 'Filter function does not work.';
         LibraryJournals: Codeunit "Library - Journals";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        IsInitialized: Boolean;
+        CompRegNoTestfieldErr: Label 'Registration No. must have a value in Company Information: Primary Key=. It cannot be zero or empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2176,6 +2179,53 @@ codeunit 144563 "Test Export G/L Entries"
         VerifyOpeningBalanceEntry(iStream, GLAccountNo, BankAccountNo, Amount, 0);
         // [THEN] Remaining opening balance entry for "GLAcc" has Amount = 200
         VerifyOpeningBalanceEntry(iStream, GLAccountNo, '', AmountRem, 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportGLEntriesReportHandler')]
+    [Scope('OnPrem')]
+    procedure ExportGLEntriesEmptyCompanyRegistrationNo()
+    var
+        BankAccount: Record "Bank Account";
+        CompanyInformation: Record "Company Information";
+        GenJournalLine: Record "Gen. Journal Line";
+        StartingDate: Date;
+    begin
+        // [FEATURE] [Company Information]
+        // [SCENARIO 344474] Running "Export G/L Entries - Tax Audit" report with empty Registration No. in Company Information raises error
+        Initialize();
+
+        // [GIVEN] Created and posted Bank Gen. Jnl. Entry
+        StartingDate := GetStartingDate();
+        CreateAndPostBankGenJnlLine(
+          BankAccount,
+          GenJournalLine."Account Type"::"Bank Account",
+          StartingDate);
+
+        // [GIVEN] Set "Registration No." = '' in Company Information
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Registration No.", '');
+        CompanyInformation.Modify();
+
+        // [WHEN] Run "Export G/L Entries - Tax Audit"
+        asserterror ExportReportFile('', StartingDate, StartingDate, '', false);
+
+        // [THEN] An error is thrown: "Registration No. must have a value in Company Information: Primary Key=. It cannot be zero or empty."
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(CompRegNoTestfieldErr);
+    end;
+
+    local procedure Initialize()
+    begin
+        LibrarySetupStorage.Restore();
+
+        if IsInitialized then
+            exit;
+
+        LibrarySetupStorage.SaveCompanyInformation();
+
+        IsInitialized := true;
+        Commit();
     end;
 
     local procedure ApplyAndPostGenJournalLine(DocNoToApplyTo: Code[20]; DocTypeToApply: Option; DocNoToApply: Code[20])
