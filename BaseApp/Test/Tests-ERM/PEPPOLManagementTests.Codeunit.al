@@ -25,7 +25,6 @@ codeunit 139155 "PEPPOL Management Tests"
         SalespersonTxt: Label 'Salesperson';
         InvoiceDiscAmtTxt: Label 'Line Discount Amount';
         NoUnitOfMeasureErr: Label 'The Invoice %1 contains lines on which the Unit of Measure Code field is empty.';
-        NoUnitOfMeasureCRErr: Label 'The Credit Memo %1 contains lines on which the Unit of Measure Code field is empty.';
         NoItemDescriptionErr: Label 'Description field is empty.';
         NoInternationalStandardCodeErr: Label 'You must specify a valid International Standard Code for the Unit of Measure for %1.';
         NegativeUnitPriceErr: Label 'It cannot be negative if you want to send the posted document as an electronic document. \\Do you want to continue?', Comment = '%1 - record ID';

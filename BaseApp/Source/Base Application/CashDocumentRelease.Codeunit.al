@@ -279,7 +279,10 @@ codeunit 11731 "Cash Document-Release"
             if PostedCashDocHeader.FindSet then
                 repeat
                     PostedCashDocHeader.CalcFields("Amount Including VAT (LCY)");
-                    CashPaymentTotal += PostedCashDocHeader."Amount Including VAT (LCY)";
+                    if PostedCashDocHeader."Cash Document Type" = PostedCashDocHeader."Cash Document Type"::Withdrawal then
+                        CashPaymentTotal -= PostedCashDocHeader."Amount Including VAT (LCY)"
+                    else
+                        CashPaymentTotal += PostedCashDocHeader."Amount Including VAT (LCY)";
                 until PostedCashDocHeader.Next = 0;
 
             CashDocHeader2.SetRange("Partner Type", "Partner Type");
@@ -288,10 +291,13 @@ codeunit 11731 "Cash Document-Release"
             if CashDocHeader2.FindSet then
                 repeat
                     CashDocHeader2.CalcFields("Amount Including VAT (LCY)");
-                    CashPaymentTotal += CashDocHeader2."Amount Including VAT (LCY)";
+                    if CashDocHeader2."Cash Document Type" = CashDocHeader2."Cash Document Type"::Withdrawal then
+                        CashPaymentTotal -= CashDocHeader2."Amount Including VAT (LCY)"
+                    else
+                        CashPaymentTotal += CashDocHeader2."Amount Including VAT (LCY)";
                 until CashDocHeader2.Next = 0;
 
-            if CashPaymentTotal > GLSetup."Cash Payment Limit (LCY)" then
+            if Abs(CashPaymentTotal) > GLSetup."Cash Payment Limit (LCY)" then
                 Error(CashPaymentLimitErr, GLSetup."Cash Payment Limit (LCY)", "Partner No.");
         end;
     end;

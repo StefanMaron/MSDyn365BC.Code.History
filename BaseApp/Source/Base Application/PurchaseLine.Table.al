@@ -1,4 +1,4 @@
-table 39 "Purchase Line"
+﻿table 39 "Purchase Line"
 {
     Caption = 'Purchase Line';
     DrillDownPageID = "Purchase Lines";
@@ -4122,7 +4122,10 @@ table 39 "Purchase Line"
         if PurchHeader."Language Code" <> '' then
             GetItemTranslation;
 
-        "Unit of Measure Code" := Item."Purch. Unit of Measure";
+        if Item."Purch. Unit of Measure" <> '' then
+            "Unit of Measure Code" := Item."Purch. Unit of Measure"
+        else
+            "Unit of Measure Code" := Item."Base Unit of Measure";
         InitDeferralCode;
         // NAVCZ
         "Tariff No." := Item."Tariff No.";
@@ -6212,11 +6215,11 @@ table 39 "Purchase Line"
         else
             DocType := DocType::Invoice;
 
-        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and ("Inv. Discount Amount" = 0) and
+        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and
            (PurchHeader."Prepayment Type" = PurchHeader."Prepayment Type"::Prepayment) // NAVCZ
         then
             if PurchasePostPrepayments.PrepmtAmount(Rec, DocType) <= 0 then
-                exit("Prepmt Amt to Deduct");
+                exit("Prepmt Amt to Deduct" + "Inv. Disc. Amount to Invoice");
         exit(GetLineAmountToHandle(QtyToHandle));
     end;
 

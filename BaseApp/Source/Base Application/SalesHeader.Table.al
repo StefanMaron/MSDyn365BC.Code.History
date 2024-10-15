@@ -4461,24 +4461,26 @@ table 36 "Sales Header"
             ReqLine.SetCurrentKey("Order Promising ID", "Order Promising Line ID", "Order Promising Line No.");
             ReqLine.SetRange("Order Promising ID", OldSalesLine."Document No.");
             ReqLine.SetRange("Order Promising Line ID", OldSalesLine."Line No.");
-            if ReqLine.FindSet then
+            if ReqLine.FindSet then begin
                 repeat
                     TempReqLine := ReqLine;
                     TempReqLine.Insert;
                 until ReqLine.Next = 0;
-            ReqLine.DeleteAll;
+                ReqLine.DeleteAll;
+            end;
         end else begin
             Clear(TempReqLine);
             TempReqLine.SetCurrentKey("Order Promising ID", "Order Promising Line ID", "Order Promising Line No.");
             TempReqLine.SetRange("Order Promising ID", OldSalesLine."Document No.");
             TempReqLine.SetRange("Order Promising Line ID", OldSalesLine."Line No.");
-            if TempReqLine.FindSet then
+            if TempReqLine.FindSet then begin
                 repeat
                     ReqLine := TempReqLine;
                     ReqLine."Order Promising Line ID" := NewSourceRefNo;
                     ReqLine.Insert;
                 until TempReqLine.Next = 0;
-            TempReqLine.DeleteAll;
+                TempReqLine.DeleteAll;
+            end;
         end;
     end;
 
@@ -6381,7 +6383,7 @@ table 36 "Sales Header"
         SetSalespersonCode(BillToCustomer."Salesperson Code", "Salesperson Code");
         "Combine Shipments" := BillToCustomer."Combine Shipments";
         Reserve := BillToCustomer.Reserve;
-        if "Document Type" = "Document Type"::Order then
+        if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then // NAVCZ
             "Prepayment %" := BillToCustomer."Prepayment %";
         "Tax Area Code" := BillToCustomer."Tax Area Code";
         "Tax Liable" := BillToCustomer."Tax Liable";

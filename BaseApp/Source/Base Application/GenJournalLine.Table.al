@@ -6152,13 +6152,21 @@ table 81 "Gen. Journal Line"
     end;
 
     procedure CopyFromPurchHeaderPayment(PurchHeader: Record "Purchase Header")
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         "Due Date" := PurchHeader."Due Date";
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
         "Pmt. Discount Date" := PurchHeader."Pmt. Discount Date";
         "Payment Discount %" := PurchHeader."Payment Discount %";
         "Creditor No." := PurchHeader."Creditor No.";
-        "Payment Reference" := PurchHeader."Payment Reference";
+        if PurchHeader."Payment Reference" <> '' then
+            "Payment Reference" := PurchHeader."Payment Reference"
+        else begin
+            PurchasesPayablesSetup.Get();
+            if PurchasesPayablesSetup."Copy Inv. No. To Pmt. Ref." then
+                "Payment Reference" := PurchHeader."Vendor Invoice No.";
+        end;
         "Payment Method Code" := PurchHeader."Payment Method Code";
 
         OnAfterCopyGenJnlLineFromPurchHeaderPayment(PurchHeader, Rec);

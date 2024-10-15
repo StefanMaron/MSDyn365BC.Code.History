@@ -20,6 +20,8 @@ codeunit 1259 "Certificate Management"
         CertExtFilterTxt: Label '.pfx.p12.p7b.cer.crt.der', Locked = true;
         CryptographyManagement: Codeunit "Cryptography Management";
         UploadedCertFileName: Text;
+        [NonDebuggable]
+        CertPassword: Text;
 
     [Scope('OnPrem')]
     procedure UploadAndVerifyCert(var IsolatedCertificate: Record "Isolated Certificate"): Boolean
@@ -40,7 +42,7 @@ codeunit 1259 "Certificate Management"
         if not TempBlob.HasValue then
             Error(CertFileNotValidErr);
 
-        if ReadCertFromBlob(IsolatedCertificate.Password) then begin
+        if ReadCertFromBlob(CertPassword) then begin
             ValidateCertFields(IsolatedCertificate);
             exit(true);
         end;
@@ -78,23 +80,20 @@ codeunit 1259 "Certificate Management"
     end;
 
     [Scope('OnPrem')]
-    procedure SavePasswordToIsolatedStorage(IsolatedCertificate: Record "Isolated Certificate")
+    procedure SavePasswordToIsolatedStorage(var IsolatedCertificate: Record "Isolated Certificate")
     begin
-        with IsolatedCertificate do begin
-            if Password <> '' then begin
-                if CryptographyManagement.IsEncryptionEnabled then begin
-                    if not ISOLATEDSTORAGE.SetEncrypted(Code + PasswordSuffixTxt, Password, GetCertDataScope(IsolatedCertificate)) then
-                        Error(SavingPasswordErr);
-                end else
-                    if not ISOLATEDSTORAGE.Set(Code + PasswordSuffixTxt, Password, GetCertDataScope(IsolatedCertificate)) then
-                        Error(SavingPasswordErr);
-            end;
-
-            Password := '*';
+        if CertPassword <> '' then begin
+            if CryptographyManagement.IsEncryptionEnabled then begin
+                if not ISOLATEDSTORAGE.SetEncrypted(IsolatedCertificate.Code + PasswordSuffixTxt, CertPassword, GetCertDataScope(IsolatedCertificate)) then
+                    Error(SavingPasswordErr);
+            end else
+                if not ISOLATEDSTORAGE.Set(IsolatedCertificate.Code + PasswordSuffixTxt, CertPassword, GetCertDataScope(IsolatedCertificate)) then
+                    Error(SavingPasswordErr);
         end;
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure GetPasswordAsSecureString(var DotNet_SecureString: Codeunit DotNet_SecureString; IsolatedCertificate: Record "Isolated Certificate")
     var
         DotNetHelper_SecureString: Codeunit DotNetHelper_SecureString;
@@ -159,8 +158,14 @@ codeunit 1259 "Certificate Management"
         exit(UploadedCertFileName);
     end;
 
+    [Scope('OnPrem')]
+    procedure SetCertPassword(CertificatePassword: Text)
+    begin
+        CertPassword := CertificatePassword;
+    end;
+
     [TryFunction]
-    local procedure ReadCertFromBlob(Password: Text[50])
+    local procedure ReadCertFromBlob(Password: Text)
     var
         DotNet_X509KeyStorageFlags: Codeunit DotNet_X509KeyStorageFlags;
         DotNet_Array: Codeunit DotNet_Array;
@@ -255,4 +260,3 @@ codeunit 1259 "Certificate Management"
         exit(X509Certificate2.GetNameInfo(X509NameType.SimpleName, false));
     end;
 }
-

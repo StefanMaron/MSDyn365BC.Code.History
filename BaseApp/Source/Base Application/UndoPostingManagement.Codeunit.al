@@ -360,6 +360,7 @@ codeunit 5817 "Undo Posting Management"
     local procedure TestPostedWhseShipmentLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
     var
         PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
+        WhseManagement: Codeunit "Whse. Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -368,7 +369,7 @@ codeunit 5817 "Undo Posting Management"
             exit;
 
         with PostedWhseShipmentLine do begin
-            SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
+            WhseManagement.SetSourceFilterForPostedWhseShptLine(PostedWhseShipmentLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
             if not IsEmpty then
                 if not Confirm(Text007, true, UndoLineNo) then
                     Error('');

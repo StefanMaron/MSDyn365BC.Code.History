@@ -34,6 +34,7 @@ table 11731 "Cash Document Line"
 
             trigger OnValidate()
             begin
+                TestField("Advance Letter Link Code", '');
                 GetCashDeskEvent;
                 if CashDeskEvent."Account Type" <> CashDeskEvent."Account Type"::" " then
                     CashDeskEvent.TestField("Account Type", "Account Type");
@@ -308,6 +309,55 @@ table 11731 "Cash Document Line"
                 GenJnlLine.SetUseForCalculation(true);
                 GenJnlLine.Validate("Applies-to Doc. No.");
 
+                if ("Applies-To Doc. No." = '') and (xRec."Applies-To Doc. No." <> '') then begin
+                    PaymentToleranceMgt.DelPmtTolApllnDocNo(GenJnlLine, xRec."Applies-To Doc. No.");
+
+                    case "Account Type" of
+                        "Account Type"::Customer:
+                            begin
+                                CustLedgEntry.SetCurrentKey("Document No.");
+                                CustLedgEntry.SetRange("Document No.", xRec."Applies-To Doc. No.");
+                                if not (xRec."Applies-To Doc. Type" = "Document Type"::" ") then
+                                    CustLedgEntry.SetRange("Document Type", xRec."Applies-To Doc. Type");
+                                CustLedgEntry.SetRange("Customer No.", "Account No.");
+                                CustLedgEntry.SetRange(Open, true);
+                                if CustLedgEntry.FindFirst() then
+                                    if CustLedgEntry."Amount to Apply" <> 0 then begin
+                                        CustLedgEntry."Amount to Apply" := 0;
+                                        Codeunit.Run(Codeunit::"Cust. Entry-Edit", CustLedgEntry);
+                                    end;
+                            end;
+                        "Account Type"::Vendor:
+                            begin
+                                VendLedgEntry.SetCurrentKey("Document No.");
+                                VendLedgEntry.SetRange("Document No.", xRec."Applies-To Doc. No.");
+                                if not (xRec."Applies-To Doc. Type" = "Document Type"::" ") then
+                                    VendLedgEntry.SetRange("Document Type", xRec."Applies-To Doc. Type");
+                                VendLedgEntry.SetRange("Vendor No.", "Account No.");
+                                VendLedgEntry.SetRange(Open, true);
+                                if VendLedgEntry.FindFirst() then
+                                    if VendLedgEntry."Amount to Apply" <> 0 then begin
+                                        VendLedgEntry."Amount to Apply" := 0;
+                                        Codeunit.Run(Codeunit::"Vend. Entry-Edit", VendLedgEntry);
+                                    end;
+                            end;
+                        "Account Type"::Employee:
+                            begin
+                                EmplLedgEntry.SetCurrentKey("Document No.");
+                                EmplLedgEntry.SetRange("Document No.", xRec."Applies-To Doc. No.");
+                                if not (xRec."Applies-To Doc. Type" = "Document Type"::" ") then
+                                    EmplLedgEntry.SetRange("Document Type", xRec."Applies-To Doc. Type");
+                                EmplLedgEntry.SetRange("Employee No.", "Account No.");
+                                EmplLedgEntry.SetRange(Open, true);
+                                if EmplLedgEntry.FindFirst() then
+                                    if EmplLedgEntry."Amount to Apply" <> 0 then begin
+                                        EmplLedgEntry."Amount to Apply" := 0;
+                                        Codeunit.Run(Codeunit::"Empl. Entry-Edit", EmplLedgEntry);
+                                    end;
+                            end;
+                    end;
+                end;
+
                 if (Amount = 0) and ("Applies-To Doc. No." <> '') then begin
                     TestField("Currency Code", GenJnlLine."Currency Code");
                     Validate("Account No.", GenJnlLine."Account No.");
@@ -339,6 +389,12 @@ table 11731 "Cash Document Line"
                     "Applies-To Doc. Type" := GenJnlLine."Applies-to Doc. Type";
                     "Applies-To Doc. No." := GenJnlLine."Applies-to Doc. No.";
                     "Applies-to ID" := GenJnlLine."Applies-to ID";
+                end;
+
+                if ("Applies-To Doc. No." <> xRec."Applies-To Doc. No.") and (Amount <> 0) then begin
+                    if xRec."Applies-To Doc. No." <> '' then
+                        PaymentToleranceMgt.DelPmtTolApllnDocNo(GenJnlLine, xRec."Applies-To Doc. No.");
+                    PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine);
                 end;
             end;
         }
@@ -1069,8 +1125,12 @@ table 11731 "Cash Document Line"
     procedure UpdateAmounts()
     var
         CurrExchRate: Record "Currency Exchange Rate";
+        GenJnlLine: Record "Gen. Journal Line";
+        CashDocPost: Codeunit "Cash Document-Post";
     begin
         GetDocHeader;
+
+        Amount := Round(Amount, Currency."Amount Rounding Precision");
 
         if CashDocHeader."Currency Code" <> '' then
             "Amount (LCY)" := Round(CurrExchRate.ExchangeAmtFCYToLCY(CashDocHeader."Posting Date", CashDocHeader."Currency Code",
@@ -1078,10 +1138,21 @@ table 11731 "Cash Document Line"
         else
             "Amount (LCY)" := Round(Amount);
 
+        IF Amount <> xRec.Amount THEN
+            TestField("Advance Letter Link Code", '');
+
         if CashDocHeader."Amounts Including VAT" then
             Validate("Amount Including VAT", Amount)
         else
             Validate("VAT Base Amount", Amount);
+
+        if (Amount <> xRec.Amount) and
+           (xRec.Amount <> 0) or (xRec."Applies-To Doc. No." <> '') or (xRec."Applies-to ID" <> '')
+        then begin
+            CashDocPost.InitGenJnlLine(CashDocHeader, Rec);
+            CashDocPost.GetGenJnlLine(GenJnlLine);
+            PaymentToleranceMgt.PmtTolGenJnl(GenJnlLine);
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -1561,7 +1632,7 @@ table 11731 "Cash Document Line"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     procedure GetVATDeduction(): Decimal
     var
         NonDeductVATSetup: Record "Non Deductible VAT Setup";
@@ -1599,7 +1670,7 @@ table 11731 "Cash Document Line"
         end;
     end;
 
-    [Obsolete('The functionality of VAT Coefficient will be removed and this function should not be used. (Obsolete::Removed in release 01.2021','15.3')]
+    [Obsolete('The functionality of VAT Coefficient will be removed and this function should not be used. (Obsolete::Removed in release 01.2021', '15.3')]
     local procedure CalcVATCoefficient(): Decimal
     begin
         GLSetup.Get;

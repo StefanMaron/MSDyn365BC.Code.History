@@ -505,7 +505,7 @@
                 field("Check Czech Format on Issue"; "Check Czech Format on Issue")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies check the Bank account Format on Payment Order Issue';
+                    ToolTip = 'Specifies check the Bank account Format on Payment Order Issue for Domestic Payment Order';
                 }
                 field("Check Ext. No. by Current Year"; "Check Ext. No. by Current Year")
                 {

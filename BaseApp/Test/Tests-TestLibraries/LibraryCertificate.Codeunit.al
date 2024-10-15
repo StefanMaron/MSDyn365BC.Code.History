@@ -47,7 +47,7 @@ codeunit 143052 "Library - Certificate"
         CertificateManagement: Codeunit "Certificate Management";
     begin
         CreateIsolatedCertificate(IsolatedCertificate, CertificateCode, CertificateScope);
-        IsolatedCertificate.Validate(Password, GetCertificatePassword());
+        CertificateManagement.SetCertPassword(GetCertificatePassword());
         CertificateManagement.VerifyCertFromString(IsolatedCertificate, GetDemoCertificate());
         CertificateManagement.SaveCertToIsolatedStorage(IsolatedCertificate);
         CertificateManagement.SavePasswordToIsolatedStorage(IsolatedCertificate);

@@ -1,4 +1,4 @@
-table 37 "Sales Line"
+﻿table 37 "Sales Line"
 {
     Caption = 'Sales Line';
     DrillDownPageID = "Sales Lines";
@@ -3767,7 +3767,11 @@ table 37 "Sales Line"
         else
             Reserve := Item.Reserve;
 
-        "Unit of Measure Code" := Item."Sales Unit of Measure";
+        if Item."Sales Unit of Measure" <> '' then
+            "Unit of Measure Code" := Item."Sales Unit of Measure"
+        else
+            "Unit of Measure Code" := Item."Base Unit of Measure";
+
         Validate("Purchasing Code", Item."Purchasing Code");
         OnAfterCopyFromItem(Rec, Item, CurrFieldNo);
 
@@ -6116,11 +6120,11 @@ table 37 "Sales Line"
         else
             DocType := DocType::Invoice;
 
-        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and ("Inv. Discount Amount" = 0) and
+        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and
            (SalesHeader."Prepayment Type" = SalesHeader."Prepayment Type"::Prepayment) // NAVCZ
         then
             if SalesPostPrepayments.PrepmtAmount(Rec, DocType) <= 0 then
-                exit("Prepmt Amt to Deduct");
+                exit("Prepmt Amt to Deduct" + "Inv. Disc. Amount to Invoice");
 
         exit(GetLineAmountToHandle(QtyToHandle));
     end;
@@ -7411,7 +7415,6 @@ table 37 "Sales Line"
         SalesSetup.Get;
         SalesSetup.TestField("Freight G/L Acc. No.");
 
-        TestField("Document Type");
         TestField("Document No.");
 
         SalesLine.SetRange("Document Type", "Document Type");

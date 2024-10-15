@@ -180,6 +180,12 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if changes to addresses made on purchase documents are copied to the vendor card. By default, changes are copied to the vendor card.';
                 }
+                field("Copy Inv. No. To Pmt. Ref."; "Copy Inv. No. To Pmt. Ref.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if the value of the Vendor Invoice No. field must be copied to the Payment Reference field during posting unless the Payment Reference field is not blank.';
+                    Importance = Additional;
+                }
             }
             group("Number Series")
             {
