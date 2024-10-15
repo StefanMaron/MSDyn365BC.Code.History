@@ -121,6 +121,13 @@ table 1173 "Document Attachment"
         {
             Caption = 'Line No.';
         }
+        field(15; "VAT Report Config. Code"; Option)
+        {
+            Caption = 'VAT Report Config. Code';
+            OptionCaption = 'EC Sales List,VAT Return';
+            OptionMembers = "EC Sales List","VAT Return";
+            TableRelation = "VAT Reports Configuration"."VAT Report Type";
+        }
     }
 
     keys

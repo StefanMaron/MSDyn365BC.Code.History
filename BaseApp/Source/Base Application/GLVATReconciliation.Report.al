@@ -223,51 +223,35 @@ report 11 "G/L - VAT Reconciliation"
                     }
 
                     trigger OnAfterGetRecord()
-                    var
-                        TempVATEntryTable: Record "VAT Entry" temporary;
                     begin
-                        Clear(TempVATEntryTable);
                         if "VAT Statement Line".Type = "VAT Statement Line".Type::"Account Totaling" then begin
                             CalcFields("Net Change", "Additional-Currency Net Change", "VAT Amt.");
                             Amount1 := ConditionalAdd("Net Change", "Additional-Currency Net Change");
                             VAT := ConditionalAdd("VAT Amt.", ExchangeAmtLCYtoFCY("VAT Amt."));
                         end else begin
-                            GLEntry.SetRange("G/L Account No.", "No.");
-                            if not GLEntry.FindSet then
-                                CurrReport.Skip();
-                            repeat
-                                GLEntryVATEntryLink.SetRange("G/L Entry No.", GLEntry."Entry No.");
-                                if GLEntryVATEntryLink.FindSet then
-                                    repeat
-                                        VATEntry.SetRange("Entry No.", GLEntryVATEntryLink."VAT Entry No.");
-                                        if VATEntry.FindFirst then begin
-                                            TempVATEntryTable.TransferFields(VATEntry);
-                                            TempVATEntryTable.Insert();
-                                        end;
-                                    until GLEntryVATEntryLink.Next = 0;
-                            until GLEntry.Next = 0;
+                            VATEntry.SetRange("G/L Acc. No.", "No.");
 
-                            if TempVATEntryTable.IsEmpty then
+                            if VATEntry.IsEmpty() then
                                 CurrReport.Skip();
 
                             case "VAT Statement Line"."Amount Type" of
                                 "VAT Statement Line"."Amount Type"::Amount, "VAT Statement Line"."Amount Type"::Base:
                                     begin
-                                        TempVATEntryTable.CalcSums(Base, "Additional-Currency Base", Amount, "Additional-Currency Amount");
-                                        Amount1 := ConditionalAdd(TempVATEntryTable.Base, TempVATEntryTable."Additional-Currency Base");
-                                        VAT := ConditionalAdd(TempVATEntryTable.Amount, TempVATEntryTable."Additional-Currency Amount");
+                                        VATEntry.CalcSums(Base, "Additional-Currency Base", Amount, "Additional-Currency Amount");
+                                        Amount1 := ConditionalAdd(VATEntry.Base, VATEntry."Additional-Currency Base");
+                                        VAT := ConditionalAdd(VATEntry.Amount, VATEntry."Additional-Currency Amount");
                                     end;
                                 "VAT Statement Line"."Amount Type"::"Unrealized Amount", "VAT Statement Line"."Amount Type"::"Unrealized Base":
                                     begin
-                                        TempVATEntryTable.CalcSums(
+                                        VATEntry.CalcSums(
                                           "Unrealized Base", "Add.-Currency Unrealized Base", "Unrealized Amount", "Add.-Currency Unrealized Amt.");
-                                        Amount1 := ConditionalAdd(TempVATEntryTable."Unrealized Base", TempVATEntryTable."Add.-Currency Unrealized Base");
-                                        VAT := ConditionalAdd(TempVATEntryTable."Unrealized Amount", TempVATEntryTable."Add.-Currency Unrealized Amt.");
+                                        Amount1 := ConditionalAdd(VATEntry."Unrealized Base", VATEntry."Add.-Currency Unrealized Base");
+                                        VAT := ConditionalAdd(VATEntry."Unrealized Amount", VATEntry."Add.-Currency Unrealized Amt.");
                                     end;
                             end;
                         end;
 
-                        OnBeforeCalcTotalAmount("VAT Statement Line", TempVATEntryTable, Amount1, VAT);
+                        OnBeforeCalcTotalAmount("VAT Statement Line", VATEntry, Amount1, VAT);
                         TotalAmount := TotalAmount + Amount1;
                         TotalVAT := TotalVAT + VAT;
                     end;
@@ -288,7 +272,7 @@ report 11 "G/L - VAT Reconciliation"
                         end else begin
                             Number := 2;
                             VATEntry.SetCurrentKey(
-                              "Posting Date", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", Reversed);
+                              "Posting Date", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", Reversed, "G/L Acc. No.");
                             VATEntry.SetRange(Type, "VAT Statement Line"."Gen. Posting Type");
                             case Selection of
                                 Selection::Open:
@@ -298,18 +282,12 @@ report 11 "G/L - VAT Reconciliation"
                             end;
                             VATEntry.SetRange("VAT Bus. Posting Group", "VAT Statement Line"."VAT Bus. Posting Group");
                             VATEntry.SetRange("VAT Prod. Posting Group", "VAT Statement Line"."VAT Prod. Posting Group");
-                            GLEntry.SetRange("VAT Bus. Posting Group", "VAT Statement Line"."VAT Bus. Posting Group");
-                            GLEntry.SetRange("VAT Prod. Posting Group", "VAT Statement Line"."VAT Prod. Posting Group");
                             if (EndDateReq <> 0D) or (StartDate <> 0D) then
-                                if PeriodSelection = PeriodSelection::"Before and Within Period" then begin
-                                    VATEntry.SetRange("Posting Date", 0D, EndDate);
-                                    GLEntry.SetRange("Posting Date", 0D, EndDate);
-                                end else begin
+                                if PeriodSelection = PeriodSelection::"Before and Within Period" then
+                                    VATEntry.SetRange("Posting Date", 0D, EndDate)
+                                else
                                     VATEntry.SetRange("Posting Date", StartDate, EndDate);
-                                    GLEntry.SetRange("Posting Date", StartDate, EndDate);
-                                end;
                             VATEntry.SetRange(Reversed, false);
-                            GLEntry.SetRange(Reversed, false);
                         end;
 
                         Identifier := Identifier + 1;
@@ -412,6 +390,13 @@ report 11 "G/L - VAT Reconciliation"
 
     trigger OnPreReport()
     begin
+        VATEntry.SetRange("G/L Acc. No.", '');
+
+        if not VATEntry.IsEmpty() then
+            Error(NoGLAccNoOnVATEntriesErr);
+
+        VATEntry.Reset();
+
         if EndDateReq = 0D then
             EndDate := 99991231D
         else
@@ -447,8 +432,6 @@ report 11 "G/L - VAT Reconciliation"
         VATStmtLine2: Record "VAT Statement Line";
         CurrencyExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
-        GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
-        GLEntry: Record "G/L Entry";
         UseAmtsInAddCurr: Boolean;
         EndDate: Date;
         StartDate: Date;
@@ -479,6 +462,7 @@ report 11 "G/L - VAT Reconciliation"
         VAT_Statement_Line___Account_Totaling_CaptionLbl: Label 'Account Totaling';
         Grand_TotalCaptionLbl: Label 'Grand Total';
         TotalCaptionLbl: Label 'Total';
+        NoGLAccNoOnVATEntriesErr: Label 'For performance reasons this report requires that you add a G/L Account No. field to all VAT entries.\To add the field to the VAT entries, use the Set G/L Account No. action on the VAT Entries page.';
 
     procedure ConditionalAdd(AmountToAdd: Decimal; AddCurrAmountToAdd: Decimal): Decimal
     begin

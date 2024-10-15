@@ -107,7 +107,6 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a code for the country/region where the item was produced or processed.';
-                    Visible = false;
                 }
                 field("Area"; Area)
                 {
