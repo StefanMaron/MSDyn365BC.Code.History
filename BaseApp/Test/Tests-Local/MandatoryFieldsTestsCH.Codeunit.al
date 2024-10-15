@@ -15,6 +15,7 @@ codeunit 144082 "Mandatory Fields Tests CH"
         LibrarySales: Codeunit "Library - Sales";
         UnexpectedShowMandatoryValueErr: Label 'Unexpected value of ShowMandatory property.';
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryUtility: Codeunit "Library - Utility";
 
     [Test]
     [Scope('OnPrem')]
@@ -74,6 +75,22 @@ codeunit 144082 "Mandatory Fields Tests CH"
     begin
         // [SCENARIO] Certain fields are not mandatory when "New Page" specified as Type of "Sales Line"
         VerifyMandatoryFieldsOnSalesDocuments(SalesLine.Type::"New Page", false);
+    end;
+
+    [Test]
+    procedure NoErrorDescriptionValidationForSalesLineTitle()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 418419] No error after validation "Sales Line".Description with Type = Title
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Title, '', 0);
+
+        SalesLine.Validate(Description, LibraryUtility.GenerateGUID());
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesDocuments(LineType: Option; ExpectedMandatory: Boolean)

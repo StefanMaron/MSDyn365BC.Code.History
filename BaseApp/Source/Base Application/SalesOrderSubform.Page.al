@@ -124,9 +124,9 @@
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -1609,7 +1609,9 @@
         SetOpenPage();
 
         SetDimensionsVisibility();
+#if not CLEAN19
         SetItemReferenceVisibility();
+#endif
     end;
 
     var
@@ -1652,10 +1654,13 @@
         InvDiscAmountEditable: Boolean;
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
+        [InDataSet]
         IsCommentLine: Boolean;
         IsBlankNumber: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif        
         VATAmount: Decimal;
 
     local procedure SetOpenPage()
@@ -2078,12 +2083,12 @@
         OnAfterSetDimensionsVisibility();
     end;
 
+#if not CLEAN19
     local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        ItemReferenceVisible := true;
     end;
+#endif
 
     local procedure SetDefaultType()
     var

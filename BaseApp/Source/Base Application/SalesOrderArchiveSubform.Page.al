@@ -1,4 +1,4 @@
-page 5160 "Sales Order Archive Subform"
+﻿page 5160 "Sales Order Archive Subform"
 {
     Caption = 'Lines';
     Editable = false;
@@ -39,9 +39,9 @@ page 5160 "Sales Order Archive Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -501,7 +501,6 @@ page 5160 "Sales Order Archive Subform"
     trigger OnOpenPage()
     begin
         SetDimensionsVisibility();
-        SetItemReferenceVisibility();
     end;
 
     trigger OnAfterGetRecord()
@@ -513,10 +512,6 @@ page 5160 "Sales Order Archive Subform"
         DescriptionOnFormat;
         LineAmountOnFormat(Format("Line Amount"));
     end;
-
-    var
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -571,13 +566,6 @@ page 5160 "Sales Order Archive Subform"
             Text := Format("Subtotal net", 0, '<Sign><Integer Thousand><Decimals,3>');
             "Line Amount" := "Subtotal net";
         end;
-    end;
-
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
-    begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 }
 

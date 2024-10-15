@@ -2232,12 +2232,17 @@
     end;
 
     local procedure CalcAvailableCreditCommon(CalledFromUI: Boolean): Decimal
+    var
+        CreditLimitLCY: Decimal;
     begin
-        if "Credit Limit (LCY)" = 0 then
+        CreditLimitLCY := "Credit Limit (LCY)";
+        OnBeforeCalcAvailableCreditCommon(Rec, CalledFromUI, CreditLimitLCY);
+
+        if CreditLimitLCY = 0 then
             exit(0);
         if CalledFromUI then
-            exit("Credit Limit (LCY)" - GetTotalAmountLCYUI);
-        exit("Credit Limit (LCY)" - GetTotalAmountLCY);
+            exit(CreditLimitLCY - GetTotalAmountLCYUI());
+        exit(CreditLimitLCY - GetTotalAmountLCY());
     end;
 
     procedure CalcOverdueBalance() OverDueBalance: Decimal
@@ -3425,6 +3430,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCustBlockedErrorMessage(Cust2: Record Customer; Transaction: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAvailableCreditCommon(var Rec: Record Customer; CalledFromUI: Boolean; var CreditLimitLCY: Decimal)
     begin
     end;
 }

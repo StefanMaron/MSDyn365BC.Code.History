@@ -123,7 +123,7 @@ codeunit 5760 "Whse.-Post Receipt"
             PutAwayRequired := Location.RequirePutaway("Location Code");
             OnCodeOnAfterSetPutAwayRequired(WhseRcptHeader, PutAwayRequired);
             ShouldCreatePutAway := PutAwayRequired and not Location."Use Put-away Worksheet";
-            OnCodeOnAfterCalcShouldCreatePutAway(WhseRcptHeader, Location, PutAwayRequired, SuppressCommit, HideValidationDialog, ShouldCreatePutAway);
+            OnCodeOnAfterCalcShouldCreatePutAway(WhseRcptHeader, Location, PutAwayRequired, SuppressCommit, HideValidationDialog, ShouldCreatePutAway, CounterPutAways);
             if ShouldCreatePutAway then begin
                 CreatePutAwayDoc(WhseRcptHeader);
                 if not SuppressCommit then
@@ -1229,7 +1229,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterCalcShouldCreatePutAway(WhseRcptHeader: Record "Warehouse Receipt Header"; Location: Record Location; PutAwayRequired: Boolean; SuppressCommit: Boolean; HideValidationDialog: Boolean; var ShouldCreatePutAway: Boolean)
+    local procedure OnCodeOnAfterCalcShouldCreatePutAway(WhseRcptHeader: Record "Warehouse Receipt Header"; Location: Record Location; PutAwayRequired: Boolean; SuppressCommit: Boolean; HideValidationDialog: Boolean; var ShouldCreatePutAway: Boolean; var CounterPutAways: Integer)
     begin
     end;
 
