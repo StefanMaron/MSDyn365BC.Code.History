@@ -1430,11 +1430,12 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(1, 10));
         SalesLine.Modify(true);
 
-        SetSalesLineDiscAccountBlockedOnGenPostingSetup(SalesLine, GeneralPostingSetup);
-
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        SetSalesLineDiscAccountBlockedOnGenPostingSetup(SalesLine, GeneralPostingSetup);
 
         SalesInvoiceHeader.Get(DocumentNo);
 
@@ -1458,7 +1459,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         DocumentNo: Code[20];
     begin
         // [FEATURE] [Purchase] [Invoice] [Credit Memo]
-        // [SCENARIO 348811] Cassie can correct posted purchase invoice when "Purch. Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup
+        // [SCENARIO 348811] Cassie can't correct posted purchase invoice when "Purch. Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup
         Initialize();
 
         LibraryPurchase.SetDiscountPosting(PurchasesPayablesSetup."Discount Posting"::"All Discounts");
@@ -1468,11 +1469,12 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(1, 10));
         PurchaseLine.Modify(true);
 
-        SetPurchLineDiscAccountBlockedOnGenPostingSetup(PurchaseLine, GeneralPostingSetup);
-
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        SetPurchLineDiscAccountBlockedOnGenPostingSetup(PurchaseLine, GeneralPostingSetup);
 
         PurchInvHeader.Get(DocumentNo);
 
@@ -1496,7 +1498,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         DocumentNo: Code[20];
     begin
         // [FEATURE] [Sales] [Invoice] [Credit Memo]
-        // [SCENARIO 348811] Cassie can correct posted sales invoice when "Sales Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup
+        // [SCENARIO 348811] Cassie can't correct posted sales invoice when "Sales Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup
         Initialize();
 
         LibrarySales.SetDiscountPosting(SalesReceivablesSetup."Discount Posting"::"All Discounts");
@@ -1506,11 +1508,12 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(1, 10));
         SalesLine.Modify(true);
 
-        SetSalesLineDiscAccountBlockedOnGenPostingSetup(SalesLine, GeneralPostingSetup);
-
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        SetSalesLineDiscAccountBlockedOnGenPostingSetup(SalesLine, GeneralPostingSetup);
 
         SalesInvoiceHeader.Get(DocumentNo);
 
@@ -1534,7 +1537,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         DocumentNo: Code[20];
     begin
         // [FEATURE] [Purchase] [Invoice] [Credit Memo]
-        // [SCENARIO 348811] Cassie can correct posted purchase invoice when "Purch. Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup
+        // [SCENARIO 348811] Cassie can't correct posted purchase invoice when "Purch. Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup
         Initialize();
 
         LibraryPurchase.SetDiscountPosting(PurchasesPayablesSetup."Discount Posting"::"All Discounts");
@@ -1544,11 +1547,12 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Line Discount %", LibraryRandom.RandIntInRange(1, 10));
         PurchaseLine.Modify(true);
 
-        SetPurchLineDiscAccountBlockedOnGenPostingSetup(PurchaseLine, GeneralPostingSetup);
-
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        SetPurchLineDiscAccountBlockedOnGenPostingSetup(PurchaseLine, GeneralPostingSetup);
 
         PurchInvHeader.Get(DocumentNo);
 
@@ -1556,6 +1560,166 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
 
         Assert.ExpectedError(StrSubstNo(PurchaseBlockedGLAccountErr, GeneralPostingSetup."Purch. Line Disc. Account"));
         LibraryNotificationMgt.RecallNotificationsForRecordID(PurchasesPayablesSetup.RecordId);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectSalesInvoiceWithAllDiscountPostingAndWithBlockedAccountInSetupAndLineDiscountPctIsZero()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice] [Credit Memo]
+        // [SCENARIO 393882] Cassie can correct posted sales invoice when "Sales Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup and Line Discount % = 0 in document line
+        Initialize();
+
+        LibrarySales.SetDiscountPosting(SalesReceivablesSetup."Discount Posting"::"All Discounts");
+
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Line Discount %", 0);
+        SalesLine.Modify(true);
+
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        SetSalesLineDiscAccountBlockedOnGenPostingSetup(SalesLine, GeneralPostingSetup);
+        Commit();
+
+        SalesInvoiceHeader.Get(DocumentNo);
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(SalesReceivablesSetup.RecordId);
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPurchaseInvoiceWithAllDiscountPostingAndWithBlockedAccountInSetupAndLineDiscountPctIsZero()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Credit Memo]
+        // [SCENARIO 393882] Cassie can correct posted purchase invoice when "Purch. Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup and Line Discount % = 0 in document line
+        Initialize();
+
+        LibraryPurchase.SetDiscountPosting(PurchasesPayablesSetup."Discount Posting"::"All Discounts");
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Line Discount %", 0);
+        PurchaseLine.Modify(true);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        SetPurchLineDiscAccountBlockedOnGenPostingSetup(PurchaseLine, GeneralPostingSetup);
+        Commit();
+
+        PurchInvHeader.Get(DocumentNo);
+
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, false);
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(PurchasesPayablesSetup.RecordId);
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectSalesInvoiceWithLineDiscountPostingAndWithBlockedAccountInSetupAndLineDiscountPctIsZero()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice] [Credit Memo]
+        // [SCENARIO 393882] Cassie can correct posted sales invoice when "Sales Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup and Line Discount % = 0 in document line
+        Initialize();
+
+        LibrarySales.SetDiscountPosting(SalesReceivablesSetup."Discount Posting"::"All Discounts");
+
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Line Discount %", 0);
+        SalesLine.Modify(true);
+
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        SetSalesLineDiscAccountBlockedOnGenPostingSetup(SalesLine, GeneralPostingSetup);
+        Commit();
+
+        SalesInvoiceHeader.Get(DocumentNo);
+
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(SalesReceivablesSetup.RecordId);
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPurchaseInvoiceWithLineDiscountPostingAndWithBlockedAccountInSetupAndLineDiscountPctIsZero()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Credit Memo]
+        // [SCENARIO 393882] Cassie can correct posted purchase invoice when "Purch. Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup and Line Discount % = 0 in document line
+        Initialize();
+
+        LibraryPurchase.SetDiscountPosting(PurchasesPayablesSetup."Discount Posting"::"All Discounts");
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Line Discount %", 0);
+        PurchaseLine.Modify(true);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        SetPurchLineDiscAccountBlockedOnGenPostingSetup(PurchaseLine, GeneralPostingSetup);
+        Commit();
+
+        PurchInvHeader.Get(DocumentNo);
+
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, false);
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(PurchasesPayablesSetup.RecordId);
+        RestoreGenPostingSetup(GeneralPostingSetup);
     end;
 
     local procedure Initialize()

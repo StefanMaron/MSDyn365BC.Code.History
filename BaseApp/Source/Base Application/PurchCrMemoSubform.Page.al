@@ -443,6 +443,12 @@
                     ToolTip = 'Specifies the type of planning line that was created when the job ledger entry is posted from the purchase line. If the field is empty, no planning lines were created for this entry.';
                     Visible = false;
                 }
+                field("Job Planning Line No."; "Job Planning Line No.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the job planning line number to which the usage should be linked when the Job Journal is posted. You can only link to Job Planning Lines that have the Apply Usage Link option enabled.';
+                    Visible = false;
+                }
                 field("Job Unit Price"; "Job Unit Price")
                 {
                     ApplicationArea = Jobs;

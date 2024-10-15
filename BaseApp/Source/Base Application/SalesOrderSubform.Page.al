@@ -1514,10 +1514,6 @@
         InitType();
         SetDefaultType();
 
-        // Default to Item for the first line and to previous line type for the others
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
         Clear(ShortcutDimCode);
         UpdateTypeText();
     end;

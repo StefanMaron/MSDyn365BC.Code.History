@@ -880,6 +880,8 @@ codeunit 137044 "SCM Order Promising"
 
         // [WHEN] Set "Shipment Date" on the sales "SO2" to the date of purchase of the component (WORKDATE + 20 days) and check the availability.
         SalesLine."Shipment Date" := WorkDate + 20;
+
+        LibraryVariableStorage.Enqueue(false);
         IsWarningRaised := ItemCheckAvail.SalesLineCheck(SalesLine);
 
         // [THEN] Assembly availability warning for component "C" is raised, since the component must be available on at least one day before the assembly.
@@ -1231,6 +1233,185 @@ codeunit 137044 "SCM Order Promising"
 
         // [THEN] Earliest shipment date = 20/01. The supply on 30/01 is not considered.
         TempOrderPromisingLine.TestField("Earliest Shipment Date", WorkDate() + 20);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SendItemAvailNotificationHandler,RecallNotificationHandler')]
+    procedure AvailWarningInSalesOrderForAlwaysReserveItem()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        ItemCheckAvail: Codeunit "Item-Check Avail.";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [UT] [Reservation] [Sales] [Order]
+        // [SCENARIO 396314] Show availability notification for always reserve item on sales line.
+        Initialize();
+        LibrarySales.SetStockoutWarning(true);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 0);
+
+        LibraryVariableStorage.Enqueue('Automatic reservation is not possible');
+        LibraryVariableStorage.Enqueue(false);
+
+        SalesOrder.OpenEdit();
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines.Quantity.SetValue(1);
+
+        NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
+          SalesLine.RecordId, ItemCheckAvail.GetItemAvailabilityNotificationId(), true);
+
+        SalesOrder.Close();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SendItemAvailNotificationHandler,RecallNotificationHandler')]
+    procedure AvailWarningInSalesBlanketOrderForAlwaysReserveItem()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        ItemCheckAvail: Codeunit "Item-Check Avail.";
+    begin
+        // [FEATURE] [UT] [Reservation] [Sales] [Blanket Order]
+        // [SCENARIO 396314] Show availability notification for always reserve item when creating sales line from blanket order.
+        Initialize();
+        LibrarySales.SetStockoutWarning(true);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+
+        LibraryVariableStorage.Enqueue('Full automatic reservation was not possible');
+        LibraryVariableStorage.Enqueue(false);
+        LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
+
+        NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
+          SalesLine.RecordId, ItemCheckAvail.GetItemAvailabilityNotificationId(), true);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('AssemblyAvailabilityModalPageHandler')]
+    procedure AvailWarningInAssemblyOrderForAlwaysReserveComponent()
+    var
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        // [FEATURE] [UT] [Reservation] [Assembly] [Order]
+        // [SCENARIO 396314] Show availability warning for always reserve item on assembly line.
+        Initialize();
+        LibraryAssembly.SetStockoutWarning(true);
+
+        CreateAssembleToOrderItemWithComponent(AsmItem, CompItem);
+        CompItem.Validate(Reserve, CompItem.Reserve::Always);
+        CompItem.Modify(true);
+
+        LibraryVariableStorage.Enqueue(true);
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate() + 1, AsmItem."No.", '', 1, '');
+
+        Assert.AreEqual(CompItem."No.", LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal(), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,SendItemAvailNotificationHandler,RecallNotificationHandler')]
+    procedure AvailWarningInJobPlanningLineForAlwaysReserveItem()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        ItemCheckAvail: Codeunit "Item-Check Avail.";
+        JobPlanningLines: TestPage "Job Planning Lines";
+    begin
+        // [FEATURE] [UT] [Reservation] [Job Planning Line]
+        // [SCENARIO 396314] Show availability notification for always reserve item on job planning line.
+        Initialize();
+        LibrarySales.SetStockoutWarning(true);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLine(JobPlanningLine, JobTask, Item."No.", 0);
+
+        LibraryVariableStorage.Enqueue('Automatic reservation is not possible');
+        LibraryVariableStorage.Enqueue(false);
+
+        JobPlanningLines.OpenEdit();
+        JobPlanningLines.FILTER.SetFilter("No.", Item."No.");
+        JobPlanningLines.Quantity.SetValue(1);
+
+        NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
+          JobPlanningLine.RecordId, ItemCheckAvail.GetItemAvailabilityNotificationId(), true);
+
+        JobPlanningLines.Close();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceLinesModalPageHandler,ConfirmHandler,SendItemAvailNotificationHandler,RecallNotificationHandler')]
+    procedure AvailWarningInServiceLineForAlwaysReserveItem()
+    var
+        Item: Record Item;
+        ServiceItem: Record "Service Item";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceItemLine: Record "Service Item Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        ItemCheckAvail: Codeunit "Item-Check Avail.";
+        ServiceOrder: TestPage "Service Order";
+    begin
+        // [FEATURE] [UT] [Reservation] [Service Line]
+        // [SCENARIO 396314] Show availability notification for always reserve item on service line.
+        Initialize();
+        LibrarySales.SetStockoutWarning(true);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo());
+
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryVariableStorage.Enqueue('Automatic reservation is not possible');
+        LibraryVariableStorage.Enqueue(false);
+
+        ServiceOrder.OpenEdit();
+        ServiceOrder.FILTER.SetFilter("No.", ServiceHeader."No.");
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+
+        ServiceLine.SetRange("Service Item No.", ServiceItem."No.");
+        ServiceLine.FindFirst();
+        NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
+          ServiceLine.RecordId, ItemCheckAvail.GetItemAvailabilityNotificationId(), true);
+
+        ServiceOrder.Close();
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1905,12 +2086,36 @@ codeunit 137044 "SCM Order Promising"
     end;
 
     [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AssemblyAvailabilityModalPageHandler(var AssemblyAvailability: TestPage "Assembly Availability")
+    procedure ServiceLinesModalPageHandler(var ServiceLines: TestPage "Service Lines")
+    var
+        ServiceLine: Record "Service Line";
     begin
+        ServiceLines.Type.SetValue(ServiceLine.Type::Item);
+        ServiceLines."No.".SetValue(LibraryVariableStorage.DequeueText());
+        ServiceLines.Quantity.SetValue(1);
+        ServiceLines.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure AssemblyAvailabilityModalPageHandler(var AssemblyAvailability: TestPage "Assembly Availability")
+    var
+        Reply: Boolean;
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean();
         LibraryVariableStorage.Enqueue(AssemblyAvailability.AssemblyLineAvail."No.".Value);
         LibraryVariableStorage.Enqueue(AssemblyAvailability.AssemblyLineAvail.AbleToAssemble.Value);
-        AssemblyAvailability.No.Invoke;
+
+        if Reply then
+            AssemblyAvailability.Yes.Invoke()
+        else
+            AssemblyAvailability.No.Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), ConfirmMessage);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [MessageHandler]
@@ -1920,8 +2125,12 @@ codeunit 137044 "SCM Order Promising"
     end;
 
     [RecallNotificationHandler]
-    [Scope('OnPrem')]
     procedure RecallNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+
+    [SendNotificationHandler]
+    procedure SendItemAvailNotificationHandler(var Notification: Notification): Boolean
     begin
     end;
 

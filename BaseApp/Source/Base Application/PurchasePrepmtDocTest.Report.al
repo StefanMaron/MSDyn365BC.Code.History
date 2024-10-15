@@ -858,7 +858,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                                 AddError(StrSubstNo(Text012, FieldCaption("Prepmt. Cr. Memo No.")));
                             if "Vendor Cr. Memo No." <> '' then
                                 VendorMgt.SetFilterForExternalDocNo(
-                                  VendLedgEntry, VendLedgEntry."Document Type"::"Credit Memo", "Vendor Cr. Memo No.", "Pay-to Vendor No.", "Posting Date");
+                                  VendLedgEntry, VendLedgEntry."Document Type"::"Credit Memo", "Vendor Cr. Memo No.", "Pay-to Vendor No.", "Document Date");
                         end;
                 end;
 

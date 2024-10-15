@@ -2224,6 +2224,10 @@ dotnet
         type("MailKit.Security.SecureSocketOptions"; "SecureSocketOptions")
         {
         }
+
+        type("MailKit.Security.SaslMechanismOAuth2"; "SaslMechanismOAuth2")
+        {
+        }
     }
 
     assembly("MimeKit")
