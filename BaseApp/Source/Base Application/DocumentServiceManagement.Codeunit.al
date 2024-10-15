@@ -277,7 +277,7 @@ codeunit 9510 "Document Service Management"
                     OAuthAuthorityUrlLbl,
                     RedirectURL,
                     ResourceURL,
-                    PromptInteraction::Consent,
+                    PromptInteraction::"Select Account",
                     AccessToken,
                     AuthError
                 );

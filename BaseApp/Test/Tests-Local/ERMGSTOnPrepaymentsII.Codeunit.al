@@ -1176,7 +1176,7 @@ codeunit 141027 "ERM GST On Prepayments II"
             GLAccountNo[Index] := CreateGLAccount();
 
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
-        GeneralPostingSetup.Validate("Purch. Prepayments Account", GLAccountNo[ArrayLen(GLAccountNo)]);
+        GeneralPostingSetup."Purch. Prepayments Account" := GLAccountNo[ArrayLen(GLAccountNo)];
         GeneralPostingSetup.Modify(true);
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
@@ -1615,8 +1615,8 @@ codeunit 141027 "ERM GST On Prepayments II"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        GeneralPostingSetup.Validate("Sales Prepayments Account", CreateGLAccount);
-        GeneralPostingSetup.Validate("Purch. Prepayments Account", CreateGLAccount);
+        GeneralPostingSetup."Sales Prepayments Account" := CreateGLAccount;
+        GeneralPostingSetup."Purch. Prepayments Account" := CreateGLAccount;
         GeneralPostingSetup.Modify(true);
     end;
 

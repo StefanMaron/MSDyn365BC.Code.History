@@ -386,7 +386,7 @@
                     end;
 
                     TestGenPostingSetup(SalesInvoiceLine);
-                    TestCustomerPostingGroup(SalesInvoiceLine, SalesInvoiceHeader."Customer Posting Group");
+                    TestCustomerPostingGroup(SalesInvoiceHeader);
                     TestVATPostingSetup(SalesInvoiceLine);
 
                     if not DimensionManagement.CheckDimIDComb(SalesInvoiceLine."Dimension Set ID") then
@@ -414,6 +414,26 @@
             if not DimensionManagement.CheckDimValuePosting(TableID, No, SalesInvoiceLine."Dimension Set ID") then
                 ErrorHelperAccount(ErrorType::DimErr, GLAccount.TableCaption, AccountNo, Item."No.", Item.Description);
         end;
+    end;
+
+    local procedure TestGLAccount(AccountNo: Code[20]; SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        GLAccount: Record "G/L Account";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        DimensionManagement: Codeunit DimensionManagement;
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        GLAccount.Get(AccountNo);
+        if GLAccount.Blocked then
+            ErrorHelperAccount(ErrorType::AccountBlocked, AccountNo, GLAccount.TableCaption, '', '');
+        TableID[1] := DATABASE::"G/L Account";
+        No[1] := AccountNo;
+
+        if not DimensionManagement.CheckDimValuePosting(TableID, No, SalesInvoiceHeader."Dimension Set ID") then
+            ErrorHelperAccount(
+                ErrorType::DimErr, AccountNo, GLAccount.TableCaption,
+                SalesInvoiceHeader."Customer Posting Group", CustomerPostingGroup.TableCaption);
     end;
 
     local procedure TestIfInvoiceIsPaid(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -558,14 +578,14 @@
         end;
     end;
 
-    local procedure TestCustomerPostingGroup(SalesInvoiceLine: Record "Sales Invoice Line"; CustomerPostingGr: Code[20])
+    local procedure TestCustomerPostingGroup(SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         with CustomerPostingGroup do begin
-            Get(CustomerPostingGr);
+            Get(SalesInvoiceHeader."Customer Posting Group");
             TestField("Receivables Account");
-            TestGLAccount("Receivables Account", SalesInvoiceLine);
+            TestGLAccount("Receivables Account", SalesInvoiceHeader);
         end;
     end;
 
