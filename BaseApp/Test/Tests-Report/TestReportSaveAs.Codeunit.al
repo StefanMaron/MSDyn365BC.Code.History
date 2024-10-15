@@ -89,7 +89,7 @@ codeunit 134607 "Test Report SaveAs"
         FileManagement.DeleteServerFile(FileName);
     end;
 
-    local procedure SaveAsType(ReportID: Integer; OutputType: Option; var JobQueueEntry: Record "Job Queue Entry")
+    local procedure SaveAsType(ReportID: Integer; OutputType: Enum "Job Queue Report Output Type"; var JobQueueEntry: Record "Job Queue Entry")
     var
         LibraryJobQueue: Codeunit "Library - Job Queue";
     begin

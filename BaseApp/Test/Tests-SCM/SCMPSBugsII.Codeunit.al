@@ -678,7 +678,7 @@ codeunit 137036 "SCM PS Bugs - II"
         CreateProductionBOMWithOneLine(ProductionBOMHeader[2], ManufacturingItem."Base Unit of Measure", ComponentItem[2]."No.");
         AssignItemProductionBOM(ComponentItem[1], ProductionBOMHeader[2]."No.");
 
-        // [GIVEN] Create a version of "BOM2" with "PI" as a component, version is active on a previous date (WorkDate - 1)
+        // [GIVEN] Create a version of "BOM2" with "PI" as a component, version is active on a previous date (WorkDate() - 1)
         CreateProductionBOMVersion(ProductionBOMHeader[2], ComponentItem[1]."Base Unit of Measure", WorkDate() - 1, ManufacturingItem."No.");
 
         // [GIVEN] Create a version of "BOM2" with "CI3" as a component, version is active on the current date

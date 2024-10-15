@@ -2,7 +2,9 @@ namespace System.Security.AccessControl;
 
 using Microsoft.Bank.Payment;
 using Microsoft.Finance.FinancialReports;
+#if not CLEAN23
 using Microsoft.Finance.Analysis;
+#endif
 using Microsoft.Sales.Document;
 using Microsoft.Finance.ReceivablesPayables;
 

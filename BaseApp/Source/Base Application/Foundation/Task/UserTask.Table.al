@@ -8,6 +8,7 @@ table 1170 "User Task"
 {
     Caption = 'User Task';
     DataCaptionFields = Title;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -48,7 +49,7 @@ table 1170 "User Task"
                     if "Parent ID" <> 0 then begin
                         UserTaskOccurencies.SetRange("Parent ID", "Parent ID");
                         UserTaskOccurencies.SetFilter(ID, '<>%1', ID);
-                        if UserTaskOccurencies.FindSet(true, false) then
+                        if UserTaskOccurencies.FindSet(true) then
                             repeat
                                 UserTaskOccurencies."Assigned To" := "Assigned To";
                                 UserTaskOccurencies."User Task Group Assigned To" := '';
@@ -140,21 +141,21 @@ table 1170 "User Task"
         }
         field(14; "Created By User Name"; Code[50])
         {
-            CalcFormula = Lookup(User."User Name" where("User Security ID" = field("Created By")));
+            CalcFormula = lookup(User."User Name" where("User Security ID" = field("Created By")));
             Caption = 'User Created By';
             Editable = false;
             FieldClass = FlowField;
         }
         field(15; "Assigned To User Name"; Code[50])
         {
-            CalcFormula = Lookup(User."User Name" where("User Security ID" = field("Assigned To")));
+            CalcFormula = lookup(User."User Name" where("User Security ID" = field("Assigned To")));
             Caption = 'User Assigned To';
             Editable = false;
             FieldClass = FlowField;
         }
         field(16; "Completed By User Name"; Code[50])
         {
-            CalcFormula = Lookup(User."User Name" where("User Security ID" = field("Completed By")));
+            CalcFormula = lookup(User."User Name" where("User Security ID" = field("Completed By")));
             Caption = 'User Completed By';
             Editable = false;
             FieldClass = FlowField;
@@ -192,7 +193,7 @@ table 1170 "User Task"
                 if "Parent ID" <> 0 then begin
                     UserTaskOccurencies.SetRange("Parent ID", "Parent ID");
                     UserTaskOccurencies.SetFilter(ID, '<>%1', ID);
-                    if UserTaskOccurencies.FindSet(true, false) then
+                    if UserTaskOccurencies.FindSet(true) then
                         repeat
                             Clear(UserTaskOccurencies."Assigned To");
                             Clear(UserTaskOccurencies."Assigned To User Name");

@@ -40,12 +40,9 @@ codeunit 139026 "Test Job Queue"
 
     var
         TimeoutErr: Label 'Timeout exceeded. %1.', Comment = '%1 is the reason why the timeout was exceeded, or any additional data needed to debug a timeout issue.';
-        LibrarySales: Codeunit "Library - Sales";
-        LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
-        OneRecordWillBeSentQst: Label 'Only the first of the selected documents can be scheduled in the job queue.\\Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -68,7 +65,7 @@ codeunit 139026 "Test Job Queue"
         WaitForJobEntryStatus(JobQueueEntryID);
 
         JobQueueLogEntry.SetRange(ID, JobQueueEntryID);
-        Assert.IsTrue(JobQueueLogEntry.FindFirst, 'Cannot find log entry for job ' + Format(JobQueueEntryID));
+        Assert.IsTrue(JobQueueLogEntry.FindFirst(), 'Cannot find log entry for job ' + Format(JobQueueEntryID));
         Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'Unexpected status in the log');
         Assert.AreEqual('TEST', JobQueueLogEntry."Job Queue Category Code", 'Unexpected category in the log');
         Assert.AreEqual(UserId, JobQueueLogEntry."User ID", 'Unexpected userid in the log');
@@ -120,18 +117,18 @@ codeunit 139026 "Test Job Queue"
     begin
         Initialize();
 
-        JobQueueEntry.LookupRecordToProcess; // Does nothing, just returns.
+        JobQueueEntry.LookupRecordToProcess(); // Does nothing, just returns.
         JobQueueEntry.ID := CreateGuid();
-        asserterror JobQueueEntry.LookupRecordToProcess;
+        asserterror JobQueueEntry.LookupRecordToProcess();
         Customer.Init();
         Customer.Insert(true);
         RecRef.GetTable(Customer);
         JobQueueEntry."Record ID to Process" := RecRef.RecordId;
-        CustomerLookup.Trap;
-        JobQueueEntry.LookupRecordToProcess;
+        CustomerLookup.Trap();
+        JobQueueEntry.LookupRecordToProcess();
         CustomerLookup.Close();
         Customer.Delete();
-        asserterror JobQueueEntry.LookupRecordToProcess;
+        asserterror JobQueueEntry.LookupRecordToProcess();
     end;
 
     [Test]
@@ -167,7 +164,7 @@ codeunit 139026 "Test Job Queue"
         with JobQueueLogEntry do begin
             SetRange(ID, JobQueueEntryID);
 
-            Assert.IsTrue(FindFirst, 'Cannot find log entry for job ' + Format(JobQueueEntryID));
+            Assert.IsTrue(FindFirst(), 'Cannot find log entry for job ' + Format(JobQueueEntryID));
             Assert.AreEqual(Status::Error, Status, 'Unexpected status in the log');
             ErrorMsg := "Error Message";
             Assert.IsTrue(StrPos(ErrorMsg, 'System.Xml.XmlTextReader.Create') > 0, CopyStr('Unexpected error message:' + ErrorMsg, 1, 1024));
@@ -357,7 +354,7 @@ codeunit 139026 "Test Job Queue"
         WaitForJobEntryStatus(JobQueueEntryID);
         // [THEN] Job Queue failed, Status = Error
         JobQueueLogEntry.SetRange(ID, JobQueueEntryID);
-        Assert.IsTrue(JobQueueLogEntry.FindFirst, 'Cannot find log entry for job ' + Format(JobQueueEntryID));
+        Assert.IsTrue(JobQueueLogEntry.FindFirst(), 'Cannot find log entry for job ' + Format(JobQueueEntryID));
         Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'Unexpected status in the log');
         Assert.AreEqual('TEST', JobQueueLogEntry."Job Queue Category Code", 'Unexpected category in the log');
         Assert.AreEqual(UserId, JobQueueLogEntry."User ID", 'Unexpected userid in the log');
@@ -386,7 +383,7 @@ codeunit 139026 "Test Job Queue"
         WaitForJobEntryStatus(JobQueueEntryID);
         // [THEN] Job Queue successful, Status = Success
         JobQueueLogEntry.SetRange(ID, JobQueueEntryID);
-        Assert.IsTrue(JobQueueLogEntry.FindFirst, 'Cannot find log entry for job ' + Format(JobQueueEntryID));
+        Assert.IsTrue(JobQueueLogEntry.FindFirst(), 'Cannot find log entry for job ' + Format(JobQueueEntryID));
         Assert.AreEqual(JobQueueLogEntry.Status::Success, JobQueueLogEntry.Status, 'Unexpected status in the log');
         Assert.AreEqual('TEST', JobQueueLogEntry."Job Queue Category Code", 'Unexpected category in the log');
         Assert.AreEqual(UserId, JobQueueLogEntry."User ID", 'Unexpected userid in the log');
@@ -486,7 +483,7 @@ codeunit 139026 "Test Job Queue"
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
-        DeleteAllJobQueueEntries;
+        DeleteAllJobQueueEntries();
     end;
 
     local procedure CreateJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; ObjectType: Integer; ObjectID: Integer; JQEntryStatus: Option)
@@ -613,8 +610,8 @@ codeunit 139026 "Test Job Queue"
     [Scope('OnPrem')]
     procedure ConfirmHandlerVerifyRequest(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.IsTrue(StrPos(Question, LibraryVariableStorage.DequeueText) > 0, 'Unexpected confirmation request');
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.IsTrue(StrPos(Question, LibraryVariableStorage.DequeueText()) > 0, 'Unexpected confirmation request');
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

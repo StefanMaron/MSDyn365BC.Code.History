@@ -305,8 +305,6 @@ report 5703 "Transfer Order"
     var
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
-        TransferFromAddr: array[8] of Text[100];
-        TransferToAddr: array[8] of Text[100];
         CopyText: Text[30];
         DimText: Text[120];
         OldDimText: Text[75];
@@ -322,6 +320,8 @@ report 5703 "Transfer Order"
     protected var
         ShipmentMethod: Record "Shipment Method";
         FormatAddr: Codeunit "Format Address";
+        TransferFromAddr: array[8] of Text[100];
+        TransferToAddr: array[8] of Text[100];
         NoOfCopies: Integer;
         NoOfLoops: Integer;
         OutputNo: Integer;

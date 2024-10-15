@@ -48,94 +48,92 @@ codeunit 414 "Release Sales Document"
         ShouldSetStatusPrepayment: Boolean;
         IsHandled: Boolean;
     begin
-        with SalesHeader do begin
-            if Status = Status::Released then
-                exit;
+        if SalesHeader.Status = SalesHeader.Status::Released then
+            exit;
 
-            IsHandled := false;
-            OnBeforeReleaseSalesDoc(SalesHeader, PreviewMode, IsHandled, SkipCheckReleaseRestrictions, SkipWhseRequestOperations);
-            if IsHandled then
-                exit;
-            if not (PreviewMode or SkipCheckReleaseRestrictions) then
-                CheckSalesReleaseRestrictions();
+        IsHandled := false;
+        OnBeforeReleaseSalesDoc(SalesHeader, PreviewMode, IsHandled, SkipCheckReleaseRestrictions, SkipWhseRequestOperations);
+        if IsHandled then
+            exit;
+        if not (PreviewMode or SkipCheckReleaseRestrictions) then
+            SalesHeader.CheckSalesReleaseRestrictions();
 
-            IsHandled := false;
-            OnBeforeCheckCustomerCreated(SalesHeader, IsHandled);
-            if not IsHandled then
-                if "Document Type" = "Document Type"::Quote then
-                    if CheckCustomerCreated(true) then
-                        Get("Document Type"::Quote, "No.")
-                    else
-                        exit;
+        IsHandled := false;
+        OnBeforeCheckCustomerCreated(SalesHeader, IsHandled);
+        if not IsHandled then
+            if SalesHeader."Document Type" = SalesHeader."Document Type"::Quote then
+                if SalesHeader.CheckCustomerCreated(true) then
+                    SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesHeader."No.")
+                else
+                    exit;
 
-            TestSellToCustomerNo(SalesHeader);
+        TestSellToCustomerNo(SalesHeader);
 
-            IsHandled := false;
-            OnCodeOnAfterCheckCustomerCreated(SalesHeader, PreviewMode, IsHandled, LinesWereModified);
-            if IsHandled then
-                exit;
+        IsHandled := false;
+        OnCodeOnAfterCheckCustomerCreated(SalesHeader, PreviewMode, IsHandled, LinesWereModified);
+        if IsHandled then
+            exit;
 
-            CheckSalesLines(SalesLine, LinesWereModified);
+        CheckSalesLines(SalesLine, LinesWereModified);
 
-            OnCodeOnAfterCheck(SalesHeader, SalesLine, LinesWereModified);
+        OnCodeOnAfterCheck(SalesHeader, SalesLine, LinesWereModified);
 
-            SalesLine.SetRange("Drop Shipment", false);
-            NotOnlyDropShipment := SalesLine.FindFirst();
+        SalesLine.SetRange("Drop Shipment", false);
+        NotOnlyDropShipment := SalesLine.FindFirst();
 
-            OnCodeOnCheckTracking(SalesHeader, SalesLine);
+        OnCodeOnCheckTracking(SalesHeader, SalesLine);
 
-            SalesLine.Reset();
+        SalesLine.Reset();
 
-            IsHandled := false;
-            OnBeforeCalcInvDiscount(SalesHeader, PreviewMode, LinesWereModified, SalesLine, IsHandled);
-            if not IsHandled then begin
-                SalesSetup.Get();
-                if SalesSetup."Calc. Inv. Discount" then begin
-                    PostingDate := "Posting Date";
-                    PrintPostedDocuments := "Print Posted Documents";
-                    CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
-                    LinesWereModified := true;
-                    Get("Document Type", "No.");
-                    "Print Posted Documents" := PrintPostedDocuments;
-                    if PostingDate <> "Posting Date" then
-                        Validate("Posting Date", PostingDate);
-                end;
+        IsHandled := false;
+        OnBeforeCalcInvDiscount(SalesHeader, PreviewMode, LinesWereModified, SalesLine, IsHandled);
+        if not IsHandled then begin
+            SalesSetup.Get();
+            if SalesSetup."Calc. Inv. Discount" then begin
+                PostingDate := SalesHeader."Posting Date";
+                PrintPostedDocuments := SalesHeader."Print Posted Documents";
+                CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
+                LinesWereModified := true;
+                SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+                SalesHeader."Print Posted Documents" := PrintPostedDocuments;
+                if PostingDate <> SalesHeader."Posting Date" then
+                    SalesHeader.Validate("Posting Date", PostingDate);
             end;
-
-            IsHandled := false;
-            OnBeforeModifySalesDoc(SalesHeader, PreviewMode, IsHandled);
-            if IsHandled then
-                exit;
-
-            ShouldSetStatusPrepayment := PrepaymentMgt.TestSalesPrepayment(SalesHeader) and ("Document Type" = "Document Type"::Order);
-            OnCodeOnAfterCalcShouldSetStatusPrepayment(SalesHeader, PreviewMode, ShouldSetStatusPrepayment);
-            if ShouldSetStatusPrepayment then begin
-                Status := Status::"Pending Prepayment";
-                Modify(true);
-                OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified, SkipWhseRequestOperations);
-                exit;
-            end;
-
-            OnCodeOnBeforeSetStatusReleased(SalesHeader);
-            Status := Status::Released;
-
-            LinesWereModified := LinesWereModified or CalcAndUpdateVATOnLines(SalesHeader, SalesLine);
-
-            OnAfterUpdateSalesDocLines(SalesHeader, LinesWereModified, PreviewMode);
-
-            ReleaseATOs(SalesHeader);
-            OnAfterReleaseATOs(SalesHeader, SalesLine, PreviewMode);
-
-            Modify(true);
-            OnCodeOnAfterModifySalesDoc(SalesHeader, LinesWereModified);
-
-            if NotOnlyDropShipment then
-                if "Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"] then
-                    if not SkipWhseRequestOperations then
-                        WhseSalesRelease.Release(SalesHeader);
-
-            OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified, SkipWhseRequestOperations);
         end;
+
+        IsHandled := false;
+        OnBeforeModifySalesDoc(SalesHeader, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
+
+        ShouldSetStatusPrepayment := PrepaymentMgt.TestSalesPrepayment(SalesHeader) and (SalesHeader."Document Type" = SalesHeader."Document Type"::Order);
+        OnCodeOnAfterCalcShouldSetStatusPrepayment(SalesHeader, PreviewMode, ShouldSetStatusPrepayment);
+        if ShouldSetStatusPrepayment then begin
+            SalesHeader.Status := SalesHeader.Status::"Pending Prepayment";
+            SalesHeader.Modify(true);
+            OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified, SkipWhseRequestOperations);
+            exit;
+        end;
+
+        OnCodeOnBeforeSetStatusReleased(SalesHeader);
+        SalesHeader.Status := SalesHeader.Status::Released;
+
+        LinesWereModified := LinesWereModified or CalcAndUpdateVATOnLines(SalesHeader, SalesLine);
+
+        OnAfterUpdateSalesDocLines(SalesHeader, LinesWereModified, PreviewMode);
+
+        ReleaseATOs(SalesHeader);
+        OnAfterReleaseATOs(SalesHeader, SalesLine, PreviewMode);
+
+        SalesHeader.Modify(true);
+        OnCodeOnAfterModifySalesDoc(SalesHeader, LinesWereModified);
+
+        if NotOnlyDropShipment then
+            if SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::"Return Order"] then
+                if not SkipWhseRequestOperations then
+                    WhseSalesRelease.Release(SalesHeader);
+
+        OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified, SkipWhseRequestOperations);
     end;
 
     local procedure CheckSalesLines(var SalesLine: Record "Sales Line"; var LinesWereModified: Boolean)
@@ -210,20 +208,18 @@ codeunit 414 "Release Sales Document"
         if IsHandled then
             exit;
 
-        with SalesHeader do begin
-            if Status = Status::Open then
-                exit;
-            Status := Status::Open;
+        if SalesHeader.Status = SalesHeader.Status::Open then
+            exit;
+        SalesHeader.Status := SalesHeader.Status::Open;
 
-            if "Document Type" <> "Document Type"::Order then
-                ReopenATOs(SalesHeader);
+        if SalesHeader."Document Type" <> SalesHeader."Document Type"::Order then
+            ReopenATOs(SalesHeader);
 
-            OnReopenOnBeforeSalesHeaderModify(SalesHeader);
-            Modify(true);
-            if "Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"] then
-                if not SkipWhseRequestOperations then
-                    WhseSalesRelease.Reopen(SalesHeader);
-        end;
+        OnReopenOnBeforeSalesHeaderModify(SalesHeader);
+        SalesHeader.Modify(true);
+        if SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::"Return Order"] then
+            if not SkipWhseRequestOperations then
+                WhseSalesRelease.Reopen(SalesHeader);
 
         OnAfterReopenSalesDoc(SalesHeader, PreviewMode, SkipWhseRequestOperations);
     end;
@@ -268,16 +264,15 @@ codeunit 414 "Release Sales Document"
         if IsHandled then
             exit;
 
-        with SalesHeader do
-            if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestSalesPayment(SalesHeader) then begin
-                if TestStatusIsNotPendingPrepayment() then begin
-                    Status := Status::"Pending Prepayment";
-                    OnPerformManualCheckAndReleaseOnBeforeSalesHeaderModify(SalesHeader, PreviewMode);
-                    Modify();
-                    Commit();
-                end;
-                Error(Text005, "Document Type", "No.");
+        if (SalesHeader."Document Type" = SalesHeader."Document Type"::Order) and PrepaymentMgt.TestSalesPayment(SalesHeader) then begin
+            if SalesHeader.TestStatusIsNotPendingPrepayment() then begin
+                SalesHeader.Status := SalesHeader.Status::"Pending Prepayment";
+                OnPerformManualCheckAndReleaseOnBeforeSalesHeaderModify(SalesHeader, PreviewMode);
+                SalesHeader.Modify();
+                Commit();
             end;
+            Error(Text005, SalesHeader."Document Type", SalesHeader."No.");
+        end;
 
         CheckSalesHeaderPendingApproval(SalesHeader);
 

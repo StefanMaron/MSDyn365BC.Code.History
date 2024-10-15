@@ -8,9 +8,10 @@ using Microsoft.Projects.Project.Posting;
 
 page 289 "Recurring Job Jnl."
 {
+    AdditionalSearchTerms = 'Recurring Job Journal';
     ApplicationArea = Jobs;
     AutoSplitKey = true;
-    Caption = 'Recurring Job Journal';
+    Caption = 'Recurring Project Journal';
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
@@ -53,12 +54,12 @@ page 289 "Recurring Job Jnl."
                 field("Recurring Frequency"; Rec."Recurring Frequency")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies a recurring frequency if you have indicated in the Recurring field in the job journal template that the journal is a recurring journal.';
+                    ToolTip = 'Specifies a recurring frequency if you have indicated in the Recurring field in the project journal template that the journal is a recurring journal.';
                 }
                 field("Line Type"; Rec."Line Type")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the type of planning line to create when a job ledger entry is posted. If the field is empty, no planning lines are created.';
+                    ToolTip = 'Specifies the type of planning line to create when a project ledger entry is posted. If the field is empty, no planning lines are created.';
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {
@@ -85,7 +86,7 @@ page 289 "Recurring Job Jnl."
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
 
                     trigger OnValidate()
                     begin
@@ -96,12 +97,12 @@ page 289 "Recurring Job Jnl."
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                 }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies an account type for job usage to be posted in the job journal. You can choose from the following options:';
+                    ToolTip = 'Specifies an account type for project usage to be posted in the project journal. You can choose from the following options:';
 
                     trigger OnValidate()
                     begin
@@ -257,7 +258,7 @@ page 289 "Recurring Job Jnl."
                 field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of units of the job journal''s No. field, that is, either the resource, item, or G/L account number, that applies. If you later change the value in the No. field, the quantity does not change on the journal line.';
+                    ToolTip = 'Specifies the number of units of the project journal''s No. field, that is, either the resource, item, or G/L account number, that applies. If you later change the value in the No. field, the quantity does not change on the journal line.';
                 }
                 field("Direct Unit Cost (LCY)"; Rec."Direct Unit Cost (LCY)")
                 {
@@ -268,7 +269,7 @@ page 289 "Recurring Job Jnl."
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the unit cost for the selected type and number on the journal line. The unit cost is in the job currency, derived from the Currency Code field on the job card.';
+                    ToolTip = 'Specifies the unit cost for the selected type and number on the journal line. The unit cost is in the project currency, derived from the Currency Code field on the project card.';
                 }
                 field("Unit Cost (LCY)"; Rec."Unit Cost (LCY)")
                 {
@@ -278,7 +279,7 @@ page 289 "Recurring Job Jnl."
                 field("Total Cost"; Rec."Total Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total cost for the journal line. The total cost is calculated based on the job currency, which comes from the Currency Code field on the job card.';
+                    ToolTip = 'Specifies the total cost for the journal line. The total cost is calculated based on the project currency, which comes from the Currency Code field on the project card.';
                 }
                 field("Total Cost (LCY)"; Rec."Total Cost (LCY)")
                 {
@@ -293,7 +294,7 @@ page 289 "Recurring Job Jnl."
                 field("Line Amount"; Rec."Line Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the amount that will be posted to the job ledger.';
+                    ToolTip = 'Specifies the amount that will be posted to the project ledger.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
                 {
@@ -308,7 +309,7 @@ page 289 "Recurring Job Jnl."
                 field("Total Price"; Rec."Total Price")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total price in the job currency on the journal line.';
+                    ToolTip = 'Specifies the total price in the project currency on the journal line.';
                     Visible = false;
                 }
                 field("Unit Price (LCY)"; Rec."Unit Price (LCY)")
@@ -331,13 +332,13 @@ page 289 "Recurring Job Jnl."
                 field("Applies-from Entry"; Rec."Applies-from Entry")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the item ledger entry that the journal line costs have been applied from. This should be done when you reverse the usage of an item in a job and you want to return the item to inventory at the same cost as before it was used in the job.';
+                    ToolTip = 'Specifies the number of the item ledger entry that the journal line costs have been applied from. This should be done when you reverse the usage of an item in a project and you want to return the item to inventory at the same cost as before it was used in the project.';
                     Visible = false;
                 }
                 field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the last date on which the recurring journal will be posted if you have indicated in the Recurring field of the job journal template that the journal should be a recurring journal.';
+                    ToolTip = 'Specifies the last date on which the recurring journal will be posted if you have indicated in the Recurring field of the project journal template that the journal should be a recurring journal.';
                 }
             }
             group(Control73)
@@ -348,7 +349,7 @@ page 289 "Recurring Job Jnl."
                     ShowCaption = false;
                     group("Job Description")
                     {
-                        Caption = 'Job Description';
+                        Caption = 'Project Description';
                         field(JobDescription; JobDescription)
                         {
                             ApplicationArea = Jobs;
@@ -424,7 +425,7 @@ page 289 "Recurring Job Jnl."
             }
             group("&Job")
             {
-                Caption = '&Job';
+                Caption = '&Project';
                 Image = Job;
                 action(Card)
                 {
@@ -461,7 +462,7 @@ page 289 "Recurring Job Jnl."
                     Caption = 'Calc. Remaining Usage';
                     Ellipsis = true;
                     Image = CalculateRemainingUsage;
-                    ToolTip = 'Calculate the remaining usage for the job. The batch job calculates, for each job task, the difference between scheduled usage of items, resources, and expenses and actual usage posted in job ledger entries. The remaining usage is then displayed in the job journal from where you can post it.';
+                    ToolTip = 'Calculate the remaining usage for the project. The batch job calculates, for each project task, the difference between scheduled usage of items, resources, and expenses and actual usage posted in project ledger entries. The remaining usage is then displayed in the project journal from where you can post it.';
 
                     trigger OnAction()
                     var

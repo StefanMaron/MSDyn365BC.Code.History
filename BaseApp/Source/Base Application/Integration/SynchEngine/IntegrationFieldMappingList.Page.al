@@ -31,7 +31,7 @@ page 5361 "Integration Field Mapping List"
                     ApplicationArea = Suite;
                     BlankZero = true;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the field in Dynamics 365.';
+                    ToolTip = 'Specifies the number of the field in Business Central.';
                 }
                 field(FieldName; NAVFieldName)
                 {
@@ -45,14 +45,14 @@ page 5361 "Integration Field Mapping List"
                     ApplicationArea = Suite;
                     BlankZero = true;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the field in Dynamics 365 Sales.';
+                    ToolTip = 'Specifies the field number of the integration field to map to the Business Central field.';
                 }
                 field(IntegrationFieldName; CRMFieldName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Integration Field Name';
                     Editable = false;
-                    ToolTip = 'Specifies the name of the field in Dynamics 365 Sales.';
+                    ToolTip = 'Specifies the name of the integration field to map to the Business Central field.';
                 }
                 field(Direction; Rec.Direction)
                 {
@@ -95,6 +95,11 @@ page 5361 "Integration Field Mapping List"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the data transfer should be skipped for destination fields whose new value is going to be null. This is only applicable for GUID fields, such as OwnerId, that must not be changed to null during synchronization.';
                 }
+                field("User Defined"; Rec."User Defined")
+                {
+                    Editable = false;
+                    ToolTip = 'Specifies if the field is generated manually through the integration table mapping wizard.';
+                }
             }
         }
     }
@@ -117,6 +122,33 @@ page 5361 "Integration Field Mapping List"
                     IntegrationFieldMapping.SetRange("Integration Table Mapping Name", Rec."Integration Table Mapping Name");
                     IntegrationFieldMapping.ModifyAll("Transformation Rule", '');
                 end;
+            }
+            action(ManualIntTableMapping)
+            {
+                ApplicationArea = Suite;
+                Caption = 'New Field Mapping';
+                Image = New;
+                ToolTip = 'Create a new integration field mapping.';
+                trigger OnAction()
+                var
+                    IntegrationTableMapping: Record "Integration Table Mapping";
+                    CDSNewManIntTableWizard: Page "CDS New Man. Int. Table Wizard";
+                begin
+                    IntegrationTableMapping.Get(Rec."Integration Table Mapping Name");
+                    CDSNewManIntTableWizard.SetValues(IntegrationTableMapping.Name, IntegrationTableMapping."Table ID", IntegrationTableMapping."Integration Table ID");
+                    CDSNewManIntTableWizard.Run();
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ManualIntTableMapping_Promoted; ManualIntTableMapping)
+                {
+                }
             }
         }
     }

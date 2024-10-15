@@ -153,73 +153,68 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
 
     local procedure InsertGenJnlLineForFee(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; var IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line"; DocumentNo: Code[20]; PostingDate: Date)
     begin
-        with IssuedFinChargeMemoLine do
-            if Amount <> 0 then begin
-                TestField("No.");
-                InitGenJnlLine(IssuedFinChargeMemoHeader, TempGenJnlLine, TempGenJnlLine."Account Type"::"G/L Account",
-                  "No.",
-                  "System-Created Entry", DocumentNo, PostingDate);
-                TempGenJnlLine.CopyFromIssuedFinChargeMemoLine(IssuedFinChargeMemoLine);
-                if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then begin
-                    TempGenJnlLine.Validate("Tax Area Code", IssuedFinChargeMemoHeader."Tax Area Code");
-                    TempGenJnlLine.Validate("Tax Liable", IssuedFinChargeMemoHeader."Tax Liable");
-                    TempGenJnlLine.Validate("Tax Group Code", "Tax Group Code");
-                end;
-                TempGenJnlLine.UpdateLineBalance();
-                TotalAmount := TotalAmount - TempGenJnlLine.Amount;
-                TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
-                TempGenJnlLine."Bill-to/Pay-to No." := IssuedFinChargeMemoHeader."Customer No.";
-                TempGenJnlLine.Insert();
+        if IssuedFinChargeMemoLine.Amount <> 0 then begin
+            IssuedFinChargeMemoLine.TestField("No.");
+            InitGenJnlLine(IssuedFinChargeMemoHeader, TempGenJnlLine, TempGenJnlLine."Account Type"::"G/L Account",
+              IssuedFinChargeMemoLine."No.",
+              IssuedFinChargeMemoLine."System-Created Entry", DocumentNo, PostingDate);
+            TempGenJnlLine.CopyFromIssuedFinChargeMemoLine(IssuedFinChargeMemoLine);
+            if IssuedFinChargeMemoLine."VAT Calculation Type" = IssuedFinChargeMemoLine."VAT Calculation Type"::"Sales Tax" then begin
+                TempGenJnlLine.Validate("Tax Area Code", IssuedFinChargeMemoHeader."Tax Area Code");
+                TempGenJnlLine.Validate("Tax Liable", IssuedFinChargeMemoHeader."Tax Liable");
+                TempGenJnlLine.Validate("Tax Group Code", IssuedFinChargeMemoLine."Tax Group Code");
             end;
+            TempGenJnlLine.UpdateLineBalance();
+            TotalAmount := TotalAmount - TempGenJnlLine.Amount;
+            TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
+            TempGenJnlLine."Bill-to/Pay-to No." := IssuedFinChargeMemoHeader."Customer No.";
+            TempGenJnlLine.Insert();
+        end;
     end;
 
     local procedure InsertGenJnlLineForInterest(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; DocumentNo: Code[20]; PostingDate: Date; InterestAmount: Decimal; InterestVATAmount: Decimal)
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        with IssuedFinChargeMemoHeader do begin
-            CustomerPostingGroup.Get("Customer Posting Group");
-            InitGenJnlLine(
-              IssuedFinChargeMemoHeader, TempGenJnlLine, TempGenJnlLine."Account Type"::"G/L Account",
-              CustomerPostingGroup.GetInterestAccount(), true, DocumentNo, PostingDate);
+        CustomerPostingGroup.Get(IssuedFinChargeMemoHeader."Customer Posting Group");
+        InitGenJnlLine(
+          IssuedFinChargeMemoHeader, TempGenJnlLine, TempGenJnlLine."Account Type"::"G/L Account",
+          CustomerPostingGroup.GetInterestAccount(), true, DocumentNo, PostingDate);
 
-            TempGenJnlLine.Validate("VAT Bus. Posting Group", "VAT Bus. Posting Group");
-            TempGenJnlLine.Validate(Amount, InterestAmount + InterestVATAmount);
-            TempGenJnlLine.UpdateLineBalance();
-            TotalAmount := TotalAmount - TempGenJnlLine.Amount;
-            TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
-            TempGenJnlLine."Bill-to/Pay-to No." := "Customer No.";
-            TempGenJnlLine.Insert();
-        end;
+        TempGenJnlLine.Validate("VAT Bus. Posting Group", IssuedFinChargeMemoHeader."VAT Bus. Posting Group");
+        TempGenJnlLine.Validate(Amount, InterestAmount + InterestVATAmount);
+        TempGenJnlLine.UpdateLineBalance();
+        TotalAmount := TotalAmount - TempGenJnlLine.Amount;
+        TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
+        TempGenJnlLine."Bill-to/Pay-to No." := IssuedFinChargeMemoHeader."Customer No.";
+        TempGenJnlLine.Insert();
     end;
 
     local procedure InitGenJnlLine(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; SystemCreatedEntry: Boolean; DocumentNo: Code[20]; PostingDate: Date)
     begin
-        with GenJnlLine do begin
-            Init();
-            "Line No." := "Line No." + 1;
-            "Document Type" := "Document Type"::" ";
-            "Document No." := DocumentNo;
-            "Posting Date" := PostingDate;
+        GenJnlLine.Init();
+        GenJnlLine."Line No." := GenJnlLine."Line No." + 1;
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
+        GenJnlLine."Document No." := DocumentNo;
+        GenJnlLine."Posting Date" := PostingDate;
 
-            "Account Type" := AccountType;
-            Validate("Account No.", AccountNo);
-            CopyFromIssuedFinChargeMemoHeader(IssuedFinChargeMemoHeader);
-            if "Account Type" = "Account Type"::Customer then begin
-                Amount := TotalAmount;
-                "Amount (LCY)" := TotalAmountLCY;
-                "Due Date" := IssuedFinChargeMemoHeader."Due Date";
-                "Applies-to Doc. Type" := "Applies-to Doc. Type"::"Finance Charge Memo";
-                "Applies-to Doc. No." := IssuedFinChargeMemoHeader."No.";
-            end;
-            "Source Code" := FinChargeMemoSourceCode;
-            "System-Created Entry" := SystemCreatedEntry;
-            "Salespers./Purch. Code" := '';
-            GLSetup.Get();
-            if GLSetup."Journal Templ. Name Mandatory" then begin
-                "Journal Template Name" := GenJnlBatch."Journal Template Name";
-                "Journal Batch Name" := GenJnlBatch.Name;
-            end;
+        GenJnlLine."Account Type" := AccountType;
+        GenJnlLine.Validate("Account No.", AccountNo);
+        GenJnlLine.CopyFromIssuedFinChargeMemoHeader(IssuedFinChargeMemoHeader);
+        if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer then begin
+            GenJnlLine.Amount := TotalAmount;
+            GenJnlLine."Amount (LCY)" := TotalAmountLCY;
+            GenJnlLine."Due Date" := IssuedFinChargeMemoHeader."Due Date";
+            GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Finance Charge Memo";
+            GenJnlLine."Applies-to Doc. No." := IssuedFinChargeMemoHeader."No.";
+        end;
+        GenJnlLine."Source Code" := FinChargeMemoSourceCode;
+        GenJnlLine."System-Created Entry" := SystemCreatedEntry;
+        GenJnlLine."Salespers./Purch. Code" := '';
+        GLSetup.Get();
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+            GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
         end;
 
         OnAfterInitGenJnlLine(GenJnlLine, IssuedFinChargeMemoHeader);
@@ -239,7 +234,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
     local procedure GetDocumentNoAndPostingDate(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; var DocumentNo: Code[20]; var PostingDate: Date)
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         if UseSamePostingDate then
             PostingDate := IssuedFinChargeMemoHeader."Posting Date"
@@ -251,7 +246,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         else begin
             SalesSetup.Get();
             SalesSetup.TestField("Canc. Iss. Fin. Ch. Mem. Nos.");
-            DocumentNo := NoSeriesManagement.GetNextNo(SalesSetup."Canc. Iss. Fin. Ch. Mem. Nos.", PostingDate, true);
+            DocumentNo := NoSeries.GetNextNo(SalesSetup."Canc. Iss. Fin. Ch. Mem. Nos.", PostingDate);
         end;
     end;
 

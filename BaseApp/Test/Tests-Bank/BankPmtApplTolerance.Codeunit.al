@@ -37,7 +37,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         SalesPmtToleranceScenario(BankAccReconciliationLine, CustLedgerEntry, ToleranceAmount, false, true, -1);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Sales Invoice automatically and confirm discount in "Payment Tolerance Warning" page
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
@@ -72,7 +72,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         SalesPmtToleranceScenario(BankAccReconciliationLine, CustLedgerEntry, ToleranceAmount, false, false, -1);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Sales Invoice automatically but do not confirm discount in "Payment Tolerance Warning" page
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
@@ -107,7 +107,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         SalesPmtToleranceScenario(BankAccReconciliationLine, CustLedgerEntry, ToleranceAmount, true, true, -1);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Sales Invoice manually and confirm discount in "Payment Tolerance Warning" page
         MatchBankReconLineManually(BankAccReconciliationLine);
@@ -142,7 +142,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         SalesPmtToleranceScenario(BankAccReconciliationLine, CustLedgerEntry, ToleranceAmount, true, false, -1);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Sales Invoice manually but do not confirm discount in "Payment Tolerance Warning" page
         MatchBankReconLineManually(BankAccReconciliationLine);
@@ -175,7 +175,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         SalesPmtTolDiscScenario(BankAccReconciliationLine, CustLedgerEntry, false, true);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Sales Invoice automatically and confirm discount in "Payment Discount Tolerance Warning" page
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
@@ -208,7 +208,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         SalesPmtTolDiscScenario(BankAccReconciliationLine, CustLedgerEntry, false, false);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Sales Invoice automatically but do not confirm discount in "Payment Discount Tolerance Warning" page
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
@@ -241,7 +241,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         SalesPmtTolDiscScenario(BankAccReconciliationLine, CustLedgerEntry, true, true);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Sales Invoice manually and confirm discount in "Payment Discount Tolerance Warning" page
         MatchBankReconLineManually(BankAccReconciliationLine);
@@ -274,7 +274,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         SalesPmtTolDiscScenario(BankAccReconciliationLine, CustLedgerEntry, true, false);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Sales Invoice manually but do not confirm discount in "Payment Discount Tolerance Warning" page
         MatchBankReconLineManually(BankAccReconciliationLine);
@@ -309,7 +309,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         SalesPmtToleranceScenario(BankAccReconciliationLine, CustLedgerEntry, ToleranceAmount, false, true, -1);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [GIVEN] Bank Acc. Reconciliation Line and Sales Invoice automatically matched and discount in "Payment Discount Tolerance Warning" page is confirmed
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
@@ -347,7 +347,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         SalesPmtToleranceScenario(BankAccReconciliationLine, CustLedgerEntry, ToleranceAmount, false, false, -1);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [GIVEN] Bank Acc. Reconciliation Line and Sales Invoice automatically matched and discount in "Payment Discount Tolerance Warning" page is not confirmed
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
@@ -383,7 +383,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         SalesPmtToleranceScenario(BankAccReconciliationLine, CustLedgerEntry, ToleranceAmount, true, true, -1);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [GIVEN] Bank Acc. Reconciliation Line and Sales Invoice manually matched and discount in "Payment Discount Tolerance Warning" page is confirmed
         MatchBankReconLineManually(BankAccReconciliationLine);
@@ -424,7 +424,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
 
         // [GIVEN] Bank Acc. Reconciliation Line and Sales Invoice manually matched and discount in "Payment Discount Tolerance Warning" page is not confirmed
         MatchBankReconLineManually(BankAccReconciliationLine);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Post Bank Account Reconciliation
         PostReconciliation(BankAccReconciliationLine);
@@ -459,7 +459,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Bank Acc. Reconciliation Line and Sales Invoice automatically matched and discount in "Payment Discount Tolerance Warning" page is confirmed
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
         LibraryVariableStorage.Enqueue(true); // Set "Yes" on "Payment Discount Tolerance Warning" page
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Post Bank Account Reconciliation
         PostReconciliation(BankAccReconciliationLine);
@@ -495,7 +495,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Bank Acc. Reconciliation Line and Sales Invoice automatically matched and discount in "Payment Discount Tolerance Warning" page is not confirmed
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
         LibraryVariableStorage.Enqueue(false); // Set "No" on "Payment Discount Tolerance Warning" page
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Post Bank Account Reconciliation
         PostReconciliation(BankAccReconciliationLine);
@@ -530,7 +530,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Bank Acc. Reconciliation Line and Sales Invoice manually matched and discount in "Payment Discount Tolerance Warning" page is confirmed
         MatchBankReconLineManually(BankAccReconciliationLine);
         LibraryVariableStorage.Enqueue(true); // Set "Yes" on "Payment Discount Tolerance Warning" page
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Post Bank Account Reconciliation
         PostReconciliation(BankAccReconciliationLine);
@@ -567,7 +567,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Bank Acc. Reconciliation Line and Sales Invoice manually matched and discount in "Payment Discount Tolerance Warning" page is not confirmed
         MatchBankReconLineManually(BankAccReconciliationLine);
         LibraryVariableStorage.Enqueue(false); // Set "No" on "Payment Discount Tolerance Warning" page
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Post Bank Account Reconciliation
         PostReconciliation(BankAccReconciliationLine);
@@ -600,7 +600,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
 
         // [GIVEN] Bank Acc. Reconciliation Line and Sales Invoice automatically matched and discount in "Payment Discount Tolerance Warning" page is confirmed
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Delete Bank Account Reconciliation Line
         BankAccReconciliationLine.Delete(true);
@@ -633,7 +633,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
 
         // [GIVEN] Bank Acc. Reconciliation Line and Sales Invoice automatically matched and discount in "Payment Discount Tolerance Warning" page is confirmed
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Delete Bank Account Reconciliation Line
         BankAccReconciliationLine.Delete(true);
@@ -664,7 +664,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         PurchPmtToleranceScenario(BankAccReconciliationLine, VendLedgerEntry, ToleranceAmount, false, true, -1);
 
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Purchase Invoice automatically and confirm discount in "Payment Tolerance Warning" page
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
@@ -698,7 +698,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         PurchPmtToleranceScenario(BankAccReconciliationLine, VendLedgerEntry, ToleranceAmount, false, false, -1);
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Purchase Invoice automatically but do not confirm discount in "Payment Tolerance Warning" page
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
@@ -732,7 +732,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         PurchPmtToleranceScenario(BankAccReconciliationLine, VendLedgerEntry, ToleranceAmount, true, true, -1);
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Purchase Invoice manually and confirm discount in "Payment Tolerance Warning" page
         MatchBankReconLineManually(BankAccReconciliationLine);
@@ -766,7 +766,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         PurchPmtToleranceScenario(BankAccReconciliationLine, VendLedgerEntry, ToleranceAmount, true, false, -1);
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Purchase Invoice manually but do not confirm discount in "Payment Tolerance Warning" page
         MatchBankReconLineManually(BankAccReconciliationLine);
@@ -798,7 +798,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         PurchPmtTolDiscScenario(BankAccReconciliationLine, VendLedgerEntry, false, true);
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Purchase Invoice automatically and confirm discount in "Payment Discount Tolerance Warning" page
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
@@ -831,7 +831,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         PurchPmtTolDiscScenario(BankAccReconciliationLine, VendLedgerEntry, false, false);
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Purchase Invoice automatically but do not confirm discount in "Payment Discount Tolerance Warning" page
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
@@ -863,7 +863,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         PurchPmtTolDiscScenario(BankAccReconciliationLine, VendLedgerEntry, true, true);
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Purchase Invoice manually and confirm discount in "Payment Discount Tolerance Warning" page
         MatchBankReconLineManually(BankAccReconciliationLine);
@@ -896,7 +896,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Tolerance Date" = 10.01, Amount = 100, "Payment Discount" = 5
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.01", "Transaction Text" = "X" and "Statement Amount" = 95
         PurchPmtTolDiscScenario(BankAccReconciliationLine, VendLedgerEntry, true, false);
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Purchase Invoice manually but do not confirm discount in "Payment Discount Tolerance Warning" page
         MatchBankReconLineManually(BankAccReconciliationLine);
@@ -936,7 +936,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Bank Acc. Reconciliation Line and Purchase Invoice automatically matched and discount in "Payment Discount Tolerance Warning" page is confirmed
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
         LibraryVariableStorage.Enqueue(true); // Set "Yes" on "Payment Tolerance Warning" page
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Post Bank Account Reconciliation
         PostReconciliation(BankAccReconciliationLine);
@@ -973,7 +973,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
 
         // [GIVEN] Bank Acc. Reconciliation Line and Purchase Invoice automatically matched and discount in "Payment Discount Tolerance Warning" page is not confirmed
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Post Bank Account Reconciliation
         PostReconciliation(BankAccReconciliationLine);
@@ -1010,7 +1010,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Bank Acc. Reconciliation Line and Purchase Invoice manually matched and discount in "Payment Discount Tolerance Warning" page is confirmed
         MatchBankReconLineManually(BankAccReconciliationLine);
         LibraryVariableStorage.Enqueue(true); // Set "Yes" on "Payment Tolerance Warning" page
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Post Bank Account Reconciliation
         PostReconciliation(BankAccReconciliationLine);
@@ -1047,7 +1047,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
 
         // [GIVEN] Bank Acc. Reconciliation Line and Purchase Invoice manually matched and discount in "Payment Discount Tolerance Warning" page is not confirmed
         MatchBankReconLineManually(BankAccReconciliationLine);
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Post Bank Account Reconciliation
         PostReconciliation(BankAccReconciliationLine);
@@ -1082,7 +1082,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Bank Acc. Reconciliation Line and Purchase Invoice automatically matched and discount in "Payment Discount Tolerance Warning" page is confirmed
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
         LibraryVariableStorage.Enqueue(true); // Set "Yes" on "Payment Discount Tolerance Warning" page
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Post Bank Account Reconciliation
         PostReconciliation(BankAccReconciliationLine);
@@ -1118,7 +1118,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Bank Acc. Reconciliation Line and Purchase Invoice automatically matched and discount in "Payment Discount Tolerance Warning" page is not confirmed
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
         LibraryVariableStorage.Enqueue(false); // Set "No" on "Payment Discount Tolerance Warning" page
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Post Bank Account Reconciliation
         PostReconciliation(BankAccReconciliationLine);
@@ -1153,7 +1153,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Bank Acc. Reconciliation Line and Purchase Invoice manually matched and discount in "Payment Discount Tolerance Warning" page is confirmed
         MatchBankReconLineManually(BankAccReconciliationLine);
         LibraryVariableStorage.Enqueue(true); // Set "Yes" on "Payment Discount Tolerance Warning" page
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Post Bank Account Reconciliation
         PostReconciliation(BankAccReconciliationLine);
@@ -1189,7 +1189,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // [GIVEN] Bank Acc. Reconciliation Line and Purchase Invoice manually matched and discount in "Payment Discount Tolerance Warning" page is not confirmed
         MatchBankReconLineManually(BankAccReconciliationLine);
         LibraryVariableStorage.Enqueue(false); // Set "No" on "Payment Discount Tolerance Warning" page
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Post Bank Account Reconciliation
         PostReconciliation(BankAccReconciliationLine);
@@ -1222,7 +1222,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
 
         // [GIVEN] Bank Acc. Reconciliation Line and Purchase Invoice automatically matched and discount in "Payment Discount Tolerance Warning" page is confirmed
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Delete Bank Account Reconciliation Line
         BankAccReconciliationLine.Delete(true);
@@ -1255,7 +1255,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
 
         // [GIVEN] Bank Acc. Reconciliation Line and Purchase Invoice automatically matched and discount in "Payment Discount Tolerance Warning" page is confirmed
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Delete Bank Account Reconciliation Line
         BankAccReconciliationLine.Delete(true);
@@ -1288,8 +1288,8 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         SalesPmtToleranceScenario(BankAccReconciliationLine, CustLedgerEntry, ToleranceAmount, true, true, 1);
         MatchBankReconLineManually(BankAccReconciliationLine);
         IncreaseStatementAmountOnBankAccReconLine(BankAccReconciliationLine, ToleranceAmount);
-        LibraryLowerPermissions.SetAccountReceivables;
-        LibraryLowerPermissions.AddFinancialReporting; // permission for G/L Account
+        LibraryLowerPermissions.SetAccountReceivables();
+        LibraryLowerPermissions.AddFinancialReporting(); // permission for G/L Account
 
         // [WHEN] Transfer difference from existing Bank. Acc. Reconciliation Line to a new with G/L Account
         MatchBankPayments.TransferDiffToAccount(BankAccReconciliationLine, GenJournalLine);
@@ -1326,8 +1326,8 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         DecreasedToleranceAmount := Round(BankAccReconciliationLine.Difference / LibraryRandom.RandIntInRange(3, 10));
         BankAccReconciliationLine.Validate("Statement Amount", BankAccReconciliationLine."Statement Amount" - DecreasedToleranceAmount);
         BankAccReconciliationLine.Modify(true);
-        LibraryLowerPermissions.SetAccountReceivables;
-        LibraryLowerPermissions.AddFinancialReporting; // permission for G/L Account
+        LibraryLowerPermissions.SetAccountReceivables();
+        LibraryLowerPermissions.AddFinancialReporting(); // permission for G/L Account
 
         // [WHEN] Transfer difference from Application to G/L Account
         MatchBankPayments.TransferDiffToAccount(BankAccReconciliationLine, GenJournalLine);
@@ -1358,8 +1358,8 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         MatchBankReconLineManually(BankAccReconciliationLine);
         IncreaseStatementAmountOnBankAccReconLine(BankAccReconciliationLine, ToleranceAmount);
         BankAccReconciliationLine.Find();
-        LibraryLowerPermissions.SetAccountPayables;
-        LibraryLowerPermissions.AddFinancialReporting; // permission for G/L Account
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryLowerPermissions.AddFinancialReporting(); // permission for G/L Account
 
         // [WHEN] Transfer difference from existing Bank. Acc. Reconciliation Line to a new with G/L Account
         MatchBankPayments.TransferDiffToAccount(BankAccReconciliationLine, GenJournalLine);
@@ -1396,8 +1396,8 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         DecreasedToleranceAmount := Round(BankAccReconciliationLine.Difference / LibraryRandom.RandIntInRange(3, 10));
         BankAccReconciliationLine.Validate("Statement Amount", BankAccReconciliationLine."Statement Amount" - DecreasedToleranceAmount);
         BankAccReconciliationLine.Modify(true);
-        LibraryLowerPermissions.SetAccountPayables;
-        LibraryLowerPermissions.AddFinancialReporting; // permission for G/L Account
+        LibraryLowerPermissions.SetAccountPayables();
+        LibraryLowerPermissions.AddFinancialReporting(); // permission for G/L Account
 
         // [WHEN] Transfer difference from Application to G/L Account
         MatchBankPayments.TransferDiffToAccount(BankAccReconciliationLine, GenJournalLine);
@@ -1426,7 +1426,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         SetPmtDiscSetup(true, false, TolerancePct);
 
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
-        PostSalesInvoice(CustLedgerEntry, LibrarySales.CreateCustomerNo);
+        PostSalesInvoice(CustLedgerEntry, LibrarySales.CreateCustomerNo());
         ToleranceAmount := Round(CustLedgerEntry."Remaining Amount" * TolerancePct / 100);
 
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.02", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -1438,7 +1438,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Sales Invoice automatically and confirm discount in "Payment Tolerance Warning" page
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
         BankAccReconciliationLine.Find();
@@ -1472,7 +1472,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         SetPmtDiscSetup(true, false, TolerancePct);
 
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
-        PostPurchInvoice(VendLedgerEntry, LibraryPurchase.CreateVendorNo);
+        PostPurchInvoice(VendLedgerEntry, LibraryPurchase.CreateVendorNo());
         ToleranceAmount := Round(VendLedgerEntry."Remaining Amount" * TolerancePct / 100);
 
         // [GIVEN] Bank Account Reconciliation Line with "Transaction Date" = "10.02", "Transaction Text" = "X" and "Statement Amount" = 95
@@ -1484,7 +1484,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Purchase Invoice automatically and confirm discount in "Payment Tolerance Warning" page
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [THEN] "Applied Amount" in "Bank Account Reconciliation Line" is 95
         BankAccReconciliationLine.Find();
@@ -1517,7 +1517,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         SetPmtDiscSetup(true, false, TolerancePct);
 
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01
-        PostSalesInvoice(CustLedgerEntry, LibrarySales.CreateCustomerNo);
+        PostSalesInvoice(CustLedgerEntry, LibrarySales.CreateCustomerNo());
         ToleranceAmount := Round(CustLedgerEntry."Remaining Amount" * TolerancePct / 100);
 
         // [GIVEN] Bank Account Reconciliation Line with "Statement No." = "X" "Transaction Date" = "10.01"
@@ -1525,7 +1525,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
           BankAccReconciliationLine, CustLedgerEntry."Pmt. Discount Date", CustLedgerEntry."Remaining Amount" - ToleranceAmount,
           CustLedgerEntry."Document No.");
         LibraryVariableStorage.Enqueue(BankAccReconciliationLine."Statement No."); // Set "Statement No." for "Document No." on "Payment Tolerance Warning" page
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Sales Invoice automatically
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
@@ -1553,7 +1553,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         SetPmtDiscSetup(true, false, TolerancePct);
 
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01
-        PostPurchInvoice(VendLedgerEntry, LibraryPurchase.CreateVendorNo);
+        PostPurchInvoice(VendLedgerEntry, LibraryPurchase.CreateVendorNo());
         ToleranceAmount := Round(VendLedgerEntry."Remaining Amount" * TolerancePct / 100);
 
         // [GIVEN] Bank Account Reconciliation Line with "Statement No." = "X" "Transaction Date" = "10.01"
@@ -1561,7 +1561,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
           BankAccReconciliationLine, VendLedgerEntry."Pmt. Discount Date", VendLedgerEntry."Remaining Amount" - ToleranceAmount,
           VendLedgerEntry."Document No.");
         LibraryVariableStorage.Enqueue(BankAccReconciliationLine."Statement No."); // Set "Statement No." for "Document No." on "Payment Tolerance Warning" page
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
 
         // [WHEN] Match Bank Acc. Reconciliation Line to Purchase Invoice automatically
         MatchBankReconLineAutomatically(BankAccReconciliationLine);
@@ -1614,7 +1614,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         Initialize();
         TolerancePct := LibraryRandom.RandInt(10);
         SetPmtDiscSetup(true, false, TolerancePct);
-        PostSalesInvoice(CustLedgerEntry, LibrarySales.CreateCustomerNo);
+        PostSalesInvoice(CustLedgerEntry, LibrarySales.CreateCustomerNo());
         ToleranceAmount := Round(CustLedgerEntry."Remaining Amount" * TolerancePct / 100);
         CreateBankReconciliationLine(
           BankAccReconciliationLine, CustLedgerEntry."Pmt. Discount Date", CustLedgerEntry."Remaining Amount" + Sign * ToleranceAmount,
@@ -1631,7 +1631,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         Initialize();
         SetPmtDiscSetup(false, true, 0);
-        PostSalesInvoice(CustLedgerEntry, CreateCustWithPmtDisc);
+        PostSalesInvoice(CustLedgerEntry, CreateCustWithPmtDisc());
         CreateBankReconciliationLine(
           BankAccReconciliationLine, CustLedgerEntry."Pmt. Disc. Tolerance Date",
           CustLedgerEntry."Remaining Amount" - CustLedgerEntry."Remaining Pmt. Disc. Possible", CustLedgerEntry."Document No.");
@@ -1649,7 +1649,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         Initialize();
         TolerancePct := LibraryRandom.RandInt(10);
         SetPmtDiscSetup(true, false, TolerancePct);
-        PostPurchInvoice(VendLedgerEntry, LibraryPurchase.CreateVendorNo);
+        PostPurchInvoice(VendLedgerEntry, LibraryPurchase.CreateVendorNo());
         ToleranceAmount := Round(VendLedgerEntry."Remaining Amount" * TolerancePct / 100);
         CreateBankReconciliationLine(
           BankAccReconciliationLine, VendLedgerEntry."Pmt. Discount Date", VendLedgerEntry."Remaining Amount" + Sign * ToleranceAmount,
@@ -1666,7 +1666,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         Initialize();
         SetPmtDiscSetup(false, true, 0);
-        PostPurchInvoice(VendLedgerEntry, CreateVendWithPmtDisc);
+        PostPurchInvoice(VendLedgerEntry, CreateVendWithPmtDisc());
         CreateBankReconciliationLine(
           BankAccReconciliationLine, VendLedgerEntry."Pmt. Disc. Tolerance Date",
           VendLedgerEntry."Remaining Amount" - VendLedgerEntry."Remaining Pmt. Disc. Possible", VendLedgerEntry."Document No.");
@@ -1707,7 +1707,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
 
@@ -1723,7 +1723,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, VendNo);
         LibraryPurchase.CreatePurchaseLine(
-          PurchLine, PurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(100));
+          PurchLine, PurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(100));
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchLine.Modify(true);
 
@@ -1763,9 +1763,9 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     var
         PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
     begin
-        PaymentReconciliationJournal.OpenEdit;
+        PaymentReconciliationJournal.OpenEdit();
         PaymentReconciliationJournal.GotoRecord(BankAccReconciliationLine);
-        PaymentReconciliationJournal.ApplyEntries.Invoke;
+        PaymentReconciliationJournal.ApplyEntries.Invoke();
     end;
 
     local procedure PostReconciliation(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
@@ -1859,30 +1859,30 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     [Scope('OnPrem')]
     procedure PmtTolWarningModalPageHandler(var PaymentToleranceWarning: TestPage "Payment Tolerance Warning")
     begin
-        if LibraryVariableStorage.DequeueBoolean then begin
+        if LibraryVariableStorage.DequeueBoolean() then begin
             PaymentToleranceWarning.Posting.SetValue(1); // Accept payment discount tolerance
-            PaymentToleranceWarning.Yes.Invoke;
+            PaymentToleranceWarning.Yes().Invoke();
         end else
-            PaymentToleranceWarning.No.Invoke;
+            PaymentToleranceWarning.No().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PmtTolWarningAssertDocModalPageHandler(var PaymentToleranceWarning: TestPage "Payment Tolerance Warning")
     begin
-        PaymentToleranceWarning.DocNo.AssertEquals(LibraryVariableStorage.DequeueText);
-        PaymentToleranceWarning.No.Invoke;
+        PaymentToleranceWarning.DocNo.AssertEquals(LibraryVariableStorage.DequeueText());
+        PaymentToleranceWarning.No().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PmtDiscTolWarningModalPageHandler(var PaymentDiscToleranceWarning: TestPage "Payment Disc Tolerance Warning")
     begin
-        if LibraryVariableStorage.DequeueBoolean then begin
+        if LibraryVariableStorage.DequeueBoolean() then begin
             PaymentDiscToleranceWarning.Posting.SetValue(1); // Accept payment discount tolerance
-            PaymentDiscToleranceWarning.Yes.Invoke;
+            PaymentDiscToleranceWarning.Yes().Invoke();
         end else
-            PaymentDiscToleranceWarning.No.Invoke;
+            PaymentDiscToleranceWarning.No().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1891,20 +1891,20 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     var
         PaymentApplicationProposal: Record "Payment Application Proposal";
     begin
-        PaymentApplication.FILTER.SetFilter("Account Type", LibraryVariableStorage.DequeueText);
-        PaymentApplication.FILTER.SetFilter("Account No.", LibraryVariableStorage.DequeueText);
+        PaymentApplication.FILTER.SetFilter("Account Type", LibraryVariableStorage.DequeueText());
+        PaymentApplication.FILTER.SetFilter("Account No.", LibraryVariableStorage.DequeueText());
         PaymentApplication.FILTER.SetFilter("Document Type", Format(PaymentApplicationProposal."Document Type"::Invoice));
-        PaymentApplication.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText);
+        PaymentApplication.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
         PaymentApplication.Applied.SetValue(true);
-        PaymentApplication.OK.Invoke;
+        PaymentApplication.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure TransToDiffAccModalPageHandler(var TransferDifferencetoAccount: TestPage "Transfer Difference to Account")
     begin
-        TransferDifferencetoAccount."Account No.".SetValue(LibraryERM.CreateGLAccountNo);
-        TransferDifferencetoAccount.OK.Invoke;
+        TransferDifferencetoAccount."Account No.".SetValue(LibraryERM.CreateGLAccountNo());
+        TransferDifferencetoAccount.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -1924,7 +1924,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     [Scope('OnPrem')]
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
-        PostPmtsAndRecBankAcc.OK.Invoke();
+        PostPmtsAndRecBankAcc.OK().Invoke();
     end;
 }
 

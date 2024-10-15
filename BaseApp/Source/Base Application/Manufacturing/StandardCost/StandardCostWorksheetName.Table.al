@@ -4,6 +4,7 @@ table 5840 "Standard Cost Worksheet Name"
 {
     Caption = 'Standard Cost Worksheet Name';
     LookupPageID = "Standard Cost Worksheet Names";
+    DataClassification = CustomerContent;
 
     fields
     {

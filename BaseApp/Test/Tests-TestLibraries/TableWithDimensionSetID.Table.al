@@ -1,6 +1,7 @@
 table 134483 "Table With Dimension Set ID"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

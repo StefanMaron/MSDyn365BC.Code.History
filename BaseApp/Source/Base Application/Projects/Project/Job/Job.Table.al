@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.Projects.Project.Job;
 
+using Microsoft.Assembly.Document;
 using Microsoft.Bank.BankAccount;
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
@@ -10,9 +11,11 @@ using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Comment;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Projects.Project.Archive;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Integration.Graph;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
@@ -22,6 +25,8 @@ using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Setup;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Integration.FieldService;
 using Microsoft.Projects.Project.WIP;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.TimeSheet;
@@ -34,6 +39,7 @@ using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Structure;
 using Microsoft.Warehouse.Worksheet;
 using System.Email;
 using System.Globalization;
@@ -43,10 +49,11 @@ using System.Utilities;
 
 table 167 Job
 {
-    Caption = 'Job';
+    Caption = 'Project';
     DataCaptionFields = "No.", Description;
     DrillDownPageID = "Job List";
     LookupPageID = "Job List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -65,7 +72,7 @@ table 167 Job
 
                 if "No." <> xRec."No." then begin
                     JobsSetup.Get();
-                    NoSeriesMgt.TestManual(JobsSetup."Job Nos.");
+                    NoSeries.TestManual(JobsSetup."Job Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -135,7 +142,10 @@ table 167 Job
             trigger OnValidate()
             var
                 JobPlanningLine: Record "Job Planning Line";
+                TimeSheetLine: Record "Time Sheet Line";
+                ATOLink: Record "Assemble-to-Order Link";
                 JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
+                ConfirmManagement: Codeunit "Confirm Management";
                 IsHandled: Boolean;
                 UndidCompleteStatus: Boolean;
                 ShouldDeleteReservationEntries: Boolean;
@@ -152,13 +162,17 @@ table 167 Job
                         IsHandled := false;
                         OnValidateStatusOnBeforeConfirm(Rec, xRec, UndidCompleteStatus, IsHandled);
                         if not IsHandled then begin
-                            if Dialog.Confirm(StatusChangeQst) then
+                            if ConfirmManagement.GetResponseOrDefault(StatusChangeQst, true) then
                                 Validate(Complete, false);
                             UndidCompleteStatus := true;
                         end else
                             Status := xRec.Status;
                     end;
                     Modify();
+
+                    ATOLink.CheckIfAssembleToOrderLinkExist(Rec);
+                    TimeSheetLine.CheckIfTimeSheetLineLinkExist(Rec);
+
                     JobPlanningLine.SetCurrentKey("Job No.");
                     JobPlanningLine.SetRange("Job No.", "No.");
                     if JobPlanningLine.FindSet() then begin
@@ -166,6 +180,7 @@ table 167 Job
                         repeat
                             if ShouldDeleteReservationEntries then
                                 JobPlanningLineReserve.DeleteLineInternal(JobPlanningLine, false);
+                            ATOLink.MakeAsmOrderLinkedToJobPlanningOrderLine(JobPlanningLine);
                             JobPlanningLine.Validate(Status, Status);
                             JobPlanningLine.Modify();
                         until JobPlanningLine.Next() = 0;
@@ -173,6 +188,7 @@ table 167 Job
                         if UndidCompleteStatus then
                             JobPlanningLine.CreateWarehouseRequest();
                     end;
+                    JobArchiveManagement.AutoArchiveJob(Rec);
                 end;
             end;
         }
@@ -207,12 +223,21 @@ table 167 Job
         }
         field(23; "Job Posting Group"; Code[20])
         {
-            Caption = 'Job Posting Group';
+            Caption = 'Project Posting Group';
             TableRelation = "Job Posting Group";
         }
         field(24; Blocked; Enum "Job Blocked")
         {
             Caption = 'Blocked';
+
+            trigger OnValidate()
+            var
+                FSConnectionSetup: Record "FS Connection Setup";
+            begin
+                if Rec.Blocked <> Rec.Blocked::" " then
+                    if FSConnectionSetup.IsEnabled() then
+                        MoveFilterOnProjectTaskMapping();
+            end;
         }
         field(29; "Last Date Modified"; Date)
         {
@@ -236,6 +261,32 @@ table 167 Job
         {
             Caption = 'Customer Price Group';
             TableRelation = "Customer Price Group";
+        }
+        field(35; "Location Code"; Code[10])
+        {
+            Caption = 'Location Code';
+            TableRelation = Location where("Use As In-Transit" = const(false));
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if ("Location Code" <> xRec."Location Code") then
+                    MessageIfJobTaskExist(FieldCaption("Location Code"));
+
+                SetDefaultBin();
+            end;
+        }
+        field(36; "Bin Code"; Code[20])
+        {
+            Caption = 'Bin Code';
+            TableRelation = Bin.Code where("Location Code" = field("Location Code"));
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if ("Bin Code" <> xRec."Bin Code") then
+                    MessageIfJobTaskExist(FieldCaption("Bin Code"));
+            end;
         }
         field(41; "Language Code"; Code[10])
         {
@@ -304,7 +355,7 @@ table 167 Job
                 if "Bill-to Customer No." <> '' then
                     Customer.Get("Bill-to Customer No.");
 
-                if Customer.LookupCustomer(Customer) then begin
+                if Customer.SelectCustomer(Customer) then begin
                     xRec := Rec;
                     "Bill-to Name" := Customer.Name;
                     Validate("Bill-to Customer No.", Customer."No.");
@@ -410,6 +461,35 @@ table 167 Job
         {
             Caption = 'Bill-to Name 2';
         }
+        field(80; "Task Billing Method"; Enum "Task Billing Method")
+        {
+            Caption = 'Task Billing Method';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            var
+                JobTask: Record "Job Task";
+                RecRef: RecordRef;
+                FldRef: FieldRef;
+            begin
+                JobTask.SetRange("Job No.", "No.");
+                if JobTask.IsEmpty() then
+                    exit;
+
+                if ("Task Billing Method" = "Task Billing Method"::"One customer") and
+                    (xRec."Task Billing Method" = XRec."Task Billing Method"::"Multiple customers") then begin
+                    RecRef.GetTable(Rec);
+                    FldRef := RecRef.Field(Rec.FieldNo("Task Billing Method"));
+                    Error(UpdateBillingMethodErr, FldRef.GetEnumValueCaption(Rec."Task Billing Method".AsInteger() + 1), FieldCaption("Task Billing Method"), TableCaption());
+                end;
+
+                if "Task Billing Method" = "Task Billing Method"::"Multiple customers" then
+                    if not Confirm(UpdateBillingMethodQst, true) then
+                        Error('');
+
+                InitCustomerOnJobTasks();
+            end;
+        }
         field(117; Reserve; Enum "Reserve Method")
         {
             AccessByPermission = TableData Item = R;
@@ -428,6 +508,7 @@ table 167 Job
             var
                 JobTask: Record "Job Task";
                 JobWIPMethod: Record "Job WIP Method";
+                ConfirmManagement: Codeunit "Confirm Management";
                 NewWIPMethod: Code[20];
             begin
                 if "WIP Posting Method" = "WIP Posting Method"::"Per Job Ledger Entry" then begin
@@ -441,7 +522,7 @@ table 167 Job
                 JobTask.SetRange("Job No.", "No.");
                 JobTask.SetRange("WIP-Total", JobTask."WIP-Total"::Total);
                 if JobTask.FindFirst() then
-                    if Confirm(WIPMethodQst, true, JobTask.FieldCaption("WIP Method"), JobTask.TableCaption(), JobTask."WIP-Total") then begin
+                    if ConfirmManagement.GetResponseOrDefault(StrSubstNo(WIPMethodQst, JobTask.FieldCaption("WIP Method"), JobTask.TableCaption(), JobTask."WIP-Total"), true) then begin
                         JobTask.ModifyAll("WIP Method", "WIP Method", true);
                         // An additional FIND call requires since JobTask.MODIFYALL changes the Job's information
                         NewWIPMethod := "WIP Method";
@@ -470,8 +551,10 @@ table 167 Job
                         CurrencyUpdatePurchLines();
                     end else
                         Error(AssociatedEntriesExistErr, FieldCaption("Currency Code"), TableCaption);
-                if "Currency Code" <> '' then
+                if "Currency Code" <> '' then begin
                     Validate("Invoice Currency Code", '');
+                    ClearInvCurrencyCodeOnJobTasks();
+                end;
             end;
         }
         field(1002; "Bill-to Contact No."; Code[20])
@@ -567,6 +650,10 @@ table 167 Job
 
             trigger OnValidate()
             begin
+                if ("Invoice Currency Code" <> xRec."Invoice Currency Code") and ("Task Billing Method" = "Task Billing Method"::"Multiple customers")
+                    and ("Invoice Currency Code" <> '') then
+                    MessageIfJobTaskExist(FieldCaption("Invoice Currency Code"));
+
                 if "Invoice Currency Code" <> '' then
                     Validate("Currency Code", '');
             end;
@@ -680,6 +767,7 @@ table 167 Job
                 JobPlanningLine: Record "Job Planning Line";
                 JobLedgerEntry: Record "Job Ledger Entry";
                 JobUsageLink: Record "Job Usage Link";
+                FSConnectionSetup: Record "FS Connection Setup";
                 NewApplyUsageLink: Boolean;
             begin
                 if "Apply Usage Link" then begin
@@ -707,6 +795,9 @@ table 167 Job
                         RefreshModifiedRec();
                         "Apply Usage Link" := NewApplyUsageLink;
                     end;
+
+                    if FSConnectionSetup.IsEnabled() then
+                        MoveFilterOnProjectTaskMapping();
                 end;
             end;
         }
@@ -720,7 +811,7 @@ table 167 Job
         field(1027; "WIP Posting Method"; Option)
         {
             Caption = 'WIP Posting Method';
-            OptionCaption = 'Per Job,Per Job Ledger Entry';
+            OptionCaption = 'Per Project,Per Project Ledger Entry';
             OptionMembers = "Per Job","Per Job Ledger Entry";
 
             trigger OnValidate()
@@ -963,8 +1054,30 @@ table 167 Job
             end;
 
             trigger OnValidate()
+            var
+                Contact: Record Contact;
+                ContactBusinessRelation: Record "Contact Business Relation";
             begin
-                UpdateSellToContact("Sell-to Contact No.");
+                if ("Sell-to Contact No." <> xRec."Sell-to Contact No.") and
+                   (xRec."Sell-to Contact No." <> '')
+                then
+                    if ("Sell-to Contact No." = '') and ("Sell-to Customer No." = '') then begin
+                        Init();
+                        "No. Series" := xRec."No. Series";
+                        Validate(Description, xRec.Description);
+                    end;
+
+                if ("Sell-to Customer No." <> '') and ("Sell-to Contact No." <> '') then begin
+                    Contact.SetLoadFields(Name, "Company No.");
+                    Contact.Get("Sell-to Contact No.");
+                    if ContactBusinessRelation.FindByRelation(ContactBusinessRelation."Link to Table"::Customer, "Sell-to Customer No.") then
+                        if ContactBusinessRelation."Contact No." <> Contact."Company No." then
+                            Error(ContactBusRelDiffCompErr, Contact."No.", Contact.Name, "Sell-to Customer No.");
+                end;
+                if ("Sell-to Contact No." <> xRec."Sell-to Contact No.") then
+                    UpdateSellToCust("Sell-to Contact No.");
+
+                UpdateShipToContact();
             end;
         }
         field(3000; "Ship-to Code"; Code[10])
@@ -974,6 +1087,9 @@ table 167 Job
 
             trigger OnValidate()
             begin
+                if ("Ship-to Code" <> xRec."Ship-to Code") and ("Task Billing Method" = "Task Billing Method"::"Multiple customers") then
+                    MessageIfJobTaskExist(FieldCaption("Ship-to Code"));
+
                 ShipToCodeValidate();
             end;
         }
@@ -1049,23 +1165,54 @@ table 167 Job
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
+        field(3997; "No. of Archived Versions"; Integer)
+        {
+            CalcFormula = max("Job Archive"."Version No." where("No." = field("No.")));
+            Caption = 'No. of Archived Versions';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(4000; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
+
+            trigger OnValidate()
+            begin
+                if ("External Document No." <> xRec."External Document No.") and ("Task Billing Method" = "Task Billing Method"::"Multiple customers") then
+                    MessageIfJobTaskExist(FieldCaption("External Document No."));
+            end;
         }
         field(4001; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
             TableRelation = "Payment Method";
+
+            trigger OnValidate()
+            begin
+                if ("Payment Method Code" <> xRec."Payment Method Code") and ("Task Billing Method" = "Task Billing Method"::"Multiple customers") then
+                    MessageIfJobTaskExist(FieldCaption("Payment Method Code"));
+            end;
         }
         field(4002; "Payment Terms Code"; Code[10])
         {
             Caption = 'Payment Terms Code';
             TableRelation = "Payment Terms";
+
+            trigger OnValidate()
+            begin
+                if ("Payment Terms Code" <> xRec."Payment Terms Code") and ("Task Billing Method" = "Task Billing Method"::"Multiple customers") then
+                    MessageIfJobTaskExist(FieldCaption("Payment Terms Code"));
+            end;
         }
         field(4003; "Your Reference"; Text[35])
         {
             Caption = 'Your Reference';
+
+            trigger OnValidate()
+            begin
+                if ("Your Reference" <> xRec."Your Reference") and ("Task Billing Method" = "Task Billing Method"::"Multiple customers") then
+                    MessageIfJobTaskExist(FieldCaption("Your Reference"));
+            end;
         }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
         {
@@ -1145,6 +1292,8 @@ table 167 Job
     begin
         MoveEntries.MoveJobEntries(Rec);
 
+        JobArchiveManagement.AutoArchiveJob(Rec);
+
         DeleteRelatedJobTasks();
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Job);
@@ -1176,6 +1325,7 @@ table 167 Job
             Validate("WIP Method", JobsSetup."Default WIP Method");
         InitDefaultJobPostingGroup();
         Validate("WIP Posting Method", JobsSetup."Default WIP Posting Method");
+        "Task Billing Method" := JobsSetup."Default Task Billing Method";
 
         InitGlobalDimFromDefalutDim();
         InitWIPFields();
@@ -1216,57 +1366,73 @@ table 167 Job
         Cont: Record Contact;
         ContBusinessRelation: Record "Contact Business Relation";
         CommentLine: Record "Comment Line";
+        Location: Record Location;
         MoveEntries: Codeunit MoveEntries;
+        JobArchiveManagement: Codeunit "Job Archive Management";
         HideValidationDialog: Boolean;
 
-        AssociatedEntriesExistErr: Label 'You cannot change %1 because one or more entries are associated with this %2.', Comment = '%1 = Name of field used in the error; %2 = The name of the Job table';
-        StatusChangeQst: Label 'This will delete any unposted WIP entries for this job and allow you to reverse the completion postings for this job.\\Do you wish to continue?';
+        AssociatedEntriesExistErr: Label 'You cannot change %1 because one or more entries are associated with this %2.', Comment = '%1 = Name of field used in the error; %2 = The name of the Project table';
+        StatusChangeQst: Label 'This will delete any unposted WIP entries for this project and allow you to reverse the completion postings for this project.\\Do you wish to continue?';
         ContactBusRelDiffCompErr: Label 'Contact %1 %2 is related to a different company than customer %3.', Comment = '%1 = The contact number; %2 = The contact''s name; %3 = The Bill-To Customer Number associated with this job';
         ContactBusRelErr: Label 'Contact %1 %2 is not related to customer %3.', Comment = '%1 = The contact number; %2 = The contact''s name; %3 = The Bill-To Customer Number associated with this job';
         ContactBusRelMissingErr: Label 'Contact %1 %2 is not related to a customer.', Comment = '%1 = The contact number; %2 = The contact''s name';
-        TestBlockedErr: Label '%1 %2 must not be blocked with type %3.', Comment = '%1 = The Job table name; %2 = The Job number; %3 = The value of the Blocked field';
-        ReverseCompletionEntriesMsg: Label 'You must run the %1 function to reverse the completion entries that have already been posted for this job.', Comment = '%1 = The name of the Job Post WIP to G/L report';
-        CheckDateErr: Label '%1 must be equal to or earlier than %2.', Comment = '%1 = The job''s starting date; %2 = The job''s ending date';
-        ApplyUsageLinkErr: Label 'A usage link cannot be enabled for the entire %1 because usage without the usage link already has been posted.', Comment = '%1 = The name of the Job table';
-        WIPMethodQst: Label 'Do you want to set the %1 on every %2 of type %3?', Comment = '%1 = The WIP Method field name; %2 = The name of the Job Task table; %3 = The current job task''s WIP Total type';
-        WIPAlreadyPostedErr: Label '%1 must be %2 because job WIP general ledger entries already were posted with this setting.', Comment = '%1 = The name of the WIP Posting Method field; %2 = The previous WIP Posting Method value of this job';
-        WIPAlreadyAssociatedErr: Label '%1 cannot be modified because the job has associated job WIP entries.', Comment = '%1 = The name of the WIP Posting Method field';
-        WIPPostMethodErr: Label 'The selected %1 requires the %2 to have %3 enabled.', Comment = '%1 = The name of the WIP Posting Method field; %2 = The name of the WIP Method field; %3 = The field caption represented by the value of this job''s WIP method';
-        EndingDateChangedMsg: Label '%1 is set to %2.', Comment = '%1 = The name of the Ending Date field; %2 = This job''s Ending Date value';
+        TestBlockedErr: Label '%1 %2 must not be blocked with type %3.', Comment = '%1 = The Project table name; %2 = The Project number; %3 = The value of the Blocked field';
+        ReverseCompletionEntriesMsg: Label 'You must run the %1 function to reverse the completion entries that have already been posted for this project.', Comment = '%1 = The name of the Project Post WIP to G/L report';
+        CheckDateErr: Label '%1 must be equal to or earlier than %2.', Comment = '%1 = The project''s starting date; %2 = The project''s ending date';
+        ApplyUsageLinkErr: Label 'A usage link cannot be enabled for the entire %1 because usage without the usage link already has been posted.', Comment = '%1 = The name of the Project table';
+        WIPMethodQst: Label 'Do you want to set the %1 on every %2 of type %3?', Comment = '%1 = The WIP Method field name; %2 = The name of the Project Task table; %3 = The current project task''s WIP Total type';
+        WIPAlreadyPostedErr: Label '%1 must be %2 because project WIP general ledger entries already were posted with this setting.', Comment = '%1 = The name of the WIP Posting Method field; %2 = The previous WIP Posting Method value of this project';
+        WIPAlreadyAssociatedErr: Label '%1 cannot be modified because the project has associated project WIP entries.', Comment = '%1 = The name of the WIP Posting Method field';
+        WIPPostMethodErr: Label 'The selected %1 requires the %2 to have %3 enabled.', Comment = '%1 = The name of the WIP Posting Method field; %2 = The name of the WIP Method field; %3 = The field caption represented by the value of this project''s WIP method';
+        EndingDateChangedMsg: Label '%1 is set to %2.', Comment = '%1 = The name of the Ending Date field; %2 = This project''s Ending Date value';
         UpdateJobTaskDimQst: Label 'You have changed a dimension.\\Do you want to update the lines?';
-        RunWIPFunctionsQst: Label 'You must run the Job Calculate WIP function to create completion entries for this job. \Do you want to run this function now?';
-        ReservEntriesItemTrackLinesDeleteQst: Label 'All reservation entries and item tracking lines for this job will be deleted. \Do you want to continue?';
-        ReservEntriesItemTrackLinesExistErr: Label 'You cannot set the status to %1 because the job has reservations or item tracking lines on the job planning lines.', Comment = '%1=The job status name';
-        AutoReserveNotPossibleMsg: Label 'Automatic reservation is not possible for one or more job planning lines. \Please reserve manually.';
-        WhseCompletelyPickedErr: Label 'All of the items on the job planning lines are completely picked.';
-        WhseNoItemsToPickErr: Label 'There are no items to pick on the job planning lines.';
+        RunWIPFunctionsQst: Label 'You must run the Project Calculate WIP function to create completion entries for this project. \Do you want to run this function now?';
+        ReservEntriesItemTrackLinesDeleteQst: Label 'All reservation entries and item tracking lines for this project will be deleted. \Do you want to continue?';
+        ReservEntriesItemTrackLinesExistErr: Label 'You cannot set the status to %1 because the project has reservations or item tracking lines on the project planning lines.', Comment = '%1=The project status name';
+        AutoReserveNotPossibleMsg: Label 'Automatic reservation is not possible for one or more project planning lines. \Please reserve manually.';
+        WhseCompletelyPickedErr: Label 'All of the items on the project planning lines are completely picked.';
+        WhseNoItemsToPickErr: Label 'There are no items to pick on the project planning lines.';
         ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
         SellToCustomerTxt: Label 'Sell-to Customer';
         BillToCustomerTxt: Label 'Bill-to Customer';
-        StatusCompletedErr: Label 'You cannot select Job No.: %1 as it is already completed.', Comment = '%1= The Job No.';
+        StatusCompletedErr: Label 'You cannot select Project No.: %1 as it is already completed.', Comment = '%1= The Project No.';
+        ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the project, %2, will be deleted. Do you want to continue?', Comment = '%1 - Contact No., %2 - Email';
+        TasksNotUpdatedMsg: Label 'You have changed %1 on the project, but it has not been changed on the existing project tasks.', Comment = '%1 = a Field Caption like Location Code';
+        UpdateTasksManuallyMsg: Label 'You must update the existing project tasks manually.';
+        SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.', Locked = true;
+        UpdateBillingMethodQst: Label 'This change will make a difference to how project tasks are billed. This is irreversible. Do you want to continue?';
+        UpdateBillingMethodErr: Label 'You cannot select %1 in %2, because one or more Project Tasks exist for this %3.', Comment = '%1 = Caption of the Task Billing Method field value; %2 = Caption of the Task Billing Method field; %3 = Caption of the Project table';
+        UpdateCostPricesOnRelatedLinesQst: Label 'You have changed a customer. Prices and costs needs to be updated on a related lines.\\Do you want to update related lines?';
 
     protected var
+#if not CLEAN24
+        [Obsolete('Variable NoSeriesMgt is obsolete and will be removed. Please refer to No. Series codeunit instead.', '24.0')]
         NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
+        NoSeries: Codeunit "No. Series";
         DimMgt: Codeunit DimensionManagement;
+        SkipSellToContact: Boolean;
 
     procedure AssistEdit(OldJob: Record Job) Result: Boolean
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
+#if not CLEAN24
         OnBeforeAssistEdit(Rec, OldJob, Result, IsHandled, NoSeriesMgt);
+#else
+        OnBeforeAssistEdit(Rec, OldJob, Result, IsHandled);
+#endif
         if IsHandled then
             exit(Result);
 
-        with Job do begin
-            Job := Rec;
-            JobsSetup.Get();
-            JobsSetup.TestField("Job Nos.");
-            if NoSeriesMgt.SelectSeries(JobsSetup."Job Nos.", OldJob."No. Series", "No. Series") then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := Job;
-                exit(true);
-            end;
+        Job := Rec;
+        JobsSetup.Get();
+        JobsSetup.TestField("Job Nos.");
+        if NoSeries.LookupRelatedNoSeries(JobsSetup."Job Nos.", OldJob."No. Series", Job."No. Series") then begin
+            Job."No." := NoSeries.GetNextNo(Job."No. Series");
+            Rec := Job;
+            exit(true);
         end;
     end;
 
@@ -1321,6 +1487,7 @@ table 167 Job
 
     local procedure InitJobNo()
     var
+        Job2: Record Job;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1330,7 +1497,22 @@ table 167 Job
 
         if "No." = '' then begin
             JobsSetup.TestField("Job Nos.");
-            NoSeriesMgt.InitSeries(JobsSetup."Job Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(JobsSetup."Job Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := JobsSetup."Job Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+                Job2.ReadIsolation(IsolationLevel::ReadUncommitted);
+                Job2.SetLoadFields("No.");
+                while Job2.Get("No.") do
+                    "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", JobsSetup."Job Nos.", 0D, "No.");
+            end;
+#endif
         end;
     end;
 
@@ -1433,6 +1615,16 @@ table 167 Job
         OnAfterJobLedgEntryExist(JobLedgEntry, Result);
     end;
 
+    procedure SalesJobLedgEntryExist() Result: Boolean
+    var
+        JobLedgEntry: Record "Job Ledger Entry";
+    begin
+        JobLedgEntry.SetCurrentKey("Job No.");
+        JobLedgEntry.SetRange("Job No.", "No.");
+        JobLedgEntry.SetRange("Entry Type", JobLedgEntry."Entry Type"::Sale);
+        Result := not JobLedgEntry.IsEmpty();
+    end;
+
     procedure JobPlanningLineExist() Result: Boolean
     var
         JobPlanningLine: Record "Job Planning Line";
@@ -1518,7 +1710,7 @@ table 167 Job
         if "Sell-to Customer No." <> '' then
             Customer.Get("Sell-to Customer No.");
 
-        if Customer.LookupCustomer(Customer) then begin
+        if Customer.SelectCustomer(Customer) then begin
             if Rec."Sell-to Customer Name" = Customer.Name then
                 CustomerName := SearchCustomerName
             else
@@ -1555,7 +1747,7 @@ table 167 Job
     begin
         IsHandled := false;
         OnBeforeTestBlocked(Rec, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         if Blocked = Blocked::" " then
@@ -1593,7 +1785,7 @@ table 167 Job
     begin
         IsHandled := false;
         OnBeforeTestStatusCompleted(Rec, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         if not (Status = Status::Completed) then
@@ -1749,11 +1941,15 @@ table 167 Job
         JobExistsInDB := not Job2.IsEmpty();
         if JobExistsInDB then
             Rec.Modify();
+
+        DimMgt.SetSkipUpdateDimensions(Rec."Task Billing Method" = Rec."Task Billing Method"::"Multiple customers");
+
         JobDefaultDimension.SetRange("Table ID", DATABASE::Job);
         JobDefaultDimension.SetRange("No.", "No.");
         if JobDefaultDimension.FindSet() then
             repeat
                 DimMgt.DefaultDimOnDelete(JobDefaultDimension);
+                DimMgt.SetSkipChangeDimensionsQst(true);
                 JobDefaultDimension.Delete();
             until JobDefaultDimension.Next() = 0;
         if JobExistsInDB then
@@ -2098,6 +2294,7 @@ table 167 Job
     procedure RecalculateJobWIP()
     var
         Job: Record Job;
+        ConfirmManagement: Codeunit "Confirm Management";
         JobCalculateWIP: Report "Job Calculate WIP";
         Confirmed: Boolean;
         IsHandled: Boolean;
@@ -2111,7 +2308,7 @@ table 167 Job
             exit;
 
         Job.SetRecFilter();
-        Confirmed := Confirm(RunWIPFunctionsQst);
+        Confirmed := ConfirmManagement.GetResponseOrDefault(RunWIPFunctionsQst, true);
         Commit();
         JobCalculateWIP.UseRequestPage(not Confirmed);
         JobCalculateWIP.SetTableView(Job);
@@ -2315,7 +2512,8 @@ table 167 Job
             Job."Sell-to County" := SellToCustomer.County;
             Job."Sell-to Country/Region Code" := SellToCustomer."Country/Region Code";
             Job.Reserve := SellToCustomer.Reserve;
-            UpdateSellToContact(Job."Sell-to Customer No.");
+            if not SkipSellToContact then
+                UpdateSellToContact(Job."Sell-to Customer No.");
         end else begin
             Job."Sell-to Customer Name" := '';
             Job."Sell-to Customer Name 2" := '';
@@ -2355,7 +2553,7 @@ table 167 Job
         OnBeforeCheckSellToCustomerAssosEntriesExist(Job, xJob, IsHandled);
         if not IsHandled then
             if (Job."Sell-to Customer No." = '') or (Job."Sell-to Customer No." <> xJob."Sell-to Customer No.") then
-                if Job.JobLedgEntryExist() or Job.JobPlanningLineExist() then
+                if Job.SalesJobLedgEntryExist() then
                     ThrowAssociatedEntriesExistError(Job, xJob, Job.FieldNo("Sell-to Customer No."), Job.FieldCaption("Sell-to Customer No."));
     end;
 
@@ -2366,7 +2564,7 @@ table 167 Job
     begin
         IsHandled := false;
         OnBeforeBillToCustomerNoUpdated(Job, xJob, CurrFieldNo, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         CheckBillToCustomerAssosEntriesExist(Job, xJob);
@@ -2413,6 +2611,7 @@ table 167 Job
             OnBillToCustomerNoUpdatedOnBeforeUpdateBillToContact(Job, xJob, BillToCustomer, IsHandled);
             if not IsHandled then
                 UpdateBillToContact(Job."Bill-to Customer No.");
+
             Job.CopyDefaultDimensionsFromCustomer();
         end else begin
             Job."Bill-to Name" := '';
@@ -2433,7 +2632,32 @@ table 167 Job
             Job."Payment Terms Code" := '';
         end;
 
+        if (xJob."Bill-to Customer No." <> '') and (Job."Bill-to Customer No." <> xJob."Bill-to Customer No.") then
+            UpdateCostPricesOnRelatedJobPlanningLines(Job);
+
         OnAfterBillToCustomerNoUpdated(Job, xJob, BillToCustomer, CurrFieldNo);
+    end;
+
+    local procedure UpdateCostPricesOnRelatedJobPlanningLines(var Job: Record Job)
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        JobPlanningLine.SetRange("Job No.", Job."No.");
+        JobPlanningLine.SetFilter(Type, '<>%1', JobPlanningLine.Type::Text);
+        JobPlanningLine.SetFilter("No.", '<>%1', '');
+        if JobPlanningLine.IsEmpty() then
+            exit;
+
+        if not ConfirmManagement.GetResponseOrDefault(UpdateCostPricesOnRelatedLinesQst, true) then
+            exit;
+
+        JobPlanningLine.FindSet(true);
+        repeat
+            JobPlanningLine."Line Amount" := 0;
+            JobPlanningLine.UpdateAllAmounts();
+            JobPlanningLine.Modify(true);
+        until JobPlanningLine.Next() = 0;
     end;
 
     local procedure CheckBillToCustomerAssosEntriesExist(var Job: Record Job; var xJob: Record Job)
@@ -2444,7 +2668,7 @@ table 167 Job
         OnBeforeCheckBillToCustomerAssosEntriesExist(Job, xJob, IsHandled);
         if not IsHandled then
             if (Job."Bill-to Customer No." = '') or (Job."Bill-to Customer No." <> xJob."Bill-to Customer No.") then
-                if Job.JobLedgEntryExist() or Job.JobPlanningLineExist() then
+                if Job.SalesJobLedgEntryExist() then
                     ThrowAssociatedEntriesExistError(Job, xJob, Job.FieldNo("Bill-to Customer No."), Job.FieldCaption("Bill-to Customer No."));
     end;
 
@@ -2571,12 +2795,205 @@ table 167 Job
         end;
     end;
 
+    local procedure UpdateSellToCust(ContactNo: Code[20])
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        ContactBusinessRelationFound: Boolean;
+    begin
+        if not Contact.Get(ContactNo) then begin
+            "Sell-to Contact" := '';
+            exit;
+        end;
+        "Sell-to Contact No." := Contact."No.";
+
+        if Contact.Type = Contact.Type::Person then
+            ContactBusinessRelationFound := ContactBusinessRelation.FindByContact(ContactBusinessRelation."Link to Table"::Customer, Contact."No.");
+        if not ContactBusinessRelationFound then
+            ContactBusinessRelationFound := ContactBusinessRelation.FindByContact(ContactBusinessRelation."Link to Table"::Customer, Contact."Company No.");
+
+        if not ContactBusinessRelationFound then
+            ShowSellToContactBusinessRelationNotFoundError(Contact);
+
+        CheckCustomerContactRelation(Contact, "Sell-to Customer No.", ContactBusinessRelation."No.");
+
+        if "Sell-to Customer No." = '' then begin
+            SkipSellToContact := true;
+            Validate("Sell-to Customer No.", ContactBusinessRelation."No.");
+            SkipSellToContact := false;
+        end;
+
+        UpdateSellToEmail(Contact);
+        Validate("Sell-to Phone No.", Contact."Phone No.");
+
+        UpdateSellToCustomerContact(Customer, Contact);
+
+        if ("Sell-to Customer No." = "Bill-to Customer No.") or ("Bill-to Customer No." = '')
+        then
+            Validate("Bill-to Contact No.", "Sell-to Contact No.");
+    end;
+
+    local procedure CheckCustomerContactRelation(Contact: Record Contact; CustomerNo: Code[20]; ContBusinessRelationNo: Code[20])
+    begin
+        if (CustomerNo <> '') and (CustomerNo <> ContBusinessRelationNo) then
+            Error(ContactBusRelErr, Contact."No.", Contact.Name, CustomerNo);
+    end;
+
+    local procedure ShowSellToContactBusinessRelationNotFoundError(Contact: Record Contact)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowSellToContactBusinessRelationNotFoundError(Rec, Contact, IsHandled);
+        if IsHandled then
+            exit;
+
+        Error(ContactBusRelMissingErr, Contact."No.", Contact.Name);
+    end;
+
+    local procedure UpdateSellToEmail(Contact: Record Contact)
+    begin
+        if (Contact."E-Mail" = '') and ("Sell-to E-Mail" <> '') and GuiAllowed and (not GetHideValidationDialog()) then begin
+            if Confirm(ConfirmEmptyEmailQst, false, Contact."No.", "Sell-to E-Mail") then
+                Validate("Sell-to E-Mail", Contact."E-Mail");
+        end else
+            Validate("Sell-to E-Mail", Contact."E-Mail");
+    end;
+
+    local procedure UpdateSellToCustomerContact(Customer: Record Customer; Contact: Record Contact)
+    begin
+        if not SkipSellToContact then
+            if (Contact.Type = Contact.Type::Company) and Customer.Get("Sell-to Customer No.") then
+                "Sell-to Contact" := Customer.Contact
+            else
+                if Contact.Type = Contact.Type::Company then
+                    "Sell-to Contact" := ''
+                else
+                    "Sell-to Contact" := Contact.Name;
+    end;
+
+    local procedure UpdateShipToContact()
+    begin
+        if not (CurrFieldNo in [FieldNo("Sell-to Contact"), FieldNo("Sell-to Contact No.")]) then
+            exit;
+
+        Validate("Ship-to Contact", "Sell-to Contact");
+    end;
+
     local procedure RefreshModifiedRec()
     begin
         Rec.Find('=');
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    local procedure SetDefaultBin()
+    begin
+        "Bin Code" := '';
+
+        if "Location Code" = '' then
+            exit;
+
+        GetLocation("Location Code");
+        if not Location."Bin Mandatory" or Location."Directed Put-away and Pick" then
+            exit;
+
+        if Location."To-Job Bin Code" <> '' then
+            "Bin Code" := Location."To-Job Bin Code";
+    end;
+
+    local procedure GetLocation(LocationCode: Code[10])
+    begin
+        if Location.Code <> LocationCode then
+            Location.Get(LocationCode);
+    end;
+
+    local procedure MessageIfJobTaskExist(ChangedFieldName: Text[100])
+    var
+        MessageText: Text;
+    begin
+        if JobTaskExist() and not GetHideValidationDialog() then begin
+            MessageText := StrSubstNo(TasksNotUpdatedMsg, ChangedFieldName);
+            MessageText := StrSubstNo(SplitMessageTxt, MessageText, UpdateTasksManuallyMsg);
+            Message(MessageText);
+        end;
+    end;
+
+    procedure JobTaskExist(): Boolean
+    var
+        JobTask: Record "Job Task";
+    begin
+        JobTask.SetRange("Job No.", "No.");
+        exit(not JobTask.IsEmpty());
+    end;
+
+    local procedure InitCustomerOnJobTasks()
+    var
+        JobTask: Record "Job Task";
+    begin
+        if "Sell-to Customer No." = '' then
+            exit;
+
+        JobTask.SetRange("Job No.", "No.");
+        JobTask.SetRange("Job Task Type", JobTask."Job Task Type"::Posting);
+        JobTask.SetFilter("Sell-to Customer No.", '%1', '');
+        if JobTask.FindSet(true) then
+            repeat
+                JobTask.Validate("Sell-to Customer No.", "Sell-to Customer No.");
+                if "Bill-to Customer No." <> "Sell-to Customer No." then begin
+                    JobTask.SetHideValidationDialog(true);
+                    JobTask.Validate("Bill-to Customer No.", "Bill-to Customer No.");
+                end;
+                JobTask.Modify(true);
+            until JobTask.Next() = 0;
+    end;
+
+    local procedure ClearInvCurrencyCodeOnJobTasks()
+    var
+        JobTask: Record "Job Task";
+    begin
+        JobTask.SetLoadFields("Invoice Currency Code");
+        JobTask.SetRange("Job No.", "No.");
+        JobTask.SetFilter("Invoice Currency Code", '<>%1', '');
+        if JobTask.IsEmpty() then
+            exit;
+
+        JobTask.ModifyAll("Invoice Currency Code", '');
+    end;
+
+    local procedure MoveFilterOnProjectTaskMapping()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        JobTask: Record "Job Task";
+    begin
+        if Rec.Blocked <> Rec.Blocked::" " then
+            exit;
+
+        IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        IntegrationTableMapping.SetRange("Table ID", Database::"Job Task");
+        IntegrationTableMapping.SetRange("Integration Table ID", Database::"FS Project Task");
+        if not IntegrationTableMapping.FindFirst() then
+            exit;
+
+        JobTask.SetRange("Job No.", Rec."No.");
+        JobTask.SetCurrentKey(SystemCreatedAt);
+        JobTask.SetAscending(SystemCreatedAt, true);
+        if not JobTask.FindFirst() then
+            exit;
+
+        if JobTask.SystemCreatedAt = 0DT then begin
+            IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := 0DT;
+            IntegrationTableMapping.Modify();
+            exit;
+        end;
+
+        if IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." > JobTask.SystemCreatedAt then begin
+            IntegrationTableMapping."Synch. Int. Tbl. Mod. On Fltr." := JobTask.SystemCreatedAt;
+            IntegrationTableMapping.Modify();
+        end;
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCalcRecognizedProfitAmount(var Result: Decimal)
     begin
     end;
@@ -2636,10 +3053,18 @@ table 167 Job
     begin
     end;
 
+#if not CLEAN24
     [IntegrationEvent(false, false)]
+    [Obsolete('Parameter NoSeriesMgt is obsolete and will be removed, update your subscriber accordingly.', '24.0')]
     local procedure OnBeforeAssistEdit(var Job: Record Job; var OldJob: Record Job; var Result: Boolean; var IsHandled: Boolean; var NoSeriesManagement: Codeunit NoSeriesManagement)
     begin
     end;
+#else
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssistEdit(var Job: Record Job; var OldJob: Record Job; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckContactBillToCustomerBusRelation(var Job: Record Job; Contact: Record Contact; var IsHandled: Boolean)
@@ -2853,6 +3278,11 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateSellToCustomerName(var Job: Record "Job"; var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowSellToContactBusinessRelationNotFoundError(var Job: Record Job; Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 }

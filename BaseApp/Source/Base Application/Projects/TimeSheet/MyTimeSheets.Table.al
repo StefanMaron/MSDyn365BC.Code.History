@@ -9,6 +9,7 @@ using System.Security.AccessControl;
 table 9155 "My Time Sheets"
 {
     Caption = 'My Time Sheets';
+    DataClassification = CustomerContent;
 
     fields
     {

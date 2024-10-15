@@ -1,6 +1,7 @@
 table 139141 "Update Parent Header"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

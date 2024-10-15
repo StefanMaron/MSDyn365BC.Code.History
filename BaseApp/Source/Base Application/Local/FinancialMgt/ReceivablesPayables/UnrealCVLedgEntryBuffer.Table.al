@@ -10,6 +10,7 @@ using Microsoft.Sales.Customer;
 table 10871 "Unreal. CV Ledg. Entry Buffer"
 {
     Caption = 'Unreal. CV Ledg. Entry Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

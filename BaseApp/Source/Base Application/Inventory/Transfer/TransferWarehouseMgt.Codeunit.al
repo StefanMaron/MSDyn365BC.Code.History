@@ -113,19 +113,17 @@ codeunit 5993 "Transfer Warehouse Mgt."
     var
         TransferLine: Record "Transfer Line";
     begin
-        with NewTransferHeader do begin
-            if "Shipping Advice" = OldTransferHeader."Shipping Advice" then
-                exit;
+        if NewTransferHeader."Shipping Advice" = OldTransferHeader."Shipping Advice" then
+            exit;
 
-            TransferLine.Reset();
-            TransferLine.SetRange("Document No.", OldTransferHeader."No.");
-            if TransferLine.Find('-') then
-                repeat
-                    WhseValidateSourceHeader.ChangeWarehouseLines(
-                        DATABASE::"Transfer Line", 0,// Outbound Transfer
-                        TransferLine."Document No.", TransferLine."Line No.", 0, "Shipping Advice");
-                until TransferLine.Next() = 0;
-        end;
+        TransferLine.Reset();
+        TransferLine.SetRange("Document No.", OldTransferHeader."No.");
+        if TransferLine.Find('-') then
+            repeat
+                WhseValidateSourceHeader.ChangeWarehouseLines(
+                    DATABASE::"Transfer Line", 0,// Outbound Transfer
+                    TransferLine."Document No.", TransferLine."Line No.", 0, NewTransferHeader."Shipping Advice");
+            until TransferLine.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Warehouse Source Filter", 'OnSetFiltersOnSourceTables', '', false, false)]
@@ -162,46 +160,44 @@ codeunit 5993 "Transfer Warehouse Mgt."
         if IsHandled then
             exit(Result);
 
-        with WarehouseShipmentLine do begin
-            InitNewLine(WarehouseShipmentHeader."No.");
-            SetSource(DATABASE::"Transfer Line", 0, TransferLine."Document No.", TransferLine."Line No.");
-            TransferLine.TestField("Unit of Measure Code");
-            SetItemData(
-              TransferLine."Item No.", TransferLine.Description, TransferLine."Description 2", TransferLine."Transfer-from Code",
-              TransferLine."Variant Code", TransferLine."Unit of Measure Code", TransferLine."Qty. per Unit of Measure",
-              TransferLine."Qty. Rounding Precision", TransferLine."Qty. Rounding Precision (Base)");
+        WarehouseShipmentLine.InitNewLine(WarehouseShipmentHeader."No.");
+        WarehouseShipmentLine.SetSource(DATABASE::"Transfer Line", 0, TransferLine."Document No.", TransferLine."Line No.");
+        TransferLine.TestField("Unit of Measure Code");
+        WarehouseShipmentLine.SetItemData(
+          TransferLine."Item No.", TransferLine.Description, TransferLine."Description 2", TransferLine."Transfer-from Code",
+          TransferLine."Variant Code", TransferLine."Unit of Measure Code", TransferLine."Qty. per Unit of Measure",
+          TransferLine."Qty. Rounding Precision", TransferLine."Qty. Rounding Precision (Base)");
 #if not CLEAN23
-            WhseCreateSourceDocument.RunOnFromTransLine2ShptLineOnAfterInitNewLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine);
+        WhseCreateSourceDocument.RunOnFromTransLine2ShptLineOnAfterInitNewLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine);
 #endif
-            IsHandled := false;
-            OnFromTransLine2ShptLineOnAfterInitNewLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, IsHandled);
-            if not IsHandled then
-                WhseCreateSourceDocument.SetQtysOnShptLine(WarehouseShipmentLine, TransferLine."Outstanding Quantity", TransferLine."Outstanding Qty. (Base)");
-            "Due Date" := TransferLine."Shipment Date";
-            if WarehouseShipmentHeader."Shipment Date" = 0D then
-                "Shipment Date" := WorkDate()
-            else
-                "Shipment Date" := WarehouseShipmentHeader."Shipment Date";
-            "Destination Type" := "Destination Type"::Location;
-            "Destination No." := TransferLine."Transfer-to Code";
-            if TransferHeader.Get(TransferLine."Document No.") then
-                "Shipping Advice" := TransferHeader."Shipping Advice";
-            if "Location Code" = WarehouseShipmentHeader."Location Code" then
-                "Bin Code" := WarehouseShipmentHeader."Bin Code";
-            if "Bin Code" = '' then
-                "Bin Code" := TransferLine."Transfer-from Bin Code";
-            WhseCreateSourceDocument.UpdateShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
+        IsHandled := false;
+        OnFromTransLine2ShptLineOnAfterInitNewLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, IsHandled);
+        if not IsHandled then
+            WhseCreateSourceDocument.SetQtysOnShptLine(WarehouseShipmentLine, TransferLine."Outstanding Quantity", TransferLine."Outstanding Qty. (Base)");
+        WarehouseShipmentLine."Due Date" := TransferLine."Shipment Date";
+        if WarehouseShipmentHeader."Shipment Date" = 0D then
+            WarehouseShipmentLine."Shipment Date" := WorkDate()
+        else
+            WarehouseShipmentLine."Shipment Date" := WarehouseShipmentHeader."Shipment Date";
+        WarehouseShipmentLine."Destination Type" := WarehouseShipmentLine."Destination Type"::Location;
+        WarehouseShipmentLine."Destination No." := TransferLine."Transfer-to Code";
+        if TransferHeader.Get(TransferLine."Document No.") then
+            WarehouseShipmentLine."Shipping Advice" := TransferHeader."Shipping Advice";
+        if WarehouseShipmentLine."Location Code" = WarehouseShipmentHeader."Location Code" then
+            WarehouseShipmentLine."Bin Code" := WarehouseShipmentHeader."Bin Code";
+        if WarehouseShipmentLine."Bin Code" = '' then
+            WarehouseShipmentLine."Bin Code" := TransferLine."Transfer-from Bin Code";
+        WhseCreateSourceDocument.UpdateShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
 #if not CLEAN23
-            WhseCreateSourceDocument.RunOnBeforeCreateShptLineFromTransLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, TransferHeader);
+        WhseCreateSourceDocument.RunOnBeforeCreateShptLineFromTransLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, TransferHeader);
 #endif
-            OnBeforeCreateShptLineFromTransLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, TransferHeader);
-            WhseCreateSourceDocument.CreateShipmentLine(WarehouseShipmentLine);
+        OnBeforeCreateShptLineFromTransLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, TransferHeader);
+        WhseCreateSourceDocument.CreateShipmentLine(WarehouseShipmentLine);
 #if not CLEAN23
-            WhseCreateSourceDocument.RunOnAfterCreateShptLineFromTransLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, TransferHeader);
+        WhseCreateSourceDocument.RunOnAfterCreateShptLineFromTransLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, TransferHeader);
 #endif
-            OnAfterCreateShptLineFromTransLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, TransferHeader);
-            exit(not HasErrorOccured());
-        end;
+        OnAfterCreateShptLineFromTransLine(WarehouseShipmentLine, WarehouseShipmentHeader, TransferLine, TransferHeader);
+        exit(not WarehouseShipmentLine.HasErrorOccured());
     end;
 
     procedure TransLine2ReceiptLine(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; TransferLine: Record "Transfer Line") Result: Boolean
@@ -219,46 +215,44 @@ codeunit 5993 "Transfer Warehouse Mgt."
         if IsHandled then
             exit(Result);
 
-        with WarehouseReceiptLine do begin
-            InitNewLine(WarehouseReceiptHeader."No.");
-            SetSource(DATABASE::"Transfer Line", 1, TransferLine."Document No.", TransferLine."Line No.");
-            TransferLine.TestField("Unit of Measure Code");
-            SetItemData(
-              TransferLine."Item No.", TransferLine.Description, TransferLine."Description 2", TransferLine."Transfer-to Code",
-              TransferLine."Variant Code", TransferLine."Unit of Measure Code", TransferLine."Qty. per Unit of Measure",
-              TransferLine."Qty. Rounding Precision", TransferLine."Qty. Rounding Precision (Base)");
+        WarehouseReceiptLine.InitNewLine(WarehouseReceiptHeader."No.");
+        WarehouseReceiptLine.SetSource(DATABASE::"Transfer Line", 1, TransferLine."Document No.", TransferLine."Line No.");
+        TransferLine.TestField("Unit of Measure Code");
+        WarehouseReceiptLine.SetItemData(
+          TransferLine."Item No.", TransferLine.Description, TransferLine."Description 2", TransferLine."Transfer-to Code",
+          TransferLine."Variant Code", TransferLine."Unit of Measure Code", TransferLine."Qty. per Unit of Measure",
+          TransferLine."Qty. Rounding Precision", TransferLine."Qty. Rounding Precision (Base)");
 #if not CLEAN23
-            WhseCreateSourceDocument.RunOnTransLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, TransferLine);
+        WhseCreateSourceDocument.RunOnTransLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, TransferLine);
 #endif
-            OnTransLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, TransferLine);
-            Validate("Qty. Received", TransferLine."Quantity Received");
-            TransferLine.CalcFields("Whse. Inbnd. Otsdg. Qty (Base)");
-            WhseInbndOtsdgQty :=
-              UnitOfMeasureManagement.CalcQtyFromBase(
-                TransferLine."Item No.", TransferLine."Variant Code", TransferLine."Unit of Measure Code",
-                TransferLine."Whse. Inbnd. Otsdg. Qty (Base)", TransferLine."Qty. per Unit of Measure");
-            WhseCreateSourceDocument.SetQtysOnRcptLine(
-               WarehouseReceiptLine,
-               TransferLine."Quantity Received" + TransferLine."Qty. in Transit" - WhseInbndOtsdgQty,
-               TransferLine."Qty. Received (Base)" + TransferLine."Qty. in Transit (Base)" - TransferLine."Whse. Inbnd. Otsdg. Qty (Base)");
-            "Due Date" := TransferLine."Receipt Date";
-            "Starting Date" := WorkDate();
-            if "Location Code" = WarehouseReceiptHeader."Location Code" then
-                "Bin Code" := WarehouseReceiptHeader."Bin Code";
-            if "Bin Code" = '' then
-                "Bin Code" := TransferLine."Transfer-To Bin Code";
+        OnTransLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, TransferLine);
+        WarehouseReceiptLine.Validate(WarehouseReceiptLine."Qty. Received", TransferLine."Quantity Received");
+        TransferLine.CalcFields("Whse. Inbnd. Otsdg. Qty (Base)");
+        WhseInbndOtsdgQty :=
+          UnitOfMeasureManagement.CalcQtyFromBase(
+            TransferLine."Item No.", TransferLine."Variant Code", TransferLine."Unit of Measure Code",
+            TransferLine."Whse. Inbnd. Otsdg. Qty (Base)", TransferLine."Qty. per Unit of Measure");
+        WhseCreateSourceDocument.SetQtysOnRcptLine(
+           WarehouseReceiptLine,
+           TransferLine."Quantity Received" + TransferLine."Qty. in Transit" - WhseInbndOtsdgQty,
+           TransferLine."Qty. Received (Base)" + TransferLine."Qty. in Transit (Base)" - TransferLine."Whse. Inbnd. Otsdg. Qty (Base)");
+        WarehouseReceiptLine."Due Date" := TransferLine."Receipt Date";
+        WarehouseReceiptLine."Starting Date" := WorkDate();
+        if WarehouseReceiptLine."Location Code" = WarehouseReceiptHeader."Location Code" then
+            WarehouseReceiptLine."Bin Code" := WarehouseReceiptHeader."Bin Code";
+        if WarehouseReceiptLine."Bin Code" = '' then
+            WarehouseReceiptLine."Bin Code" := TransferLine."Transfer-To Bin Code";
 #if not CLEAN23
-            WhseCreateSourceDocument.RunOnBeforeUpdateRcptLineFromTransLine(WarehouseReceiptLine, TransferLine);
+        WhseCreateSourceDocument.RunOnBeforeUpdateRcptLineFromTransLine(WarehouseReceiptLine, TransferLine);
 #endif
-            OnBeforeUpdateRcptLineFromTransLine(WarehouseReceiptLine, TransferLine);
-            WhseCreateSourceDocument.UpdateReceiptLine(WarehouseReceiptLine, WarehouseReceiptHeader);
-            WhseCreateSourceDocument.CreateReceiptLine(WarehouseReceiptLine);
+        OnBeforeUpdateRcptLineFromTransLine(WarehouseReceiptLine, TransferLine);
+        WhseCreateSourceDocument.UpdateReceiptLine(WarehouseReceiptLine, WarehouseReceiptHeader);
+        WhseCreateSourceDocument.CreateReceiptLine(WarehouseReceiptLine);
 #if not CLEAN23
-            WhseCreateSourceDocument.RunOnAfterCreateRcptLineFromTransLine(WarehouseReceiptLine, WarehouseReceiptHeader, TransferLine);
+        WhseCreateSourceDocument.RunOnAfterCreateRcptLineFromTransLine(WarehouseReceiptLine, WarehouseReceiptHeader, TransferLine);
 #endif
-            OnAfterCreateRcptLineFromTransLine(WarehouseReceiptLine, WarehouseReceiptHeader, TransferLine);
-            exit(not HasErrorOccured());
-        end;
+        OnAfterCreateRcptLineFromTransLine(WarehouseReceiptLine, WarehouseReceiptHeader, TransferLine);
+        exit(not WarehouseReceiptLine.HasErrorOccured());
     end;
 
     procedure CheckIfFromTransLine2ShptLine(TransferLine: Record "Transfer Line"): Boolean

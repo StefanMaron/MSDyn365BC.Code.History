@@ -184,25 +184,23 @@ report 299 "Delete Invoiced Sales Orders"
         if IsHandled then
             exit;
 
-        with PurchLine do begin
-            if SalesOrderLine."Special Order" then
-                if Get(
-                     "Document Type"::Order, SalesOrderLine."Special Order Purchase No.", SalesOrderLine."Special Order Purch. Line No.")
-                then begin
-                    "Special Order Sales No." := '';
-                    "Special Order Sales Line No." := 0;
-                    Modify();
-                end;
+        if SalesOrderLine."Special Order" then
+            if PurchLine.Get(
+                 PurchLine."Document Type"::Order, SalesOrderLine."Special Order Purchase No.", SalesOrderLine."Special Order Purch. Line No.")
+            then begin
+                PurchLine."Special Order Sales No." := '';
+                PurchLine."Special Order Sales Line No." := 0;
+                PurchLine.Modify();
+            end;
 
-            if SalesOrderLine."Drop Shipment" then
-                if Get(
-                     "Document Type"::Order, SalesOrderLine."Purchase Order No.", SalesOrderLine."Purch. Order Line No.")
-                then begin
-                    "Sales Order No." := '';
-                    "Sales Order Line No." := 0;
-                    Modify();
-                end;
-        end;
+        if SalesOrderLine."Drop Shipment" then
+            if PurchLine.Get(
+                 PurchLine."Document Type"::Order, SalesOrderLine."Purchase Order No.", SalesOrderLine."Purch. Order Line No.")
+            then begin
+                PurchLine."Sales Order No." := '';
+                PurchLine."Sales Order Line No." := 0;
+                PurchLine.Modify();
+            end;
     end;
 
     local procedure IsPostedUnassignedItemChargeWithZeroAmount(SalesLine: Record "Sales Line"): Boolean

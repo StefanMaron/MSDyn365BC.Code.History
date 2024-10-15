@@ -42,7 +42,7 @@ codeunit 53 "Translation Helper"
     // <param name="LanguageId">The Id of the language to be set as global</param>
     procedure SetGlobalLanguageById(LanguageId: Integer)
     begin
-        IF LanguageId <> 0 THEN BEGIN
+        if LanguageId <> 0 then begin
             SavedGlobalLanguageId := GlobalLanguage;
             GlobalLanguage(LanguageId);
         end;
@@ -65,7 +65,7 @@ codeunit 53 "Translation Helper"
     procedure RestoreGlobalLanguage()
     begin
 
-        if (SavedGlobalLanguageId <> 0) AND (SavedGlobalLanguageId <> GlobalLanguage) then begin
+        if (SavedGlobalLanguageId <> 0) and (SavedGlobalLanguageId <> GlobalLanguage) then begin
             GlobalLanguage(SavedGlobalLanguageId);
             SavedGlobalLanguageId := 0;
         end;

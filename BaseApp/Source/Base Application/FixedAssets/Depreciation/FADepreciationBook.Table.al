@@ -10,6 +10,7 @@ table 5612 "FA Depreciation Book"
     Caption = 'FA Depreciation Book';
     Permissions = TableData "FA Ledger Entry" = r,
                   TableData "Maintenance Ledger Entry" = r;
+    DataClassification = CustomerContent;
 
     fields
     {

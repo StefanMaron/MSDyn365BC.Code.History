@@ -47,19 +47,17 @@ codeunit 5057 "VendCont-Update"
         IsHandled := false;
         OnBeforeOnModify(Vend, ContBusRel, IsHandled);
         if not IsHandled then begin
-            with ContBusRel do begin
-                SetCurrentKey("Link to Table", "No.");
-                SetRange("Link to Table", "Link to Table"::Vendor);
-                SetRange("No.", Vend."No.");
-                if not FindFirst() then
-                    exit;
-                if not Cont.Get("Contact No.") then begin
-                    Delete();
-                    Session.LogMessage('0000B36', VendContactUpdateTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VendContactUpdateCategoryTxt);
-                    exit;
-                end;
-                OldCont := Cont;
+            ContBusRel.SetCurrentKey("Link to Table", "No.");
+            ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
+            ContBusRel.SetRange("No.", Vend."No.");
+            if not ContBusRel.FindFirst() then
+                exit;
+            if not Cont.Get(ContBusRel."Contact No.") then begin
+                ContBusRel.Delete();
+                Session.LogMessage('0000B36', VendContactUpdateTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VendContactUpdateCategoryTxt);
+                exit;
             end;
+            OldCont := Cont;
 
             ContNo := Cont."No.";
             NoSeries := Cont."No. Series";
@@ -97,19 +95,20 @@ codeunit 5057 "VendCont-Update"
         if IsHandled then
             exit;
 
-        with ContBusRel do begin
-            SetCurrentKey("Link to Table", "No.");
-            SetRange("Link to Table", "Link to Table"::Vendor);
-            SetRange("No.", Vend."No.");
-            DeleteAll(true);
-        end;
+        ContBusRel.SetCurrentKey("Link to Table", "No.");
+        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
+        ContBusRel.SetRange("No.", Vend."No.");
+        ContBusRel.DeleteAll(true);
     end;
 
     procedure InsertNewContact(var Vend: Record Vendor; LocalCall: Boolean)
     var
         Cont: Record Contact;
         ContBusRel: Record "Contact Business Relation";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -125,37 +124,42 @@ codeunit 5057 "VendCont-Update"
         if ContBusRel.UpdateEmptyNoForContact(Vend."No.", Vend."Primary Contact No.", ContBusRel."Link to Table"::Vendor) then
             exit;
 
-        with Cont do begin
-            Init();
-            TransferFields(Vend);
-            OnAfterTransferFieldsFromVendToCont(Cont, Vend);
-            Validate(Name);
-            Validate("E-Mail");
-            IsHandled := false;
-            OnInsertNewContactOnBeforeAssignNo(Cont, IsHandled, Vend, RMSetup, LocalCall);
+        Cont.Init();
+        Cont.TransferFields(Vend);
+        OnAfterTransferFieldsFromVendToCont(Cont, Vend);
+        Cont.Validate(Cont.Name);
+        Cont.Validate(Cont."E-Mail");
+        IsHandled := false;
+        OnInsertNewContactOnBeforeAssignNo(Cont, IsHandled, Vend, RMSetup, LocalCall);
+        if not IsHandled then begin
+            Cont."No." := '';
+            Cont."No. Series" := '';
+            RMSetup.TestField("Contact Nos.");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RMSetup."Contact Nos.", '', 0D, Cont."No.", Cont."No. Series", IsHandled);
             if not IsHandled then begin
-                "No." := '';
-                "No. Series" := '';
-                RMSetup.TestField("Contact Nos.");
-                NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", '', 0D, "No.", "No. Series");
+#endif
+                Cont."No. Series" := RMSetup."Contact Nos.";
+                Cont."No." := NoSeries.GetNextNo(Cont."No. Series");
+#if not CLEAN24
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(Cont."No. Series", RMSetup."Contact Nos.", 0D, Cont."No.");
             end;
-            Type := Type::Company;
-            TypeChange();
-            SetSkipDefault();
-            OnBeforeContactInsert(Cont, Vend);
-            Insert(true);
-            OnInsertNewContactOnAfterContactInsert(Cont, Vend);
+#endif
         end;
+        Cont.Type := Cont.Type::Company;
+        Cont.TypeChange();
+        Cont.SetSkipDefault();
+        OnBeforeContactInsert(Cont, Vend);
+        Cont.Insert(true);
+        OnInsertNewContactOnAfterContactInsert(Cont, Vend);
 
-        with ContBusRel do begin
-            Init();
-            "Contact No." := Cont."No.";
-            "Business Relation Code" := RMSetup."Bus. Rel. Code for Vendors";
-            "Link to Table" := "Link to Table"::Vendor;
-            "No." := Vend."No.";
-            OnInsertNewContactOnBeforeContBusRelInsert(ContBusRel, Cont, Vend);
-            Insert(true);
-        end;
+        ContBusRel.Init();
+        ContBusRel."Contact No." := Cont."No.";
+        ContBusRel."Business Relation Code" := RMSetup."Bus. Rel. Code for Vendors";
+        ContBusRel."Link to Table" := ContBusRel."Link to Table"::Vendor;
+        ContBusRel."No." := Vend."No.";
+        OnInsertNewContactOnBeforeContBusRelInsert(ContBusRel, Cont, Vend);
+        ContBusRel.Insert(true);
     end;
 
     procedure InsertNewContactPerson(var Vend: Record Vendor; LocalCall: Boolean)
@@ -173,21 +177,20 @@ codeunit 5057 "VendCont-Update"
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
         ContBusRel.SetRange("No.", Vend."No.");
         if ContBusRel.FindFirst() then
-            if ContComp.Get(ContBusRel."Contact No.") then
-                with Cont do begin
-                    Init();
-                    "No." := '';
-                    OnInsertNewContactPersonOnBeforeContactInsert(Cont, Vend);
-                    Insert(true);
-                    "Company No." := ContComp."No.";
-                    Type := Type::Person;
-                    Validate(Name, Vend.Contact);
-                    InheritCompanyToPersonData(ContComp);
-                    UpdateBusinessRelation();
-                    OnInsertNewContactPersonOnBeforeContactModify(Cont, Vend);
-                    Modify(true);
-                    Vend."Primary Contact No." := "No.";
-                end
+            if ContComp.Get(ContBusRel."Contact No.") then begin
+                Cont.Init();
+                Cont."No." := '';
+                OnInsertNewContactPersonOnBeforeContactInsert(Cont, Vend);
+                Cont.Insert(true);
+                Cont."Company No." := ContComp."No.";
+                Cont.Type := Cont.Type::Person;
+                Cont.Validate(Cont.Name, Vend.Contact);
+                Cont.InheritCompanyToPersonData(ContComp);
+                Cont.UpdateBusinessRelation();
+                OnInsertNewContactPersonOnBeforeContactModify(Cont, Vend);
+                Cont.Modify(true);
+                Vend."Primary Contact No." := Cont."No.";
+            end
     end;
 
     procedure ContactNameIsBlank(VendorNo: Code[20]): Boolean
@@ -195,16 +198,14 @@ codeunit 5057 "VendCont-Update"
         Contact: Record Contact;
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
-        with ContactBusinessRelation do begin
-            SetCurrentKey("Link to Table", "No.");
-            SetRange("Link to Table", "Link to Table"::Vendor);
-            SetRange("No.", VendorNo);
-            if not FindFirst() then
-                exit(false);
-            if not Contact.Get("Contact No.") then
-                exit(true);
-            exit(Contact.Name = '');
-        end;
+        ContactBusinessRelation.SetCurrentKey("Link to Table", "No.");
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);
+        ContactBusinessRelation.SetRange("No.", VendorNo);
+        if not ContactBusinessRelation.FindFirst() then
+            exit(false);
+        if not Contact.Get(ContactBusinessRelation."Contact No.") then
+            exit(true);
+        exit(Contact.Name = '');
     end;
 
     [IntegrationEvent(false, false)]

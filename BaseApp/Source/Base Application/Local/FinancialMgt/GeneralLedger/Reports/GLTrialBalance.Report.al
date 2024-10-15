@@ -103,10 +103,8 @@ report 10803 "G/L Trial Balance"
             trigger OnAfterGetRecord()
             begin
                 GLAccount2.Copy("G/L Account");
-                with GLAccount2 do begin
-                    SetRange("Date Filter", 0D, PreviousEndDate);
-                    CalcFields("Debit Amount", "Credit Amount");
-                end;
+                GLAccount2.SetRange("Date Filter", 0D, PreviousEndDate);
+                GLAccount2.CalcFields("Debit Amount", "Credit Amount");
                 if not ImprNonMvt and
                    (GLAccount2."Debit Amount" = 0) and
                    ("Debit Amount" = 0) and
@@ -124,7 +122,7 @@ report 10803 "G/L Trial Balance"
                     "Credit Amount" := 0;
                 end;
 
-                TLAccountType := "G/L Account"."Account Type";
+                TLAccountType := "G/L Account"."Account Type".AsInteger();
             end;
 
             trigger OnPreDataItem()

@@ -8,14 +8,15 @@ using Microsoft.Utilities;
 
 table 212 "Job Posting Buffer"
 {
-    Caption = 'Job Posting Buffer';
+    Caption = 'Project Posting Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             DataClassification = SystemMetadata;
             TableRelation = Job;
         }

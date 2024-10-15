@@ -207,9 +207,9 @@ codeunit 144046 "UT TAB Payment Management"
 
         // Verify:  Verify Payment Class is deleted in Payment Class, Payment Status, Payment Step and Payment Step Ledger.
         Assert.IsFalse(PaymentClass.Get(PaymentClass.Code), PaymentClassErr);
-        Assert.IsFalse(PaymentStatus.Find, PaymentClassErr);
-        Assert.IsFalse(PaymentStep.Find, PaymentClassErr);
-        Assert.IsFalse(PaymentStepLedger.Find, PaymentClassErr);
+        Assert.IsFalse(PaymentStatus.Find(), PaymentClassErr);
+        Assert.IsFalse(PaymentStep.Find(), PaymentClassErr);
+        Assert.IsFalse(PaymentStepLedger.Find(), PaymentClassErr);
     end;
 
     [Test]
@@ -307,11 +307,11 @@ codeunit 144046 "UT TAB Payment Management"
 
         // [WHEN] Payment Slip "Department Code" = X1 using Lookup
         PaymentHeader.Get(PaymentLine."No.");
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.GotoRecord(PaymentHeader);
         LibraryVariableStorage.Enqueue(DimValue[1]."Dimension Code");
         LibraryVariableStorage.Enqueue(DimValue[1].Code);
-        PaymentSlip."Shortcut Dimension 1 Code".Lookup;
+        PaymentSlip."Shortcut Dimension 1 Code".Lookup();
         PaymentHeader.Find();
 
         // [THEN] Payment Line "Department Code" = X1
@@ -320,7 +320,7 @@ codeunit 144046 "UT TAB Payment Management"
         // [WHEN] Payment Slip "Project Code" = X2 using Lookup
         LibraryVariableStorage.Enqueue(DimValue[2]."Dimension Code");
         LibraryVariableStorage.Enqueue(DimValue[2].Code);
-        PaymentSlip."Shortcut Dimension 2 Code".Lookup;
+        PaymentSlip."Shortcut Dimension 2 Code".Lookup();
         PaymentHeader.Find();
 
         // [THEN] Payment Line "Project Code" = X2
@@ -673,7 +673,7 @@ codeunit 144046 "UT TAB Payment Management"
         PaymentLine.Modify();
 
         // Verify: Verify Account No. in Payment Line.
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.FILTER.SetFilter("No.", PaymentLine."No.");
         PaymentSlip.Lines."Account No.".AssertEquals(PaymentLine."Account No.");
         PaymentSlip.Close();
@@ -683,7 +683,7 @@ codeunit 144046 "UT TAB Payment Management"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Blocked := Blocked;
         Customer.Insert();
         exit(Customer."No.");
@@ -693,7 +693,7 @@ codeunit 144046 "UT TAB Payment Management"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Blocked := Blocked;
         Vendor.Insert();
         exit(Vendor."No.");
@@ -701,7 +701,7 @@ codeunit 144046 "UT TAB Payment Management"
 
     local procedure CreatePaymentClass(var PaymentClass: Record "Payment Class")
     begin
-        PaymentClass.Code := LibraryUTUtility.GetNewCode;
+        PaymentClass.Code := LibraryUTUtility.GetNewCode();
         PaymentClass."Unrealized VAT Reversal" := PaymentClass."Unrealized VAT Reversal"::Delayed;
         PaymentClass.Insert();
     end;
@@ -712,7 +712,7 @@ codeunit 144046 "UT TAB Payment Management"
         PaymentHeader: Record "Payment Header";
     begin
         PaymentClass.FindFirst();
-        PaymentHeader."No." := LibraryUTUtility.GetNewCode;
+        PaymentHeader."No." := LibraryUTUtility.GetNewCode();
         PaymentHeader."Payment Class" := PaymentClass.Code;
         PaymentHeader.Insert();
         PaymentLine."No." := PaymentHeader."No.";
@@ -724,14 +724,14 @@ codeunit 144046 "UT TAB Payment Management"
     local procedure CreatePaymentStatus(var PaymentStatus: Record "Payment Status"; PaymentClass: Text[30])
     begin
         PaymentStatus."Payment Class" := PaymentClass;
-        PaymentStatus.Name := LibraryUTUtility.GetNewCode;
+        PaymentStatus.Name := LibraryUTUtility.GetNewCode();
         PaymentStatus.Insert();
     end;
 
     local procedure CreatePaymentStep(var PaymentStep: Record "Payment Step"; PaymentClass: Text[30])
     begin
         PaymentStep."Payment Class" := PaymentClass;
-        PaymentStep.Name := LibraryUTUtility.GetNewCode;
+        PaymentStep.Name := LibraryUTUtility.GetNewCode();
         PaymentStep."Realize VAT" := true;
         PaymentStep.Insert();
     end;
@@ -767,7 +767,7 @@ codeunit 144046 "UT TAB Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         PaymentHeader.Init();
-        PaymentHeader."No." := LibraryUTUtility.GetNewCode;
+        PaymentHeader."No." := LibraryUTUtility.GetNewCode();
         PaymentHeader.Insert();
 
         PaymentLine.Init();
@@ -834,14 +834,14 @@ codeunit 144046 "UT TAB Payment Management"
         PaymentClass."Unrealized VAT Reversal" := UnrealizedVATReversal;
         PaymentClass.Modify();
         CreatePaymentStep(PaymentStep, PaymentClass.Code);
-        PaymentStepCard.OpenEdit;
+        PaymentStepCard.OpenEdit();
         PaymentStepCard.FILTER.SetFilter("Payment Class", PaymentClass.Code);
 
         // Exercise: Update Payment Step card with Action Type is Ledger.
         PaymentStepCard."Action Type".SetValue(PaymentStep."Action Type"::Ledger);
 
         // Verify: Verify Realize VAT control on Payment Step Card.
-        Assert.AreEqual(RealizeVAT, PaymentStepCard."Realize VAT".Enabled, UnexpectedErr);
+        Assert.AreEqual(RealizeVAT, PaymentStepCard."Realize VAT".Enabled(), UnexpectedErr);
         PaymentStepCard.Close();
     end;
 

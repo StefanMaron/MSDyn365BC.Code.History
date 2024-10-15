@@ -37,7 +37,7 @@ codeunit 131302 "Library - Fiscal Year"
         CreateFiscalYear: Report "Create Fiscal Year";
         PeriodLength: DateFormula;
     begin
-        FiscallyCloseYear;  // Need to Fiscally Close the Accounting Period.
+        FiscallyCloseYear();  // Need to Fiscally Close the Accounting Period.
         // Find a Date to create a new Fiscal Year if no Fiscal Year exists in Demo Data.
         Date.SetRange("Period Type", Date."Period Type"::Year);
         Date.SetRange("Period No.", Date2DMY(WorkDate(), 3));
@@ -59,8 +59,8 @@ codeunit 131302 "Library - Fiscal Year"
         // Check if Posting Date is outside the Accounting Period then Create New Fiscal Year and close it.
         AccountingPeriod.FindLast();
         if PostingDate > AccountingPeriod."Starting Date" then begin
-            CreateFiscalYear;
-            CloseFiscalYear;
+            CreateFiscalYear();
+            CloseFiscalYear();
         end;
     end;
 
@@ -117,7 +117,7 @@ codeunit 131302 "Library - Fiscal Year"
         AccountingPeriod: Record "Accounting Period";
     begin
         Clear(AccountingPeriod);
-        CloseAccountingPeriod;
+        CloseAccountingPeriod();
         AccountingPeriod.Init();
         AccountingPeriod.Validate("Starting Date", CalcDate('<+1M>', GetLastPostingDate(true)));
         AccountingPeriod.Insert(true);
@@ -131,8 +131,8 @@ codeunit 131302 "Library - Fiscal Year"
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.SetRange(Closed, false);
         AccountingPeriod.SetRange("Fiscally Closed", false);
-        if AccountingPeriod.Count > 2 then
-            CloseFiscalYear;
+        if AccountingPeriod.Count() > 2 then
+            CloseFiscalYear();
 
         AccountingPeriod.SetRange(Closed, true);
         AccountingPeriod.SetRange("Fiscally Closed", false);

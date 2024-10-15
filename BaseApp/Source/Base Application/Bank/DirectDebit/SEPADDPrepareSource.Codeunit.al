@@ -50,24 +50,23 @@ codeunit 1232 "SEPA DD-Prepare Source"
         PaymentHeader.Get(DirectDebitCollection.Identifier);
         PaymentLine.SetRange("No.", PaymentHeader."No.");
         if PaymentLine.FindSet() then
-            with ToDirectDebitCollectionEntry do
-                repeat
-                    Init();
-                    "Entry No." := PaymentLine."Line No.";
-                    "Direct Debit Collection No." := DirectDebitCollection."No.";
-                    DeletePaymentFileErrors();
-                    if SEPADDCheckLine.CheckPaymentLine(ToDirectDebitCollectionEntry, PaymentLine, AppliesToEntryNo) then begin
-                        Validate("Customer No.", PaymentLine."Account No.");
-                        Validate("Applies-to Entry No.", AppliesToEntryNo);
-                        "Transfer Date" := PaymentHeader."Posting Date";
-                        "Currency Code" := PaymentLine."Currency Code";
-                        Validate("Transfer Amount", PaymentLine."Credit Amount");
-                        Validate("Mandate ID", PaymentLine."Direct Debit Mandate ID");
-                        OnCreateTempCollectionEntriesOnBeforeInsert(ToDirectDebitCollectionEntry, PaymentHeader, PaymentLine);
-                        Insert();
-                        SEPADDCheckLine.CheckCollectionEntry(ToDirectDebitCollectionEntry);
-                    end;
-                until PaymentLine.Next() = 0;
+            repeat
+                ToDirectDebitCollectionEntry.Init();
+                ToDirectDebitCollectionEntry."Entry No." := PaymentLine."Line No.";
+                ToDirectDebitCollectionEntry."Direct Debit Collection No." := DirectDebitCollection."No.";
+                ToDirectDebitCollectionEntry.DeletePaymentFileErrors();
+                if SEPADDCheckLine.CheckPaymentLine(ToDirectDebitCollectionEntry, PaymentLine, AppliesToEntryNo) then begin
+                    ToDirectDebitCollectionEntry.Validate("Customer No.", PaymentLine."Account No.");
+                    ToDirectDebitCollectionEntry.Validate("Applies-to Entry No.", AppliesToEntryNo);
+                    ToDirectDebitCollectionEntry."Transfer Date" := PaymentHeader."Posting Date";
+                    ToDirectDebitCollectionEntry."Currency Code" := PaymentLine."Currency Code";
+                    ToDirectDebitCollectionEntry.Validate("Transfer Amount", PaymentLine."Credit Amount");
+                    ToDirectDebitCollectionEntry.Validate("Mandate ID", PaymentLine."Direct Debit Mandate ID");
+                    OnCreateTempCollectionEntriesOnBeforeInsert(ToDirectDebitCollectionEntry, PaymentHeader, PaymentLine);
+                    ToDirectDebitCollectionEntry.Insert();
+                    SEPADDCheckLine.CheckCollectionEntry(ToDirectDebitCollectionEntry);
+                end;
+            until PaymentLine.Next() = 0;
 
         if DirectDebitCollection.HasPaymentFileErrors() then begin
             Commit();

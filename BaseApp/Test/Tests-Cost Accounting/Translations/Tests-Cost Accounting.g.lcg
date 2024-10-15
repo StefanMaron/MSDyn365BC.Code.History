@@ -815,15 +815,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Tables - NamedType UnexpectedMessageError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1310831976 - NamedType 636392376" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Amount.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting Rep - Test - NamedType Amount)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1310831976 - NamedType 3076037765" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Balance cost center or cost object must be defined.]]></Val>

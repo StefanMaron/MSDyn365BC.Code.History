@@ -21,6 +21,7 @@ table 10867 "Payment Header Archive"
     Caption = 'Payment Header Archive';
     DrillDownPageID = "Payment Slip List Archive";
     LookupPageID = "Payment Slip List Archive";
+    DataClassification = CustomerContent;
 
     fields
     {

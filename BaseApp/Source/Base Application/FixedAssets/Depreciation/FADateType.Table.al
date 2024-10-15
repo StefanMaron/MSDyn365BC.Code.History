@@ -4,6 +4,7 @@ table 5645 "FA Date Type"
 {
     Caption = 'FA Date Type';
     LookupPageID = "FA Date Types";
+    DataClassification = CustomerContent;
 
     fields
     {

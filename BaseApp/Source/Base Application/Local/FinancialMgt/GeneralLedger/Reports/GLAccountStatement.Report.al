@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -242,7 +242,6 @@ report 10842 "G/L Account Statement"
 
     var
         Text001: Label 'Printed by %1';
-        Text002: Label 'Page %1';
         "Filter": Text;
         EvaluationDateStr: Text;
         ApplicationStatus: Option All,Applied,"Not Applied";

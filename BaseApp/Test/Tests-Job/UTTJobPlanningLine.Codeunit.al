@@ -13,7 +13,6 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryJob: Codeunit "Library - Job";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryPriceCalculation: codeunit "Library - Price Calculation";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -22,20 +21,22 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
+#if not CLEAN23
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+#endif
         IsInitialized: Boolean;
         EmptyLocationCodeErr: Label 'Location Code must have a value in Order Promising Line';
         ActualTxt: Label 'Actual: ';
         TestFieldErrorCodeTxt: Label 'TestWrapped:TestField';
-        CannotDeleteResourceErr: Label 'You cannot delete resource %1 because it is used in one or more job planning lines.', Comment = '%1 = Resource No.';
-        CannotRemoveJobPlanningLineErr: Label 'It is not possible to deleted job planning line transferred to an invoice.';
-        RecordExistErr: Label 'Job Planning Line page should be empty!';
-        FBResourceErr: Label 'Wrong Resource Job Planning Lines';
-        FBItemErr: Label 'Wrong Item Job Planning Lines';
-        FBGLAccErr: Label 'Wrong GL Account Job Planning Lines';
-        FBTotalErr: Label 'Wrong Job Planning Lines';
-        FBPlanningDrillDownErr: Label 'Wrong Job Planning Lines';
-        FBLedgerDrillDownErr: Label 'Wrong Job Ledger Entries';
+        CannotDeleteResourceErr: Label 'You cannot delete resource %1 because it is used in one or more project planning lines.', Comment = '%1 = Resource No.';
+        CannotRemoveJobPlanningLineErr: Label 'It is not possible to deleted project planning line transferred to an invoice.';
+        RecordExistErr: Label 'Project Planning Line page should be empty!';
+        FBResourceErr: Label 'Wrong Resource Project Planning Lines';
+        FBItemErr: Label 'Wrong Item Project Planning Lines';
+        FBGLAccErr: Label 'Wrong GL Account Project Planning Lines';
+        FBTotalErr: Label 'Wrong Project Planning Lines';
+        FBPlanningDrillDownErr: Label 'Wrong Project Planning Lines';
+        FBLedgerDrillDownErr: Label 'Wrong Project Ledger Entries';
         RoundingTo0Err: Label 'Rounding of the field';
 
     [Test]
@@ -448,13 +449,13 @@ codeunit 136353 "UT T Job Planning Line"
         Initialize();
 
         // [GIVEN] Job with "Apply Usage Link"=TRUE, "Currency Code"=USD. Create Job Task.
-        CreateJobAndJobTask(Job, JobTask, true, CreateCurrency);
+        CreateJobAndJobTask(Job, JobTask, true, CreateCurrency());
 
         // [GIVEN]  Open "Job Planning Lines" page from "Job Task Lines" page
-        JobTaskLines.OpenEdit;
+        JobTaskLines.OpenEdit();
         JobTaskLines.FILTER.SetFilter("Job No.", Job."No.");
-        JobPlanningLines.Trap;
-        JobTaskLines.JobPlanningLines.Invoke;
+        JobPlanningLines.Trap();
+        JobTaskLines.JobPlanningLines.Invoke();
 
         // [WHEN] Modify "Line Type" = "Both Schedule and Billable" on new line
         JobPlanningLines."Line Type".SetValue(JobPlanningLine."Line Type"::"Both Budget and Billable");
@@ -516,7 +517,7 @@ codeunit 136353 "UT T Job Planning Line"
         Assert.ExpectedError(CannotRemoveJobPlanningLineErr);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountPctInJobPlanningLineWhenAllowLineDiscDefinedInCustPriceGroup()
@@ -607,16 +608,16 @@ codeunit 136353 "UT T Job Planning Line"
         CreateTwoJobsWithJobPlanningLines(JobNo, SecondJobNo);
 
         // [GIVEN]  "Job Planning Lines" page opened from "Job Task Lines" page filtered on "J1" Job
-        JobTaskLines.OpenEdit;
+        JobTaskLines.OpenEdit();
         JobTaskLines.FILTER.SetFilter("Job No.", SecondJobNo);
-        JobPlanningLines.Trap;
-        JobTaskLines.JobPlanningLines.Invoke;
+        JobPlanningLines.Trap();
+        JobTaskLines.JobPlanningLines.Invoke();
 
         // [WHEN] Set JobPlanningLines "Job No." filter to "J"
         JobPlanningLines.FILTER.SetFilter("Job No.", JobNo);
 
         // [THEN] Page JobPlanningLines is empty
-        Assert.IsFalse(JobPlanningLines.First, RecordExistErr);
+        Assert.IsFalse(JobPlanningLines.First(), RecordExistErr);
         JobPlanningLines.Close();
         JobTaskLines.Close();
     end;
@@ -639,16 +640,16 @@ codeunit 136353 "UT T Job Planning Line"
         CreateTwoJobsWithJobPlanningLines(JobNo, SecondJobNo);
 
         // [GIVEN]  "Job Planning Lines" page opened from "Job Card" page filtered on "J1" Job
-        JobCard.OpenEdit;
+        JobCard.OpenEdit();
         JobCard.FILTER.SetFilter("No.", SecondJobNo);
-        JobPlanningLines.Trap;
-        JobCard.JobPlanningLines.Invoke;
+        JobPlanningLines.Trap();
+        JobCard.JobPlanningLines.Invoke();
 
         // [WHEN] Set JobPlanningLines "Job No." filter to "J"
         JobPlanningLines.FILTER.SetFilter("Job No.", JobNo);
 
         // [THEN] Page JobPlanningLines is empty
-        Assert.IsFalse(JobPlanningLines.First, RecordExistErr);
+        Assert.IsFalse(JobPlanningLines.First(), RecordExistErr);
         JobPlanningLines.Close();
         JobCard.Close();
     end;
@@ -673,18 +674,18 @@ codeunit 136353 "UT T Job Planning Line"
         CreateTwoJobsWithJobPlanningLines(JobNo, SecondJobNo);
 
         // [GIVEN]  Drill Down on Job Task Lines Statistic page filtered on "J1" Job
-        JobTaskLines.OpenEdit;
+        JobTaskLines.OpenEdit();
         JobTaskLines.FILTER.SetFilter("Job No.", SecondJobNo);
-        JobTaskStatistics.Trap;
-        JobTaskLines.JobTaskStatistics.Invoke;
-        JobPlanningLines.Trap;
-        JobTaskStatistics.SchedulePriceLCY.DrillDown;
+        JobTaskStatistics.Trap();
+        JobTaskLines.JobTaskStatistics.Invoke();
+        JobPlanningLines.Trap();
+        JobTaskStatistics.SchedulePriceLCY.DrillDown();
 
         // [WHEN] Set JobPlanningLines "Job No." filter to "J"
         JobPlanningLines.FILTER.SetFilter("Job No.", JobNo);
 
         // [THEN] Page JobPlanningLines is empty
-        Assert.IsFalse(JobPlanningLines.First, RecordExistErr);
+        Assert.IsFalse(JobPlanningLines.First(), RecordExistErr);
 
         JobPlanningLines.Close();
         JobTaskStatistics.Close();
@@ -711,18 +712,18 @@ codeunit 136353 "UT T Job Planning Line"
         CreateTwoJobsWithJobPlanningLines(JobNo, SecondJobNo);
 
         // [GIVEN]  Drill Down on Job Card Statistic page filtered on "J1" Job
-        JobCard.OpenEdit;
+        JobCard.OpenEdit();
         JobCard.FILTER.SetFilter("No.", SecondJobNo);
-        JobStatistics.Trap;
-        JobCard."&Statistics".Invoke;
-        JobPlanningLines.Trap;
-        JobStatistics.SchedulePriceLCY.DrillDown;
+        JobStatistics.Trap();
+        JobCard."&Statistics".Invoke();
+        JobPlanningLines.Trap();
+        JobStatistics.SchedulePriceLCY.DrillDown();
 
         // [WHEN] Set JobPlanningLines "Job No." filter to "J"
         JobPlanningLines.FILTER.SetFilter("Job No.", JobNo);
 
         // [THEN] Page JobPlanningLines is empty
-        Assert.IsFalse(JobPlanningLines.First, RecordExistErr);
+        Assert.IsFalse(JobPlanningLines.First(), RecordExistErr);
 
         JobPlanningLines.Close();
         JobStatistics.Close();
@@ -745,7 +746,7 @@ codeunit 136353 "UT T Job Planning Line"
         CreateJobPlanningLinesWithMultipleTypesAndLineTypes(Job, BillableArrAmount);
 
         // [WHEN] Open Job Card on Job "J"
-        JobCostFactbox.OpenEdit;
+        JobCostFactbox.OpenEdit();
         JobCostFactbox.GotoRecord(Job);
 
         // [THEN] All Prices in Billable Price part of Job Details Factbox are correct
@@ -770,9 +771,9 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryVariableStorage.Enqueue(ArrAmount[1] + ArrAmount[7]);
 
         // [WHEN] DrillDown on Job Details Billable Price "Resource" factbox field
-        JobCostFactbox.OpenEdit;
+        JobCostFactbox.OpenEdit();
         JobCostFactbox.GotoRecord(Job);
-        JobCostFactbox.BillablePriceLCY.DrillDown;
+        JobCostFactbox.BillablePriceLCY.DrillDown();
 
         // [THEN] Billable Resource Job Planning Lines for Job "J" are shown with correct amounts.
         // Verified in JobPlanningLinesPagehandler Page Handler
@@ -796,9 +797,9 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryVariableStorage.Enqueue(ArrAmount[2] + ArrAmount[8]);
 
         // [WHEN] DrillDown on Job Details Billable Price "Item" factbox field
-        JobCostFactbox.OpenEdit;
+        JobCostFactbox.OpenEdit();
         JobCostFactbox.GotoRecord(Job);
-        JobCostFactbox.BillablePriceLCYItem.DrillDown;
+        JobCostFactbox.BillablePriceLCYItem.DrillDown();
 
         // [THEN] Billable Item Job Planning Lines are shown with correct amounts.
         // Verified in JobPlanningLinesPagehandler Page Handler
@@ -822,9 +823,9 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryVariableStorage.Enqueue(ArrAmount[3] + ArrAmount[9]);
 
         // [WHEN] DrillDown on Job Details Billable Price "G/L Account" factbox field
-        JobCostFactbox.OpenEdit;
+        JobCostFactbox.OpenEdit();
         JobCostFactbox.GotoRecord(Job);
-        JobCostFactbox.BillablePriceLCYGLAcc.DrillDown;
+        JobCostFactbox.BillablePriceLCYGLAcc.DrillDown();
 
         // [THEN] Billable GLAccount Job Planning Lines are shown with correct amounts.
         // Verified in JobPlanningLinesPagehandler Page Handler
@@ -848,9 +849,9 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryVariableStorage.Enqueue(ArrAmount[1] + ArrAmount[2] + ArrAmount[3] + ArrAmount[7] + ArrAmount[8] + ArrAmount[9]);
 
         // [WHEN] DrillDown on Job Details Billable Price "Total" factbox field
-        JobCostFactbox.OpenEdit;
+        JobCostFactbox.OpenEdit();
         JobCostFactbox.GotoRecord(Job);
-        JobCostFactbox.BillablePriceLCYTotal.DrillDown;
+        JobCostFactbox.BillablePriceLCYTotal.DrillDown();
 
         // [THEN] All Billable Job Planning Lines are shown with correct amounts
         // Verified in JobPlanningLinesPagehandler Page Handler
@@ -872,7 +873,7 @@ codeunit 136353 "UT T Job Planning Line"
         CreateJobLedgerEntriesWithMultipleTypesAndLineTypes(Job, InvoiceArrAmount);
 
         // [WHEN] Open Job Card on Job "J"
-        JobCostFactbox.OpenEdit;
+        JobCostFactbox.OpenEdit();
         JobCostFactbox.GotoRecord(Job);
 
         // [THEN] All Prices in Invoiced Price part of Job Details Factbox are correct
@@ -897,9 +898,9 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryVariableStorage.Enqueue(ArrAmount[8]);
 
         // [WHEN] DrillDown on Job Details Invoiced Price "Resource" factbox field
-        JobCostFactbox.OpenEdit;
+        JobCostFactbox.OpenEdit();
         JobCostFactbox.GotoRecord(Job);
-        JobCostFactbox.InvoicedPriceLCY.DrillDown;
+        JobCostFactbox.InvoicedPriceLCY.DrillDown();
 
         // [THEN] Sales Resource Job Ledger Entries for Job "J" are shown with correct amounts.
         // Verified in JobLedgerEntriesPageHandler Page Handler
@@ -923,9 +924,9 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryVariableStorage.Enqueue(ArrAmount[10]);
 
         // [WHEN] DrillDown on Job Details Invoiced Price "Item" factbox field
-        JobCostFactbox.OpenEdit;
+        JobCostFactbox.OpenEdit();
         JobCostFactbox.GotoRecord(Job);
-        JobCostFactbox.InvoicedPriceLCYItem.DrillDown;
+        JobCostFactbox.InvoicedPriceLCYItem.DrillDown();
 
         // [THEN] Sales Item Job Ledger Entries are shown with correct amounts.
         // Verified in JobLedgerEntriesPageHandler Page Handler
@@ -949,9 +950,9 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryVariableStorage.Enqueue(ArrAmount[12]);
 
         // [WHEN] DrillDown on Job Details Invoiced Price "G/L Account" factbox field
-        JobCostFactbox.OpenEdit;
+        JobCostFactbox.OpenEdit();
         JobCostFactbox.GotoRecord(Job);
-        JobCostFactbox.InvoicedPriceLCYGLAcc.DrillDown;
+        JobCostFactbox.InvoicedPriceLCYGLAcc.DrillDown();
 
         // [THEN] Sales GLAccount Job Ledger Entries are shown with correct amounts.
         // Verified in JobLedgerEntriesPageHandler Page Handler
@@ -975,9 +976,9 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryVariableStorage.Enqueue(ArrAmount[8] + ArrAmount[10] + ArrAmount[12]);
 
         // [WHEN] DrillDown on Job Details Invoiced Price "Total" factbox field
-        JobCostFactbox.OpenEdit;
+        JobCostFactbox.OpenEdit();
         JobCostFactbox.GotoRecord(Job);
-        JobCostFactbox.InvoicedPriceLCYTotal.DrillDown;
+        JobCostFactbox.InvoicedPriceLCYTotal.DrillDown();
 
         // [THEN] All Sales Job Ledger Entries are shown with correct amounts
         // Verified in JobLedgerEntriesPageHandler Page Handler
@@ -1007,13 +1008,13 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
 
         // [GIVEN] "Job Card" page is opened and cursor set on Job Task "Y" on "Job Task Lines" subpage
-        JobCard.OpenView;
+        JobCard.OpenView();
         JobCard.GotoRecord(Job);
         JobCard.JobTaskLines.GotoRecord(JobTask);
-        JobPlanningLines.Trap;
+        JobPlanningLines.Trap();
 
         // [WHEN] Press "Job Planning Lines" on "Job Task Lines" subpage
-        JobCard.JobTaskLines.JobPlanningLines.Invoke;
+        JobCard.JobTaskLines.JobPlanningLines.Invoke();
 
         // [THEN] "Job Planning Lines" is opened and first record has "Job Task No." = "Y"
         JobPlanningLines."Job Task No.".AssertEquals(JobTask."Job Task No.");
@@ -1032,7 +1033,7 @@ codeunit 136353 "UT T Job Planning Line"
 
         // [GIVEN] Item Variant "X" with Description = "D1" and "Description 2" = "D2".
         with ItemVariant do begin
-            LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo);
+            LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo());
             Validate(Description, LibraryUtility.GenerateGUID());
             Validate("Description 2", LibraryUtility.GenerateGUID());
             Modify(true);
@@ -1050,7 +1051,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLine.TestField("Description 2", ItemVariant."Description 2");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure NoLineDiscountInJobPlanningLineWhenNoAllowLineDiscInSalesPriceForAllCustomersAndVariant()
@@ -1098,7 +1099,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [GIVEN] Sales Price for All Customers for Item "X", Variant "X1" is 50, "Allow Line Disc." = No
         LibrarySales.CreateSalesPrice(
           SalesPrice, Item."No.", SalesPrice."Sales Type"::"All Customers", '',
-          WorkDate, '', ItemVariant.Code, Item."Base Unit of Measure", 0, LibraryRandom.RandDec(100, 2));
+          WorkDate(), '', ItemVariant.Code, Item."Base Unit of Measure", 0, LibraryRandom.RandDec(100, 2));
         SalesPrice.Validate("Allow Line Disc.", false);
         SalesPrice.Modify(true);
 
@@ -1243,7 +1244,6 @@ codeunit 136353 "UT T Job Planning Line"
     [Scope('OnPrem')]
     procedure TestValidatePlanningDateForText()
     var
-        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
         JobPlanningLine: Record "Job Planning Line";
         StandardText: Record "Standard Text";
     begin
@@ -1310,7 +1310,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLines.First();
 
         // [THEN] The field "Type" is not editable for the line with "Type" = Text
-        Assert.IsFalse(JobPlanningLines.Type.Editable, '');
+        Assert.IsFalse(JobPlanningLines.Type.Editable(), '');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -1369,7 +1369,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLines.First();
 
         // [THEN] The field "Type" is editable for the line with "Type" = Text
-        Assert.IsTrue(JobPlanningLines.Type.Editable, '');
+        Assert.IsTrue(JobPlanningLines.Type.Editable(), '');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -1554,15 +1554,17 @@ codeunit 136353 "UT T Job Planning Line"
         Item: Record Item;
         Job: Record Job;
         JobTask: Record "Job Task";
-#if not CLEAN21
+#if not CLEAN23
         JobItemPrice: Record "Job Item Price";
 #else
         PriceListLine: Record "Price List Line";
 #endif
         JobPlanningLine: Record "Job Planning Line";
+#if CLEAN23        
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+#endif
         CostFactor: Decimal;
         UnitPrice: Decimal;
-        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
     begin
         // [SCENARIO 405107] Quantity modification updates "Unit Price calculated by "Cost Factor" 
         Initialize();
@@ -1575,7 +1577,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [GIVEN] Price line for Job and Item, where "Cost Factor" is set
         CostFactor := LibraryRandom.RandDec(10, 1);
         Item.Get(JobPlanningLine."No.");
-#if not CLEAN21
+#if not CLEAN23
         LibraryJob.CreateJobItemPrice(
             JobItemPrice, Job."No.", JobTask."Job Task No.", JobPlanningLine."No.", '', '', Item."Base Unit of Measure");
         JobItemPrice.Validate("Unit Cost Factor", CostFactor);
@@ -1762,8 +1764,10 @@ codeunit 136353 "UT T Job Planning Line"
         JobCard.Close();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
+#pragma warning disable AS0072
     [Test]
+    [Obsolete('Not used.', '23.0')]
     procedure JobPlanningLineFindJTPriceForGLAccountNotUpdateUnitPrice()
     var
         JobPlanningLine: Record "Job Planning Line";
@@ -1787,6 +1791,7 @@ codeunit 136353 "UT T Job Planning Line"
     end;
 
     [Test]
+    [Obsolete('Not used.', '23.0')]
     procedure JobPlanningLineFindJTPriceForGLAccountUpdateUnitPrice()
     var
         JobPlanningLine: Record "Job Planning Line";
@@ -1810,6 +1815,7 @@ codeunit 136353 "UT T Job Planning Line"
 
         JobPlanningLine.TestField("Unit Cost", UnitCost);
     end;
+#pragma warning restore AS0072
 #endif
 
     [Test]
@@ -1849,6 +1855,49 @@ codeunit 136353 "UT T Job Planning Line"
         asserterror JobPlanningLine.Validate("Line Amount (LCY)", 1);
     end;
 
+    [Test]
+    procedure VerifyDescriptionOnJobPlanningLineForVariantWithItemTranslation()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemTranslation: Record "Item Translation";
+        Language: Record Language;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+    begin
+        // [SCENARIO 480325] Verify Description on Job Planning Line for Variant with Item Translation 
+        Initialize();
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Variant
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [GIVEN] Create Item Translation
+        Language.FindFirst();
+        CreateItemTranslation(ItemTranslation, Item."No.", Language.Code, ItemVariant.Code);
+
+        // [GIVEN] Create Job, Job Task
+        CreateJobAndJobTask(Job, JobTask, false, '');
+
+        // [GIVEN] Update Language Code on Job
+        Job.Validate("Language Code", Language.Code);
+        Job.Modify(true);
+
+        // [GIVEN] Create Job Planning Line
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
+            JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", Item."No.");
+
+        // [WHEN] Validate Variant on Job Planning Line        
+        JobPlanningLine.Validate("Variant Code", ItemVariant.Code);
+
+        // [THEN] Verify Description on Job Planning Line
+        JobPlanningLine.TestField(Description, ItemTranslation.Description);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1869,7 +1918,7 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT T Job Planning Line");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure SetupLineDiscScenario(var JobPlanningLine: Record "Job Planning Line"; var SalesLineDiscount: Record "Sales Line Discount"; JobTask: Record "Job Task"; CustNo: Code[20]; CustomerPriceGroupCode: Code[10])
     var
         Item: Record Item;
@@ -1880,7 +1929,7 @@ codeunit 136353 "UT T Job Planning Line"
         CreateLineDiscForCustomer(SalesLineDiscount, Item, CustNo);
         LibrarySales.CreateSalesPrice(
           SalesPrice, Item."No.", SalesPrice."Sales Type"::"Customer Price Group", CustomerPriceGroupCode,
-          WorkDate, '', '', Item."Base Unit of Measure", 0, LibraryRandom.RandDec(100, 2));
+          WorkDate(), '', '', Item."Base Unit of Measure", 0, LibraryRandom.RandDec(100, 2));
         CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
 
@@ -2022,7 +2071,7 @@ codeunit 136353 "UT T Job Planning Line"
         ArrAmount[9] := JobPlanningLine."Line Amount";
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateJobGLAccPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; JobTaskNo: Code[20]; GLAccountNo: Code[20])
     begin
         LibraryJob.CreateJobGLAccountPrice(
@@ -2051,7 +2100,7 @@ codeunit 136353 "UT T Job Planning Line"
         MockJobLedgEntry(Job."No.", ArrAmount[11], -ArrAmount[12], JobLedgerEntry.Type::"G/L Account", JobLedgerEntry."Entry Type"::Sale);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateLineDiscForCustomer(var SalesLineDiscount: Record "Sales Line Discount"; Item: Record Item; CustNo: Code[20])
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -2105,38 +2154,49 @@ codeunit 136353 "UT T Job Planning Line"
     var
         JobPlanningLines: TestPage "Job Planning Lines";
     begin
-        JobPlanningLines.OpenEdit;
+        JobPlanningLines.OpenEdit();
         JobPlanningLines.GotoRecord(JobPlanningLine);
         LibraryVariableStorage.Enqueue(JobPlanningLine."Job No.");
-        JobPlanningLines.OrderPromising.Invoke;
+        JobPlanningLines.OrderPromising.Invoke();
     end;
 
     local procedure VerifyJobDetailsBillablePriceFactbox(JobCostFactbox: TestPage "Job Cost Factbox"; BillableArrAmount: array[9] of Decimal)
     begin
-        Assert.AreEqual(JobCostFactbox.BillablePriceLCY.AsDEcimal, BillableArrAmount[1] + BillableArrAmount[7], FBResourceErr);
-        Assert.AreEqual(JobCostFactbox.BillablePriceLCYItem.AsDEcimal, BillableArrAmount[2] + BillableArrAmount[8], FBItemErr);
-        Assert.AreEqual(JobCostFactbox.BillablePriceLCYGLAcc.AsDEcimal, BillableArrAmount[3] + BillableArrAmount[9], FBGLAccErr);
+        Assert.AreEqual(JobCostFactbox.BillablePriceLCY.AsDecimal(), BillableArrAmount[1] + BillableArrAmount[7], FBResourceErr);
+        Assert.AreEqual(JobCostFactbox.BillablePriceLCYItem.AsDecimal(), BillableArrAmount[2] + BillableArrAmount[8], FBItemErr);
+        Assert.AreEqual(JobCostFactbox.BillablePriceLCYGLAcc.AsDecimal(), BillableArrAmount[3] + BillableArrAmount[9], FBGLAccErr);
         Assert.AreEqual(
-          JobCostFactbox.BillablePriceLCYTotal.AsDEcimal,
+          JobCostFactbox.BillablePriceLCYTotal.AsDecimal(),
           BillableArrAmount[1] + BillableArrAmount[2] + BillableArrAmount[3] +
           BillableArrAmount[7] + BillableArrAmount[8] + BillableArrAmount[9], FBTotalErr);
     end;
 
     local procedure VerifyJobDetailsInvoicedPriceFactbox(JobCostFactbox: TestPage "Job Cost Factbox"; InvoiceArrAmount: array[12] of Decimal)
     begin
-        Assert.AreEqual(JobCostFactbox.InvoicedPriceLCY.AsDEcimal, InvoiceArrAmount[8], FBResourceErr);
-        Assert.AreEqual(JobCostFactbox.InvoicedPriceLCYItem.AsDEcimal, InvoiceArrAmount[10], FBItemErr);
-        Assert.AreEqual(JobCostFactbox.InvoicedPriceLCYGLAcc.AsDEcimal, InvoiceArrAmount[12], FBGLAccErr);
+        Assert.AreEqual(JobCostFactbox.InvoicedPriceLCY.AsDecimal(), InvoiceArrAmount[8], FBResourceErr);
+        Assert.AreEqual(JobCostFactbox.InvoicedPriceLCYItem.AsDecimal(), InvoiceArrAmount[10], FBItemErr);
+        Assert.AreEqual(JobCostFactbox.InvoicedPriceLCYGLAcc.AsDecimal(), InvoiceArrAmount[12], FBGLAccErr);
         Assert.AreEqual(
-          JobCostFactbox.InvoicedPriceLCYTotal.AsDEcimal,
+          JobCostFactbox.InvoicedPriceLCYTotal.AsDecimal(),
           InvoiceArrAmount[8] + InvoiceArrAmount[10] + InvoiceArrAmount[12], FBTotalErr);
+    end;
+
+    local procedure CreateItemTranslation(var ItemTranslation: Record "Item Translation"; ItemNo: Code[20]; LanguageCode: Code[10]; VariantCode: Code[10])
+    begin
+        ItemTranslation.Init();
+        ItemTranslation.Validate("Item No.", ItemNo);
+        ItemTranslation.Validate("Language Code", LanguageCode);
+        ItemTranslation.Validate("Variant Code", VariantCode);
+        ItemTranslation.Validate(Description, LibraryUtility.GenerateGUID());
+        ItemTranslation.Validate("Description 2", LibraryUtility.GenerateGUID());
+        ItemTranslation.Insert(true);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure OrderPromisingModalPagehandler(var OrderPromisingLines: TestPage "Order Promising Lines")
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, OrderPromisingLines.FILTER.GetFilter("Source ID"), '');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), OrderPromisingLines.FILTER.GetFilter("Source ID"), '');
     end;
 
     [PageHandler]
@@ -2146,12 +2206,12 @@ codeunit 136353 "UT T Job Planning Line"
         SumLineAmount: Decimal;
     begin
         SumLineAmount := 0;
-        JobPlanningLines.First;
+        JobPlanningLines.First();
         repeat
-            SumLineAmount += JobPlanningLines."Line Amount".AsDEcimal;
+            SumLineAmount += JobPlanningLines."Line Amount".AsDecimal();
         until not JobPlanningLines.Next();
 
-        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal, SumLineAmount, FBPlanningDrillDownErr);
+        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal(), SumLineAmount, FBPlanningDrillDownErr);
     end;
 
     [PageHandler]
@@ -2161,12 +2221,12 @@ codeunit 136353 "UT T Job Planning Line"
         SumLineAmount: Decimal;
     begin
         SumLineAmount := 0;
-        JobLedgerEntries.First;
+        JobLedgerEntries.First();
         repeat
-            SumLineAmount -= JobLedgerEntries."Line Amount".AsDEcimal;
+            SumLineAmount -= JobLedgerEntries."Line Amount".AsDecimal();
         until not JobLedgerEntries.Next();
 
-        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal, SumLineAmount, FBLedgerDrillDownErr);
+        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal(), SumLineAmount, FBLedgerDrillDownErr);
     end;
 
     [MessageHandler]
@@ -2181,8 +2241,8 @@ codeunit 136353 "UT T Job Planning Line"
     procedure CreateInvoiceRequestHandler(var JobTransfertoSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
     begin
         JobTransfertoSalesInvoice.CreateNewInvoice.SetValue(false);
-        JobTransfertoSalesInvoice.AppendToSalesInvoiceNo.SetValue(LibraryVariableStorage.DequeueText);
-        JobTransfertoSalesInvoice.OK.Invoke;
+        JobTransfertoSalesInvoice.AppendToSalesInvoiceNo.SetValue(LibraryVariableStorage.DequeueText());
+        JobTransfertoSalesInvoice.OK().Invoke();
     end;
 }
 

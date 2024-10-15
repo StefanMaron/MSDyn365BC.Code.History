@@ -43,8 +43,8 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        ERMVATToolHelper.SetupItemNos;
-        ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
+        ERMVATToolHelper.SetupItemNos();
+        ERMVATToolHelper.ResetToolSetup();  // This resets setup table for the first test case after database is restored.
         LibrarySetupStorage.SaveSalesSetup();
 
         isInitialized := true;
@@ -71,7 +71,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, false, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: No data was updated
         ERMVATToolHelper.VerifyUpdateConvFalse(DATABASE::"Sales Line");
@@ -80,7 +80,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.VerifyLogEntriesConvFalse(DATABASE::"Sales Line", false);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -104,7 +104,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, false, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify that no data was updated
         ERMVATToolHelper.VerifyUpdateConvFalse(DATABASE::"Sales Line");
@@ -113,7 +113,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.VerifyLogEntriesConvFalse(DATABASE::"Sales Line", true);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -135,7 +135,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Verify Description field on vat rate change log entry.
         ERMVATToolHelper.VerifyValueOnZeroOutstandingQty(VatProdPostingGroup, DATABASE::"Sales Line");
@@ -153,7 +153,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     procedure VATToolReminderNo()
     begin
         asserterror VATToolReminderLine(VATRateChangeSetup2."Update Reminders"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -168,7 +168,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     procedure VATToolFinChargeMemoNo()
     begin
         asserterror VATToolFinChargeMemoLine(VATRateChangeSetup2."Update Finance Charge Memos"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -183,7 +183,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     procedure VATToolProdOrderNo()
     begin
         asserterror VATToolProductionOrder(VATRateChangeSetup2."Update Production Orders"::No, 1);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
     end;
 
     [Test]
@@ -220,10 +220,10 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         // Sales Blanket Order with one line, don't update groups.
         asserterror VATToolSalesLine(
             VATRateChangeSetup2."Update Sales Documents"::No, false, SalesHeader2."Document Type"::"Blanket Order", false, false, false);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -313,14 +313,14 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Make Sales Order Is Completed Successfully.
         UpdateQtyBlanketOrder(SalesHeader);
         ERMVATToolHelper.MakeOrderSales(SalesHeader, SalesOrderHeader);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -357,10 +357,10 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         // Sales Blanket Order with one line, don't update groups.
         asserterror VATToolSalesLine(
             VATRateChangeSetup2."Update Sales Documents"::No, false, SalesHeader2."Document Type"::Quote, false, false, false);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -432,10 +432,10 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         // Sales Order with one line, don't update groups.
         asserterror VATToolSalesLine(
             VATRateChangeSetup2."Update Sales Documents"::No, false, SalesHeader2."Document Type"::Order, false, false, false);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -485,7 +485,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         GetSalesLine(SalesHeader, SalesLine);
         LineCount := SalesLine.Count();
         if First then
-            SalesLine.Next
+            SalesLine.Next()
         else
             SalesLine.FindFirst();
         SalesLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
@@ -496,14 +496,14 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         GetSalesLine(SalesHeader, SalesLine);
-        Assert.AreEqual(LineCount + 1, SalesLine.Count, ERMVATToolHelper.GetConversionErrorSplitLines);
+        Assert.AreEqual(LineCount + 1, SalesLine.Count, ERMVATToolHelper.GetConversionErrorSplitLines());
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -626,7 +626,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Log Data
         ERMVATToolHelper.VerifyUpdate(TempRecRef, false);
@@ -635,7 +635,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.VerifyErrorLogEntries(TempRecRef, false);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -674,19 +674,19 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.CreatePostingGroups(false);
 
         // SETUP: Create and save data to update in a temporary table.
-        PrepareSalesDocItemTracking;
+        PrepareSalesDocItemTracking();
 
         // SETUP: Update VAT Change Tool Setup table.
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         VerifySalesDocWithReservation(true);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -770,13 +770,13 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         VerifySalesLnPartShipped(TempRecRef);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -793,7 +793,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.CreatePostingGroups(false);
 
         // SETUP: Create and Save data to update in a temporary table.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer());
         SalesHeader.Validate("Prices Including VAT", true);
         ERMVATToolHelper.CreateSalesLines(SalesHeader, '', GetLineCount(false));
         TempRecRef.Open(DATABASE::"Sales Line", true);
@@ -806,7 +806,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, false);
@@ -815,7 +815,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.VerifyErrorLogEntries(TempRecRef, true);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -860,14 +860,14 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check that each line was splitted.
         GetSalesLine(SalesHeader, SalesLine);
-        Assert.AreEqual(LineCount * 2, SalesLine.Count, ERMVATToolHelper.GetConversionErrorSplitLines);
+        Assert.AreEqual(LineCount * 2, SalesLine.Count, ERMVATToolHelper.GetConversionErrorSplitLines());
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -987,7 +987,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", true, true);
         CreateSalesInvoiceWithPricesIncludingVAT(SalesLine, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo());
 
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         ExpectedUnitPrice := SalesLine."Unit Price";
         SalesLine.Find();
@@ -1228,7 +1228,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.SetupToolConvGroups(
             VATRateChangeConv.Type::"VAT Prod. Posting Group", VATProdPostingGroup[1].Code, VATProdPostingGroup[2].Code);
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", true, false);
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // [THEN] Blanket Sales Order has 3 lines. Extended text line is attached to Sales Line with 'VPPG2' VAT Posting Group
         LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
@@ -1363,7 +1363,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -1373,7 +1373,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolFinChargeMemoLine(FieldOption: Option; "Count": Integer)
@@ -1393,7 +1393,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -1403,7 +1403,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolProductionOrder(FieldOption: Option; "Count": Integer)
@@ -1423,7 +1423,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Perform Conversion"), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -1433,7 +1433,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         // Tear Down
         ERMVATToolHelper.DeleteRecords(TempRecRef.Number);
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolMakeSalesOrder(FieldOption: Option; DocumentType: Enum "Sales Document Type"; Partial: Boolean; MultipleLines: Boolean)
@@ -1466,7 +1466,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(FieldOption, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Blanket Order & Sales Order.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
@@ -1475,7 +1475,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.VerifyLogEntries(TempRecRef);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolMakeSalesOrderMake(FieldOption: Option; DocumentType: Enum "Sales Document Type"; MultipleLines: Boolean)
@@ -1502,7 +1502,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(FieldOption, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Make Order is Successful
         SalesHeader.Find();
@@ -1512,7 +1512,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.MakeOrderSales(SalesHeader, SalesOrderHeader);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolMakeSalesOrderSh(FieldOption: Option; Partial: Boolean; MultipleLines: Boolean)
@@ -1544,7 +1544,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(FieldOption, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Blanket Order & Sales Order.
         if Partial then begin
@@ -1556,7 +1556,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         end;
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolMakeSalesOrderShPost(FieldOption: Option; Partial: Boolean; MultipleLines: Boolean)
@@ -1586,14 +1586,14 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(FieldOption, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Sales Order Posted Successfully.
         SalesOrderHeader.Find();
         LibrarySales.PostSalesDocument(SalesOrderHeader, true, true);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolSalesLine(FieldOption: Option; IgnoreStatus: Boolean; DocumentType: Enum "Sales Document Type"; Release: Boolean; Ship: Boolean; MultipleLines: Boolean)
@@ -1622,7 +1622,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(FieldOption, true, IgnoreStatus);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         Update := ExpectUpdate(SalesHeader."Document Type", Ship, Release, IgnoreStatus);
@@ -1634,7 +1634,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
             ERMVATToolHelper.VerifyErrorLogEntries(TempRecRef, ExpectLogEntries(SalesHeader."Document Type", Release, IgnoreStatus));
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolSalesLineAmount(DocumentType: Enum "Sales Document Type"; PartialShip: Boolean)
@@ -1648,7 +1648,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.CreatePostingGroups(false);
 
         // SETUP: Create and Save data to update in a temporary table.
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, ERMVATToolHelper.CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, ERMVATToolHelper.CreateCustomer());
         SalesHeader.Validate("Prices Including VAT", true);
         SalesHeader.Modify(true);
         ERMVATToolHelper.CreateSalesLines(SalesHeader, '', GetLineCount(true));
@@ -1663,13 +1663,13 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::"VAT Prod. Posting Group", true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check VAT%, Unit Price and Line Amount Including VAT.
         VerifySalesDocAmount(SalesHeader);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolSalesLinePartShip(FieldOption: Option; DocumentType: Enum "Sales Document Type"; AutoInsertDefault: Boolean; MultipleLines: Boolean)
@@ -1694,7 +1694,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(FieldOption, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
@@ -1706,7 +1706,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         end;
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolSalesLineReserve(FieldOption: Option; MultipleLines: Boolean)
@@ -1723,13 +1723,13 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(FieldOption, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         VerifySalesDocWithReservation(false);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolSalesLineWhse(FieldOption: Option; LineCount: Integer; Ship: Boolean)
@@ -1748,7 +1748,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(FieldOption, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, not Ship);
@@ -1759,7 +1759,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
             ERMVATToolHelper.VerifyErrorLogEntries(TempRecRef, true);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolSalesOrderItemChrgDiffDoc(Ship: Boolean; Invoice: Boolean)
@@ -1778,13 +1778,13 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, not Ship);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolSalesOrderItemChrgSameDoc(Ship: Boolean; Invoice: Boolean)
@@ -1803,7 +1803,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         if not Ship then
@@ -1812,7 +1812,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
             ERMVATToolHelper.VerifyUpdate(TempRecRef, false);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolSalesLineWithNegativeQty(Ship: Boolean)
@@ -1842,7 +1842,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SetupToolSales(VATRateChangeSetup2."Update Sales Documents"::Both, true, true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         if Ship then
@@ -1851,7 +1851,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
             ERMVATToolHelper.VerifyUpdate(TempRecRef, true);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolDropShipment(FieldOption: Option; FieldOption2: Option)
@@ -1873,7 +1873,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Ignore Status on Purch. Docs."), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         VerifySpecialDocUpdate(SalesTempRecRef, PurchaseTempRecRef);
@@ -1883,7 +1883,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.VerifySpecialDocLogEntries(PurchaseTempRecRef);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolSpecialOrder(FieldOption: Option; FieldOption2: Option)
@@ -1905,7 +1905,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.SetupToolCheckbox(VATRateChangeSetup2.FieldNo("Ignore Status on Purch. Docs."), true);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         VerifySpecialDocUpdate(SalesTempRecRef, PurchaseTempRecRef);
@@ -1915,7 +1915,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.VerifySpecialDocLogEntries(PurchaseTempRecRef);
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure AddDimensionsForSalesLines(SalesHeader: Record "Sales Header")
@@ -2001,7 +2001,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ReqLine.SetRange("Worksheet Template Name", ReqWkshName."Worksheet Template Name");
         ReqLine.SetRange("Journal Batch Name", ReqWkshName.Name);
         ReqLine.FindFirst();
-        ReqLine.Validate("Vendor No.", ERMVATToolHelper.CreateVendor);
+        ReqLine.Validate("Vendor No.", ERMVATToolHelper.CreateVendor());
         ReqLine.Modify(true);
         LibraryPlanning.CarryOutActionMsgPlanWksh(ReqLine);
 
@@ -2027,7 +2027,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
         TempRecRef.Open(DATABASE::"Finance Charge Memo Line", true);
 
-        LibraryERM.CreateFinanceChargeMemoHeader(FinChargeMemoHeader, ERMVATToolHelper.CreateCustomer);
+        LibraryERM.CreateFinanceChargeMemoHeader(FinChargeMemoHeader, ERMVATToolHelper.CreateCustomer());
         FinChargeMemoHeader.Modify(true);
         for I := 1 to Count do begin
             LibraryERM.CreateFinanceChargeMemoLine(FinChargeMemoLine, FinChargeMemoHeader."No.", FinChargeMemoLine.Type::"G/L Account");
@@ -2072,7 +2072,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         TempRecRef.Open(DATABASE::"Reminder Line", true);
 
         LibraryERM.CreateReminderHeader(ReminderHeader);
-        ReminderHeader.Validate("Customer No.", ERMVATToolHelper.CreateCustomer);
+        ReminderHeader.Validate("Customer No.", ERMVATToolHelper.CreateCustomer());
         ReminderHeader.Modify(true);
         for I := 1 to Count do begin
             ReminderLine.Init();
@@ -2097,7 +2097,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.CreateItemCharge(ItemCharge);
         // Create Sales Line with Quantity > 1 to be able to partially ship it
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)",
-          ItemCharge."No.", ERMVATToolHelper.GetQuantity);
+          ItemCharge."No.", ERMVATToolHelper.GetQuantity());
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Validate("Location Code", '');
         SalesLine.Modify(true);
@@ -2176,7 +2176,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         exit(
           Round(
             SalesLine."Unit Price" * (100 + VATPostingSetup."VAT %") / (100 + SalesLine."VAT %"),
-            LibraryERM.GetUnitAmountRoundingPrecision));
+            LibraryERM.GetUnitAmountRoundingPrecision()));
     end;
 
     local procedure ExpectLogEntries(DocumentType: Enum "Sales Document Type"; Release: Boolean; IgnoreStatus: Boolean): Boolean
@@ -2309,11 +2309,11 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     begin
         // Create Item with tracking and purchase it
         ERMVATToolHelper.CreateItemWithTracking(Item, true);
-        Qty := ERMVATToolHelper.GetQuantity;
+        Qty := ERMVATToolHelper.GetQuantity();
         ERMVATToolHelper.PostItemPurchase(Item, '', Qty);
 
         // Create Sales Order with Item with tracking
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer());
         ERMVATToolHelper.CreateSalesLine(SalesLine, SalesHeader, '', Item."No.", Qty);
 
         // Assign Serial Nos
@@ -2499,11 +2499,11 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
             SetRange("Document Type", TempSalesLn."Document Type");
             SetFilter("Document No.", TempSalesLn."Document No.");
             FindSet();
-            Assert.AreEqual(2, Count, ERMVATToolHelper.GetItemChargeErrorCount);
-            Assert.AreNearlyEqual(QtyShippedItem / QtyItem * QtyItemCharge, "Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount);
-            Next;
+            Assert.AreEqual(2, Count, ERMVATToolHelper.GetItemChargeErrorCount());
+            Assert.AreNearlyEqual(QtyShippedItem / QtyItem * QtyItemCharge, "Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount());
+            Next();
             Assert.AreNearlyEqual(
-              (QtyItem - QtyShippedItem) / QtyItem * QtyItemCharge, "Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount);
+              (QtyItem - QtyShippedItem) / QtyItem * QtyItemCharge, "Qty. to Assign", 0.01, ERMVATToolHelper.GetItemChargeErrorCount());
         end;
     end;
 
@@ -2523,9 +2523,9 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         repeat
             ERMVATToolHelper.GetReservationEntrySales(ReservationEntry, SalesLine);
             if Tracking then
-                Assert.AreEqual(SalesLine.Quantity, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate)
+                Assert.AreEqual(SalesLine.Quantity, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate())
             else
-                Assert.AreEqual(1, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate);
+                Assert.AreEqual(1, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate());
         until SalesLine.Next() = 0;
 
         ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
@@ -2536,7 +2536,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         repeat
             ERMVATToolHelper.GetReservationEntrySales(ReservationEntry, SalesLine);
-            Assert.AreEqual(0, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate);
+            Assert.AreEqual(0, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate());
         until SalesLine.Next() = 0;
     end;
 
@@ -2560,7 +2560,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesLn.FindSet();
 
         // Compare Number of lines.
-        Assert.AreEqual(TempRecRef.Count, SalesLn.Count, StrSubstNo(ERMVATToolHelper.GetConversionErrorCount, SalesLn.GetFilters));
+        Assert.AreEqual(TempRecRef.Count, SalesLn.Count, StrSubstNo(ERMVATToolHelper.GetConversionErrorCount(), SalesLn.GetFilters));
 
         TempRecRef.Reset();
         SetTempTableSales(TempRecRef, TempSalesLn);
@@ -2647,15 +2647,15 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Serial No.".Invoke;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Assign Serial No.".Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 }
 

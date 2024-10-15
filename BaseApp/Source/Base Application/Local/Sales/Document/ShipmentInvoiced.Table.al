@@ -9,6 +9,7 @@ table 10825 "Shipment Invoiced"
     Caption = 'Shipment Invoiced';
     DrillDownPageID = "Invoices bound by Shipment";
     LookupPageID = "Invoices bound by Shipment";
+    DataClassification = CustomerContent;
 
     fields
     {

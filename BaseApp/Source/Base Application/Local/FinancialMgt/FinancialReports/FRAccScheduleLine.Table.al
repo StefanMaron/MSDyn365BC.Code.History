@@ -12,6 +12,7 @@ using Microsoft.Finance.Consolidation;
 table 10801 "FR Acc. Schedule Line"
 {
     Caption = 'FR Acc. Schedule Line';
+    DataClassification = CustomerContent;
 
     fields
     {

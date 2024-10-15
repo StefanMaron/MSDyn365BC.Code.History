@@ -712,9 +712,11 @@ page 9231 "Items by Location Matrix"
     begin
     end;
 
+#pragma warning disable AS0077
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeMatrixOnDrillDown(var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; ColumnID: Integer; IsHandled: Boolean; var MatrixRecords: array[32] of Record Location)
+    local procedure OnBeforeMatrixOnDrillDown(var Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; ColumnID: Integer; var IsHandled: Boolean; var MatrixRecords: array[32] of Record Location)
     begin
     end;
+#pragma warning restore AS0077
 }
 

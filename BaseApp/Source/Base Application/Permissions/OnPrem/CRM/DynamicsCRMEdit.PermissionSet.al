@@ -59,6 +59,9 @@ permissionset 3544 "Dynamics CRM - Edit"
                   tabledata "CRM Synch. Conflict Buffer" = RIMD,
                   tabledata "CRM Synch. Job Status Cue" = RIMD,
                   tabledata "CRM Systemuser" = RIMD,
+                  tabledata "CRM Systemuserroles" = RIMD,
+                  tabledata "CDS Field Security Profile" = RIMD,
+                  tabledata "CDS System User Profiles" = RIMD,
                   tabledata "CRM Team" = RIMD,
                   tabledata "CRM Transactioncurrency" = RIMD,
                   tabledata "CRM Uom" = RIMD,
@@ -67,5 +70,8 @@ permissionset 3544 "Dynamics CRM - Edit"
                   tabledata "Integration Synch. Job" = RIMD,
                   tabledata "Integration Synch. Job Errors" = RIMD,
                   tabledata "Integration Table Mapping" = RIMD,
-                  tabledata "Temp Integration Field Mapping" = RIMD;
+                  tabledata "Man. Integration Field Mapping" = RIMD,
+                  tabledata "Man. Integration Table Mapping" = RIMD,
+                  tabledata "Temp Integration Field Mapping" = RIMD,
+                  tabledata "Man. Int. Field Mapping" = RIMD;
 }

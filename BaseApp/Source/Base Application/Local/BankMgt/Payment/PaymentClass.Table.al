@@ -12,6 +12,7 @@ table 10860 "Payment Class"
 {
     Caption = 'Payment Class';
     LookupPageID = "Payment Class List";
+    DataClassification = CustomerContent;
 
     fields
     {

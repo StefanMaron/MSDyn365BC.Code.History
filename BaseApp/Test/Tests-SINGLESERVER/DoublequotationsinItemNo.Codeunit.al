@@ -88,17 +88,17 @@ codeunit 132902 "Double quotations in Item No."
         Item.Rename(ItemNo);
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasureObj, ItemNo, 1);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
         ItemCard."Base Unit of Measure".Value := ItemUnitOfMeasureObj.Code;
-        ItemCard."Inventory Posting Group".Value := GetInventoryPostingGroup;
-        ItemCard."Gen. Prod. Posting Group".Value := GetGenProdPostingGroup;
-        ItemCard.OK.Invoke;
+        ItemCard."Inventory Posting Group".Value := GetInventoryPostingGroup();
+        ItemCard."Gen. Prod. Posting Group".Value := GetGenProdPostingGroup();
+        ItemCard.OK().Invoke();
         Commit();
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.GotoRecord(Item);
-        ItemCard."&Create Stockkeeping Unit".Invoke;
-        ItemCard.OK.Invoke;
+        ItemCard."&Create Stockkeeping Unit".Invoke();
+        ItemCard.OK().Invoke();
     end;
 
     [Normal]
@@ -115,12 +115,10 @@ codeunit 132902 "Double quotations in Item No."
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestPageHandler(var CreateStockkeepingUnit: TestRequestPage "Create Stockkeeping Unit")
-    var
-        PerOption: Option Location,Variant,"Location & Variant";
     begin
-        CreateStockkeepingUnit.Item.SetFilter("Location Filter", GetLocationCode);
-        CreateStockkeepingUnit.SKUCreationMethod.Value := CreateStockkeepingUnit.SKUCreationMethod.GetOption(PerOption::Location + 1);
-        CreateStockkeepingUnit.OK.Invoke;
+        CreateStockkeepingUnit.Item.SetFilter("Location Filter", GetLocationCode());
+        CreateStockkeepingUnit.SKUCreationMethod.Value := CreateStockkeepingUnit.SKUCreationMethod.GetOption("SKU Creation Method"::Location.AsInteger() + 1);
+        CreateStockkeepingUnit.OK().Invoke();
     end;
 
     local procedure GetInventoryPostingGroup(): Code[20]

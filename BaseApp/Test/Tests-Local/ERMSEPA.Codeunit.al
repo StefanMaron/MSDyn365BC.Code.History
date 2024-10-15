@@ -65,7 +65,7 @@ codeunit 144059 "ERM SEPA"
         PrintPaymentSlip(PaymentLine."No.");
 
         // Verify: Verify values of Payment_Line_IBAN, Payment_Line__SWIFT_Code_ and PaymtHeader__No__ on report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('PaymtHeader__No__', PaymentLine."No.");
         LibraryReportDataset.AssertElementWithValueExists(Caption, PaymentLine.IBAN);
         LibraryReportDataset.AssertElementWithValueExists(Caption2, PaymentLine."SWIFT Code");
@@ -92,7 +92,7 @@ codeunit 144059 "ERM SEPA"
         PrintPaymentSlip(PaymentLine."No.");
 
         // Verify: Verify values of Payment_Lines_IBAN, Payment_Lines__SWIFT_Code_ and PaymtHeader__No__ on report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('PaymtHeader__No__', PaymentLine."No.");
         LibraryReportDataset.AssertElementWithValueExists(IBANCap, PaymentLine.IBAN);
         LibraryReportDataset.AssertElementWithValueExists(SWIFTCodeCap, PaymentLine."SWIFT Code");
@@ -136,7 +136,7 @@ codeunit 144059 "ERM SEPA"
         Item: Record Item;
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorBankAccount);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorBankAccount());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(
             Item), LibraryRandom.RandDec(10, 2));  // Take random Quantity.
@@ -170,7 +170,7 @@ codeunit 144059 "ERM SEPA"
         Item: Record Item;
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerBankAccount);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerBankAccount());
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(
             Item), LibraryRandom.RandDec(10, 2));  // Take random Quantity.
@@ -198,11 +198,11 @@ codeunit 144059 "ERM SEPA"
     var
         PaymentSlip: TestPage "Payment Slip";
     begin
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.FILTER.SetFilter("No.", No);
-        PaymentSlip.Lines.Application.Invoke;
+        PaymentSlip.Lines.Application.Invoke();
         Commit();
-        PaymentSlip.Print.Invoke;
+        PaymentSlip.Print.Invoke();
         PaymentSlip.Close();
     end;
 
@@ -210,7 +210,7 @@ codeunit 144059 "ERM SEPA"
     var
         PaymentStatus: Record "Payment Status";
     begin
-        PaymentClass := CreatePaymentClass;
+        PaymentClass := CreatePaymentClass();
         LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, PaymentClass);
         CreatePaymentStep(PaymentClass, ReportID);
     end;
@@ -223,8 +223,8 @@ codeunit 144059 "ERM SEPA"
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
         ApplyCustomerEntries.FILTER.SetFilter("Document No.", DocumentNo);
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -235,8 +235,8 @@ codeunit 144059 "ERM SEPA"
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
         ApplyVendorEntries.FILTER.SetFilter("Document No.", DocumentNo);
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -247,7 +247,7 @@ codeunit 144059 "ERM SEPA"
     begin
         LibraryVariableStorage.Dequeue(Code);
         PaymentClassList.FILTER.SetFilter(Code, Code);
-        PaymentClassList.OK.Invoke;
+        PaymentClassList.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -261,21 +261,21 @@ codeunit 144059 "ERM SEPA"
     [Scope('OnPrem')]
     procedure DraftRecapitulationRequestPageHandler(var DraftRecapitulation: TestRequestPage "Draft recapitulation")
     begin
-        DraftRecapitulation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DraftRecapitulation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RemittanceRequestPageHandler(var Remittance: TestRequestPage Remittance)
     begin
-        Remittance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Remittance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WithdrawRecapitulationRequestPageHandler(var WithdrawRecapitulation: TestRequestPage "Withdraw recapitulation")
     begin
-        WithdrawRecapitulation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        WithdrawRecapitulation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

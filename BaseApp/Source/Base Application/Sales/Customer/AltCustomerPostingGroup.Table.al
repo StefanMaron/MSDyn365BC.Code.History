@@ -4,6 +4,7 @@ table 960 "Alt. Customer Posting Group"
 {
     Caption = 'Alternative Customer Posting Group';
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

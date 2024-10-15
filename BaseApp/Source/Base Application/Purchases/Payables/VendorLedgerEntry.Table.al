@@ -26,6 +26,7 @@ table 25 "Vendor Ledger Entry"
     Caption = 'Vendor Ledger Entry';
     DrillDownPageID = "Vendor Ledger Entries";
     LookupPageID = "Vendor Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

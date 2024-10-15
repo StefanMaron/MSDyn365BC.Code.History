@@ -101,7 +101,7 @@ codeunit 144056 "ERM FA Professional Tax"
         REPORT.Run(REPORT::"Fixed Asset-Professional Tax");
 
         // Verify: Verify Professional Tax Percent, Print per Fixed Asset, Amount, Group Amount on FA Professional Tax report and field existence on FA Card.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         FADepreciationBook.CalcFields("Book Value");
         LibraryReportDataset.AssertElementWithValueExists('PercentageTaxProfessionalTax', ProfessionalTaxPercent);
         LibraryReportDataset.AssertElementWithValueExists('PrintDetails', PrintPerFixedAsset);
@@ -149,7 +149,7 @@ codeunit 144056 "ERM FA Professional Tax"
         FAPostingGroup: Record "FA Posting Group";
     begin
         FAPostingGroup.FindFirst();
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, CreateFixedAsset(ProfessionalTax), CreateDepreciationBook);
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, CreateFixedAsset(ProfessionalTax), CreateDepreciationBook());
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
         FADepreciationBook.Validate("Depreciation Starting Date", CalcDate('<-CY>', WorkDate()));  // Calculate begining date of the year.
         FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<CY>', WorkDate()));  // Calculate closing date of the year.
@@ -179,7 +179,7 @@ codeunit 144056 "ERM FA Professional Tax"
     var
         FixedAssetCard: TestPage "Fixed Asset Card";
     begin
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", No);
         FixedAssetCard."Professional Tax".AssertEquals(ProfessionalTax);
         Assert.AreEqual(ProfessionalTaxCap, FixedAssetCard."Professional Tax".Caption, UnexpectedErr);
@@ -210,7 +210,7 @@ codeunit 144056 "ERM FA Professional Tax"
         FixedAssetProfessionalTax.FixedAssetMoreThan30years1.SetValue(Format(FAProfessionaTaxPercent));
         FixedAssetProfessionalTax.FixedAssetMoreThan30years2.SetValue(Format(FAProfessionaTaxPercent));
         FixedAssetProfessionalTax.FixedAssetLessThan30years.SetValue(Format(FAProfessionaTaxPercent));
-        FixedAssetProfessionalTax.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetProfessionalTax.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

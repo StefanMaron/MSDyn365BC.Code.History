@@ -61,7 +61,7 @@ codeunit 144037 "FR ERM Legal Report"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, No, LibraryRandom.RandInt(10));  // Using Random Int for Item Quantity.
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(10));  // Using Random Int for Charge Item Quantity.
+          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(10));  // Using Random Int for Charge Item Quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));  // Using Random Dec for Unit Price.
         SalesLine.Modify(true);
         LibraryInventory.CreateItemChargeAssignment(
@@ -72,14 +72,14 @@ codeunit 144037 "FR ERM Legal Report"
     [Scope('OnPrem')]
     procedure GetShipmentLinePageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
     begin
-        GetShipmentLines.OK.Invoke;
+        GetShipmentLines.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DeleteInvoicedSalesOrdersRequestPageHandler(var DeleteInvoicedSalesOrders: TestRequestPage "Delete Invoiced Sales Orders")
     begin
-        DeleteInvoicedSalesOrders.OK.Invoke;
+        DeleteInvoicedSalesOrders.OK().Invoke();
     end;
 }
 

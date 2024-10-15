@@ -23,7 +23,7 @@ codeunit 144027 "UT COD FA Derogatory Depr."
         // Purpose of the test is to validate OnRun trigger of Codeunit ID - 13 Gen. Jnl.-Post Batch.
 
         // Test to verify error, FA Posting Type Acquisition Cost must be posted in the FA journal in Gen. Journal Line.
-        OnRunGenJnlPostBatch(LibraryUTUtility.GetNewCode, 'NCLCSRTS:TableErrorStr');
+        OnRunGenJnlPostBatch(LibraryUTUtility.GetNewCode(), 'NCLCSRTS:TableErrorStr');
     end;
 
     [Test]
@@ -136,15 +136,15 @@ codeunit 144027 "UT COD FA Derogatory Depr."
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        FixedAsset."No." := LibraryUTUtility.GetNewCode;
+        FixedAsset."No." := LibraryUTUtility.GetNewCode();
         FixedAsset.Insert();
         exit(FixedAsset."No.");
     end;
 
     local procedure CreateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book")
     begin
-        FADepreciationBook."FA No." := CreateFixedAsset;
-        FADepreciationBook."Depreciation Book Code" := CreateDepreciationBook;
+        FADepreciationBook."FA No." := CreateFixedAsset();
+        FADepreciationBook."Depreciation Book Code" := CreateDepreciationBook();
         FADepreciationBook."Depreciation Starting Date" := WorkDate();
         FADepreciationBook.Insert();
     end;
@@ -153,7 +153,7 @@ codeunit 144027 "UT COD FA Derogatory Depr."
     var
         SourceCode: Record "Source Code";
     begin
-        SourceCode.Code := LibraryUTUtility.GetNewCode10;
+        SourceCode.Code := LibraryUTUtility.GetNewCode10();
         SourceCode.Insert();
         exit(SourceCode.Code);
     end;
@@ -162,12 +162,12 @@ codeunit 144027 "UT COD FA Derogatory Depr."
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate."Page ID" := PAGE::"Fixed Asset G/L Journal";
         GenJournalTemplate.Insert();
 
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         GenJournalBatch.Insert();
     end;
 
@@ -178,7 +178,7 @@ codeunit 144027 "UT COD FA Derogatory Depr."
         CreateGenJournalBatch(GenJournalBatch);
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
-        GenJournalLine."Source Code" := CreateSourceCode;
+        GenJournalLine."Source Code" := CreateSourceCode();
         GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine."FA Posting Type" := GenJournalLine."FA Posting Type"::"Acquisition Cost";
         GenJournalLine."Document No." := DocumentNo;
@@ -192,7 +192,7 @@ codeunit 144027 "UT COD FA Derogatory Depr."
     var
         DepreciationBook: Record "Depreciation Book";
     begin
-        DepreciationBook.Code := LibraryUTUtility.GetNewCode10;
+        DepreciationBook.Code := LibraryUTUtility.GetNewCode10();
         DepreciationBook.Insert();
         exit(DepreciationBook.Code);
     end;
@@ -212,7 +212,7 @@ codeunit 144027 "UT COD FA Derogatory Depr."
         FALedgerEntry.Insert();
     end;
 
-    local procedure CreateFAPostingTypeSetup(DepreciationBookCode: Code[10]; FAPostingType: Option)
+    local procedure CreateFAPostingTypeSetup(DepreciationBookCode: Code[10]; FAPostingType: Enum "FA Posting Type Setup Type")
     var
         FAPostingTypeSetup: Record "FA Posting Type Setup";
     begin

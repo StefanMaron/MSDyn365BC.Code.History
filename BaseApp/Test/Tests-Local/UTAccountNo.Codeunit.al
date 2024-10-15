@@ -33,7 +33,7 @@ codeunit 144003 "UT Account No"
         // Purpose of the test is to validate On Validate - No. error on G/L Account No. Field on Table ID 15 G/L Account.
 
         // Exercise.
-        asserterror GLAccount.Validate("No.", CopyStr(CreateGuid, 1, 20));  // Since No. field length is 20.
+        asserterror GLAccount.Validate("No.", CopyStr(CreateGuid(), 1, 20));  // Since No. field length is 20.
 
         // Verify: Verify actual error message The first number in No. must be from 1 to 9.
         Assert.ExpectedErrorCode('Dialog');

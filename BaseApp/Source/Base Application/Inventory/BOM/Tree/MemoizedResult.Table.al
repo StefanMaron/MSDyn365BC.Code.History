@@ -7,6 +7,7 @@ namespace Microsoft.Inventory.BOM.Tree;
 table 5871 "Memoized Result"
 {
     Caption = 'Memoized Result';
+    DataClassification = CustomerContent;
 
     fields
     {

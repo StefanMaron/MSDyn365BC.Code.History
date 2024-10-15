@@ -30,21 +30,21 @@ codeunit 144014 "UT PAG Company"
         // Purpose of the test is to validate OnInit trigger of Page 5050 - Contact Card.
 
         // Setup.
-        ContactCard.OpenEdit;
-        ContactCard.FILTER.SetFilter("No.", CreateContact);
+        ContactCard.OpenEdit();
+        ContactCard.FILTER.SetFilter("No.", CreateContact());
 
         // Exercise.
         ContactCard.Type.SetValue(Contact.Type::Person);
 
         // Verify.
-        Assert.IsFalse(ContactCard."Trade Register".Enabled, 'Field should be disabled.');
+        Assert.IsFalse(ContactCard."Trade Register".Enabled(), 'Field should be disabled.');
     end;
 
     local procedure CreateContact(): Code[20]
     var
         Contact: Record Contact;
     begin
-        Contact."No." := LibraryUTUtility.GetNewCode;
+        Contact."No." := LibraryUTUtility.GetNewCode();
         Contact.Insert();
         exit(Contact."No.");
     end;

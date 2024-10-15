@@ -85,7 +85,7 @@ codeunit 144021 "UT REP Export General Ledger"
         LibraryVariableStorage.Dequeue(EndingDate);
         ExportGLEntriesToXML.StartingDate.SetValue(StartingDate);
         ExportGLEntriesToXML.EndingDate.SetValue(EndingDate);
-        ExportGLEntriesToXML.OK.Invoke;
+        ExportGLEntriesToXML.OK().Invoke();
     end;
 }
 

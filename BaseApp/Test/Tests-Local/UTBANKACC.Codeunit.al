@@ -187,7 +187,7 @@ codeunit 144010 "UT BANKACC"
 
         // Setup: Create Vendor Bank Account.
         CreateCustomerBankAccount(CustomerBankAccount);
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
 
         // Exercise.
         CustomerCard.FILTER.SetFilter("No.", CustomerBankAccount."Customer No.");
@@ -209,7 +209,7 @@ codeunit 144010 "UT BANKACC"
 
         // Setup: Create Vendor Bank Account.
         CreateVendorBankAccount(VendorBankAccount);
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
 
         // Exercise.
         VendorCard.FILTER.SetFilter("No.", VendorBankAccount."Vendor No.");
@@ -221,7 +221,7 @@ codeunit 144010 "UT BANKACC"
 
     local procedure CreateBankAccount(var BankAccount: Record "Bank Account")
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
     end;
 
@@ -229,10 +229,10 @@ codeunit 144010 "UT BANKACC"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert(true);
         CustomerBankAccount."Customer No." := Customer."No.";
-        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10();
         CustomerBankAccount.Insert();
         Customer."Preferred Bank Account Code" := CustomerBankAccount.Code;
         Customer.Modify();
@@ -242,10 +242,10 @@ codeunit 144010 "UT BANKACC"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert(true);
         VendorBankAccount."Vendor No." := Vendor."No.";
-        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10();
         VendorBankAccount.Insert();
         Vendor."Preferred Bank Account Code" := VendorBankAccount.Code;
         Vendor.Modify();

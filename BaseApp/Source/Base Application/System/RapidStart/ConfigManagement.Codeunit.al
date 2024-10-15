@@ -1,6 +1,6 @@
 namespace System.IO;
 
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Purchases.Pricing;
 #endif
 using Microsoft.Sales.Pricing;
@@ -45,52 +45,48 @@ codeunit 8616 "Config. Management"
         if IsHandled then
             exit;
 
-        with ConfigLine do begin
-            if NewCompanyName = '' then
-                Error(Text000);
-            if not FindFirst() then
-                exit;
-            SingleTable := Next() = 0;
-            if SingleTable then begin
-                ConfirmTableText := StrSubstNo(Text001, Name, NewCompanyName);
-                MessageTableText := StrSubstNo(Text002, Name, NewCompanyName);
-            end else begin
-                ConfirmTableText := StrSubstNo(Text003, NewCompanyName);
-                MessageTableText := StrSubstNo(Text004, NewCompanyName);
-            end;
-            if not Confirm(ConfirmTableText, SingleTable) then
-                exit;
-            if FindSet() then
-                repeat
-                    CopyData(ConfigLine);
-                until Next() = 0;
-            Commit();
-            Message(MessageTableText)
+        if NewCompanyName = '' then
+            Error(Text000);
+        if not ConfigLine.FindFirst() then
+            exit;
+        SingleTable := ConfigLine.Next() = 0;
+        if SingleTable then begin
+            ConfirmTableText := StrSubstNo(Text001, ConfigLine.Name, NewCompanyName);
+            MessageTableText := StrSubstNo(Text002, ConfigLine.Name, NewCompanyName);
+        end else begin
+            ConfirmTableText := StrSubstNo(Text003, NewCompanyName);
+            MessageTableText := StrSubstNo(Text004, NewCompanyName);
         end;
+        if not Confirm(ConfirmTableText, SingleTable) then
+            exit;
+        if ConfigLine.FindSet() then
+            repeat
+                CopyData(ConfigLine);
+            until ConfigLine.Next() = 0;
+        Commit();
+        Message(MessageTableText)
     end;
 
     local procedure CopyData(var ConfigLine: Record "Config. Line")
     var
         BaseCompanyName: Text[30];
     begin
-        with ConfigLine do begin
-            CheckBlocked();
-            FilterGroup := 2;
-            BaseCompanyName := GetRangeMax("Company Filter (Source Table)");
-            FilterGroup := 0;
-            if BaseCompanyName = CompanyName then
-                Error(Text006);
-            CalcFields("No. of Records", "No. of Records (Source Table)");
-            if "No. of Records" <> 0 then
-                Error(
-                  Text007,
-                  Name, CompanyName);
-            if "No. of Records (Source Table)" = 0 then
-                Error(
-                  Text009,
-                  Name, BaseCompanyName, CompanyName);
-            TransferContents("Table ID", BaseCompanyName, true);
-        end;
+        ConfigLine.CheckBlocked();
+        ConfigLine.FilterGroup := 2;
+        BaseCompanyName := ConfigLine.GetRangeMax("Company Filter (Source Table)");
+        ConfigLine.FilterGroup := 0;
+        if BaseCompanyName = CompanyName then
+            Error(Text006);
+        ConfigLine.CalcFields("No. of Records", "No. of Records (Source Table)");
+        if ConfigLine."No. of Records" <> 0 then
+            Error(
+              Text007,
+              ConfigLine.Name, CompanyName);
+        if ConfigLine."No. of Records (Source Table)" = 0 then
+            Error(
+              Text009,
+              ConfigLine.Name, BaseCompanyName, CompanyName);
+        TransferContents(ConfigLine."Table ID", BaseCompanyName, true);
     end;
 
     procedure TransferContents(TableID: Integer; NewCompanyName: Text[30]; CopyTable: Boolean): Boolean
@@ -271,6 +267,10 @@ codeunit 8616 "Config. Management"
                 exit(Page::Microsoft.Foundation.PaymentTerms."Payment Terms");
             Database::Microsoft.Bank.BankAccount."Payment Method":
                 exit(Page::Microsoft.Bank.BankAccount."Payment Methods");
+            Database::Microsoft.Sales.Reminder."Reminder Attachment Text":
+                exit(Page::Microsoft.Sales.Reminder."Reminder Attachment Text");
+            Database::Microsoft.Sales.Reminder."Reminder Email Text":
+                exit(Page::Microsoft.Sales.Reminder."Reminder Email Text");
             Database::Microsoft.Sales.Reminder."Reminder Terms":
                 exit(Page::Microsoft.Sales.Reminder."Reminder Terms");
             Database::Microsoft.Sales.Reminder."Reminder Level":
@@ -619,7 +619,7 @@ codeunit 8616 "Config. Management"
                 exit(Page::Microsoft.Purchases.History."Posted Purchase Invoices");
             Database::Microsoft.Purchases.History."Purch. Cr. Memo Hdr.":
                 exit(Page::Microsoft.Purchases.History."Posted Purchase Credit Memos");
-#if not CLEAN21
+#if not CLEAN23
             Database::"Sales Price":
                 exit(Page::"Sales Prices");
             Database::"Purchase Price":
@@ -831,32 +831,30 @@ codeunit 8616 "Config. Management"
         LastAreaLineNo: Integer;
         LastGroupLineNo: Integer;
     begin
-        with ConfigLine do begin
-            Reset();
-            SetCurrentKey("Vertical Sorting");
-            if FindSet() then
-                repeat
-                    case "Line Type" of
-                        "Line Type"::Area:
-                            begin
-                                "Parent Line No." := 0;
-                                LastAreaLineNo := "Line No.";
-                                LastGroupLineNo := 0;
-                            end;
-                        "Line Type"::Group:
-                            begin
-                                "Parent Line No." := LastAreaLineNo;
-                                LastGroupLineNo := "Line No.";
-                            end;
-                        "Line Type"::Table:
-                            if LastGroupLineNo <> 0 then
-                                "Parent Line No." := LastGroupLineNo
-                            else
-                                "Parent Line No." := LastAreaLineNo;
-                    end;
-                    Modify();
-                until Next() = 0;
-        end;
+        ConfigLine.Reset();
+        ConfigLine.SetCurrentKey("Vertical Sorting");
+        if ConfigLine.FindSet() then
+            repeat
+                case ConfigLine."Line Type" of
+                    ConfigLine."Line Type"::Area:
+                        begin
+                            ConfigLine."Parent Line No." := 0;
+                            LastAreaLineNo := ConfigLine."Line No.";
+                            LastGroupLineNo := 0;
+                        end;
+                    ConfigLine."Line Type"::Group:
+                        begin
+                            ConfigLine."Parent Line No." := LastAreaLineNo;
+                            LastGroupLineNo := ConfigLine."Line No.";
+                        end;
+                    ConfigLine."Line Type"::Table:
+                        if LastGroupLineNo <> 0 then
+                            ConfigLine."Parent Line No." := LastGroupLineNo
+                        else
+                            ConfigLine."Parent Line No." := LastAreaLineNo;
+                end;
+                ConfigLine.Modify();
+            until ConfigLine.Next() = 0;
     end;
 
     procedure MakeTableFilter(var ConfigLine: Record "Config. Line"; Export: Boolean) "Filter": Text

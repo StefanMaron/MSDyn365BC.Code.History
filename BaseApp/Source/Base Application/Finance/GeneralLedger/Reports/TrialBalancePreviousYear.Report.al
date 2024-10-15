@@ -234,7 +234,6 @@ report 7 "Trial Balance/Previous Year"
         Text001: Label 'Period: %1..%2 versus %3..%4';
         NetChangeIncreasePct: Decimal;
         BalanceIncreasePct: Decimal;
-        LongText: array[4] of Text[132];
         LongText1: array[4] of Text[132];
         ReqFormDateFilter: Text[250];
         PageGroupNo: Integer;
@@ -246,7 +245,6 @@ report 7 "Trial Balance/Previous Year"
         FiscalYearCreditBalance: Decimal;
         LastYearDebitChange: Decimal;
         LastYearCreditChange: Decimal;
-        TEXT1100000: Label '-1Y';
         TrialBalancePreviousYearCaptionLbl: Label 'Trial Balance/Previous Year';
         CurrReportPageNoCaptionLbl: Label 'Page';
         NetChangeCaptionLbl: Label 'Net Change';

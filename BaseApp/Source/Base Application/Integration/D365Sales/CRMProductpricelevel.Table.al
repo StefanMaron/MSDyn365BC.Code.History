@@ -12,6 +12,7 @@ table 5347 "CRM Productpricelevel"
     Description = 'Information about how to price a product in the specified price level, including pricing method, rounding option, and discount type based on a specified product unit.';
     ExternalName = 'productpricelevel';
     TableType = CRM;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -173,7 +174,7 @@ table 5347 "CRM Productpricelevel"
         }
         field(19; DiscountTypeIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Discounttype".Name where(DiscountTypeId = field(DiscountTypeId)));
+            CalcFormula = lookup("CRM Discounttype".Name where(DiscountTypeId = field(DiscountTypeId)));
             Caption = 'DiscountTypeIdName';
             ExternalAccess = Read;
             ExternalName = 'discounttypeidname';
@@ -182,7 +183,7 @@ table 5347 "CRM Productpricelevel"
         }
         field(20; ProductIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Product".Name where(ProductId = field(ProductId)));
+            CalcFormula = lookup("CRM Product".Name where(ProductId = field(ProductId)));
             Caption = 'ProductIdName';
             ExternalAccess = Read;
             ExternalName = 'productidname';
@@ -191,7 +192,7 @@ table 5347 "CRM Productpricelevel"
         }
         field(21; PriceLevelIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Pricelevel".Name where(PriceLevelId = field(PriceLevelId)));
+            CalcFormula = lookup("CRM Pricelevel".Name where(PriceLevelId = field(PriceLevelId)));
             Caption = 'PriceLevelIdName';
             ExternalAccess = Read;
             ExternalName = 'pricelevelidname';
@@ -200,7 +201,7 @@ table 5347 "CRM Productpricelevel"
         }
         field(22; UoMIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Uom".Name where(UoMId = field(UoMId)));
+            CalcFormula = lookup("CRM Uom".Name where(UoMId = field(UoMId)));
             Caption = 'UoMIdName';
             ExternalAccess = Read;
             ExternalName = 'uomidname';
@@ -209,7 +210,7 @@ table 5347 "CRM Productpricelevel"
         }
         field(23; UoMScheduleIdName; Text[200])
         {
-            CalcFormula = Lookup("CRM Uomschedule".Name where(UoMScheduleId = field(UoMScheduleId)));
+            CalcFormula = lookup("CRM Uomschedule".Name where(UoMScheduleId = field(UoMScheduleId)));
             Caption = 'UoMScheduleIdName';
             ExternalAccess = Read;
             ExternalName = 'uomscheduleidname';
@@ -218,7 +219,7 @@ table 5347 "CRM Productpricelevel"
         }
         field(24; CreatedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
             Caption = 'CreatedByName';
             ExternalAccess = Read;
             ExternalName = 'createdbyname';
@@ -227,7 +228,7 @@ table 5347 "CRM Productpricelevel"
         }
         field(25; ModifiedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
             Caption = 'ModifiedByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedbyname';
@@ -285,7 +286,7 @@ table 5347 "CRM Productpricelevel"
         }
         field(32; TransactionCurrencyIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
+            CalcFormula = lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
             Caption = 'TransactionCurrencyIdName';
             ExternalAccess = Read;
             ExternalName = 'transactioncurrencyidname';
@@ -311,7 +312,7 @@ table 5347 "CRM Productpricelevel"
         }
         field(35; CreatedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
             Caption = 'CreatedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'createdonbehalfbyname';
@@ -329,7 +330,7 @@ table 5347 "CRM Productpricelevel"
         }
         field(37; ModifiedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
             Caption = 'ModifiedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedonbehalfbyname';

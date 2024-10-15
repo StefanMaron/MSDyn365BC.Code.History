@@ -1,6 +1,8 @@
 namespace Microsoft.Finance.Deferral;
 
+#pragma warning disable AL0659
 enum 1701 "Deferral Calculation Start Date"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

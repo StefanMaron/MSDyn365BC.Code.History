@@ -21,7 +21,6 @@ codeunit 135007 "Error Message Posting Setup"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryJob: Codeunit "Library - Job";
         LibraryErrorMessage: Codeunit "Library - Error Message";
         Assert: Codeunit Assert;
 

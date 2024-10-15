@@ -94,7 +94,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
 
         // [WHEN] Sync the CRM contact to NAV
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.Get('CONTACT');
         JobID := CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMContact.ContactId, true, true);
 
@@ -128,7 +128,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
 
         // [WHEN] Sync the CRM contact to NAV
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.Get('CONTACT');
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMContact.ContactId, true, true);
 
@@ -139,7 +139,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         // [THEN] NAV Contact got "No." from the Series No.
         ContactRecRef := ContactRecID.GetRecord();
         ContactRecRef.SetTable(Contact);
-        Contact.TestField("No.", GetLastUsedContactNo);
+        Contact.TestField("No.", GetLastUsedContactNo());
     end;
 
     [Test]
@@ -198,7 +198,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         Assert.IsTrue(CRMIntegrationRecord.IsIntegrationIdCoupled(Contact.SystemId, Database::Contact), '');
 
         // [WHEN] Synchronize the Contact
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.Get('CONTACT');
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
         IntegrationTableMapping.Modify(true);
@@ -207,7 +207,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         // [THEN] Integration Sync. Job is created, where Modified = 0, Failed = 0.
         IntegrationSynchJob.FindLast();
         Assert.AreEqual(0, IntegrationSynchJob.Modified, 'A contact of type Company should not be modified');
-        Assert.AreEqual(0, IntegrationSynchJob.Failed, ConstructAllFailuresMessage);
+        Assert.AreEqual(0, IntegrationSynchJob.Failed, ConstructAllFailuresMessage());
     end;
 
     [Test]
@@ -234,7 +234,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId, CRMContact.ContactId);
         Contact.Find();
 
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.Get('CONTACT');
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
         IntegrationTableMapping.Modify(true);
@@ -244,7 +244,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         Assert.AreEqual(1, IntegrationSynchJob.Modified,
           StrSubstNo(
             'Expected one row to be inserted. Modified: %1, Unchanged: %2, Failed: %3\', IntegrationSynchJob.Modified,
-            IntegrationSynchJob.Unchanged, ConstructAllFailuresMessage));
+            IntegrationSynchJob.Unchanged, ConstructAllFailuresMessage()));
 
         // [GIVEN] Change Contact's Type to "Company"
         Contact.Validate(Type, Contact.Type::Company);
@@ -256,7 +256,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         // [THEN] Integration Sync. Job is created, where Modified = 0 , Failed = 0.
         IntegrationSynchJob.FindLast();
         Assert.AreEqual(0, IntegrationSynchJob.Modified, 'A contact of type Company should not be modified');
-        Assert.AreEqual(0, IntegrationSynchJob.Failed, ConstructAllFailuresMessage);
+        Assert.AreEqual(0, IntegrationSynchJob.Failed, ConstructAllFailuresMessage());
     end;
 
     [Test]
@@ -303,12 +303,12 @@ codeunit 139181 "CRM Synch. Rules Test"
         Contact.Modify();
 
         // [WHEN] The Contact is synchronized while allowing insertion
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.Get('CONTACT');
         LogId := CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Contact.RecordId, true, true);
 
         // [THEN] Synchronization is skipped, Job ID is <null>, OutOfMapFilter is 'Yes'
-        Assert.IsTrue(CRMIntegrationTableSynch.GetOutOfMapFilter, 'OutOfMapFilter');
+        Assert.IsTrue(CRMIntegrationTableSynch.GetOutOfMapFilter(), 'OutOfMapFilter');
         Assert.IsTrue(IsNullGuid(LogId), 'Job ID shoul be <null>');
     end;
 
@@ -338,13 +338,13 @@ codeunit 139181 "CRM Synch. Rules Test"
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId, CRMContact.ContactId);
 
         // [WHEN] The Contact is synchronized
-        LibraryCRMIntegration.CreateCRMOrganization; // needed for LCY currency creation
-        ResetDefaultCRMSetupConfiguration;
+        LibraryCRMIntegration.CreateCRMOrganization(); // needed for LCY currency creation
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.Get('CONTACT');
         LogId := CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Contact.RecordId, true, false);
 
         // [THEN] Synchronization is skipped, Job ID is <null>, OutOfMapFilter is 'Yes'
-        Assert.IsTrue(CRMIntegrationTableSynch.GetOutOfMapFilter, 'OutOfMapFilter');
+        Assert.IsTrue(CRMIntegrationTableSynch.GetOutOfMapFilter(), 'OutOfMapFilter');
         Assert.IsTrue(IsNullGuid(LogId), 'Job ID shoul be <null>');
     end;
 
@@ -361,14 +361,14 @@ codeunit 139181 "CRM Synch. Rules Test"
         // [SCENARIO] Synchronizing a Contact with a parent Customer which is not coupled
         Initialize();
 
-        LibraryCRMIntegration.RegisterTestTableConnection;
+        LibraryCRMIntegration.RegisterTestTableConnection();
 
         // [GIVEN] A Contact with a parent Customer
         LibrarySales.CreateCustomer(Customer);
         LibraryCRMIntegration.CreateContactForCustomer(Contact, Customer);
 
         // [WHEN] Synchronizing the Contact
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.Get('CONTACT');
         LogId := CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Contact.RecordId, true, false);
 
@@ -398,7 +398,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         // [SCENARIO] Synchronizing a Contact and CRM Contact whose parent Customer and CRM Account are not coupled to anything
         Initialize();
 
-        LibraryCRMIntegration.RegisterTestTableConnection;
+        LibraryCRMIntegration.RegisterTestTableConnection();
 
         // [GIVEN] A Contact with a parent Customer
         LibrarySales.CreateCustomer(Customer);
@@ -413,7 +413,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId, CRMContact.ContactId);
 
         // [WHEN] Synchronizing the Contact
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.Get('CONTACT');
         LogId := CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Contact.RecordId, true, false);
 
@@ -437,7 +437,7 @@ codeunit 139181 "CRM Synch. Rules Test"
     begin
         // [SCENARIO 235867] Synchronizing a CRM Contact with a parent CRM Account, that is not Customer, should not create Customer
         Initialize();
-        LibraryCRMIntegration.RegisterTestTableConnection;
+        LibraryCRMIntegration.RegisterTestTableConnection();
         // [GIVEN] CRM Account 'X', where "Relationship Type" is not 'Customer'
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
         CRMAccount.CustomerTypeCode := CRMAccount.CustomerTypeCode::" ";
@@ -448,7 +448,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         CRMContact.ParentCustomerId := CRMAccount.AccountId;
         CRMContact.Modify(true);
         // [GIVEN] "Synch. Only Coupled Records" is 'No' in the 'CUSTOMER' mapping (to simulate full sync run)
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.Get('CUSTOMER');
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
         IntegrationTableMapping.Modify();
@@ -484,8 +484,8 @@ codeunit 139181 "CRM Synch. Rules Test"
         // [FEATURE] [UT]
         // [SCENARIO 235867] Synchronizing a Sales Invoice Header with a Customer, that is out of CUSTOMER map filter.
         Initialize();
-        LibraryCRMIntegration.RegisterTestTableConnection;
-        InitCRMBaseCurrency;
+        LibraryCRMIntegration.RegisterTestTableConnection();
+        InitCRMBaseCurrency();
 
         // [GIVEN] Customer 'A'
         LibrarySales.CreateCustomer(Customer);
@@ -499,7 +499,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         Customer.Modify();
 
         // [GIVEN] 'CUSTOMER' mapping, where "Table Filter" = 'Blocked=FILTER(<>Invoice))'
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.Get('CUSTOMER');
         Customer.SetFilter(Blocked, '<>%1', Customer.Blocked::Invoice);
         IntegrationTableMapping.SetTableFilter(Customer.GetView());
@@ -522,8 +522,8 @@ codeunit 139181 "CRM Synch. Rules Test"
 
     local procedure Initialize()
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
         LibraryTemplates.EnableTemplatesFeature();
     end;
 
@@ -532,7 +532,7 @@ codeunit 139181 "CRM Synch. Rules Test"
         CRMConnectionSetup: Record "CRM Connection Setup";
         CRMOrganization: Record "CRM Organization";
     begin
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.CreateCRMOrganization();
         CRMOrganization.FindFirst();
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
         CRMConnectionSetup.Modify();
@@ -593,37 +593,37 @@ codeunit 139181 "CRM Synch. Rules Test"
 
     local procedure RunContactCard(Contact: Record Contact; var TestContactCard: TestPage "Contact Card")
     begin
-        TestContactCard.Trap;
+        TestContactCard.Trap();
         PAGE.Run(PAGE::"Contact Card", Contact);
     end;
 
     local procedure RunContactList(Contact: Record Contact; var TestContactList: TestPage "Contact List")
     begin
-        TestContactList.Trap;
+        TestContactList.Trap();
         PAGE.Run(PAGE::"Contact List", Contact);
     end;
 
     local procedure AssertCRMActionGroupDisabledContactCard(TestContactCard: TestPage "Contact Card")
     begin
-        Assert.IsFalse(TestContactCard.CRMGotoContact.Enabled,
+        Assert.IsFalse(TestContactCard.CRMGotoContact.Enabled(),
           'The Contact button on the Contact Card page should not be enabled');
-        Assert.IsFalse(TestContactCard.CRMSynchronizeNow.Enabled,
+        Assert.IsFalse(TestContactCard.CRMSynchronizeNow.Enabled(),
           'The Synchronize Now button on the Contact Card page should not be enabled ');
-        Assert.IsFalse(TestContactCard.ManageCRMCoupling.Enabled,
+        Assert.IsFalse(TestContactCard.ManageCRMCoupling.Enabled(),
           'The Set Up Coupling button on the Contact Card page should not be enabled ');
-        Assert.IsFalse(TestContactCard.DeleteCRMCoupling.Enabled,
+        Assert.IsFalse(TestContactCard.DeleteCRMCoupling.Enabled(),
           'The Delete Coupling button on the Contact Card page should not be enabled ');
     end;
 
     local procedure AssertCRMActionGroupDisabledContactList(TestContactList: TestPage "Contact List")
     begin
-        Assert.IsFalse(TestContactList.CRMGotoContact.Enabled,
+        Assert.IsFalse(TestContactList.CRMGotoContact.Enabled(),
           'The Contact button on the Contact List page should not be enabled ');
-        Assert.IsFalse(TestContactList.CRMSynchronizeNow.Enabled,
+        Assert.IsFalse(TestContactList.CRMSynchronizeNow.Enabled(),
           'The Synchronize Now button on the Contact List page should not be enabled ');
-        Assert.IsFalse(TestContactList.ManageCRMCoupling.Enabled,
+        Assert.IsFalse(TestContactList.ManageCRMCoupling.Enabled(),
           'The Set Up Coupling button on the Contact List page should not be enabled ');
-        Assert.IsFalse(TestContactList.DeleteCRMCoupling.Enabled,
+        Assert.IsFalse(TestContactList.DeleteCRMCoupling.Enabled(),
           'The Delete Coupling button on the Contact List page should not be enabled ');
     end;
 

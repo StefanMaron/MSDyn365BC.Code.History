@@ -15,6 +15,7 @@ table 7319 "Posted Whse. Receipt Line"
 {
     Caption = 'Posted Whse. Receipt Line';
     LookupPageID = "Posted Whse. Receipt Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

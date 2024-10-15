@@ -14,7 +14,6 @@ report 5693 "Delete Empty FA Registers"
         dataitem("FA Register"; "FA Register")
         {
             DataItemTableView = sorting("No.");
-            RequestFilterFields = "Creation Date";
 
             trigger OnAfterGetRecord()
             begin
@@ -25,7 +24,8 @@ report 5693 "Delete Empty FA Registers"
                 if MaintenanceLedgEntry.FindFirst() then
                     CurrReport.Skip();
                 Window.Update(1, "No.");
-                Window.Update(2, "Creation Date");
+                Window.Update(2, SystemCreatedAt);
+
                 Delete();
                 NoOfDeleted := NoOfDeleted + 1;
                 Window.Update(3, NoOfDeleted);
@@ -48,6 +48,9 @@ report 5693 "Delete Empty FA Registers"
                   Text002 +
                   Text003 +
                   Text004);
+
+                if RequestFilterDate <> 0D then
+                    SetRange(SystemCreatedAt, CreateDateTime(RequestFilterDate, 000000T), CreateDateTime(RequestFilterDate, 235959T));
             end;
         }
     }
@@ -57,6 +60,18 @@ report 5693 "Delete Empty FA Registers"
 
         layout
         {
+            area(Content)
+            {
+                group(Options)
+                {
+                    Caption = 'Options';
+                    field(RequestFilterDate; RequestFilterDate)
+                    {
+                        Caption = 'Creation Date';
+                        ToolTip = 'Creation Date of the G/L Register.';
+                    }
+                }
+            }
         }
 
         actions
@@ -81,6 +96,7 @@ report 5693 "Delete Empty FA Registers"
         Text002: Label 'No.                      #1######\';
         Text003: Label 'Posted on                #2######\\';
         Text004: Label 'No. of registers deleted #3######';
+        RequestFilterDate: Date;
 
     procedure SetSkipConfirm()
     begin

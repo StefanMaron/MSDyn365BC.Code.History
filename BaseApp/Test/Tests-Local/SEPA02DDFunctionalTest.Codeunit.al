@@ -510,8 +510,8 @@ codeunit 144077 "SEPA.02 DD Functional Test"
             Validate("Bank Account No.", LibraryUtility.GenerateRandomCode(FieldNo("Bank Account No."), DATABASE::"Bank Account"));
             Validate("Country/Region Code", 'FR');
             Validate(IBAN, LibraryUtility.GenerateRandomCode(FieldNo(IBAN), DATABASE::"Bank Account"));
-            Validate("SEPA Direct Debit Exp. Format", FindSEPADDPaymentFormat);
-            Validate("Direct Debit Msg. Nos.", LibraryERM.CreateNoSeriesCode);
+            Validate("SEPA Direct Debit Exp. Format", FindSEPADDPaymentFormat());
+            Validate("Direct Debit Msg. Nos.", LibraryERM.CreateNoSeriesCode());
             Validate("SWIFT Code", LibraryUtility.GenerateRandomCode(FieldNo("SWIFT Code"), DATABASE::"Bank Account"));
             Validate("Creditor No.", LibraryUtility.GenerateRandomCode(FieldNo("Creditor No."), DATABASE::"Bank Account"));
             Modify(true);
@@ -584,7 +584,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         LibraryFRLocalization.CreatePaymentClass(PaymentClass);
         with PaymentClass do begin
             Validate(Name, '');
-            Validate("Header No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+            Validate("Header No. Series", LibraryUtility.GetGlobalNoSeriesCode());
             Validate(Enable, true);
             Validate(Suggestions, Suggestions::Customer);
             Validate("SEPA Transfer Type", "SEPA Transfer Type"::"Direct Debit");
@@ -605,7 +605,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         BankAccount: Record "Bank Account";
         PaymentClassCode: Code[30];
     begin
-        PaymentClassCode := CreatePaymentClass;
+        PaymentClassCode := CreatePaymentClass();
         LibraryVariableStorage.Enqueue(PaymentClassCode);
         LibraryFRLocalization.CreatePaymentHeader(PaymentHeader);
         with PaymentHeader do begin
@@ -657,7 +657,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         DirectDebitCollection."Source Table ID" := DATABASE::"Payment Header";
         DirectDebitCollection.Modify();
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
-        ExportedFilePath := TemporaryPath + LibraryUtility.GenerateGUID + '.xml';
+        ExportedFilePath := TemporaryPath + LibraryUtility.GenerateGUID() + '.xml';
         File.Create(ExportedFilePath);
         File.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPORT::"SEPA DD pain.008.001.02", OutStr, DirectDebitCollectionEntry);
@@ -709,7 +709,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
             "Customer No." := CustomerNo;
             "Customer Bank Account Code" := CustomerBankAccountCode;
             "Valid From" := WorkDate();
-            "Valid To" := WorkDate + LibraryRandom.RandIntInRange(300, 600);
+            "Valid To" := WorkDate() + LibraryRandom.RandIntInRange(300, 600);
             "Date of Signature" := WorkDate();
             "Expected Number of Debits" := LibraryRandom.RandInt(10);
             Insert(true);
@@ -732,9 +732,9 @@ codeunit 144077 "SEPA.02 DD Functional Test"
 
     local procedure VerifySEPADDXmlFile(PaymentHeader: Record "Payment Header"; PaymentLine: Record "Payment Line"; MsgToRecipient: Text)
     begin
-        VerifyXmlFileDeclarationAndVersion;
+        VerifyXmlFileDeclarationAndVersion();
         VerifyGroupHeader(PaymentLine);
-        VerifyInitiatingParty;
+        VerifyInitiatingParty();
         VerifyPaymentInformationHeader(PaymentLine);
         VerifyCreditor(PaymentHeader, MsgToRecipient);
         VerifyDebitor(PaymentLine);
@@ -919,7 +919,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
     begin
         LibraryVariableStorage.Dequeue(PaymentClassCode);
         PaymentClassList.GotoKey(PaymentClassCode);
-        PaymentClassList.OK.Invoke;
+        PaymentClassList.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -934,7 +934,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
     procedure SuggestCustPaymentsReqPageHandler(var SuggestCustomerPayments: TestRequestPage "Suggest Customer Payments")
     begin
         SuggestCustomerPayments.LastPaymentDate.SetValue(WorkDate());
-        SuggestCustomerPayments.OK.Invoke;
+        SuggestCustomerPayments.OK().Invoke();
     end;
 }
 

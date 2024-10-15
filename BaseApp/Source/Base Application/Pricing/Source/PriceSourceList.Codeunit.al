@@ -153,7 +153,7 @@ codeunit 7011 "Price Source List"
         TempPriceSourceLocal.Copy(TempPriceSource, true);
         TempPriceSourceLocal.Reset();
         TempPriceSourceLocal.SetRange("Source Type", SourceType);
-        If TempPriceSourceLocal.FindFirst() then begin
+        if TempPriceSourceLocal.FindFirst() then begin
             PriceSourceInterface := TempPriceSourceLocal."Source Type";
             Result := TempPriceSourceLocal."Source No.";
         end;

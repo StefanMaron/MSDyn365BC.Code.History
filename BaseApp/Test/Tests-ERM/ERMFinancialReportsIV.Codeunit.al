@@ -272,7 +272,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATVIESDeclarationTaxReport(Customer."VAT Registration No.");
 
         // Verify: Verify Values on VAT VIES Declaration Tax Auth. Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('VATRegNo', Customer."VAT Registration No.");
         Assert.AreEqual(
           -CalculateBase(Customer."No.", 'Yes|No'), LibraryReportDataset.Sum('TotalValueofItemSupplies'),
@@ -302,7 +302,7 @@ codeunit 134992 "ERM Financial Reports IV"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Exercise: Calculate and Post VAT Settlement for Customer.
-        SaveCalcAndPostVATSettlementReport(VATPostingSetup, LibraryUtility.GenerateGUID, false); // Set False for Post.
+        SaveCalcAndPostVATSettlementReport(VATPostingSetup, LibraryUtility.GenerateGUID(), false); // Set False for Post.
 
         // Verify: Verify Values on Cal.And Post VAT Settlement Report.
         VerifyValuesOnCalcAndPostVATSettlementReport(DocumentNo);
@@ -326,7 +326,7 @@ codeunit 134992 "ERM Financial Reports IV"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise: Calculate and Post VAT Settlement for Vendor.
-        SaveCalcAndPostVATSettlementReport(VATPostingSetup, LibraryUtility.GenerateGUID, false); // Set False for Post.
+        SaveCalcAndPostVATSettlementReport(VATPostingSetup, LibraryUtility.GenerateGUID(), false); // Set False for Post.
 
         // Verify: Verify Values on Cal.And Post VAT Settlement Report.
         VerifyValuesOnCalcAndPostVATSettlementReport(DocumentNo);
@@ -358,7 +358,7 @@ codeunit 134992 "ERM Financial Reports IV"
 
         // Verify: Verifying company name is not blank on record and report.
         CompanyInformation.TestField(Name);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('CompanyAddr1', CompanyInformation.Name);
     end;
 
@@ -390,14 +390,14 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryVariableStorage.Enqueue(VATStatementLine[1]."Statement Template Name");
         LibraryVariableStorage.Enqueue(FileName);
 
-        Commit;
-
-        VATStatementNames.OpenView;
         Commit();
-        VATStatementNames."&Print".Invoke; // Print
+
+        VATStatementNames.OpenView();
+        Commit();
+        VATStatementNames."&Print".Invoke(); // Print
         VATStatementNames.Close();
 
-        Assert.AreEqual(1, LibraryReportValidation.CountWorksheets, TooManyWorksheetsErr);
+        Assert.AreEqual(1, LibraryReportValidation.CountWorksheets(), TooManyWorksheetsErr);
 
         VATStatementTemplate.Get(VATStatementLine[1]."Statement Template Name");
         VATStatementTemplate.Delete(true);
@@ -405,7 +405,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATStatementTemplate.Get(VATStatementLine[2]."Statement Template Name");
         VATStatementTemplate.Delete(true);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -436,13 +436,13 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryVariableStorage.Enqueue(VATStatementLine[1]."Statement Template Name");
         LibraryVariableStorage.Enqueue(FileName);
 
-        Commit;
+        Commit();
 
-        VATStatement.OpenView;
-        VATStatement.Print.Invoke;
+        VATStatement.OpenView();
+        VATStatement.Print.Invoke();
         VATStatement.Close();
 
-        Assert.AreEqual(1, LibraryReportValidation.CountWorksheets, TooManyWorksheetsErr);
+        Assert.AreEqual(1, LibraryReportValidation.CountWorksheets(), TooManyWorksheetsErr);
 
         VATStatementTemplate.Get(VATStatementLine[1]."Statement Template Name");
         VATStatementTemplate.Delete(true);
@@ -450,7 +450,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATStatementTemplate.Get(VATStatementLine[2]."Statement Template Name");
         VATStatementTemplate.Delete(true);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -717,7 +717,7 @@ codeunit 134992 "ERM Financial Reports IV"
         SaveCalcAndPostVATSettlementReport(VATPostingSetup, Format(LibraryRandom.RandInt(100)), Post);
 
         // Verify: Verify Amount on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('GenJnlLineVATAmount', Amount);
     end;
 
@@ -948,7 +948,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATPostingSetup.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
-        CalcAndPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate, DocumentNo, GLAccount."No.", false, Post);
+        CalcAndPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), DocumentNo, GLAccount."No.", false, Post);
         Commit();
         CalcAndPostVATSettlement.Run();
     end;
@@ -984,9 +984,9 @@ codeunit 134992 "ERM Financial Reports IV"
         SaveVATStatementReport(VATStatementLine."Statement Name", Selection, PeriodSelection::"Within Period");
 
         // Verify: Verify Amount on VAT Statement Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('VatStmtLineRowNo', VATStatementLine."Row No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(NoDataRowErr, 'VatStmtLineRowNo', VATStatementLine."Row No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmount', Amount);
 
@@ -1000,7 +1000,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATVIESDeclarationTaxAuth: Report "VAT- VIES Declaration Tax Auth";
     begin
         Clear(VATVIESDeclarationTaxAuth);
-        VATVIESDeclarationTaxAuth.InitializeRequest(false, WorkDate(), WorkDate, CustomerVATRegistrationNo);
+        VATVIESDeclarationTaxAuth.InitializeRequest(false, WorkDate(), WorkDate(), CustomerVATRegistrationNo);
         VATVIESDeclarationTaxAuth.Run();
     end;
 
@@ -1010,7 +1010,7 @@ codeunit 134992 "ERM Financial Reports IV"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Assert.AreEqual(
           LibraryReportDataset.Sum('GenJnlLineVATBaseAmount'), -VATEntry.Base,
           SameAmountErr);
@@ -1134,7 +1134,7 @@ codeunit 134992 "ERM Financial Reports IV"
     [Scope('OnPrem')]
     procedure RHVATStatement(var VATStatement: TestRequestPage "VAT Statement")
     begin
-        VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
@@ -1142,29 +1142,29 @@ codeunit 134992 "ERM Financial Reports IV"
     procedure RHCalcAndPostVATSettlement(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
     begin
         if CalcAndPostVATSettlement.Editable then;
-        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHVATVIESDeclaration(var VATVIESDeclaration: TestRequestPage "VAT- VIES Declaration Tax Auth")
     begin
-        VATVIESDeclaration.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        VATVIESDeclaration.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseReceiptRequestPageHandler(var PurchaseReceipt: TestRequestPage "Purchase - Receipt")
     begin
-        PurchaseReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VATStatementTemplateListModalPageHandler(var VATStatementTemplateList: TestPage "VAT Statement Template List")
     begin
-        VATStatementTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
-        VATStatementTemplateList.OK.Invoke;
+        VATStatementTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        VATStatementTemplateList.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1173,10 +1173,10 @@ codeunit 134992 "ERM Financial Reports IV"
     var
         FileName: Text;
     begin
-        FileName := LibraryVariableStorage.DequeueText;
+        FileName := LibraryVariableStorage.DequeueText();
         LibraryReportValidation.SetFileName(FileName);
         LibraryReportValidation.SetFullFileName(FileName);
-        VATStatement.SaveAsExcel(LibraryReportValidation.GetFileName);
+        VATStatement.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]

@@ -11,6 +11,7 @@ using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Shipping;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
@@ -24,7 +25,7 @@ using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -38,7 +39,8 @@ using System.Utilities;
 
 table 210 "Job Journal Line"
 {
-    Caption = 'Job Journal Line';
+    Caption = 'Project Journal Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -53,7 +55,7 @@ table 210 "Job Journal Line"
         }
         field(3; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
 
             trigger OnValidate()
@@ -157,9 +159,10 @@ table 210 "Job Journal Line"
                     if Type = Type::Item then begin
                         "Bin Code" := '';
                         if ("No." <> '') and ("Location Code" <> '') then begin
+                            InitLocation();
                             GetLocation("Location Code");
                             GetItem();
-                            if IsDefaultBin() and Item.IsInventoriableType() then
+                            if IsDefaultBin() and Item.IsInventoriableType() and ("Bin Code" = '') then
                                 WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
                         end;
                     end;
@@ -376,7 +379,8 @@ table 210 "Job Journal Line"
                     if ("Location Code" <> '') and ("No." <> '') then begin
                         GetItem();
                         if IsDefaultBin() and Item.IsInventoriableType() then
-                            WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
+                            if not FindBin() then
+                                WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
                     end;
                 CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
             end;
@@ -646,6 +650,13 @@ table 210 "Job Journal Line"
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
+        field(902; "Assemble to Order"; Boolean)
+        {
+            AccessByPermission = TableData "BOM Component" = R;
+            Caption = 'Assemble to Order';
+            Editable = false;
+            DataClassification = CustomerContent;
+        }
         field(950; "Time Sheet No."; Code[20])
         {
             Caption = 'Time Sheet No.';
@@ -664,7 +675,7 @@ table 210 "Job Journal Line"
         }
         field(1000; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
 
             trigger OnValidate()
@@ -749,7 +760,7 @@ table 210 "Job Journal Line"
         }
         field(1005; "Job Posting Only"; Boolean)
         {
-            Caption = 'Job Posting Only';
+            Caption = 'Project Posting Only';
         }
         field(1006; "Line Discount %"; Decimal)
         {
@@ -880,7 +891,7 @@ table 210 "Job Journal Line"
         field(1019; "Job Planning Line No."; Integer)
         {
             BlankZero = true;
-            Caption = 'Job Planning Line No.';
+            Caption = 'Project Planning Line No.';
 
             trigger OnLookup()
             var
@@ -920,6 +931,12 @@ table 210 "Job Journal Line"
                     JobPlanningLine.TestField("System-Created Entry", false);
 
                     "Line Type" := JobPlanningLine.ConvertToJobLineType();
+
+                    if (JobPlanningLine."Location Code" <> '') and (CurrFieldNo = FieldNo("Job Planning Line No.")) then
+                        "Location Code" := JobPlanningLine."Location Code";
+                    if (JobPlanningLine."Bin Code" <> '') and (CurrFieldNo = FieldNo("Job Planning Line No.")) then
+                        "Bin Code" := JobPlanningLine."Bin Code";
+
                     Validate("Remaining Qty.", CalcQtyFromBaseQty(JobPlanningLine."Remaining Qty. (Base)" - "Quantity (Base)"));
 
                     if Quantity > 0 then
@@ -965,10 +982,15 @@ table 210 "Job Journal Line"
                 Validate("Remaining Qty.", CalcQtyFromBaseQty("Remaining Qty. (Base)"));
             end;
         }
+        field(1081; "Qty. to Transfer to Invoice"; Decimal)
+        {
+            Caption = 'Qty. to Transfer to Invoice';
+            DecimalPlaces = 0 : 5;
+        }
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = IF (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false));
+            TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false));
 
             trigger OnValidate()
             var
@@ -1109,6 +1131,8 @@ table 210 "Job Journal Line"
 
     fieldgroups
     {
+        fieldgroup(Brick; "No.", Description, Quantity, "Document No.", "Document Date")
+        { }
     }
 
     trigger OnDelete()
@@ -1161,7 +1185,6 @@ table 210 "Job Journal Line"
         SKU: Record "Stockkeeping Unit";
         GLSetup: Record "General Ledger Setup";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         UOMMgt: Codeunit "Unit of Measure Management";
         ReserveJobJnlLine: Codeunit "Job Jnl. Line-Reserve";
         WMSManagement: Codeunit "WMS Management";
@@ -1176,7 +1199,7 @@ table 210 "Job Journal Line"
         Text003: Label 'must be negative';
         Text004: Label '%1 is only editable when a %2 is defined.';
         Text006: Label '%1 cannot be changed when %2 is set.';
-        Text007: Label '%1 %2 is already linked to %3 %4. Hence %5 cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?', Comment = 'Job Journal Line job DEFAULT 30000 is already linked to Job Planning Line  DEERFIELD, 8 WP 1120 10000. Hence Remaining Qty. cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?';
+        Text007: Label '%1 %2 is already linked to %3 %4. Hence %5 cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?', Comment = 'Project Journal Line project DEFAULT 30000 is already linked to Project Planning Line  DEERFIELD, 8 WP 1120 10000. Hence Remaining Qty. cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?';
 
     protected var
         JobJnlTemplate: Record "Job Journal Template";
@@ -1358,6 +1381,7 @@ table 210 "Job Journal Line"
     procedure SetUpNewLine(LastJobJnlLine: Record "Job Journal Line")
     var
         JobsSetup: Record "Jobs Setup";
+        NoSeries: Codeunit "No. Series";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1387,10 +1411,8 @@ table 210 "Job Journal Line"
                 if "Document No." = '' then
                     "Document No." := Rec."Job No.";
             end else
-                if JobJnlBatch."No. Series" <> '' then begin
-                    Clear(NoSeriesMgt);
-                    "Document No." := NoSeriesMgt.TryGetNextNo(JobJnlBatch."No. Series", "Posting Date");
-                end;
+                if JobJnlBatch."No. Series" <> '' then
+                    "Document No." := NoSeries.PeekNextNo(JobJnlBatch."No. Series", "Posting Date");
         end;
         "Recurring Method" := LastJobJnlLine."Recurring Method";
         "Entry Type" := "Entry Type"::Usage;
@@ -1855,14 +1877,14 @@ table 210 "Job Journal Line"
     end;
 
     local procedure IsQuantityChangedForPrice(): Boolean;
-#if not CLEAN21
+#if not CLEAN23
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
 #endif
     begin
         if Quantity = xRec.Quantity then
             exit(false);
-#if not CLEAN21
+#if not CLEAN23
         exit(PriceCalculationMgt.IsExtendedPriceCalculationEnabled());
 #else
         exit(true);
@@ -1934,7 +1956,7 @@ table 210 "Job Journal Line"
         end;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterResourceFindCost(var ResourceCost: Record "Resource Cost")
     begin
@@ -2245,6 +2267,28 @@ table 210 "Job Journal Line"
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
+    local procedure InitLocation()
+    var
+        JobTask: Record "Job Task";
+    begin
+        if JobTask.Get(Rec."Job No.", Rec."Job Task No.") and (JobTask."Location Code" <> '') then
+            Validate("Location Code", JobTask."Location Code");
+    end;
+
+    local procedure FindBin(): Boolean
+    var
+        JobTask: Record "Job Task";
+    begin
+        if JobTask.Get(Rec."Job No.", Rec."Job Task No.") and (JobTask."Bin Code" <> '') then begin
+            if ("Location Code" <> '') and (JobTask."Location Code" <> "Location Code") then
+                exit(false);
+            if WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", JobTask."Bin Code") then begin
+                "Bin Code" := JobTask."Bin Code";
+                exit(true);
+            end;
+        end;
+    end;
+
     local procedure CalcBaseQtyForJobPlanningLine(Qty: Decimal; FromFieldName: Text; ToFieldName: Text; JobPlanningLine: Record "Job Planning Line"): Decimal
     begin
         exit(UOMMgt.CalcBaseQty(
@@ -2311,7 +2355,7 @@ table 210 "Job Journal Line"
     begin
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobJournalLine: Record "Job Journal Line"; var ResourceCost: Record "Resource Cost")

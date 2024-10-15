@@ -79,7 +79,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         PaymentLine: Record "Payment Line";
     begin
         InitializeTestDataAndExportSEPAFile(PaymentHeader, PaymentLine);
-        VerifyXmlFileDeclarationAndVersion;
+        VerifyXmlFileDeclarationAndVersion();
     end;
 
     [Test]
@@ -103,7 +103,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         PaymentLine: Record "Payment Line";
     begin
         InitializeTestDataAndExportSEPAFile(PaymentHeader, PaymentLine);
-        VerifyInitiatingParty;
+        VerifyInitiatingParty();
     end;
 
     [Test]
@@ -174,7 +174,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         ExportedFilePath := ExportSEPAFile(PaymentHeader);
 
         // [THEN] SEPA CT file contains element PmtInf/PmtTpInf/SvcLvl/Cd with value 'SEPA'.
-        LibraryXPathXMLReader.Initialize(ExportedFilePath, GetISO20022V03NameSpace);
+        LibraryXPathXMLReader.Initialize(ExportedFilePath, GetISO20022V03NameSpace());
         LibraryXPathXMLReader.VerifyNodeValueByXPath('//PmtInf/PmtTpInf/SvcLvl/Cd', 'SEPA');
     end;
 
@@ -185,8 +185,8 @@ codeunit 144076 "SEPA.03 CT Functional Test"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SEPA.03 CT Functional Test");
 
-        SEPACTCode := FindSEPACTPaymentFormat;
-        AllowSEPAOnCompanyCountryCode;
+        SEPACTCode := FindSEPACTPaymentFormat();
+        AllowSEPAOnCompanyCountryCode();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SEPA.03 CT Functional Test");
     end;
@@ -219,10 +219,10 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         with BankAccount do begin
             Validate(Balance, LibraryRandom.RandIntInRange(100000, 1000000));
             Validate("Bank Account No.", LibraryUtility.GenerateRandomCode(FieldNo("Bank Account No."), DATABASE::"Bank Account"));
-            Validate("Country/Region Code", GetASEPACountryCode);
+            Validate("Country/Region Code", GetASEPACountryCode());
             Validate(IBAN, 'ES7620770024003102575766');
             Validate("Payment Export Format", SEPACTCode);
-            Validate("Credit Transfer Msg. Nos.", LibraryERM.CreateNoSeriesCode);
+            Validate("Credit Transfer Msg. Nos.", LibraryERM.CreateNoSeriesCode());
             Validate("SWIFT Code", 'BSCHESMM');
             Modify(true);
         end;
@@ -253,7 +253,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         BankAccount: Record "Bank Account";
         PaymentClassCode: Code[30];
     begin
-        PaymentClassCode := CreatePaymentClass;
+        PaymentClassCode := CreatePaymentClass();
         LibraryVariableStorage.Enqueue(PaymentClassCode);
 
         LibraryFRLocalization.CreatePaymentHeader(PaymentHeader);
@@ -270,7 +270,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         LibraryFRLocalization.CreatePaymentLine(PaymentLine, PaymentHeader."No.");
         with PaymentLine do begin
             Validate("Account Type", "Account Type"::Vendor);
-            Validate("Account No.", CreateVendor);
+            Validate("Account No.", CreateVendor());
             Validate(Amount, LibraryRandom.RandDecInRange(1, 1000, 1));
             Validate("Due Date", CalcDate('1D', "Due Date"));
             Modify(true);
@@ -326,7 +326,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         GenJnlLine.SetRange("Journal Template Name", '');
         GenJnlLine.SetRange("Journal Batch Name", '');
         GenJnlLine.SetRange("Document No.", PaymentHeader."No.");
-        ExportedFilePath := TemporaryPath + LibraryUtility.GenerateGUID + '.xml';
+        ExportedFilePath := TemporaryPath + LibraryUtility.GenerateGUID() + '.xml';
         File.Create(ExportedFilePath);
         File.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPORT::"SEPA CT pain.001.001.03", OutStr, GenJnlLine);
@@ -384,7 +384,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
     begin
         LibraryVariableStorage.Dequeue(PaymentClassCode);
         PaymentClassList.GotoKey(PaymentClassCode);
-        PaymentClassList.OK.Invoke;
+        PaymentClassList.OK().Invoke();
     end;
 
     local procedure SetPreserveNonLatinCharacters(Preserve: Boolean)
@@ -487,7 +487,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
 
     local procedure VerifyNodeValue(SubtreeRootNodeName: Text; NodeName: Text; ExpectedValue: Text)
     begin
-        if not GetPreserveNonLatinCharacters then
+        if not GetPreserveNonLatinCharacters() then
             ExpectedValue := StringConversionManagement.WindowsToASCII(ExpectedValue);
         LibraryXMLRead.VerifyNodeValueInSubtree(SubtreeRootNodeName, NodeName, ExpectedValue);
     end;

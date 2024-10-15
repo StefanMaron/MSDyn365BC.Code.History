@@ -8,6 +8,7 @@ table 230 "Source Code"
 {
     Caption = 'Source Code';
     LookupPageID = "Source Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

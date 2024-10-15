@@ -72,7 +72,7 @@ codeunit 1269 "Export Mapping"
                         SourceFieldRef := SourceRecRef.Field(DataExchFieldGrouping."Field ID");
                         FieldRef := RecRef.Field(DataExchFieldGrouping."Field ID");
                         FieldRef.SetRange(SourceFieldRef.Value);
-                    until DataExchFieldGrouping.Next = 0;
+                    until DataExchFieldGrouping.Next() = 0;
 
                     if RecRef.FindFirst() then begin
                         if TempField2.FindSet() then
@@ -82,14 +82,14 @@ codeunit 1269 "Export Mapping"
 
                                 if SourceFieldRef.Class = SourceFieldRef.Class::FlowField then
                                     SourceFieldRef.CalcField();
-                                SourceDecValue := SourceFieldRef.Value;
+                                SourceDecValue := SourceFieldRef.Value();
 
                                 if SourceFieldRef.Class = SourceFieldRef.Class::FlowField then begin
                                     DataExchFlowFieldGrBuff.Get(RecRef.RecordId, SourceFieldRef.Number);
                                     DataExchFlowFieldGrBuff.Value += SourceDecValue;
                                     DataExchFlowFieldGrBuff.Modify();
                                 end else begin
-                                    DecValue := FieldRef.Value;
+                                    DecValue := FieldRef.Value();
                                     FieldRef.Value := DecValue + SourceDecValue;
                                 end;
                             until TempField2.Next() = 0;
@@ -106,15 +106,15 @@ codeunit 1269 "Export Mapping"
                                     DataExchFlowFieldGrBuff.Init();
                                     DataExchFlowFieldGrBuff."Record ID" := SourceRecRef.RecordId;
                                     DataExchFlowFieldGrBuff."Field ID" := SourceFieldRef.Number;
-                                    DataExchFlowFieldGrBuff.Value := SourceFieldRef.Value;
+                                    DataExchFlowFieldGrBuff.Value := SourceFieldRef.Value();
                                     DataExchFlowFieldGrBuff.Insert();
                                 end else
-                                    FieldRef.Value := SourceFieldRef.Value;
+                                    FieldRef.Value := SourceFieldRef.Value();
                             until TempField.Next() = 0;
                         RecRef.Insert();
                     end;
-                    RecRef.Reset;
-                until SourceRecRef.Next = 0;
+                    RecRef.Reset();
+                until SourceRecRef.Next() = 0;
         end else
             RecRef.SetView(Filters);
 
@@ -123,8 +123,8 @@ codeunit 1269 "Export Mapping"
 
         if not RecRef.FindSet() then begin
             OnBeforeCheckRecRefCount(IsHandled);
-            If not IsHandled then
-                Error(RecordsNotFoundErr, RecRef.Number(), RecRef.GetView);
+            if not IsHandled then
+                Error(RecordsNotFoundErr, RecRef.Number(), RecRef.GetView());
         end;
     end;
 

@@ -17,6 +17,9 @@ codeunit 131904 "Library - Time Sheet"
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryAssembly: Codeunit "Library - Assembly";
         TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
         Initialized: Boolean;
         NoSeriesCode: Label 'TS';
@@ -35,7 +38,7 @@ codeunit 131904 "Library - Time Sheet"
         end;
 
         if ResourcesSetup."Time Sheet Nos." = '' then begin
-            ResourcesSetup.Validate("Time Sheet Nos.", GetTimeSheetNoSeries);
+            ResourcesSetup.Validate("Time Sheet Nos.", GetTimeSheetNoSeries());
             ResourcesSetup.Modify();
         end;
 
@@ -46,6 +49,9 @@ codeunit 131904 "Library - Time Sheet"
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
+    [Obsolete('Not used', '22.0')]
+#pragma warning restore AS0072
     procedure SetNewTimeSheetExperience(Enabled: Boolean)
     begin
         ResourcesSetup.Get();
@@ -166,7 +172,7 @@ codeunit 131904 "Library - Time Sheet"
     var
         LineNo: Integer;
     begin
-        LineNo := TimeSheetHeader.GetLastLineNo + 10000;
+        LineNo := TimeSheetHeader.GetLastLineNo() + 10000;
 
         TimeSheetLine.Init();
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
@@ -235,7 +241,7 @@ codeunit 131904 "Library - Time Sheet"
     begin
         UserSetup.Init();
         if CurrUserID then begin
-            UserSetup."User ID" := UserId;
+            UserSetup."User ID" := CopyStr(UserId(), 1, MaxStrLen(UserSetup."User ID"));
             UserSetup."Time Sheet Admin." := true;
         end else
             UserSetup."User ID" :=
@@ -271,26 +277,22 @@ codeunit 131904 "Library - Time Sheet"
     begin
         CreateHRUnitOfMeasure(HumanResourceUnitOfMeasure, 1);
 
-        with CauseOfAbsence do begin
-            Init();
-            Validate(Code, LibraryUtility.GenerateGUID());
-            Validate(Description, LibraryUtility.GenerateGUID());
-            Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
-            Insert(true);
-        end;
+        CauseOfAbsence.Init();
+        CauseOfAbsence.Validate(Code, LibraryUtility.GenerateGUID());
+        CauseOfAbsence.Validate(Description, LibraryUtility.GenerateGUID());
+        CauseOfAbsence.Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
+        CauseOfAbsence.Insert(true);
     end;
 
     procedure FindCauseOfAbsence(var CauseOfAbsence: Record "Cause of Absence")
     var
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin
-        with CauseOfAbsence do begin
-            FindFirst();
-            if "Unit of Measure Code" = '' then begin
-                HumanResourceUnitOfMeasure.FindFirst();
-                Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
-                Modify(true);
-            end;
+        CauseOfAbsence.FindFirst();
+        if CauseOfAbsence."Unit of Measure Code" = '' then begin
+            HumanResourceUnitOfMeasure.FindFirst();
+            CauseOfAbsence.Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
+            CauseOfAbsence.Modify(true);
         end;
     end;
 
@@ -352,7 +354,6 @@ codeunit 131904 "Library - Time Sheet"
     var
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
-        LibraryUtility: Codeunit "Library - Utility";
     begin
         if not NoSeries.Get(NoSeriesCode) then begin
             LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
@@ -384,10 +385,6 @@ codeunit 131904 "Library - Time Sheet"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
         GeneralPostingSetup: Record "General Posting Setup";
-        LibraryInventory: Codeunit "Library - Inventory";
-        LibraryWarehouse: Codeunit "Library - Warehouse";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
-        LibraryAssembly: Codeunit "Library - Assembly";
         ItemCount: Integer;
         Date: Date;
     begin
@@ -438,8 +435,6 @@ codeunit 131904 "Library - Time Sheet"
     end;
 
     procedure InitBackwayScenario(var TimeSheetHeader: Record "Time Sheet Header"; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
-    var
-        LibraryService: Codeunit "Library - Service";
     begin
         // create time sheet
         CreateTimeSheet(TimeSheetHeader, false);
@@ -449,7 +444,7 @@ codeunit 131904 "Library - Time Sheet"
         // create service line
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, TimeSheetHeader."Resource No.");
         ServiceLine.Validate("Service Item Line No.", 10000);
-        ServiceLine.Validate(Quantity, GetRandomDecimal);
+        ServiceLine.Validate(Quantity, GetRandomDecimal());
         ServiceLine.Modify();
     end;
 
@@ -458,7 +453,6 @@ codeunit 131904 "Library - Time Sheet"
         Resource: Record Resource;
         Job: Record Job;
         JobTask: Record "Job Task";
-        TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
     begin
         // create time sheet
         CreateTimeSheet(TimeSheetHeader, false);
@@ -469,21 +463,19 @@ codeunit 131904 "Library - Time Sheet"
         FindJobTask(Job."No.", JobTask);
         // job's responsible person (resource) must have Owner ID filled in
         Resource.Get(Job."Person Responsible");
-        Resource."Time Sheet Owner User ID" := UserId;
+        Resource."Time Sheet Owner User ID" := CopyStr(UserId(), 1, MaxStrLen(Resource."Time Sheet Owner User ID"));
         Resource.Modify();
         CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Job, Job."No.",
           JobTask."Job Task No.", '', '');
 
         // set quantity for line
-        CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", GetRandomDecimal);
+        CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", GetRandomDecimal());
         // submit and approve line
         TimeSheetApprovalMgt.Submit(TimeSheetLine);
         TimeSheetApprovalMgt.Approve(TimeSheetLine);
     end;
 
     procedure InitResourceScenario(var TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line"; UseCurrentUserID: Boolean)
-    var
-        TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
     begin
         // create time sheet
         CreateTimeSheet(TimeSheetHeader, UseCurrentUserID);
@@ -494,7 +486,7 @@ codeunit 131904 "Library - Time Sheet"
         TimeSheetLine.Modify();
 
         // set quantity for line
-        CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", GetRandomDecimal);
+        CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", GetRandomDecimal());
         // submit and approve line
         TimeSheetApprovalMgt.Submit(TimeSheetLine);
         TimeSheetApprovalMgt.Approve(TimeSheetLine);
@@ -507,7 +499,6 @@ codeunit 131904 "Library - Time Sheet"
         Job: Record Job;
         JobTask: Record "Job Task";
         WorkType: Record "Work Type";
-        TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
         RowCount: Integer;
     begin
         // create time sheet
@@ -520,7 +511,7 @@ codeunit 131904 "Library - Time Sheet"
             FindJobTask(Job."No.", JobTask);
             // job's responsible person (resource) must have Owner ID filled in
             Resource.Get(Job."Person Responsible");
-            Resource."Time Sheet Owner User ID" := UserId;
+            Resource."Time Sheet Owner User ID" := CopyStr(UserId(), 1, MaxStrLen(Resource."Time Sheet Owner User ID"));
             Resource.Modify();
             CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine[RowCount], TimeSheetLine[RowCount].Type::Job, Job."No.",
               JobTask."Job Task No.", '', '');
@@ -533,8 +524,8 @@ codeunit 131904 "Library - Time Sheet"
                 TimeSheetLine[RowCount].Validate("Work Type Code", WorkType.Code);
             end;
             TimeSheetLine[RowCount].Modify();
-            CreateTimeSheetDetail(TimeSheetLine[RowCount], TimeSheetHeader."Starting Date", GetRandomDecimal);
-            CreateTimeSheetDetail(TimeSheetLine[RowCount], TimeSheetHeader."Starting Date" + 1, GetRandomDecimal);
+            CreateTimeSheetDetail(TimeSheetLine[RowCount], TimeSheetHeader."Starting Date", GetRandomDecimal());
+            CreateTimeSheetDetail(TimeSheetLine[RowCount], TimeSheetHeader."Starting Date" + 1, GetRandomDecimal());
             TimeSheetApprovalMgt.Submit(TimeSheetLine[RowCount]);
         end;
     end;
@@ -543,7 +534,6 @@ codeunit 131904 "Library - Time Sheet"
     var
         TimeSheetLine: Record "Time Sheet Line";
         Resource: Record Resource;
-        TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
     begin
         // create time sheet
         CreateTimeSheet(TimeSheetHeader, false);
@@ -558,13 +548,11 @@ codeunit 131904 "Library - Time Sheet"
         TimeSheetLine.Validate("Service Order No.", ServiceHeader."No.");
         TimeSheetLine.Modify();
         // set quantities for lines
-        CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", GetRandomDecimal);
+        CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", GetRandomDecimal());
         TimeSheetApprovalMgt.Submit(TimeSheetLine);
     end;
 
     procedure InitServiceScenario(var TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line"; var ServiceHeader: Record "Service Header")
-    var
-        TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
     begin
         // create time sheet
         CreateTimeSheet(TimeSheetHeader, false);
@@ -576,7 +564,7 @@ codeunit 131904 "Library - Time Sheet"
         // create time sheet line with type Service
         CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Service, '', '', ServiceHeader."No.", '');
         TimeSheetLine.Validate("Service Order No.", ServiceHeader."No.");
-        CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", GetRandomDecimal);
+        CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", GetRandomDecimal());
         TimeSheetApprovalMgt.Submit(TimeSheetLine);
         TimeSheetApprovalMgt.Approve(TimeSheetLine);
     end;

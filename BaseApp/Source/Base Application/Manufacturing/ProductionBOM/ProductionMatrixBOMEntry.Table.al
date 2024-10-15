@@ -5,6 +5,7 @@ using Microsoft.Inventory.Item;
 table 99000789 "Production Matrix  BOM Entry"
 {
     Caption = 'Production Matrix  BOM Entry';
+    DataClassification = CustomerContent;
 
     fields
     {

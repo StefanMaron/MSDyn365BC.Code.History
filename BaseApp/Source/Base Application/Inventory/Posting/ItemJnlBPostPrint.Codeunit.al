@@ -33,47 +33,45 @@ codeunit 244 "Item Jnl.-B.Post+Print"
     var
         HideDialog: Boolean;
     begin
-        with ItemJnlBatch do begin
-            ItemJnlTemplate.Get("Journal Template Name");
-            ItemJnlTemplate.TestField("Posting Report ID");
+        ItemJnlTemplate.Get(ItemJnlBatch."Journal Template Name");
+        ItemJnlTemplate.TestField("Posting Report ID");
 
-            HideDialog := false;
-            OnBeforePostJournalBatch(ItemJnlBatch, HideDialog);
-            if not HideDialog then
-                if not Confirm(Text000, false) then
-                    exit;
+        HideDialog := false;
+        OnBeforePostJournalBatch(ItemJnlBatch, HideDialog);
+        if not HideDialog then
+            if not Confirm(Text000, false) then
+                exit;
 
-            Find('-');
-            repeat
-                ItemJnlLine."Journal Template Name" := "Journal Template Name";
-                ItemJnlLine."Journal Batch Name" := Name;
-                ItemJnlLine."Line No." := 1;
-                Clear(ItemJnlPostBatch);
-                if ItemJnlPostBatch.Run(ItemJnlLine) then begin
-                    OnAfterPostJournalBatch(ItemJnlBatch);
-                    Mark(false);
-                    if ItemReg.Get(ItemJnlPostBatch.GetItemRegNo()) then
-                        PrintItemRegister();
+        ItemJnlBatch.Find('-');
+        repeat
+            ItemJnlLine."Journal Template Name" := ItemJnlBatch."Journal Template Name";
+            ItemJnlLine."Journal Batch Name" := ItemJnlBatch.Name;
+            ItemJnlLine."Line No." := 1;
+            Clear(ItemJnlPostBatch);
+            if ItemJnlPostBatch.Run(ItemJnlLine) then begin
+                OnAfterPostJournalBatch(ItemJnlBatch);
+                ItemJnlBatch.Mark(false);
+                if ItemReg.Get(ItemJnlPostBatch.GetItemRegNo()) then
+                    PrintItemRegister();
 
-                    if WhseReg.Get(ItemJnlPostBatch.GetWhseRegNo()) then
-                        PrintWhseRegister();
-                end else begin
-                    Mark(true);
-                    JnlWithErrors := true;
-                end;
-            until Next() = 0;
-
-            if not JnlWithErrors then
-                Message(Text001)
-            else
-                Message(
-                  Text002 +
-                  Text003);
-
-            if not Find('=><') then begin
-                Reset();
-                Name := '';
+                if WhseReg.Get(ItemJnlPostBatch.GetWhseRegNo()) then
+                    PrintWhseRegister();
+            end else begin
+                ItemJnlBatch.Mark(true);
+                JnlWithErrors := true;
             end;
+        until ItemJnlBatch.Next() = 0;
+
+        if not JnlWithErrors then
+            Message(Text001)
+        else
+            Message(
+              Text002 +
+              Text003);
+
+        if not ItemJnlBatch.Find('=><') then begin
+            ItemJnlBatch.Reset();
+            ItemJnlBatch.Name := '';
         end;
     end;
 

@@ -60,7 +60,7 @@ codeunit 134375 "ERM Reminders With Min Amount"
         SalesInvoiceLine.FindFirst();
         CreateSalesCreditMemo(SalesHeader, Customer."No.", ReminderTerms."Minimum Amount (LCY)" - 1, SalesInvoiceLine.Quantity);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        ExecuteUIHandler;
+        ExecuteUIHandler();
         ReminderHeaderNo := CreateReminder(Customer."No.", false, '', false, true);
 
         // Verify: Verify that the Reminder Lines Exists after Suggesting Lines from Reminder Header.
@@ -242,7 +242,7 @@ codeunit 134375 "ERM Reminders With Min Amount"
         end;
 
         // Create Sales Line with Unit Price.
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, Quantity);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
     end;
@@ -255,7 +255,7 @@ codeunit 134375 "ERM Reminders With Min Amount"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
 
         // Create Sales Line, Update Unit Price and Quantity to Ship on Sales Line.
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, Quantity);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Validate("Qty. to Ship", 0);  // Qty to Ship must be zero in Sales Credit Memo.
         SalesLine.Modify(true);
@@ -277,7 +277,7 @@ codeunit 134375 "ERM Reminders With Min Amount"
 
         // Suggest Reminder Lines.
         ReminderMake.SuggestLines(ReminderHeader, CustLedgerEntry, OverdueEntriesOnly, IncludeEntriesOnHold, CustLedgEntryLineFeeOn);
-        ReminderMake.Code;
+        ReminderMake.Code();
         exit(ReminderHeader."No.");
     end;
 
@@ -286,9 +286,9 @@ codeunit 134375 "ERM Reminders With Min Amount"
     begin
         // Create a New Customer and update Reminder Terms.
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Reminder Terms Code", CreateReminderTerms);
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms());
         if CurrencyCode then
-            Customer.Validate("Currency Code", CreateCurrency);
+            Customer.Validate("Currency Code", CreateCurrency());
         Customer.Modify(true);
     end;
 
@@ -339,7 +339,7 @@ codeunit 134375 "ERM Reminders With Min Amount"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
-        GenJournalLine.Validate("Currency Code", CreateCurrency);
+        GenJournalLine.Validate("Currency Code", CreateCurrency());
         GenJournalLine.Modify(true);
     end;
 

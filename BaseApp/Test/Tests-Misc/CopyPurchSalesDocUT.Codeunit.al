@@ -137,7 +137,7 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
         Initialize();
 
         // [GIVEN] Sales Invoice with Payment Term Code and Sales Credit memo.
-        LibrarySales.CreateSalesHeader(FromSalesHeader, FromSalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(FromSalesHeader, FromSalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         FromSalesHeader.Validate("Payment Terms Code", PaymentTerms.Code);
         FromSalesHeader.Modify(true);
@@ -166,7 +166,7 @@ codeunit 134338 "Copy Purch/Sales Doc UT"
         Initialize();
 
         // [GIVEN] Purchase Invoice with Payment Term Code and Purchase Credit memo.
-        LibraryPurchase.CreatePurchHeader(FromPurchHeader, FromPurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(FromPurchHeader, FromPurchHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         FromPurchHeader.Validate("Payment Terms Code", PaymentTerms.Code);
         FromPurchHeader.Modify(true);

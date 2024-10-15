@@ -24,7 +24,7 @@ codeunit 144026 "UT REP FA Derogatory Depr."
         // Purpose of the test is to validate OnPreReport trigger of Report ID - 5692 Calculate Depreciation.
         // Setup.
         Initialize();
-        CreateDepreciationBook;
+        CreateDepreciationBook();
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"Calculate Depreciation");
@@ -61,7 +61,7 @@ codeunit 144026 "UT REP FA Derogatory Depr."
     begin
         // Setup.
         Initialize();
-        CreateDepreciationBook;
+        CreateDepreciationBook();
         LibraryVariableStorage.Enqueue(Disposal);  // Required inside CancelFALedgerEntriesRequestPageHandler.
 
         // Exercise.
@@ -86,7 +86,7 @@ codeunit 144026 "UT REP FA Derogatory Depr."
 
         // Setup: Create FA Depreciation Book with G/L Budget.
         Initialize();
-        GLBudgetName := CreateGLBudgetName;
+        GLBudgetName := CreateGLBudgetName();
         CreateFAPostingGroup(FAPostingGroup);
         CreateFADepreciationBook(FADepreciationBook, FAPostingGroup.Code);
         CreateFALedgerEntry(FADepreciationBook."FA No.", FADepreciationBook."Depreciation Book Code");
@@ -113,8 +113,8 @@ codeunit 144026 "UT REP FA Derogatory Depr."
     var
         DepreciationBook: Record "Depreciation Book";
     begin
-        DepreciationBook.Code := LibraryUTUtility.GetNewCode10;
-        DepreciationBook."Derogatory Calculation" := LibraryUTUtility.GetNewCode10;
+        DepreciationBook.Code := LibraryUTUtility.GetNewCode10();
+        DepreciationBook."Derogatory Calculation" := LibraryUTUtility.GetNewCode10();
         DepreciationBook.Insert();
         LibraryVariableStorage.Enqueue(DepreciationBook.Code);  // Required inside CalculateDepreciationRequestPageHandler or CancelFALedgerEntriesRequestPageHandler or CopyFAEntriesToGLBudgetRequestPageHandler.
         exit(DepreciationBook.Code);
@@ -124,15 +124,15 @@ codeunit 144026 "UT REP FA Derogatory Depr."
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        FixedAsset."No." := LibraryUTUtility.GetNewCode;
+        FixedAsset."No." := LibraryUTUtility.GetNewCode();
         FixedAsset.Insert();
         exit(FixedAsset."No.");
     end;
 
     local procedure CreateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; FAPostingGroup: Code[20])
     begin
-        FADepreciationBook."FA No." := CreateFixedAsset;
-        FADepreciationBook."Depreciation Book Code" := CreateDepreciationBook;
+        FADepreciationBook."FA No." := CreateFixedAsset();
+        FADepreciationBook."Depreciation Book Code" := CreateDepreciationBook();
         FADepreciationBook."FA Posting Group" := FAPostingGroup;
         FADepreciationBook.Insert();
     end;
@@ -156,15 +156,15 @@ codeunit 144026 "UT REP FA Derogatory Depr."
     var
         GLBudgetName: Record "G/L Budget Name";
     begin
-        GLBudgetName.Name := LibraryUTUtility.GetNewCode10;
+        GLBudgetName.Name := LibraryUTUtility.GetNewCode10();
         GLBudgetName.Insert();
         exit(GLBudgetName.Name);
     end;
 
     local procedure CreateFAPostingGroup(var FAPostingGroup: Record "FA Posting Group")
     begin
-        FAPostingGroup.Code := LibraryUTUtility.GetNewCode10;
-        FAPostingGroup."Derogatory Account" := LibraryUTUtility.GetNewCode;
+        FAPostingGroup.Code := LibraryUTUtility.GetNewCode10();
+        FAPostingGroup."Derogatory Account" := LibraryUTUtility.GetNewCode();
         FAPostingGroup.Insert();
     end;
 
@@ -176,7 +176,7 @@ codeunit 144026 "UT REP FA Derogatory Depr."
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
         CalculateDepreciation.DepreciationBook.SetValue(DocumentNo);
-        CalculateDepreciation.OK.Invoke;
+        CalculateDepreciation.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -190,7 +190,7 @@ codeunit 144026 "UT REP FA Derogatory Depr."
         LibraryVariableStorage.Dequeue(Disposal);
         CancelFALedgerEntries.CancelBook.SetValue(CancelBook);
         CancelFALedgerEntries.Disposal.SetValue(Disposal);
-        CancelFALedgerEntries.OK.Invoke;
+        CancelFALedgerEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -208,7 +208,7 @@ codeunit 144026 "UT REP FA Derogatory Depr."
         CopyFAEntriesToGLBudget.CopyToGLBudgetName.SetValue(CopyToGLBudgetName);
         CopyFAEntriesToGLBudget."Fixed Asset".SetFilter("No.", No);
         CopyFAEntriesToGLBudget.Derogatory.SetValue(true);
-        CopyFAEntriesToGLBudget.OK.Invoke;
+        CopyFAEntriesToGLBudget.OK().Invoke();
     end;
 }
 

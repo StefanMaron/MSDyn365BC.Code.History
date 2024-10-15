@@ -62,9 +62,9 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create Resource and generate Column Captions.
         Initialize();
-        No := CreateResource;
-        GeneratePeriodMatrixData;
-        ResourceCapacity.OpenEdit;
+        No := CreateResource();
+        GeneratePeriodMatrixData();
+        ResourceCapacity.OpenEdit();
         ResourceCapacity.FILTER.SetFilter("No.", No);
 
         // Exercise: Set Period Type on Resource Capacity Page.
@@ -97,9 +97,9 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create Resource Group and generate Column Captions.
         Initialize();
-        No := CreateResourceGroup;
-        GeneratePeriodMatrixData;
-        ResGroupCapacity.OpenEdit;
+        No := CreateResourceGroup();
+        GeneratePeriodMatrixData();
+        ResGroupCapacity.OpenEdit();
         ResGroupCapacity.FILTER.SetFilter("No.", No);
 
         // Exercise: Set Period Type on Res.Group Capacity Page.
@@ -132,14 +132,14 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create Resource,Job and generate Column Captions.
         Initialize();
-        ResourceNo := CreateResource;
+        ResourceNo := CreateResource();
         JobNo := CreateJob(ResourceNo, '');  // Using blank for Resource Group.
         OpenResourceAllocatedPerJobPage(ResourceAllocatedPerJob, ResourceNo);
         LibraryVariableStorage.Enqueue(JobNo);  // Enqueue Values for Page Handler - ResourceAllocPerJobMatrixPageHandler.
-        GeneratePeriodMatrixData;
+        GeneratePeriodMatrixData();
 
         // Exercise: Open Show Matrix.
-        ResourceAllocatedPerJob.ShowMatrix.Invoke;
+        ResourceAllocatedPerJob.ShowMatrix.Invoke();
         ResourceAllocatedPerJob.Close();
 
         // Verify: Verify Column Captions on Resource Allocated per Job Matrix Page on Page Handler ResourceAllocPerJobMatrixPageHandler.
@@ -159,15 +159,15 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create To-dos and generate Column Captions.
         Initialize();
-        No := CreateToDos;
+        No := CreateToDos();
         LibraryVariableStorage.Enqueue(No);  // Enqueue Values for Page Handler - ToDosMatrixPageHandler.
-        GeneratePeriodMatrixData;
-        ToDos.OpenEdit;
+        GeneratePeriodMatrixData();
+        ToDos.OpenEdit();
         ToDos.FILTER.SetFilter("No.", No);
         ToDos.PeriodType.SetValue(PeriodType::Month);
 
         // Exercise: Open Show Matrix.
-        ToDos.ShowMatrix.Invoke;
+        ToDos.ShowMatrix.Invoke();
         ToDos.Close();
 
         // Verify: Verify Column Captions on To-Dos Matrix Page on Page Handler ToDosMatrixPageHandler.
@@ -186,14 +186,14 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create Resource Group,Job and generate Column Captions.
         Initialize();
-        ResourceGroupNo := CreateResourceGroup;
+        ResourceGroupNo := CreateResourceGroup();
         JobNo := CreateJob('', ResourceGroupNo);  // Using blank for Resource.
         OpenResGrAllocatedPerJobPage(ResGrAllocatedPerJob, ResourceGroupNo);
         LibraryVariableStorage.Enqueue(JobNo);  // Enqueue Values for Page Handler - ResGrpAllocPerJobMatrixPageHandler.
-        GeneratePeriodMatrixData;
+        GeneratePeriodMatrixData();
 
         // Exercise: Open Show Matrix.
-        ResGrAllocatedPerJob.ShowMatrix.Invoke;
+        ResGrAllocatedPerJob.ShowMatrix.Invoke();
         ResGrAllocatedPerJob.Close();
 
         // Verify: Verify Column Captions on Res. Gr. Allocated per Job Matrix Page on Page Handler ResGrpAllocPerJobMatrixPageHandler.
@@ -213,15 +213,15 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create Opportunity and generate Column Captions.
         Initialize();
-        No := CreateOpportunity;
+        No := CreateOpportunity();
         LibraryVariableStorage.Enqueue(No);  // Enqueue Values for Page Handler - OpportunitiesMatrixPageHandler.
-        GeneratePeriodMatrixData;
-        Opportunities.OpenEdit;
+        GeneratePeriodMatrixData();
+        Opportunities.OpenEdit();
         Opportunities.FILTER.SetFilter("No.", No);
         Opportunities.PeriodType.SetValue(PeriodType::Month);
 
         // Exercise: Open Show Matrix.
-        Opportunities.ShowMatrix.Invoke;
+        Opportunities.ShowMatrix.Invoke();
         Opportunities.Close();
 
         // Verify: Verify Column Captions on Opportunities Matrix Page on Page Handler OpportunitiesMatrixPageHandler.
@@ -241,15 +241,15 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create Employee and generate Column Captions.
         Initialize();
-        No := CreateEmployee;
+        No := CreateEmployee();
         LibraryVariableStorage.Enqueue(No);  // Enqueue Values for Page Handler - AbsOverviewByPeriodMatrixPageHandler.
-        GeneratePeriodMatrixData;
-        AbsenceOverviewByPeriods.OpenEdit;
+        GeneratePeriodMatrixData();
+        AbsenceOverviewByPeriods.OpenEdit();
         AbsenceOverviewByPeriods.FILTER.SetFilter("No.", No);
         AbsenceOverviewByPeriods.PeriodType.SetValue(PeriodType::Month);
 
         // Exercise: Open Show Matrix.
-        AbsenceOverviewByPeriods.ShowMatrix.Invoke;
+        AbsenceOverviewByPeriods.ShowMatrix.Invoke();
         AbsenceOverviewByPeriods.Close();
 
         // Verify: Verify Column Captions on Absence Overview by Periods Matrix Page on Page Handler AbsOverviewByPeriodMatrixPageHandler.
@@ -268,11 +268,11 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create Resource and generate Column Captions.
         Initialize();
-        ResourceNo := CreateResource;
+        ResourceNo := CreateResource();
         OrderNo := CreateServiceOrder(ResourceNo, '');  // Using blank for Resource Group.
         CreateServiceOrderAllocation(ResourceNo, '', OrderNo);  // Using blank for Resource Group.
         LibraryVariableStorage.Enqueue(ResourceNo);  // Enqueue Values for Page Handler - ResAvailServiceMatrixPageHandler.
-        GeneratePeriodMatrixData;
+        GeneratePeriodMatrixData();
 
         // Exercise.
         OpenResourceAllocation(OrderNo, ResourceNo);
@@ -293,11 +293,11 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create Resource Group,Service Order,Service Order Allocation and generate Column Captions.
         Initialize();
-        ResourceGroupNo := CreateResourceGroup;
+        ResourceGroupNo := CreateResourceGroup();
         OrderNo := CreateServiceOrder('', ResourceGroupNo);  // Using blank for Resource.
         CreateServiceOrderAllocation('', ResourceGroupNo, OrderNo);  // Using blank for Resource.
         LibraryVariableStorage.Enqueue(ResourceGroupNo);  // Enqueue Values for Page Handler - ResGrAvailServMatrixPageHandler.
-        GeneratePeriodMatrixData;
+        GeneratePeriodMatrixData();
 
         // Exercise.
         OpenResourceAllocationResGroupAvailability(OrderNo, ResourceGroupNo);
@@ -318,14 +318,14 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create Resource,Service Order and generate Column Captions.
         Initialize();
-        ResourceNo := CreateResource;
+        ResourceNo := CreateResource();
         OrderNo := CreateServiceOrder(ResourceNo, '');  // Using blank for Resource Group.
         OpenResAllocPerServiceOrderPage(ResAllocPerServiceOrder, ResourceNo);
         LibraryVariableStorage.Enqueue(OrderNo);  // Enqueue Values for Page Handler - ResAllPerServiceMatrixPageHandler.
-        GeneratePeriodMatrixData;
+        GeneratePeriodMatrixData();
 
         // Exercise: Open Show Matrix.
-        ResAllocPerServiceOrder.ShowMatrix.Invoke;
+        ResAllocPerServiceOrder.ShowMatrix.Invoke();
         ResAllocPerServiceOrder.Close();
 
         // Verify: Verify Column Captions on Res. Alloc. per Service Order Matrix Page on Page Handler ResAllPerServiceMatrixPageHandler.
@@ -344,14 +344,14 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create Resource Group,Service Order and generate Column Captions.
         Initialize();
-        ResourceGroupNo := CreateResourceGroup;
+        ResourceGroupNo := CreateResourceGroup();
         OrderNo := CreateServiceOrder('', ResourceGroupNo);  // Using blank for Resource.
         OpenResGrAllocPerServOrderPage(ResGrAllocPerServOrder, ResourceGroupNo);
         LibraryVariableStorage.Enqueue(OrderNo);  // Enqueue Values for Page Handler - ResGrpAllPerServMatrixPageHandler.
-        GeneratePeriodMatrixData;
+        GeneratePeriodMatrixData();
 
         // Exercise: Open Show Matrix.
-        ResGrAllocPerServOrder.ShowMatrix.Invoke;
+        ResGrAllocPerServOrder.ShowMatrix.Invoke();
         ResGrAllocPerServOrder.Close();
 
         // Verify: Verify Column Captions on Res. Gr. Alloc. per Service Order Matrix Page on Page Handler ResGrpAllPerServMatrixPageHandler.
@@ -370,13 +370,13 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create Work Center and generate Column Captions.
         Initialize();
-        No := CreateWorkCenter;
+        No := CreateWorkCenter();
         OpenWorkCenterCalendarPage(WorkCenterCalendar, No);
         LibraryVariableStorage.Enqueue(No);  // Enqueue Values for Page Handler - WorkCenterCalendarMatrixPageHandler.
-        GeneratePeriodMatrixData;
+        GeneratePeriodMatrixData();
 
         // Exercise: Open Show Matrix.
-        WorkCenterCalendar.ShowMatrix.Invoke;
+        WorkCenterCalendar.ShowMatrix.Invoke();
         WorkCenterCalendar.Close();
 
         // Verify: Verify Column Captions on Work Center Calendar Matrix Page on Page Handler WorkCenterCalendarMatrixPage.
@@ -395,13 +395,13 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create Machine Center and generate Column Captions.
         Initialize();
-        No := CreateMachineCenter;
+        No := CreateMachineCenter();
         OpenMachineCenterCalendarPage(MachineCenterCalendar, No);
         LibraryVariableStorage.Enqueue(No);  // Enqueue Values for Page Handler - MachineCenterCalendarMatrixPageHandler.
-        GeneratePeriodMatrixData;
+        GeneratePeriodMatrixData();
 
         // Exercise: Open Show Matrix.
-        MachineCenterCalendar.ShowMatrix.Invoke;
+        MachineCenterCalendar.ShowMatrix.Invoke();
         MachineCenterCalendar.Close();
 
         // Verify: Verify Column Captions on Work Center Calendar Matrix Page on Page Handler MachineCenterCalendarMatrixPage.
@@ -420,13 +420,13 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Setup: Create Work Center Group and generate Column Captions.
         Initialize();
-        Code := CreateWorkCenterGroup;
+        Code := CreateWorkCenterGroup();
         OpenWorkCenterGroupPage(WorkCtrGroupCalendar, Code);
         LibraryVariableStorage.Enqueue(Code);  // Enqueue Values for Page Handler - WorkCtrGrpCalendarMatrixPageHandler.
-        GeneratePeriodMatrixData;
+        GeneratePeriodMatrixData();
 
         // Exercise: Open Show Matrix.
-        WorkCtrGroupCalendar.ShowMatrix.Invoke;
+        WorkCtrGroupCalendar.ShowMatrix.Invoke();
         WorkCtrGroupCalendar.Close();
 
         // Verify: Verify Column Captions on Work Ctr Group Calendar Matrix Page on Page Handler WorkCtrGrpCalendarMatrixPageHandler.
@@ -468,7 +468,7 @@ codeunit 144071 "UT PAG ABBREV"
     var
         Employee: Record Employee;
     begin
-        Employee."No." := LibraryUTUtility.GetNewCode;
+        Employee."No." := LibraryUTUtility.GetNewCode();
         Employee.Insert();
         exit(Employee."No.");
     end;
@@ -477,7 +477,7 @@ codeunit 144071 "UT PAG ABBREV"
     var
         Job: Record Job;
     begin
-        Job."No." := LibraryUTUtility.GetNewCode;
+        Job."No." := LibraryUTUtility.GetNewCode();
         Job."Resource Filter" := ResourceFilter;
         Job."Resource Gr. Filter" := ResourceGrFilter;
         Job.Insert();
@@ -488,7 +488,7 @@ codeunit 144071 "UT PAG ABBREV"
     var
         MachineCenter: Record "Machine Center";
     begin
-        MachineCenter."No." := LibraryUTUtility.GetNewCode;
+        MachineCenter."No." := LibraryUTUtility.GetNewCode();
         MachineCenter.Insert();
         exit(MachineCenter."No.");
     end;
@@ -497,7 +497,7 @@ codeunit 144071 "UT PAG ABBREV"
     var
         Opportunity: Record Opportunity;
     begin
-        Opportunity."No." := LibraryUTUtility.GetNewCode;
+        Opportunity."No." := LibraryUTUtility.GetNewCode();
         Opportunity.Insert();
         exit(Opportunity."No.");
     end;
@@ -506,7 +506,7 @@ codeunit 144071 "UT PAG ABBREV"
     var
         ProductionForecastName: Record "Production Forecast Name";
     begin
-        ProductionForecastName.Name := LibraryUTUtility.GetNewCode10;
+        ProductionForecastName.Name := LibraryUTUtility.GetNewCode10();
         ProductionForecastName.Insert();
         exit(ProductionForecastName.Name);
     end;
@@ -515,7 +515,7 @@ codeunit 144071 "UT PAG ABBREV"
     var
         Resource: Record Resource;
     begin
-        Resource."No." := LibraryUTUtility.GetNewCode;
+        Resource."No." := LibraryUTUtility.GetNewCode();
         Resource.Insert();
         exit(Resource."No.");
     end;
@@ -524,7 +524,7 @@ codeunit 144071 "UT PAG ABBREV"
     var
         ResourceGroup: Record "Resource Group";
     begin
-        ResourceGroup."No." := LibraryUTUtility.GetNewCode;
+        ResourceGroup."No." := LibraryUTUtility.GetNewCode();
         ResourceGroup.Insert();
         exit(ResourceGroup."No.");
     end;
@@ -534,7 +534,7 @@ codeunit 144071 "UT PAG ABBREV"
         ServiceHeader: Record "Service Header";
     begin
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode;
+        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
         ServiceHeader."Resource Filter" := ResourceFilter;
         ServiceHeader."Resource Group Filter" := ResourceGroupFilter;
         ServiceHeader.Insert();
@@ -561,7 +561,7 @@ codeunit 144071 "UT PAG ABBREV"
     var
         ToDo: Record "To-do";
     begin
-        ToDo."No." := LibraryUTUtility.GetNewCode;
+        ToDo."No." := LibraryUTUtility.GetNewCode();
         ToDo.Type := ToDo.Type::Meeting;
         ToDo.Priority := ToDo.Priority::Normal;
         ToDo.Date := WorkDate();
@@ -576,7 +576,7 @@ codeunit 144071 "UT PAG ABBREV"
     var
         WorkCenter: Record "Work Center";
     begin
-        WorkCenter."No." := LibraryUTUtility.GetNewCode;
+        WorkCenter."No." := LibraryUTUtility.GetNewCode();
         WorkCenter.Insert();
         exit(WorkCenter."No.");
     end;
@@ -585,7 +585,7 @@ codeunit 144071 "UT PAG ABBREV"
     var
         WorkCenterGroup: Record "Work Center Group";
     begin
-        WorkCenterGroup.Code := LibraryUTUtility.GetNewCode10;
+        WorkCenterGroup.Code := LibraryUTUtility.GetNewCode10();
         WorkCenterGroup.Insert();
         exit(WorkCenterGroup.Code);
     end;
@@ -625,12 +625,11 @@ codeunit 144071 "UT PAG ABBREV"
         ColumnSet: Text;
         MatrixColumnCaptions: array[32] of Text[80];
         PrimaryKeyFirstRecordInCurrentSet: Text;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         SetPosition: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn;
         CurrentSetLength: Integer;
     begin
         MatrixManagement.GeneratePeriodMatrixData(
-          SetPosition, ArrayLen(MatrixRecords), false, PeriodType::Month, '', PrimaryKeyFirstRecordInCurrentSet, MatrixColumnCaptions,
+          SetPosition, ArrayLen(MatrixRecords), false, "Analysis Period Type"::Month, '', PrimaryKeyFirstRecordInCurrentSet, MatrixColumnCaptions,
           ColumnSet,
           CurrentSetLength, MatrixRecords);  // Using Blank for DateFilter.
         EnqueueCaptionJanToJune(
@@ -646,10 +645,10 @@ codeunit 144071 "UT PAG ABBREV"
         MachineCenterCard: TestPage "Machine Center Card";
         PeriodType: Option Day,Week,Month,Quarter,Year;
     begin
-        MachineCenterCard.OpenEdit;
+        MachineCenterCard.OpenEdit();
         MachineCenterCard.FILTER.SetFilter("No.", No);
-        MachineCenterCalendar.Trap;
-        MachineCenterCard."&Calendar".Invoke;
+        MachineCenterCalendar.Trap();
+        MachineCenterCard."&Calendar".Invoke();
         MachineCenterCalendar.PeriodType.SetValue(PeriodType::Month);
         MachineCenterCard.Close();
     end;
@@ -659,10 +658,10 @@ codeunit 144071 "UT PAG ABBREV"
         ResourceCard: TestPage "Resource Card";
         PeriodType: Option Day,Week,Month,Quarter,Year;
     begin
-        ResourceCard.OpenEdit;
+        ResourceCard.OpenEdit();
         ResourceCard.FILTER.SetFilter("No.", No);
-        ResAllocPerServiceOrder.Trap;
-        ResourceCard."Resource Allocated per Service &Order".Invoke;
+        ResAllocPerServiceOrder.Trap();
+        ResourceCard."Resource Allocated per Service &Order".Invoke();
         ResAllocPerServiceOrder.PeriodType.SetValue(PeriodType::Month);
         ResourceCard.Close();
     end;
@@ -672,10 +671,10 @@ codeunit 144071 "UT PAG ABBREV"
         ResourceGroups: TestPage "Resource Groups";
         PeriodType: Option Day,Week,Month,Quarter,Year;
     begin
-        ResourceGroups.OpenEdit;
+        ResourceGroups.OpenEdit();
         ResourceGroups.FILTER.SetFilter("No.", No);
-        ResGrAllocatedPerJob.Trap;
-        ResourceGroups."Res. Group All&ocated per Job".Invoke;
+        ResGrAllocatedPerJob.Trap();
+        ResourceGroups."Res. Group All&ocated per Job".Invoke();
         ResGrAllocatedPerJob.PeriodType.SetValue(PeriodType::Month);
         ResourceGroups.Close();
     end;
@@ -685,10 +684,10 @@ codeunit 144071 "UT PAG ABBREV"
         ResourceGroups: TestPage "Resource Groups";
         PeriodType: Option Day,Week,Month,Quarter,Year;
     begin
-        ResourceGroups.OpenEdit;
+        ResourceGroups.OpenEdit();
         ResourceGroups.FILTER.SetFilter("No.", No);
-        ResGrAllocPerServOrder.Trap;
-        ResourceGroups."Res. Group Allocated per Service &Order".Invoke;
+        ResGrAllocPerServOrder.Trap();
+        ResourceGroups."Res. Group Allocated per Service &Order".Invoke();
         ResGrAllocPerServOrder.PeriodType.SetValue(PeriodType::Month);
         ResourceGroups.Close();
     end;
@@ -698,10 +697,10 @@ codeunit 144071 "UT PAG ABBREV"
         ResourceCard: TestPage "Resource Card";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
-        ResourceCard.OpenEdit;
+        ResourceCard.OpenEdit();
         ResourceCard.FILTER.SetFilter("No.", No);
-        ResourceAllocatedPerJob.Trap;
-        ResourceCard."Resource &Allocated per Job".Invoke;
+        ResourceAllocatedPerJob.Trap();
+        ResourceCard."Resource &Allocated per Job".Invoke();
         ResourceAllocatedPerJob.PeriodType.SetValue(PeriodType::Month);
         ResourceCard.Close();
     end;
@@ -711,11 +710,11 @@ codeunit 144071 "UT PAG ABBREV"
         ServiceOrderAllocation: Record "Service Order Allocation";
         ResourceAllocations: TestPage "Resource Allocations";
     begin
-        ResourceAllocations.OpenEdit;
+        ResourceAllocations.OpenEdit();
         ResourceAllocations.FILTER.SetFilter("Document Type", Format(ServiceOrderAllocation."Document Type"::Order));
         ResourceAllocations.FILTER.SetFilter("Document No.", DocumentNo);
         ResourceAllocations.FILTER.SetFilter("Resource No.", ResourceNo);
-        ResourceAllocations.ResourceAvailability.Invoke;
+        ResourceAllocations.ResourceAvailability.Invoke();
         ResourceAllocations.Close();
     end;
 
@@ -724,11 +723,11 @@ codeunit 144071 "UT PAG ABBREV"
         ServiceOrderAllocation: Record "Service Order Allocation";
         ResourceAllocations: TestPage "Resource Allocations";
     begin
-        ResourceAllocations.OpenEdit;
+        ResourceAllocations.OpenEdit();
         ResourceAllocations.FILTER.SetFilter("Resource Group No.", ResourceGroupNo);
         ResourceAllocations.FILTER.SetFilter("Document Type", Format(ServiceOrderAllocation."Document Type"::Order));
         ResourceAllocations.FILTER.SetFilter("Document No.", DocumentNo);
-        ResourceAllocations.ResGroupAvailability.Invoke;
+        ResourceAllocations.ResGroupAvailability.Invoke();
         ResourceAllocations.Close();
     end;
 
@@ -737,10 +736,10 @@ codeunit 144071 "UT PAG ABBREV"
         WorkCenterCard: TestPage "Work Center Card";
         PeriodType: Option Day,Week,Month,Quarter,Year;
     begin
-        WorkCenterCard.OpenEdit;
+        WorkCenterCard.OpenEdit();
         WorkCenterCard.FILTER.SetFilter("No.", No);
-        WorkCenterCalendar.Trap;
-        WorkCenterCard."&Calendar".Invoke;
+        WorkCenterCalendar.Trap();
+        WorkCenterCard."&Calendar".Invoke();
         WorkCenterCalendar.PeriodType.SetValue(PeriodType::Month);
         WorkCenterCard.Close();
     end;
@@ -750,52 +749,52 @@ codeunit 144071 "UT PAG ABBREV"
         WorkCenterGroups: TestPage "Work Center Groups";
         PeriodType: Option Day,Week,Month,Quarter,Year;
     begin
-        WorkCenterGroups.OpenEdit;
+        WorkCenterGroups.OpenEdit();
         WorkCenterGroups.FILTER.SetFilter(Code, Code);
-        WorkCtrGroupCalendar.Trap;
-        WorkCenterGroups.Calendar.Invoke;
+        WorkCtrGroupCalendar.Trap();
+        WorkCenterGroups.Calendar.Invoke();
         WorkCtrGroupCalendar.PeriodType.SetValue(PeriodType::Month);
     end;
 
     local procedure VerifyCaptionJanToJune(MatrixColumnCaptions: Text[200]; MatrixColumnCaptions2: Text[200]; MatrixColumnCaptions3: Text[200]; MatrixColumnCaptions4: Text[200]; MatrixColumnCaptions5: Text[200]; MatrixColumnCaptions6: Text[200])
     begin
-        Assert.AreEqual(DequeueText, MatrixColumnCaptions, CaptionErr);
-        Assert.AreEqual(DequeueText, MatrixColumnCaptions2, CaptionErr);
-        Assert.AreEqual(DequeueText, MatrixColumnCaptions3, CaptionErr);
-        Assert.AreEqual(DequeueText, MatrixColumnCaptions4, CaptionErr);
-        Assert.AreEqual(DequeueText, MatrixColumnCaptions5, CaptionErr);
-        Assert.AreEqual(DequeueText, MatrixColumnCaptions6, CaptionErr);
+        Assert.AreEqual(DequeueText(), MatrixColumnCaptions, CaptionErr);
+        Assert.AreEqual(DequeueText(), MatrixColumnCaptions2, CaptionErr);
+        Assert.AreEqual(DequeueText(), MatrixColumnCaptions3, CaptionErr);
+        Assert.AreEqual(DequeueText(), MatrixColumnCaptions4, CaptionErr);
+        Assert.AreEqual(DequeueText(), MatrixColumnCaptions5, CaptionErr);
+        Assert.AreEqual(DequeueText(), MatrixColumnCaptions6, CaptionErr);
     end;
 
     local procedure VerifyCaptionJulToDec(MatrixColumnCaptions: Text[200]; MatrixColumnCaptions2: Text[200]; MatrixColumnCaptions3: Text[200]; MatrixColumnCaptions4: Text[200]; MatrixColumnCaptions5: Text[200]; MatrixColumnCaptions6: Text[200])
     begin
-        Assert.AreEqual(DequeueText, MatrixColumnCaptions, CaptionErr);
-        Assert.AreEqual(DequeueText, MatrixColumnCaptions2, CaptionErr);
-        Assert.AreEqual(DequeueText, MatrixColumnCaptions3, CaptionErr);
-        Assert.AreEqual(DequeueText, MatrixColumnCaptions4, CaptionErr);
-        Assert.AreEqual(DequeueText, MatrixColumnCaptions5, CaptionErr);
-        Assert.AreEqual(DequeueText, MatrixColumnCaptions6, CaptionErr);
+        Assert.AreEqual(DequeueText(), MatrixColumnCaptions, CaptionErr);
+        Assert.AreEqual(DequeueText(), MatrixColumnCaptions2, CaptionErr);
+        Assert.AreEqual(DequeueText(), MatrixColumnCaptions3, CaptionErr);
+        Assert.AreEqual(DequeueText(), MatrixColumnCaptions4, CaptionErr);
+        Assert.AreEqual(DequeueText(), MatrixColumnCaptions5, CaptionErr);
+        Assert.AreEqual(DequeueText(), MatrixColumnCaptions6, CaptionErr);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AbsOverviewByPeriodMatrixPageHandler(var AbsOverviewByPeriodMatrix: TestPage "Abs. Overview by Period Matrix")
     begin
-        AbsOverviewByPeriodMatrix.FILTER.SetFilter("No.", DequeueText);
+        AbsOverviewByPeriodMatrix.FILTER.SetFilter("No.", DequeueText());
         VerifyCaptionJanToJune(
           AbsOverviewByPeriodMatrix.Field1.Caption, AbsOverviewByPeriodMatrix.Field2.Caption, AbsOverviewByPeriodMatrix.Field3.Caption,
           AbsOverviewByPeriodMatrix.Field4.Caption, AbsOverviewByPeriodMatrix.Field5.Caption, AbsOverviewByPeriodMatrix.Field6.Caption);
         VerifyCaptionJulToDec(
           AbsOverviewByPeriodMatrix.Field7.Caption, AbsOverviewByPeriodMatrix.Field8.Caption, AbsOverviewByPeriodMatrix.Field9.Caption,
           AbsOverviewByPeriodMatrix.Field10.Caption, AbsOverviewByPeriodMatrix.Field11.Caption, AbsOverviewByPeriodMatrix.Field12.Caption);
-        AbsOverviewByPeriodMatrix.OK.Invoke;
+        AbsOverviewByPeriodMatrix.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure MachineCenterCalendarMatrixPageHandler(var MachineCenterCalendarMatrix: TestPage "Machine Center Calendar Matrix")
     begin
-        MachineCenterCalendarMatrix.FILTER.SetFilter("No.", DequeueText);
+        MachineCenterCalendarMatrix.FILTER.SetFilter("No.", DequeueText());
         VerifyCaptionJanToJune(
           MachineCenterCalendarMatrix.Field1.Caption, MachineCenterCalendarMatrix.Field2.Caption,
           MachineCenterCalendarMatrix.Field3.Caption,
@@ -806,35 +805,35 @@ codeunit 144071 "UT PAG ABBREV"
           MachineCenterCalendarMatrix.Field9.Caption,
           MachineCenterCalendarMatrix.Field10.Caption, MachineCenterCalendarMatrix.Field11.Caption,
           MachineCenterCalendarMatrix.Field12.Caption);
-        MachineCenterCalendarMatrix.OK.Invoke;
+        MachineCenterCalendarMatrix.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure OpportunitiesMatrixPageHandler(var OpportunitiesMatrix: TestPage "Opportunities Matrix")
     begin
-        OpportunitiesMatrix.FILTER.SetFilter("No.", DequeueText);
+        OpportunitiesMatrix.FILTER.SetFilter("No.", DequeueText());
         VerifyCaptionJanToJune(
           OpportunitiesMatrix.Field1.Caption, OpportunitiesMatrix.Field2.Caption, OpportunitiesMatrix.Field3.Caption,
           OpportunitiesMatrix.Field4.Caption, OpportunitiesMatrix.Field5.Caption, OpportunitiesMatrix.Field6.Caption);
         VerifyCaptionJulToDec(
           OpportunitiesMatrix.Field7.Caption, OpportunitiesMatrix.Field8.Caption, OpportunitiesMatrix.Field9.Caption,
           OpportunitiesMatrix.Field10.Caption, OpportunitiesMatrix.Field11.Caption, OpportunitiesMatrix.Field12.Caption);
-        OpportunitiesMatrix.OK.Invoke;
+        OpportunitiesMatrix.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResAllPerServiceMatrixPageHandler(var ResAllPerServiceMatrix: TestPage "Res. All. per Service  Matrix")
     begin
-        ResAllPerServiceMatrix.FILTER.SetFilter("No.", DequeueText);
+        ResAllPerServiceMatrix.FILTER.SetFilter("No.", DequeueText());
         VerifyCaptionJanToJune(
           ResAllPerServiceMatrix.Col1.Caption, ResAllPerServiceMatrix.Col2.Caption, ResAllPerServiceMatrix.Col3.Caption,
           ResAllPerServiceMatrix.Col4.Caption, ResAllPerServiceMatrix.Col5.Caption, ResAllPerServiceMatrix.Col6.Caption);
         VerifyCaptionJulToDec(
           ResAllPerServiceMatrix.Col7.Caption, ResAllPerServiceMatrix.Col8.Caption, ResAllPerServiceMatrix.Col9.Caption,
           ResAllPerServiceMatrix.Col10.Caption, ResAllPerServiceMatrix.Col11.Caption, ResAllPerServiceMatrix.Col12.Caption);
-        ResAllPerServiceMatrix.OK.Invoke;
+        ResAllPerServiceMatrix.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -844,22 +843,22 @@ codeunit 144071 "UT PAG ABBREV"
         PeriodType: Option Day,Week,Month,Quarter,Year;
     begin
         ResAvailabilityService.PeriodType.SetValue(PeriodType::Month);
-        ResAvailabilityService.ShowMatrix.Invoke;
-        ResAvailabilityService.OK.Invoke;
+        ResAvailabilityService.ShowMatrix.Invoke();
+        ResAvailabilityService.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResAvailServiceMatrixPageHandler(var ResAvailServiceMatrix: TestPage "Res. Avail. (Service) Matrix")
     begin
-        ResAvailServiceMatrix.FILTER.SetFilter("No.", DequeueText);
+        ResAvailServiceMatrix.FILTER.SetFilter("No.", DequeueText());
         VerifyCaptionJanToJune(
           ResAvailServiceMatrix.Field1.Caption, ResAvailServiceMatrix.Field2.Caption, ResAvailServiceMatrix.Field3.Caption,
           ResAvailServiceMatrix.Field4.Caption, ResAvailServiceMatrix.Field5.Caption, ResAvailServiceMatrix.Field6.Caption);
         VerifyCaptionJulToDec(
           ResAvailServiceMatrix.Field7.Caption, ResAvailServiceMatrix.Field8.Caption, ResAvailServiceMatrix.Field9.Caption,
           ResAvailServiceMatrix.Field10.Caption, ResAvailServiceMatrix.Field11.Caption, ResAvailServiceMatrix.Field12.Caption);
-        ResAvailServiceMatrix.OK.Invoke;
+        ResAvailServiceMatrix.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -869,106 +868,106 @@ codeunit 144071 "UT PAG ABBREV"
         PeriodType: Option Day,Week,Month,Quarter,Year;
     begin
         ResGrAvailabilityService.PeriodType.SetValue(PeriodType::Month);
-        ResGrAvailabilityService.ShowMatrix.Invoke;
-        ResGrAvailabilityService.OK.Invoke;
+        ResGrAvailabilityService.ShowMatrix.Invoke();
+        ResGrAvailabilityService.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResGrAvailServMatrixPageHandler(var ResGrAvailServMatrix: TestPage "Res. Gr. Avail. (Serv.) Matrix")
     begin
-        ResGrAvailServMatrix.FILTER.SetFilter("No.", DequeueText);
+        ResGrAvailServMatrix.FILTER.SetFilter("No.", DequeueText());
         VerifyCaptionJanToJune(
           ResGrAvailServMatrix.Field1.Caption, ResGrAvailServMatrix.Field2.Caption, ResGrAvailServMatrix.Field3.Caption,
           ResGrAvailServMatrix.Field4.Caption, ResGrAvailServMatrix.Field5.Caption, ResGrAvailServMatrix.Field6.Caption);
         VerifyCaptionJulToDec(
           ResGrAvailServMatrix.Field7.Caption, ResGrAvailServMatrix.Field8.Caption, ResGrAvailServMatrix.Field9.Caption,
           ResGrAvailServMatrix.Field10.Caption, ResGrAvailServMatrix.Field11.Caption, ResGrAvailServMatrix.Field12.Caption);
-        ResGrAvailServMatrix.OK.Invoke;
+        ResGrAvailServMatrix.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResGrpAllocPerJobMatrixPageHandler(var ResGrpAllocPerJobMatrix: TestPage "ResGrp. Alloc. per Job Matrix")
     begin
-        ResGrpAllocPerJobMatrix.FILTER.SetFilter("No.", DequeueText);
+        ResGrpAllocPerJobMatrix.FILTER.SetFilter("No.", DequeueText());
         VerifyCaptionJanToJune(
           ResGrpAllocPerJobMatrix.Col1.Caption, ResGrpAllocPerJobMatrix.Col2.Caption, ResGrpAllocPerJobMatrix.Col3.Caption,
           ResGrpAllocPerJobMatrix.Col4.Caption, ResGrpAllocPerJobMatrix.Col5.Caption, ResGrpAllocPerJobMatrix.Col6.Caption);
         VerifyCaptionJulToDec(
           ResGrpAllocPerJobMatrix.Col7.Caption, ResGrpAllocPerJobMatrix.Col8.Caption, ResGrpAllocPerJobMatrix.Col9.Caption,
           ResGrpAllocPerJobMatrix.Col10.Caption, ResGrpAllocPerJobMatrix.Col11.Caption, ResGrpAllocPerJobMatrix.Col12.Caption);
-        ResGrpAllocPerJobMatrix.OK.Invoke;
+        ResGrpAllocPerJobMatrix.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResGrpAllPerServMatrixPageHandler(var ResGrpAllPerServMatrix: TestPage "ResGrp. All. per Serv.  Matrix")
     begin
-        ResGrpAllPerServMatrix.FILTER.SetFilter("No.", DequeueText);
+        ResGrpAllPerServMatrix.FILTER.SetFilter("No.", DequeueText());
         VerifyCaptionJanToJune(
           ResGrpAllPerServMatrix.Col1.Caption, ResGrpAllPerServMatrix.Col2.Caption, ResGrpAllPerServMatrix.Col3.Caption,
           ResGrpAllPerServMatrix.Col4.Caption, ResGrpAllPerServMatrix.Col5.Caption, ResGrpAllPerServMatrix.Col6.Caption);
         VerifyCaptionJulToDec(
           ResGrpAllPerServMatrix.Col7.Caption, ResGrpAllPerServMatrix.Col8.Caption, ResGrpAllPerServMatrix.Col9.Caption,
           ResGrpAllPerServMatrix.Col10.Caption, ResGrpAllPerServMatrix.Col11.Caption, ResGrpAllPerServMatrix.Col12.Caption);
-        ResGrpAllPerServMatrix.OK.Invoke;
+        ResGrpAllPerServMatrix.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResourceAllocPerJobMatrixPageHandler(var ResourceAllocPerJobMatrix: TestPage "Resource Alloc. per Job Matrix")
     begin
-        ResourceAllocPerJobMatrix.FILTER.SetFilter("No.", DequeueText);
+        ResourceAllocPerJobMatrix.FILTER.SetFilter("No.", DequeueText());
         VerifyCaptionJanToJune(
           ResourceAllocPerJobMatrix.Col1.Caption, ResourceAllocPerJobMatrix.Col2.Caption, ResourceAllocPerJobMatrix.Col3.Caption,
           ResourceAllocPerJobMatrix.Col4.Caption, ResourceAllocPerJobMatrix.Col5.Caption, ResourceAllocPerJobMatrix.Col6.Caption);
         VerifyCaptionJulToDec(
           ResourceAllocPerJobMatrix.Col7.Caption, ResourceAllocPerJobMatrix.Col8.Caption, ResourceAllocPerJobMatrix.Col9.Caption,
           ResourceAllocPerJobMatrix.Col10.Caption, ResourceAllocPerJobMatrix.Col11.Caption, ResourceAllocPerJobMatrix.Col12.Caption);
-        ResourceAllocPerJobMatrix.OK.Invoke;
+        ResourceAllocPerJobMatrix.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ToDosMatrixPageHandler(var ToDosMatrix: TestPage "Tasks Matrix")
     begin
-        ToDosMatrix.FILTER.SetFilter("No.", DequeueText);
+        ToDosMatrix.FILTER.SetFilter("No.", DequeueText());
         VerifyCaptionJanToJune(
           ToDosMatrix.Field1.Caption, ToDosMatrix.Field2.Caption, ToDosMatrix.Field3.Caption,
           ToDosMatrix.Field4.Caption, ToDosMatrix.Field5.Caption, ToDosMatrix.Field6.Caption);
         VerifyCaptionJulToDec(
           ToDosMatrix.Field7.Caption, ToDosMatrix.Field8.Caption, ToDosMatrix.Field9.Caption,
           ToDosMatrix.Field10.Caption, ToDosMatrix.Field11.Caption, ToDosMatrix.Field12.Caption);
-        ToDosMatrix.OK.Invoke;
+        ToDosMatrix.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WorkCenterCalendarMatrixPageHandler(var WorkCenterCalendarMatrix: TestPage "Work Center Calendar Matrix")
     begin
-        WorkCenterCalendarMatrix.FILTER.SetFilter("No.", DequeueText);
+        WorkCenterCalendarMatrix.FILTER.SetFilter("No.", DequeueText());
         VerifyCaptionJanToJune(
           WorkCenterCalendarMatrix.Field1.Caption, WorkCenterCalendarMatrix.Field2.Caption, WorkCenterCalendarMatrix.Field3.Caption,
           WorkCenterCalendarMatrix.Field4.Caption, WorkCenterCalendarMatrix.Field5.Caption, WorkCenterCalendarMatrix.Field6.Caption);
         VerifyCaptionJulToDec(
           WorkCenterCalendarMatrix.Field7.Caption, WorkCenterCalendarMatrix.Field8.Caption, WorkCenterCalendarMatrix.Field9.Caption,
           WorkCenterCalendarMatrix.Field10.Caption, WorkCenterCalendarMatrix.Field11.Caption, WorkCenterCalendarMatrix.Field12.Caption);
-        WorkCenterCalendarMatrix.OK.Invoke;
+        WorkCenterCalendarMatrix.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WorkCtrGrpCalendarMatrixPageHandler(var WorkCtrGrpCalendarMatrix: TestPage "Work Ctr. Grp. Calendar Matrix")
     begin
-        WorkCtrGrpCalendarMatrix.FILTER.SetFilter(Code, DequeueText);
+        WorkCtrGrpCalendarMatrix.FILTER.SetFilter(Code, DequeueText());
         VerifyCaptionJanToJune(
           WorkCtrGrpCalendarMatrix.Field1.Caption, WorkCtrGrpCalendarMatrix.Field2.Caption, WorkCtrGrpCalendarMatrix.Field3.Caption,
           WorkCtrGrpCalendarMatrix.Field4.Caption, WorkCtrGrpCalendarMatrix.Field5.Caption, WorkCtrGrpCalendarMatrix.Field6.Caption);
         VerifyCaptionJulToDec(
           WorkCtrGrpCalendarMatrix.Field7.Caption, WorkCtrGrpCalendarMatrix.Field8.Caption, WorkCtrGrpCalendarMatrix.Field9.Caption,
           WorkCtrGrpCalendarMatrix.Field10.Caption, WorkCtrGrpCalendarMatrix.Field11.Caption, WorkCtrGrpCalendarMatrix.Field12.Caption);
-        WorkCtrGrpCalendarMatrix.OK.Invoke;
+        WorkCtrGrpCalendarMatrix.OK().Invoke();
     end;
 }
 

@@ -95,14 +95,14 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         DaysSinceDueDate: Integer;
     begin
         // [FEATURE] [UT]
-        // [SCENARIO 257582] "Days Since Due Date" of Payment Application Buffer calculates as WORKDATE - "Due Date"
+        // [SCENARIO 257582] "Days Since Due Date" of Payment Application Buffer calculates as WorkDate() - "Due Date"
 
         Initialize();
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         DaysSinceDueDate := LibraryRandom.RandInt(100);
-        MockSimpleVendLedgEntry(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, WorkDate - DaysSinceDueDate, true);
+        MockSimpleVendLedgEntry(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, WorkDate() - DaysSinceDueDate, true);
 
         PaymentReportingMgt.BuildVendPmtApplicationBuffer(TempPaymentApplicationBuffer, StartingDate, EndingDate, false);
 
@@ -333,7 +333,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         RunPaymentPracticesReporting(StartingDate, EndingDate, false);
 
         // [THEN] XML nodes 'NotPaidVendNo' and 'DelayedVendNo' related to invoice details does not exist
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist('NotPaidVendNo', VendorLedgerEntry."Vendor No.");
         LibraryReportDataset.AssertElementWithValueNotExist('DelayedVendNo', VendorLedgerEntry."Vendor No.");
     end;
@@ -363,7 +363,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         RunPaymentPracticesReporting(StartingDate, EndingDate, true);
 
         // [THEN] XML nodes 'NotPaidVendNo' and 'DelayedVendNo' related to invoice details exists
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(2);
         LibraryReportDataset.AssertCurrentRowValueEquals('NotPaidVendNo', VendorLedgerEntry."Vendor No.");
         LibraryReportDataset.MoveToRow(4);
@@ -399,7 +399,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         RunPaymentPracticesReporting(StartingDate, EndingDate, false);
 
         // [THEN] XML node 'NotPaidVendTotalInvoices' has value 2 and 'DelayedVendTotalInvoices' has value 3
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(3);
         LibraryReportDataset.AssertCurrentRowValueEquals('NotPaidVendTotalInvoices', 2);
         LibraryReportDataset.MoveToRow(5);
@@ -517,7 +517,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         RunPaymentPracticesReporting(StartingDate, EndingDate, false);
 
         // [THEN] "Total amount of invoices (Corrected)" is shown for unpaid vendor invoices page only.
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         VerifyTotalAmtExistsOnWorksheet(1, VendorLedgerEntry."Amount (LCY)");
         VerifyTotalAmtNotExistOnWorksheet(2);
         VerifyTotalAmtNotExistOnWorksheet(3);
@@ -552,7 +552,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         RunPaymentPracticesReporting(StartingDate, EndingDate, false);
 
         // [THEN] "Total amount of invoices (Corrected)" is shown for delayed in payment vendor invoices page only.
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         VerifyTotalAmtExistsOnWorksheet(2, VendorLedgerEntry."Amount (LCY)");
         VerifyTotalAmtNotExistOnWorksheet(1);
         VerifyTotalAmtNotExistOnWorksheet(3);
@@ -586,7 +586,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
 
         // [THEN] "Total amount of invoices (Corrected)" = "A1" + "A2" + "A3"; "Total Amount" = "A1" + 10.
         // [THEN] "Total %" = "Total Amount" / "Total amount of invoices (Corrected)" * 100
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(1);
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalVendAmount', TotalInvoiceAmount);
         LibraryReportDataset.MoveToRow(2);
@@ -622,7 +622,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
 
         // [THEN] "Total amount of invoices (Corrected)" = "A1" + "A2" + "A3"; "Total Amount" = "A1" + 10.
         // [THEN] "Total %" = "Total Amount" / "Total amount of invoices (Corrected)" * 100
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(1);
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalVendAmount', TotalInvoiceAmount);
         LibraryReportDataset.MoveToRow(3);
@@ -792,7 +792,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
           DocType, AppliedAmount);
     end;
 
-    local procedure MockDtldVendLedgEntry(EntryType: Option; PostingDate: Date; LedgEntryNo: Integer; AppliedLedgEntryNo: Integer; DocType: Enum "Gen. Journal Document Type"; AppliedAmount: Decimal): Integer
+    local procedure MockDtldVendLedgEntry(EntryType: Enum "Detailed CV Ledger Entry Type"; PostingDate: Date; LedgEntryNo: Integer; AppliedLedgEntryNo: Integer; DocType: Enum "Gen. Journal Document Type"; AppliedAmount: Decimal): Integer
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -856,21 +856,21 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
     [Scope('OnPrem')]
     procedure PmtPracticesReportingRequestPageHandler(var PaymentPracticesReporting: TestRequestPage "Payment Practices Reporting")
     begin
-        PaymentPracticesReporting.StartingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        PaymentPracticesReporting.EndingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        PaymentPracticesReporting.ShowInvoices.SetValue(LibraryVariableStorage.DequeueBoolean);
-        PaymentPracticesReporting.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PaymentPracticesReporting.StartingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        PaymentPracticesReporting.EndingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        PaymentPracticesReporting.ShowInvoices.SetValue(LibraryVariableStorage.DequeueBoolean());
+        PaymentPracticesReporting.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PmtPracticesReportingExcelRequestPageHandler(var PaymentPracticesReporting: TestRequestPage "Payment Practices Reporting")
     begin
-        PaymentPracticesReporting.StartingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        PaymentPracticesReporting.EndingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        PaymentPracticesReporting.ShowInvoices.SetValue(LibraryVariableStorage.DequeueBoolean);
+        PaymentPracticesReporting.StartingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        PaymentPracticesReporting.EndingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        PaymentPracticesReporting.ShowInvoices.SetValue(LibraryVariableStorage.DequeueBoolean());
 
-        PaymentPracticesReporting.SaveAsExcel(LibraryReportValidation.GetFileName);
+        PaymentPracticesReporting.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 #endif

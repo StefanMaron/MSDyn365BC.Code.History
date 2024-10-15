@@ -8,6 +8,7 @@ table 173 "Standard Purchase Code"
     Caption = 'Standard Purchase Code';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Standard Purchase Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -473,7 +473,6 @@ report 10868 "Draft notice"
         Text004: Label 'A transfer to your bank account %1 (RIB : %2 %3 %4) has been done on %5.';
         HeaderText2: Label 'This transfer is related to these invoices :';
         OutputNo: Integer;
-        Text005: Label 'Page %1';
         Payment_Lines1___No__CaptionLbl: Label 'Draft No.';
         PaymtHeader__IBAN__CaptionLbl: Label 'IBAN', Locked = true;
         PaymtHeader__SWIFT_Code__CaptionLbl: Label 'SWIFT Code';

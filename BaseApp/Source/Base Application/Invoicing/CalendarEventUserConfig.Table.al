@@ -2,6 +2,7 @@ table 2161 "Calendar Event User Config."
 {
     Caption = 'Calendar Event User Config.';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

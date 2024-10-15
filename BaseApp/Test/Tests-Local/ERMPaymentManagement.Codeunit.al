@@ -136,7 +136,7 @@ codeunit 144049 "ERM Payment Management"
         Initialize();
         CreateGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo, GenJournalLine."Document Type"::" ", BalAccountType,
+          LibraryERM.CreateGLAccountNo(), GenJournalLine."Document Type"::" ", BalAccountType,
           BalAccountNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");  // Enqueue value for GLCustLedgerReconciliationRequestPageHandler and GLVendLedgerReconciliationRequestPageHandler.
@@ -145,7 +145,7 @@ codeunit 144049 "ERM Payment Management"
         REPORT.Run(ReportID);
 
         // Verify: Verify Amount on XML after running report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalDebit_TotalCredit', -GenJournalLine.Amount);
         LibraryReportDataset.AssertElementWithValueExists('G_L_Entry_Amount', -GenJournalLine.Amount);
     end;
@@ -192,7 +192,7 @@ codeunit 144049 "ERM Payment Management"
         CreateAndPostPaymentSlip(PaymentClass.Code, PaymentLine."Account Type"::Customer, SellToCustomerNo);
 
         // Exercise & Verify.
-        UnrealizedVATTypeError;
+        UnrealizedVATTypeError();
     end;
 
     [Test]
@@ -237,7 +237,7 @@ codeunit 144049 "ERM Payment Management"
         CreateAndPostPaymentSlip(PaymentClass.Code, PaymentLine."Account Type"::Vendor, BuyfromVendorNo);
 
         // Exercise & Verify.
-        UnrealizedVATTypeError;
+        UnrealizedVATTypeError();
     end;
 
     [Test]
@@ -255,7 +255,7 @@ codeunit 144049 "ERM Payment Management"
     procedure AppliedAmtForVendOnPaymentSlipWithDiscOnCrMemo()
     begin
         // Verify Applied Amount with calculate payment discount on Credit Memo with Currency for Vendor.
-        PaymentDiscountOnPurchaseCrMemo(LibraryERM.CreateCurrencyWithRandomExchRates, true);    // Using True for Calc. Pmt. Discount,
+        PaymentDiscountOnPurchaseCrMemo(LibraryERM.CreateCurrencyWithRandomExchRates(), true);    // Using True for Calc. Pmt. Discount,
     end;
 
     [Test]
@@ -264,7 +264,7 @@ codeunit 144049 "ERM Payment Management"
     procedure AppliedAmtForVendOnPaymentSlipWithCurrency()
     begin
         // Verify Applied Amount without calculate payment discount on Credit Memo with Currency for Vendor.
-        PaymentDiscountOnPurchaseCrMemo(LibraryERM.CreateCurrencyWithRandomExchRates, false);  // Using False for Calc. Pmt. Discount,
+        PaymentDiscountOnPurchaseCrMemo(LibraryERM.CreateCurrencyWithRandomExchRates(), false);  // Using False for Calc. Pmt. Discount,
     end;
 
     [Test]
@@ -325,7 +325,7 @@ codeunit 144049 "ERM Payment Management"
     procedure AppliedAmtForCustOnPaymentSlipWithDiscOnCrMemo()
     begin
         // Verify Applied Amount with calculate payment discount on Credit Memo with Currency for Customer.
-        PaymentDiscountOnSalesCrMemo(LibraryERM.CreateCurrencyWithRandomExchRates, true);  // Using True for Calc. Pmt. Discount,
+        PaymentDiscountOnSalesCrMemo(LibraryERM.CreateCurrencyWithRandomExchRates(), true);  // Using True for Calc. Pmt. Discount,
     end;
 
     [Test]
@@ -334,7 +334,7 @@ codeunit 144049 "ERM Payment Management"
     procedure AppliedAmtForCustOnPaymentSlipWithCurrency()
     begin
         // Verify Applied Amount without calculate payment discount on Credit Memo with Currency for Customer.
-        PaymentDiscountOnSalesCrMemo(LibraryERM.CreateCurrencyWithRandomExchRates, false);  // Using False for Calc. Pmt. Discount,
+        PaymentDiscountOnSalesCrMemo(LibraryERM.CreateCurrencyWithRandomExchRates(), false);  // Using False for Calc. Pmt. Discount,
     end;
 
     [Test]
@@ -546,7 +546,7 @@ codeunit 144049 "ERM Payment Management"
         // Verify: Verify Payment In Progress Amount on Customer Card.
         PaymentLine.SetRange("Payment Class", PaymentClass.Code);
         PaymentLine.FindFirst();
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.FILTER.SetFilter("No.", PaymentLine."Account No.");
         exit(-PaymentLine.Amount);
     end;
@@ -679,7 +679,7 @@ codeunit 144049 "ERM Payment Management"
         // Create new copy of Payment Slip
         LibraryVariableStorage.Enqueue(PaymentClass); // Enqueue value for PaymentSlipRemovePageHandler
         LibraryVariableStorage.Enqueue(LineNo);       // Enqueue value for PaymentSlipRemovePageHandler
-        LibraryFRLocalization.CreatePaymentSlip;
+        LibraryFRLocalization.CreatePaymentSlip();
 
         // Verification done in PaymentSlipRemovePageHandler
     end;
@@ -807,7 +807,7 @@ codeunit 144049 "ERM Payment Management"
         EnqueueValuesForHandler(CustomerNo, '');
 
         // [WHEN] Suggests Customer Payments
-        PaymentSlip.SuggestCustomerPayments.Invoke;
+        PaymentSlip.SuggestCustomerPayments.Invoke();
 
         // [THEN] First "Payment Line"."Dimension Set ID" = "X"
         VerifyPaymentLineDimSetID(DimSetID[1], DocNo[1]);
@@ -840,7 +840,7 @@ codeunit 144049 "ERM Payment Management"
         EnqueueValuesForHandler(VendorNo, '');
 
         // [WHEN] Suggests Vendor Payments
-        PaymentSlip.SuggestVendorPayments.Invoke;
+        PaymentSlip.SuggestVendorPayments.Invoke();
 
         // [THEN] First "Payment Line"."Dimension Set ID" = "X"
         VerifyPaymentLineDimSetID(DimSetID[1], DocNo[1]);
@@ -870,7 +870,7 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] Payment Slip Setup with Line No. series defined (<> Header No. Series)
         PaymentClass.Get(
           SetupForPaymentSlipPost(PaymentStepLedger."Detail Level"::Account, PaymentClass.Suggestions::Vendor));
-        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode);
+        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode());
         PaymentClass.Modify(true);
 
         // [GIVEN] Posted Purchase Invoice
@@ -914,7 +914,7 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] Payment Slip Setup with Line No. series defined (<> Header No. Series)
         PaymentClass.Get(
           SetupForPaymentSlipPost(PaymentStepLedger."Detail Level"::Account, PaymentClass.Suggestions::Customer));
-        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode);
+        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode());
         PaymentClass.Modify(true);
 
         // [GIVEN] Posted Sales Invoice
@@ -1011,7 +1011,7 @@ codeunit 144049 "ERM Payment Management"
         // [WHEN] Payment Slip "P" created by Create Payment Slip job for 2nd Payment Step is posted
         PaymentHeaderNo :=
           CreatePaymentSlipWithSourceCodeAndAccountNo(
-            CreateSourceCode, LibraryERM.CreateBankAccountNo, PaymentClassCode, LineNo[2]);
+            CreateSourceCode(), LibraryERM.CreateBankAccountNo(), PaymentClassCode, LineNo[2]);
 
         // [THEN] All Vendor Ledger Entries for Vendor "V" are closed
         VerifyVendorLedgerEntriesClosed(VendorNo, 4);
@@ -1049,7 +1049,7 @@ codeunit 144049 "ERM Payment Management"
         // [WHEN] Payment Slip "P" created by Create Payment Slip job for 2nd Payment Step is posted
         PaymentHeaderNo :=
           CreatePaymentSlipWithSourceCodeAndAccountNo(
-            CreateSourceCode, LibraryERM.CreateBankAccountNo, PaymentClassCode, LineNo[2]);
+            CreateSourceCode(), LibraryERM.CreateBankAccountNo(), PaymentClassCode, LineNo[2]);
 
         // [THEN] All Vendor Ledger Entries for Vendor "V" are closed
         VerifyVendorLedgerEntriesClosed(VendorNo, 4);
@@ -1368,7 +1368,7 @@ codeunit 144049 "ERM Payment Management"
 
         // [GIVEN] Payment class with No. Series.
         PaymentClass.Get(CreatePaymentClass(PaymentClass.Suggestions::Customer));
-        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode);
+        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode());
         PaymentClass.Modify(true);
         LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, PaymentClass.Code);
 
@@ -1430,7 +1430,7 @@ codeunit 144049 "ERM Payment Management"
 
         // [GIVEN] Payment class with No. Series.
         PaymentClass.Get(CreatePaymentClass(PaymentClass.Suggestions::Customer));
-        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode);
+        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode());
         PaymentClass.Modify(true);
         LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, PaymentClass.Code);
 
@@ -1492,7 +1492,7 @@ codeunit 144049 "ERM Payment Management"
 
         // [GIVEN] Payment class with No. Series.
         PaymentClass.Get(CreatePaymentClass(PaymentClass.Suggestions::Customer));
-        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode);
+        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode());
         PaymentClass.Modify(true);
         LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, PaymentClass.Code);
 
@@ -1554,7 +1554,7 @@ codeunit 144049 "ERM Payment Management"
 
         // [GIVEN] Payment class with No. Series.
         PaymentClass.Get(CreatePaymentClass(PaymentClass.Suggestions::Vendor));
-        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode);
+        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode());
         PaymentClass.Modify(true);
         LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, PaymentClass.Code);
 
@@ -1616,7 +1616,7 @@ codeunit 144049 "ERM Payment Management"
 
         // [GIVEN] Payment class with No. Series.
         PaymentClass.Get(CreatePaymentClass(PaymentClass.Suggestions::Vendor));
-        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode);
+        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode());
         PaymentClass.Modify(true);
         LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, PaymentClass.Code);
 
@@ -1678,7 +1678,7 @@ codeunit 144049 "ERM Payment Management"
 
         // [GIVEN] Payment class with No. Series.
         PaymentClass.Get(CreatePaymentClass(PaymentClass.Suggestions::Vendor));
-        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode);
+        PaymentClass.Validate("Line No. Series", LibraryERM.CreateNoSeriesCode());
         PaymentClass.Modify(true);
         LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, PaymentClass.Code);
 
@@ -1774,19 +1774,19 @@ codeunit 144049 "ERM Payment Management"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Payment Management");
-        UpdateUnrealizedVATGeneralLedgerSetup;
+        UpdateUnrealizedVATGeneralLedgerSetup();
         LibraryVariableStorage.Clear();
-        ClearPaymentSlipData;
+        ClearPaymentSlipData();
     end;
 
     local procedure ApplyPaymentSlip(PaymentClass: Text[30])
     var
         PaymentSlip: TestPage "Payment Slip";
     begin
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.FILTER.SetFilter("Payment Class", PaymentClass);
         LibraryVariableStorage.Enqueue(EnqueueOpt::Application);
-        PaymentSlip.Lines.Application.Invoke;  // Invokes ApplyVendorEntriesModalPageHandler and ApplyCustomerEntriesModalPageHandler.
+        PaymentSlip.Lines.Application.Invoke();  // Invokes ApplyVendorEntriesModalPageHandler and ApplyCustomerEntriesModalPageHandler.
         PaymentSlip.Close();
     end;
 
@@ -1798,14 +1798,14 @@ codeunit 144049 "ERM Payment Management"
         PaymentTerms.Validate("Discount %", LibraryRandom.RandDec(50, 2));  // Using Random Dec for Discount %.
         PaymentTerms.Validate("Calc. Pmt. Disc. on Cr. Memos", CalcPmtDiscOnCrMemos);
         PaymentTerms.Modify(true);
-        exit(Round(Amount * (PaymentTerms."Discount %" / 100), LibraryERM.GetAmountRoundingPrecision));
+        exit(Round(Amount * (PaymentTerms."Discount %" / 100), LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure CreateAndPostGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; DueDate: Date)
     begin
         CreateGenJournalLine(
           GenJournalLine, AccountType, AccountNo, DocumentType,
-          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo);
+          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo());
         GenJournalLine.Validate("External Document No.", GenJournalLine."Document No.");
         GenJournalLine.Validate(Amount, Amount);
         GenJournalLine.Validate("Due Date", DueDate);
@@ -1855,7 +1855,7 @@ codeunit 144049 "ERM Payment Management"
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup[2], VATPostingSetup[1]."VAT Bus. Posting Group", VATProductPostingGroup.Code);
         VATPostingSetup[2].Validate("Unrealized VAT Type", VATPostingSetup[2]."Unrealized VAT Type"::" ");
-        VATPostingSetup[2].Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup[2].Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup[2].Modify(true);
 
         CreatePurchaseHeaderWithLine(PurchaseHeader, VATPostingSetup[1]);
@@ -1899,7 +1899,7 @@ codeunit 144049 "ERM Payment Management"
         DimSetID := LibraryDimension.CreateDimSet(DimSetID, DimensionValue."Dimension Code", DimensionValue.Code);
         SalesHeader.Validate("Dimension Set ID", DimSetID);
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo,
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(),
           LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
         SalesLine.Modify(true);
@@ -1917,7 +1917,7 @@ codeunit 144049 "ERM Payment Management"
         DimSetID := LibraryDimension.CreateDimSet(DimSetID, DimensionValue."Dimension Code", DimensionValue.Code);
         PurchHeader.Validate("Dimension Set ID", DimSetID);
         PurchHeader.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo,
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo(),
           LibraryRandom.RandInt(100));
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
         PurchLine.Modify(true);
@@ -1971,7 +1971,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentClass: Record "Payment Class";
     begin
         LibraryFRLocalization.CreatePaymentClass(PaymentClass);
-        PaymentClass.Validate("Header No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        PaymentClass.Validate("Header No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         PaymentClass.Validate("Unrealized VAT Reversal", PaymentClass."Unrealized VAT Reversal"::Delayed);
         PaymentClass.Validate(Suggestions, Suggestions);
         PaymentClass.Modify(true);
@@ -1981,7 +1981,7 @@ codeunit 144049 "ERM Payment Management"
     local procedure CreatePaymentHeader(var PaymentHeader: Record "Payment Header")
     begin
         LibraryFRLocalization.CreatePaymentHeader(PaymentHeader);
-        PaymentHeader.Validate("Account No.", LibraryERM.CreateBankAccountNo);
+        PaymentHeader.Validate("Account No.", LibraryERM.CreateBankAccountNo());
         PaymentHeader.Modify(true);
     end;
 
@@ -2020,13 +2020,13 @@ codeunit 144049 "ERM Payment Management"
           SetupForPaymentOnPaymentSlip(
             GenJournalLine."Account Type"::Customer, CustomerNo, CustomerNo2,
             LibraryRandom.RandDec(10, 2), PaymentClass.Suggestions::Customer, DueDate);
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.FILTER.SetFilter("Payment Class", PaymentClassCode);
         LibraryVariableStorage.Enqueue(StrSubstNo(FilterRangeTxt, CustomerNo, CustomerNo2));
         LibraryVariableStorage.Enqueue(SummarizePer);
 
         // Exercise.
-        PaymentSlip.SuggestCustomerPayments.Invoke;
+        PaymentSlip.SuggestCustomerPayments.Invoke();
     end;
 
     local procedure CreatePaymentSlipWithDiscount(var PaymentSlip: TestPage "Payment Slip")
@@ -2051,7 +2051,7 @@ codeunit 144049 "ERM Payment Management"
         Commit();  // Required for execute report.
         OpenPaymentSlip(PaymentSlip, PaymentHeader."No.");
         EnqueueValuesForHandler(Customer."No.", '');  // Enqueue for SuggestCustomerPaymentsFRRequestPageHandler.
-        PaymentSlip.SuggestCustomerPayments.Invoke;
+        PaymentSlip.SuggestCustomerPayments.Invoke();
         EnqueueValuesForHandler(EnqueueOpt::Verification, (Amount - DiscountAmount));  // Enqueue for ApplyCustomerEntriesModalPageHandler.
         LibraryVariableStorage.Enqueue(GenJournalLine."Document Type"::Invoice);  // Enqueue for ApplyCustomerEntriesModalPageHandler.
     end;
@@ -2066,7 +2066,7 @@ codeunit 144049 "ERM Payment Management"
 
     local procedure CreatePaymentStatusWithOptions(var PaymentStatus: Record "Payment Status"; PaymentClass: Text[30]; RIB: Boolean; Look: Boolean; ReportMenu: Boolean; Amount: Boolean; Debit: Boolean; Credit: Boolean; BankAccount: Boolean; PaymentInProgress: Boolean; AcceptationCode: Boolean)
     begin
-        CreatePaymentStatus(PaymentStatus, PaymentClass, LibraryUtility.GenerateGUID, PaymentInProgress);
+        CreatePaymentStatus(PaymentStatus, PaymentClass, LibraryUtility.GenerateGUID(), PaymentInProgress);
         PaymentStatus.Validate(RIB, RIB);
         PaymentStatus.Validate(Look, Look);
         PaymentStatus.Validate(ReportMenu, ReportMenu);
@@ -2078,7 +2078,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentStatus.Modify(true);
     end;
 
-    local procedure CreatePaymentStep(PaymentClass: Text[30]; Name: Text[50]; PreviousStatus: Integer; NextStatus: Integer; ActionType: Option; RealizeVAT: Boolean): Integer
+    local procedure CreatePaymentStep(PaymentClass: Text[30]; Name: Text[50]; PreviousStatus: Integer; NextStatus: Integer; ActionType: Enum "Payment Step Action Type"; RealizeVAT: Boolean): Integer
     var
         PaymentStep: Record "Payment Step";
         NoSeries: Record "No. Series";
@@ -2089,7 +2089,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentStep.Validate("Previous Status", PreviousStatus);
         PaymentStep.Validate("Next Status", NextStatus);
         PaymentStep.Validate("Action Type", ActionType);
-        PaymentStep.Validate("Source Code", CreateSourceCode);
+        PaymentStep.Validate("Source Code", CreateSourceCode());
         PaymentStep.Validate("Header Nos. Series", NoSeries.Code);
         PaymentStep.Validate("Realize VAT", RealizeVAT);
         PaymentStep.Modify(true);
@@ -2107,7 +2107,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentStepLedger.Modify(true);
     end;
 
-    local procedure CreatePaymentStepLedgerWithDocumentType(var PaymentStepLedger: Record "Payment Step Ledger"; PaymentClass: Text[30]; Sign: Option; AccountingType: Option; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Application: Option; LineNo: Integer; DocumentType: Option)
+    local procedure CreatePaymentStepLedgerWithDocumentType(var PaymentStepLedger: Record "Payment Step Ledger"; PaymentClass: Text[30]; Sign: Option; AccountingType: Option; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Application: Option; LineNo: Integer; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CreatePaymentStepLedger(
           PaymentStepLedger, PaymentClass, Sign,
@@ -2130,7 +2130,7 @@ codeunit 144049 "ERM Payment Management"
     var
         PaymentHeader: Record "Payment Header";
     begin
-        LibraryFRLocalization.CreatePaymentSlip;
+        LibraryFRLocalization.CreatePaymentSlip();
         FindPaymentHeader(PaymentHeader, PaymentClassCode, LineNo);
         PaymentHeader.Validate("Source Code", SourceCode);
         PaymentHeader.Validate("Account No.", AccountNo);
@@ -2198,12 +2198,12 @@ codeunit 144049 "ERM Payment Management"
         // Step1: Creation of documents
         LineNoDel :=
           CreatePaymentStep(
-            PaymentClass, LibraryUtility.GenerateGUID, PaymentStatus[1].Line,
+            PaymentClass, LibraryUtility.GenerateGUID(), PaymentStatus[1].Line,
             PaymentStatus[2].Line, PaymentStep."Action Type"::Ledger, false);
 
         LineNo[1] :=
           CreatePaymentStep(
-            PaymentClass, LibraryUtility.GenerateGUID, PaymentStatus[1].Line,
+            PaymentClass, LibraryUtility.GenerateGUID(), PaymentStatus[1].Line,
             PaymentStatus[2].Line, PaymentStep."Action Type"::Ledger, false);
 
         PaymentStep.Get(PaymentClass, LineNoDel);
@@ -2212,13 +2212,13 @@ codeunit 144049 "ERM Payment Management"
         // Step2: Documents created
         LineNo[2] :=
           CreatePaymentStep(
-            PaymentClass, LibraryUtility.GenerateGUID, PaymentStatus[2].Line, PaymentStatus[4].Line,
+            PaymentClass, LibraryUtility.GenerateGUID(), PaymentStatus[2].Line, PaymentStatus[4].Line,
             PaymentStep."Action Type"::"Create New Document", false);
 
         // Step3: Creation of payment
         LineNo[3] :=
           CreatePaymentStep(
-            PaymentClass, LibraryUtility.GenerateGUID, PaymentStatus[4].Line, PaymentStatus[5].Line,
+            PaymentClass, LibraryUtility.GenerateGUID(), PaymentStatus[4].Line, PaymentStatus[5].Line,
             PaymentStep."Action Type"::Ledger, true);  // TRUE for Realize VAT.
     end;
 
@@ -2238,10 +2238,10 @@ codeunit 144049 "ERM Payment Management"
           PaymentStepLedger."Account Type"::"G/L Account", '', PaymentStepLedger.Application::"Applied Entry", LineNo);  // Blank value for G/L Account No.
         CreatePaymentStepLedger(
           PaymentStepLedger3, PaymentClass, PaymentStepLedger.Sign::Debit, PaymentStepLedger."Accounting Type"::"Setup Account",
-          PaymentStepLedger."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, PaymentStepLedger.Application::None, LineNo2);
+          PaymentStepLedger."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), PaymentStepLedger.Application::None, LineNo2);
         CreatePaymentStepLedger(
           PaymentStepLedger4, PaymentClass, PaymentStepLedger.Sign::Credit, PaymentStepLedger."Accounting Type"::"Setup Account",
-          PaymentStepLedger."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, PaymentStepLedger.Application::None, LineNo2);
+          PaymentStepLedger."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), PaymentStepLedger.Application::None, LineNo2);
     end;
 
     local procedure CreatePaymentStepLedgerForVendor(PaymentClass: Text[30]; LineNo: Integer; LineNo2: Integer)
@@ -2260,10 +2260,10 @@ codeunit 144049 "ERM Payment Management"
           PaymentStepLedger."Account Type"::"G/L Account", '', PaymentStepLedger.Application::None, LineNo);  // Blank value for G/L Account No.
         CreatePaymentStepLedger(
           PaymentStepLedger3, PaymentClass, PaymentStepLedger.Sign::Debit, PaymentStepLedger."Accounting Type"::"Setup Account",
-          PaymentStepLedger."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, PaymentStepLedger.Application::None, LineNo2);
+          PaymentStepLedger."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), PaymentStepLedger.Application::None, LineNo2);
         CreatePaymentStepLedger(
           PaymentStepLedger4, PaymentClass, PaymentStepLedger.Sign::Credit, PaymentStepLedger."Accounting Type"::"Setup Account",
-          PaymentStepLedger."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, PaymentStepLedger.Application::None, LineNo2);
+          PaymentStepLedger."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), PaymentStepLedger.Application::None, LineNo2);
     end;
 
     local procedure CreatePaymentStepLedgerForVendorWithMemorizeVATRealize(PaymentClass: Text[30]; LineNo: array[3] of Integer)
@@ -2322,10 +2322,10 @@ codeunit 144049 "ERM Payment Management"
         VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.Validate("VAT %", LibraryRandom.RandInt(10));
         VATPostingSetup.Validate("Unrealized VAT Type", UnrealizedVATType);
-        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -2360,7 +2360,7 @@ codeunit 144049 "ERM Payment Management"
         CreatePaymentStepLedger(
           PaymentStepLedger, PaymentClassCode, PaymentStepLedger.Sign::Credit,
           PaymentStepLedger."Accounting Type"::"Header Payment Account",
-          PaymentStepLedger."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, PaymentStepLedger.Application::None, LineNo);
+          PaymentStepLedger."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), PaymentStepLedger.Application::None, LineNo);
         PaymentStepLedger.Validate("Detail Level", PaymentStepLedger."Detail Level"::Account);
         PaymentStepLedger.Modify();
     end;
@@ -2379,9 +2379,9 @@ codeunit 144049 "ERM Payment Management"
         Commit();
         OpenPaymentSlip(PaymentSlip, PaymentHeaderNo);
         EnqueueValuesForHandler(CustomerNo, '');
-        PaymentSlip.SuggestCustomerPayments.Invoke;
+        PaymentSlip.SuggestCustomerPayments.Invoke();
 
-        PaymentSlip.Post.Invoke;
+        PaymentSlip.Post.Invoke();
     end;
 
     local procedure CreatePostSlipAppliedToPurchaseInvoice(var PaymentHeaderNo: Code[20])
@@ -2398,9 +2398,9 @@ codeunit 144049 "ERM Payment Management"
         Commit();
         OpenPaymentSlip(PaymentSlip, PaymentHeaderNo);
         EnqueueValuesForHandler(VendorNo, '');
-        PaymentSlip.SuggestVendorPayments.Invoke;
+        PaymentSlip.SuggestVendorPayments.Invoke();
 
-        PaymentSlip.Post.Invoke;
+        PaymentSlip.Post.Invoke();
     end;
 
     local procedure CreatePurchaseHeaderWithLine(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup")
@@ -2428,7 +2428,7 @@ codeunit 144049 "ERM Payment Management"
         OpenPaymentSlip(PaymentSlip, '');
 
         EnqueueValuesForHandler(StrSubstNo('%1|%2', VendorNo[1], VendorNo[2]), SummarizePer);
-        PaymentSlip.SuggestVendorPayments.Invoke;
+        PaymentSlip.SuggestVendorPayments.Invoke();
     end;
 
     local procedure CreateCustomerPaymentSlip(CustomerNo: array[2] of Code[20]; SummarizePer: Option " ",Customer,"Due date")
@@ -2440,7 +2440,7 @@ codeunit 144049 "ERM Payment Management"
         OpenPaymentSlip(PaymentSlip, '');
 
         EnqueueValuesForHandler(StrSubstNo('%1|%2', CustomerNo[1], CustomerNo[2]), SummarizePer);
-        PaymentSlip.SuggestCustomerPayments.Invoke;
+        PaymentSlip.SuggestCustomerPayments.Invoke();
     end;
 
     local procedure CreateCustomerWithDefaultDimensionsPostSalesOrder(var CustomerNo: Code[20]; var DimensionValue: Record "Dimension Value")
@@ -2491,7 +2491,7 @@ codeunit 144049 "ERM Payment Management"
         OpenPaymentSlip(PaymentSlip, PaymentHeader."No.");
         EnqueueValuesForHandler(Vendor."No.", Currency.Code);  // Enqueue for SuggestVendorPaymentsFRRequestPageHandler.
         Commit(); // Required for execute report.
-        PaymentSlip.SuggestVendorPayments.Invoke;
+        PaymentSlip.SuggestVendorPayments.Invoke();
     end;
 
     local procedure CreatePurchaseInvoiceWithCurrencyAndPost(var Vendor: Record Vendor; Currency: Record Currency; PostingDate: Date): Code[20]
@@ -2573,8 +2573,8 @@ codeunit 144049 "ERM Payment Management"
 
     local procedure PaymentSlipApplication(PaymentSlip: TestPage "Payment Slip")
     begin
-        PaymentSlip.Lines.First;
-        PaymentSlip.Lines.Application.Invoke;
+        PaymentSlip.Lines.First();
+        PaymentSlip.Lines.Application.Invoke();
     end;
 
     local procedure PostGenJournalAndCreatePaymentSlip(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Suggestions: Option; Amount: Decimal): Text[30]
@@ -2595,18 +2595,18 @@ codeunit 144049 "ERM Payment Management"
     var
         PaymentSlip: TestPage "Payment Slip";
     begin
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.FILTER.SetFilter("Payment Class", PaymentClass);
-        PaymentSlip.Post.Invoke;  // Invoke ConfirmHandlerTrue.
+        PaymentSlip.Post.Invoke();  // Invoke ConfirmHandlerTrue.
     end;
 
     local procedure PostPaymentSlipHeaderNo(HeaderNo: Code[20])
     var
         PaymentSlip: TestPage "Payment Slip";
     begin
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.GotoKey(HeaderNo);
-        PaymentSlip.Post.Invoke;
+        PaymentSlip.Post.Invoke();
     end;
 
     local procedure PostPaymentSlipAndVerifyLedgers(PaymentHeader: Record "Payment Header"; NoOfRecord: Integer)
@@ -2625,7 +2625,7 @@ codeunit 144049 "ERM Payment Management"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo,
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(),
           LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
         SalesLine.Modify(true);
@@ -2638,7 +2638,7 @@ codeunit 144049 "ERM Payment Management"
         PurchLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, VendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo,
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, LibraryInventory.CreateItemNo(),
           LibraryRandom.RandInt(100));
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
         PurchLine.Modify(true);
@@ -2730,14 +2730,14 @@ codeunit 144049 "ERM Payment Management"
 
     local procedure OpenPaymentSlip(var PaymentSlip: TestPage "Payment Slip"; No: Text[50])
     begin
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.FILTER.SetFilter("No.", No);
     end;
 
     local procedure UnrealizedVATTypeError()
     begin
         // Excerise.
-        asserterror LibraryFRLocalization.CreatePaymentSlip;  // Invoke CreatePaymentSlipStrMenuHandler.
+        asserterror LibraryFRLocalization.CreatePaymentSlip();  // Invoke CreatePaymentSlipStrMenuHandler.
 
         // Verify: Verify error.
         Assert.ExpectedError(UnrealizedVATTypeErr);
@@ -2817,7 +2817,7 @@ codeunit 144049 "ERM Payment Management"
 
         LibraryVariableStorage.Enqueue(PaymentClassCode); // Enqueue value for PaymentSlipRemovePageHandler
         LibraryVariableStorage.Enqueue(LineNo);           // Enqueue value for PaymentSlipRemovePageHandler
-        LibraryFRLocalization.CreatePaymentSlip;
+        LibraryFRLocalization.CreatePaymentSlip();
     end;
 
     local procedure CreatePaymentSlipWithCustomerPayments(CustomerNo: Code[20]; PaymentClassCode: Text[30])
@@ -2828,9 +2828,9 @@ codeunit 144049 "ERM Payment Management"
         SetupPaymentSlip(PaymentClassCode, PaymentLine."Account Type"::Customer, CustomerNo);
 
         Commit();
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.FILTER.SetFilter("Payment Class", PaymentClassCode);
-        PaymentSlip.SuggestCustomerPayments.Invoke;
+        PaymentSlip.SuggestCustomerPayments.Invoke();
     end;
 
     local procedure CreatePaymentSlipWithVendorPayments(VendorNo: Code[20]; PaymentClassCode: Text[30])
@@ -2841,19 +2841,19 @@ codeunit 144049 "ERM Payment Management"
         SetupPaymentSlip(PaymentClassCode, PaymentLine."Account Type"::Vendor, VendorNo);
 
         Commit();
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.FILTER.SetFilter("Payment Class", PaymentClassCode);
-        PaymentSlip.SuggestVendorPayments.Invoke;
+        PaymentSlip.SuggestVendorPayments.Invoke();
     end;
 
-    local procedure SetPaymentHeaderBankAccountNo(PaymentClassCode: Text[30]; BanAccountNo: Code[20])
+    local procedure SetPaymentHeaderBankAccountNo(PaymentClassCode: Text[30])
     var
         PaymentHeader: Record "Payment Header";
     begin
         with PaymentHeader do begin
             SetRange("Payment Class", PaymentClassCode);
             FindFirst();
-            Validate("Account No.", LibraryERM.CreateBankAccountNo);
+            Validate("Account No.", LibraryERM.CreateBankAccountNo());
             Modify();
         end;
     end;
@@ -2863,7 +2863,7 @@ codeunit 144049 "ERM Payment Management"
         LibraryVariableStorage.Enqueue(PaymentClassCode);  // Enqueue value for PaymentClassListModalPageHandler.
         CreatePaymentSlip(AccountType, CustomerVendorNo);
 
-        SetPaymentHeaderBankAccountNo(PaymentClassCode, LibraryERM.CreateBankAccountNo);
+        SetPaymentHeaderBankAccountNo(PaymentClassCode);
 
         LibraryVariableStorage.Enqueue(CustomerVendorNo);
         LibraryVariableStorage.Enqueue(false);
@@ -3059,7 +3059,7 @@ codeunit 144049 "ERM Payment Management"
         EnqueueOption := OptionValue;
         case EnqueueOption of
             OptionString::Application:
-                ApplyCustomerEntries."Set Applies-to ID".Invoke;
+                ApplyCustomerEntries."Set Applies-to ID".Invoke();
             OptionString::Verification:
                 begin
                     LibraryVariableStorage.Dequeue(AppliedAmount);
@@ -3068,7 +3068,7 @@ codeunit 144049 "ERM Payment Management"
                     ApplyCustomerEntries."Document Type".AssertEquals(DocumentType);
                 end;
         end;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3085,16 +3085,16 @@ codeunit 144049 "ERM Payment Management"
         EnqueueOption := OptionValue;
         case EnqueueOption of
             OptionString::Application:
-                ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+                ApplyVendorEntries.ActionSetAppliesToID.Invoke();
             OptionString::Verification:
                 begin
                     LibraryVariableStorage.Dequeue(AppliedAmount);
                     ApplyVendorEntries.AppliedAmount.AssertEquals(AppliedAmount); // Applied Amount
-                    ApplyVendorEntries.Last;
+                    ApplyVendorEntries.Last();
                     ApplyVendorEntries."Document Type".AssertEquals(Format(VendorLedgerEntry."Document Type"::"Credit Memo"));
                 end;
         end;
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3105,14 +3105,14 @@ codeunit 144049 "ERM Payment Management"
     begin
         LibraryVariableStorage.Dequeue(Code);
         PaymentClassList.FILTER.SetFilter(Code, Code);
-        PaymentClassList.OK.Invoke;
+        PaymentClassList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PaymentLinesListModalPageHandler(var PaymentLinesList: TestPage "Payment Lines List")
     begin
-        PaymentLinesList.OK.Invoke;  // Invokes PaymentSlipPageHandler.
+        PaymentLinesList.OK().Invoke();  // Invokes PaymentSlipPageHandler.
     end;
 
     [StrMenuHandler]
@@ -3131,7 +3131,7 @@ codeunit 144049 "ERM Payment Management"
         LibraryVariableStorage.Dequeue(No);
         GLCustLedgerReconciliation.Customer.SetFilter("No.", No);
         GLCustLedgerReconciliation.Customer.SetFilter("Date Filter", Format(WorkDate()));
-        GLCustLedgerReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLCustLedgerReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3143,7 +3143,7 @@ codeunit 144049 "ERM Payment Management"
         LibraryVariableStorage.Dequeue(No);
         GLVendLedgerReconciliation.Vendor.SetFilter("No.", No);
         GLVendLedgerReconciliation.Vendor.SetFilter("Date Filter", Format(WorkDate()));
-        GLVendLedgerReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLVendLedgerReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3158,7 +3158,7 @@ codeunit 144049 "ERM Payment Management"
         SuggestCustomerPayments.Customer.SetFilter("No.", No);
         SuggestCustomerPayments.LastPaymentDate.SetValue(CalcDate('<1M>', WorkDate()));  // Required month end date.
         SuggestCustomerPayments.CurrencyFilter.SetValue(CurrencyFilter);
-        SuggestCustomerPayments.OK.Invoke;
+        SuggestCustomerPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3173,7 +3173,7 @@ codeunit 144049 "ERM Payment Management"
         SuggestCustomerPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestCustomerPayments.SummarizePer.SetValue(SummarizePer);
         SuggestCustomerPayments.Customer.SetFilter("No.", No);
-        SuggestCustomerPayments.OK.Invoke;
+        SuggestCustomerPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3188,14 +3188,14 @@ codeunit 144049 "ERM Payment Management"
         SuggestVendorPaymentsFR.Vendor.SetFilter("No.", No);
         SuggestVendorPaymentsFR.LastPaymentDate.SetValue(CalcDate('<1M>', WorkDate()));  // Required month end date.
         SuggestVendorPaymentsFR.CurrencyFilter.SetValue(CurrencyFilter);
-        SuggestVendorPaymentsFR.OK.Invoke;
+        SuggestVendorPaymentsFR.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PaymentSlipPageHandler(var PaymentSlip: TestPage "Payment Slip")
     begin
-        PaymentSlip.Post.Invoke;  // Invokes ConfirmHandlerTrue.
+        PaymentSlip.Post.Invoke();  // Invokes ConfirmHandlerTrue.
     end;
 
     [PageHandler]
@@ -3209,7 +3209,7 @@ codeunit 144049 "ERM Payment Management"
         LibraryVariableStorage.Dequeue(LineNo);
         VerifyCopyLinkInPaymentLine(PaymentClass, LineNo);
 
-        PaymentSlip.Lines.Remove.Invoke;
+        PaymentSlip.Lines.Remove.Invoke();
     end;
 
     [RequestPageHandler]
@@ -3224,7 +3224,7 @@ codeunit 144049 "ERM Payment Management"
         SuggestVendorPaymentsFR.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPaymentsFR.SummarizePer.SetValue(SummarizePer);
         SuggestVendorPaymentsFR.Vendor.SetFilter("No.", No);
-        SuggestVendorPaymentsFR.OK.Invoke;
+        SuggestVendorPaymentsFR.OK().Invoke();
     end;
 
     [ConfirmHandler]

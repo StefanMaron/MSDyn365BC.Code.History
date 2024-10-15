@@ -16,21 +16,19 @@ codeunit 5887 "Phys. Invt.-Calc. Qty. All"
         if Selection = 0 then
             exit;
 
-        with PhysInvtOrderHeader do begin
-            PhysInvtOrderLine.Reset();
-            PhysInvtOrderLine.SetRange("Document No.", "No.");
-            if PhysInvtOrderLine.Find('-') then
-                repeat
-                    if (Selection = 1) or
-                       ((Selection = 2) and not PhysInvtOrderLine."Qty. Exp. Calculated")
-                    then
-                        if not PhysInvtOrderLine.EmptyLine() then begin
-                            PhysInvtOrderLine.TestField("Item No.");
-                            PhysInvtOrderLine.CalcQtyAndTrackLinesExpected();
-                            PhysInvtOrderLine.Modify();
-                        end;
-                until PhysInvtOrderLine.Next() = 0;
-        end;
+        PhysInvtOrderLine.Reset();
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        if PhysInvtOrderLine.Find('-') then
+            repeat
+                if (Selection = 1) or
+                   ((Selection = 2) and not PhysInvtOrderLine."Qty. Exp. Calculated")
+                then
+                    if not PhysInvtOrderLine.EmptyLine() then begin
+                        PhysInvtOrderLine.TestField("Item No.");
+                        PhysInvtOrderLine.CalcQtyAndTrackLinesExpected();
+                        PhysInvtOrderLine.Modify();
+                    end;
+            until PhysInvtOrderLine.Next() = 0;
 
         Rec := PhysInvtOrderHeader;
     end;

@@ -97,27 +97,6 @@ codeunit 1630 "Office Management"
         AsBlob := AsBlob and (GetHostType() <> OfficeHostType.OutlookItemEdit());
     end;
 
-    [Obsolete('Please use the overload with the stream parameter', '17.2')]
-    procedure AttachDocument(ServerFilePath: Text; FileName: Text; BodyText: Text; Subject: Text)
-    var
-        MailMgt: Codeunit "Mail Management";
-        OfficeAttachmentManager: Codeunit "Office Attachment Manager";
-        File: Text;
-    begin
-        if ServerFilePath <> '' then begin
-            File := GetAuthenticatedUrlOrContent(ServerFilePath);
-            with OfficeAttachmentManager do begin
-                Add(File, FileName, BodyText);
-                if Ready() then begin
-                    Commit();
-                    InvokeExtension('sendAttachment', GetFiles(), GetNames(), GetBody(), Subject);
-                    Done();
-                end;
-            end;
-        end else
-            InvokeExtension('sendAttachment', '', '', MailMgt.ImageBase64ToUrl(BodyText), Subject);
-    end;
-
     procedure AttachDocument(AttachmentStream: Instream; AttachmentName: Text; BodyText: Text; Subject: Text)
     var
         OfficeAttachmentManager: Codeunit "Office Attachment Manager";

@@ -82,13 +82,11 @@ codeunit 5818 "Undo Service Shipment Line"
         LocalServShptLine: Record "Service Shipment Line";
     begin
         LocalServShptLine.Copy(ServiceShptLine);
-        with LocalServShptLine do begin
-            SetFilter("Spare Part Action", '%1|%2',
-              "Spare Part Action"::"Component Replaced", "Spare Part Action"::"Component Installed");
-            SetFilter("Service Item No.", '<>%1', '');
-            OnCheckComponentsAdjustedOnAfterLocalServShptLineSetFilters(LocalServShptLine);
-            exit(not IsEmpty);
-        end;
+        LocalServShptLine.SetFilter("Spare Part Action", '%1|%2',
+            LocalServShptLine."Spare Part Action"::"Component Replaced", LocalServShptLine."Spare Part Action"::"Component Installed");
+        LocalServShptLine.SetFilter(LocalServShptLine."Service Item No.", '<>%1', '');
+        OnCheckComponentsAdjustedOnAfterLocalServShptLineSetFilters(LocalServShptLine);
+        exit(not LocalServShptLine.IsEmpty);
     end;
 
     procedure SetHideDialog(NewHideDialog: Boolean)
@@ -110,85 +108,82 @@ codeunit 5818 "Undo Service Shipment Line"
         DeleteServItems: Boolean;
         PostedWhseShptLineFound: Boolean;
     begin
-        with ServShptLine do begin
-            Clear(ItemJnlPostLine);
-            SetRange(Correction, false);
-            FindFirst();
-            repeat
-                if not HideDialog then
-                    Window.Open(Text003);
-                CheckServShptLine(ServShptLine);
-            until Next() = 0;
+        Clear(ItemJnlPostLine);
+        ServShptLine.SetRange(Correction, false);
+        ServShptLine.FindFirst();
+        repeat
+            if not HideDialog then
+                Window.Open(Text003);
+            CheckServShptLine(ServShptLine);
+        until ServShptLine.Next() = 0;
 
-            ServItem.SetCurrentKey("Sales/Serv. Shpt. Document No.");
-            ServItem.SetRange("Sales/Serv. Shpt. Document No.", "Document No.");
-            ServItem.SetRange("Sales/Serv. Shpt. Line No.", "Line No.");
-            ServItem.SetRange("Shipment Type", ServItem."Shipment Type"::Service);
+        ServItem.SetCurrentKey("Sales/Serv. Shpt. Document No.");
+        ServItem.SetRange("Sales/Serv. Shpt. Document No.", ServShptLine."Document No.");
+        ServItem.SetRange("Sales/Serv. Shpt. Line No.", ServShptLine."Line No.");
+        ServItem.SetRange("Shipment Type", ServItem."Shipment Type"::Service);
+        if not ServItem.IsEmpty() then
+            if not HideDialog then
+                DeleteServItems := ConfirmManagement.GetResponseOrDefault(Text005, true)
+            else
+                DeleteServItems := true;
 
-            if ServItem.FindFirst() then
-                if not HideDialog then
-                    DeleteServItems := ConfirmManagement.GetResponseOrDefault(Text005, true)
-                else
-                    DeleteServItems := true;
+        ServLedgEntriesPost.InitServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
+        ServShptLine.Find('-');
+        repeat
+            TempGlobalItemLedgEntry.Reset();
+            if not TempGlobalItemLedgEntry.IsEmpty() then
+                TempGlobalItemLedgEntry.DeleteAll();
+            TempGlobalItemEntryRelation.Reset();
+            if not TempGlobalItemEntryRelation.IsEmpty() then
+                TempGlobalItemEntryRelation.DeleteAll();
 
-            ServLedgEntriesPost.InitServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
-            Find('-');
-            repeat
-                TempGlobalItemLedgEntry.Reset();
-                if not TempGlobalItemLedgEntry.IsEmpty() then
-                    TempGlobalItemLedgEntry.DeleteAll();
-                TempGlobalItemEntryRelation.Reset();
-                if not TempGlobalItemEntryRelation.IsEmpty() then
-                    TempGlobalItemEntryRelation.DeleteAll();
+            if not HideDialog then
+                Window.Open(Text001);
 
-                if not HideDialog then
-                    Window.Open(Text001);
+            PostedWhseShptLineFound :=
+                WhseUndoQty.FindPostedWhseShptLine(
+                    PostedWhseShptLine, DATABASE::"Service Shipment Line", ServShptLine."Document No.",
+                    DATABASE::"Service Line", ServiceLine."Document Type"::Order.AsInteger(), ServShptLine."Order No.", ServShptLine."Order Line No.");
 
-                PostedWhseShptLineFound :=
-                    WhseUndoQty.FindPostedWhseShptLine(
-                        PostedWhseShptLine, DATABASE::"Service Shipment Line", "Document No.",
-                        DATABASE::"Service Line", ServiceLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.");
+            if ServShptLine.Type = ServShptLine.Type::Item then
+                ItemShptEntryNo := PostItemJnlLine(ServShptLine)
+            else
+                ItemShptEntryNo := GetCorrectionLineNo(ServShptLine);
 
-                if Type = Type::Item then
-                    ItemShptEntryNo := PostItemJnlLine(ServShptLine)
-                else
-                    ItemShptEntryNo := GetCorrectionLineNo(ServShptLine);
+            if ServShptLine.Type = ServShptLine.Type::Resource then
+                PostResJnlLine(ServShptLine);
 
-                if Type = Type::Resource then
-                    PostResJnlLine(ServShptLine);
+            InsertNewShipmentLine(ServShptLine, ItemShptEntryNo);
+            OnAfterInsertNewShipmentLine(ServShptLine, PostedWhseShptLine, PostedWhseShptLineFound);
 
-                InsertNewShipmentLine(ServShptLine, ItemShptEntryNo);
-                OnAfterInsertNewShipmentLine(ServShptLine, PostedWhseShptLine, PostedWhseShptLineFound);
+            if PostedWhseShptLineFound then
+                WhseUndoQty.UndoPostedWhseShptLine(PostedWhseShptLine);
 
-                if PostedWhseShptLineFound then
-                    WhseUndoQty.UndoPostedWhseShptLine(PostedWhseShptLine);
+            ServLedgEntriesPost.ReverseServLedgEntry(ServShptLine);
+            if ServShptLine.Type in [ServShptLine.Type::Item, ServShptLine.Type::Resource] then
+                ServLedgEntriesPost.ReverseWarrantyEntry(ServShptLine);
 
-                ServLedgEntriesPost.ReverseServLedgEntry(ServShptLine);
-                if Type in [Type::Item, Type::Resource] then
-                    ServLedgEntriesPost.ReverseWarrantyEntry(ServShptLine);
+            UpdateOrderLine(ServShptLine);
+            if PostedWhseShptLineFound then
+                WhseUndoQty.UpdateShptSourceDocLines(PostedWhseShptLine);
 
-                UpdateOrderLine(ServShptLine);
-                if PostedWhseShptLineFound then
-                    WhseUndoQty.UpdateShptSourceDocLines(PostedWhseShptLine);
+            if DeleteServItems then
+                DeleteServShptLineServItems(ServShptLine);
 
-                if DeleteServItems then
-                    DeleteServShptLineServItems(ServShptLine);
+            ServShptLine."Quantity Invoiced" := ServShptLine.Quantity;
+            ServShptLine."Qty. Invoiced (Base)" := ServShptLine."Quantity (Base)";
+            ServShptLine."Qty. Shipped Not Invoiced" := 0;
+            ServShptLine."Qty. Shipped Not Invd. (Base)" := 0;
+            ServShptLine.Correction := true;
+            OnCodeOnBeforeServShptLineModify(ServShptLine, TempWhseJnlLine);
+            ServShptLine.Modify();
+            OnCodeOnAfterServShptLineModify(ServShptLine, TempWhseJnlLine);
+        until ServShptLine.Next() = 0;
+        ServLedgEntriesPost.FinishServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
 
-                "Quantity Invoiced" := Quantity;
-                "Qty. Invoiced (Base)" := "Quantity (Base)";
-                "Qty. Shipped Not Invoiced" := 0;
-                "Qty. Shipped Not Invd. (Base)" := 0;
-                Correction := true;
-                OnCodeOnBeforeServShptLineModify(ServShptLine, TempWhseJnlLine);
-                Modify();
-                OnCodeOnAfterServShptLineModify(ServShptLine, TempWhseJnlLine);
-            until Next() = 0;
-            ServLedgEntriesPost.FinishServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
+        MakeInventoryAdjustment();
 
-            MakeInventoryAdjustment();
-
-            WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
-        end;
+        WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
 
         OnAfterCode(ServShptLine);
     end;
@@ -220,17 +215,15 @@ codeunit 5818 "Undo Service Shipment Line"
         if IsHandled then
             exit;
 
-        with ServShptLine do begin
-            TestField(Quantity);
-            TestField("Qty. Shipped Not Invoiced", Quantity);
-            if Correction then
-                Error(AlreadyReversedErr);
-            UndoPostingMgt.TestServShptLine(ServShptLine);
-            if Type = Type::Item then begin
-                UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Service Shipment Line",
-                  "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
-                UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
-            end;
+        ServShptLine.TestField(Quantity);
+        ServShptLine.TestField("Qty. Shipped Not Invoiced", ServShptLine.Quantity);
+        if ServShptLine.Correction then
+            Error(AlreadyReversedErr);
+        UndoPostingMgt.TestServShptLine(ServShptLine);
+        if ServShptLine.Type = ServShptLine.Type::Item then begin
+            UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Service Shipment Line",
+              ServShptLine."Document No.", ServShptLine."Line No.", ServShptLine."Quantity (Base)", ServShptLine."Item Shpt. Entry No.");
+            UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, ServShptLine."Line No.");
         end;
     end;
 
@@ -245,20 +238,18 @@ codeunit 5818 "Undo Service Shipment Line"
         if IsHandled then
             exit(Result);
 
-        with ServiceShipmentLine2 do begin
-            ServiceShipmentLine3.SetRange("Document No.", "Document No.");
-            ServiceShipmentLine3."Document No." := "Document No.";
-            ServiceShipmentLine3."Line No." := "Line No.";
-            ServiceShipmentLine3.Find('=');
-            if ServiceShipmentLine3.Next() <> 0 then begin
-                LineSpacing := (ServiceShipmentLine3."Line No." - "Line No.") div 2;
-                if LineSpacing = 0 then
-                    Error(Text002);
-            end else
-                LineSpacing := 10000;
+        ServiceShipmentLine3.SetRange("Document No.", ServiceShipmentLine2."Document No.");
+        ServiceShipmentLine3."Document No." := ServiceShipmentLine2."Document No.";
+        ServiceShipmentLine3."Line No." := ServiceShipmentLine2."Line No.";
+        ServiceShipmentLine3.Find('=');
+        if ServiceShipmentLine3.Next() <> 0 then begin
+            LineSpacing := (ServiceShipmentLine3."Line No." - ServiceShipmentLine2."Line No.") div 2;
+            if LineSpacing = 0 then
+                Error(Text002);
+        end else
+            LineSpacing := 10000;
 
-            Result := "Line No." + LineSpacing;
-        end;
+        Result := ServiceShipmentLine2."Line No." + LineSpacing;
         OnAfterGetCorrectionLineNo(ServiceShipmentLine2, Result);
     end;
 
@@ -270,55 +261,53 @@ codeunit 5818 "Undo Service Shipment Line"
         SourceCodeSetup: Record "Source Code Setup";
         TempApplyToEntryList: Record "Item Ledger Entry" temporary;
     begin
-        with ServShptLine do begin
-            SourceCodeSetup.Get();
-            ServShptHeader.Get("Document No.");
-            ItemJnlLine.Init();
-            ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Sale;
-            ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::"Service Shipment";
-            ItemJnlLine."Document No." := ServShptHeader."No.";
-            ItemJnlLine."Document Line No." := "Line No." + GetCorrectiveShptLineNoStep("Document No.", "Line No.");
-            ItemJnlLine."Item No." := "No.";
-            ItemJnlLine."Posting Date" := "Posting Date";
-            ItemJnlLine."Document No." := "Document No.";
-            ItemJnlLine."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-            ItemJnlLine."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
-            ItemJnlLine."Source Posting Group" := ServShptHeader."Customer Posting Group";
-            ItemJnlLine."Salespers./Purch. Code" := ServShptHeader."Salesperson Code";
-            ItemJnlLine."Country/Region Code" := ServShptHeader."Country/Region Code";
-            ItemJnlLine."Posting No. Series" := ServShptHeader."No. Series";
-            ItemJnlLine."Unit of Measure Code" := "Unit of Measure Code";
-            ItemJnlLine."Location Code" := "Location Code";
-            ItemJnlLine."Source Code" := SourceCodeSetup.Sales;
-            ItemJnlLine."Applies-to Entry" := "Item Shpt. Entry No.";
-            ItemJnlLine.Correction := true;
-            ItemJnlLine."Variant Code" := "Variant Code";
-            ItemJnlLine."Bin Code" := "Bin Code";
-            ItemJnlLine.Quantity := -"Quantity (Base)";
-            ItemJnlLine."Quantity (Base)" := -"Quantity (Base)";
-            ItemJnlLine."Document Date" := ServShptHeader."Document Date";
+        SourceCodeSetup.Get();
+        ServShptHeader.Get(ServShptLine."Document No.");
+        ItemJnlLine.Init();
+        ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Sale;
+        ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::"Service Shipment";
+        ItemJnlLine."Document No." := ServShptHeader."No.";
+        ItemJnlLine."Document Line No." := ServShptLine."Line No." + GetCorrectiveShptLineNoStep(ServShptLine."Document No.", ServShptLine."Line No.");
+        ItemJnlLine."Item No." := ServShptLine."No.";
+        ItemJnlLine."Posting Date" := ServShptLine."Posting Date";
+        ItemJnlLine."Document No." := ServShptLine."Document No.";
+        ItemJnlLine."Gen. Bus. Posting Group" := ServShptLine."Gen. Bus. Posting Group";
+        ItemJnlLine."Gen. Prod. Posting Group" := ServShptLine."Gen. Prod. Posting Group";
+        ItemJnlLine."Source Posting Group" := ServShptHeader."Customer Posting Group";
+        ItemJnlLine."Salespers./Purch. Code" := ServShptHeader."Salesperson Code";
+        ItemJnlLine."Country/Region Code" := ServShptHeader."Country/Region Code";
+        ItemJnlLine."Posting No. Series" := ServShptHeader."No. Series";
+        ItemJnlLine."Unit of Measure Code" := ServShptLine."Unit of Measure Code";
+        ItemJnlLine."Location Code" := ServShptLine."Location Code";
+        ItemJnlLine."Source Code" := SourceCodeSetup.Sales;
+        ItemJnlLine."Applies-to Entry" := ServShptLine."Item Shpt. Entry No.";
+        ItemJnlLine.Correction := true;
+        ItemJnlLine."Variant Code" := ServShptLine."Variant Code";
+        ItemJnlLine."Bin Code" := ServShptLine."Bin Code";
+        ItemJnlLine.Quantity := -ServShptLine."Quantity (Base)";
+        ItemJnlLine."Quantity (Base)" := -ServShptLine."Quantity (Base)";
+        ItemJnlLine."Document Date" := ServShptHeader."Document Date";
 
-            OnAfterCopyItemJnlLineFromServShpt(ItemJnlLine, ServShptHeader, ServShptLine);
+        OnAfterCopyItemJnlLineFromServShpt(ItemJnlLine, ServShptHeader, ServShptLine);
 
-            WhseUndoQty.InsertTempWhseJnlLine(
-                ItemJnlLine,
-                DATABASE::"Service Line", ServLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.",
-                TempWhseJnlLine."Reference Document"::"Posted Shipment".AsInteger(), TempWhseJnlLine, NextLineNo);
+        WhseUndoQty.InsertTempWhseJnlLine(
+            ItemJnlLine,
+            DATABASE::"Service Line", ServLine."Document Type"::Order.AsInteger(), ServShptLine."Order No.", ServShptLine."Order Line No.",
+            TempWhseJnlLine."Reference Document"::"Posted Shipment".AsInteger(), TempWhseJnlLine, NextLineNo);
 
-            if "Item Shpt. Entry No." <> 0 then begin
-                ItemJnlPostLine.Run(ItemJnlLine);
-                OnItemJnlPostLineOnAfterItemShptEntryNoOnBeforeExit(ItemJnlLine, ServShptLine);
-                exit(ItemJnlLine."Item Shpt. Entry No.");
-            end;
-            UndoPostingMgt.CollectItemLedgEntries(TempApplyToEntryList, DATABASE::"Service Shipment Line",
-              "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
-
-            UndoPostingMgt.PostItemJnlLineAppliedToList(ItemJnlLine, TempApplyToEntryList,
-              Quantity, "Quantity (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation);
-
-            OnAfterPostItemJnlLine(ItemJnlLine, ServShptLine);
-            exit(0); // "Item Shpt. Entry No."
+        if ServShptLine."Item Shpt. Entry No." <> 0 then begin
+            ItemJnlPostLine.Run(ItemJnlLine);
+            OnItemJnlPostLineOnAfterItemShptEntryNoOnBeforeExit(ItemJnlLine, ServShptLine);
+            exit(ItemJnlLine."Item Shpt. Entry No.");
         end;
+        UndoPostingMgt.CollectItemLedgEntries(TempApplyToEntryList, DATABASE::"Service Shipment Line",
+          ServShptLine."Document No.", ServShptLine."Line No.", ServShptLine."Quantity (Base)", ServShptLine."Item Shpt. Entry No.");
+
+        UndoPostingMgt.PostItemJnlLineAppliedToList(ItemJnlLine, TempApplyToEntryList,
+          ServShptLine.Quantity, ServShptLine."Quantity (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation);
+
+        OnAfterPostItemJnlLine(ItemJnlLine, ServShptLine);
+        exit(0); // "Item Shpt. Entry No."
     end;
 
     local procedure InsertNewShipmentLine(OldServShptLine: Record "Service Shipment Line"; ItemShptEntryNo: Integer)
@@ -331,37 +320,33 @@ codeunit 5818 "Undo Service Shipment Line"
         if IsHandled then
             exit;
 
-        with OldServShptLine do begin
-            NewServShptLine.Reset();
-            NewServShptLine.Init();
-            NewServShptLine.Copy(OldServShptLine);
-            NewServShptLine."Line No." := "Line No." + GetCorrectiveShptLineNoStep("Document No.", "Line No.");
-            NewServShptLine."Item Shpt. Entry No." := ItemShptEntryNo;
-            NewServShptLine."Appl.-to Service Entry" := "Appl.-to Service Entry";
-            NewServShptLine.Quantity := -Quantity;
-            NewServShptLine."Qty. Shipped Not Invoiced" := 0;
-            NewServShptLine."Qty. Shipped Not Invd. (Base)" := 0;
-            NewServShptLine."Quantity (Base)" := -"Quantity (Base)";
-            NewServShptLine."Quantity Invoiced" := NewServShptLine.Quantity;
-            NewServShptLine."Qty. Invoiced (Base)" := NewServShptLine."Quantity (Base)";
-            NewServShptLine.Correction := true;
-            NewServShptLine."Dimension Set ID" := "Dimension Set ID";
-            OnBeforeNewServiceShptLineInsert(NewServShptLine, OldServShptLine);
-            NewServShptLine.Insert();
+        NewServShptLine.Reset();
+        NewServShptLine.Init();
+        NewServShptLine.Copy(OldServShptLine);
+        NewServShptLine."Line No." := OldServShptLine."Line No." + GetCorrectiveShptLineNoStep(OldServShptLine."Document No.", OldServShptLine."Line No.");
+        NewServShptLine."Item Shpt. Entry No." := ItemShptEntryNo;
+        NewServShptLine."Appl.-to Service Entry" := OldServShptLine."Appl.-to Service Entry";
+        NewServShptLine.Quantity := -OldServShptLine.Quantity;
+        NewServShptLine."Qty. Shipped Not Invoiced" := 0;
+        NewServShptLine."Qty. Shipped Not Invd. (Base)" := 0;
+        NewServShptLine."Quantity (Base)" := -OldServShptLine."Quantity (Base)";
+        NewServShptLine."Quantity Invoiced" := NewServShptLine.Quantity;
+        NewServShptLine."Qty. Invoiced (Base)" := NewServShptLine."Quantity (Base)";
+        NewServShptLine.Correction := true;
+        NewServShptLine."Dimension Set ID" := OldServShptLine."Dimension Set ID";
+        OnBeforeNewServiceShptLineInsert(NewServShptLine, OldServShptLine);
+        NewServShptLine.Insert();
 
-            InsertItemEntryRelation(TempGlobalItemEntryRelation, NewServShptLine);
-        end;
+        InsertItemEntryRelation(TempGlobalItemEntryRelation, NewServShptLine);
     end;
 
     local procedure UpdateOrderLine(ServShptLine: Record "Service Shipment Line")
     var
         ServLine: Record "Service Line";
     begin
-        with ServShptLine do begin
-            ServLine.Get(ServLine."Document Type"::Order, "Order No.", "Order Line No.");
-            UndoPostingMgt.UpdateServLine(ServLine, Quantity, "Quantity (Base)", TempGlobalItemLedgEntry);
-            OnAfterUpdateOrderLine(ServLine, ServShptLine);
-        end;
+        ServLine.Get(ServLine."Document Type"::Order, ServShptLine."Order No.", ServShptLine."Order Line No.");
+        UndoPostingMgt.UpdateServLine(ServLine, ServShptLine.Quantity, ServShptLine."Quantity (Base)", TempGlobalItemLedgEntry);
+        OnAfterUpdateOrderLine(ServLine, ServShptLine);
     end;
 
     local procedure InsertItemEntryRelation(var TempItemEntryRelation: Record "Item Entry Relation" temporary; NewServShptLine: Record "Service Shipment Line")
@@ -387,39 +372,37 @@ codeunit 5818 "Undo Service Shipment Line"
     begin
         ResJnlLine.Init();
         SrcCodeSetup.Get();
-        with ResJnlLine do begin
-            ServiceShptHeader.Get(ServiceShptLine."Document No.");
-            "Entry Type" := "Entry Type"::Usage;
-            "Document No." := ServiceShptLine."Document No.";
-            "Posting Date" := ServiceShptLine."Posting Date";
-            "Document Date" := ServiceShptHeader."Document Date";
-            "Resource No." := ServiceShptLine."No.";
-            Description := ServiceShptLine.Description;
-            "Work Type Code" := ServiceShptLine."Work Type Code";
-            Quantity := -ServiceShptLine."Qty. Shipped Not Invoiced";
-            "Unit Cost" := ServiceShptLine."Unit Cost (LCY)";
-            "Total Cost" := ServiceShptLine."Unit Cost (LCY)" * Quantity;
-            "Unit Price" := ServiceShptLine."Unit Price";
-            "Total Price" := "Unit Price" * Quantity;
-            "Shortcut Dimension 1 Code" := ServiceShptHeader."Shortcut Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := ServiceShptHeader."Shortcut Dimension 2 Code";
-            "Dimension Set ID" := ServiceShptLine."Dimension Set ID";
-            "Unit of Measure Code" := ServiceShptLine."Unit of Measure Code";
-            "Qty. per Unit of Measure" := ServiceShptLine."Qty. per Unit of Measure";
-            "Source Code" := SrcCodeSetup."Service Management";
-            "Gen. Bus. Posting Group" := ServiceShptLine."Gen. Bus. Posting Group";
-            "Gen. Prod. Posting Group" := ServiceShptLine."Gen. Prod. Posting Group";
-            "Posting No. Series" := ServiceShptHeader."No. Series";
-            "Reason Code" := ServiceShptHeader."Reason Code";
-            "Source Type" := "Source Type"::Customer;
-            "Source No." := ServiceShptLine."Bill-to Customer No.";
-            "Qty. per Unit of Measure" := ServiceShptLine."Qty. per Unit of Measure";
-            IsHandled := false;
-            OnBeforePostResJnlLine(ResJnlLine, ServiceShptLine, IsHandled);
-            if not IsHandled then
-                ResJnlPostLine.RunWithCheck(ResJnlLine);
-            OnPostResJnlLineOnAfterRunWithCheck(ResJnlLine, ServiceShptLine);
-        end;
+        ServiceShptHeader.Get(ServiceShptLine."Document No.");
+        ResJnlLine."Entry Type" := ResJnlLine."Entry Type"::Usage;
+        ResJnlLine."Document No." := ServiceShptLine."Document No.";
+        ResJnlLine."Posting Date" := ServiceShptLine."Posting Date";
+        ResJnlLine."Document Date" := ServiceShptHeader."Document Date";
+        ResJnlLine."Resource No." := ServiceShptLine."No.";
+        ResJnlLine.Description := ServiceShptLine.Description;
+        ResJnlLine."Work Type Code" := ServiceShptLine."Work Type Code";
+        ResJnlLine.Quantity := -ServiceShptLine."Qty. Shipped Not Invoiced";
+        ResJnlLine."Unit Cost" := ServiceShptLine."Unit Cost (LCY)";
+        ResJnlLine."Total Cost" := ServiceShptLine."Unit Cost (LCY)" * ResJnlLine.Quantity;
+        ResJnlLine."Unit Price" := ServiceShptLine."Unit Price";
+        ResJnlLine."Total Price" := ResJnlLine."Unit Price" * ResJnlLine.Quantity;
+        ResJnlLine."Shortcut Dimension 1 Code" := ServiceShptHeader."Shortcut Dimension 1 Code";
+        ResJnlLine."Shortcut Dimension 2 Code" := ServiceShptHeader."Shortcut Dimension 2 Code";
+        ResJnlLine."Dimension Set ID" := ServiceShptLine."Dimension Set ID";
+        ResJnlLine."Unit of Measure Code" := ServiceShptLine."Unit of Measure Code";
+        ResJnlLine."Qty. per Unit of Measure" := ServiceShptLine."Qty. per Unit of Measure";
+        ResJnlLine."Source Code" := SrcCodeSetup."Service Management";
+        ResJnlLine."Gen. Bus. Posting Group" := ServiceShptLine."Gen. Bus. Posting Group";
+        ResJnlLine."Gen. Prod. Posting Group" := ServiceShptLine."Gen. Prod. Posting Group";
+        ResJnlLine."Posting No. Series" := ServiceShptHeader."No. Series";
+        ResJnlLine."Reason Code" := ServiceShptHeader."Reason Code";
+        ResJnlLine."Source Type" := ResJnlLine."Source Type"::Customer;
+        ResJnlLine."Source No." := ServiceShptLine."Bill-to Customer No.";
+        ResJnlLine."Qty. per Unit of Measure" := ServiceShptLine."Qty. per Unit of Measure";
+        IsHandled := false;
+        OnBeforePostResJnlLine(ResJnlLine, ServiceShptLine, IsHandled);
+        if not IsHandled then
+            ResJnlPostLine.RunWithCheck(ResJnlLine);
+        OnPostResJnlLineOnAfterRunWithCheck(ResJnlLine, ServiceShptLine);
 
         TimeSheetMgt.CreateTSLineFromServiceShptLine(ServiceShptLine);
     end;

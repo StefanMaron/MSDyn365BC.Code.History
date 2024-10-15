@@ -45,7 +45,9 @@ page 100 "Accounting Periods"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you can change the starting date for the accounting period.';
                 }
+#pragma warning disable AA0100
                 field("InvtPeriod.IsInvtPeriodClosed(""Starting Date"")"; InvtPeriod.IsInvtPeriodClosed(Rec."Starting Date"))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Inventory Period Closed';

@@ -94,6 +94,11 @@ page 5882 "Phys. Invt. Recording Lines"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the lot number of the entered item.';
                 }
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the package number of the entered item.';
+                }
                 field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Warehouse;

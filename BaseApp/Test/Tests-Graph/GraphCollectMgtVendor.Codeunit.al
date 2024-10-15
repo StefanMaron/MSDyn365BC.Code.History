@@ -114,12 +114,12 @@ codeunit 134632 "Graph Collect Mgt Vendor"
     begin
         Vendor.FindFirst();
         CountryRegion.FindLast();
-        Vendor.Address := RandomCode10;
-        Vendor."Address 2" := RandomCode10;
-        Vendor.City := RandomCode10;
-        Vendor.County := RandomCode10;
+        Vendor.Address := RandomCode10();
+        Vendor."Address 2" := RandomCode10();
+        Vendor.City := RandomCode10();
+        Vendor.County := RandomCode10();
         Vendor."Country/Region Code" := CountryRegion.Code;
-        Vendor."Post Code" := RandomCode10;
+        Vendor."Post Code" := RandomCode10();
     end;
 
     local procedure RandomCode10(): Code[10]

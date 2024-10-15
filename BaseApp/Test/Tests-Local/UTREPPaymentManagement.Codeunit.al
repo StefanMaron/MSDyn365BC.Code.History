@@ -75,7 +75,7 @@ codeunit 144045 "UT REP Payment Management"
 
         // Setup: Create Payment Line.
         Initialize();
-        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, CreateVendor, '', '');  // Blank value for Currency and Payment Address code.
+        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, CreateVendor(), '', '');  // Blank value for Currency and Payment Address code.
         LibraryVariableStorage.Enqueue(PaymentLine."No.");  // Enqueue for PaymentListRequestPageHandler.
 
         // Exercise.
@@ -131,7 +131,7 @@ codeunit 144045 "UT REP Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10865 'Bill' with Currency.
-        PaymentReportWithCurrency(PaymentLine."Account Type"::Customer, CreateCustomer, REPORT::Bill);
+        PaymentReportWithCurrency(PaymentLine."Account Type"::Customer, CreateCustomer(), REPORT::Bill);
     end;
 
     [Test]
@@ -143,7 +143,7 @@ codeunit 144045 "UT REP Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10866 'Draft' with Currency.
-        PaymentReportWithCurrency(PaymentLine."Account Type"::Vendor, CreateVendor, REPORT::Draft);
+        PaymentReportWithCurrency(PaymentLine."Account Type"::Vendor, CreateVendor(), REPORT::Draft);
     end;
 
     local procedure PaymentReportWithCurrency(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; ReportID: Integer)
@@ -152,7 +152,7 @@ codeunit 144045 "UT REP Payment Management"
     begin
         // Setup and Exercise.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CreatePaymentLineAndRunPaymentReport(AccountType, AccountNo, CurrencyCode, ReportID);
 
         // Verify: Verify Amount Text on XML after running report.
@@ -168,7 +168,7 @@ codeunit 144045 "UT REP Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10865 'Bill' without Currency.
-        PaymentReportWithoutCurrency(PaymentLine."Account Type"::Customer, CreateCustomer, REPORT::Bill);
+        PaymentReportWithoutCurrency(PaymentLine."Account Type"::Customer, CreateCustomer(), REPORT::Bill);
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 144045 "UT REP Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10866 'Draft' without Currency.
-        PaymentReportWithoutCurrency(PaymentLine."Account Type"::Vendor, CreateVendor, REPORT::Draft);
+        PaymentReportWithoutCurrency(PaymentLine."Account Type"::Vendor, CreateVendor(), REPORT::Draft);
     end;
 
     local procedure PaymentReportWithoutCurrency(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; ReportID: Integer)
@@ -231,7 +231,7 @@ codeunit 144045 "UT REP Payment Management"
     procedure OnAfterGetRecordPmtLinePmtAddressDraftNotice()
     begin
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10868 'Draft Notice' with Payment Address Code.
-        RunAndVerifyDraftNoticeReport(LibraryUTUtility.GetNewCode10);
+        RunAndVerifyDraftNoticeReport(LibraryUTUtility.GetNewCode10());
     end;
 
     local procedure RunAndVerifyDraftNoticeReport(PaymentAddressCode: Code[10])
@@ -240,7 +240,7 @@ codeunit 144045 "UT REP Payment Management"
     begin
         // Setup: Create payment Line.
         Initialize();
-        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, CreateVendor, '', PaymentAddressCode);  // Blank for Currency code.
+        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, CreateVendor(), '', PaymentAddressCode);  // Blank for Currency code.
         PaymentLine.SetRange("No.", PaymentLine."No.");
 
         // Exercise.
@@ -284,7 +284,7 @@ codeunit 144045 "UT REP Payment Management"
     procedure OnAfterGetRecordPmtLinePmtAddressWithdrawNotice()
     begin
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10870 'Withdraw Notice' with Payment Address Code.
-        RunAndVerifyWithdrawNoticeReport(LibraryUTUtility.GetNewCode10);
+        RunAndVerifyWithdrawNoticeReport(LibraryUTUtility.GetNewCode10());
     end;
 
     local procedure RunAndVerifyWithdrawNoticeReport(PaymentAddressCode: Code[10])
@@ -293,7 +293,7 @@ codeunit 144045 "UT REP Payment Management"
     begin
         // Setup: Create payment Line.
         Initialize();
-        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Customer, CreateCustomer, '', PaymentAddressCode);  // Blank for Currency code.
+        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Customer, CreateCustomer(), '', PaymentAddressCode);  // Blank for Currency code.
         PaymentLine.SetRange("No.", PaymentLine."No.");
 
         // Exercise.
@@ -346,7 +346,7 @@ codeunit 144045 "UT REP Payment Management"
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10869 'Draft Recapitulation'.
         // Setup & Exercise.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreatePaymentLineAndRunDraftRecapitulationReport(VendorNo);
 
         // Verify: Verify Account No on XML after running Draft Recapitulation report.
@@ -396,7 +396,7 @@ codeunit 144045 "UT REP Payment Management"
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10871 'Withdraw Recapitulation'.
         // Setup & Exercise.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreatePaymentLineAndRunWithdrawRecapitulationReport(CustomerNo);
 
         // Verify: Verify Account No on XML after running Withdraw Recapitulation report.
@@ -414,7 +414,7 @@ codeunit 144045 "UT REP Payment Management"
         // Purpose of the test is to validate On After Get Record Trigger of Payment Line for Report ID - 10867 Remittance.
         // Setup: Create payment Line.
         Initialize();
-        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Customer, CreateCustomer, CreateCurrency, '');  // Blank for Payment Address Code.
+        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Customer, CreateCustomer(), CreateCurrency(), '');  // Blank for Payment Address Code.
         PaymentLine.SetRange("No.", PaymentLine."No.");
 
         // Exercise.
@@ -571,7 +571,7 @@ codeunit 144045 "UT REP Payment Management"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -580,7 +580,7 @@ codeunit 144045 "UT REP Payment Management"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -589,7 +589,7 @@ codeunit 144045 "UT REP Payment Management"
     var
         PaymentHeader: Record "Payment Header";
     begin
-        PaymentHeader."No." := LibraryUTUtility.GetNewCode;
+        PaymentHeader."No." := LibraryUTUtility.GetNewCode();
         PaymentHeader."Account Type" := PaymentHeader."Account Type"::"Bank Account";
         PaymentHeader.Insert();
         exit(PaymentHeader."No.");
@@ -597,13 +597,13 @@ codeunit 144045 "UT REP Payment Management"
 
     local procedure CreatePaymentLine(var PaymentLine: Record "Payment Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; PaymentAddressCode: Code[10])
     begin
-        PaymentLine."No." := CreatePaymentHeader;
+        PaymentLine."No." := CreatePaymentHeader();
         PaymentLine."Account Type" := AccountType;
         PaymentLine."Account No." := AccountNo;
         PaymentLine."Currency Code" := CurrencyCode;
         PaymentLine.Marked := true;
         PaymentLine."Payment Address Code" := PaymentAddressCode;
-        PaymentLine."Applies-to ID" := LibraryUTUtility.GetNewCode10;
+        PaymentLine."Applies-to ID" := LibraryUTUtility.GetNewCode10();
         PaymentLine.Insert();
     end;
 
@@ -612,7 +612,7 @@ codeunit 144045 "UT REP Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         // Setup: Create Payment Line.
-        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, VendorNo, CreateCurrency, '');  // Blank for Payment Address code.
+        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Vendor, VendorNo, CreateCurrency(), '');  // Blank for Payment Address code.
         PaymentLine.SetRange("No.", PaymentLine."No.");
 
         // Exercise.
@@ -624,7 +624,7 @@ codeunit 144045 "UT REP Payment Management"
         PaymentLine: Record "Payment Line";
     begin
         // Setup: Create Payment Line.
-        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Customer, CustomerNo, CreateCurrency, '');  // Blank for Payment Address code.
+        CreatePaymentLine(PaymentLine, PaymentLine."Account Type"::Customer, CustomerNo, CreateCurrency(), '');  // Blank for Payment Address code.
         PaymentLine.SetRange("No.", PaymentLine."No.");
 
         // Exercise.
@@ -647,7 +647,7 @@ codeunit 144045 "UT REP Payment Management"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         exit(Currency.Code);
     end;
@@ -668,7 +668,7 @@ codeunit 144045 "UT REP Payment Management"
 
     local procedure VerifyValuesOnXML(Caption: Text[50]; Value: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, Value);
     end;
 
@@ -686,7 +686,7 @@ codeunit 144045 "UT REP Payment Management"
         LibraryVariableStorage.Dequeue(No);
         GLCustLedgerReconciliation.Customer.SetFilter("No.", No);
         GLCustLedgerReconciliation.Customer.SetFilter("Date Filter", Format(0D));
-        GLCustLedgerReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLCustLedgerReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -698,7 +698,7 @@ codeunit 144045 "UT REP Payment Management"
         LibraryVariableStorage.Dequeue(No);
         GLVendLedgerReconciliation.Vendor.SetFilter("No.", No);
         GLVendLedgerReconciliation.Vendor.SetFilter("Date Filter", Format(0D));
-        GLVendLedgerReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLVendLedgerReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -709,7 +709,7 @@ codeunit 144045 "UT REP Payment Management"
     begin
         LibraryVariableStorage.Dequeue(No);
         PaymentList."Payment Line".SetFilter("No.", No);
-        PaymentList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PaymentList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -721,7 +721,7 @@ codeunit 144045 "UT REP Payment Management"
         LibraryVariableStorage.Dequeue(No);
         Bill."Payment Line".SetFilter("No.", No);
         Bill.IssueDate.SetValue(0D);
-        Bill.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Bill.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -747,7 +747,7 @@ codeunit 144045 "UT REP Payment Management"
         LibraryVariableStorage.Dequeue(No);
         Draft.IssueDate.SetValue(0D);  // Issue date
         Draft."Payment Line".SetFilter("No.", No);
-        Draft.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Draft.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -769,7 +769,7 @@ codeunit 144045 "UT REP Payment Management"
     procedure DraftNoticeRequestPageHandler(var DraftNotice: TestRequestPage "Draft notice")
     begin
         DraftNotice.NumberOfCopies.SetValue(LibraryRandom.RandIntInRange(1, 10));
-        DraftNotice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DraftNotice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -783,7 +783,7 @@ codeunit 144045 "UT REP Payment Management"
     [Scope('OnPrem')]
     procedure DraftRecapitulationRequestPageHandler(var DraftRecapitulation: TestRequestPage "Draft recapitulation")
     begin
-        DraftRecapitulation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DraftRecapitulation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -797,7 +797,7 @@ codeunit 144045 "UT REP Payment Management"
     procedure WithdrawNoticeRequestPageHandler(var WithdrawNotice: TestRequestPage "Withdraw notice")
     begin
         WithdrawNotice.NumberOfCopies.SetValue(LibraryRandom.RandIntInRange(1, 10));
-        WithdrawNotice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        WithdrawNotice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -811,7 +811,7 @@ codeunit 144045 "UT REP Payment Management"
     [Scope('OnPrem')]
     procedure WithdrawRecapitulationRequestPageHandler(var WithdrawRecapitulation: TestRequestPage "Withdraw recapitulation")
     begin
-        WithdrawRecapitulation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        WithdrawRecapitulation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -825,7 +825,7 @@ codeunit 144045 "UT REP Payment Management"
     [Scope('OnPrem')]
     procedure RemittanceRequestPageHandler(var Remittance: TestRequestPage Remittance)
     begin
-        Remittance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Remittance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

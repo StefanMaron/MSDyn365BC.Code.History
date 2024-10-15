@@ -12,17 +12,12 @@ codeunit 139016 "File Mgt. Tests"
     var
         Assert: Codeunit Assert;
         FileMgt: Codeunit "File Management";
-        LibraryUtility: Codeunit "Library - Utility";
         ExpectedFileNotFoundErr: Label 'does not exist.';
         ImportBlobFromServerFailedErr: Label 'Import blob from server failed.';
         ExpectedAlreadyExistsErr: Label 'already exists.';
         FileNotEmptyErr: Label 'Exported file is not empty.';
-        AppendedFileErr: Label 'File is not appended.';
         TextStringTxt: Label 'This is the text string.';
-        ServerFileErr: Label 'You must specify a source file name.';
-        ClientFileErr: Label 'You must specify a target file name.';
         BLOBExportTxt: Label 'This is the text string that we want to store in a BLOB field.';
-        NotAllowedPathErr: Label 'Files outside of the current user''s folder cannot be accessed. Access is denied to file %1.', Locked = true;
         ServerDirectoryHelper: DotNet Directory;
         [RunOnClient]
         ClientDirectoryHelper: DotNet Directory;
@@ -32,8 +27,6 @@ codeunit 139016 "File Mgt. Tests"
         [RunOnClient]
         ClientPathHelper: DotNet Path;
         Initialized: Boolean;
-        IncorrectFileNameErr: Label 'BLOB exported to incorrect file';
-        FileNameChangedErr: Label 'File name has been changed.';
 
     [Test]
     [Scope('OnPrem')]
@@ -53,7 +46,7 @@ codeunit 139016 "File Mgt. Tests"
 
         // Verify
         BLOBContent := BLOBExportTxt; // Assign to Text to make Assert.AreEqual work
-        Assert.IsTrue(TempBlob.HasValue, 'The blob field does not contain anything.');
+        Assert.IsTrue(TempBlob.HasValue(), 'The blob field does not contain anything.');
         Assert.AreEqual(ClientFileHelper.ReadAllText(ClientFileName), BLOBContent,
           'The file content doesn''t match what was written to the BLOB');
 
@@ -132,7 +125,7 @@ codeunit 139016 "File Mgt. Tests"
     [Normal]
     local procedure CreateClientFile(): Text
     begin
-        exit(ClientPathHelper.GetTempFileName);
+        exit(ClientPathHelper.GetTempFileName());
     end;
 
     [Normal]
@@ -244,7 +237,7 @@ codeunit 139016 "File Mgt. Tests"
     begin
         Initialize();
 
-        ClientFileName := CreateClientFile;
+        ClientFileName := CreateClientFile();
         PathName := FileMgt.GetDirectoryName(ClientFileName);
         Assert.IsTrue(CheckClientDirectoryExist(PathName), 'Path did not exist.');
 
@@ -383,7 +376,7 @@ codeunit 139016 "File Mgt. Tests"
         Index: Integer;
     begin
         // [SCERNARIO] A list of every file under a directory is returned including subdirectories
-        DirectoryPath := FileMgt.ServerCreateTempSubDirectory;
+        DirectoryPath := FileMgt.ServerCreateTempSubDirectory();
         FileMgt.ServerCreateDirectory(DirectoryPath + '\Temp');
 
         Names[1] := DirectoryPath + '\file1.txt';
@@ -479,7 +472,7 @@ codeunit 139016 "File Mgt. Tests"
     begin
         Counter := 1;
         while Counter <= NoOfElements do begin
-            ReadData := StreamReader.ReadLine;
+            ReadData := StreamReader.ReadLine();
             if (ReadData = '') or (ReadData <> TextArray[Counter]) then
                 exit(false);
             Counter := Counter + 1
@@ -569,7 +562,7 @@ codeunit 139016 "File Mgt. Tests"
             Create(FileName);
             CreateOutStream(OutStream);
             OutStream.WriteText(Content);
-            Close;
+            Close();
         end;
     end;
 
@@ -585,7 +578,7 @@ codeunit 139016 "File Mgt. Tests"
             Assert.AreNotEqual(0, Len, 'Uploaded file is empty.');
             Read(ActualContent);
             Assert.AreEqual(Content, ActualContent, 'Uploaded file''s content is different.');
-            Close;
+            Close();
         end;
     end;
 

@@ -148,7 +148,7 @@ codeunit 144036 "UT REP Legal Report"
         RunTrialBalanceReport(BankAccount."No.", Format(WorkDate()), false, '', REPORT::"Bank Account Trial Balance");  // PrintBankAccountsWithoutBalance FALSE.
 
         // Verify: Verify the Bank Account No, Debit Amount and Credit Amount after running report Bank Account Trial Balance with Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         BankAccount.CalcFields("Debit Amount (LCY)", "Credit Amount (LCY)");
         VerifyReportCapAndValue(
           BankAccountNoCap, BankAccount."No.", BankAccountDebitAmountLCYCap, BankAccount."Debit Amount (LCY)",
@@ -174,7 +174,7 @@ codeunit 144036 "UT REP Legal Report"
           BankAccount."No.", Format(WorkDate()), true, BankAccount."Global Dimension 1 Code", REPORT::"Bank Account Trial Balance");  // PrintBankAccountsWithoutBalance TRUE.
 
         // Verify: Verify the Bank Account No, Debit Amount,Credit Amount and Dimension after running report Bank Account Trial Balance with Dimension.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         BankAccount.CalcFields("Debit Amount (LCY)", "Credit Amount (LCY)");
         VerifyReportCapAndValue(
           BankAccountNoCap, BankAccount."No.", BankAccountDebitAmountLCYCap, BankAccount."Debit Amount (LCY)",
@@ -201,7 +201,7 @@ codeunit 144036 "UT REP Legal Report"
         RunTrialBalanceReport(BankAccount."No.", Format(WorkDate()), true, '', REPORT::"Bank Account Trial Balance");  // PrintBankAccountsWithoutBalance TRUE.
 
         // Verify: Verify the Bank Account No, Debit Amount and Credit Amount as zero after running report Bank Account Trial Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         BankAccount.CalcFields("Debit Amount (LCY)", "Credit Amount (LCY)");
         VerifyReportCapAndValue(BankAccountNoCap, BankAccount."No.", BankAccountDebitAmountLCYCap, 0, BankAccountCreditAmountLCYCap, 0);
     end;
@@ -226,7 +226,7 @@ codeunit 144036 "UT REP Legal Report"
           REPORT::"Customer Detail Trial Balance");  // ExcludeBalanceOnly FALSE.
 
         // Verify: Verify the Customer No, Credit Amount and Dimension after running report Customer Detail Trial Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Customer.CalcFields("Credit Amount (LCY)");
         VerifyReportCapAndValue(
           CustomerNoCap, Customer."No.", PreviousCreditAmountLCYCap, Customer."Credit Amount (LCY)",
@@ -249,8 +249,8 @@ codeunit 144036 "UT REP Legal Report"
         CreateCustomerWithDimension(Customer);
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate()));
         RunTrialBalanceReport(Customer."No.", Format(CalcDate('<1M>', WorkDate())), true, '', REPORT::"Customer Detail Trial Balance");  // ExcludeBalanceOnly TRUE.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
 
         // Exercise.
         asserterror LibraryReportDataset.CurrentRowHasElement(CustomerNoCap);
@@ -277,7 +277,7 @@ codeunit 144036 "UT REP Legal Report"
         RunTrialBalanceReport(Customer."No.", Format(CalcDate('<1M>', WorkDate())), false, '', REPORT::"Customer Detail Trial Balance");  // ExcludeBalanceOnly FALSE.
 
         // Verify: Verify the Customer No and Credit Amount after running report Customer Detail Trial Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Customer.CalcFields("Credit Amount (LCY)");
         VerifyReportCapAndValue(
           CustomerNoCap, Customer."No.", PreviousCreditAmountLCYCap, Customer."Credit Amount (LCY)",
@@ -317,7 +317,7 @@ codeunit 144036 "UT REP Legal Report"
         RunTrialBalanceReport(Customer."No.", Format(WorkDate()), PrintCustomersWithoutBalance, '', ReportID);  // PrintCustomersWithoutBalance TRUE.
 
         // Verify: Verify the Customer No and Debit Amount as zero after running report Customer Trial Balance without Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Customer.CalcFields("Credit Amount (LCY)");
         VerifyNoAndCreditAmount(CustomerNoCap, Customer."No.", PeriodCreditAmountLCYCap, Customer."Credit Amount (LCY)");
     end;
@@ -340,7 +340,7 @@ codeunit 144036 "UT REP Legal Report"
         RunTrialBalanceReport(Customer."No.", Format(WorkDate()), false, Customer."Global Dimension 1 Code", REPORT::"Customer Trial Balance FR");  // PrintCustomersWithoutBalance FALSE.
 
         // Verify: Verify the Customer No, Credit Amount and Dimension after running report Customer Trial Balance with Dimension.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Customer.CalcFields("Credit Amount (LCY)");
         VerifyNoAndCreditAmount(CustomerNoCap, Customer."No.", PeriodCreditAmountLCYCap, Customer."Credit Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(
@@ -364,12 +364,12 @@ codeunit 144036 "UT REP Legal Report"
             CustomerNo[Index] := LibrarySales.CreateCustomerNo();
 
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(CustomerNo[1], WorkDate()));
-        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(CustomerNo[2], WorkDate - 40));
+        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(CustomerNo[2], WorkDate() - 40));
 
         // Date Filter = WORKDATE
         REPORT.Run(REPORT::"Customer Trial Balance FR");
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         for Index := 1 to ArrayLen(CustomerNo) do
             LibraryReportDataset.AssertElementWithValueExists(CustomerNoCap, CustomerNo[Index]);
     end;
@@ -451,7 +451,7 @@ codeunit 144036 "UT REP Legal Report"
         RunGLDetailTrialBalanceReport(GLAccount."No.", Format(DateFilter), SummarizedBy, '');
 
         // Verify: Verify the Period Type, Credit Amount and Debit Amount after running report GL Detail Trial Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLAccount.CalcFields("Debit Amount", "Credit Amount");
         LibraryReportDataset.AssertElementWithValueExists('Date_Period_Type', Format(SummarizedBy));
         LibraryReportDataset.AssertElementWithValueExists(DetailTrialBalanceGLEntryDebitAmountCap, GLAccount."Debit Amount");
@@ -472,8 +472,8 @@ codeunit 144036 "UT REP Legal Report"
         CreateVendorWithDimension(Vendor);
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate()));
         RunTrialBalanceReport(Vendor."No.", Format(CalcDate('<1M>', WorkDate())), true, '', REPORT::"Vendor Detail Trial Balance FR");  // ExcludeBalanceOnly TRUE.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
 
         // Exercise.
         asserterror LibraryReportDataset.CurrentRowHasElement(VendorNoCap);
@@ -500,7 +500,7 @@ codeunit 144036 "UT REP Legal Report"
         RunTrialBalanceReport(Vendor."No.", Format(CalcDate('<1M>', WorkDate())), false, '', REPORT::"Vendor Detail Trial Balance FR");  // ExcludeBalanceOnly FALSE.
 
         // Verify: Verify the Vendor No and Credit Amount is available after running report Vendor Detail Trial Balance with Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Vendor.CalcFields("Credit Amount (LCY)");
         VerifyReportCapAndValue(
           VendorNoCap, Vendor."No.", PreviousCreditAmountLCYCap, Vendor."Credit Amount (LCY)", GeneralCreditAmountLCYCap,
@@ -526,7 +526,7 @@ codeunit 144036 "UT REP Legal Report"
           Vendor."No.", Format(CalcDate('<1M>', WorkDate())), false, Vendor."Global Dimension 1 Code", REPORT::"Vendor Detail Trial Balance FR");  // ExcludeBalanceOnly FALSE.
 
         // Verify: Verify the Vendor No, Credit Amount and Dimension is available after running report Vendor Detail Trial Balance with Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Vendor.CalcFields("Credit Amount (LCY)");
         VerifyReportCapAndValue(
           VendorNoCap, Vendor."No.", PreviousCreditAmountLCYCap, Vendor."Credit Amount (LCY)", GeneralCreditAmountLCYCap,
@@ -554,7 +554,7 @@ codeunit 144036 "UT REP Legal Report"
           Vendor."No.", Format(WorkDate()), false, Vendor."Global Dimension 1 Code", REPORT::"Vendor Trial Balance FR");  // PrintVendorsWithoutBalance FALSE.
 
         // Verify: Verify the Vendor No, Credit Amount and Dimension is available after running report Vendor Trial Balance with Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Vendor.CalcFields("Credit Amount (LCY)");
         VerifyNoAndCreditAmount(VendorNoCap, Vendor."No.", PeriodCreditAmountLCYCap, Vendor."Credit Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(
@@ -573,13 +573,13 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateVendorWithDimension(Vendor);
-        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate - 40));
+        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate() - 40));
 
         // Exercise.
         RunTrialBalanceReport(Vendor."No.", Format(WorkDate()), true, '', REPORT::"Vendor Trial Balance FR");  // PrintVendorsWithoutBalance TRUE.
 
         // Verify: Verify the Vendor No and Credit Amount as zero after running report Vendor Trial Balance without Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyNoAndCreditAmount(VendorNoCap, Vendor."No.", PeriodCreditAmountLCYCap, 0);
     end;
 
@@ -600,12 +600,12 @@ codeunit 144036 "UT REP Legal Report"
             VendorNo[Index] := LibraryPurchase.CreateVendorNo();
 
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(VendorNo[1], WorkDate()));
-        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(VendorNo[2], WorkDate - 40));
+        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(VendorNo[2], WorkDate() - 40));
 
         // Date Filter = WORKDATE
         REPORT.Run(REPORT::"Vendor Trial Balance FR");
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         for Index := 1 to ArrayLen(VendorNo) do
             LibraryReportDataset.AssertElementWithValueExists(VendorNoCap, VendorNo[Index]);
     end;
@@ -631,7 +631,7 @@ codeunit 144036 "UT REP Legal Report"
           SummarizedBy::Year, GLAccount."Global Dimension 1 Code");
 
         // Verify: Verify the Credit Amount, Debit Amount and Dimension after running report GL Detail Trial Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLAccount.CalcFields("Debit Amount", "Credit Amount");
         LibraryReportDataset.AssertElementWithValueExists(DetailTrialBalanceGLEntryDebitAmountCap, GLAccount."Debit Amount");
         LibraryReportDataset.AssertElementWithValueExists(DetailTrialBalanceGLEntryCreditAmountCap, GLAccount."Credit Amount");
@@ -709,7 +709,7 @@ codeunit 144036 "UT REP Legal Report"
           StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate()), WorkDate()), '');
 
         // [THEN] 'PreviousCreditAmountLCY' has value 100
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         BankAccount.SetRange("Date Filter", StartDate);
         BankAccount.CalcFields("Credit Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('PreviousCreditAmountLCY', BankAccount."Credit Amount (LCY)");
@@ -727,7 +727,7 @@ codeunit 144036 "UT REP Legal Report"
             StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate()), WorkDate())), GlobalDimension1Code);
 
         // Verify: Verify the Credit Amount and Dimension after running report GL Detail Trial Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         BankAccount.CalcFields("Credit Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(BankAccountLedgerEntryCrAmtCap, BankAccount."Credit Amount (LCY)");
     end;
@@ -750,7 +750,7 @@ codeunit 144036 "UT REP Legal Report"
         RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate()), false);  // PrintGLAccsWithoutBalance FALSE.
 
         // Verify: Verify the GL Account No, Credit Amount and Debit Amount after running report GL Trial Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLAccount.CalcFields("Debit Amount", "Credit Amount");
         VerifyReportCapAndValue(
           GLAccountNoCap, GLAccount."No.", GLAccountCreditAmountCap, GLAccount."Credit Amount",
@@ -775,7 +775,7 @@ codeunit 144036 "UT REP Legal Report"
         RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate()), true);  // PrintGLAccsWithoutBalance TRUE.
 
         // Verify: Verify the GL Account No, Credit Amount and Debit Amount as zero after running report GL Trial Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLAccount.CalcFields("Debit Amount", "Credit Amount");
         VerifyReportCapAndValue(GLAccountNoCap, GLAccount."No.", GLAccountCreditAmountCap, 0, GLAccountDebitAmountCap, 0);
     end;
@@ -801,7 +801,7 @@ codeunit 144036 "UT REP Legal Report"
         RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate()), false);
 
         // [THEN] Credit Balance Date Range Column has value = ABS("X")
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLAccount.CalcFields("Debit Amount");
         VerifyReportCapAndValue(
           GLAccountNoCap, GLAccount."No.", GLAccountCreditAmountCap, -GLAccount."Debit Amount",
@@ -829,7 +829,7 @@ codeunit 144036 "UT REP Legal Report"
         RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate()), false);
 
         // [THEN] Debit Balance Date Range Column has value = ABS("X")
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLAccount.CalcFields("Credit Amount");
         VerifyReportCapAndValue(
           GLAccountNoCap, GLAccount."No.", GLAccountCreditAmountCap, 0,
@@ -1012,7 +1012,7 @@ codeunit 144036 "UT REP Legal Report"
         REPORT.Run(REPORT::"G/L Journal");
 
         // Verify: Verify the Source Code, GL Entry Document No, Credit Amount and Debit Amount after running report GL Journal.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLAccount.CalcFields("Debit Amount", "Credit Amount");
         LibraryReportDataset.AssertElementWithValueExists('SourceCode_Code', GLEntry."Source Code");
         VerifyReportCapAndValue(
@@ -1098,7 +1098,7 @@ codeunit 144036 "UT REP Legal Report"
         RunJournalReportWithPeriodType(PeriodType, SortingBy, PeriodStart, REPORT::Journals);
 
         // Verify: Verify the GL Account No, Credit Amount and Debit Amount after running report Journal.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         GLAccount.CalcFields("Debit Amount", "Credit Amount");
         VerifyReportCapAndValue(
           'G_L_Entry__G_L_Account_No__', GLAccount."No.", GLEntryCreditAmountCap, GLAccount."Credit Amount",
@@ -1183,7 +1183,7 @@ codeunit 144036 "UT REP Legal Report"
         RunJournalReportWithPeriodType(PeriodType, SortingBy, PeriodStart, REPORT::"Customer Journal");
 
         // Verify: Verify the Customer No, Credit Amount and Debit Amount after running report Customer Journal.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Customer.CalcFields("Debit Amount", "Credit Amount");
         VerifyReportCapAndValue(
           'Cust__Ledger_Entry__Customer_No__', Customer."No.", 'Cust__Ledger_Entry__Credit_Amount__LCY__', Customer."Credit Amount",
@@ -1268,7 +1268,7 @@ codeunit 144036 "UT REP Legal Report"
         RunJournalReportWithPeriodType(PeriodType, SortingBy, PeriodStart, REPORT::"Vendor Journal");
 
         // Verify: Verify the Vendor No, Credit Amount and Debit Amount after running report Vendor Journal.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Vendor.CalcFields("Debit Amount", "Credit Amount");
         VerifyReportCapAndValue(
           'VendorNo_VendLedgEntry', Vendor."No.", 'CreditAmt_VendLedgEntry', Vendor."Credit Amount",
@@ -1353,7 +1353,7 @@ codeunit 144036 "UT REP Legal Report"
         RunJournalReportWithPeriodType(PeriodType, SortingBy, PeriodStart, REPORT::"Bank Account Journal");
 
         // Verify: Verify the Bank Account No, Credit Amount and Debit Amount after running report Bank Account Journal.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         BankAccount.CalcFields("Debit Amount", "Credit Amount");
         VerifyReportCapAndValue(
           'Bank_Account_Ledger_Entry__Bank_Account_No__', BankAccount."No.",
@@ -1390,7 +1390,7 @@ codeunit 144036 "UT REP Legal Report"
           REPORT::"Customer Detail Trial Balance");
 
         // [THEN] Row found for Customer where Field 'General Credit Amount (LCY)' = 150
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Customer.CalcFields("Credit Amount (LCY)");
         VerifyReportCapAndValue(
           CustomerNoCap, Customer."No.", PreviousCreditAmountLCYCap, Customer."Credit Amount (LCY)",
@@ -1426,7 +1426,7 @@ codeunit 144036 "UT REP Legal Report"
           REPORT::"Vendor Detail Trial Balance FR");
 
         // [THEN] Row found for Vendor where Field 'General Credit Amount (LCY)' = 150
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Vendor.CalcFields("Credit Amount (LCY)");
         VerifyReportCapAndValue(
           VendorNoCap, Vendor."No.", PreviousCreditAmountLCYCap, Vendor."Credit Amount (LCY)",
@@ -1465,7 +1465,7 @@ codeunit 144036 "UT REP Legal Report"
           REPORT::"Customer Detail Trial Balance");
 
         // [THEN] Row found for Customer where Field 'Credit Period Amount' = 100
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         LibraryReportDataset.AssertElementWithValueExists('CreditPeriodAmount', DetailedCustLedgEntry."Amount (LCY)");
     end;
@@ -1502,7 +1502,7 @@ codeunit 144036 "UT REP Legal Report"
           REPORT::"Vendor Detail Trial Balance FR");
 
         // [THEN] Row found for Vendor where Field 'Credit Period Amount' = 100
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         LibraryReportDataset.AssertElementWithValueExists('CreditPeriodAmount', DetailedVendorLedgEntry."Amount (LCY)");
     end;
@@ -1547,7 +1547,7 @@ codeunit 144036 "UT REP Legal Report"
         RunTrialBalanceReport(BankAccount."No.", Format(WorkDate()), false, '', REPORT::"Bank Account Trial Balance");  // PrintBankAccountsWithoutBalance FALSE.
 
         // [THEN] Debit Amount = 300, Credit Amount = 100, Debit End Balance = 200, Credit End Balance = 0
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         BankAccount.CalcFields("Debit Amount (LCY)", "Credit Amount (LCY)");
         Assert.AreEqual(
           Format(BankAccount."Debit Amount (LCY)"), LibraryReportValidation.GetValueAt(FoundValue, 11, 7), '');
@@ -1559,7 +1559,7 @@ codeunit 144036 "UT REP Legal Report"
         Assert.AreEqual(
           '', LibraryReportValidation.GetValueAt(FoundValue, 11, 10), '');
     end;
-    
+
     [Test]
     [HandlerFunctions('GLTrialBalanceRequestPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -1589,7 +1589,7 @@ codeunit 144036 "UT REP Legal Report"
 
         // [THEN] Exported beginning debit balance is "X" - "Y"
         // [THEN] Exported beginning credit balance is "Y" - "X"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyReportCapAndValue(
           GLAccountNoCap, GLAccount."No.", 'GLAcc2CreditAmtDebitAmt', CreditAmount - DebitAmount,
           'GLAcc2DebitAmtCreditAmt', DebitAmount - CreditAmount);
@@ -1607,7 +1607,7 @@ codeunit 144036 "UT REP Legal Report"
     local procedure CreateBankAccountWithDimension(var BankAccount: Record "Bank Account")
     begin
         BankAccount."No." := LibraryUtility.GenerateGUID();
-        BankAccount."Global Dimension 1 Code" := CreateDimension;
+        BankAccount."Global Dimension 1 Code" := CreateDimension();
         BankAccount.Insert();
     end;
 
@@ -1621,7 +1621,7 @@ codeunit 144036 "UT REP Legal Report"
         BankAccountLedgerEntry."Bank Account No." := BankAccountNo;
         BankAccountLedgerEntry."Document Type" := BankAccountLedgerEntry."Document Type"::" ";
         BankAccountLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
-        BankAccountLedgerEntry."Source Code" := CreateSourceCode;
+        BankAccountLedgerEntry."Source Code" := CreateSourceCode();
         BankAccountLedgerEntry.Amount := LibraryRandom.RandDec(100, 2);
         BankAccountLedgerEntry."Posting Date" := PostingDate;
         BankAccountLedgerEntry."Debit Amount (LCY)" := LibraryRandom.RandDecInRange(200, 300, 2);
@@ -1639,7 +1639,7 @@ codeunit 144036 "UT REP Legal Report"
     local procedure CreateCustomerWithDimension(var Customer: Record Customer)
     begin
         Customer."No." := LibraryUtility.GenerateGUID();
-        Customer."Global Dimension 1 Code" := CreateDimension;
+        Customer."Global Dimension 1 Code" := CreateDimension();
         Customer.Insert();
     end;
 
@@ -1653,7 +1653,7 @@ codeunit 144036 "UT REP Legal Report"
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
-        CustLedgerEntry."Source Code" := CreateSourceCode;
+        CustLedgerEntry."Source Code" := CreateSourceCode();
         CustLedgerEntry."Posting Date" := PostingDate;
         CustLedgerEntry."Due Date" := PostingDate;
         CustLedgerEntry."Date Filter" := PostingDate;
@@ -1662,7 +1662,7 @@ codeunit 144036 "UT REP Legal Report"
         exit(CustLedgerEntry."Entry No.");
     end;
 
-    local procedure CreateDetailedCustomerLedgerEntryWithEntryType(CustLedgerEntryNo: Integer; EntryType: Option)
+    local procedure CreateDetailedCustomerLedgerEntryWithEntryType(CustLedgerEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
@@ -1699,7 +1699,7 @@ codeunit 144036 "UT REP Legal Report"
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
-        VendorLedgerEntry."Source Code" := CreateSourceCode;
+        VendorLedgerEntry."Source Code" := CreateSourceCode();
         VendorLedgerEntry."Posting Date" := PostingDate;
         VendorLedgerEntry."Due Date" := PostingDate;
         VendorLedgerEntry."Date Filter" := PostingDate;
@@ -1708,7 +1708,7 @@ codeunit 144036 "UT REP Legal Report"
         exit(VendorLedgerEntry."Entry No.");
     end;
 
-    local procedure CreateDetailedVendorLedgerEntryWithEntryType(VendorLedgEntryNo: Integer; EntryType: Option)
+    local procedure CreateDetailedVendorLedgerEntryWithEntryType(VendorLedgEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type")
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
@@ -1753,7 +1753,7 @@ codeunit 144036 "UT REP Legal Report"
     local procedure CreateGLAccountWithDimension(var GLAccount: Record "G/L Account")
     begin
         CreateGLAccount(GLAccount);
-        GLAccount."Global Dimension 1 Code" := CreateDimension;
+        GLAccount."Global Dimension 1 Code" := CreateDimension();
         GLAccount.Modify();
     end;
 
@@ -1779,7 +1779,7 @@ codeunit 144036 "UT REP Legal Report"
         GLEntry."G/L Account No." := GLAccountNo;
         GLEntry."Document Type" := GLEntry."Document Type"::Invoice;
         GLEntry."Document No." := LibraryUtility.GenerateGUID();
-        GLEntry."Source Code" := CreateSourceCode;
+        GLEntry."Source Code" := CreateSourceCode();
         GLEntry.Amount := LibraryRandom.RandDec(10, 2);
         GLEntry."Debit Amount" := DebitAmount;
         GLEntry."Credit Amount" := CreditAmount;
@@ -1806,7 +1806,7 @@ codeunit 144036 "UT REP Legal Report"
     local procedure CreateVendorWithDimension(var Vendor: Record Vendor)
     begin
         Vendor."No." := LibraryUtility.GenerateGUID();
-        Vendor."Global Dimension 1 Code" := CreateDimension;
+        Vendor."Global Dimension 1 Code" := CreateDimension();
         Vendor.Insert();
     end;
 
@@ -1886,7 +1886,7 @@ codeunit 144036 "UT REP Legal Report"
         BankAccDetailTrialBalance."Bank Account".SetFilter("No.", No);
         BankAccDetailTrialBalance."Bank Account".SetFilter("Date Filter", DateFilter);
         BankAccDetailTrialBalance."Bank Account".SetFilter("Global Dimension 1 Code", GlobalDimensionCode);
-        BankAccDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1903,7 +1903,7 @@ codeunit 144036 "UT REP Legal Report"
         BankAccountJournal.Date.SetFilter("Period Type", Format(PeriodType));
         BankAccountJournal.Date.SetFilter("Period Start", Format(PeriodStart));
         BankAccountJournal."Posting Date".SetValue(SortingBy);
-        BankAccountJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccountJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1923,7 +1923,7 @@ codeunit 144036 "UT REP Legal Report"
         BankAccountTrialBalance."Bank Account".SetFilter("Date Filter", DateFilter);
         BankAccountTrialBalance."Bank Account".SetFilter("Global Dimension 1 Code", GlobalDimensionCode);
         BankAccountTrialBalance.PrintBanksWithoutBalance.SetValue(PrintBanksWithoutBalance);
-        BankAccountTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccountTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1963,7 +1963,7 @@ codeunit 144036 "UT REP Legal Report"
         BankAccountTrialBalance."Bank Account".SetFilter("Date Filter", DateFilter);
         BankAccountTrialBalance."Bank Account".SetFilter("Global Dimension 1 Code", GlobalDimensionCode);
         BankAccountTrialBalance.PrintBanksWithoutBalance.SetValue(PrintBanksWithoutBalance);
-        BankAccountTrialBalance.SaveAsExcel(LibraryReportValidation.GetFileName);
+        BankAccountTrialBalance.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1983,7 +1983,7 @@ codeunit 144036 "UT REP Legal Report"
         CustomerDetailTrialBalance.Customer.SetFilter("Date Filter", DateFilter);
         CustomerDetailTrialBalance.Customer.SetFilter("Global Dimension 1 Code", GlobalDimensionCode);
         CustomerDetailTrialBalance.ExcludeBalanceOnly.SetValue(ExcludeBalanceOnly);
-        CustomerDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2000,7 +2000,7 @@ codeunit 144036 "UT REP Legal Report"
         CustomerJournal.Date.SetFilter("Period Type", Format(PeriodType));
         CustomerJournal.Date.SetFilter("Period Start", Format(PeriodStart));
         CustomerJournal."Posting Date".SetValue(SortingBy);
-        CustomerJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2020,7 +2020,7 @@ codeunit 144036 "UT REP Legal Report"
         CustomerTrialBalance.Customer.SetFilter("Date Filter", DateFilter);
         CustomerTrialBalance.Customer.SetFilter("Global Dimension 1 Code", GlobalDimensionCode);
         CustomerTrialBalance.PrintCustomersWithoutBalance.SetValue(PrintCustomersWithoutBalance);
-        CustomerTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2028,7 +2028,7 @@ codeunit 144036 "UT REP Legal Report"
     procedure CustomerTrialBalanceDateFilterRequestPageHandler(var CustomerTrialBalance: TestRequestPage "Customer Trial Balance FR")
     begin
         CustomerTrialBalance.Customer.SetFilter("Date Filter", Format(WorkDate()));
-        CustomerTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2048,7 +2048,7 @@ codeunit 144036 "UT REP Legal Report"
         GLDetailTrialBalance."G/L Account".SetFilter("Date Filter", DateFilter);
         GLDetailTrialBalance."G/L Account".SetFilter("Global Dimension 1 Code", GlobalDimensionCode);
         GLDetailTrialBalance.SummarizeBy.SetValue(SummarizedBy);
-        GLDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2057,7 +2057,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         GLJournals.Date.SetFilter(
           "Period Start", StrSubstNo(RangeCap, Format(CalcDate('<-CM>', WorkDate())), Format(CalcDate('<CM>', WorkDate()))));
-        GLJournals.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLJournals.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2074,7 +2074,7 @@ codeunit 144036 "UT REP Legal Report"
         GLTrialBalance."G/L Account".SetFilter("No.", No);
         GLTrialBalance."G/L Account".SetFilter("Date Filter", DateFilter);
         GLTrialBalance.PrintGLAccsWithoutBalance.SetValue(PrintGLAccsWithoutBalance);
-        GLTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2091,7 +2091,7 @@ codeunit 144036 "UT REP Legal Report"
         Journals.Date.SetFilter("Period Type", Format(PeriodType));
         Journals.Date.SetFilter("Period Start", Format(PeriodStart));
         Journals."Posting Date".SetValue(SortingBy);
-        Journals.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Journals.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2111,7 +2111,7 @@ codeunit 144036 "UT REP Legal Report"
         VendorDetailTrialBalance.Vendor.SetFilter("Date Filter", DateFilter);
         VendorDetailTrialBalance.Vendor.SetFilter("Global Dimension 1 Code", GlobalDimensionCode);
         VendorDetailTrialBalance.ExcludeBalanceOnly.SetValue(ExcludeBalanceOnly);
-        VendorDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2128,7 +2128,7 @@ codeunit 144036 "UT REP Legal Report"
         VendorJournal.Date.SetFilter("Period Type", Format(PeriodType));
         VendorJournal.Date.SetFilter("Period Start", Format(PeriodStart));
         VendorJournal."Posting Date".SetValue(SortingBy);
-        VendorJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2148,7 +2148,7 @@ codeunit 144036 "UT REP Legal Report"
         VendorTrialBalance.Vendor.SetFilter("Date Filter", DateFilter);
         VendorTrialBalance.Vendor.SetFilter("Global Dimension 1 Code", GlobalDimensionCode);
         VendorTrialBalance.PrintVendorsWithoutBalance.SetValue(PrintVendorsWithoutBalance);
-        VendorTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2156,7 +2156,7 @@ codeunit 144036 "UT REP Legal Report"
     procedure VendorTrialBalanceDateFilterRequestPageHandler(var VendorTrialBalance: TestRequestPage "Vendor Trial Balance FR")
     begin
         VendorTrialBalance.Vendor.SetFilter("Date Filter", Format(WorkDate()));
-        VendorTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

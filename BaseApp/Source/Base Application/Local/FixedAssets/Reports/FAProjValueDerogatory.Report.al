@@ -880,36 +880,34 @@ report 10886 "FA - Proj. Value (Derogatory)"
 
     local procedure TransferValues()
     begin
-        with FADeprBook do begin
-            // set base amount for the standard depreciation calculation (without Derogatory)
-            CalcFields("Book Value", Depreciation, "Custom 1", Derogatory);
-            DateFromProjection := 0D;
-            // if the asset has depreciations already, derogatory must be substracted from book value to avoid wrong derogatory calculation
-            // no problem for standard assets because derogatory is then zero
-            EntryAmounts[1] := "Book Value";
-            if HasDerogatorySetup then
-                EntryAmounts[1] -= Derogatory;
-            EntryAmounts[2] := "Custom 1";
-            EntryAmounts[3] := DepreciationCalculation.DeprInFiscalYear("Fixed Asset"."No.", DeprBookCode, StartingDate);
-            TotalBookValue[1] := TotalBookValue[1] + "Book Value";
-            TotalBookValue[2] := TotalBookValue[2] + "Book Value";
-            GroupTotalBookValue += "Book Value";
+        // set base amount for the standard depreciation calculation (without Derogatory)
+        FADeprBook.CalcFields("Book Value", Depreciation, "Custom 1", Derogatory);
+        DateFromProjection := 0D;
+        // if the asset has depreciations already, derogatory must be substracted from book value to avoid wrong derogatory calculation
+        // no problem for standard assets because derogatory is then zero
+        EntryAmounts[1] := FADeprBook."Book Value";
+        if HasDerogatorySetup then
+            EntryAmounts[1] -= FADeprBook.Derogatory;
+        EntryAmounts[2] := FADeprBook."Custom 1";
+        EntryAmounts[3] := DepreciationCalculation.DeprInFiscalYear("Fixed Asset"."No.", DeprBookCode, StartingDate);
+        TotalBookValue[1] := TotalBookValue[1] + FADeprBook."Book Value";
+        TotalBookValue[2] := TotalBookValue[2] + FADeprBook."Book Value";
+        GroupTotalBookValue += FADeprBook."Book Value";
 
-            TransferDerogatoryValues("FA No.", EntryAmounts[1]);
+        TransferDerogatoryValues(FADeprBook."FA No.", EntryAmounts[1]);
 
-            NewFiscalYear := FADateCalculation.GetFiscalYear(DeprBookCode, StartingDate);
-            EndFiscalYear := FADateCalculation.CalculateDate(
-                DepreciationCalculation.Yesterday(NewFiscalYear, Year365Days), DaysInFiscalYear, Year365Days);
-            TempDeprDate := "Temp. Ending Date";
+        NewFiscalYear := FADateCalculation.GetFiscalYear(DeprBookCode, StartingDate);
+        EndFiscalYear := FADateCalculation.CalculateDate(
+            DepreciationCalculation.Yesterday(NewFiscalYear, Year365Days), DaysInFiscalYear, Year365Days);
+        TempDeprDate := FADeprBook."Temp. Ending Date";
 
-            if DeprBook."Use Custom 1 Depreciation" then
-                Custom1DeprUntil := "Depr. Ending Date (Custom 1)"
-            else
-                Custom1DeprUntil := 0D;
+        if DeprBook."Use Custom 1 Depreciation" then
+            Custom1DeprUntil := FADeprBook."Depr. Ending Date (Custom 1)"
+        else
+            Custom1DeprUntil := 0D;
 
-            if Custom1DeprUntil > 0D then
-                EntryAmounts[4] := GetDeprBasis();
-        end;
+        if Custom1DeprUntil > 0D then
+            EntryAmounts[4] := GetDeprBasis();
         UntilDate := 0D;
         AssetAmounts[1] := 0;
         AssetAmounts[2] := 0;
@@ -1037,29 +1035,28 @@ report 10886 "FA - Proj. Value (Derogatory)"
 
     local procedure MakeGroupHeadLine()
     begin
-        with "Fixed Asset" do
-            case GroupTotals of
-                GroupTotals::"FA Class":
-                    GroupHeadLine := "FA Class Code";
-                GroupTotals::"FA Subclass":
-                    GroupHeadLine := "FA Subclass Code";
-                GroupTotals::"FA Location":
-                    GroupHeadLine := "FA Location Code";
-                GroupTotals::"Main Asset":
-                    begin
-                        FA."Main Asset/Component" := FA."Main Asset/Component"::"Main Asset";
-                        GroupHeadLine :=
-                          StrSubstNo('%1 %2', FA."Main Asset/Component", "Component of Main Asset");
-                        if "Component of Main Asset" = '' then
-                            GroupHeadLine := StrSubstNo('%1%2', GroupHeadLine, '*****');
-                    end;
-                GroupTotals::"Global Dimension 1":
-                    GroupHeadLine := "Global Dimension 1 Code";
-                GroupTotals::"Global Dimension 2":
-                    GroupHeadLine := "Global Dimension 2 Code";
-                GroupTotals::"FA Posting Group":
-                    GroupHeadLine := "FA Posting Group";
-            end;
+        case GroupTotals of
+            GroupTotals::"FA Class":
+                GroupHeadLine := "Fixed Asset"."FA Class Code";
+            GroupTotals::"FA Subclass":
+                GroupHeadLine := "Fixed Asset"."FA Subclass Code";
+            GroupTotals::"FA Location":
+                GroupHeadLine := "Fixed Asset"."FA Location Code";
+            GroupTotals::"Main Asset":
+                begin
+                    FA."Main Asset/Component" := FA."Main Asset/Component"::"Main Asset";
+                    GroupHeadLine :=
+                      StrSubstNo('%1 %2', FA."Main Asset/Component", "Fixed Asset"."Component of Main Asset");
+                    if "Fixed Asset"."Component of Main Asset" = '' then
+                        GroupHeadLine := StrSubstNo('%1%2', GroupHeadLine, '*****');
+                end;
+            GroupTotals::"Global Dimension 1":
+                GroupHeadLine := "Fixed Asset"."Global Dimension 1 Code";
+            GroupTotals::"Global Dimension 2":
+                GroupHeadLine := "Fixed Asset"."Global Dimension 2 Code";
+            GroupTotals::"FA Posting Group":
+                GroupHeadLine := "Fixed Asset"."FA Posting Group";
+        end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
     end;
@@ -1091,47 +1088,46 @@ report 10886 "FA - Proj. Value (Derogatory)"
             BudgetDepreciation.CopyProjectedValueToBudget(
               FADeprBook, BudgetNameCode, UntilDate, DeprAmount, Custom1Amount, BalAccount);
 
-        if (UntilDate > 0D) or PrintAmountsPerDate then
-            with TempFABufferProjection do begin
-                Reset();
-                if Find('+') then
-                    EntryNo := "Entry No." + 1
-                else
-                    EntryNo := 1;
-                SetRange("FA Posting Date", UntilDate);
-                if GroupTotals <> GroupTotals::" " then begin
-                    case GroupTotals of
-                        GroupTotals::"FA Class":
-                            CodeName := "Fixed Asset"."FA Class Code";
-                        GroupTotals::"FA Subclass":
-                            CodeName := "Fixed Asset"."FA Subclass Code";
-                        GroupTotals::"FA Location":
-                            CodeName := "Fixed Asset"."FA Location Code";
-                        GroupTotals::"Main Asset":
-                            CodeName := "Fixed Asset"."Component of Main Asset";
-                        GroupTotals::"Global Dimension 1":
-                            CodeName := "Fixed Asset"."Global Dimension 1 Code";
-                        GroupTotals::"Global Dimension 2":
-                            CodeName := "Fixed Asset"."Global Dimension 2 Code";
-                        GroupTotals::"FA Posting Group":
-                            CodeName := "Fixed Asset"."FA Posting Group";
-                    end;
-                    SetRange("Code Name", CodeName);
+        if (UntilDate > 0D) or PrintAmountsPerDate then begin
+            TempFABufferProjection.Reset();
+            if TempFABufferProjection.Find('+') then
+                EntryNo := TempFABufferProjection."Entry No." + 1
+            else
+                EntryNo := 1;
+            TempFABufferProjection.SetRange("FA Posting Date", UntilDate);
+            if GroupTotals <> GroupTotals::" " then begin
+                case GroupTotals of
+                    GroupTotals::"FA Class":
+                        CodeName := "Fixed Asset"."FA Class Code";
+                    GroupTotals::"FA Subclass":
+                        CodeName := "Fixed Asset"."FA Subclass Code";
+                    GroupTotals::"FA Location":
+                        CodeName := "Fixed Asset"."FA Location Code";
+                    GroupTotals::"Main Asset":
+                        CodeName := "Fixed Asset"."Component of Main Asset";
+                    GroupTotals::"Global Dimension 1":
+                        CodeName := "Fixed Asset"."Global Dimension 1 Code";
+                    GroupTotals::"Global Dimension 2":
+                        CodeName := "Fixed Asset"."Global Dimension 2 Code";
+                    GroupTotals::"FA Posting Group":
+                        CodeName := "Fixed Asset"."FA Posting Group";
                 end;
-                if not Find('=><') then begin
-                    Init();
-                    "Code Name" := CodeName;
-                    "FA Posting Date" := UntilDate;
-                    "Entry No." := EntryNo;
-                    Depreciation := DeprAmount;
-                    "Custom 1" := Custom1Amount;
-                    Insert();
-                end else begin
-                    Depreciation := Depreciation + DeprAmount;
-                    "Custom 1" := "Custom 1" + Custom1Amount;
-                    Modify();
-                end;
+                TempFABufferProjection.SetRange("Code Name", CodeName);
             end;
+            if not TempFABufferProjection.Find('=><') then begin
+                TempFABufferProjection.Init();
+                TempFABufferProjection."Code Name" := CodeName;
+                TempFABufferProjection."FA Posting Date" := UntilDate;
+                TempFABufferProjection."Entry No." := EntryNo;
+                TempFABufferProjection.Depreciation := DeprAmount;
+                TempFABufferProjection."Custom 1" := Custom1Amount;
+                TempFABufferProjection.Insert();
+            end else begin
+                TempFABufferProjection.Depreciation := TempFABufferProjection.Depreciation + DeprAmount;
+                TempFABufferProjection."Custom 1" := TempFABufferProjection."Custom 1" + Custom1Amount;
+                TempFABufferProjection.Modify();
+            end;
+        end;
     end;
 
     local procedure InitGroupTotals()
@@ -1159,15 +1155,13 @@ report 10886 "FA - Proj. Value (Derogatory)"
     var
         FALedgEntry: Record "FA Ledger Entry";
     begin
-        with FALedgEntry do begin
-            SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Book Value", "FA Posting Date");
-            SetRange("FA No.", "Fixed Asset"."No.");
-            SetRange("Depreciation Book Code", DeprBookCode);
-            SetRange("Part of Book Value", true);
-            SetRange("FA Posting Date", 0D, Custom1DeprUntil);
-            CalcSums(Amount);
-            exit(Amount);
-        end;
+        FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Book Value", "FA Posting Date");
+        FALedgEntry.SetRange("FA No.", "Fixed Asset"."No.");
+        FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
+        FALedgEntry.SetRange("Part of Book Value", true);
+        FALedgEntry.SetRange("FA Posting Date", 0D, Custom1DeprUntil);
+        FALedgEntry.CalcSums(Amount);
+        exit(FALedgEntry.Amount);
     end;
 
     local procedure CalculateGainLoss()
@@ -1351,16 +1345,14 @@ report 10886 "FA - Proj. Value (Derogatory)"
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        with FALedgerEntry do begin
-            SetRange("FA No.", FANo);
-            SetRange("Depreciation Book Code", DeprBookCode);
-            SetRange("Part of Book Value", true);
-            SetRange("Document No.", DocumentNo);
-            SetRange("FA Posting Date", FAPostingDate);
-            SetRange("FA Posting Type", "FA Posting Type"::Derogatory);
-            if FindFirst() then
-                exit(Amount);
-        end;
+        FALedgerEntry.SetRange("FA No.", FANo);
+        FALedgerEntry.SetRange("Depreciation Book Code", DeprBookCode);
+        FALedgerEntry.SetRange("Part of Book Value", true);
+        FALedgerEntry.SetRange("Document No.", DocumentNo);
+        FALedgerEntry.SetRange("FA Posting Date", FAPostingDate);
+        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Derogatory);
+        if FALedgerEntry.FindFirst() then
+            exit(FALedgerEntry.Amount);
         exit(0);
     end;
 }

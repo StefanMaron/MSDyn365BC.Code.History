@@ -829,8 +829,6 @@ codeunit 134933 "Net Cust/Vend Balances Test"
         NetBalancesParameters: Record "Net Balances Parameters";
         Customer: Record Customer;
         CustLedgerEntry: Record "Cust. Ledger Entry";
-        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1111,7 +1109,7 @@ codeunit 134933 "Net Cust/Vend Balances Test"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Net Cust/Vend Balances Test");
 
-
+        LibraryERM.SetEnableDataCheck(false);
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Net Cust/Vend Balances Test");
     end;

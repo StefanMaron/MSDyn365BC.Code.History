@@ -78,11 +78,6 @@ codeunit 30176 "Shpfy Product API"
         GraphQuery.Append(', published: true');
         GraphQuery.Append(', variants: {inventoryPolicy: ');
         GraphQuery.Append(ShopifyVariant."Inventory Policy".Names.Get(ShopifyVariant."Inventory Policy".Ordinals.IndexOf(ShopifyVariant."Inventory Policy".AsInteger())));
-        if ShopifyVariant.Title <> '' then begin
-            GraphQuery.Append(', title: \"');
-            GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyVariant.Title));
-            GraphQuery.Append('\"');
-        end;
         if ShopifyVariant.Barcode <> '' then begin
             GraphQuery.Append(', barcode: \"');
             GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(ShopifyVariant.Barcode));

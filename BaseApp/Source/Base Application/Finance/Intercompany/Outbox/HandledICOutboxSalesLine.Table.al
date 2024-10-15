@@ -14,6 +14,7 @@ using Microsoft.Utilities;
 table 431 "Handled IC Outbox Sales Line"
 {
     Caption = 'Handled IC Outbox Sales Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -79,7 +80,7 @@ table 431 "Handled IC Outbox Sales Line"
         field(45; "Job No."; Code[20])
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             Editable = false;
         }
         field(63; "Shipment No."; Code[20])

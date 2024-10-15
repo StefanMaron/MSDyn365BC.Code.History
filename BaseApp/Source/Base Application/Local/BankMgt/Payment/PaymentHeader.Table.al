@@ -23,6 +23,7 @@ table 10865 "Payment Header"
     Caption = 'Payment Header';
     DrillDownPageID = "Payment Slip List";
     LookupPageID = "Payment Slip List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -32,10 +33,12 @@ table 10865 "Payment Header"
             Editable = false;
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "No." <> xRec."No." then begin
                     PaymentClass := PaymentClass2;
-                    NoSeriesManagement.TestManual(PaymentClass."Header No. Series");
+                    NoSeries.TestManual(PaymentClass."Header No. Series");
                     "No. Series" := '';
                 end;
             end;
@@ -497,12 +500,28 @@ table 10865 "Payment Header"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        IsHandled: Boolean;
+#endif
     begin
         if "No." = '' then begin
             if PAGE.RunModal(PAGE::"Payment Class List", PaymentClass2) = ACTION::LookupOK then
                 PaymentClass := PaymentClass2;
             PaymentClass.TestField("Header No. Series");
-            NoSeriesManagement.InitSeries(PaymentClass."Header No. Series", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(PaymentClass."Header No. Series", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := PaymentClass."Header No. Series";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", PaymentClass."Header No. Series", 0D, "No.");
+            end;
+#endif
             Validate("Payment Class", PaymentClass.Code);
         end;
         InitHeader();
@@ -516,7 +535,9 @@ table 10865 "Payment Header"
         CompanyBankAccount: Record "Bank Account";
         PostCode: Record "Post Code";
         DimensionManagement: Codeunit DimensionManagement;
+#if not CLEAN24
         NoSeriesManagement: Codeunit NoSeriesManagement;
+#endif
         RibKey: Codeunit "RIB Key";
         CurrencyDate: Date;
 
@@ -546,19 +567,16 @@ table 10865 "Payment Header"
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldPaymentHeader: Record "Payment Header"): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
-        with PaymentHeader do begin
-            PaymentHeader := Rec;
-            PaymentClass := PaymentClass2;
-
-            PaymentClass.TestField("Header No. Series");
-            if NoSeriesManagement.SelectSeries(PaymentClass."Header No. Series", OldPaymentHeader."No. Series", "No. Series") then begin
-                PaymentClass := PaymentClass2;
-                PaymentClass.TestField("Header No. Series");
-                NoSeriesManagement.SetSeries("No.");
-                Rec := PaymentHeader;
-                exit(true);
-            end;
+        PaymentHeader := Rec;
+        PaymentClass := PaymentClass2;
+        PaymentClass.TestField("Header No. Series");
+        if NoSeries.LookupRelatedNoSeries(PaymentClass."Header No. Series", OldPaymentHeader."No. Series", PaymentHeader."No. Series") then begin
+            PaymentHeader."No." := NoSeries.GetNextNo(PaymentHeader."No. Series");
+            Rec := PaymentHeader;
+            exit(true);
         end;
     end;
 

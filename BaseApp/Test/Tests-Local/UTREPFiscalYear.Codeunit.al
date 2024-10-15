@@ -385,7 +385,7 @@ codeunit 144072 "UT REP Fiscal Year"
         Journals."Posting Date".SetValue(PostingDate);
         Journals.Date.SetFilter("Period Type", Format(Date."Period Type"::Month));
         Journals.Date.SetFilter("Period Start", StrSubstNo(PeriodStartFilterTxt, CalcDate('<-CM>', WorkDate()), WorkDate()));  // Period Start.
-        Journals.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Journals.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -396,7 +396,7 @@ codeunit 144072 "UT REP Fiscal Year"
     begin
         LibraryVariableStorage.Dequeue(DateFilter);
         GLDetailTrialBalance."G/L Account".SetFilter("Date Filter", DateFilter);
-        GLDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -405,10 +405,10 @@ codeunit 144072 "UT REP Fiscal Year"
     var
         DateFilter: Variant;
     begin
-        GLDetailTrialBalance."G/L Account".SetFilter("No.", LibraryVariableStorage.DequeueText);
+        GLDetailTrialBalance."G/L Account".SetFilter("No.", LibraryVariableStorage.DequeueText());
         LibraryVariableStorage.Dequeue(DateFilter);
         GLDetailTrialBalance."G/L Account".SetFilter("Date Filter", DateFilter);
-        GLDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -419,7 +419,7 @@ codeunit 144072 "UT REP Fiscal Year"
     begin
         LibraryVariableStorage.Dequeue(PeriodStart);
         GLJournal.Date.SetFilter("Period Start", PeriodStart);
-        GLJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -430,7 +430,7 @@ codeunit 144072 "UT REP Fiscal Year"
     begin
         LibraryVariableStorage.Dequeue(DateFilter);
         GLTrialBalance."G/L Account".SetFilter("Date Filter", DateFilter);
-        GLTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -443,14 +443,14 @@ codeunit 144072 "UT REP Fiscal Year"
         LibraryVariableStorage.Dequeue(PeriodStart);
         Journals.Date.SetFilter("Period Type", Format(Date."Period Type"::Month));
         Journals.Date.SetFilter("Period Start", PeriodStart);
-        Journals.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Journals.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure NoFilterOnJournalsRequestPageHandler(var Journals: TestRequestPage Journals)
     begin
-        Journals.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Journals.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -464,7 +464,7 @@ codeunit 144072 "UT REP Fiscal Year"
         Journals.Date.SetFilter("Period Type", Format(Date."Period Type"::Month));
         Journals.Date.SetFilter("Period Start", StrSubstNo(PeriodStartFilterTxt, CalcDate('<-CM>', WorkDate()), WorkDate()));
         Journals.Date.SetFilter("Period End", PeriodEnd);
-        Journals.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Journals.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -10,6 +10,7 @@ table 50 "Accounting Period"
 {
     Caption = 'Accounting Period';
     LookupPageID = "Accounting Periods";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -254,8 +255,6 @@ table 50 "Accounting Period"
 
     [Scope('OnPrem')]
     procedure ReopenFiscalPeriod()
-    var
-        AccountingPeriod3: Record "Accounting Period";
     begin
         AccountingPeriod2.Reset();
         AccountingPeriod2.SetRange("Fiscally Closed", false);
@@ -276,53 +275,46 @@ table 50 "Accounting Period"
     [Scope('OnPrem')]
     procedure UpdateGLSetup(PeriodEndDate: Date)
     begin
-        with GLSetup do begin
-            Get();
-            CalcFields("Posting Allowed From");
-            if "Allow Posting From" <= PeriodEndDate then begin
-                "Allow Posting From" := "Posting Allowed From";
-                Modify();
-            end;
-            if ("Allow Posting To" <= PeriodEndDate) and ("Allow Posting To" <> 0D) then begin
-                "Allow Posting To" := CalcDate('<+1M-1D>', "Posting Allowed From");
-                Modify();
-            end;
+        GLSetup.Get();
+        GLSetup.CalcFields("Posting Allowed From");
+        if GLSetup."Allow Posting From" <= PeriodEndDate then begin
+            GLSetup."Allow Posting From" := GLSetup."Posting Allowed From";
+            GLSetup.Modify();
+        end;
+        if (GLSetup."Allow Posting To" <= PeriodEndDate) and (GLSetup."Allow Posting To" <> 0D) then begin
+            GLSetup."Allow Posting To" := CalcDate('<+1M-1D>', GLSetup."Posting Allowed From");
+            GLSetup.Modify();
         end;
     end;
 
     [Scope('OnPrem')]
     procedure UpdateUserSetup(PeriodEndDate: Date)
     begin
-        with UserSetup do begin
-            if FindFirst() then
-                repeat
-                    if "Allow Posting From" <= PeriodEndDate then begin
-                        "Allow Posting From" := GLSetup."Posting Allowed From";
-                        Modify();
-                    end;
-                    if ("Allow Posting To" <= PeriodEndDate) and ("Allow Posting To" <> 0D) then begin
-                        "Allow Posting To" := CalcDate('<+1M-1D>', GLSetup."Posting Allowed From");
-                        Modify();
-                    end;
-                until Next() = 0;
-        end
+        if UserSetup.FindFirst() then
+            repeat
+                if UserSetup."Allow Posting From" <= PeriodEndDate then begin
+                    UserSetup."Allow Posting From" := GLSetup."Posting Allowed From";
+                    UserSetup.Modify();
+                end;
+                if (UserSetup."Allow Posting To" <= PeriodEndDate) and (UserSetup."Allow Posting To" <> 0D) then begin
+                    UserSetup."Allow Posting To" := CalcDate('<+1M-1D>', GLSetup."Posting Allowed From");
+                    UserSetup.Modify();
+                end;
+            until UserSetup.Next() = 0;
     end;
 
     [Scope('OnPrem')]
     procedure CheckPostingRangeSetup(FYEndDate: Date): Boolean
     begin
-        with GLSetup do begin
-            Get();
-            if ("Allow Posting From" > FYEndDate) or ("Allow Posting To" > FYEndDate) then
-                exit(true);
-        end;
+        GLSetup.Get();
+        if (GLSetup."Allow Posting From" > FYEndDate) or (GLSetup."Allow Posting To" > FYEndDate) then
+            exit(true);
 
-        with UserSetup do
-            if FindFirst() then
-                repeat
-                    if ("Allow Posting From" > FYEndDate) or ("Allow Posting To" > FYEndDate) then
-                        exit(true);
-                until Next() = 0;
+        if UserSetup.FindFirst() then
+            repeat
+                if (UserSetup."Allow Posting From" > FYEndDate) or (UserSetup."Allow Posting To" > FYEndDate) then
+                    exit(true);
+            until UserSetup.Next() = 0;
 
         exit(false);
     end;

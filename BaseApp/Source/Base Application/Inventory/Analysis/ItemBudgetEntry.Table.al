@@ -17,6 +17,7 @@ table 7134 "Item Budget Entry"
     Caption = 'Item Budget Entry';
     DrillDownPageID = "Item Budget Entries";
     LookupPageID = "Item Budget Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

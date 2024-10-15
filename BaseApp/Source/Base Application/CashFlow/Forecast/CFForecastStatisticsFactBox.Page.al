@@ -138,8 +138,8 @@ page 840 "CF Forecast Statistics FactBox"
             field(Jobs; Rec.CalcSourceTypeAmount(CashFlowForecastEntry."Source Type"::Job))
             {
                 ApplicationArea = Jobs;
-                Caption = 'Jobs';
-                ToolTip = 'Specifies amounts related to jobs.';
+                Caption = 'Projects';
+                ToolTip = 'Specifies amounts related to projects.';
 
                 trigger OnDrillDown()
                 begin

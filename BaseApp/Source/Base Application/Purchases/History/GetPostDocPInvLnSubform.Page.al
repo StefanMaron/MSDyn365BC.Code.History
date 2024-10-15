@@ -27,7 +27,9 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
                     StyleExpr = 'Strong';
                     ToolTip = 'Specifies the number of the invoice that this line belongs to.';
                 }
+#pragma warning disable AA0100
                 field("PurchInvHeader.""Posting Date"""; PurchInvHeader."Posting Date")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Suite;
                     Caption = 'Posting Date';
@@ -175,14 +177,18 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
                     Caption = 'Line Amount';
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
                 }
+#pragma warning disable AA0100
                 field("PurchInvHeader.""Currency Code"""; PurchInvHeader."Currency Code")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Currency Code';
                     ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("PurchInvHeader.""Prices Including VAT"""; PurchInvHeader."Prices Including VAT")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Prices Including VAT';
@@ -216,7 +222,7 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Blanket Order No."; Rec."Blanket Order No.")
@@ -426,27 +432,25 @@ page 5857 "Get Post.Doc - P.InvLn Subform"
         if IsHandled then
             exit(ReturnValue);
 
-        with PurchInvLine2 do begin
-            RemainingQty := 0;
-            if "Document No." <> PurchInvHeader."No." then
-                PurchInvHeader.Get("Document No.");
-            if PurchInvHeader."Prepayment Invoice" then
+        RemainingQty := 0;
+        if PurchInvLine2."Document No." <> PurchInvHeader."No." then
+            PurchInvHeader.Get(PurchInvLine2."Document No.");
+        if PurchInvHeader."Prepayment Invoice" then
+            exit(false);
+        if RevQtyFilter then begin
+            if PurchInvHeader."Currency Code" <> ToPurchHeader."Currency Code" then
                 exit(false);
-            if RevQtyFilter then begin
-                if PurchInvHeader."Currency Code" <> ToPurchHeader."Currency Code" then
-                    exit(false);
-                if Type = Type::" " then
-                    exit("Attached to Line No." = 0);
-            end;
-            if Type <> Type::Item then
-                exit(true);
-            if ("Job No." <> '') or ("Prod. Order No." <> '') then
-                exit(not RevQtyFilter);
-            CalcReceivedPurchNotReturned(RemainingQty, RevUnitCostLCY, FillExactCostReverse);
-            if not RevQtyFilter then
-                exit(true);
-            exit(RemainingQty > 0);
+            if PurchInvLine2.Type = PurchInvLine2.Type::" " then
+                exit(PurchInvLine2."Attached to Line No." = 0);
         end;
+        if PurchInvLine2.Type <> PurchInvLine2.Type::Item then
+            exit(true);
+        if (PurchInvLine2."Job No." <> '') or (PurchInvLine2."Prod. Order No." <> '') then
+            exit(not RevQtyFilter);
+        PurchInvLine2.CalcReceivedPurchNotReturned(RemainingQty, RevUnitCostLCY, FillExactCostReverse);
+        if not RevQtyFilter then
+            exit(true);
+        exit(RemainingQty > 0);
     end;
 
     procedure Initialize(NewToPurchHeader: Record "Purchase Header"; NewRevQtyFilter: Boolean; NewFillExactCostReverse: Boolean; NewVisible: Boolean)

@@ -38,65 +38,62 @@ codeunit 394 "FinChrgMemo-Make"
         if IsHandled then
             exit(Result);
 
-        with FinChrgMemoHeader do
-            if "No." <> '' then begin
-                HeaderExists := true;
-                TestField("Customer No.");
-                Cust.Get("Customer No.");
-                TestField("Document Date");
-                TestField("Fin. Charge Terms Code");
-                FinChrgMemoHeaderReq := FinChrgMemoHeader;
-                FinChrgMemoLine.SetRange("Finance Charge Memo No.", "No.");
-                FinChrgMemoLine.DeleteAll();
-            end;
+        if FinChrgMemoHeader."No." <> '' then begin
+            HeaderExists := true;
+            FinChrgMemoHeader.TestField("Customer No.");
+            Cust.Get(FinChrgMemoHeader."Customer No.");
+            FinChrgMemoHeader.TestField("Document Date");
+            FinChrgMemoHeader.TestField("Fin. Charge Terms Code");
+            FinChrgMemoHeaderReq := FinChrgMemoHeader;
+            FinChrgMemoLine.SetRange("Finance Charge Memo No.", FinChrgMemoHeader."No.");
+            FinChrgMemoLine.DeleteAll();
+        end;
 
         OverDue := false;
 
-        with Cust do begin
-            TestField("Fin. Charge Terms Code");
-            if HeaderExists then
-                FinChrgMemoCheck(FinChrgMemoHeader."Currency Code")
-            else begin
-                CustIsBlocked := Blocked = Blocked::All;
-                OnCodeOnAfterCalcCustIsBlocked(Cust, CustIsBlocked);
-                if CustIsBlocked then
-                    exit(false);
-                TempCurrency.DeleteAll();
-                TempCurrency2.DeleteAll();
-                CustLedgEntry2.CopyFilters(CustLedgEntry);
-                CustLedgEntry.SetCurrentKey("Customer No.");
-                CustLedgEntry.SetRange("Customer No.", "No.");
-                OnCodeOnAfterCustLedgEntrySetFilters(CustLedgEntry, FinChrgMemoHeaderReq, Cust);
-                if CustLedgEntry.Find('-') then
-                    repeat
-                        if CustLedgEntry."On Hold" = '' then begin
-                            TempCurrency.Code := CustLedgEntry."Currency Code";
-                            if TempCurrency.Insert() then;
-                        end;
-                    until CustLedgEntry.Next() = 0;
-                CustLedgEntry.CopyFilters(CustLedgEntry2);
-                if TempCurrency.Find('-') then
-                    repeat
-                        FinChrgMemoCheck(TempCurrency.Code);
-                    until TempCurrency.Next() = 0;
-            end;
-
-            if ((CustAmountLCY = 0) or (CustAmountLCY < FinChrgTerms."Minimum Amount (LCY)")) and
-               ((FinChrgTerms."Additional Fee (LCY)" = 0) or (not OverDue))
-            then
-                exit(true);
-            FinChrgMemoLine.LockTable();
-            FinChrgMemoHeader.LockTable();
-
-            if HeaderExists then
-                MakeFinChrgMemo(FinChrgMemoHeader."Currency Code")
-            else
-                if TempCurrency.Find('-') then
-                    repeat
-                        if TempCurrency2.Get(tempCurrency.Code) then
-                            MakeFinChrgMemo(TempCurrency.Code);
-                    until TempCurrency.Next() = 0;
+        Cust.TestField("Fin. Charge Terms Code");
+        if HeaderExists then
+            FinChrgMemoCheck(FinChrgMemoHeader."Currency Code")
+        else begin
+            CustIsBlocked := Cust.Blocked = Cust.Blocked::All;
+            OnCodeOnAfterCalcCustIsBlocked(Cust, CustIsBlocked);
+            if CustIsBlocked then
+                exit(false);
+            TempCurrency.DeleteAll();
+            TempCurrency2.DeleteAll();
+            CustLedgEntry2.CopyFilters(CustLedgEntry);
+            CustLedgEntry.SetCurrentKey("Customer No.");
+            CustLedgEntry.SetRange("Customer No.", Cust."No.");
+            OnCodeOnAfterCustLedgEntrySetFilters(CustLedgEntry, FinChrgMemoHeaderReq, Cust);
+            if CustLedgEntry.Find('-') then
+                repeat
+                    if CustLedgEntry."On Hold" = '' then begin
+                        TempCurrency.Code := CustLedgEntry."Currency Code";
+                        if TempCurrency.Insert() then;
+                    end;
+                until CustLedgEntry.Next() = 0;
+            CustLedgEntry.CopyFilters(CustLedgEntry2);
+            if TempCurrency.Find('-') then
+                repeat
+                    FinChrgMemoCheck(TempCurrency.Code);
+                until TempCurrency.Next() = 0;
         end;
+
+        if ((CustAmountLCY = 0) or (CustAmountLCY < FinChrgTerms."Minimum Amount (LCY)")) and
+           ((FinChrgTerms."Additional Fee (LCY)" = 0) or (not OverDue))
+        then
+            exit(true);
+        FinChrgMemoLine.LockTable();
+        FinChrgMemoHeader.LockTable();
+
+        if HeaderExists then
+            MakeFinChrgMemo(FinChrgMemoHeader."Currency Code")
+        else
+            if TempCurrency.Find('-') then
+                repeat
+                    if TempCurrency2.Get(tempCurrency.Code) then
+                        MakeFinChrgMemo(TempCurrency.Code);
+                until TempCurrency.Next() = 0;
         exit(true);
     end;
 
@@ -143,105 +140,100 @@ codeunit 394 "FinChrgMemo-Make"
         if IsHandled then
             exit(Result);
 
-        with Cust do begin
-            if not Checking then begin
-                FinChrgMemoHeader.SetCurrentKey("Customer No.", "Currency Code");
-                FinChrgMemoHeader.SetRange("Customer No.", "No.");
-                FinChrgMemoHeader.SetRange("Currency Code", CurrencyCode);
-                OnMakeHeaderOnAfterSetFilters(FinChrgMemoHeader, FinChrgMemoHeaderReq, FinChrgTerms, Cust);
-                if FinChrgMemoHeader.FindFirst() then
-                    exit(false);
-            end;
-            FinChrgMemoHeader.Init();
-            FinChrgMemoHeader."No." := '';
-            FinChrgMemoHeader."Posting Date" := FinChrgMemoHeaderReq."Posting Date";
-            OnMakeHeaderOnBeforeInsert(FinChrgMemoHeader, FinChrgMemoHeaderReq, FinChrgTerms, Cust, Checking);
-            if not Checking then
-                FinChrgMemoHeader.Insert(true);
-            FinChrgMemoHeader.Validate("Customer No.", "No.");
-            FinChrgMemoHeader.Validate("Document Date", FinChrgMemoHeaderReq."Document Date");
-            FinChrgMemoHeader.Validate("Currency Code", CurrencyCode);
-            if not Checking then
-                FinChrgMemoHeader.Modify();
-            Result := true;
+        if not Checking then begin
+            FinChrgMemoHeader.SetCurrentKey("Customer No.", "Currency Code");
+            FinChrgMemoHeader.SetRange("Customer No.", Cust."No.");
+            FinChrgMemoHeader.SetRange("Currency Code", CurrencyCode);
+            OnMakeHeaderOnAfterSetFilters(FinChrgMemoHeader, FinChrgMemoHeaderReq, FinChrgTerms, Cust);
+            if FinChrgMemoHeader.FindFirst() then
+                exit(false);
         end;
+        FinChrgMemoHeader.Init();
+        FinChrgMemoHeader."No." := '';
+        FinChrgMemoHeader."Posting Date" := FinChrgMemoHeaderReq."Posting Date";
+        OnMakeHeaderOnBeforeInsert(FinChrgMemoHeader, FinChrgMemoHeaderReq, FinChrgTerms, Cust, Checking);
+        if not Checking then
+            FinChrgMemoHeader.Insert(true);
+        FinChrgMemoHeader.Validate("Customer No.", Cust."No.");
+        FinChrgMemoHeader.Validate("Document Date", FinChrgMemoHeaderReq."Document Date");
+        FinChrgMemoHeader.Validate("Currency Code", CurrencyCode);
+        if not Checking then
+            FinChrgMemoHeader.Modify();
+        Result := true;
 
         OnAfterMakeHeader(FinChrgMemoHeader, FinChrgMemoHeaderReq, CurrencyCode, Checking, Result);
     end;
 
     local procedure MakeLines(CurrencyCode: Code[10]; Checking: Boolean)
     begin
-        with Cust do begin
-            if FinChrgTerms."Interest Calculation" in
-               [FinChrgTerms."Interest Calculation"::"Open Entries",
-                FinChrgTerms."Interest Calculation"::"All Entries"]
-            then begin
+        if FinChrgTerms."Interest Calculation" in
+           [FinChrgTerms."Interest Calculation"::"Open Entries",
+            FinChrgTerms."Interest Calculation"::"All Entries"]
+        then begin
+            CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date", "Currency Code");
+            CustLedgEntry.SetRange("Customer No.", Cust."No.");
+            CustLedgEntry.SetRange(Open, true);
+            CustLedgEntry.SetRange("On Hold", '');
+            CustLedgEntry.SetRange(Positive, true);
+            CustLedgEntry.SetRange("Currency Code", CurrencyCode);
+            OnMakeLinesOnBeforeMakeLinesOpenEntries(CustLedgEntry, CurrencyCode, Checking);
+            MakeLines2(CurrencyCode, Checking);
+        end;
+        if FinChrgTerms."Interest Calculation" in
+           [FinChrgTerms."Interest Calculation"::"Closed Entries",
+            FinChrgTerms."Interest Calculation"::"All Entries"]
+        then begin
+            if not CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Calculate Interest") then
                 CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date", "Currency Code");
-                CustLedgEntry.SetRange("Customer No.", "No.");
-                CustLedgEntry.SetRange(Open, true);
-                CustLedgEntry.SetRange("On Hold", '');
-                CustLedgEntry.SetRange(Positive, true);
-                CustLedgEntry.SetRange("Currency Code", CurrencyCode);
-                OnMakeLinesOnBeforeMakeLinesOpenEntries(CustLedgEntry, CurrencyCode, Checking);
-                MakeLines2(CurrencyCode, Checking);
-            end;
-            if FinChrgTerms."Interest Calculation" in
-               [FinChrgTerms."Interest Calculation"::"Closed Entries",
-                FinChrgTerms."Interest Calculation"::"All Entries"]
-            then begin
-                if not CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Calculate Interest") then
-                    CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date", "Currency Code");
-                CustLedgEntry.SetRange("Customer No.", "No.");
-                CustLedgEntry.SetRange(Open, false);
-                CustLedgEntry.SetRange("On Hold", '');
-                CustLedgEntry.SetRange(Positive, true);
-                CustLedgEntry.SetRange("Currency Code", CurrencyCode);
-                CustLedgEntry.SetRange("Calculate Interest", true);
-                OnMakeLinesOnBeforeMakeLinesClosedEntries(CustLedgEntry, CurrencyCode, Checking);
-                MakeLines2(CurrencyCode, Checking);
-                CustLedgEntry.SetRange("Calculate Interest");
-            end;
+            CustLedgEntry.SetRange("Customer No.", Cust."No.");
+            CustLedgEntry.SetRange(Open, false);
+            CustLedgEntry.SetRange("On Hold", '');
+            CustLedgEntry.SetRange(Positive, true);
+            CustLedgEntry.SetRange("Currency Code", CurrencyCode);
+            CustLedgEntry.SetRange("Calculate Interest", true);
+            OnMakeLinesOnBeforeMakeLinesClosedEntries(CustLedgEntry, CurrencyCode, Checking);
+            MakeLines2(CurrencyCode, Checking);
+            CustLedgEntry.SetRange("Calculate Interest");
         end;
     end;
 
     local procedure MakeLines2(CurrencyCode: Code[10]; Checking: Boolean)
     begin
-        with Cust do
-            if CustLedgEntry.Find('-') then
-                repeat
-                    Clear(FinChrgMemoLine);
-                    NextLineNo := GetLastLineNo(FinChrgMemoHeader."No.") + 10000;
-                    FinChrgMemoLine.Init();
-                    FinChrgMemoLine."Finance Charge Memo No." := FinChrgMemoHeader."No.";
-                    FinChrgMemoLine."Line No." := NextLineNo;
-                    FinChrgMemoLine.SetFinChrgMemoHeader(FinChrgMemoHeader);
-                    FinChrgMemoLine.Type := FinChrgMemoLine.Type::"Customer Ledger Entry";
-                    FinChrgMemoLine.SetCheckingMode(Checking);
-                    FinChrgMemoLine.Validate("Entry No.", CustLedgEntry."Entry No.");
-                    if CurrencyCode <> '' then
-                        CustAmountLCY :=
-                          CustAmountLCY +
-                          CurrExchRate.ExchangeAmtFCYToLCY(
-                            FinChrgMemoHeader."Posting Date", CurrencyCode, FinChrgMemoLine.Amount,
-                            CurrExchRate.ExchangeRate(
-                              FinChrgMemoHeader."Posting Date", CurrencyCode))
-                    else
-                        CustAmountLCY := CustAmountLCY + FinChrgMemoLine.Amount;
-                    if (CustAmountLCY >= FinChrgTerms."Minimum Amount (LCY)") and
-                       (FinChrgMemoHeader."Document Date" > CalcDate(FinChrgTerms."Grace Period", FinChrgMemoLine."Due Date"))
-                    then
-                        OverDue := true;
+        if CustLedgEntry.Find('-') then
+            repeat
+                Clear(FinChrgMemoLine);
+                NextLineNo := GetLastLineNo(FinChrgMemoHeader."No.") + 10000;
+                FinChrgMemoLine.Init();
+                FinChrgMemoLine."Finance Charge Memo No." := FinChrgMemoHeader."No.";
+                FinChrgMemoLine."Line No." := NextLineNo;
+                FinChrgMemoLine.SetFinChrgMemoHeader(FinChrgMemoHeader);
+                FinChrgMemoLine.Type := FinChrgMemoLine.Type::"Customer Ledger Entry";
+                FinChrgMemoLine.SetCheckingMode(Checking);
+                FinChrgMemoLine.Validate("Entry No.", CustLedgEntry."Entry No.");
+                if CurrencyCode <> '' then
+                    CustAmountLCY :=
+                      CustAmountLCY +
+                      CurrExchRate.ExchangeAmtFCYToLCY(
+                        FinChrgMemoHeader."Posting Date", CurrencyCode, FinChrgMemoLine.Amount,
+                        CurrExchRate.ExchangeRate(
+                          FinChrgMemoHeader."Posting Date", CurrencyCode))
+                else
+                    CustAmountLCY := CustAmountLCY + FinChrgMemoLine.Amount;
+                if (CustAmountLCY >= FinChrgTerms."Minimum Amount (LCY)") and
+                   (FinChrgMemoHeader."Document Date" > CalcDate(FinChrgTerms."Grace Period", FinChrgMemoLine."Due Date"))
+                then
+                    OverDue := true;
 
-                    OnMakeLines2OnBeforeCheckInsertFinChrgMemoLine(FinChrgMemoLine, Checking);
-                    if FinChrgMemoLine.Amount <> 0 then
-                        if not Checking then
-                            FinChrgMemoLine.Insert()
-                        else begin
-                            TempCurrency2.Code := CurrencyCode;
-                            if TempCurrency2.Insert() then;
-                        end;
-                    OnAfterFinChrgMemoLineCreated(FinChrgMemoLine, Checking);
-                until CustLedgEntry.Next() = 0;
+                OnMakeLines2OnBeforeCheckInsertFinChrgMemoLine(FinChrgMemoLine, Checking);
+                if FinChrgMemoLine.Amount <> 0 then
+                    if not Checking then
+                        FinChrgMemoLine.Insert()
+                    else begin
+                        TempCurrency2.Code := CurrencyCode;
+                        if TempCurrency2.Insert() then;
+                    end;
+                OnAfterFinChrgMemoLineCreated(FinChrgMemoLine, Checking);
+            until CustLedgEntry.Next() = 0;
     end;
 
     local procedure GetLastLineNo(MemoNo: Code[20]): Integer

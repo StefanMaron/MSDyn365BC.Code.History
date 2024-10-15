@@ -18,6 +18,7 @@ table 7317 "Warehouse Receipt Line"
     Caption = 'Warehouse Receipt Line';
     DrillDownPageID = "Whse. Receipt Lines";
     LookupPageID = "Whse. Receipt Lines";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -84,7 +85,7 @@ table 7317 "Warehouse Receipt Line"
                 if "Bin Code" <> '' then begin
                     if xRec."Bin Code" <> "Bin Code" then begin
                         GetLocation("Location Code");
-                        WhseIntegrationMgt.CheckBinTypeCode(
+                        WhseIntegrationMgt.CheckBinTypeAndCode(
                             Database::"Warehouse Receipt Line", FieldCaption("Bin Code"), "Location Code", "Bin Code", 0);
                     end;
                     Bin.Get("Location Code", "Bin Code");
@@ -397,7 +398,7 @@ table 7317 "Warehouse Receipt Line"
                 end;
                 Validate(Quantity, Quantity - xRec."Over-Receipt Quantity" + "Over-Receipt Quantity");
                 Modify();
-                OverReceiptMgt.UpdatePurchaseLineOverReceiptQuantityFromWarehouseReceiptLine(Rec);
+                OverReceiptMgt.UpdatePurchaseLineOverReceiptQuantityFromWarehouseReceiptLine(Rec, CurrFieldNo);
             end;
         }
         field(8510; "Over-Receipt Code"; Code[20])
@@ -540,13 +541,12 @@ table 7317 "Warehouse Receipt Line"
         if IsHandled then
             exit;
 
-        with WhseReceiptLine do
-            if Find('-') then
-                repeat
-                    Validate("Qty. to Receive", "Qty. Outstanding");
-                    OnAutoFillQtyToReceiveOnBeforeModify(WhseReceiptLine);
-                    Modify();
-                until Next() = 0;
+        if WhseReceiptLine.Find('-') then
+            repeat
+                WhseReceiptLine.Validate("Qty. to Receive", WhseReceiptLine."Qty. Outstanding");
+                OnAutoFillQtyToReceiveOnBeforeModify(WhseReceiptLine);
+                WhseReceiptLine.Modify();
+            until WhseReceiptLine.Next() = 0;
     end;
 
     procedure DeleteQtyToReceive(var WhseReceiptLine: Record "Warehouse Receipt Line")

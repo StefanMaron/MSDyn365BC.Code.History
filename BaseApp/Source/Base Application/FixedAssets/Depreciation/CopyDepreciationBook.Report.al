@@ -48,11 +48,9 @@ report 5687 "Copy Depreciation Book"
             trigger OnPreDataItem()
             begin
                 DepreciationCalc.SetFAFilter(FALedgEntry, '', DeprBookCode, false);
-                with FALedgEntry do begin
-                    SetRange("FA Posting Category", "FA Posting Category"::" ");
-                    SetFilter("FA Posting Type", '<=%1|%2', "FA Posting Type"::"Salvage Value", "FA Posting Type"::Derogatory);
-                    SetRange("FA Posting Date", StartingDate, EndingDate2);
-                end;
+                FALedgEntry.SetRange("FA Posting Category", FALedgEntry."FA Posting Category"::" ");
+                FALedgEntry.SetFilter("FA Posting Type", '<=%1|%2', FALedgEntry."FA Posting Type"::"Salvage Value", FALedgEntry."FA Posting Type"::Derogatory);
+                FALedgEntry.SetRange("FA Posting Date", StartingDate, EndingDate2);
             end;
         }
     }
@@ -219,7 +217,6 @@ report 5687 "Copy Depreciation Book"
         FALedgEntry: Record "FA Ledger Entry";
         FAJnlSetup: Record "FA Journal Setup";
         DepreciationCalc: Codeunit "Depreciation Calculation";
-        CancelFALedgEntries: Codeunit "Cancel FA Ledger Entries";
         Window: Dialog;
         ExchangeRate: Decimal;
         CopyChoices: array[13] of Boolean;
@@ -260,24 +257,22 @@ report 5687 "Copy Depreciation Book"
         end;
         FirstGenJnl := false;
 
-        with GenJnlLine do begin
-            FALedgEntry.MoveToGenJnl(GenJnlLine);
-            Validate("Depreciation Book Code", DeprBookCode2);
-            Validate(Amount, Round(Amount * ExchangeRate));
-            "Document No." := DocumentNo2;
-            "Posting No. Series" := NoSeries2;
-            "Document Type" := "Document Type"::" ";
-            "External Document No." := '';
-            if PostingDescription <> '' then
-                Description := PostingDescription;
-            GenJnlNextLineNo := GenJnlNextLineNo + 10000;
-            "Line No." := GenJnlNextLineNo;
-            Insert(true);
-            if BalAccount then begin
-                FAInsertGLAcc.GetBalAcc(GenJnlLine);
-                if FindLast() then;
-                GenJnlNextLineNo := "Line No.";
-            end;
+        FALedgEntry.MoveToGenJnl(GenJnlLine);
+        GenJnlLine.Validate("Depreciation Book Code", DeprBookCode2);
+        GenJnlLine.Validate(Amount, Round(GenJnlLine.Amount * ExchangeRate));
+        GenJnlLine."Document No." := DocumentNo2;
+        GenJnlLine."Posting No. Series" := NoSeries2;
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
+        GenJnlLine."External Document No." := '';
+        if PostingDescription <> '' then
+            GenJnlLine.Description := PostingDescription;
+        GenJnlNextLineNo := GenJnlNextLineNo + 10000;
+        GenJnlLine."Line No." := GenJnlNextLineNo;
+        GenJnlLine.Insert(true);
+        if BalAccount then begin
+            FAInsertGLAcc.GetBalAcc(GenJnlLine);
+            if GenJnlLine.FindLast() then;
+            GenJnlNextLineNo := GenJnlLine."Line No.";
         end;
     end;
 
@@ -294,20 +289,18 @@ report 5687 "Copy Depreciation Book"
         end;
         FirstFAJnl := false;
 
-        with FAJnlLine do begin
-            FALedgEntry.MoveToFAJnl(FAJnlLine);
-            Validate("Depreciation Book Code", DeprBookCode2);
-            Validate(Amount, Round(Amount * ExchangeRate));
-            "Document No." := DocumentNo3;
-            "Posting No. Series" := NoSeries3;
-            "Document Type" := "Document Type"::" ";
-            "External Document No." := '';
-            if PostingDescription <> '' then
-                Description := PostingDescription;
-            FAJnlNextLineNo := FAJnlNextLineNo + 10000;
-            "Line No." := FAJnlNextLineNo;
-            Insert(true);
-        end;
+        FALedgEntry.MoveToFAJnl(FAJnlLine);
+        FAJnlLine.Validate("Depreciation Book Code", DeprBookCode2);
+        FAJnlLine.Validate(Amount, Round(FAJnlLine.Amount * ExchangeRate));
+        FAJnlLine."Document No." := DocumentNo3;
+        FAJnlLine."Posting No. Series" := NoSeries3;
+        FAJnlLine."Document Type" := FAJnlLine."Document Type"::" ";
+        FAJnlLine."External Document No." := '';
+        if PostingDescription <> '' then
+            FAJnlLine.Description := PostingDescription;
+        FAJnlNextLineNo := FAJnlNextLineNo + 10000;
+        FAJnlLine."Line No." := FAJnlNextLineNo;
+        FAJnlLine.Insert(true);
     end;
 
     local procedure SetJournalType(var FALedgEntry: Record "FA Ledger Entry")

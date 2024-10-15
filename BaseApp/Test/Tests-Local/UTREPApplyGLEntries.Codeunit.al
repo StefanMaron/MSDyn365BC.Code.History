@@ -82,7 +82,7 @@ codeunit 144006 "UT REP Apply GL Entries"
     begin
         // Setup: Create two GL Entry with different Letter and Posting Date.
         Initialize();
-        CreateGLEntry(GLEntry, CreateGLAccount, Letter, 0D);  // Using Posting Date as blank.
+        CreateGLEntry(GLEntry, CreateGLAccount(), Letter, 0D);  // Using Posting Date as blank.
         CreateGLEntry(GLEntry, GLEntry."G/L Account No.", Letter2, WorkDate()); // Using Posting Date as WORKDATE.
 
         // Enqueue values in handler - GLAccountStatementRequestPageHandler.
@@ -94,7 +94,7 @@ codeunit 144006 "UT REP Apply GL Entries"
         REPORT.Run(REPORT::"G/L Account Statement");  // Opens handler - GLAccountStatementRequestPageHandler.
 
         // Verify: Verify G/L Account Number, G/L Entry Number, Debit Amount and Letter on Report - G/L Account Statement.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_GLAcc', GLEntry."G/L Account No.");
         LibraryReportDataset.AssertElementWithValueExists('EntryNo_GLEntry', GLEntry."Entry No.");
         LibraryReportDataset.AssertElementWithValueExists('DebitAmount_GLAcc', GLEntry."Debit Amount");
@@ -114,7 +114,7 @@ codeunit 144006 "UT REP Apply GL Entries"
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [GIVEN] G/L Entry.
-        CreateGLEntry(GLEntry, CreateGLAccount, SmallLetterTxt, WorkDate());
+        CreateGLEntry(GLEntry, CreateGLAccount(), SmallLetterTxt, WorkDate());
 
         // [WHEN] Run report "Withdraw recapitulation", save report output to Excel file.
         GLEntry.SetRecFilter();
@@ -135,7 +135,7 @@ codeunit 144006 "UT REP Apply GL Entries"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;
@@ -168,7 +168,7 @@ codeunit 144006 "UT REP Apply GL Entries"
         GLAccountStatement."G/L Account".SetFilter("No.", No);
         GLAccountStatement.EvaluationDate.SetValue(EvaluationDate);
         GLAccountStatement.GLEntries.SetValue(GLEntries);
-        GLAccountStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLAccountStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

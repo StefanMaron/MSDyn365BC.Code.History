@@ -4,6 +4,7 @@ table 8630 "Config. Media Buffer"
 {
     Caption = 'Config. Media Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

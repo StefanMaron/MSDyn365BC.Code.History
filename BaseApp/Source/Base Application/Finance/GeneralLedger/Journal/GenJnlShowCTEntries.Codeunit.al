@@ -40,74 +40,72 @@ codeunit 16 "Gen. Jnl.-Show CT Entries"
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
         FoundCorrespondingLedgerEntry: Boolean;
     begin
-        with GenJournalLine do begin
-            CreditTransferEntry.Reset();
-            FoundCorrespondingLedgerEntry := false;
-            case "Account Type" of
-                "Account Type"::Vendor:
-                    begin
-                        CreditTransferEntry.SetRange("Account Type", CreditTransferEntry."Account Type"::Vendor);
-                        if ("Applies-to Doc. No." <> '') or ("Applies-to ID" <> '') then begin
-                            VendorLedgerEntry.SetRange("Vendor No.", "Account No.");
-                            if "Applies-to Doc. No." <> '' then begin
-                                VendorLedgerEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                                VendorLedgerEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                            end;
-                            if "Applies-to ID" <> '' then begin
-                                VendorLedgerEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
-                                VendorLedgerEntry.SetRange("Applies-to ID", "Applies-to ID");
-                            end;
-                            if VendorLedgerEntry.FindFirst() then begin
-                                CreditTransferEntry.SetRange("Applies-to Entry No.", VendorLedgerEntry."Entry No.");
-                                FoundCorrespondingLedgerEntry := true;
-                            end;
+        CreditTransferEntry.Reset();
+        FoundCorrespondingLedgerEntry := false;
+        case GenJournalLine."Account Type" of
+            GenJournalLine."Account Type"::Vendor:
+                begin
+                    CreditTransferEntry.SetRange("Account Type", CreditTransferEntry."Account Type"::Vendor);
+                    if (GenJournalLine."Applies-to Doc. No." <> '') or (GenJournalLine."Applies-to ID" <> '') then begin
+                        VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
+                        if GenJournalLine."Applies-to Doc. No." <> '' then begin
+                            VendorLedgerEntry.SetRange("Document Type", GenJournalLine."Applies-to Doc. Type");
+                            VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Applies-to Doc. No.");
+                        end;
+                        if GenJournalLine."Applies-to ID" <> '' then begin
+                            VendorLedgerEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
+                            VendorLedgerEntry.SetRange("Applies-to ID", GenJournalLine."Applies-to ID");
+                        end;
+                        if VendorLedgerEntry.FindFirst() then begin
+                            CreditTransferEntry.SetRange("Applies-to Entry No.", VendorLedgerEntry."Entry No.");
+                            FoundCorrespondingLedgerEntry := true;
                         end;
                     end;
-                "Account Type"::Customer:
-                    begin
-                        CreditTransferEntry.SetRange("Account Type", CreditTransferEntry."Account Type"::Customer);
-                        if ("Applies-to Doc. No." <> '') or ("Applies-to ID" <> '') then begin
-                            CustLedgerEntry.SetRange("Customer No.", "Account No.");
-                            if "Applies-to Doc. No." <> '' then begin
-                                CustLedgerEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                                CustLedgerEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                            end;
-                            if "Applies-to ID" <> '' then
-                                CustLedgerEntry.SetRange("Applies-to ID", "Applies-to ID");
-                            if CustLedgerEntry.FindFirst() then begin
-                                CreditTransferEntry.SetRange("Applies-to Entry No.", CustLedgerEntry."Entry No.");
-                                FoundCorrespondingLedgerEntry := true;
-                            end;
+                end;
+            GenJournalLine."Account Type"::Customer:
+                begin
+                    CreditTransferEntry.SetRange("Account Type", CreditTransferEntry."Account Type"::Customer);
+                    if (GenJournalLine."Applies-to Doc. No." <> '') or (GenJournalLine."Applies-to ID" <> '') then begin
+                        CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
+                        if GenJournalLine."Applies-to Doc. No." <> '' then begin
+                            CustLedgerEntry.SetRange("Document Type", GenJournalLine."Applies-to Doc. Type");
+                            CustLedgerEntry.SetRange("Document No.", GenJournalLine."Applies-to Doc. No.");
+                        end;
+                        if GenJournalLine."Applies-to ID" <> '' then
+                            CustLedgerEntry.SetRange("Applies-to ID", GenJournalLine."Applies-to ID");
+                        if CustLedgerEntry.FindFirst() then begin
+                            CreditTransferEntry.SetRange("Applies-to Entry No.", CustLedgerEntry."Entry No.");
+                            FoundCorrespondingLedgerEntry := true;
                         end;
                     end;
-                "Account Type"::Employee:
-                    begin
-                        CreditTransferEntry.SetRange("Account Type", CreditTransferEntry."Account Type"::Employee);
-                        if ("Applies-to Doc. No." <> '') or ("Applies-to ID" <> '') then begin
-                            EmployeeLedgerEntry.SetRange("Employee No.", "Account No.");
-                            if "Applies-to Doc. No." <> '' then begin
-                                EmployeeLedgerEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                                EmployeeLedgerEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                            end;
-                            if "Applies-to ID" <> '' then
-                                EmployeeLedgerEntry.SetRange("Applies-to ID", "Applies-to ID");
-                            if EmployeeLedgerEntry.FindFirst() then begin
-                                CreditTransferEntry.SetRange("Applies-to Entry No.", EmployeeLedgerEntry."Entry No.");
-                                FoundCorrespondingLedgerEntry := true;
-                            end;
+                end;
+            GenJournalLine."Account Type"::Employee:
+                begin
+                    CreditTransferEntry.SetRange("Account Type", CreditTransferEntry."Account Type"::Employee);
+                    if (GenJournalLine."Applies-to Doc. No." <> '') or (GenJournalLine."Applies-to ID" <> '') then begin
+                        EmployeeLedgerEntry.SetRange("Employee No.", GenJournalLine."Account No.");
+                        if GenJournalLine."Applies-to Doc. No." <> '' then begin
+                            EmployeeLedgerEntry.SetRange("Document Type", GenJournalLine."Applies-to Doc. Type");
+                            EmployeeLedgerEntry.SetRange("Document No.", GenJournalLine."Applies-to Doc. No.");
+                        end;
+                        if GenJournalLine."Applies-to ID" <> '' then
+                            EmployeeLedgerEntry.SetRange("Applies-to ID", GenJournalLine."Applies-to ID");
+                        if EmployeeLedgerEntry.FindFirst() then begin
+                            CreditTransferEntry.SetRange("Applies-to Entry No.", EmployeeLedgerEntry."Entry No.");
+                            FoundCorrespondingLedgerEntry := true;
                         end;
                     end;
-                else
-                    OnSetFiltersOnCreditTransferEntryOnCaseElse(GenJournalLine, CreditTransferEntry, FoundCorrespondingLedgerEntry);
-            end;
-            CreditTransferEntry.SetRange("Account No.", "Account No.");
-            if not FoundCorrespondingLedgerEntry then
-                CreditTransferEntry.SetRange("Applies-to Entry No.", 0);
-            GeneralLedgerSetup.Get();
-            CreditTransferEntry.SetFilter(
-              "Currency Code", '''%1''|''%2''', "Currency Code", GeneralLedgerSetup.GetCurrencyCode("Currency Code"));
-            CreditTransferEntry.SetRange(Canceled, false);
+                end;
+            else
+                OnSetFiltersOnCreditTransferEntryOnCaseElse(GenJournalLine, CreditTransferEntry, FoundCorrespondingLedgerEntry);
         end;
+        CreditTransferEntry.SetRange("Account No.", GenJournalLine."Account No.");
+        if not FoundCorrespondingLedgerEntry then
+            CreditTransferEntry.SetRange("Applies-to Entry No.", 0);
+        GeneralLedgerSetup.Get();
+        CreditTransferEntry.SetFilter(
+          "Currency Code", '''%1''|''%2''', GenJournalLine."Currency Code", GeneralLedgerSetup.GetCurrencyCode(GenJournalLine."Currency Code"));
+        CreditTransferEntry.SetRange(Canceled, false);
     end;
 
     [IntegrationEvent(false, false)]

@@ -33,7 +33,7 @@ page 5233 "Human Resources Setup"
                 field("Automatically Create Resource"; Rec."Automatically Create Resource")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies if a resource card is automatically created for an employee that is added to a job, service, or assembly activity.';
+                    ToolTip = 'Specifies if a resource card is automatically created for an employee that is added to a project, service, or assembly activity.';
                 }
             }
         }

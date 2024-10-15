@@ -17,7 +17,7 @@ page 5974 "Posted Service Shipments"
     PageType = List;
     SourceTable = "Service Shipment Header";
     SourceTableView = sorting("Posting Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout
@@ -41,6 +41,11 @@ page 5974 "Posted Service Shipments"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies a document number that refers to the customer''s numbering system.';
                 }
                 field("Post Code"; Rec."Post Code")
                 {
@@ -303,11 +308,11 @@ page 5974 "Posted Service Shipments"
                 action("&Job Ledger Entries")
                 {
                     ApplicationArea = Jobs;
-                    Caption = '&Job Ledger Entries';
+                    Caption = '&Project Ledger Entries';
                     Image = JobLedger;
                     RunObject = Page "Job Ledger Entries";
                     RunPageLink = "Document No." = field("No.");
-                    ToolTip = 'View all the job ledger entries that result from posting transactions in the service document that involve a job.';
+                    ToolTip = 'View all the project ledger entries that result from posting transactions in the service document that involve a project.';
                 }
                 action("&Allocations")
                 {

@@ -402,7 +402,7 @@ codeunit 139033 "Test Job Queue Status"
         SalesHeader.Init();
         SalesHeader."Document Type" := DocumentType;
         SalesHeader.Insert(true);
-        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
         SalesHeader."External Document No." := SalesHeader."No.";
         SalesHeader.Ship := true;
         SalesHeader.Invoice := true;
@@ -414,7 +414,7 @@ codeunit 139033 "Test Job Queue Status"
         SalesLine."Line No." := 10000;
         SalesLine.Insert(true);
         SalesLine.Validate(Type, SalesLine.Type::Item);
-        SalesLine.Validate("No.", LibraryInventory.CreateItemNo);
+        SalesLine.Validate("No.", LibraryInventory.CreateItemNo());
         SalesLine.Validate(Quantity, 1);
         SalesLine.Modify(true);
     end;
@@ -432,7 +432,7 @@ codeunit 139033 "Test Job Queue Status"
         PurchaseHeader.Invoice := true;
         PurchaseHeader.Modify(true);
 
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Return Order" then begin
             PurchaseLine.Validate("Direct Unit Cost", 1);
             PurchaseLine.Validate("Qty. to Receive", 0);
@@ -440,7 +440,7 @@ codeunit 139033 "Test Job Queue Status"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure VerifySalesDocumentBackgroundPostingState(DocumentType: Enum "Sales Document Type"; JobQueueStatus: Option)
+    local procedure VerifySalesDocumentBackgroundPostingState(DocumentType: Enum "Sales Document Type"; JobQueueStatus: Enum "Document Job Queue Status")
     var
         SalesHeader: Record "Sales Header";
         JobQueueEntry: Record "Job Queue Entry";
@@ -454,7 +454,7 @@ codeunit 139033 "Test Job Queue Status"
         InvokeJobStatusStateOnSalesDocument(SalesHeader);
     end;
 
-    local procedure VerifyPurchaseDocumentBackgroundPostingState(DocumentType: Enum "Purchase Document Type"; JobQueueStatus: Option)
+    local procedure VerifyPurchaseDocumentBackgroundPostingState(DocumentType: Enum "Purchase Document Type"; JobQueueStatus: Enum "Document Job Queue Status")
     var
         PurchaseHeader: Record "Purchase Header";
         JobQueueEntry: Record "Job Queue Entry";
@@ -479,27 +479,27 @@ codeunit 139033 "Test Job Queue Status"
         case SalesHeader."Document Type" of
             SalesHeader."Document Type"::Invoice:
                 begin
-                    SalesInvoiceList.OpenView;
+                    SalesInvoiceList.OpenView();
                     SalesInvoiceList.GotoRecord(SalesHeader);
-                    SalesInvoiceList."Job Queue Status".Lookup;
+                    SalesInvoiceList."Job Queue Status".Lookup();
                 end;
             SalesHeader."Document Type"::Order:
                 begin
-                    SalesOrderList.OpenView;
+                    SalesOrderList.OpenView();
                     SalesOrderList.GotoRecord(SalesHeader);
-                    SalesOrderList."Job Queue Status".Lookup;
+                    SalesOrderList."Job Queue Status".Lookup();
                 end;
             SalesHeader."Document Type"::"Credit Memo":
                 begin
-                    SalesCreditMemos.OpenView;
+                    SalesCreditMemos.OpenView();
                     SalesCreditMemos.GotoRecord(SalesHeader);
-                    SalesCreditMemos."Job Queue Status".Lookup;
+                    SalesCreditMemos."Job Queue Status".Lookup();
                 end;
             SalesHeader."Document Type"::"Return Order":
                 begin
-                    SalesReturnOrderList.OpenView;
+                    SalesReturnOrderList.OpenView();
                     SalesReturnOrderList.GotoRecord(SalesHeader);
-                    SalesReturnOrderList."Job Queue Status".Lookup;
+                    SalesReturnOrderList."Job Queue Status".Lookup();
                 end;
             else
                 Error(UnsupportedDocTypeErr);
@@ -516,27 +516,27 @@ codeunit 139033 "Test Job Queue Status"
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::Invoice:
                 begin
-                    PurchaseInvoices.OpenView;
+                    PurchaseInvoices.OpenView();
                     PurchaseInvoices.GotoRecord(PurchaseHeader);
-                    PurchaseInvoices."Job Queue Status".Lookup;
+                    PurchaseInvoices."Job Queue Status".Lookup();
                 end;
             PurchaseHeader."Document Type"::Order:
                 begin
-                    PurchaseOrderList.OpenView;
+                    PurchaseOrderList.OpenView();
                     PurchaseOrderList.GotoRecord(PurchaseHeader);
-                    PurchaseOrderList."Job Queue Status".Lookup;
+                    PurchaseOrderList."Job Queue Status".Lookup();
                 end;
             PurchaseHeader."Document Type"::"Credit Memo":
                 begin
-                    PurchaseCreditMemos.OpenView;
+                    PurchaseCreditMemos.OpenView();
                     PurchaseCreditMemos.GotoRecord(PurchaseHeader);
-                    PurchaseCreditMemos."Job Queue Status".Lookup;
+                    PurchaseCreditMemos."Job Queue Status".Lookup();
                 end;
             PurchaseHeader."Document Type"::"Return Order":
                 begin
-                    PurchaseReturnOrderList.OpenView;
+                    PurchaseReturnOrderList.OpenView();
                     PurchaseReturnOrderList.GotoRecord(PurchaseHeader);
-                    PurchaseReturnOrderList."Job Queue Status".Lookup;
+                    PurchaseReturnOrderList."Job Queue Status".Lookup();
                 end;
             else
                 Error(UnsupportedDocTypeErr);
@@ -547,7 +547,7 @@ codeunit 139033 "Test Job Queue Status"
     [Scope('OnPrem')]
     procedure MessageHandler(Msg: Text[1024])
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, Msg, 'Unexpected message popped up.');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), Msg, 'Unexpected message popped up.');
     end;
 
     local procedure CreateJobQueueEntryWithStatus(var JobQueueEntry: Record "Job Queue Entry"; Status: Option; StatusMessage: Text)
@@ -562,7 +562,7 @@ codeunit 139033 "Test Job Queue Status"
         JobQueueEntry.Insert();
     end;
 
-    local procedure GetJobQueueEntryStatusFromDocJobQueueStatus(DocumentJobQueueStatus: Option): Integer
+    local procedure GetJobQueueEntryStatusFromDocJobQueueStatus(DocumentJobQueueStatus: Enum "Document Job Queue Status"): Integer
     var
         DummySalesHeader: Record "Sales Header";
         DummyJobQueueEntry: Record "Job Queue Entry";

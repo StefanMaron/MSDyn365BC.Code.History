@@ -66,7 +66,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to verify error of Report 10883 (SEPA ISO20022) with SEPA Allowed as False on Country/Region.
         // Verify actual error: "SEPA Allowed is not enabled for Country/Region."
         CreatePaymentSlipForReportSEPAISO20022(
-          false, PaymentHeader."Account Type"::Vendor, '', LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, DialogErr);  // SEPA Allowed as False. Currency Code as blank.
+          false, PaymentHeader."Account Type"::Vendor, '', LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), DialogErr);  // SEPA Allowed as False. Currency Code as blank.
     end;
 
     [Test]
@@ -80,7 +80,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to verify error of Report 10883 (SEPA ISO20022) with Account Type other than Customer or Vendor on Payment Line.
         // Verify actual error: "Payment Lines can only be of type Customer or Vendor for SEPA."
         CreatePaymentSlipForReportSEPAISO20022(
-          true, PaymentHeader."Account Type"::"Bank Account", '', LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, DialogErr);  // SEPA Allowed as True. Currency Code as blank.
+          true, PaymentHeader."Account Type"::"Bank Account", '', LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), DialogErr);  // SEPA Allowed as True. Currency Code as blank.
     end;
 
     [Test]
@@ -94,7 +94,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to verify error of Report 10883 (SEPA ISO20022) with Local Currency EURO on General Ledger Setup.
         // Verify actual error: "Currency is not Euro in the Payment Line."
         CreatePaymentSlipForReportSEPAISO20022(
-          true, PaymentHeader."Account Type"::Vendor, CreateCurrency, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, DialogErr);  // SEPA Allowed as True.
+          true, PaymentHeader."Account Type"::Vendor, CreateCurrency(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), DialogErr);  // SEPA Allowed as True.
     end;
 
     [Test]
@@ -108,7 +108,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to verify error of Report 10883 (SEPA ISO20022) with IBAN as blank on Payment Header.
         // Verify actual error: "IBAN must have a value in Payment Header"
         CreatePaymentSlipForReportSEPAISO20022(
-          true, PaymentHeader."Account Type"::Vendor, CreateCurrency, '', LibraryUTUtility.GetNewCode, TestFieldCap);  // SEPA Allowed as True. Currency Code and IBAN as blank.
+          true, PaymentHeader."Account Type"::Vendor, CreateCurrency(), '', LibraryUTUtility.GetNewCode(), TestFieldCap);  // SEPA Allowed as True. Currency Code and IBAN as blank.
     end;
 
     [Test]
@@ -122,7 +122,7 @@ codeunit 144058 "UT SEPA"
         // Purpose of the test is to verify error of Report 10883 (SEPA ISO20022) with SWIFT Code as blank on Payment Header.
         // Verify actual error: "SWIFT Code must have a value in Payment Header"
         CreatePaymentSlipForReportSEPAISO20022(
-          true, PaymentHeader."Account Type"::Vendor, CreateCurrency, LibraryUTUtility.GetNewCode, '', TestFieldCap);  // SEPA Allowed as True. Currency Code and SWIFT Code as blank.
+          true, PaymentHeader."Account Type"::Vendor, CreateCurrency(), LibraryUTUtility.GetNewCode(), '', TestFieldCap);  // SEPA Allowed as True. Currency Code and SWIFT Code as blank.
     end;
 
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -166,7 +166,7 @@ codeunit 144058 "UT SEPA"
         LibraryVariableStorage.Enqueue(
           CreatePaymentSlip(
             PaymentHeader."Account Type"::Customer, CustomerBankAccount."Customer No.", CustomerBankAccount.Code, '',
-            CreateCountryRegion(true), LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode));  // SEPA Allowed as True. Currency Code as blank.
+            CreateCountryRegion(true), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode()));  // SEPA Allowed as True. Currency Code as blank.
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"SEPA ISO20022");
@@ -194,7 +194,7 @@ codeunit 144058 "UT SEPA"
         LibraryVariableStorage.Enqueue(
           CreatePaymentSlip(
             PaymentHeader."Account Type"::Vendor, VendorBankAccount."Vendor No.", VendorBankAccount.Code, '',
-            CreateCountryRegion(true), LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode));  // SEPA Allowed as True. Currency Code as blank.
+            CreateCountryRegion(true), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode()));  // SEPA Allowed as True. Currency Code as blank.
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"SEPA ISO20022");
@@ -216,14 +216,14 @@ codeunit 144058 "UT SEPA"
 
         // Setup: Create Vendor Bank Account. Create Payment Slip.
         Initialize();
-        UpdateGeneralLedgerSetup;
+        UpdateGeneralLedgerSetup();
         CreateVendorBankAccount(VendorBankAccount, true);  // SEPA Allowed as True.
 
         // Enqueue Payment Slip No. for SEPAISO20022RequestPageHandler.
         LibraryVariableStorage.Enqueue(
           CreatePaymentSlip(
-            PaymentHeader."Account Type"::Vendor, VendorBankAccount."Vendor No.", VendorBankAccount.Code, CreateCurrency,
-            VendorBankAccount."Country/Region Code", LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode));
+            PaymentHeader."Account Type"::Vendor, VendorBankAccount."Vendor No.", VendorBankAccount.Code, CreateCurrency(),
+            VendorBankAccount."Country/Region Code", LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode()));
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"SEPA ISO20022");
@@ -288,7 +288,7 @@ codeunit 144058 "UT SEPA"
         Initialize();
         CreatePaymentHeader(PaymentHeader, '', '', '');  // IBAN, SWIFT Code and Country Region Code as blank.
         PaymentLine."No." := PaymentHeader."No.";
-        PaymentLine."Copied To No." := LibraryUTUtility.GetNewCode;
+        PaymentLine."Copied To No." := LibraryUTUtility.GetNewCode();
         PaymentLine.Insert();
 
         // Exercise.
@@ -313,7 +313,7 @@ codeunit 144058 "UT SEPA"
         CreatePaymentHeader(PaymentHeader, '', '', '');  // IBAN, SWIFT Code and Country Region Code as blank.
         PaymentLine."No." := PaymentHeader."No.";
         PaymentLine.IsCopy := true;
-        PaymentLine."Currency Code" := CreateCurrency;
+        PaymentLine."Currency Code" := CreateCurrency();
 
         // Exercise.
         asserterror PaymentLine.Insert(true);
@@ -394,18 +394,18 @@ codeunit 144058 "UT SEPA"
         CreateVendorBankAccount(VendorBankAccount, true);  // SEPA Allowed as True.
         No :=
           CreatePaymentSlip(
-            PaymentHeader."Account Type"::Vendor, VendorBankAccount."Vendor No.", VendorBankAccount.Code, CreateCurrency,
-            VendorBankAccount."Country/Region Code", LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);
-        PaymentLinesList.OpenEdit;
+            PaymentHeader."Account Type"::Vendor, VendorBankAccount."Vendor No.", VendorBankAccount.Code, CreateCurrency(),
+            VendorBankAccount."Country/Region Code", LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());
+        PaymentLinesList.OpenEdit();
         PaymentLinesList.FILTER.SetFilter("No.", No);
         LibraryVariableStorage.Enqueue(No);  // Enqueue Payment No. for PaymentLineModificationPageHandler.
 
         // Exercise: call action Modify on Payment Line List page.
-        PaymentLinesList.Modify.Invoke;  // Call PaymentLineModificationPageHandler.
+        PaymentLinesList.Modify.Invoke();  // Call PaymentLineModificationPageHandler.
 
         // Verify: Verify updated value on Payment Line List page after action Modify.
         PaymentLinesList."Drawee Reference".AssertEquals(CopyStr(No, 1, 10));
-        PaymentLinesList.Close
+        PaymentLinesList.Close();
     end;
 
     [Test]
@@ -420,7 +420,7 @@ codeunit 144058 "UT SEPA"
 
         // Setup: Create Payment Header Archive with IBAN.
         Initialize();
-        PaymentHeaderArchive."No." := LibraryUTUtility.GetNewCode;
+        PaymentHeaderArchive."No." := LibraryUTUtility.GetNewCode();
 
         // Exercise.
         PaymentHeaderArchive.Validate(IBAN, IBANTxt);  // Validate required for check the trigger.
@@ -443,7 +443,7 @@ codeunit 144058 "UT SEPA"
 
         // Setup: Create Payment Line Archive with IBAN.
         Initialize();
-        PaymentLineArchive."No." := LibraryUTUtility.GetNewCode;
+        PaymentLineArchive."No." := LibraryUTUtility.GetNewCode();
         PaymentLineArchive."Line No." := LibraryRandom.RandInt(1000);  // Using Random Int for Line No.
 
         // Exercise.
@@ -528,9 +528,6 @@ codeunit 144058 "UT SEPA"
     var
         PaymentHeader: Record "Payment Header";
         VendorBankAccount: Record "Vendor Bank Account";
-        [RunOnClient]
-        PstlAdrXMLNode: DotNet XmlNode;
-        NodeMatchCriteria: Option FindByName,FindByNameAndValue;
         FileName: Text;
     begin
         // [FEATURE] [Credit Transfer]
@@ -576,7 +573,7 @@ codeunit 144058 "UT SEPA"
     var
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.Code := LibraryUTUtility.GetNewCode10;
+        CountryRegion.Code := LibraryUTUtility.GetNewCode10();
         CountryRegion."SEPA Allowed" := SEPAAllowed;
         CountryRegion.Insert();
         exit(CountryRegion.Code);
@@ -586,7 +583,7 @@ codeunit 144058 "UT SEPA"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         exit(Currency.Code);
     end;
@@ -595,24 +592,24 @@ codeunit 144058 "UT SEPA"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
 
     local procedure CreateCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account")
     begin
-        CustomerBankAccount."Customer No." := CreateCustomer;
-        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        CustomerBankAccount."Customer No." := CreateCustomer();
+        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10();
         CustomerBankAccount."Country/Region Code" := CreateCountryRegion(false);  // SEPA Allowed as False.
         CustomerBankAccount.Insert();
     end;
 
     local procedure CreatePaymentHeader(var PaymentHeader: Record "Payment Header"; BankCountryRegionCode: Code[10]; IBAN: Code[50]; SWIFTCode: Code[20])
     begin
-        PaymentHeader."No." := LibraryUTUtility.GetNewCode;
+        PaymentHeader."No." := LibraryUTUtility.GetNewCode();
         PaymentHeader.IBAN := IBAN;
-        PaymentHeader."Currency Code" := CreateCurrency;
+        PaymentHeader."Currency Code" := CreateCurrency();
         PaymentHeader."SWIFT Code" := SWIFTCode;
         PaymentHeader."Bank Country/Region Code" := BankCountryRegionCode;
         PaymentHeader.Insert();
@@ -652,15 +649,15 @@ codeunit 144058 "UT SEPA"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
 
     local procedure CreateVendorBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; SEPAAllowed: Boolean)
     begin
-        VendorBankAccount."Vendor No." := CreateVendor;
-        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        VendorBankAccount."Vendor No." := CreateVendor();
+        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10();
         VendorBankAccount."Country/Region Code" := CreateCountryRegion(SEPAAllowed);
         VendorBankAccount.Insert();
     end;
@@ -669,7 +666,7 @@ codeunit 144058 "UT SEPA"
     var
         PaymentHeader: Record "Payment Header";
     begin
-        CreatePaymentHeader(PaymentHeader, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
+        CreatePaymentHeader(PaymentHeader, LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
         CreatePaymentLine(PaymentHeader."No.", AccountType, AccountNo, DocumentNo);
         exit(PaymentHeader."No.");
     end;
@@ -679,7 +676,7 @@ codeunit 144058 "UT SEPA"
         i: Integer;
     begin
         DocumentNo := LibraryUtility.GenerateGUID();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         Result := DocumentNo;
         for i := 0 to CountofEntries do begin
             MockCustLedgerEntry(CustomerNo, DocumentNo);
@@ -692,7 +689,7 @@ codeunit 144058 "UT SEPA"
         i: Integer;
     begin
         DocumentNo := LibraryUtility.GenerateGUID();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         Result := DocumentNo;
         for i := 0 to CountofEntries do begin
             MockVendLedgerEntry(VendorNo, DocumentNo);
@@ -736,7 +733,7 @@ codeunit 144058 "UT SEPA"
     begin
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Local Currency" := GeneralLedgerSetup."Local Currency"::Other;
-        GeneralLedgerSetup."Currency Euro" := CreateCurrency;
+        GeneralLedgerSetup."Currency Euro" := CreateCurrency();
         GeneralLedgerSetup.Modify();
     end;
 
@@ -781,7 +778,7 @@ codeunit 144058 "UT SEPA"
     begin
         LibraryVariableStorage.Dequeue(DraweeReference);
         PaymentLineModification."Drawee Reference".SetValue(CopyStr(DraweeReference, 1, 10));
-        PaymentLineModification.OK.Invoke;
+        PaymentLineModification.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -792,7 +789,7 @@ codeunit 144058 "UT SEPA"
     begin
         LibraryVariableStorage.Dequeue(No);
         SEPAISO20022."Payment Header".SetFilter("No.", No);
-        SEPAISO20022.OK.Invoke;
+        SEPAISO20022.OK().Invoke();
     end;
 
     [ConfirmHandler]

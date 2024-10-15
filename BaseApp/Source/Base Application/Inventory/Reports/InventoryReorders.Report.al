@@ -396,16 +396,14 @@ report 717 "Inventory - Reorders"
 
     local procedure CopySKUToItem(SKU: Record "Stockkeeping Unit"; var NewItem: Record Item)
     begin
-        with NewItem do begin
-            "Reordering Policy" := SKU."Reordering Policy";
-            "Safety Stock Quantity" := SKU."Safety Stock Quantity";
-            "Reorder Point" := SKU."Reorder Point";
-            "Maximum Inventory" := SKU."Maximum Inventory";
-            "Reorder Quantity" := SKU."Reorder Quantity";
-            "Minimum Order Quantity" := SKU."Minimum Order Quantity";
-            "Maximum Order Quantity" := SKU."Maximum Order Quantity";
-            "Order Multiple" := SKU."Order Multiple";
-        end;
+        NewItem."Reordering Policy" := SKU."Reordering Policy";
+        NewItem."Safety Stock Quantity" := SKU."Safety Stock Quantity";
+        NewItem."Reorder Point" := SKU."Reorder Point";
+        NewItem."Maximum Inventory" := SKU."Maximum Inventory";
+        NewItem."Reorder Quantity" := SKU."Reorder Quantity";
+        NewItem."Minimum Order Quantity" := SKU."Minimum Order Quantity";
+        NewItem."Maximum Order Quantity" := SKU."Maximum Order Quantity";
+        NewItem."Order Multiple" := SKU."Order Multiple";
     end;
 
     local procedure TransferPlanningParameters(var SKU: Record "Stockkeeping Unit")

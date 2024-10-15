@@ -1,6 +1,8 @@
 namespace Microsoft.HumanResources.Comment;
 
+#pragma warning disable AL0659
 enum 5208 "Human Resources Comment Table Name"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

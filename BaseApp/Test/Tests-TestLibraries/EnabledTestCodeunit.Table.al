@@ -1,6 +1,7 @@
 table 130201 "Enabled Test Codeunit"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

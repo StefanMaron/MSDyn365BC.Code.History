@@ -522,7 +522,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         EnableWorkflow(Workflow);
 
         // Exercise
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
         // Verify
@@ -551,7 +551,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         EnableWorkflow(Workflow);
 
         // Exercise
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
         // Verify
@@ -583,11 +583,11 @@ codeunit 134308 "Workflow with Sub-Workflows"
     begin
         LibraryWorkflow.CreateWorkflow(Workflow);
 
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
 
         EntryPointEventStep :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             EntryPointEventStep);
 
         LibraryWorkflow.InsertNotificationArgument(ResponseStep, UserId, 0, '');
@@ -604,7 +604,7 @@ codeunit 134308 "Workflow with Sub-Workflows"
         PreviousWorkflowStep.SetRange("Workflow Code", Workflow.Code);
         PreviousWorkflowStep.FindLast();
 
-        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             PreviousWorkflowStep.ID);
         LastWorkflowStep.Get(Workflow.Code, ResponseStep);
     end;
@@ -618,8 +618,8 @@ codeunit 134308 "Workflow with Sub-Workflows"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EntryPointEventStep :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode, EntryPointEventStep);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode());
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode(), EntryPointEventStep);
 
         LibraryWorkflow.InsertEventArgument(EntryPointEventStep, StatusParameterTxt);
     end;
@@ -637,11 +637,11 @@ codeunit 134308 "Workflow with Sub-Workflows"
         LibraryWorkflow.SetSubWorkflowStepAsEntryPoint(Workflow, EntryPointEventStep);
 
         EventStep :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode, EntryPointEventStep);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(), EntryPointEventStep);
         LibraryWorkflow.InsertEventArgument(EventStep, StatusParameterTxt);
         LibraryWorkflow.SetEventStepAsEntryPoint(Workflow, EventStep);
 
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode, EventStep);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode(), EventStep);
     end;
 
     local procedure CreatePurchInvoiceRejectionComplexWorkflow(var Workflow: Record Workflow; var SubWorkflowStepBranch1: Record "Workflow Step"; var SubWorkflowStepBranch2: Record "Workflow Step"; var SubWorkflowStepJumpForward: Record "Workflow Step")
@@ -681,35 +681,35 @@ codeunit 134308 "Workflow with Sub-Workflows"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EntryPointEventStep := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
-        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
+        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             EntryPointEventStep);
 
         LibraryWorkflow.InsertNotificationArgument(ResponseStep1, UserId, 0, '');
 
         EventStep2 :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode, ResponseStep1);
-        ResponseStep2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode, EventStep2);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(), ResponseStep1);
+        ResponseStep2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode(), EventStep2);
 
         SubWorkflowStepJumpForward.Get(Workflow.Code, ResponseStep2);
 
         EventStep3 :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode, ResponseStep2);
-        ResponseStep3 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode,
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode(), ResponseStep2);
+        ResponseStep3 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode(),
             EventStep3);
 
         LibraryWorkflow.SetNextStep(Workflow, ResponseStep2, ResponseStep3);
         SubWorkflowStepJumpForward.Get(Workflow.Code, ResponseStep2);
 
         EventStep4 :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode, ResponseStep3);
-        ResponseStep4 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, EventStep4);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode(), ResponseStep3);
+        ResponseStep4 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), EventStep4);
 
         LibraryWorkflow.InsertNotificationArgument(ResponseStep4, UserId, 0, '');
 
         EventStep5 :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode, ResponseStep1);
-        ResponseStep5 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(), ResponseStep1);
+        ResponseStep5 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             EventStep5);
 
         LibraryWorkflow.InsertNotificationArgument(ResponseStep5, UserId, 0, '');
@@ -747,22 +747,22 @@ codeunit 134308 "Workflow with Sub-Workflows"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EntryPointEventStep := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
-        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
+        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             EntryPointEventStep);
 
         LibraryWorkflow.InsertNotificationArgument(ResponseStep1, UserId, 0, '');
 
         EventStep2 :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode, ResponseStep1);
-        ResponseStep2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode, EventStep2);
-        ResponseStep3 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, ResponseStep2);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(), ResponseStep1);
+        ResponseStep2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode(), EventStep2);
+        ResponseStep3 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), ResponseStep2);
 
         LibraryWorkflow.InsertNotificationArgument(ResponseStep3, UserId, 0, '');
 
         EventStep3 :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode, ResponseStep1);
-        ResponseStep4 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, EventStep3);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(), ResponseStep1);
+        ResponseStep4 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), EventStep3);
 
         LibraryWorkflow.InsertNotificationArgument(ResponseStep4, UserId, 0, '');
         LibraryWorkflow.SetNextStep(Workflow, ResponseStep4, ResponseStep1);
@@ -795,12 +795,12 @@ codeunit 134308 "Workflow with Sub-Workflows"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EntryPointEventStep := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
-        EventStep2 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
+        EventStep2 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             EntryPointEventStep);
-        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode, EventStep2);
+        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode(), EventStep2);
         EventStep3 :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode, EntryPointEventStep);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(), EntryPointEventStep);
 
         LibraryWorkflow.SetNextStep(Workflow, EventStep3, EntryPointEventStep);
 
@@ -832,14 +832,14 @@ codeunit 134308 "Workflow with Sub-Workflows"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EntryPointEventStep := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
-        EventStep2 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
+        EventStep2 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             EntryPointEventStep);
-        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode, EventStep2);
+        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode(), EventStep2);
         LibraryWorkflow.SetNextStep(Workflow, ResponseStep, EntryPointEventStep);
 
         EventStep3 :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode, ResponseStep);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode(), ResponseStep);
         LibraryWorkflow.SetNextStep(Workflow, EventStep3, EntryPointEventStep);
 
         SubWorkflowStepBranch1.Get(Workflow.Code, ResponseStep);
@@ -883,18 +883,18 @@ codeunit 134308 "Workflow with Sub-Workflows"
 
         // 1. Post a Pruchase Invoice
         EntryPointEventStep :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
-        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode,
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode());
+        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode(),
             EntryPointEventStep);
 
         LibraryWorkflow.InsertEventArgument(EntryPointEventStep, StatusParameterTxt);
 
         // 2.a [Branch] If Type == Item, Then Create Payment Lines
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
 
-        EventStep2 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode,
+        EventStep2 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode(),
             ResponseStep1);
-        ResponseStep2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode,
+        ResponseStep2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode(),
             EventStep2);
 
         LibraryWorkflow.InsertEventArgument(EventStep2, TypeItemParameterTxt);
@@ -902,8 +902,8 @@ codeunit 134308 "Workflow with Sub-Workflows"
 
         // 2.b [Branch] If Type == G/L Account, Then Send an Email
         EventStep3 :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode, ResponseStep1);
-        ResponseStep3 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode(), ResponseStep1);
+        ResponseStep3 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             EventStep3);
 
         LibraryWorkflow.InsertEventArgument(EventStep3, TypeGLAccountParameterTxt);
@@ -953,18 +953,18 @@ codeunit 134308 "Workflow with Sub-Workflows"
 
         // 1. Post a Pruchase Invoice <= 1000
         EntryPointEventStep :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
-        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode,
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode());
+        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode(),
             EntryPointEventStep);
 
         LibraryWorkflow.InsertEventArgument(EntryPointEventStep, AmountLessThanThousandParameterTxt);
 
         // 2. Post a Pruchase Invoice > 1000
-        EntryPointEventStep2 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
+        EntryPointEventStep2 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             ResponseStep1);
-        ResponseStep2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode,
+        ResponseStep2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.PostDocumentCode(),
             EntryPointEventStep2);
-        ResponseStep3 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+        ResponseStep3 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             ResponseStep2);
 
         LibraryWorkflow.SetEventStepAsEntryPoint(Workflow, EntryPointEventStep2);
@@ -972,11 +972,11 @@ codeunit 134308 "Workflow with Sub-Workflows"
         LibraryWorkflow.InsertNotificationArgument(ResponseStep3, UserId, 0, '');
 
         // 2.a [Branch] If Type == Item, Then Create Payment Lines
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
 
         EventStep3 :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode, ResponseStep3);
-        ResponseStep4 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode,
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode(), ResponseStep3);
+        ResponseStep4 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode(),
             EventStep3);
 
         LibraryWorkflow.InsertEventArgument(EventStep3, TypeItemParameterTxt);
@@ -984,8 +984,8 @@ codeunit 134308 "Workflow with Sub-Workflows"
 
         // 2.b [Branch] If Type == G/L Account, Then Send an Email
         EventStep4 :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode, ResponseStep4);
-        ResponseStep5 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode(), ResponseStep4);
+        ResponseStep5 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             EventStep4);
 
         LibraryWorkflow.InsertEventArgument(EventStep4, TypeGLAccountParameterTxt);

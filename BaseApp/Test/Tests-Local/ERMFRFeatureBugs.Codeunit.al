@@ -54,12 +54,9 @@ codeunit 144015 "ERM FR Feature Bugs"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        SalesInvoiceNo: Label 'No_SalesInvHdr';
-        SalesShipmentNo: Label 'NoShipmentDatas1';
         LibraryRandom: Codeunit "Library - Random";
 
     [Test]
@@ -175,7 +172,7 @@ codeunit 144015 "ERM FR Feature Bugs"
 
         // Setup: Create Parent and Child Items with Lot Tracking, update Item Inventory, create a Sales Order with Lot Tracking.
         Initialize();
-        ItemNo := CreateCertifiedProductionBOMWithLotTrackedItem;
+        ItemNo := CreateCertifiedProductionBOMWithLotTrackedItem();
         TrackingQuantity := LibraryRandom.RandDec(10, 2);  // Decimal random value required for the bug.
         CreateAndPostItemJournalLineWithLotTracking(ItemNo, TrackingQuantity);
         CreateSalesOrderWithLotTracking(SalesHeader, ItemNo, TrackingQuantity);
@@ -274,8 +271,8 @@ codeunit 144015 "ERM FR Feature Bugs"
         LibrarySales.CreateCustomer(Customer);
         // Use random values for Quantity.
         CreateSalesDocument(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", CreateItem, LibraryRandom.RandDec(10, 2));
-        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", CreateItem(), LibraryRandom.RandDec(10, 2));
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
         ShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);  // Post as Ship only.
 
         // Exercise: Post the Sales Invoice.
@@ -386,7 +383,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         DimensionSetEntry: Record "Dimension Set Entry";
         DimensionSetID: Integer;
     begin
-        CreatePaymentStatus(CreatePaymentClass, Sign);
+        CreatePaymentStatus(CreatePaymentClass(), Sign);
 
         // Exercise: Create Payment Slip.
         DimensionSetID := CreatePaymentSlip(AccountType, AccountNo);
@@ -425,7 +422,7 @@ codeunit 144015 "ERM FR Feature Bugs"
     begin
         // Create Sales Order and post. Use random value for Quantity.
         CreateSalesDocument(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, SelltoCustomerNo, CreateItem, LibraryRandom.RandDec(10, 2));
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, SelltoCustomerNo, CreateItem(), LibraryRandom.RandDec(10, 2));
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));  // Post as Ship Only.
     end;
 
@@ -456,10 +453,10 @@ codeunit 144015 "ERM FR Feature Bugs"
         ProductionBOMHeader: Record "Production BOM Header";
     begin
         // True for Lot Tracking.
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', CreateItemTrackingCode(true));
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', CreateItemTrackingCode(true));
 
         // Random value taken for Quantity per.
-        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CreateItem, LibraryRandom.RandInt(5));
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CreateItem(), LibraryRandom.RandInt(5));
         Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
         Item.Modify(true);
         exit(Item."No.");
@@ -534,7 +531,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Validate("Depreciation Book Code", DepreciationBookCode);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", CreateGLAccount);
+        GenJournalLine.Validate("Bal. Account No.", CreateGLAccount());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -578,7 +575,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         PaymentClass: Record "Payment Class";
     begin
         LibraryFRLocalization.CreatePaymentClass(PaymentClass);
-        PaymentClass.Validate("Header No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        PaymentClass.Validate("Header No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         PaymentClass.Validate(Suggestions, PaymentClass.Suggestions::Vendor);
         PaymentClass.Modify(true);
         exit(PaymentClass.Code);
@@ -787,7 +784,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         CalculateDepreciation.DepreciationBook.SetValue(DepreciationBookCode);
         CalculateDepreciation.FAPostingDate.SetValue(WorkDate());
         CalculateDepreciation.PostingDate.SetValue(WorkDate());
-        CalculateDepreciation.OK.Invoke;
+        CalculateDepreciation.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -798,7 +795,7 @@ codeunit 144015 "ERM FR Feature Bugs"
     begin
         LibraryVariableStorage.Dequeue(SellToCustomerNo);
         GetShipmentLines.FILTER.SetFilter("Sell-to Customer No.", SellToCustomerNo);
-        GetShipmentLines.OK.Invoke;
+        GetShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -810,14 +807,14 @@ codeunit 144015 "ERM FR Feature Bugs"
         LibraryVariableStorage.Dequeue(TrackingQuantity);
         ItemTrackingLines."Lot No.".SetValue(TrackingQuantity);
         ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity);
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PaymentClassListPageHandler(var PaymentClassList: TestPage "Payment Class List")
     begin
-        PaymentClassList.OK.Invoke;
+        PaymentClassList.OK().Invoke();
     end;
 
     [ConfirmHandler]

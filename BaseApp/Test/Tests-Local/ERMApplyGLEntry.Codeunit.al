@@ -1,4 +1,5 @@
 #if not CLEAN22
+#pragma warning disable AS0072
 codeunit 144007 "ERM Apply GL Entry"
 {
     // 1: Verify error message while reversing GL Register with applied GL Entries.
@@ -12,6 +13,9 @@ codeunit 144007 "ERM Apply GL Entry"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Not used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -43,7 +47,7 @@ codeunit 144007 "ERM Apply GL Entry"
         OpenGLRegistersPage(GLRegisters);
 
         // Exercise.
-        asserterror GLRegisters.ReverseRegister.Invoke;
+        asserterror GLRegisters.ReverseRegister.Invoke();
 
         // Verify: Verify error message.
         Assert.ExpectedError(StrSubstNo(RegisterErr, GLRegisters."No.".Value));
@@ -64,7 +68,7 @@ codeunit 144007 "ERM Apply GL Entry"
         OpenGLRegistersPage(GLRegisters);
 
         // Exercise.
-        GLRegisters.ReverseRegister.Invoke;  // Invokes ReverseEntriesModalPageHandler.
+        GLRegisters.ReverseRegister.Invoke();  // Invokes ReverseEntriesModalPageHandler.
 
         // Verify: Verify Reversed Entries after Reverse Register on General ledger Entries.
         VerifyReversedEntries(GenJournalLine);
@@ -907,11 +911,11 @@ codeunit 144007 "ERM Apply GL Entry"
         // [SCENARIO 297857] Set Applies-to ID and Post Application (via page) of a single entry in case of Letter = "", Amount = 1
         MockSingleGLEntry(DummyGLEntry, 1, '');
 
-        ApplyGLEntries.Trap;
+        ApplyGLEntries.Trap();
         PAGE.Run(PAGE::"Apply G/L Entries", DummyGLEntry);
-        ApplyGLEntries.SetAppliesToID.Invoke;
+        ApplyGLEntries.SetAppliesToID.Invoke();
         ApplyGLEntries."Applies-to ID".AssertEquals(UserId);
-        ApplyGLEntries.PostApplication.Invoke;
+        ApplyGLEntries.PostApplication.Invoke();
         ApplyGLEntries.Letter.AssertEquals('aaa');
         ApplyGLEntries.Close();
     end;
@@ -927,11 +931,11 @@ codeunit 144007 "ERM Apply GL Entry"
         // [SCENARIO 297857] Set Applies-to ID and Post Application (via page) of a single entry in case of Letter = "aaa", Amount = 1
         MockSingleGLEntry(DummyGLEntry, 1, 'aaa');
 
-        ApplyGLEntries.Trap;
+        ApplyGLEntries.Trap();
         PAGE.Run(PAGE::"Apply G/L Entries", DummyGLEntry);
-        ApplyGLEntries.SetAppliesToID.Invoke;
+        ApplyGLEntries.SetAppliesToID.Invoke();
         ApplyGLEntries."Applies-to ID".AssertEquals('');
-        ApplyGLEntries.PostApplication.Invoke;
+        ApplyGLEntries.PostApplication.Invoke();
         ApplyGLEntries.Letter.AssertEquals('aaa');
         ApplyGLEntries.Close();
     end;
@@ -948,11 +952,11 @@ codeunit 144007 "ERM Apply GL Entry"
         // [SCENARIO 297857] Set Applies-to ID (all) and Post Application (via page) of a single entry in case of Letter = "", Amount = 1
         MockSingleGLEntry(DummyGLEntry, 1, '');
 
-        ApplyGLEntries.Trap;
+        ApplyGLEntries.Trap();
         PAGE.Run(PAGE::"Apply G/L Entries", DummyGLEntry);
-        ApplyGLEntries.SetAppliesToIDAll.Invoke;
+        ApplyGLEntries.SetAppliesToIDAll.Invoke();
         ApplyGLEntries."Applies-to ID".AssertEquals(UserId);
-        ApplyGLEntries.PostApplication.Invoke;
+        ApplyGLEntries.PostApplication.Invoke();
         ApplyGLEntries.Letter.AssertEquals('aaa');
         ApplyGLEntries.Close();
     end;
@@ -969,11 +973,11 @@ codeunit 144007 "ERM Apply GL Entry"
         // [SCENARIO 297857] Set Applies-to ID (all) and Post Application (via page) of a single entry in case of Letter = "aaa", Amount = 1
         MockSingleGLEntry(DummyGLEntry, 1, 'aaa');
 
-        ApplyGLEntries.Trap;
+        ApplyGLEntries.Trap();
         PAGE.Run(PAGE::"Apply G/L Entries", DummyGLEntry);
-        ApplyGLEntries.SetAppliesToIDAll.Invoke;
+        ApplyGLEntries.SetAppliesToIDAll.Invoke();
         ApplyGLEntries."Applies-to ID".AssertEquals(UserId);
-        ApplyGLEntries.PostApplication.Invoke;
+        ApplyGLEntries.PostApplication.Invoke();
         ApplyGLEntries.Letter.AssertEquals('aaa');
         ApplyGLEntries.Close();
     end;
@@ -989,11 +993,11 @@ codeunit 144007 "ERM Apply GL Entry"
         // [SCENARIO 297857] "Set Applies-to ID" after "Applies-to ID (all)" (via page) of a single entry in case of Letter = ""
         MockSingleGLEntry(DummyGLEntry, 1, '');
 
-        ApplyGLEntries.Trap;
+        ApplyGLEntries.Trap();
         PAGE.Run(PAGE::"Apply G/L Entries", DummyGLEntry);
-        ApplyGLEntries.SetAppliesToIDAll.Invoke;
+        ApplyGLEntries.SetAppliesToIDAll.Invoke();
         ApplyGLEntries."Applies-to ID".AssertEquals(UserId);
-        ApplyGLEntries.SetAppliesToID.Invoke;
+        ApplyGLEntries.SetAppliesToID.Invoke();
         ApplyGLEntries."Applies-to ID".AssertEquals('');
         ApplyGLEntries.Close();
     end;
@@ -1009,11 +1013,11 @@ codeunit 144007 "ERM Apply GL Entry"
         // [SCENARIO 297857] "Set Applies-to ID" after "Applies-to ID (all)" (via page) of a single entry in case of Letter = "aaa"
         MockSingleGLEntry(DummyGLEntry, 1, 'aaa');
 
-        ApplyGLEntries.Trap;
+        ApplyGLEntries.Trap();
         PAGE.Run(PAGE::"Apply G/L Entries", DummyGLEntry);
-        ApplyGLEntries.SetAppliesToIDAll.Invoke;
+        ApplyGLEntries.SetAppliesToIDAll.Invoke();
         ApplyGLEntries."Applies-to ID".AssertEquals(UserId);
-        ApplyGLEntries.SetAppliesToID.Invoke;
+        ApplyGLEntries.SetAppliesToID.Invoke();
         ApplyGLEntries."Applies-to ID".AssertEquals('');
         ApplyGLEntries.Close();
     end;
@@ -1022,9 +1026,9 @@ codeunit 144007 "ERM Apply GL Entry"
     var
         ChartOfAccounts: TestPage "Chart of Accounts";
     begin
-        ChartOfAccounts.OpenEdit;
+        ChartOfAccounts.OpenEdit();
         ChartOfAccounts.FILTER.SetFilter("No.", No);
-        ChartOfAccounts."Apply Entries".Invoke;  // Invokes ApplyGeneralLedgerEntriesPageHandler.
+        ChartOfAccounts."Apply Entries".Invoke();  // Invokes ApplyGeneralLedgerEntriesPageHandler.
     end;
 
     local procedure CreateAndPostGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line")
@@ -1077,8 +1081,8 @@ codeunit 144007 "ERM Apply GL Entry"
 
     local procedure OpenGLRegistersPage(var GLRegisters: TestPage "G/L Registers")
     begin
-        GLRegisters.OpenEdit;
-        GLRegisters.First;
+        GLRegisters.OpenEdit();
+        GLRegisters.First();
     end;
 
     local procedure SetAppliesToIDAndValidate(var GLEntry: Record "G/L Entry"; SelectedGLEntryNo: Integer; OnlyNotApplied: Boolean)
@@ -1121,11 +1125,11 @@ codeunit 144007 "ERM Apply GL Entry"
     [Scope('OnPrem')]
     procedure ApplyGLEntriesPageHandler(var ApplyGLEntries: TestPage "Apply G/L Entries")
     begin
-        ApplyGLEntries.First;
-        ApplyGLEntries.SetAppliesToID.Invoke;
-        ApplyGLEntries.Last;
-        ApplyGLEntries.SetAppliesToID.Invoke;
-        ApplyGLEntries.PostApplication.Invoke;
+        ApplyGLEntries.First();
+        ApplyGLEntries.SetAppliesToID.Invoke();
+        ApplyGLEntries.Last();
+        ApplyGLEntries.SetAppliesToID.Invoke();
+        ApplyGLEntries.PostApplication.Invoke();
         ApplyGLEntries.Close();
     end;
 
@@ -1146,7 +1150,7 @@ codeunit 144007 "ERM Apply GL Entry"
     [Scope('OnPrem')]
     procedure ReverseEntriesModalPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseTransactionEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke();
     end;
 }
 #endif

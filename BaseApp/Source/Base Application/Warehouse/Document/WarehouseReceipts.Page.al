@@ -229,8 +229,11 @@ page 7332 "Warehouse Receipts"
     local procedure ShowPreview()
     var
         WhseRcptLine: Record "Warehouse Receipt Line";
+        SelectedWarehouseReceiptHeader: Record "Warehouse Receipt Header";
         WhsePostReceiptYesNo: Codeunit "Whse.-Post Receipt (Yes/No)";
     begin
+        CurrPage.SetSelectionFilter(SelectedWarehouseReceiptHeader);
+        WhsePostReceiptYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedWarehouseReceiptHeader, Rec."No.");
         GetLinesForRec(WhseRcptLine);
         WhsePostReceiptYesNo.Preview(WhseRcptLine);
     end;

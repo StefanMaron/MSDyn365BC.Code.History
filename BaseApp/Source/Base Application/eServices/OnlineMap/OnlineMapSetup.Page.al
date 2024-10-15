@@ -127,9 +127,9 @@ page 800 "Online Map Setup"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        IF NOT Rec.Enabled THEN
-            IF NOT CONFIRM(STRSUBSTNO(EnableServiceQst, CurrPage.CAPTION), TRUE) THEN
-                EXIT(FALSE);
+        if not Rec.Enabled then
+            if not CONFIRM(STRSUBSTNO(EnableServiceQst, CurrPage.CAPTION), true) then
+                exit(false);
     end;
 
     var

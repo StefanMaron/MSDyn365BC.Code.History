@@ -28,7 +28,7 @@ page 1833 "Teams Centralized Deployment"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT InstructionsStepVisible;
+                Visible = TopBannerVisible and not InstructionsStepVisible;
                 field(MediaResourcesStandard; MediaResourcesStandard."Media Reference")
                 {
                     ApplicationArea = Basic, Suite;
@@ -40,7 +40,7 @@ page 1833 "Teams Centralized Deployment"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND InstructionsStepVisible;
+                Visible = TopBannerVisible and InstructionsStepVisible;
                 field(MediaResourcesDone; MediaResourcesDone."Media Reference")
                 {
                     ApplicationArea = Basic, Suite;

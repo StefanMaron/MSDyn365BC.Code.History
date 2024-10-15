@@ -207,13 +207,6 @@ codeunit 132217 "Library - Lower Permissions"
     begin
         PushPermissionSet(XDYNCRMMGTTxt);
     end;
-#if not CLEAN21
-    procedure SetInvoiceApp()
-    begin
-        // Set the permission set used for Invoicing App
-        SetO365BusFull;
-    end;
-#endif
 
     procedure AddO365Basic()
     begin

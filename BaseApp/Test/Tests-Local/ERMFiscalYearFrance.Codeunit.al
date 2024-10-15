@@ -40,7 +40,7 @@ codeunit 144074 "ERM Fiscal Year France"
     begin
         // Check error message while posting General Journal Line while Posting Date is from Fiscally Closed Fiscal Year.
         // Setup.
-        FiscallyCloseFiscalYear;
+        FiscallyCloseFiscalYear();
 
         // Exercise.
         asserterror CreateAndPostGeneralJournalLine(GenJournalLine);
@@ -59,7 +59,7 @@ codeunit 144074 "ERM Fiscal Year France"
     begin
         // Check error message while posting General Journal Line while Posting Date is from Fiscally Closed Fiscal Period.
         // Setup.
-        FiscallyCloseFiscalPeriod;
+        FiscallyCloseFiscalPeriod();
 
         // Exercise.
         asserterror CreateAndPostGeneralJournalLine(GenJournalLine);
@@ -81,7 +81,7 @@ codeunit 144074 "ERM Fiscal Year France"
         Initialize();
 
         // [GIVEN] Two fiscal years: 2020-01-01..2020-12-31 and 2021-01-01..2021-12-31
-        CreateAccountingPeriods;
+        CreateAccountingPeriods();
         FindNewFiscalYear(AccountingPeriod);
 
         // [GIVEN] "Allow Posting From" in General Ledger Setup is 2021-01-01
@@ -107,7 +107,7 @@ codeunit 144074 "ERM Fiscal Year France"
         Initialize();
 
         // [GIVEN] Two fiscal years: 2020-01-01..2020-12-31 and 2021-01-01..2021-12-31
-        CreateAccountingPeriods;
+        CreateAccountingPeriods();
         FindNewFiscalYear(AccountingPeriod);
 
         // [GIVEN] "Allow Posting From" in General Ledger Setup is 2021-01-01
@@ -133,7 +133,7 @@ codeunit 144074 "ERM Fiscal Year France"
         Initialize();
 
         // [GIVEN] Two fiscal years: 2020-01-01..2020-12-31 and 2021-01-01..2021-12-31
-        CreateAccountingPeriods;
+        CreateAccountingPeriods();
 
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.FindFirst();
@@ -161,7 +161,7 @@ codeunit 144074 "ERM Fiscal Year France"
         Initialize();
 
         // [GIVEN] Two fiscal years: 2020-01-01..2020-12-31 and 2021-01-01..2021-12-31
-        CreateAccountingPeriods;
+        CreateAccountingPeriods();
 
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.FindFirst();
@@ -174,7 +174,7 @@ codeunit 144074 "ERM Fiscal Year France"
         AccountingPeriod.Delete(true);
 
         // [THEN] Accounting period is deleted
-        Assert.IsFalse(AccountingPeriod.Find, AccPeriodMustNotExistErr);
+        Assert.IsFalse(AccountingPeriod.Find(), AccPeriodMustNotExistErr);
     end;
 
     [Test]
@@ -189,7 +189,7 @@ codeunit 144074 "ERM Fiscal Year France"
         Initialize();
 
         // [GIVEN] Two fiscal years: 2020-01-01..2020-12-31 and 2021-01-01..2021-12-31
-        CreateAccountingPeriods;
+        CreateAccountingPeriods();
 
         // [GIVEN] Close the fiscal year in accounting period.
         AccountingPeriod.SetRange("New Fiscal Year", true);
@@ -206,7 +206,6 @@ codeunit 144074 "ERM Fiscal Year France"
     procedure VerifyAllowPostingRangeinCloseFiscalYear()
     var
         AccountingPeriod: Record "Accounting Period";
-        GLSetup: Record "General Ledger Setup";
         FiscalYearFiscalClose: Codeunit "Fiscal Year-FiscalClose";
         UserSetup: Record "User Setup";
     begin
@@ -214,7 +213,7 @@ codeunit 144074 "ERM Fiscal Year France"
         Initialize();
 
         // [GIVEN] Two fiscal years: 2020-01-01..2020-12-31 and 2021-01-01..2021-12-31
-        CreateAccountingPeriods;
+        CreateAccountingPeriods();
 
         // [GIVEN] Close the fiscal year in accounting period.
         AccountingPeriod.SetRange("New Fiscal Year", true);
@@ -278,8 +277,8 @@ codeunit 144074 "ERM Fiscal Year France"
     var
         AccountingPeriods: TestPage "Accounting Periods";
     begin
-        AccountingPeriods.OpenView;
-        AccountingPeriods."F&iscally Close Year".Invoke;
+        AccountingPeriods.OpenView();
+        AccountingPeriods."F&iscally Close Year".Invoke();
         AccountingPeriods.Close();
     end;
 
@@ -287,10 +286,10 @@ codeunit 144074 "ERM Fiscal Year France"
     var
         AccountingPeriods: TestPage "Accounting Periods";
     begin
-        AccountingPeriods.OpenView;
+        AccountingPeriods.OpenView();
         AccountingPeriods.FILTER.SetFilter(Closed, Format(true));
         AccountingPeriods.FILTER.SetFilter("Fiscally Closed", Format(false));
-        AccountingPeriods.CloseFiscalPeriod.Invoke;
+        AccountingPeriods.CloseFiscalPeriod.Invoke();
         AccountingPeriods.Close();
     end;
 

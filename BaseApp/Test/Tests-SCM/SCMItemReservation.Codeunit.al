@@ -231,7 +231,7 @@ codeunit 137406 "SCM Item Reservation"
     begin
         // [FEATURE] [Requisition Worksheet]
         // [SCENARIO] Check calculate plan for lot item on Requisition Worksheet is working fine with reservation.
-        PlanningForItemWithReservation(LibraryUtility.GetGlobalNoSeriesCode);
+        PlanningForItemWithReservation(LibraryUtility.GetGlobalNoSeriesCode());
     end;
 
     [Test]
@@ -747,7 +747,7 @@ codeunit 137406 "SCM Item Reservation"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomer());
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDecInRange(1, 5, 2));
     end;
@@ -757,7 +757,7 @@ codeunit 137406 "SCM Item Reservation"
         ServiceItem: Record "Service Item";
         ServiceItemLine: Record "Service Item Line";
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -787,7 +787,7 @@ codeunit 137406 "SCM Item Reservation"
             Validate("Reordering Policy", "Reordering Policy"::"Lot-for-Lot");
             Validate("Include Inventory", true);
             Validate("Safety Stock Quantity", LibraryRandom.RandDecInRange(25, 30, 2));
-            Validate("Item Tracking Code", CreateItemTrackingCodeWithLot);
+            Validate("Item Tracking Code", CreateItemTrackingCodeWithLot());
             Validate("Lot Nos.", LotNos);
             Modify(true);
         end;
@@ -1014,49 +1014,49 @@ codeunit 137406 "SCM Item Reservation"
     [Scope('OnPrem')]
     procedure ReservationHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation.AvailableToReserve.Invoke;
+        Reservation.AvailableToReserve.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationFromCurrentLineHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Reserve from Current Line".Invoke;
-        Reservation.TotalReservedQuantity.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        Reservation.OK.Invoke;
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.TotalReservedQuantity.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationInSalesOrderFromCurrentLineHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation.First;
-        Reservation."Reserve from Current Line".Invoke;
-        Reservation.Last;
-        Reservation."Reserve from Current Line".Invoke;
-        Reservation.OK.Invoke;
+        Reservation.First();
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.Last();
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableItemLedgEntriesHandler(var AvailableItemLedgEntries: TestPage "Available - Item Ledg. Entries")
     begin
-        AvailableItemLedgEntries.Reserve.Invoke;
-        AvailableItemLedgEntries."Reserved Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        AvailableItemLedgEntries.Reserve.Invoke();
+        AvailableItemLedgEntries."Reserved Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableItemLedgEntriesDrillDownHandler(var AvailableItemLedgEntries: TestPage "Available - Item Ledg. Entries")
     begin
-        AvailableItemLedgEntries.ReservedQuantity.DrillDown;
+        AvailableItemLedgEntries.ReservedQuantity.DrillDown();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableItemLedgEntriesCancelReservationHandler(var AvailableItemLedgEntries: TestPage "Available - Item Ledg. Entries")
     begin
-        AvailableItemLedgEntries.CancelReservation.Invoke;
+        AvailableItemLedgEntries.CancelReservation.Invoke();
         AvailableItemLedgEntries."Reserved Quantity".AssertEquals(0);
     end;
 
@@ -1064,15 +1064,15 @@ codeunit 137406 "SCM Item Reservation"
     [Scope('OnPrem')]
     procedure AvailableProdOrderLineReservePageHandler(var AvailableProdOrderLines: TestPage "Available - Prod. Order Lines")
     begin
-        AvailableProdOrderLines.Reserve.Invoke;
-        AvailableProdOrderLines."Reserved Qty. (Base)".AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        AvailableProdOrderLines.Reserve.Invoke();
+        AvailableProdOrderLines."Reserved Qty. (Base)".AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableProdOrderLineCancelReservationPageHandler(var AvailableProdOrderLines: TestPage "Available - Prod. Order Lines")
     begin
-        AvailableProdOrderLines.CancelReservation.Invoke;
+        AvailableProdOrderLines.CancelReservation.Invoke();
         AvailableProdOrderLines."Reserved Qty. (Base)".AssertEquals(0);
     end;
 
@@ -1080,34 +1080,34 @@ codeunit 137406 "SCM Item Reservation"
     [Scope('OnPrem')]
     procedure AvailableProdOrderLineDrillDownQtyPageHandler(var AvailableProdOrderLines: TestPage "Available - Prod. Order Lines")
     begin
-        AvailableProdOrderLines.ReservedQuantity.DrillDown;
+        AvailableProdOrderLines.ReservedQuantity.DrillDown();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandlerForLot(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Lot No.".Invoke;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Assign Lot No.".Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation.First;
-        Reservation."Auto Reserve".Invoke;
-        Reservation.First;
-        Reservation.CancelReservationCurrentLine.Invoke;
+        Reservation.First();
+        Reservation."Auto Reserve".Invoke();
+        Reservation.First();
+        Reservation.CancelReservationCurrentLine.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationEntriesPageHandler(var ReservationEntries: TestPage "Reservation Entries")
     begin
-        ReservationEntries.First;
-        ReservationEntries."Quantity (Base)".AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        ReservationEntries.OK.Invoke;
+        ReservationEntries.First();
+        ReservationEntries."Quantity (Base)".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        ReservationEntries.OK().Invoke();
     end;
 
     [MessageHandler]

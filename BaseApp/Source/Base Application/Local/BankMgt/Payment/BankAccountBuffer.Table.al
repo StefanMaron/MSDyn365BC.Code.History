@@ -7,6 +7,7 @@ namespace Microsoft.Bank.Payment;
 table 10869 "Bank Account Buffer"
 {
     Caption = 'Bank Account Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

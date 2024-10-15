@@ -12,6 +12,7 @@ table 10862 "Payment Step"
 {
     Caption = 'Payment Step';
     LookupPageID = "Payment Steps List";
+    DataClassification = CustomerContent;
 
     fields
     {

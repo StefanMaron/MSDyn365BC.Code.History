@@ -6,4 +6,5 @@ enum 5945 "Report Selection Usage Job"
     AssignmentCompatibility = true;
 
     value(0; "Quote") { Caption = 'Quote'; }
+    value(1; "Task Quote") { Caption = 'Task Quote'; }
 }

@@ -188,7 +188,7 @@ codeunit 144562 "ERM Payment Slip"
     begin
         LibraryFRLocalization.CreatePaymentClass(PaymentClass);
         PaymentClass.Validate(Suggestions, PaymentClass.Suggestions::Customer);
-        PaymentClass.Validate("Header No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        PaymentClass.Validate("Header No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         PaymentClass.Modify(true);
     end;
 
@@ -294,7 +294,7 @@ codeunit 144562 "ERM Payment Slip"
         LibraryVariableStorage.Dequeue(DueDate);
         SuggestCustomerPayments.LastPaymentDate.SetValue(DueDate);
         SuggestCustomerPayments.Customer.SetFilter("No.", CustomerNo);
-        SuggestCustomerPayments.OK.Invoke;
+        SuggestCustomerPayments.OK().Invoke();
     end;
 
     local procedure VerifyExportPaymentClassLine(StreamReader: DotNet StreamReader; SEPATransferType: Text)
@@ -302,7 +302,7 @@ codeunit 144562 "ERM Payment Slip"
         DotNetString: DotNet String;
         LinePart: Text[1024];
     begin
-        DotNetString := StreamReader.ReadLine;
+        DotNetString := StreamReader.ReadLine();
         Assert.AreEqual(7, StrLen(DelChr(DotNetString, '=', DelChr(DotNetString, '=', ','))), '');
         LinePart := DotNetString.Substring(DotNetString.LastIndexOf(',') + 1);
         Assert.AreEqual(StrSubstNo(TransferTypeTok, SEPATransferType), LinePart, TransferTypeExportedErr);

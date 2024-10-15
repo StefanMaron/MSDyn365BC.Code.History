@@ -41,7 +41,7 @@ codeunit 144011 "ERM Bank Account FR"
 
         // Setup And Exercise.
         Initialize();
-        PaymentSlipPost(PaymentHeader, PaymentLine."Account Type"::Customer, CreateCustomer, PaymentClass.Suggestions::Customer);
+        PaymentSlipPost(PaymentHeader, PaymentLine."Account Type"::Customer, CreateCustomer(), PaymentClass.Suggestions::Customer);
 
         // Verify.
         PaymentLine.SetRange("No.", PaymentHeader."No.");
@@ -65,7 +65,7 @@ codeunit 144011 "ERM Bank Account FR"
 
         // Setup And Exercise.
         Initialize();
-        PaymentSlipPost(PaymentHeader, PaymentLine."Account Type"::Vendor, CreateVendor, PaymentClass.Suggestions::Vendor);
+        PaymentSlipPost(PaymentHeader, PaymentLine."Account Type"::Vendor, CreateVendor(), PaymentClass.Suggestions::Vendor);
 
         // Verify.
         PaymentLine.SetRange("No.", PaymentHeader."No.");
@@ -82,11 +82,11 @@ codeunit 144011 "ERM Bank Account FR"
         // Setup.
         CreatePaymentHeader(PaymentHeader, Suggestions);
         CreatePaymentLine(PaymentHeader, AccountType, AccountNo);
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.FILTER.SetFilter("No.", PaymentHeader."No.");
 
         // Exercise.
-        PaymentSlip.Post.Invoke;
+        PaymentSlip.Post.Invoke();
     end;
 
     local procedure Initialize()
@@ -182,7 +182,7 @@ codeunit 144011 "ERM Bank Account FR"
     begin
         LibraryVariableStorage.Dequeue(Code);
         PaymentClassList.FILTER.SetFilter(Code, Code);
-        PaymentClassList.OK.Invoke;
+        PaymentClassList.OK().Invoke();
     end;
 }
 

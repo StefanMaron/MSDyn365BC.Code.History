@@ -236,7 +236,7 @@ codeunit 144025 "UT TAB FA Derogatory Depr."
     begin
         // Setup: Create multiple Depreciation Books and Validate multiple fields related to GL Integration.
         CreateDepreciationBook(DepreciationBook);
-        DepreciationBook2.Code := LibraryUTUtility.GetNewCode10;
+        DepreciationBook2.Code := LibraryUTUtility.GetNewCode10();
         RecRef.GetTable(DepreciationBook2);
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.Validate(true);
@@ -266,7 +266,7 @@ codeunit 144025 "UT TAB FA Derogatory Depr."
         CreateDepreciationBook(DepreciationBook2);
         UpdateDerogatoryCalculationDepreciationBook(DepreciationBook, DepreciationBook2.Code);
         CreateDepreciationBook(DepreciationBook3);
-        UpdateDerogatoryCalculationDepreciationBook(DepreciationBook3, LibraryUTUtility.GetNewCode10);  // Derogatory Calculation.
+        UpdateDerogatoryCalculationDepreciationBook(DepreciationBook3, LibraryUTUtility.GetNewCode10());  // Derogatory Calculation.
         CreateFADepreciationBook(FADepreciationBook, DepreciationBook3."Derogatory Calculation");
         CreateFALegerEntry(FADepreciationBook);
 
@@ -318,7 +318,7 @@ codeunit 144025 "UT TAB FA Derogatory Depr."
 
     local procedure CreateDepreciationBook(var DepreciationBook: Record "Depreciation Book")
     begin
-        DepreciationBook.Code := LibraryUTUtility.GetNewCode10;
+        DepreciationBook.Code := LibraryUTUtility.GetNewCode10();
         DepreciationBook.Insert();
     end;
 
@@ -340,7 +340,7 @@ codeunit 144025 "UT TAB FA Derogatory Depr."
 
     local procedure CreateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; DepreciationBookCode: Code[10])
     begin
-        FADepreciationBook."FA No." := LibraryUTUtility.GetNewCode;
+        FADepreciationBook."FA No." := LibraryUTUtility.GetNewCode();
         FADepreciationBook."Depreciation Book Code" := DepreciationBookCode;
         FADepreciationBook.Insert();
     end;

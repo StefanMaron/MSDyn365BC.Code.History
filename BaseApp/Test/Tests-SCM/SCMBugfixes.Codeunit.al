@@ -26,14 +26,14 @@ codeunit 137045 "SCM Bugfixes"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         isInitialized: Boolean;
-        LocationCode: array[3] of Code[10];
-        ConfirmMessage: Label 'Do you want to change ';
+        LocationCodesArr: array[3] of Code[10];
+        ConfirmMessageQst: Label 'Do you want to change ';
         NoReservEntryErr: Label 'No reservation entries created for requisition line.';
         ReservEntryNotDeletedErr: Label 'Requisition line is deleted. All reservation entries must be deleted as well.';
         WrongPurchLineQtyErr: Label 'Quantity in purchase line is incorrect after carrying performing action message.';
         WrongSKUUnitCostErr: Label 'Stockkeeping unit''s unit cost must be equal to item unit cost';
         EmailNotAutomaticallySetErr: Label 'Expected BuyFromContactEmail to automatically be set to the email of the contact, but it wasnt.';
-        UseInTransitLocationErr: Label 'You can use In-Transit location %1 for transfer orders only.';
+        UseInTransitLocationErr: Label 'You can use In-Transit location %1 for transfer orders only.', Comment = '%1: Location code';
 
     [Test]
     [Scope('OnPrem')]
@@ -110,7 +110,7 @@ codeunit 137045 "SCM Bugfixes"
         CreateReservationSystem(Item, RequisitionLine, SalesOrderQuantity);
 
         // Verify : Verify Item, Quantity and Transfer Location on Planning Work Sheet.
-        VerifyPlanningWorkSheet(Item."No.", SalesOrderQuantity, LocationCode[2]);
+        VerifyPlanningWorkSheet(Item."No.", SalesOrderQuantity, LocationCodesArr[2]);
 
         // Tear Down.
         RestoreSalesReceivablesSetup(SalesReceivablesSetup);
@@ -132,7 +132,7 @@ codeunit 137045 "SCM Bugfixes"
         CarryOutActionMsgPlanSetup(RequisitionLine, Item."No.");
 
         // Verify : Verify Item , Quantity and Transfer Location on Requisition Work Sheet.
-        VerifyPlanningWorkSheet(Item."No.", SalesOrderQuantity, LocationCode[2]);
+        VerifyPlanningWorkSheet(Item."No.", SalesOrderQuantity, LocationCodesArr[2]);
 
         // Tear Down.
         RestoreSalesReceivablesSetup(SalesReceivablesSetup);
@@ -148,15 +148,15 @@ codeunit 137045 "SCM Bugfixes"
         // Create Location Array, Update Location, Create Transfer Route, Create Stock Keeping unit for each Item
         // at each Location, Post two Item Journal lines to update Item Inventory for each location, Create Sales Order
         // and Accept Capable To Promise. Random values used for item quantity.
-        CreateUpdateLocations;
-        CreateTransferRoutes;
+        CreateUpdateLocations();
+        CreateTransferRoutes();
         CreateUpdateStockKeepUnit(StockkeepingUnit, Item."No.");
         CreateAndPostItemJrnl(
-          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationCode, LibraryRandom.RandDec(15, 2), 2);
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LocationCodesArr, LibraryRandom.RandDec(15, 2), 2);
         SalesOrderQuantity := LibraryRandom.RandDec(10, 2);
-        Item.SetFilter("Location Filter", LocationCode[1]);
+        Item.SetFilter("Location Filter", LocationCodesArr[1]);
         Item.CalcFields(Inventory);
-        CreateSalesOrder(SalesHeader, Item."No.", LocationCode[1], Item.Inventory + SalesOrderQuantity, SalesHeader."Document Type"::Order);
+        CreateSalesOrder(SalesHeader, Item."No.", LocationCodesArr[1], Item.Inventory + SalesOrderQuantity, SalesHeader."Document Type"::Order);
         AcceptCapableToPromise(RequisitionLine, SalesHeader);
     end;
 
@@ -301,8 +301,8 @@ codeunit 137045 "SCM Bugfixes"
         Item.Modify(true);
 
         // [GIVEN] Purchase order for 10 pcs, sales order for 5 pcs. The supply is thus excessive.
-        CreatePurchaseOrder(PurchaseHeader, Item."No.", LibraryRandom.RandIntInRange(11, 20));
-        CreateSalesOrder(SalesHeader, Item."No.", '', LibraryRandom.RandInt(10), SalesHeader."Document Type"::Order);
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", 10);
+        CreateSalesOrder(SalesHeader, Item."No.", '', 5, SalesHeader."Document Type"::Order);
 
         // [GIVEN] Calculate regenerative plan in planning worksheet, the program suggests to change quantity in the purchase to 5.
         // [GIVEN] Assign lot no. on the planning line.
@@ -319,6 +319,52 @@ codeunit 137045 "SCM Bugfixes"
         // [THEN] Item tracking quantity on the planning line is still 5.
         with ReqLine do
             VerifyReservationEntryQuantity("No.", "Worksheet Template Name", Quantity, TrackedQty);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CarryOutPlanWkshSuggestedQuantityReductionAfterAssigningLotTracking()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        ReqLine: Record "Requisition Line";
+        ReservationEntry: Record "Reservation Entry";
+        NewPurchOrderChoice: Option " ","Make Purch. Orders","Make Purch. Orders & Print","Copy to Req. Wksh";
+        IncorrectTrackingQtyErr: Label 'Item tracking quantity is incorrect.';
+    begin
+        // [FEATURE] [Item Tracking] [Order Tracking] [Requisition Line]
+        // [SCENARIO 287648] Item tracking can be assigned on planning line with the suggested action to reduce quantity and both order tracking and item tracking
+        Initialize();
+
+        // [GIVEN] Item "I" with lot tracking and order tracking enabled.
+        CreateTrackedItem(Item);
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking Only");
+        Item.Modify(true);
+
+        // [GIVEN] Purchase order for 13 pcs, sales order for 2 pcs. The supply is thus excessive.
+        // [GIVEN] To reproduce this scenario, the sales quantity must be less than half of the purchase
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", 13);
+        CreateSalesOrder(SalesHeader, Item."No.", '', 2, SalesHeader."Document Type"::Order);
+
+        // [GIVEN] Calculate regenerative plan in planning worksheet, the program suggests to change quantity in the purchase to 5.
+        // [GIVEN] Assign lot no. on the planning line.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
+        FindRequsitionLine(ReqLine, Item."No.");
+        ReqLine.OpenItemTrackingLines();
+
+        // [GIVEN] Set "Accept Action Message" on all requisition lines
+        UpdatePlanningWorkSheet(ReqLine, Item."No.");
+
+        // [WHEN] Carry out action messages
+        LibraryPlanning.CarryOutPlanWksh(ReqLine, 0, NewPurchOrderChoice::"Make Purch. Orders", 0, 0, '', '', '', '');
+
+        // [THEN] 2 pcs of item "I" have lot no. assigned
+        ReservationEntry.SetRange("Item No.", Item."No.");
+        ReservationEntry.SetRange("Item Tracking", ReservationEntry."Item Tracking"::"Lot No.");
+        ReservationEntry.CalcSums(Quantity);
+        Assert.AreEqual(2, ReservationEntry.Quantity, IncorrectTrackingQtyErr);
     end;
 
     [Test]
@@ -392,7 +438,7 @@ codeunit 137045 "SCM Bugfixes"
         asserterror ReqLine.Validate(Quantity, LibraryRandom.RandIntInRange(0, ReqLine.Quantity - 1));
 
         // [THEN] An error "Item tracking defined in the requisition line accounts for more quantity than you have entered" is thrown.
-        Assert.ExpectedError('Item tracking defined');
+        Assert.ExpectedError('Item tracking is defined');
     end;
 
     [Test]
@@ -463,7 +509,7 @@ codeunit 137045 "SCM Bugfixes"
         TempRequisitionLine := RequisitionLine;
 
         // Exercise: Carry out action message
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate(), WorkDate, WorkDate(), '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate(), WorkDate(), WorkDate(), '');
 
         // Verify: Quantity in purchase line is updated correctly
         with TempRequisitionLine do
@@ -489,7 +535,7 @@ codeunit 137045 "SCM Bugfixes"
         TempRequisitionLine := RequisitionLine;
 
         // Exercise: Carry out action message
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate(), WorkDate, WorkDate(), '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate(), WorkDate(), WorkDate(), '');
 
         // Verify: Quantity in purchase line is updated correctly
         with TempRequisitionLine do
@@ -620,7 +666,7 @@ codeunit 137045 "SCM Bugfixes"
         // [GIVEN] Calculate requisition plan
         CalculateRequisitionPlan(ReqWkshName, Item);
 
-        ReqWorksheet.Trap;
+        ReqWorksheet.Trap();
         PAGE.Run(PAGE::"Req. Worksheet");
         FindRequisitionLine(ReqLine, ReqWkshName, ReqLine."Action Message"::New);
         ReqWorksheet.CurrentJnlBatchName.SetValue(ReqLine."Journal Batch Name");
@@ -684,7 +730,7 @@ codeunit 137045 "SCM Bugfixes"
         // [GIVEN] Create 3 "Critical" items: "I1", "I2", "I3"
         // [GIVEN] Items "I2" and "I3" are replenished via production, "I1" is purchased
         // [GIVEN] Create production BOM structure, so that "I1" is a component of "I2", and "I2" is a component of "I3"
-        // [GIVEN] Low-level component "I1" is included in a production BOM with the Starting Date = WORKDATE + 1 week
+        // [GIVEN] Low-level component "I1" is included in a production BOM with the Starting Date = WorkDate() + 1 week
         CreateProdBOMStructureOfCriticalItems(Item, CalcDate('<1W>', WorkDate()), Item[1]."Replenishment System"::Purchase);
 
         // [GIVEN] Create a sales order with item "I3"
@@ -778,8 +824,6 @@ codeunit 137045 "SCM Bugfixes"
     end;
 
     local procedure UpdateSalesReceivablesSetup(var TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary; CreditWarnings: Option; StockoutWarning: Boolean)
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
         TempSalesReceivablesSetup := SalesReceivablesSetup;
@@ -930,7 +974,7 @@ codeunit 137045 "SCM Bugfixes"
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         CreateItemTrackingCodeWithLotSpecTracking(ItemTrackingCode);
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
 
         with Item do begin
             Validate("Replenishment System", "Replenishment System"::Purchase);
@@ -951,27 +995,26 @@ codeunit 137045 "SCM Bugfixes"
         Evaluate(HandlingTime2, '<0D>');
         for k := 1 to 3 do begin  // Creating three Locations.
             LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-            LocationCode[k] := Location.Code;
+            LocationCodesArr[k] := Location.Code;
         end;
 
         // Update Two Locations only because third location is In-Transit.
         for k := 1 to 2 do
-            UpdateLocation(LocationCode[k], false, HandlingTime2, HandlingTime2);
-        UpdateLocation(LocationCode[3], true, HandlingTime2, HandlingTime2);
+            UpdateLocation(LocationCodesArr[k], false, HandlingTime2, HandlingTime2);
+        UpdateLocation(LocationCodesArr[3], true, HandlingTime2, HandlingTime2);
     end;
 
     local procedure CreateUpdateStockKeepUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; ItemNo: Code[20])
     var
         Item: Record Item;
-        SKUCreationMethod: Option Location,Variant,"Location & Variant";
     begin
         Item.SetRange("No.", ItemNo);
-        Item.SetRange("Location Filter", LocationCode[1], LocationCode[2]);
-        LibraryInventory.CreateStockKeepingUnit(Item, SKUCreationMethod::Location, false, false);
+        Item.SetRange("Location Filter", LocationCodesArr[1], LocationCodesArr[2]);
+        LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::Location, false, false);
 
         // Update Replenishment System in Stock Keeping Unit.
-        UpdateStockKeepingUnit(StockkeepingUnit."Replenishment System"::Purchase, LocationCode[1], ItemNo, '', '');
-        UpdateStockKeepingUnit(StockkeepingUnit."Replenishment System"::Transfer, LocationCode[1], ItemNo, '', LocationCode[2]);
+        UpdateStockKeepingUnit(StockkeepingUnit."Replenishment System"::Purchase, LocationCodesArr[1], ItemNo, '', '');
+        UpdateStockKeepingUnit(StockkeepingUnit."Replenishment System"::Transfer, LocationCodesArr[1], ItemNo, '', LocationCodesArr[2]);
     end;
 
     local procedure CreateTransferRoutes()
@@ -989,9 +1032,9 @@ codeunit 137045 "SCM Bugfixes"
         k := 1;
         for i := 1 to 2 do
             for j := i + 1 to 2 do begin
-                LibraryWarehouse.CreateTransferRoute(TransferRoute, LocationCode[i], LocationCode[j]);
+                LibraryWarehouse.CreateTransferRoute(TransferRoute, LocationCodesArr[i], LocationCodesArr[j]);
                 UpdateTransferRoute(TransferRoute, ShippingAgentServicesCode[k], ShippingAgent.Code);
-                LibraryWarehouse.CreateTransferRoute(TransferRoute, LocationCode[j], LocationCode[i]);
+                LibraryWarehouse.CreateTransferRoute(TransferRoute, LocationCodesArr[j], LocationCodesArr[i]);
                 UpdateTransferRoute(TransferRoute, ShippingAgentServicesCode[k], ShippingAgent.Code);
                 k := k + 1;
             end;
@@ -1041,7 +1084,7 @@ codeunit 137045 "SCM Bugfixes"
 
     local procedure UpdateTransferRoute(var TransferRoute: Record "Transfer Route"; ShippingAgentServiceCode: Code[10]; ShippingAgentCode: Code[10])
     begin
-        TransferRoute.Validate("In-Transit Code", LocationCode[3]);
+        TransferRoute.Validate("In-Transit Code", LocationCodesArr[3]);
         TransferRoute.Validate("Shipping Agent Code", ShippingAgentCode);
         TransferRoute.Validate("Shipping Agent Service Code", ShippingAgentServiceCode);
         TransferRoute.Modify(true);
@@ -1232,9 +1275,9 @@ codeunit 137045 "SCM Bugfixes"
         RequisitionLine.SetRange("Accept Action Message", false);
         FindRequsitionLine(RequisitionLine, ItemNo);
 
-        PlanningWorksheet.OpenEdit;
+        PlanningWorksheet.OpenEdit();
         PlanningWorksheet.GotoRecord(RequisitionLine);
-        PlanningWorksheet.OrderTracking.Invoke;
+        PlanningWorksheet.OrderTracking.Invoke();
     end;
 
     local procedure FindRequsitionLine(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
@@ -1304,7 +1347,7 @@ codeunit 137045 "SCM Bugfixes"
     var
         Contact: Record Contact;
     begin
-        Contact.Get(LibraryVariableStorage.DequeueText);
+        Contact.Get(LibraryVariableStorage.DequeueText());
         ContactLookup.SetRecord(Contact);
         Response := ACTION::LookupOK;
     end;
@@ -1314,7 +1357,7 @@ codeunit 137045 "SCM Bugfixes"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         // Check confirmation message.
-        Assert.AreNotEqual(StrPos(Question, ConfirmMessage), 0, Question);
+        Assert.AreNotEqual(StrPos(Question, ConfirmMessageQst), 0, Question);
         Reply := true;
     end;
 
@@ -1332,15 +1375,15 @@ codeunit 137045 "SCM Bugfixes"
     [Scope('OnPrem')]
     procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Lot No.".Invoke;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Assign Lot No.".Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure OrderTrackingHandler(var OrderTracking: TestPage "Order Tracking")
     begin
-        OrderTracking.Show.Invoke;
+        OrderTracking.Show.Invoke();
     end;
 
     [MessageHandler]

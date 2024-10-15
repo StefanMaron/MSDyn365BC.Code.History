@@ -218,7 +218,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         RunFAProjValueDerogReport(NormalDeprBookCode, CalcDate('<CY>', WorkDate()), CalcDate('<CY+365D>', WorkDate()), 0D, false);
 
         // 3.Verify derogatory value.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValues(FANo, CountExpectedAmount(FANo, TaxDeprBookCode, Amount));
     end;
 
@@ -605,7 +605,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
           NormalDeprBookCode, CalcDate('<CY>', WorkDate()), CalcDate('<CY+' + Format(NoOfYearsNormal) + 'Y>', WorkDate()), WorkDate(), true);
 
         // [THEN] Both books are projected to closed (Book Value = 0) at the end of projected period (10 years).
-        VerifyFAProjectionBothBooksAreClosed;
+        VerifyFAProjectionBothBooksAreClosed();
     end;
 
     [Test]
@@ -636,7 +636,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
           NormalDeprBookCode, CalcDate('<CY>', WorkDate()), CalcDate('<CY+' + Format(NoOfYearsTax) + 'Y>', WorkDate()), WorkDate(), true);
 
         // [THEN] "Tax" book is projected to closed (Book Value = 0), "Normal" book is open (Book Value <> 0) at the end of projected period (8 years).
-        VerifyFAProjectionBothBooksOneClosed;
+        VerifyFAProjectionBothBooksOneClosed();
     end;
 
     [Test]
@@ -667,7 +667,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
           NormalDeprBookCode, CalcDate('<CY>', WorkDate()), CalcDate('<CY+' + Format(NoOfYearsTax - 3) + 'Y>', WorkDate()), WorkDate(), true);
 
         // [THEN] Both books are projected to open (Book Value <> 0) at the end of projected period (5 years).
-        VerifyFAProjectionBothBooksInTheMidOfPeriod;
+        VerifyFAProjectionBothBooksInTheMidOfPeriod();
     end;
 
     [Test]
@@ -698,7 +698,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
           TaxDeprBookCode, CalcDate('<CY>', WorkDate()), CalcDate('<CY+' + Format(NoOfYearsTax) + 'Y>', WorkDate()), WorkDate(), true);
 
         // [THEN] "Tax" book is projected to closed (Book Value = 0) at the end of projected period (8 years).
-        VerifyFAProjectionTaxBookIsClosed;
+        VerifyFAProjectionTaxBookIsClosed();
     end;
 
     [Test]
@@ -729,7 +729,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
           TaxDeprBookCode, CalcDate('<CY>', WorkDate()), CalcDate('<CY+' + Format(NoOfYearsTax - 3) + 'Y>', WorkDate()), WorkDate(), true);
 
         // [THEN] "Tax" book is projected to open (Book Value <> 0) at the end of projected period (5 years).
-        VerifyFAProjectionTaxBookInTheMidOfPeriod;
+        VerifyFAProjectionTaxBookInTheMidOfPeriod();
     end;
 
     [Test]
@@ -861,7 +861,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
           GenJnlLine, WorkDate(), GenJnlLine."FA Posting Type"::"Acquisition Cost",
           FANo, DeprBookCode, AcqCostAmount);
         CreatePostGenJnlLine(
-          GenJnlLine, CalcDerogatoryDate, GenJnlLine."FA Posting Type"::Derogatory,
+          GenJnlLine, CalcDerogatoryDate(), GenJnlLine."FA Posting Type"::Derogatory,
           FANo, DeprBookCode, -DerogAmount);
     end;
 
@@ -888,7 +888,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
             Validate("Posting Date", WorkDate());
             Validate("Depreciation Book Code", DeprBookCode);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", CreateGLAccount);
+            Validate("Bal. Account No.", CreateGLAccount());
             Modify(true);
         end;
     end;
@@ -1141,8 +1141,8 @@ codeunit 144002 "ERM Fixed Assets - Local"
               "FA Posting Type"::Derogatory);
             FindSet();
             repeat
-                TestField("FA Posting Date", CalcDerogatoryDate);
-            until Next = 0;
+                TestField("FA Posting Date", CalcDerogatoryDate());
+            until Next() = 0;
         end;
     end;
 
@@ -1167,7 +1167,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         DerogatoryBook: Boolean;
     begin
         DeprBook.Get(DeprBookCode);
-        DerogatoryBook := DeprBook.IsDerogatoryBook;
+        DerogatoryBook := DeprBook.IsDerogatoryBook();
         with FALedgEntry do begin
             SetRange("FA No.", FANo);
             SetRange("Depreciation Book Code", DeprBookCode);
@@ -1176,7 +1176,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
                 TestField(
                   "Exclude Derogatory",
                   ("FA Posting Type" = "FA Posting Type"::Derogatory) and not DerogatoryBook);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1186,7 +1186,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
     begin
         FAJournalLine.SetRange("FA No.", FANo);
         FAJournalLine.SetRange("FA Posting Type", FAJournalLine."FA Posting Type"::Derogatory);
-        Assert.IsTrue(FAJournalLine.FindFirst, WrongJournalUsedErr);
+        Assert.IsTrue(FAJournalLine.FindFirst(), WrongJournalUsedErr);
     end;
 
     local procedure VerifyPostedInvoice(DocumentNo: Code[20])
@@ -1200,8 +1200,8 @@ codeunit 144002 "ERM Fixed Assets - Local"
     local procedure VerifyValues(FANo: Code[20]; ExpectedAmount: Decimal)
     begin
         LibraryReportDataset.SetRange('FixedAssetNo', FANo);
-        LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('DerogAmount', -ExpectedAmount);
     end;
 
@@ -1270,7 +1270,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LibraryReportDataset.AssertCurrentRowValueEquals('FALedgerEntryDerogBookValue', DerogBookValue);
         LibraryReportDataset.AssertCurrentRowValueEquals('FALedgerEntryDerogDiffBookValue', DerogDiffBokkValue);
         if MoveNextRow then
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
     end;
 
     local procedure VerifyFAProjValueRepProjectedAmounts(Amount: Decimal; BookValue: Decimal; DerogAmount: Decimal; DerogBookValue: Decimal; DerogDiffBokkValue: Decimal; MoveNextRow: Boolean)
@@ -1281,7 +1281,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LibraryReportDataset.AssertCurrentRowValueEquals('DerogBookValue', DerogBookValue);
         LibraryReportDataset.AssertCurrentRowValueEquals('DerogDiffBookValue', DerogDiffBokkValue);
         if MoveNextRow then
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
     end;
 
     local procedure VerifyFAProjValueRepAssetAmounts(Amount: Decimal; BookValue: Decimal; DerogAmount: Decimal; DerogBookValue: Decimal; DerogDiffBokkValue: Decimal; MoveNextRow: Boolean)
@@ -1292,7 +1292,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LibraryReportDataset.AssertCurrentRowValueEquals('AssetDerogBookValue', DerogBookValue);
         LibraryReportDataset.AssertCurrentRowValueEquals('AssetDerogDiffBookValue', DerogDiffBokkValue);
         if MoveNextRow then
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
     end;
 
     local procedure VerifyFAProjValueRepTotalAmounts(Amount: Decimal; BookValue: Decimal; DerogAmount: Decimal; DerogBookValue: Decimal; DerogDiffBokkValue: Decimal; MoveNextRow: Boolean)
@@ -1303,12 +1303,12 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalDerogBookValue', DerogBookValue);
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalDerogDiffBookValue', DerogDiffBokkValue);
         if MoveNextRow then
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
     end;
 
     local procedure VerifyFAProjectionBothBooksAreClosed()
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(1);
 
         // Initial Acqusition Cost Amount = 100000
@@ -1354,7 +1354,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
     local procedure VerifyFAProjectionBothBooksOneClosed()
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(1);
 
         // Initial Acqusition Cost Amount = 100000
@@ -1394,7 +1394,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
     local procedure VerifyFAProjectionBothBooksInTheMidOfPeriod()
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(1);
 
         // Initial Acqusition Cost Amount = 100000
@@ -1425,7 +1425,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
     local procedure VerifyFAProjectionTaxBookIsClosed()
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(1);
 
         // Initial Acqusition Cost Amount = 100000
@@ -1469,7 +1469,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
     local procedure VerifyFAProjectionTaxBookInTheMidOfPeriod()
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(1);
 
         // Initial Acqusition Cost Amount = 100000
@@ -1506,12 +1506,12 @@ codeunit 144002 "ERM Fixed Assets - Local"
     [Scope('OnPrem')]
     procedure FAProjValueDerogRPH(var FAProjValueDerogatory: TestRequestPage "FA - Proj. Value (Derogatory)")
     begin
-        FAProjValueDerogatory.DepreciationBook.SetValue(LibraryVariableStorage.DequeueText);
-        FAProjValueDerogatory.FirstDeprDate.SetValue(LibraryVariableStorage.DequeueDate);
-        FAProjValueDerogatory.LastDeprDate.SetValue(LibraryVariableStorage.DequeueDate);
-        FAProjValueDerogatory.IncludePostedFrom.SetValue(LibraryVariableStorage.DequeueDate);
-        FAProjValueDerogatory.PrintPerFixedAsset.SetValue(LibraryVariableStorage.DequeueBoolean);
-        FAProjValueDerogatory.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FAProjValueDerogatory.DepreciationBook.SetValue(LibraryVariableStorage.DequeueText());
+        FAProjValueDerogatory.FirstDeprDate.SetValue(LibraryVariableStorage.DequeueDate());
+        FAProjValueDerogatory.LastDeprDate.SetValue(LibraryVariableStorage.DequeueDate());
+        FAProjValueDerogatory.IncludePostedFrom.SetValue(LibraryVariableStorage.DequeueDate());
+        FAProjValueDerogatory.PrintPerFixedAsset.SetValue(LibraryVariableStorage.DequeueBoolean());
+        FAProjValueDerogatory.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure CancelLastFALedgerEntry(DepreciationBookCode: Code[10]; FAPostingType: Option)
@@ -1519,23 +1519,23 @@ codeunit 144002 "ERM Fixed Assets - Local"
         FALedgerEntry: Record "FA Ledger Entry";
         FALedgerEntries: TestPage "FA Ledger Entries";
     begin
-        FALedgerEntries.OpenEdit;
+        FALedgerEntries.OpenEdit();
         FALedgerEntry.SetFilter("Depreciation Book Code", DepreciationBookCode);
         FALedgerEntry.SetFilter("FA Posting Type", Format(FAPostingType));
         FALedgerEntry.FindLast();
         FALedgerEntries.FILTER.SetFilter("Entry No.", Format(FALedgerEntry."Entry No."));
-        FALedgerEntries.CancelEntries.Invoke;  // Open handler - CancelFAEntriesRequestPageHandler.
-        FALedgerEntries.OK.Invoke;
+        FALedgerEntries.CancelEntries.Invoke();  // Open handler - CancelFAEntriesRequestPageHandler.
+        FALedgerEntries.OK().Invoke();
     end;
 
     local procedure ReverseFALedgerEntries(var FALedgerEntry: Record "FA Ledger Entry")
     var
         FALedgerEntries: TestPage "FA Ledger Entries";
     begin
-        FALedgerEntries.OpenEdit;
+        FALedgerEntries.OpenEdit();
         FALedgerEntries.FILTER.SetFilter("Entry No.", Format(FALedgerEntry."Entry No."));
-        FALedgerEntries.ReverseTransaction.Invoke;
-        FALedgerEntries.OK.Invoke;
+        FALedgerEntries.ReverseTransaction.Invoke();
+        FALedgerEntries.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -1548,14 +1548,14 @@ codeunit 144002 "ERM Fixed Assets - Local"
     [Scope('OnPrem')]
     procedure CancelFALedgerEntryRequestPageHandler(var CancelFAEntries: TestRequestPage "Cancel FA Entries")
     begin
-        CancelFAEntries.OK.Invoke;
+        CancelFAEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReverseFALedgerEntriesPageHandler(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseTransactionEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke();
     end;
 
     [ConfirmHandler]

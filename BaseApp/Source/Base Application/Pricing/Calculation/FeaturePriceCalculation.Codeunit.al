@@ -1,4 +1,4 @@
-#if not CLEAN21
+#if not CLEAN23
 // ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -128,7 +128,7 @@ codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         Description2Txt: Label 'will be copied to the Price List Header and Price List Line tables.';
         DescrTok: Label '%1 %2', Locked = true;
         XJPLTok: Label 'J-PL';
-        XJobPriceListLbl: Label 'Job Price List';
+        XJobPriceListLbl: Label 'Project Price List';
         XJ00001Tok: Label 'J00001';
         XJ99999Tok: Label 'J99999';
         XPPLTok: Label 'P-PL';

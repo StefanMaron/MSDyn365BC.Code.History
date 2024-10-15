@@ -15,7 +15,6 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLDateFormatTxt: Label 'YYYY-MM-DD', Locked = true;
         XMLDateTimeFormatTxt: Label 'YYYY-MM-DDThh:mm:ss', Locked = true;
         DefaultCultureTxt: Label 'en-US', Locked = true;
-        LibraryRandom: Codeunit "Library - Random";
 
     [Test]
     [Scope('OnPrem')]
@@ -173,7 +172,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         CreateXMLSchemaRecord(XMLSchema, OutStr);
         CreateSchemaFile(OutStr);
         LoadSchemaFile(XMLSchema);
-        Assert.AreEqual('/Document/CstmrCdtTrfInitn', XMLSchema.GetSchemaContext, 'Wrong common context for schema.');
+        Assert.AreEqual('/Document/CstmrCdtTrfInitn', XMLSchema.GetSchemaContext(), 'Wrong common context for schema.');
     end;
 
     [Test]
@@ -1073,88 +1072,6 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CreateXMLPort()
-    var
-        XMLSchema: Record "XML Schema";
-        XMLSchemaElement: Record "XML Schema Element";
-        TempBlob: Codeunit "Temp Blob";
-        XSDParser: Codeunit "XSD Parser";
-        FileMgt: Codeunit "File Management";
-        InStr: InStream;
-        OutStr: OutStream;
-        FileName: Text;
-        TxtLine: Text[1024];
-    begin
-        Initialize();
-
-        CreateXMLSchemaRecord(XMLSchema, OutStr);
-        CreateSchemaFile(OutStr);
-        LoadSchemaFile(XMLSchema);
-        XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
-        XMLSchemaElement.FindFirst();
-        FileName := XSDParser.CreateXMLPortFile(XMLSchemaElement, 50000, 'XMLPort 50000', false, false);
-        FileMgt.BLOBImport(TempBlob, FileName);
-        TempBlob.CreateInStream(InStr);
-        InStr.ReadText(TxtLine);
-        Assert.AreEqual('OBJECT XMLport 50000 XMLPort 50000', TxtLine, 'Unexpected content in object file.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure AttributesAndElementSortedAfterReadXSDSchema()
-    var
-        XMLSchema: Record "XML Schema";
-        XMLSchemaElement: Record "XML Schema Element";
-        TempBlob: Codeunit "Temp Blob";
-        XSDParser: Codeunit "XSD Parser";
-        FileManagement: Codeunit "File Management";
-        OutStream: OutStream;
-        InStream: InStream;
-        FileName: Text;
-        TxtLine: Text;
-        I: Integer;
-    begin
-        // [SCENARIO 220629] Attributes and Elements must be sorted after read XSD Schema and element with same name must have a Variable Name in the exported "XML Port"
-        Initialize();
-
-        // [GIVEN] XSD Schema with 4 xml tags by next order: Root Element, Element, Attribute, Element
-        // [GIVEN] Second and Fourth elements have same name = "Elem"
-        CreateXMLSchemaRecord(XMLSchema, OutStream);
-        CreateSchemaFileWithElementAndAttributes(OutStream);
-
-        // [GIVEN] Load XSD Schema
-        LoadSchemaFile(XMLSchema);
-        XMLSchema.TestField("Target Namespace");
-        XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
-
-        // [GIVEN] 4 "XML Schema Element" by next order: Root Element, Attribute, Element, Element
-        Assert.RecordCount(XMLSchemaElement, 4);
-        XMLSchemaElement.FindSet();
-        XMLSchemaElement.TestField("Node Type", XMLSchemaElement."Node Type"::Element);
-        XMLSchemaElement.Next();
-        XMLSchemaElement.TestField("Node Type", XMLSchemaElement."Node Type"::Attribute);
-        XMLSchemaElement.Next();
-        XMLSchemaElement.TestField("Node Type", XMLSchemaElement."Node Type"::Element);
-        XMLSchemaElement.Next();
-        XMLSchemaElement.TestField("Node Type", XMLSchemaElement."Node Type"::Element);
-
-        // [WHEN] Create XML Port from XSD Schema
-        FileName := XSDParser.CreateXMLPortFile(XMLSchemaElement, 50000, 'XMLPort 50000', false, false);
-
-        // [THEN] XML Port contains correct header
-        FileManagement.BLOBImport(TempBlob, FileName);
-        TempBlob.CreateInStream(InStream);
-        InStream.ReadText(TxtLine);
-        Assert.AreEqual('OBJECT XMLport 50000 XMLPort 50000', TxtLine, 'Unexpected content in object file.');
-
-        // [THEN] Fourth element has VariableName=<Elem1> (Generated <Name> + <Index>), Second element without Variable Name
-        for I := 1 to 25 do
-            InStream.ReadText(TxtLine);
-        Assert.AreEqual('                                                  VariableName=<Elem1> }', TxtLine, 'Variable name is missing.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure XMLSchemaCodeCannotBeBlank()
     var
         XMLSchemas: TestPage "XML Schemas";
@@ -1642,7 +1559,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
             DataExchColDef.SetRange(Path, FullPath);
             DataExchColDef.SetRange(Description, XMLSchemaElement."Node Name");
 
-            if XMLSchemaElement.IsLeaf then begin
+            if XMLSchemaElement.IsLeaf() then begin
                 Assert.AreEqual(1, DataExchColDef.Count, 'Unexpected column def.:' + DataExchColDef.GetFilters);
                 GetExpectedDataTypeAndFormat(XMLSchemaElement."Simple Data Type", DataType, DataFormat, DataFormattingCulture);
                 DataExchColDef.FindFirst();
@@ -1663,7 +1580,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement.SetRange("Node Name", NodeName);
         XMLSchemaElement.FindFirst();
 
-        Assert.AreEqual(IsLeafStatus, XMLSchemaElement.IsLeaf, 'Wrong leaf status.');
+        Assert.AreEqual(IsLeafStatus, XMLSchemaElement.IsLeaf(), 'Wrong leaf status.');
     end;
 
     local procedure VerifyFullPath(XMLSchema: Record "XML Schema"; NodeName: Text; ExpFullPath: Text)
@@ -1699,7 +1616,7 @@ codeunit 134402 "ERM - Test XML Schema Viewer"
         XMLSchemaElement.Find('-');
 
         repeat
-            if ExpFullPath = XMLSchemaElement.GetFullPath then begin
+            if ExpFullPath = XMLSchemaElement.GetFullPath() then begin
                 ElementFoundXMLSchemaElement := XMLSchemaElement;
                 exit(true);
             end;

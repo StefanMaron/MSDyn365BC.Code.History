@@ -95,12 +95,12 @@ page 257 "Source Codes"
                 action("Job Registers")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job Registers';
+                    Caption = 'Project Registers';
                     Image = JobRegisters;
                     RunObject = Page "Job Registers";
                     RunPageLink = "Source Code" = field(Code);
                     RunPageView = sorting("Source Code");
-                    ToolTip = 'Open the related job registers.';
+                    ToolTip = 'Open the related project registers.';
                 }
                 action("FA Registers")
                 {

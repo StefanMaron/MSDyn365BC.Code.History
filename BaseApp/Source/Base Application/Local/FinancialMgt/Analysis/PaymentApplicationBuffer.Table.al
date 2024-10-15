@@ -19,6 +19,7 @@ table 10881 "Payment Application Buffer"
     ObsoleteState = Pending;
     ObsoleteTag = '23.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {

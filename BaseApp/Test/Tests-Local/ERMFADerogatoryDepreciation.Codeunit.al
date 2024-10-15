@@ -78,7 +78,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         RunReportFABookValue02(FADepreciationBook, GroupTotals::" ", false);  // Opens FixedAssetBookValue02RequestPageHandler, FALSE for Print Details .
 
         // Verify: Verify values on Report - Fixed Asset - Book Value 02 with No details.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('HeadLineText10', Format(FALedgerEntry."FA Posting Type"::Derogatory));
         LibraryReportDataset.AssertElementWithValueExists(
           'TotalEndingAmt7', FALedgerEntryAmount(FADepreciationBook."FA No.", FALedgerEntry."FA Posting Type"::Derogatory));
@@ -102,7 +102,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         RunReportFABookValue02(FADepreciationBook, GroupTotals::"FA Posting Group", false);  // Opens FixedAssetBookValue02RequestPageHandler, FALSE for Print Details.
 
         // Verify: Verify values on Report - Fixed Asset - Book Value 02 with FA Posting Group.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GroupTotalsCap, Format(GroupTotals::"FA Posting Group"));
         LibraryReportDataset.AssertElementWithValueExists(
           'GroupNetChangeAmt1', FALedgerEntryAmount(FADepreciationBook."FA No.", FALedgerEntry."FA Posting Type"::"Acquisition Cost"));
@@ -125,7 +125,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         RunReportFABookValue02(FADepreciationBook, LibraryRandom.RandIntInRange(1, 7), true);  // Opens FixedAssetBookValue02RequestPageHandler, using Random value in range for GroupTotals and TRUE for Print Details.
 
         // Verify: Verify values on Report - Fixed Asset - Book Value 02 with FA Posting Group and Print Details.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(NoFixedAssetCap, FADepreciationBook."FA No.");
         LibraryReportDataset.AssertElementWithValueExists(
           NetChangeAmt1Cap, FALedgerEntryAmount(FADepreciationBook."FA No.", FALedgerEntry."FA Posting Type"::"Acquisition Cost"));
@@ -148,7 +148,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         RunReportFABookValue02(FADepreciationBook, LibraryRandom.RandIntInRange(1, 7), true);  // Using Random value in range for GroupTotals and TRUE for Print Details.
 
         // Verify: Verify values on Report - Fixed Asset - Book Value 02 with FA Posting Group, Print FA Setup and Print Details.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(DeprBookInfo1Cap, FADepreciationBook."Depreciation Book Code");
         LibraryReportDataset.AssertElementWithValueExists(DeprBookInfo2Cap, Format(FADepreciationBook."Depreciation Method"));
         LibraryReportDataset.AssertElementWithValueExists(
@@ -173,7 +173,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         RunReportFABookValue01(FADepreciationBook, GroupTotals::" ", false);  // Opens FixedAssetBookValue01RequestPageHandler, FALSE for Print Details.
 
         // Verify: Verify values on Report - Fixed Asset - Book Value 01 with No details.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'HeadLineText14', StrSubstNo('%1 %2', FADepreciationBook.FieldCaption(Derogatory), FADepreciationBook."Depreciation Starting Date"));
         LibraryReportDataset.AssertElementWithValueExists(
@@ -199,7 +199,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
 
         // Verify: Verify values on Report - Fixed Asset - Book Value 01 with FA Posting Group.
         FADepreciationBook.CalcFields("Book Value");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GroupTotalsCap, Format(GroupTotals::"FA Posting Group"));
         LibraryReportDataset.AssertElementWithValueExists(
           'GroupNetChangeAmounts1', FALedgerEntryAmount(FADepreciationBook."FA No.", FALedgerEntry."FA Posting Type"::"Acquisition Cost"));
@@ -226,7 +226,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
 
         // Verify: Verify values on Report - Fixed Asset - Book Value 01 with FA Posting Group and Print Details.
         FADepreciationBook.CalcFields("Book Value");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(NoFATxt, FADepreciationBook."FA No.");
         LibraryReportDataset.AssertElementWithValueExists(
           'NetChangeAmounts1', FALedgerEntryAmount(FADepreciationBook."FA No.", FALedgerEntry."FA Posting Type"::"Acquisition Cost"));
@@ -253,7 +253,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
 
         // Verify: Verify values on Report - Fixed Asset - Book Value 01 with FA Posting Group, Print FA Setup and Print Details.
         FADepreciationBook.CalcFields("Book Value");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(DeprBookInfo1Cap, FADepreciationBook."Depreciation Book Code");
         LibraryReportDataset.AssertElementWithValueExists(DeprBookInfo2Cap, Format(FADepreciationBook."Depreciation Method"));
         LibraryReportDataset.AssertElementWithValueExists(
@@ -359,7 +359,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
     begin
         FAPostingGroup.FindFirst();
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", CreateDepreciationBook);
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", CreateDepreciationBook());
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
         FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
         FADepreciationBook.Validate("Depreciation Ending Date", WorkDate());
@@ -428,7 +428,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'FixedAssetProjectedValueCaption', 'Fixed Asset - Projected Value (Derogatory)');
         LibraryReportDataset.AssertElementWithValueExists(
@@ -441,7 +441,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
     [Scope('OnPrem')]
     procedure FixedAssetBookValue02RequestPageHandler(var FixedAssetBookValue02: TestRequestPage "Fixed Asset - Book Value 02")
     begin
-        FixedAssetBookValue02.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetBookValue02.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -449,14 +449,14 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
     procedure PrintFASetupFixedAssetBookValue02RequestPageHandler(var FixedAssetBookValue02: TestRequestPage "Fixed Asset - Book Value 02")
     begin
         FixedAssetBookValue02.PrintFASetup.SetValue(true);
-        FixedAssetBookValue02.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetBookValue02.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure FixedAssetBookValue01RequestPageHandler(var FixedAssetBookValue01: TestRequestPage "Fixed Asset - Book Value 01")
     begin
-        FixedAssetBookValue01.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetBookValue01.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -464,7 +464,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
     procedure PrintFASetupFixedAssetBookValue01RequestPageHandler(var FixedAssetBookValue01: TestRequestPage "Fixed Asset - Book Value 01")
     begin
         FixedAssetBookValue01.PrintFASetup.SetValue(true);
-        FixedAssetBookValue01.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetBookValue01.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -472,7 +472,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
     procedure FAProjValueDerogRPH(var FAProjValueDerogatory: TestRequestPage "FA - Proj. Value (Derogatory)")
     begin
         FAProjValueDerogatory.UseAccountingPeriod.SetValue(true);
-        FAProjValueDerogatory.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FAProjValueDerogatory.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

@@ -18,7 +18,7 @@ codeunit 137931 "SCM - Movement"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
-        TotalPendingMovQtyExceedsBinAvailErr: Label 'Item tracking defined for line %1, lot number %2, serial number %3';
+        TotalPendingMovQtyExceedsBinAvailErr: Label 'Item tracking defined for line %1, lot number %2, serial number %3, package number %4 cannot be applied.', Comment = '%1=Line No.,%2=Lot No.,%3=Serial No.,%4=Package No.';
         DialogCodeErr: Label 'Dialog';
         LinesExistErr: Label 'You cannot change %1 because one or more lines exist.';
 
@@ -164,12 +164,12 @@ codeunit 137931 "SCM - Movement"
 
         // [GIVEN] Created Movement (3 Take Lines: Lot "L2", Bin "B1" with 2 PCS, Lot "L3", Bin "B2" with 10 PCS, Lot "L4", Bin "B3" with 4 PCS)
         // [GIVEN] Registered Movement
-        CreateMovementFromMovementWorksheet;
+        CreateMovementFromMovementWorksheet();
         FindMovement(WarehouseActivityHeader, ItemNo);
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
 
         // [WHEN] Create Movement
-        CreateMovementFromMovementWorksheet;
+        CreateMovementFromMovementWorksheet();
 
         // [THEN] Movement has Take Line with Lot "L4", Bin "B3" and 2 PCS
         LibraryWarehouse.FindBin(PutAwayBin, LocationCode, PutAwayBin."Zone Code", 3);
@@ -247,9 +247,9 @@ codeunit 137931 "SCM - Movement"
         asserterror LibraryWarehouse.CreateWhseMovement(WhseWorksheetLine.Name, WhseWorksheetLine."Location Code", "Whse. Activity Sorting Method"::None, false, false);
 
         // [THEN] Error 'Item tracking defined for line 10000, lot number L1, serial number cannot be applied.'
-        Assert.ExpectedError(StrSubstNo(TotalPendingMovQtyExceedsBinAvailErr, WhseWorksheetLine."Line No.", LotNo[1], ''));
+        Assert.ExpectedError(StrSubstNo(TotalPendingMovQtyExceedsBinAvailErr, WhseWorksheetLine."Line No.", LotNo[1], '', ''));
         Assert.ExpectedErrorCode(DialogCodeErr);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -331,7 +331,7 @@ codeunit 137931 "SCM - Movement"
             WarehouseActivityLine.FindFirst();
             WarehouseActivityLine.TestField("Qty. (Base)", QtyLot[Index]);
         end;
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -432,7 +432,7 @@ codeunit 137931 "SCM - Movement"
         CreateLocationWithBinMandatory(Location, true);
         LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, Location.Code, '');
         LibraryWarehouse.CreateInternalMovementLine(
-          InternalMovementHeader, InternalMovementLine, LibraryInventory.CreateItemNo, '', '', LibraryRandom.RandInt(10));
+          InternalMovementHeader, InternalMovementLine, LibraryInventory.CreateItemNo(), '', '', LibraryRandom.RandInt(10));
         CreateLocationWithBinMandatory(Location, true);
 
         // [WHEN] Validate Location Code = 'SILVER' in Internal Movement Header
@@ -610,7 +610,6 @@ codeunit 137931 "SCM - Movement"
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         WhseInternalPutawayHeader: Record "Whse. Internal Put-away Header";
-        WarehouseActivityLine: Record "Warehouse Activity Line";
         LocationCode: Code[10];
         PackageNo: array[2] of Code[50];
         TotalQty: Decimal;
@@ -1183,7 +1182,7 @@ codeunit 137931 "SCM - Movement"
             LibraryVariableStorage.Enqueue(Qty[Index]);
         end;
         PurchaseLine.OpenItemTrackingLines();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         for Index := 1 to ArrayLen(LotNo) do begin
             ReservationEntry.SetRange("Source Type", DATABASE::"Purchase Line");
@@ -1208,7 +1207,7 @@ codeunit 137931 "SCM - Movement"
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(Qty);
         SalesLine.OpenItemTrackingLines();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure CreateItemWithItemTrackingCode(LotTracking: Boolean; LotWhseTracking: Boolean; PackageTracking: Boolean; PackageWhseTracking: Boolean; ExpirationDateRequired: Boolean): Code[20]
@@ -1255,7 +1254,7 @@ codeunit 137931 "SCM - Movement"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Location Code", LocationCode);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Qty);
@@ -1265,7 +1264,7 @@ codeunit 137931 "SCM - Movement"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Location Code", LocationCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
@@ -1450,13 +1449,13 @@ codeunit 137931 "SCM - Movement"
     var
         Index: Integer;
     begin
-        ItemTrackingLines.First;
-        for Index := 1 to LibraryVariableStorage.DequeueInteger do begin
-            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-            ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+        ItemTrackingLines.First();
+        for Index := 1 to LibraryVariableStorage.DequeueInteger() do begin
+            ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+            ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
             ItemTrackingLines.Next();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1466,12 +1465,12 @@ codeunit 137931 "SCM - Movement"
         Index: Integer;
     begin
         WhseItemTrackingLines.First();
-        for Index := 1 to LibraryVariableStorage.DequeueInteger do begin
-            WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-            WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
+        for Index := 1 to LibraryVariableStorage.DequeueInteger() do begin
+            WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+            WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
             WhseItemTrackingLines.Next();
         end;
-        WhseItemTrackingLines.OK.Invoke();
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1481,26 +1480,26 @@ codeunit 137931 "SCM - Movement"
         Index: Integer;
     begin
         WhseItemTrackingLines.First();
-        for Index := 1 to LibraryVariableStorage.DequeueInteger do begin
-            WhseItemTrackingLines."Package No.".SetValue(LibraryVariableStorage.DequeueText);
-            WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
+        for Index := 1 to LibraryVariableStorage.DequeueInteger() do begin
+            WhseItemTrackingLines."Package No.".SetValue(LibraryVariableStorage.DequeueText());
+            WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
             WhseItemTrackingLines.Next();
         end;
-        WhseItemTrackingLines.OK.Invoke();
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     procedure BinListModalPageHandler(var BinList: TestPage "Bin List")
     begin
         BinList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
-        BinList.OK.Invoke();
+        BinList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     procedure BinContentsListModalPageHandler(var BinContentsList: TestPage "Bin Contents List")
     begin
         BinContentsList.FILTER.SetFilter("Bin Code", LibraryVariableStorage.DequeueText());
-        BinContentsList.OK.Invoke();
+        BinContentsList.OK().Invoke();
     end;
 
     [MessageHandler]

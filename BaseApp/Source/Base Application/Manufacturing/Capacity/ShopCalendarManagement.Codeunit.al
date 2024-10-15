@@ -201,7 +201,7 @@ codeunit 99000755 "Shop Calendar Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTimeFactor(Var CapUnitOfMeasure: Record "Capacity Unit of Measure"; var Factor: Decimal)
+    local procedure OnAfterTimeFactor(var CapUnitOfMeasure: Record "Capacity Unit of Measure"; var Factor: Decimal)
     begin
     end;
 

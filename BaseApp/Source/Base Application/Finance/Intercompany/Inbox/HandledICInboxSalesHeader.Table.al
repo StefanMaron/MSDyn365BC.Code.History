@@ -10,6 +10,7 @@ using Microsoft.Sales.Customer;
 table 438 "Handled IC Inbox Sales Header"
 {
     Caption = 'Handled IC Inbox Sales Header';
+    DataClassification = CustomerContent;
 
     fields
     {

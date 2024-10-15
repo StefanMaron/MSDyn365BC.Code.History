@@ -85,7 +85,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        UpdateAccountsInGeneralPostingSetup;
+        UpdateAccountsInGeneralPostingSetup();
     end;
 
     procedure UpdateInventoryPostingSetup()
@@ -95,7 +95,7 @@ codeunit 131305 "Library - ERM Country Data"
         if InventoryPostingSetup.FindSet() then
             repeat
                 if InventoryPostingSetup."Inventory Account (Interim)" = '' then
-                    InventoryPostingSetup.Validate("Inventory Account (Interim)", CreateGLAccount);
+                    InventoryPostingSetup.Validate("Inventory Account (Interim)", CreateGLAccount());
                 InventoryPostingSetup.Modify();
             until InventoryPostingSetup.Next() = 0;
     end;
@@ -107,7 +107,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralLedgerSetup()
     begin
-        DisableAdjustForPmtDiscInGLSetup;
+        DisableAdjustForPmtDiscInGLSetup();
     end;
 
     procedure UpdatePrepaymentAccounts()
@@ -148,7 +148,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateFAPostingGroup()
     begin
-        UpdateAccountsInFAPostingGroup;
+        UpdateAccountsInFAPostingGroup();
     end;
 
     procedure UpdateFAPostingType()
@@ -187,7 +187,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure RemoveBlankGenJournalTemplate()
     begin
-        DeleteExtraGeneralJournalTemplate;
+        DeleteExtraGeneralJournalTemplate();
     end;
 
     local procedure UpdateAccountsInFAPostingGroup()
@@ -197,7 +197,7 @@ codeunit 131305 "Library - ERM Country Data"
         if FAPostingGroup.FindSet() then
             repeat
                 if FAPostingGroup."Losses Acc. on Disposal" = '' then begin
-                    FAPostingGroup.Validate("Losses Acc. on Disposal", CreateGLAccount);
+                    FAPostingGroup.Validate("Losses Acc. on Disposal", CreateGLAccount());
                     FAPostingGroup.Modify(true);
                 end;
             until FAPostingGroup.Next() = 0;
@@ -285,7 +285,7 @@ codeunit 131305 "Library - ERM Country Data"
         if BankAccountLedgerEntries.Amount.Visible() then
             EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal() <> 0 then
                 EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
             else
                 EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
@@ -310,7 +310,7 @@ codeunit 131305 "Library - ERM Country Data"
                     else
                         // Due to FR DDT COD119032 "Direct Cost Applied Account" may be equal to "Inventory Adjmt. Account"
                         if "Direct Cost Applied Account" = "Inventory Adjmt. Account" then
-                            Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo);
+                            Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo());
                     if "Overhead Applied Account" = '' then
                         Validate("Overhead Applied Account", NormalGeneralPostingSetup."Overhead Applied Account");
                     if "COGS Account" = '' then
@@ -324,7 +324,7 @@ codeunit 131305 "Library - ERM Country Data"
                     if "Sales Prepayments Account" = '' then
                         Validate("Sales Prepayments Account", NormalGeneralPostingSetup."Sales Prepayments Account");
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure CreateGLAccount(): Code[20]

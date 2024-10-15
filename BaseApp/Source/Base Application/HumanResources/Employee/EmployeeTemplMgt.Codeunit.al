@@ -117,20 +117,6 @@ codeunit 1387 "Employee Templ. Mgt."
         Employee.Get(Employee."No.");
     end;
 
-    [Obsolete('Replaced by ApplyEmployeeTemplate with different set of parameters', '18.0')]
-    procedure ApplyContactEmployeeTemplate(var Employee: Record Employee)
-    var
-        EmployeeTempl: Record "Employee Templ.";
-    begin
-        if not IsEnabled() then
-            exit;
-
-        if not SelectEmployeeTemplate(EmployeeTempl) then
-            exit;
-
-        ApplyEmployeeTemplate(Employee, EmployeeTempl);
-    end;
-
     procedure IsEnabled() Result: Boolean
     var
         TemplateFeatureMgt: Codeunit "Template Feature Mgt.";
@@ -142,12 +128,25 @@ codeunit 1387 "Employee Templ. Mgt."
 
     procedure InitEmployeeNo(var Employee: Record Employee; EmployeeTempl: Record "Employee Templ.")
     var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
         NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if EmployeeTempl."No. Series" = '' then
             exit;
 
-        NoSeriesManagement.InitSeries(EmployeeTempl."No. Series", '', 0D, Employee."No.", Employee."No. Series");
+#if not CLEAN24
+        NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(EmployeeTempl."No. Series", '', 0D, Employee."No.", Employee."No. Series", IsHandled);
+        if not IsHandled then begin
+#endif
+            Employee."No. Series" := EmployeeTempl."No. Series";
+            Employee."No." := NoSeries.GetNextNo(Employee."No. Series");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(Employee."No. Series", EmployeeTempl."No. Series", 0D, Employee."No.");
+        end;
+#endif
     end;
 
     procedure SaveAsTemplate(Employee: Record Employee)

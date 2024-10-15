@@ -45,13 +45,13 @@ codeunit 136121 "Service Reservation"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Reservation");
         // Lazy Setup.
-        InitializeGlobalVariables;
+        InitializeGlobalVariables();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Reservation");
 
         LibraryService.SetupServiceMgtNoSeries();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
@@ -542,7 +542,6 @@ codeunit 136121 "Service Reservation"
     local procedure PostAndVerifyServiceOrder(ServiceLine: Record "Service Line")
     var
         ServiceHeader: Record "Service Header";
-        ServiceLedgerEntry: Record "Service Ledger Entry";
         ServiceShipmentNo: Code[20];
     begin
         // Exercise: Post the Service Order as Ship.
@@ -700,7 +699,7 @@ codeunit 136121 "Service Reservation"
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.FindFirst();
         // [WHEN] Cassie changes item from "X" to "Y"
-        asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo);
+        asserterror ServiceLine.Validate("No.", LibraryInventory.CreateItemNo());
 
         // [THEN] Error 'No. must not be changed when a quantity is reserved in Service Line...' has been thrown
         Assert.ExpectedError('No. must not be changed when a quantity is reserved in Service Line');
@@ -740,7 +739,7 @@ codeunit 136121 "Service Reservation"
 
         // 3. Verify: Verification Done in Reservation Entry Page Handler and in Reservation Entry table.
         FindReservationEntry(ReservationEntry, ReservationEntry."Item Tracking"::"Lot No.");
-        ReservationEntry.TestField("Lot No.", FindLotNoFromItemLedgerEntry);
+        ReservationEntry.TestField("Lot No.", FindLotNoFromItemLedgerEntry());
     end;
 
     [Test]
@@ -959,7 +958,7 @@ codeunit 136121 "Service Reservation"
         // 2. Exercise: Set values on Service Line Page in ServiceLinePageLocationHandler, Find Service Line and change Location.
         OpenServiceLinesPage(ServiceHeader."No.");
         FindServiceLine(ServiceLine, ServiceHeader."Document Type", ServiceHeader."No.", ServiceHeader."Bill-to Customer No.");
-        asserterror ServiceLine.Validate("Location Code", FindLocation);
+        asserterror ServiceLine.Validate("Location Code", FindLocation());
 
         // 3. Verify: Verify that application generates an error on changing Location.
         Assert.ExpectedError(
@@ -1041,7 +1040,7 @@ codeunit 136121 "Service Reservation"
         ServiceLine.DeleteAll(true);
 
         // 3. Verify: Verify that all lines has been deleted.
-        Assert.IsFalse(ServiceLine.FindFirst, StrSubstNo(ServiceLineExistError, ServiceLine.TableCaption()));
+        Assert.IsFalse(ServiceLine.FindFirst(), StrSubstNo(ServiceLineExistError, ServiceLine.TableCaption()));
     end;
 
     [Test]
@@ -1186,7 +1185,7 @@ codeunit 136121 "Service Reservation"
         ItemNo := CreateItemWithItemTracking(Item.Reserve::Always);
 
         // [GIVEN] Sales Order with one Sales Line.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(5));
 
         // [GIVEN] Create Purchasing Code With Drop Shipment and set in Sales Line.
@@ -1361,7 +1360,7 @@ codeunit 136121 "Service Reservation"
 
         // 3. Verify: Verify Reservation Entry after Reserving the Item.
         FindReservationEntry(ReservationEntry, ReservationEntry."Item Tracking"::"Lot No.");
-        ReservationEntry.TestField("Lot No.", FindLotNoFromItemLedgerEntry);
+        ReservationEntry.TestField("Lot No.", FindLotNoFromItemLedgerEntry());
         ReservationEntry.TestField("Quantity (Base)", QuantityOnServiceLine);
     end;
 
@@ -1380,7 +1379,7 @@ codeunit 136121 "Service Reservation"
 
         // 1. Setup: Create Item with Reserve Always, Find a Customer and Vendor, Create a Purchase Order, Service Order.
         Initialize();
-        ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Always, LibraryUtility.GetGlobalNoSeriesCode);  // Assign Item No. to Global Variable.
+        ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Always, LibraryUtility.GetGlobalNoSeriesCode());  // Assign Item No. to Global Variable.
         OriginalQuantity := 1 + LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         QuantityOnServiceLine := OriginalQuantity - 1;  // Take Quantity for Service Line lesser than Purchased Quantity, Assign Value to Global Variable.
 
@@ -1414,7 +1413,7 @@ codeunit 136121 "Service Reservation"
 
         // 1. Setup: Create Item with Reserve Always, Find a Customer and Vendor, Create a Purchase Order, Service Order.
         Initialize();
-        ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Always, LibraryUtility.GetGlobalNoSeriesCode);  // Assign Item No. to Global Variable.
+        ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Always, LibraryUtility.GetGlobalNoSeriesCode());  // Assign Item No. to Global Variable.
         OriginalQuantity := LibraryRandom.RandInt(10);  // Random Integer value. Assign it to Global Variable.
         QuantityOnServiceLine := 1;  // Take Quantity as 1 to avoid Serial No Reservation issue, Assign Value to Global Variable.
 
@@ -1445,7 +1444,7 @@ codeunit 136121 "Service Reservation"
 
         // 1. Setup: Create Item with Reserve Optional, Create a Purchase Order, Service Order.
         Initialize();
-        ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Optional, LibraryUtility.GetGlobalNoSeriesCode);  // Assign Item No. to Global Variable.
+        ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Optional, LibraryUtility.GetGlobalNoSeriesCode());  // Assign Item No. to Global Variable.
         OriginalQuantity := LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         QuantityOnServiceLine := 1;  // Take Quantity as 1 to avoid Serial No Reservation issue, Assign Value to Global Variable.
 
@@ -1477,7 +1476,7 @@ codeunit 136121 "Service Reservation"
 
         // 1. Setup: Create Item with Reserve Optional, Find a Customer and Vendor, Create a Purchase Order, Service Order.
         Initialize();
-        ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Optional, LibraryUtility.GetGlobalNoSeriesCode);  // Assign Item No. to Global Variable.
+        ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Optional, LibraryUtility.GetGlobalNoSeriesCode());  // Assign Item No. to Global Variable.
         OriginalQuantity := LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         QuantityOnServiceLine := 1;  // Take Quantity as 1 to avoid Serial No Reservation issue, Assign Value to Global Variable.
 
@@ -1510,7 +1509,7 @@ codeunit 136121 "Service Reservation"
 
         // 1. Setup: Create Item with Reserve Optional and Serial No and Lot No Series attached, Create a Purchase Order, Service Order.
         Initialize();
-        ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Optional, LibraryUtility.GetGlobalNoSeriesCode);  // Assign Item No. to global variable.
+        ItemNo := CreateItemWithSerialAndLotNo(Item.Reserve::Optional, LibraryUtility.GetGlobalNoSeriesCode());  // Assign Item No. to global variable.
         OriginalQuantity := LibraryRandom.RandInt(10);  // Random Integer value greater than 1 required for test. Assign it to Global Variable.
         QuantityOnServiceLine := 1;  // Take Quantity as 1 to avoid Serial No Reservation issue, Assign Value to Global Variable.
 
@@ -1529,7 +1528,7 @@ codeunit 136121 "Service Reservation"
         // 3. Verify: Verify Reservation Entry after Reserving the Item.
         FindReservationEntry(ReservationEntry, ReservationEntry."Item Tracking"::"Lot and Serial No.");
         ReservationEntry.TestField("Serial No.", FindSerialNoFromItemLedgerEntry(ItemNo));
-        ReservationEntry.TestField("Lot No.", FindLotNoFromItemLedgerEntry);
+        ReservationEntry.TestField("Lot No.", FindLotNoFromItemLedgerEntry());
         ReservationEntry.TestField("Quantity (Base)", QuantityOnServiceLine);
     end;
 
@@ -1617,7 +1616,7 @@ codeunit 136121 "Service Reservation"
         // 1. Setup: Create Purchase Order and Service Order and update Service Line with a new location.
         Initialize();
         CreatePurchaseOrderAndServiceOrder(ServiceLine);
-        ServiceLine.Validate("Location Code", FindLocation);
+        ServiceLine.Validate("Location Code", FindLocation());
         ServiceLine.Modify(true);
 
         // 2. Exercise: Reserve the Item from Service Line.
@@ -1860,7 +1859,7 @@ codeunit 136121 "Service Reservation"
     begin
         CreateItemWithReserve(Item, Reserve);
         Item.Validate("Item Tracking Code", FindItemTrackingCode(true, false));
-        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -1869,9 +1868,9 @@ codeunit 136121 "Service Reservation"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.PurchLines."Item Tracking Lines".Invoke;
+        PurchaseOrder.PurchLines."Item Tracking Lines".Invoke();
         Commit();
     end;
 
@@ -1893,7 +1892,7 @@ codeunit 136121 "Service Reservation"
         LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', Quantity, WorkDate(), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Sales Order for Customer with Reserve = Always
-        CreateSalesOrderLineByPage(SalesOrder, CreateCustomerWithReserveAlways, Item."No.");
+        CreateSalesOrderLineByPage(SalesOrder, CreateCustomerWithReserveAlways(), Item."No.");
 
         // [WHEN] Set Quantity on Sales Order Subform to "Q"
         SalesOrder.SalesLines.Quantity.SetValue(Quantity);
@@ -2010,9 +2009,9 @@ codeunit 136121 "Service Reservation"
     var
         ServiceOrder: TestPage "Service Order";
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", No);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         ServiceOrder.Close();
         Commit();
     end;
@@ -2021,29 +2020,29 @@ codeunit 136121 "Service Reservation"
     var
         ServiceInvoice: TestPage "Service Invoice";
     begin
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("No.", No);
-        ServiceInvoice.ServLines.GetShipmentLines.Invoke;
-        ServiceInvoice.OK.Invoke;
+        ServiceInvoice.ServLines.GetShipmentLines.Invoke();
+        ServiceInvoice.OK().Invoke();
     end;
 
     local procedure OpenServiceCreditMemoPage(No: Code[20])
     var
         ServiceCreditMemo: TestPage "Service Credit Memo";
     begin
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.FILTER.SetFilter("No.", No);
-        ServiceCreditMemo.ServLines.ItemTrackingLines.Invoke;
-        ServiceCreditMemo.OK.Invoke;
+        ServiceCreditMemo.ServLines.ItemTrackingLines.Invoke();
+        ServiceCreditMemo.OK().Invoke();
     end;
 
     local procedure OpenReservationPage(ServiceItemNo: Code[20])
     var
         ServiceLines: TestPage "Service Lines";
     begin
-        ServiceLines.OpenView;
+        ServiceLines.OpenView();
         ServiceLines.FILTER.SetFilter("Service Item No.", ServiceItemNo);
-        ServiceLines.Reserve.Invoke;
+        ServiceLines.Reserve.Invoke();
     end;
 
     local procedure PostAndVerifyServiceOrderError(ServiceLine: Record "Service Line")
@@ -2079,7 +2078,7 @@ codeunit 136121 "Service Reservation"
     local procedure CreateSalesOrderLineByPage(var SalesOrder: TestPage "Sales Order"; CustomerName: Text; ItemNo: Code[20])
     begin
         with SalesOrder do begin
-            OpenNew;
+            OpenNew();
             "Sell-to Customer Name".SetValue(CustomerName);
             SalesLines.Type.SetValue(SalesLines.Type.GetOption(3));  // Option 3 is used for "Item" type.
             SalesLines."No.".SetValue(ItemNo);
@@ -2109,7 +2108,7 @@ codeunit 136121 "Service Reservation"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Item Tracking Code", FindItemTrackingCode(false, true));
-        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Validate("Lot Nos.", LotNos);
         Item.Validate(Reserve, Reserve);
         Item.Modify(true);
@@ -2262,7 +2261,7 @@ codeunit 136121 "Service Reservation"
         PurchaseHeader.Modify(true);
 
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDecInRange(2, 10, 2));  // Taken Random value for Quantity.
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandDecInRange(2, 10, 2));  // Taken Random value for Quantity.
         PurchaseLine.Validate("Expected Receipt Date", WorkDate());
         PurchaseLine.Validate("Location Code", Location.Code);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // Used Random value for Direct Unit Cost.
@@ -2307,27 +2306,27 @@ codeunit 136121 "Service Reservation"
         ItemJournal: TestPage "Item Journal";
     begin
         // Open Item Tracking Lines Page from Item Journal.
-        ItemJournal.OpenEdit;
+        ItemJournal.OpenEdit();
         ItemJournal.CurrentJnlBatchName.SetValue(JnlBatchName);
-        ItemJournal.ItemTrackingLines.Invoke;
+        ItemJournal.ItemTrackingLines.Invoke();
     end;
 
     local procedure OpenServiceQuoteLinesPage(No: Code[20])
     var
         ServiceQuote: TestPage "Service Quote";
     begin
-        ServiceQuote.OpenEdit;
+        ServiceQuote.OpenEdit();
         ServiceQuote.FILTER.SetFilter("No.", No);
-        ServiceQuote.ServItemLine.ServiceLines.Invoke;
+        ServiceQuote.ServItemLine.ServiceLines.Invoke();
     end;
 
     local procedure OpenReserveFromPurchaseOrderPage(No: Code[20])
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.PurchLines.Reserve.Invoke;
+        PurchaseOrder.PurchLines.Reserve.Invoke();
         Commit();
     end;
 
@@ -2367,7 +2366,7 @@ codeunit 136121 "Service Reservation"
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderLine.FindFirst();
 
-        ProductionJournalMgt.InitSetupValues;
+        ProductionJournalMgt.InitSetupValues();
         ProductionJournalMgt.SetTemplateAndBatchName();
         ProductionJournalMgt.CreateJnlLines(ProductionOrder, ProdOrderLine."Line No.");
         ItemJournalLine.SetRange("Item No.", ProductionOrder."Source No.");
@@ -2516,7 +2515,7 @@ codeunit 136121 "Service Reservation"
     [Scope('OnPrem')]
     procedure AutoReservePageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Auto Reserve".Invoke;
+        Reservation."Auto Reserve".Invoke();
         Reservation."Total Quantity".AssertEquals(OriginalQuantity);
         Reservation.QtyToReserveBase.AssertEquals(QuantityOnServiceLine);
         Reservation.QtyReservedBase.AssertEquals(QuantityOnServiceLine);
@@ -2528,7 +2527,7 @@ codeunit 136121 "Service Reservation"
     procedure AvailableItemLedgEntriesPageHandler(var AvailableItemLedgEntries: TestPage "Available - Item Ledg. Entries")
     begin
         // Invoke Reserve Action from Available Item Ledger Entries Page.
-        AvailableItemLedgEntries.Reserve.Invoke;
+        AvailableItemLedgEntries.Reserve.Invoke();
 
         // Verify: Verify Reserved Quantity.
         AvailableItemLedgEntries."Reserved Quantity".AssertEquals(QuantityOnServiceLine);
@@ -2539,8 +2538,8 @@ codeunit 136121 "Service Reservation"
     [Scope('OnPrem')]
     procedure AvailableToReserveReservationPageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation.AvailableToReserve.Invoke;
-        Reservation.OK.Invoke;
+        Reservation.AvailableToReserve.Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -2562,15 +2561,15 @@ codeunit 136121 "Service Reservation"
     procedure CreateLotFromQuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
         EnterQuantityToCreate.CreateNewLotNo.SetValue(true);
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Lot No.".Invoke;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Assign Lot No.".Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2587,7 +2586,7 @@ codeunit 136121 "Service Reservation"
     begin
         ReservationEntries."Item No.".AssertEquals(ItemNo);
         ReservationEntries."Quantity (Base)".AssertEquals(-QuantityOnServiceLine);
-        ReservationEntries.OK.Invoke;
+        ReservationEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2602,7 +2601,7 @@ codeunit 136121 "Service Reservation"
     procedure ReservationLinePageHandler(var ServiceLines: TestPage "Service Lines")
     begin
         SetValuesOnServiceLine(ServiceLines);
-        ServiceLines.ReservationEntries.Invoke
+        ServiceLines.ReservationEntries.Invoke();
     end;
 
     [ModalPageHandler]
@@ -2622,8 +2621,8 @@ codeunit 136121 "Service Reservation"
     procedure ReserveLinePageHandler(var ServiceLines: TestPage "Service Lines")
     begin
         SetValuesOnServiceLine(ServiceLines);
-        ServiceLines.Reserve.Invoke;
-        ServiceLines.OK.Invoke;
+        ServiceLines.Reserve.Invoke();
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2634,14 +2633,14 @@ codeunit 136121 "Service Reservation"
     begin
         ServiceLines.FILTER.SetFilter(Type, Format(ServiceLine.Type::Item));
         ServiceLines.FILTER.SetFilter("No.", ItemNo);
-        ServiceLines.Reserve.Invoke;
+        ServiceLines.Reserve.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2650,27 +2649,27 @@ codeunit 136121 "Service Reservation"
     begin
         case ItemTrackingAction of
             ItemTrackingAction::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             ItemTrackingAction::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             ItemTrackingAction::Verification:
                 ItemTrackingLines.Quantity_ItemTracking.AssertEquals(QuantityOnServiceLine);
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingListHandler(var ItemTrackingList: TestPage "Item Tracking List")
     begin
-        ItemTrackingList.OK.Invoke;
+        ItemTrackingList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure TrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2678,7 +2677,7 @@ codeunit 136121 "Service Reservation"
     procedure ReserveFromAvailableItemLedgEntriesPageHandler(var AvailableItemLedgEntries: TestPage "Available - Item Ledg. Entries")
     begin
         // Invoke Reserve Action from Available Item Ledger Entries Page.
-        AvailableItemLedgEntries.Reserve.Invoke;
+        AvailableItemLedgEntries.Reserve.Invoke();
         Commit();
     end;
 
@@ -2686,7 +2685,7 @@ codeunit 136121 "Service Reservation"
     [Scope('OnPrem')]
     procedure ReserveFromCurrentLineHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Reserve from Current Line".Invoke;
+        Reservation."Reserve from Current Line".Invoke();
         Reservation.ItemNo.AssertEquals(ItemNo);
         Reservation.QtyToReserveBase.AssertEquals(QuantityOnServiceLine);
         Reservation.QtyReservedBase.AssertEquals(QuantityOnServiceLine);
@@ -2700,8 +2699,8 @@ codeunit 136121 "Service Reservation"
     begin
         CreateServiceLineWithItemAndQuantityUsingPage(ServiceLines);
         Commit();
-        ServiceLines.Reserve.Invoke;
-        ServiceLines.OK.Invoke;
+        ServiceLines.Reserve.Invoke();
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2710,8 +2709,8 @@ codeunit 136121 "Service Reservation"
     begin
         CreateServiceLineWithItemAndQuantityUsingPage(ServiceLines);
         Commit();
-        ServiceLines.ReservationEntries.Invoke;
-        ServiceLines.OK.Invoke;
+        ServiceLines.ReservationEntries.Invoke();
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2719,7 +2718,7 @@ codeunit 136121 "Service Reservation"
     procedure SetValuesOnServiceLinePageHandler(var ServiceLines: TestPage "Service Lines")
     begin
         CreateServiceLineWithItemAndQuantityUsingPage(ServiceLines);
-        ServiceLines.OK.Invoke;
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2732,11 +2731,11 @@ codeunit 136121 "Service Reservation"
         ServiceLines.FILTER.SetFilter("No.", ItemNo);
         case ServiceLineAction of
             ServiceLineAction::ItemTracking:
-                ServiceLines.ItemTrackingLines.Invoke;
+                ServiceLines.ItemTrackingLines.Invoke();
             ServiceLineAction::Reserve:
-                ServiceLines.Reserve.Invoke;
+                ServiceLines.Reserve.Invoke();
         end;
-        ServiceLines.OK.Invoke;
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2747,8 +2746,8 @@ codeunit 136121 "Service Reservation"
     begin
         ServiceQuoteLines.FILTER.SetFilter(Type, Format(ServiceLine.Type::Item));
         ServiceQuoteLines.FILTER.SetFilter("No.", ItemNo);
-        ServiceQuoteLines.ItemTrackingLines.Invoke;
-        ServiceQuoteLines.OK.Invoke;
+        ServiceQuoteLines.ItemTrackingLines.Invoke();
+        ServiceQuoteLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2756,7 +2755,7 @@ codeunit 136121 "Service Reservation"
     procedure ServiceLinePageLocationHandler(var ServiceLines: TestPage "Service Lines")
     begin
         SetValuesOnServiceLine(ServiceLines);
-        ServiceLines.OK.Invoke;
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2764,7 +2763,7 @@ codeunit 136121 "Service Reservation"
     procedure ServiceLinePageTypeHandler(var ServiceLines: TestPage "Service Lines")
     begin
         SetValuesOnServiceLine(ServiceLines);
-        ServiceLines.OK.Invoke;
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2772,7 +2771,7 @@ codeunit 136121 "Service Reservation"
     procedure ServiceLinePageSetValueHandler(var ServiceLines: TestPage "Service Lines")
     begin
         SetValuesOnServiceLine(ServiceLines);
-        ServiceLines.OK.Invoke;
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2783,8 +2782,8 @@ codeunit 136121 "Service Reservation"
     begin
         ServiceLines.FILTER.SetFilter(Type, Format(ServiceLine.Type::Item));
         ServiceLines.FILTER.SetFilter("No.", ItemNo);
-        ServiceLines.ItemTrackingLines.Invoke;
-        ServiceLines.OK.Invoke;
+        ServiceLines.ItemTrackingLines.Invoke();
+        ServiceLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2795,7 +2794,7 @@ codeunit 136121 "Service Reservation"
     begin
         GetServiceShipmentLines.FILTER.SetFilter(Type, Format(ServiceShipmentLine.Type::Item));
         GetServiceShipmentLines.FILTER.SetFilter("No.", ItemNo);
-        GetServiceShipmentLines.OK.Invoke;
+        GetServiceShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2804,7 +2803,7 @@ codeunit 136121 "Service Reservation"
     begin
         Reservation.ItemNo.AssertEquals(ItemNo);
         Reservation.QtyToReserveBase.AssertEquals(QuantityOnServiceLine);
-        Reservation.OK.Invoke;
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2812,10 +2811,10 @@ codeunit 136121 "Service Reservation"
     procedure ReservationHandler(var Reservation: TestPage Reservation)
     begin
         if ReserveFromCurrentLine then  // ReserveFromCurrentLine used as global variable.
-            Reservation."Reserve from Current Line".Invoke
+            Reservation."Reserve from Current Line".Invoke()
         else
             Reservation.QtyToReserveBase.AssertEquals(0);  // After posting of Service Order Quantity to Reserve becomes 0.
-        Reservation.OK.Invoke;
+        Reservation.OK().Invoke();
     end;
 }
 

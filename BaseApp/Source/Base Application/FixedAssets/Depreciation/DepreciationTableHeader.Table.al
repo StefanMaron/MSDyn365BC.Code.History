@@ -5,6 +5,7 @@ table 5642 "Depreciation Table Header"
     Caption = 'Depreciation Table Header';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Depreciation Table List";
+    DataClassification = CustomerContent;
 
     fields
     {

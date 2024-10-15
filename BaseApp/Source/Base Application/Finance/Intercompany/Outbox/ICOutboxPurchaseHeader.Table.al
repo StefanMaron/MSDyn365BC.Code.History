@@ -11,6 +11,7 @@ using Microsoft.Purchases.Vendor;
 table 428 "IC Outbox Purchase Header"
 {
     Caption = 'IC Outbox Purchase Header';
+    DataClassification = CustomerContent;
 
     fields
     {

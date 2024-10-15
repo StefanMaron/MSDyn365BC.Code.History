@@ -31,7 +31,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         if not IsInitialized then
             IsInitialized := true;
 
-        EmptyJournals;
+        EmptyJournals();
 
         Commit();
     end;
@@ -58,7 +58,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         exit(
-          GenJournalLine.GetNewLineNo(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalName));
+          GenJournalLine.GetNewLineNo(GraphMgtJournal.GetDefaultJournalLinesTemplateName(), JournalName));
     end;
 
     procedure GetNextCustomerPaymentNo(JournalName: Code[10]): Integer
@@ -66,7 +66,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         exit(
-          GenJournalLine.GetNewLineNo(GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName, JournalName));
+          GenJournalLine.GetNewLineNo(GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName(), JournalName));
     end;
 
     procedure GetNextVendorPaymentNo(JournalName: Code[10]): Integer
@@ -74,7 +74,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         exit(
-          GenJournalLine.GetNewLineNo(GraphMgtJournal.GetDefaultVendorPaymentsTemplateName, JournalName));
+          GenJournalLine.GetNewLineNo(GraphMgtJournal.GetDefaultVendorPaymentsTemplateName(), JournalName));
     end;
 
     procedure CreateJournalLine(JournalLineBatchName: Code[10]; AccountNo: Code[20]; AccountId: Guid; Amount: Decimal; DocumentNo: Code[20]): Integer
@@ -154,7 +154,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         GenJournalLine.Init();
         GraphMgtVendorPayments.SetVendorPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Journal Batch Name", VendorPaymentBatchName);
-        GenJournalLine.Validate("Journal Template Name", GraphMgtJournal.GetDefaultVendorPaymentsTemplateName);
+        GenJournalLine.Validate("Journal Template Name", GraphMgtJournal.GetDefaultVendorPaymentsTemplateName());
         GenJournalLine.Validate("Journal Batch Name", VendorPaymentBatchName);
         GenJournalLine."Line No." := GetNextVendorPaymentNo(VendorPaymentBatchName);
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Vendor);
@@ -214,7 +214,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         JournalName: Code[10];
     begin
         JournalName := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
-        LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalName);
+        LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultJournalLinesTemplateName(), JournalName);
         exit(JournalName);
     end;
 
@@ -224,7 +224,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         JournalName: Code[10];
     begin
         JournalName := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
-        LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName, JournalName);
+        LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName(), JournalName);
         exit(JournalName);
     end;
 
@@ -234,7 +234,7 @@ codeunit 130622 "Library - Graph Journal Lines"
         JournalName: Code[10];
     begin
         JournalName := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
-        LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultVendorPaymentsTemplateName, JournalName);
+        LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultVendorPaymentsTemplateName(), JournalName);
         exit(JournalName);
     end;
 

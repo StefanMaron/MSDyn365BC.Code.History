@@ -19,7 +19,7 @@ page 5461 "API Webhook Logs"
     PageType = API;
     SourceTable = "Activity Log";
     SourceTableView = sorting("Activity Date")
-                      ORDER(Descending)
+                      order(descending)
                       where("Table No Filter" = const(2000000095),
                             Context = const('APIWEBHOOK'));
 

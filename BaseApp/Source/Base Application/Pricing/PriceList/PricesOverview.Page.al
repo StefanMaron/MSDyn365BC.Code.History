@@ -8,7 +8,7 @@ using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
 using Microsoft.Pricing.Asset;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Pricing.Calculation;
 #endif
 using Microsoft.Pricing.Source;
@@ -21,7 +21,7 @@ using System.Globalization;
 page 7024 "Prices Overview"
 {
     Caption = 'Prices Overview';
-    DataCaptionExpression = PageCaption;
+    DataCaptionExpression = PageCaptionText;
     InsertAllowed = false;
     PageType = Worksheet;
     SaveValues = true;
@@ -270,7 +270,7 @@ page 7024 "Prices Overview"
                     ApplicationArea = Basic, Suite;
                     Editable = AssignToParentNoEditable;
                     ShowMandatory = AssignToParentNoEditable;
-                    ToolTip = 'Specifies the unique identifier of the job on the price list line.';
+                    ToolTip = 'Specifies the unique identifier of the project on the price list line.';
                     Visible = UseCustomLookup;
                 }
                 field("Source No."; Rec."Source No.")
@@ -286,7 +286,7 @@ page 7024 "Prices Overview"
                     ApplicationArea = Basic, Suite;
                     Editable = AssignToParentNoEditable;
                     ShowMandatory = AssignToParentNoEditable;
-                    ToolTip = 'Specifies the unique identifier of the job on the price list line.';
+                    ToolTip = 'Specifies the unique identifier of the project on the price list line.';
                     Visible = not UseCustomLookup;
                 }
                 field("Assign-to No."; Rec."Assign-to No.")
@@ -395,7 +395,7 @@ page 7024 "Prices Overview"
                     Editable = UnitPriceEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify and SalesPriceLine and PriceEditable;
-                    ToolTip = 'Specifies the unit cost factor for job-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
+                    ToolTip = 'Specifies the unit cost factor for project-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                 }
                 field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
@@ -562,7 +562,7 @@ page 7024 "Prices Overview"
         }
     }
 
-#if not CLEAN21
+#if not CLEAN23
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
@@ -612,7 +612,7 @@ page 7024 "Prices Overview"
         CurrencyCodeFilter: Text;
         StartingDateFilter: Text;
         EndingDateFilter: Text;
-        PageCaption: Text;
+        PageCaptionText: Text;
         Description3Lbl: Label '%1 %2 %3', Locked = true;
         Description5Lbl: Label '%1 %2 %3 %4 %5', Locked = true;
         WithinFilterLbl: Label 'No %1 within the filter %2.', Comment = '%1 - the unique entity id, %2 - the filter string ';
@@ -786,7 +786,7 @@ page 7024 "Prices Overview"
 
     local procedure SetCaption()
     begin
-        PageCaption := GetFilterDescription();
+        PageCaptionText := GetFilterDescription();
     end;
 
     local procedure SetEditableFields()

@@ -5,6 +5,7 @@ table 9009 "Permission Set Buffer"
     Caption = 'Permission Set Buffer';
     DataPerCompany = false;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

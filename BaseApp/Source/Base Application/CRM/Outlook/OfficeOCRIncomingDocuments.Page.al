@@ -12,7 +12,7 @@ page 1626 "Office OCR Incoming Documents"
     SourceTable = "Exchange Object";
     SourceTableTemporary = true;
     SourceTableView = sorting(Name)
-                      order(Ascending);
+                      order(ascending);
 
     layout
     {

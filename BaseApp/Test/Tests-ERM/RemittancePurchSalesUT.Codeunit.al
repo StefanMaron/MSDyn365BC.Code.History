@@ -39,7 +39,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         REPORT.Run(REPORT::"Remittance Advice - Journal");  // Opens handler - RemittanceAdviceJournalRequestPageHandler.
 
         // [THEN] Verify Amount and Remaining Pmt. Disc. Possible on Report - Remittance Advice - Journal.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         LibraryReportDataset.AssertElementWithValueExists('Amt_GenJournalLine', GenJournalLine.Amount);
         LibraryReportDataset.AssertElementWithValueExists('PmdDiscRec', 0);
@@ -62,7 +62,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
 
         // [GIVEN] Two Gen. Journal lines with Amounts = "X" and "Y" for the same Vendor
         CreateGenJournalTemplateAndBatch(GenJournalBatch);
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
 
@@ -79,7 +79,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         REPORT.Run(REPORT::"Remittance Advice - Journal");
 
         // [THEN] Total Amount on Remittance Advice - Journal Report is equal to "X" + "Y"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalAmount', Amount);
     end;
 
@@ -104,7 +104,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         Initialize();
 
         CreateGenJournalTemplateAndBatch(GenJournalBatch);
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
 
@@ -135,7 +135,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         REPORT.Run(REPORT::"Remittance Advice - Journal");
 
         // [THEN] "Inv1" is printed with Original Amount = 100, Remaining Amount = 0, Payment Curr. Amount = 10
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyRemittanceAdviceJournalValues(ExtDocNoCur, AmountCur, Amount - AmountLCY, CurrencyCode);
         // [THEN] "Inv2" is printed with Original Amount = 20, Remaining Amount = 0, Payment Curr. Amount = 20
         VerifyRemittanceAdviceJournalValues(VendorLedgerEntry."External Document No.", AmountLCY, AmountLCY, '');
@@ -168,7 +168,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
 
         // [THEN] Verify Amount, Original Amount and Remaining Pmt. Disc. Possible on Report - Remittance Advice - Journal.
         VendorLedgerEntry.CalcFields("Original Amount");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Amt_GenJournalLine', GenJournalLine.Amount);
         LibraryReportDataset.AssertElementWithValueExists('AppliedVendLedgEntryTempOriginalAmt', -VendorLedgerEntry."Original Amount");
         LibraryReportDataset.AssertElementWithValueExists('PmdDiscRec', VendorLedgerEntry."Remaining Pmt. Disc. Possible");
@@ -187,7 +187,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         Initialize();
         // [GIVEN] Create Vendor and Detailed Vendor Ledger Entry.
         CreateVendorLedgerEntry(
-          VendorLedgerEntry, '', CreateVendor, false, LibraryRandom.RandDec(10, 2), VendorLedgerEntry."Document Type"::Payment);  // Print Vendor Ledger Details - False and using partial Amount to Apply.
+          VendorLedgerEntry, '', CreateVendor(), false, LibraryRandom.RandDec(10, 2), VendorLedgerEntry."Document Type"::Payment);  // Print Vendor Ledger Details - False and using partial Amount to Apply.
         CreateAndUpdateDetailedVendorLedgerEntry(VendorLedgerEntry, DetailedVendorLedgEntry."Entry Type"::Application);
         CreateAndUpdateDetailedVendorLedgerEntry(VendorLedgerEntry, DetailedVendorLedgEntry."Entry Type"::"Payment Discount");
 
@@ -195,7 +195,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         REPORT.Run(REPORT::"Remittance Advice - Entries");
 
         // [THEN] Verifying Vendor No. on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VendorLedgerEntryVendorNo', VendorLedgerEntry."Vendor No.");
     end;
 
@@ -314,7 +314,6 @@ codeunit 133772 "Remittance Purch & Sales UT"
         BankAccount: Record "Bank Account";
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
         PaymentJournal: TestPage "Payment Journal";
-        Assert: Codeunit Assert;
         VendorNo: Code[20];
         CurrencyCode: Code[10];
         ExchRate: Decimal;
@@ -380,7 +379,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
-        DeleteObjectOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded();
     end;
 
     local procedure ApplyVendorLedgerEntryWithAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20]; AmountToApply: Decimal)
@@ -402,7 +401,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         CreateGenJournalTemplateAndBatch(GenJournalBatch);
-        CreateGeneralJournalLineForBatch(GenJournalLine, GenJournalBatch, CreateVendor);
+        CreateGeneralJournalLineForBatch(GenJournalLine, GenJournalBatch, CreateVendor());
 
         // Enqueue value for Request Page handler - RemittanceAdviceJournalRequestPageHandler.
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
@@ -423,9 +422,9 @@ codeunit 133772 "Remittance Purch & Sales UT"
             "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
             "Bal. Account No." := "Account No.";
             "Document Type" := "Document Type"::Payment;
-            "Document No." := LibraryUTUtility.GetNewCode;
+            "Document No." := LibraryUTUtility.GetNewCode();
             "Bank Payment Type" := "Bank Payment Type"::"Computer Check";
-            "Applies-to ID" := LibraryUTUtility.GetNewCode;
+            "Applies-to ID" := LibraryUTUtility.GetNewCode();
             "Posting Date" := WorkDate();
             Amount := LibraryRandom.RandDecInDecimalRange(20, 50, 2);
             Insert();
@@ -437,10 +436,10 @@ codeunit 133772 "Remittance Purch & Sales UT"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate.Insert();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         GenJournalBatch.Insert();
     end;
 
@@ -461,9 +460,9 @@ codeunit 133772 "Remittance Purch & Sales UT"
     begin
         GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
-        GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode;
-        GLEntry."Document No." := LibraryUTUtility.GetNewCode;
-        GLEntry."Transaction No." := SelectGLEntryTransactionNo;
+        GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode();
+        GLEntry."Document No." := LibraryUTUtility.GetNewCode();
+        GLEntry."Transaction No." := SelectGLEntryTransactionNo();
         GLEntry.Insert();
     end;
 
@@ -483,7 +482,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Enqueue value for Request Page handler - RemittanceAdviceJournalRequestPageHandler or RemittanceAdviceEntriesRequestPageHandler.
         exit(Vendor."No.");
@@ -527,7 +526,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Applies-to ID" := AppliesToID;
         VendorLedgerEntry."Amount to Apply" := AmountToApply;
-        VendorLedgerEntry."External Document No." := LibraryUTUtility.GetNewCode;
+        VendorLedgerEntry."External Document No." := LibraryUTUtility.GetNewCode();
         VendorLedgerEntry."Document Type" := DocumentType;
         VendorLedgerEntry."Transaction No." := GLEntry."Transaction No.";
         VendorLedgerEntry.Open := true;
@@ -653,7 +652,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         RemittanceAdviceJournal.FindVendors.SetFilter("Journal Template Name", JournalTemplateName);
         RemittanceAdviceJournal.FindVendors.SetFilter("Journal Batch Name", JournalBatchName);
         RemittanceAdviceJournal.Vendor.SetFilter("No.", No);
-        RemittanceAdviceJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RemittanceAdviceJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -665,7 +664,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         CurrentSaveValuesId := REPORT::"Remittance Advice - Entries";
         LibraryVariableStorage.Dequeue(VendorNo);
         RemittanceAdviceEntries."Vendor Ledger Entry".SetFilter("Vendor No.", VendorNo);
-        RemittanceAdviceEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RemittanceAdviceEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -683,7 +682,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         CreatePayment."Bank Account".SetValue(LibraryVariableStorage.DequeueText());
         CreatePayment."Posting Date".SetValue(LibraryVariableStorage.DequeueDate());
         CreatePayment."Starting Document No.".SetValue(StartingDocumentNo);
-        CreatePayment.OK.Invoke();
+        CreatePayment.OK().Invoke();
     end;
 
     local procedure DeleteObjectOptionsIfNeeded()

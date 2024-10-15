@@ -14,6 +14,7 @@ using Microsoft.Sales.Customer;
 table 10863 "Payment Step Ledger"
 {
     Caption = 'Payment Step Ledger';
+    DataClassification = CustomerContent;
 
     fields
     {

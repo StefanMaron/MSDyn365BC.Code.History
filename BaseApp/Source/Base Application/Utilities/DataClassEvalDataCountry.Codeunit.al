@@ -14,7 +14,9 @@ using Microsoft.Finance.FinancialReports;
 using Microsoft.Sales.Document;
 using Microsoft.Bank.Payment;
 using Microsoft.Finance.ReceivablesPayables;
+#if not CLEAN23
 using Microsoft.Finance.Analysis;
+#endif
 
 codeunit 1752 "Data Class. Eval. Data Country"
 {

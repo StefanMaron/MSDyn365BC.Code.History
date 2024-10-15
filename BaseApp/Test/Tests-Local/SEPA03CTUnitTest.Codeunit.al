@@ -269,7 +269,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
     begin
         Initialize();
 
-        InsertPaymentLinesWithExportErrors(PaymentLine, LibraryUtility.GenerateGUID, 3);
+        InsertPaymentLinesWithExportErrors(PaymentLine, LibraryUtility.GenerateGUID(), 3);
 
         PaymentJnlExportErrorText.SetRange("Journal Template Name", '');
         PaymentJnlExportErrorText.SetRange("Journal Batch Name", Format(DATABASE::"Payment Header"));
@@ -295,7 +295,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
     begin
         Initialize();
 
-        InsertPaymentLinesWithExportErrors(PaymentLine, LibraryUtility.GenerateGUID, 1);
+        InsertPaymentLinesWithExportErrors(PaymentLine, LibraryUtility.GenerateGUID(), 1);
         NotDeletedDocumentNo := PaymentLine."No.";
 
         PaymentHeader."No." := LibraryUtility.GenerateGUID();
@@ -335,13 +335,13 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         asserterror FillExportBuffer(PaymentHeader."No.", TempPaymentExportData);
         Assert.ExpectedError(JnlLinesHaveErrorsErr);
 
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.GotoKey(PaymentHeader."No.");
-        PaymentSlip.Lines.First;
+        PaymentSlip.Lines.First();
         PaymentSlip.Lines."Has Payment Export Error".AssertEquals(true);
-        PaymentSlip."Payment Journal Errors".First;
+        PaymentSlip."Payment Journal Errors".First();
         PaymentSlip."Payment Journal Errors"."Error Text".AssertEquals(AmountMustBePositiveErr);
-        Assert.IsFalse(PaymentSlip."Payment Journal Errors".Next, 'Just one error expected');
+        Assert.IsFalse(PaymentSlip."Payment Journal Errors".Next(), 'Just one error expected');
         PaymentSlip.Close();
     end;
 
@@ -359,7 +359,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         Initialize();
 
         CreatePaymentHeader(PaymentHeader);
-        PaymentHeader.Validate("Currency Code", FindCurrency);
+        PaymentHeader.Validate("Currency Code", FindCurrency());
         PaymentHeader.Modify(true);
         CreatePaymentLineVend(PaymentLine, PaymentHeader."No.", Vendor);
 
@@ -590,15 +590,15 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         Initialize();
 
         // [GIVEN] Payment Steps page
-        PaymentSteps.OpenEdit;
+        PaymentSteps.OpenEdit();
 
         // [WHEN] Click New
-        PaymentSteps.New;
+        PaymentSteps.New();
 
         // [THEN] New Payment Step record created
         Code := LibraryUtility.GenerateGUID();
         PaymentSteps.Name.Value := Code;
-        PaymentSteps.OK.Invoke;
+        PaymentSteps.OK().Invoke();
 
         PaymentStep.SetRange(Name, Code);
         PaymentStep.FindFirst();
@@ -619,7 +619,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         end;
     end;
 
-    local procedure AddPaymentStep(PaymentHeader: Record "Payment Header"; ActionType: Option; var PaymentStep: Record "Payment Step")
+    local procedure AddPaymentStep(PaymentHeader: Record "Payment Header"; ActionType: Enum "Payment Step Action Type"; var PaymentStep: Record "Payment Step")
     begin
         PaymentStep."Payment Class" := PaymentHeader."Payment Class";
         PaymentStep."Previous Status" := PaymentHeader."Status No.";
@@ -689,7 +689,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         LibraryVariableStorage.Enqueue(PaymentClass.Code);
         LibraryFRLocalization.CreatePaymentHeader(PaymentHeader);
         PaymentHeader."Account Type" := PaymentHeader."Account Type"::"Bank Account";
-        PaymentHeader.Validate("Account No.", CreateBankAccount);
+        PaymentHeader.Validate("Account No.", CreateBankAccount());
         PaymentHeader.Modify(true);
     end;
 
@@ -821,7 +821,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
             Validate(
               "External Document No.",
               CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen("External Document No.")), 1, MaxStrLen("External Document No.")));
-            Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode);  // Unused but required for AU, NZ builds
+            Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode());  // Unused but required for AU, NZ builds
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             if "Account Type" = "Account Type"::Customer then
                 GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale)
@@ -912,26 +912,26 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         PaymentLine: Record "Payment Line";
         PaymentSlip: TestPage "Payment Slip";
     begin
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.GotoRecord(PaymentHeader);
-        PaymentSlip.Lines.First;
+        PaymentSlip.Lines.First();
         Assert.IsTrue(
-          PaymentSlip.Lines."Bank Account Code".Editable, StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption("Bank Account Code")));
-        Assert.AreEqual(Editable, PaymentSlip.Lines.IBAN.Editable, StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption(IBAN)));
+          PaymentSlip.Lines."Bank Account Code".Editable(), StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption("Bank Account Code")));
+        Assert.AreEqual(Editable, PaymentSlip.Lines.IBAN.Editable(), StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption(IBAN)));
         Assert.AreEqual(
-          Editable, PaymentSlip.Lines."SWIFT Code".Editable, StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption("SWIFT Code")));
+          Editable, PaymentSlip.Lines."SWIFT Code".Editable(), StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption("SWIFT Code")));
         Assert.AreEqual(
-          Editable, PaymentSlip.Lines."Bank Account Name".Editable,
+          Editable, PaymentSlip.Lines."Bank Account Name".Editable(),
           StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption("Bank Account Name")));
         Assert.AreEqual(
-          Editable, PaymentSlip.Lines."Bank Account No.".Editable, StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption("Bank Account No.")));
+          Editable, PaymentSlip.Lines."Bank Account No.".Editable(), StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption("Bank Account No.")));
         Assert.AreEqual(
-          Editable, PaymentSlip.Lines."Bank Branch No.".Editable, StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption("Bank Branch No.")));
+          Editable, PaymentSlip.Lines."Bank Branch No.".Editable(), StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption("Bank Branch No.")));
         Assert.AreEqual(
-          Editable, PaymentSlip.Lines."Agency Code".Editable, StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption("Agency Code")));
-        Assert.AreEqual(Editable, PaymentSlip.Lines."RIB Key".Editable, StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption("RIB Key")));
+          Editable, PaymentSlip.Lines."Agency Code".Editable(), StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption("Agency Code")));
+        Assert.AreEqual(Editable, PaymentSlip.Lines."RIB Key".Editable(), StrSubstNo(EditableFieldErr, PaymentLine.FieldCaption("RIB Key")));
         // "Bank City" is not visible by default, so "Bank City".EDITABLE is not supported.
-        // Assert.AreEqual(Editable,PaymentSlip.Lines."Bank City".EDITABLE,STRSUBSTNO(NotEditableFieldErr,PaymentLine.FIELDCAPTION("Bank City")));
+        // Assert.AreEqual(Editable,PaymentSlip.Lines."Bank City".Editable(),STRSUBSTNO(NotEditableFieldErr,PaymentLine.FIELDCAPTION("Bank City")));
     end;
 
     local procedure VerifyBankInfoVisible(PaymentHeader: Record "Payment Header"; RIB: Boolean)
@@ -939,18 +939,18 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         PaymentLine: Record "Payment Line";
         PaymentSlip: TestPage "Payment Slip";
     begin
-        PaymentSlip.OpenEdit;
+        PaymentSlip.OpenEdit();
         PaymentSlip.GotoRecord(PaymentHeader);
-        PaymentSlip.Lines.First;
+        PaymentSlip.Lines.First();
         Assert.AreEqual(
-          RIB, PaymentSlip.Lines."Bank Account Name".Visible, StrSubstNo(VisibleFieldErr, PaymentLine.FieldCaption("Bank Account Name")));
+          RIB, PaymentSlip.Lines."Bank Account Name".Visible(), StrSubstNo(VisibleFieldErr, PaymentLine.FieldCaption("Bank Account Name")));
         Assert.AreEqual(
-          RIB, PaymentSlip.Lines."Bank Account No.".Visible, StrSubstNo(VisibleFieldErr, PaymentLine.FieldCaption("Bank Account No.")));
+          RIB, PaymentSlip.Lines."Bank Account No.".Visible(), StrSubstNo(VisibleFieldErr, PaymentLine.FieldCaption("Bank Account No.")));
         Assert.AreEqual(
-          RIB, PaymentSlip.Lines."Bank Branch No.".Visible, StrSubstNo(VisibleFieldErr, PaymentLine.FieldCaption("Bank Branch No.")));
-        Assert.AreEqual(RIB, PaymentSlip.Lines."Agency Code".Visible, StrSubstNo(VisibleFieldErr, PaymentLine.FieldCaption("Agency Code")));
-        Assert.AreEqual(RIB, PaymentSlip.Lines."RIB Key".Visible, StrSubstNo(VisibleFieldErr, PaymentLine.FieldCaption("RIB Key")));
-        Assert.AreEqual(RIB, PaymentSlip.Lines."RIB Checked".Visible, StrSubstNo(VisibleFieldErr, PaymentLine.FieldCaption("RIB Checked")));
+          RIB, PaymentSlip.Lines."Bank Branch No.".Visible(), StrSubstNo(VisibleFieldErr, PaymentLine.FieldCaption("Bank Branch No.")));
+        Assert.AreEqual(RIB, PaymentSlip.Lines."Agency Code".Visible(), StrSubstNo(VisibleFieldErr, PaymentLine.FieldCaption("Agency Code")));
+        Assert.AreEqual(RIB, PaymentSlip.Lines."RIB Key".Visible(), StrSubstNo(VisibleFieldErr, PaymentLine.FieldCaption("RIB Key")));
+        Assert.AreEqual(RIB, PaymentSlip.Lines."RIB Checked".Visible(), StrSubstNo(VisibleFieldErr, PaymentLine.FieldCaption("RIB Checked")));
     end;
 
     [ModalPageHandler]
@@ -961,7 +961,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
     begin
         LibraryVariableStorage.Dequeue(Code);
         PaymentClassList.GotoKey(Code);
-        PaymentClassList.OK.Invoke;
+        PaymentClassList.OK().Invoke();
     end;
 
     [ModalPageHandler]

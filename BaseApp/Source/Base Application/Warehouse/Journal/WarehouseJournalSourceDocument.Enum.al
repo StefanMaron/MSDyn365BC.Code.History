@@ -1,6 +1,8 @@
 namespace Microsoft.Warehouse.Journal;
 
+#pragma warning disable AL0659
 enum 7311 "Warehouse Journal Source Document"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

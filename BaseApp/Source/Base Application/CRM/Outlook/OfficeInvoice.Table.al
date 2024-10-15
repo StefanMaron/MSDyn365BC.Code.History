@@ -6,6 +6,7 @@ using Microsoft.Sales.History;
 table 1606 "Office Invoice"
 {
     Caption = 'Office Invoice', Comment = 'This table is used to keep track of invoices that have been created from the context of an Office add-in.';
+    DataClassification = CustomerContent;
 
     fields
     {

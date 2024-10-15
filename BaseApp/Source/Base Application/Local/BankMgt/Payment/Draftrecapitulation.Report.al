@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -391,7 +391,6 @@ report 10869 "Draft recapitulation"
         Text006: Label 'COPY';
         Text001: Label 'Draft Recapitulation %1';
         OutputNo: Integer;
-        Text007: Label 'Page %1';
         PaymtHeader__No__CaptionLbl: Label 'Draft No.';
         CompanyInformation__Phone_No__CaptionLbl: Label 'Phone No.';
         CompanyInformation__Fax_No__CaptionLbl: Label 'Fax No.';

@@ -5,6 +5,7 @@ table 5955 "Skill Code"
     Caption = 'Skill Code';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Skill Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

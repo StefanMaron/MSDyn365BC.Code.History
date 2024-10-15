@@ -22,6 +22,7 @@ using Microsoft.Sales.Customer;
 table 10864 "Payment Post. Buffer"
 {
     Caption = 'Payment Post. Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

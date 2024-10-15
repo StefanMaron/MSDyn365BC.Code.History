@@ -102,7 +102,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of Agency Code for Report 10882 (Transfer).
         // Verify actual error: "Bank Account No. is too long. Please verify before continuing."
-        PaymentHeaderWithRIBCheckedTrue(REPORT::Transfer, PaymentHeader.FieldNo("Agency Code"), LibraryUTUtility.GetNewCode10);
+        PaymentHeaderWithRIBCheckedTrue(REPORT::Transfer, PaymentHeader.FieldNo("Agency Code"), LibraryUTUtility.GetNewCode10());
     end;
 
     [Test]
@@ -115,7 +115,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of Bank Branch No for Report 10882 (Transfer).
         // Verify actual error: "The RIB of the company's bank account is incorrect. Please verify before continuing."
-        PaymentHeaderWithRIBCheckedTrue(REPORT::Transfer, PaymentHeader.FieldNo("Bank Branch No."), LibraryUTUtility.GetNewCode10);
+        PaymentHeaderWithRIBCheckedTrue(REPORT::Transfer, PaymentHeader.FieldNo("Bank Branch No."), LibraryUTUtility.GetNewCode10());
     end;
 
     [Test]
@@ -128,7 +128,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of Bank Account No for Report 10882 (Transfer).
         // Verify actual error: "The RIB of the company's bank account is incorrect. Please verify before continuing."
-        PaymentHeaderWithRIBCheckedTrue(REPORT::Transfer, PaymentHeader.FieldNo("Bank Account No."), LibraryUTUtility.GetNewCode);
+        PaymentHeaderWithRIBCheckedTrue(REPORT::Transfer, PaymentHeader.FieldNo("Bank Account No."), LibraryUTUtility.GetNewCode());
     end;
 
     [Test]
@@ -141,7 +141,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of Currency Code for Report 10882 (Transfer).
         // Verify actual error: "You can only use currency code EUR."
-        PaymentHeaderWithRIBCheckedTrue(REPORT::Transfer, PaymentHeader.FieldNo("Currency Code"), CreateCurrencyExchangeRate)
+        PaymentHeaderWithRIBCheckedTrue(REPORT::Transfer, PaymentHeader.FieldNo("Currency Code"), CreateCurrencyExchangeRate())
     end;
 
     [Test]
@@ -154,7 +154,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of Agency Code for Report 10881 (Withdraw).
         // Verify actual error: "Bank Account No. is too long. Please verify before continuing."
-        PaymentHeaderWithRIBCheckedTrue(REPORT::Withdraw, PaymentHeader.FieldNo("Agency Code"), LibraryUTUtility.GetNewCode10)
+        PaymentHeaderWithRIBCheckedTrue(REPORT::Withdraw, PaymentHeader.FieldNo("Agency Code"), LibraryUTUtility.GetNewCode10())
     end;
 
     [Test]
@@ -167,7 +167,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of Bank Branch No for Report 10881 (Withdraw).
         // Verify actual error: "Bank Account No. is too long. Please verify before continuing."
-        PaymentHeaderWithRIBCheckedTrue(REPORT::Withdraw, PaymentHeader.FieldNo("Bank Branch No."), LibraryUTUtility.GetNewCode10)
+        PaymentHeaderWithRIBCheckedTrue(REPORT::Withdraw, PaymentHeader.FieldNo("Bank Branch No."), LibraryUTUtility.GetNewCode10())
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of Bank Account No for Report 10881 (Withdraw).
         // Verify actual error: "Bank Account No. is too long. Please verify before continuing."
-        PaymentHeaderWithRIBCheckedTrue(REPORT::Withdraw, PaymentHeader.FieldNo("Bank Account No."), LibraryUTUtility.GetNewCode);
+        PaymentHeaderWithRIBCheckedTrue(REPORT::Withdraw, PaymentHeader.FieldNo("Bank Account No."), LibraryUTUtility.GetNewCode());
     end;
 
     [Test]
@@ -193,7 +193,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of Currency Code for Report 10881 (Withdraw).
         // Verify actual error: "You can only use currency code EUR."
-        PaymentHeaderWithRIBCheckedTrue(REPORT::Withdraw, PaymentHeader.FieldNo("Currency Code"), CreateCurrencyExchangeRate);
+        PaymentHeaderWithRIBCheckedTrue(REPORT::Withdraw, PaymentHeader.FieldNo("Currency Code"), CreateCurrencyExchangeRate());
     end;
 
     [Test]
@@ -206,7 +206,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of Agency Code for Report 10880 (ETEBAC Files).
         // Verify actual error: "Bank Account No. is too long. Please verify before continuing."
-        PaymentHeaderWithRIBCheckedTrue(REPORT::"ETEBAC Files", PaymentHeader.FieldNo("Agency Code"), LibraryUTUtility.GetNewCode10);
+        PaymentHeaderWithRIBCheckedTrue(REPORT::"ETEBAC Files", PaymentHeader.FieldNo("Agency Code"), LibraryUTUtility.GetNewCode10());
     end;
 
     [Test]
@@ -219,7 +219,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of Bank Branch No for Report 10880 (ETEBAC Files).
         // Verify actual error: "Bank Account No. is too long. Please verify before continuing."
-        PaymentHeaderWithRIBCheckedTrue(REPORT::"ETEBAC Files", PaymentHeader.FieldNo("Bank Branch No."), LibraryUTUtility.GetNewCode10);
+        PaymentHeaderWithRIBCheckedTrue(REPORT::"ETEBAC Files", PaymentHeader.FieldNo("Bank Branch No."), LibraryUTUtility.GetNewCode10());
     end;
 
     [Test]
@@ -232,7 +232,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of Bank Account No for Report 10880 (ETEBAC Files).
         // Verify actual error: "Bank Account No. is too long. Please verify before continuing."
-        PaymentHeaderWithRIBCheckedTrue(REPORT::"ETEBAC Files", PaymentHeader.FieldNo("Bank Account No."), LibraryUTUtility.GetNewCode);
+        PaymentHeaderWithRIBCheckedTrue(REPORT::"ETEBAC Files", PaymentHeader.FieldNo("Bank Account No."), LibraryUTUtility.GetNewCode());
     end;
 
     local procedure PaymentHeaderWithRIBCheckedTrue(ReportID: Integer; FieldNo: Integer; FieldValue: Code[20])
@@ -256,7 +256,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate Payment Line - OnAfterGetRecord of Report 10882 (Transfer).
         // Verify actual error: "The RIB of the vendor's bank account  is incorrect. Please verify before continuing."
-        CreatePaymentLineAndRunReport(REPORT::Transfer, LibraryUTUtility.GetNewCode);
+        CreatePaymentLineAndRunReport(REPORT::Transfer, LibraryUTUtility.GetNewCode());
     end;
 
     [Test]
@@ -267,7 +267,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate Payment Line - OnAfterGetRecord of Report 10881 (Withdraw).
         // Verify actual error: "The RIB of the company's bank account is incorrect. Please verify before continuing."
-        CreatePaymentLineAndRunReport(REPORT::Withdraw, LibraryUTUtility.GetNewCode);
+        CreatePaymentLineAndRunReport(REPORT::Withdraw, LibraryUTUtility.GetNewCode());
     end;
 
     [Test]
@@ -278,7 +278,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate Payment Line - OnAfterGetRecord of Report 10880 (ETEBAC Files).
         // Verify actual error: "The RIB of the company's bank account is incorrect. Please verify before continuing."
-        CreatePaymentLineAndRunReport(REPORT::"ETEBAC Files", CreateCustomer);
+        CreatePaymentLineAndRunReport(REPORT::"ETEBAC Files", CreateCustomer());
     end;
 
     local procedure CreatePaymentLineAndRunReport(ReportID: Integer; FieldValue: Code[20])
@@ -376,7 +376,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Setup.
         Initialize();
-        UpdatePaymentLine(CreatePaymentLine(CreateCustomer), FieldNo, LibraryUTUtility.GetNewCode);
+        UpdatePaymentLine(CreatePaymentLine(CreateCustomer()), FieldNo, LibraryUTUtility.GetNewCode());
 
         // Exercise.
         asserterror REPORT.Run(ReportID);
@@ -448,7 +448,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of New Name for Report 10872 (Duplicate parameter).
         // Verify actual error: "The Payment Class already exists. Identification fields and values.'"
-        RunMiscellaneousReportsAndVerifyError(LibraryUTUtility.GetNewCode, REPORT::"Duplicate parameter", 'DB:RecordExists');
+        RunMiscellaneousReportsAndVerifyError(LibraryUTUtility.GetNewCode(), REPORT::"Duplicate parameter", 'DB:RecordExists');
     end;
 
     [Test]
@@ -459,7 +459,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of New Name for Report 10872 (Duplicate parameter).
         // Verify actual error: "The name you have put does already exist. Please put an other name."
-        RunMiscellaneousReportsAndVerifyError(CreatePaymentClass, REPORT::"Duplicate parameter", DialogCap);
+        RunMiscellaneousReportsAndVerifyError(CreatePaymentClass(), REPORT::"Duplicate parameter", DialogCap);
     end;
 
     local procedure RunMiscellaneousReportsAndVerifyError(InputValue: Variant; ReportID: Integer; ErrorCode: Text[30])
@@ -505,12 +505,12 @@ codeunit 144054 "UT REP Payment Management II"
         // Purpose of test is to validate OnAfterGetRecord of Report 10872 (Duplicate Parameter).
         // Setup: Create Payment Class and assign value for duplicate class.
         Initialize();
-        PaymentClass.OpenEdit;
-        PaymentClass.FILTER.SetFilter(Code, CreatePaymentClass);
+        PaymentClass.OpenEdit();
+        PaymentClass.FILTER.SetFilter(Code, CreatePaymentClass());
         LibraryVariableStorage.Enqueue(CopyStr(PaymentClass.Code.Value, 1, 4));  // Enqueue required for DuplicateParameterRequestPageHandler.
 
         // Exercise: Run Duplicate Parameter batch job report.
-        PaymentClass.DuplicateParameter.Invoke;
+        PaymentClass.DuplicateParameter.Invoke();
 
         // Verify: Verify duplicate class with new name.
         PaymentClass.FILTER.SetFilter(Code, CopyStr(PaymentClass.Code.Value, 1, 4));
@@ -527,7 +527,7 @@ codeunit 144054 "UT REP Payment Management II"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         exit(Currency.Code);
     end;
@@ -536,7 +536,7 @@ codeunit 144054 "UT REP Payment Management II"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        CurrencyExchangeRate."Currency Code" := CreateCurrency;
+        CurrencyExchangeRate."Currency Code" := CreateCurrency();
         CurrencyExchangeRate."Exchange Rate Amount" := LibraryRandom.RandDec(10, 2);
         CurrencyExchangeRate."Relational Exch. Rate Amount" := LibraryRandom.RandDec(10, 2);
         CurrencyExchangeRate.Insert();
@@ -547,7 +547,7 @@ codeunit 144054 "UT REP Payment Management II"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -556,7 +556,7 @@ codeunit 144054 "UT REP Payment Management II"
     var
         PaymentClass: Record "Payment Class";
     begin
-        PaymentClass.Code := LibraryUTUtility.GetNewCode;
+        PaymentClass.Code := LibraryUTUtility.GetNewCode();
         PaymentClass.Insert();
         exit(PaymentClass.Code);
     end;
@@ -565,10 +565,10 @@ codeunit 144054 "UT REP Payment Management II"
     var
         PaymentHeader: Record "Payment Header";
     begin
-        PaymentHeader."No." := LibraryUTUtility.GetNewCode;
-        PaymentHeader."Payment Class" := LibraryUTUtility.GetNewCode;
+        PaymentHeader."No." := LibraryUTUtility.GetNewCode();
+        PaymentHeader."Payment Class" := LibraryUTUtility.GetNewCode();
         PaymentHeader."Account Type" := PaymentHeader."Account Type"::"Bank Account";
-        PaymentHeader."National Issuer No." := CopyStr(LibraryUTUtility.GetNewCode10, 6);  // National Issuer No should be less than 6 characters.
+        PaymentHeader."National Issuer No." := CopyStr(LibraryUTUtility.GetNewCode10(), 6);  // National Issuer No should be less than 6 characters.
         PaymentHeader."RIB Checked" := RIBChecked;
         PaymentHeader.Insert();
         exit(PaymentHeader."No.");
@@ -581,7 +581,7 @@ codeunit 144054 "UT REP Payment Management II"
         PaymentLine."No." := CreatePaymentHeader(true);  // RIBChecked as true.
         PaymentLine."Account Type" := PaymentLine."Account Type"::"Bank Account";
         PaymentLine."Account No." := AccountNo;
-        PaymentLine."Bank Account No." := LibraryUTUtility.GetNewCode10;
+        PaymentLine."Bank Account No." := LibraryUTUtility.GetNewCode10();
         PaymentLine.Insert();
         exit(PaymentLine."No.");
     end;
@@ -623,7 +623,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         LibraryVariableStorage.Dequeue(No);
         ArchivePaymentSlips."Payment Header".SetFilter("No.", No);
-        ArchivePaymentSlips.OK.Invoke;
+        ArchivePaymentSlips.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -634,14 +634,14 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         LibraryVariableStorage.Dequeue(NewName);
         Duplicateparameter.NewName.SetValue(NewName);
-        Duplicateparameter.OK.Invoke;
+        Duplicateparameter.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ETEBACFilesRequestPageHandler(var ETEBACFiles: TestRequestPage "ETEBAC Files")
     begin
-        ETEBACFiles.OK.Invoke;
+        ETEBACFiles.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -659,7 +659,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         LibraryVariableStorage.Dequeue(LastPaymentDate);
         SuggestCustomerPayments.LastPaymentDate.SetValue(LastPaymentDate);
-        SuggestCustomerPayments.OK.Invoke;
+        SuggestCustomerPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -671,21 +671,21 @@ codeunit 144054 "UT REP Payment Management II"
         LibraryVariableStorage.Dequeue(LastPaymentDate);
         SuggestVendorPaymentsFR.LastPaymentDate.SetValue(LastPaymentDate);
         SuggestVendorPaymentsFR.AvailableAmountLCY.SetValue(LibraryRandom.RandDec(10, 2));
-        SuggestVendorPaymentsFR.OK.Invoke;
+        SuggestVendorPaymentsFR.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure TransferRequestPageHandler(var Transfer: TestRequestPage Transfer)
     begin
-        Transfer.OK.Invoke;
+        Transfer.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure WithdrawRequestPageHandler(var Withdraw: TestRequestPage Withdraw)
     begin
-        Withdraw.OK.Invoke;
+        Withdraw.OK().Invoke();
     end;
 }
 

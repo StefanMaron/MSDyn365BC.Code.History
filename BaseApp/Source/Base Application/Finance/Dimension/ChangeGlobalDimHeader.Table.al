@@ -9,6 +9,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 table 484 "Change Global Dim. Header"
 {
     Caption = 'Change Global Dim. Header';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -25,6 +25,7 @@ table 10866 "Payment Line"
     Caption = 'Payment Line';
     DrillDownPageID = "Payment Lines List";
     LookupPageID = "Payment Lines List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -525,7 +526,7 @@ table 10866 "Payment Line"
             "Document No." := Statement."No."
         else
             if "Document No." = '' then
-                "Document No." := NoSeriesMgt.GetNextNo(PaymentClass."Line No. Series", "Posting Date", false);
+                "Document No." := NoSeriesBatch.GetNextNo(PaymentClass."Line No. Series", "Posting Date");
         UpdateEntry(true);
     end;
 
@@ -545,7 +546,7 @@ table 10866 "Payment Line"
         Vendor: Record Vendor;
         DefaultDimension: Record "Default Dimension";
         RibKey: Codeunit "RIB Key";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         Text002: Label 'You cannot modify this payment line.';
         DimMgt: Codeunit DimensionManagement;
@@ -579,7 +580,7 @@ table 10866 "Payment Line"
                     if BottomLine then
                         "Document No." := IncStr(LastGenJnlLine."Document No.")
                     else
-                        "Document No." := NoSeriesMgt.GetNextNo(PaymentClass."Line No. Series", "Posting Date", false);
+                        "Document No." := NoSeriesBatch.GetNextNo(PaymentClass."Line No. Series", "Posting Date");
         end;
         "Due Date" := Statement."Posting Date";
 

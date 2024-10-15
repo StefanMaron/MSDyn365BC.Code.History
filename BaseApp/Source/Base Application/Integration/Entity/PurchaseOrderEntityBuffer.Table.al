@@ -19,6 +19,7 @@ table 5496 "Purchase Order Entity Buffer"
 {
     Caption = 'Purchase Order Entity Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

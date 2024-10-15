@@ -589,7 +589,7 @@ codeunit 104030 "Upgrade Plan Permissions"
         UserGroup: Record "User Group";
     begin
         // Both Teams Users and Blank profile uses Blank Role Center. So we need to get the profile by Profile ID explicitly. Rest we can find by role center id.
-        If (UserGroupCode = TeamsUsersTok) then begin
+        if (UserGroupCode = TeamsUsersTok) then begin
             AllProfile.SetRange("Profile ID", EmployeeTok);
             AllProfile.FindFirst();
         end else begin

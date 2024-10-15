@@ -1,4 +1,5 @@
 #if not CLEAN22
+#pragma warning disable AS0072
 codeunit 144000 "DEB DTI Export Tests"
 {
     // // [FEATURE] [Intrastat] [DTI]
@@ -7,6 +8,9 @@ codeunit 144000 "DEB DTI Export Tests"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Not used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -34,15 +38,15 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         DefaultExportToXML(TempIntrastatJnlLine);
 
-        VerifyXMLFileHeader;
-        VerifyXMLDeclarationHeader;
+        VerifyXMLFileHeader();
+        VerifyXMLDeclarationHeader();
         // TFS ID 399429: Intrastat xml file has: "MSConsDestCode" = "Entry/Exit Point", "regionCode" = "Area"
         VerifyXMLItemContent(TempIntrastatJnlLine);
-        VerifyNoOptionalXMLItemContent;
+        VerifyNoOptionalXMLItemContent();
     end;
 
     [Test]
@@ -53,7 +57,7 @@ codeunit 144000 "DEB DTI Export Tests"
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         IntrastatJnlBatch.Get(TempIntrastatJnlLine."Journal Template Name", TempIntrastatJnlLine."Journal Batch Name");
         IntrastatJnlBatch."Statistics Period" := '';
@@ -78,12 +82,12 @@ codeunit 144000 "DEB DTI Export Tests"
         Initialize();
         SetCompanyInfoCISDValue('');
 
-        CompanyInformationPage.OpenEdit;
+        CompanyInformationPage.OpenEdit();
         CISDValue := Format(Today, 0, 9);
         CompanyInformationPage.CISD.SetValue(CISDValue);
 
-        Assert.IsTrue(CompanyInformationPage.CISD.Visible, 'CISD control should be visible.');
-        Assert.IsTrue(CompanyInformationPage.CISD.Editable, 'CISD control should be editable.');
+        Assert.IsTrue(CompanyInformationPage.CISD.Visible(), 'CISD control should be visible.');
+        Assert.IsTrue(CompanyInformationPage.CISD.Editable(), 'CISD control should be editable.');
         Assert.AreEqual(CISDValue, CompanyInformationPage.CISD.Value, 'Wrong CISD value.');
     end;
 
@@ -111,7 +115,7 @@ codeunit 144000 "DEB DTI Export Tests"
         ExpectedDeclarationID: Integer;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CompanyInfo.Get();
         ExpectedDeclarationID := CompanyInfo."Last Intrastat Declaration ID";
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
@@ -139,7 +143,7 @@ codeunit 144000 "DEB DTI Export Tests"
         i: Integer;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CompanyInfo.Get();
         ExpectedDeclarationID := CompanyInfo."Last Intrastat Declaration ID";
         GenerateSetOfRcptShpt(TempIntrastatJnlLine, TotalAmountRcpt, TotalAmountShpt);
@@ -163,7 +167,7 @@ codeunit 144000 "DEB DTI Export Tests"
     procedure TestDefaultObligationLevelOnReqPage()
     begin
         Initialize();
-        InvokeReportAction;
+        InvokeReportAction();
         // Verification is in handler VerifyVisibleObligationLivelIs1
     end;
 
@@ -177,7 +181,7 @@ codeunit 144000 "DEB DTI Export Tests"
         FileOutStream: OutStream;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         TempIntrastatJnlLine.DeleteAll();
         ObligationLevel := 1;
         asserterror ExportDEBDTI.ExportToXML(TempIntrastatJnlLine, ObligationLevel, FileOutStream);
@@ -222,7 +226,7 @@ codeunit 144000 "DEB DTI Export Tests"
         FileContent: Text;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
 
         GenerateSetOfRcptShpt(TempIntrastatJnlLine, TotalAmountForReceipt, TotalAmountForShipment);
 
@@ -258,7 +262,7 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         TempIntrastatJnlLine."Transaction Type" := '70';
         TempIntrastatJnlLine.Modify(true);
@@ -277,7 +281,7 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         TempIntrastatJnlLine."Transaction Type" := '01';
         TempIntrastatJnlLine.Modify(true);
@@ -293,7 +297,7 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         TempIntrastatJnlLine."Transaction Specification" := '';
         TempIntrastatJnlLine.Modify(true);
@@ -319,7 +323,7 @@ codeunit 144000 "DEB DTI Export Tests"
         FileOutStream: OutStream;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         ObligationLevel := 2;
         FileTempBlob.CreateOutStream(FileOutStream);
@@ -339,7 +343,7 @@ codeunit 144000 "DEB DTI Export Tests"
         FileOutStream: OutStream;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         SetBatchStatPeriod(IntrastatJnlBatch);
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
@@ -364,7 +368,7 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CreateInvalidStatValueJnlSet(TempIntrastatJnlLine);
 
         asserterror DefaultExportToXML(TempIntrastatJnlLine);
@@ -384,7 +388,7 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CreateInvalidTransTypeJnlSet(TempIntrastatJnlLine);
 
         asserterror DefaultExportToXML(TempIntrastatJnlLine);
@@ -399,7 +403,7 @@ codeunit 144000 "DEB DTI Export Tests"
         CompanyInfo: Record "Company Information";
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         SetCompanyInfoNameValue('');
 
@@ -414,7 +418,7 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         TempIntrastatJnlLine.Quantity := -TempIntrastatJnlLine.Quantity;
         TempIntrastatJnlLine.Modify(true);
@@ -430,7 +434,7 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         TempIntrastatJnlLine."Statistical Value" := -TempIntrastatJnlLine."Statistical Value";
         TempIntrastatJnlLine.Modify(true);
@@ -445,8 +449,8 @@ codeunit 144000 "DEB DTI Export Tests"
     procedure TestObligationLevelOnReqPageInRange1To4()
     begin
         Initialize();
-        SetCompanyInfo;
-        InvokeReportAction;
+        SetCompanyInfo();
+        InvokeReportAction();
         // Verification is in handler VerifyObligationLevelAllowedIn1to4.
     end;
 
@@ -457,13 +461,13 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         SetDefaultOptionalValues(TempIntrastatJnlLine);
         DefaultExportToXML(TempIntrastatJnlLine);
 
-        VerifyXMLFileHeader;
-        VerifyXMLDeclarationHeader;
+        VerifyXMLFileHeader();
+        VerifyXMLDeclarationHeader();
         VerifyXMLItemContent(TempIntrastatJnlLine);
         VerifyOptionalXMLItemContent(TempIntrastatJnlLine);
     end;
@@ -475,7 +479,7 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         SetTariffNoWithSupplemUnit(TempIntrastatJnlLine, false);
         asserterror LibraryXMLRead.VerifyNodeValue('quantityInSU', '0');
         Assert.ExpectedError('quantityInSU');
@@ -488,7 +492,7 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         SetTariffNoWithSupplemUnit(TempIntrastatJnlLine, true);
         LibraryXMLRead.VerifyNodeValue('quantityInSU', Format(Round(TempIntrastatJnlLine.Quantity, 1), 0, 9));
     end;
@@ -501,7 +505,7 @@ codeunit 144000 "DEB DTI Export Tests"
         CompanyInfo: Record "Company Information";
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         SetCompanyInfoRegNoValue('');
 
@@ -516,7 +520,7 @@ codeunit 144000 "DEB DTI Export Tests"
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
 
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         DefaultExportToXML(TempIntrastatJnlLine);
@@ -529,10 +533,9 @@ codeunit 144000 "DEB DTI Export Tests"
     procedure TestReportedFlagPreventsExport()
     var
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
 
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         DefaultExportToXML(TempIntrastatJnlLine);
@@ -566,7 +569,7 @@ codeunit 144000 "DEB DTI Export Tests"
         CompanyInfo: Record "Company Information";
     begin
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
 
         CreateBasicIntrastatJnlLine(TempIntrastatJnlLine);
         SetCompanyInfoVATRegNoValue('');
@@ -587,7 +590,7 @@ codeunit 144000 "DEB DTI Export Tests"
     begin
         // [SCENARIO 375212] itemNumber XML tag value is incremented line by line and is expanded to 6 sybmols with zeros
         Initialize();
-        SetCompanyInfo;
+        SetCompanyInfo();
 
         // [GIVEN] "X" Intrastat Journal lines
         for LineCount := 1 to LibraryRandom.RandIntInRange(2, 5) do
@@ -632,8 +635,8 @@ codeunit 144000 "DEB DTI Export Tests"
         IntrastatJnlLine.Amount := 10003.12;
         IntrastatJnlLine."Statistical Value" := 19234.5;
         IntrastatJnlLine."Transaction Specification" := '21';
-        IntrastatJnlLine.Area := CreateArea;
-        IntrastatJnlLine."Entry/Exit Point" := CreateEntryExitPoint;
+        IntrastatJnlLine.Area := CreateArea();
+        IntrastatJnlLine."Entry/Exit Point" := CreateEntryExitPoint();
         IntrastatJnlLine.Insert();
     end;
 
@@ -675,7 +678,7 @@ codeunit 144000 "DEB DTI Export Tests"
         Area.Init();
         Area.Code :=
           LibraryUtility.GenerateRandomCodeWithLength(Area.FieldNo(Code), DATABASE::Area, MaxStrLen(Area.Code));
-        Area.Insert;
+        Area.Insert();
         exit(Area.Code);
     end;
 
@@ -687,7 +690,7 @@ codeunit 144000 "DEB DTI Export Tests"
         EntryExitPoint.Code :=
           LibraryUtility.GenerateRandomCodeWithLength(
             EntryExitPoint.FieldNo(Code), DATABASE::"Entry/Exit Point", MaxStrLen(EntryExitPoint.Code));
-        EntryExitPoint.Insert;
+        EntryExitPoint.Insert();
         exit(EntryExitPoint.Code);
     end;
 
@@ -731,8 +734,8 @@ codeunit 144000 "DEB DTI Export Tests"
         IntrastatJournalPage: TestPage "Intrastat Journal";
     begin
         Commit();
-        IntrastatJournalPage.OpenEdit;
-        IntrastatJournalPage."Export DEB DTI+".Invoke;
+        IntrastatJournalPage.OpenEdit();
+        IntrastatJournalPage."Export DEB DTI+".Invoke();
     end;
 
     local procedure SetBatchStatPeriod(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
@@ -774,7 +777,7 @@ codeunit 144000 "DEB DTI Export Tests"
         CompanyInfo.Get();
         CompanyInfo.Validate("Registration No.", SIRET);
         CompanyInfo.Validate("Country/Region Code", 'FR');
-        CompanyInfo.Validate("VAT Registration No.", CopyStr(CompanyInfo.GetPartyID, 1, 13));
+        CompanyInfo.Validate("VAT Registration No.", CopyStr(CompanyInfo.GetPartyID(), 1, 13));
         CompanyInfo.CISD := 'A1';
         // CompanyInfo.Name shouldnt be empty
         CompanyInfo.Modify(true);
@@ -971,7 +974,7 @@ codeunit 144000 "DEB DTI Export Tests"
         CompanyInfo."Registration No." := SIREN + '00022';
         Assert.AreEqual(
           CompanyInfo."Country/Region Code" + ExpectedControlSum + CompanyInfo."Registration No.",
-          CompanyInfo.GetPartyID, 'Wrong PartyID generated.');
+          CompanyInfo.GetPartyID(), 'Wrong PartyID generated.');
     end;
 
     local procedure VerifyXMLDeclarationHeader()
@@ -982,7 +985,7 @@ codeunit 144000 "DEB DTI Export Tests"
         VerifyNodeHasChildren('Declaration');
 
         LibraryXMLRead.VerifyNodeValue('referencePeriod', Format(WorkDate(), 0, '<Year4>-<Month,2>'));
-        LibraryXMLRead.VerifyNodeValue('PSIId', CompanyInfo.GetPartyID);
+        LibraryXMLRead.VerifyNodeValue('PSIId', CompanyInfo.GetPartyID());
 
         VerifyNodeHasChildren('Function');
         LibraryXMLRead.VerifyNodeValue('functionCode', 'O');
@@ -1005,10 +1008,10 @@ codeunit 144000 "DEB DTI Export Tests"
         LibraryXMLRead.VerifyNodeValue('envelopeId', CompanyInfo.CISD);
 
         VerifyNodeHasChildren('DateTime');
-        VerifyDateTimeStructure;
+        VerifyDateTimeStructure();
 
         VerifyNodeHasChildren('Party');
-        LibraryXMLRead.VerifyNodeValue('partyId', CompanyInfo.GetPartyID);
+        LibraryXMLRead.VerifyNodeValue('partyId', CompanyInfo.GetPartyID());
         LibraryXMLRead.VerifyAttributeValue('Party', 'partyType', 'PSI');
         LibraryXMLRead.VerifyAttributeValue('Party', 'partyRole', 'sender');
         LibraryXMLRead.VerifyNodeValue('partyName', CompanyInfo.Name);
@@ -1029,15 +1032,15 @@ codeunit 144000 "DEB DTI Export Tests"
     local procedure VerifyObligationLevelIsSetOnReqPage(var ExportDEBDTI: TestRequestPage "Export DEB DTI"; ExpectedValue: Integer)
     begin
         ExportDEBDTI."Obligation Level".SetValue(ExpectedValue);
-        Assert.AreEqual(ExpectedValue, ExportDEBDTI."Obligation Level".AsInteger, 'Allowed Obligation Level is in range 1..4.')
+        Assert.AreEqual(ExpectedValue, ExportDEBDTI."Obligation Level".AsInteger(), 'Allowed Obligation Level is in range 1..4.')
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VerifyVisibleObligationLivelIs1(var ExportDEBDTI: TestRequestPage "Export DEB DTI")
     begin
-        Assert.IsTrue(ExportDEBDTI."Obligation Level".Visible, 'Obligation Level control should be visible.');
-        Assert.AreEqual(1, ExportDEBDTI."Obligation Level".AsInteger, 'Wrong default Obligation Level value.');
+        Assert.IsTrue(ExportDEBDTI."Obligation Level".Visible(), 'Obligation Level control should be visible.');
+        Assert.AreEqual(1, ExportDEBDTI."Obligation Level".AsInteger(), 'Wrong default Obligation Level value.');
     end;
 
     [RequestPageHandler]

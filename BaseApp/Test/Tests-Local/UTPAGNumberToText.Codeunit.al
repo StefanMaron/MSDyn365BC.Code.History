@@ -29,7 +29,7 @@ codeunit 144041 "UT PAG Number To Text"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to verify amount in text on Page Check Preview Account Type Vendor.
-        PreviewCheckPaymentJournal(GenJournalLine."Account Type"::Vendor, CreateVendor);
+        PreviewCheckPaymentJournal(GenJournalLine."Account Type"::Vendor, CreateVendor());
     end;
 
     //[Test]
@@ -40,7 +40,7 @@ codeunit 144041 "UT PAG Number To Text"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to verify amount in text on Page Check Preview Account Type Customer.
-        PreviewCheckPaymentJournal(GenJournalLine."Account Type"::Customer, CreateCustomer);
+        PreviewCheckPaymentJournal(GenJournalLine."Account Type"::Customer, CreateCustomer());
     end;
 
     local procedure PreviewCheckPaymentJournal(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
@@ -52,11 +52,11 @@ codeunit 144041 "UT PAG Number To Text"
     begin
         // Setup: Create General Journal Line and Calculate Amount in Text.
         CreateGenJournalLine(GenJournalLine, AccountType, AccountNo);
-        Check.InitTextVariable;
+        Check.InitTextVariable();
         Check.FormatNoText(AmountInText, GenJournalLine.Amount, '');  // Use blank for Currency.
 
         // Exercise.
-        CheckPreview.OpenView;
+        CheckPreview.OpenView();
 
         // Verify: Verify Amount in Text on Page.
         CheckPreview.FILTER.SetFilter("Document No.", GenJournalLine."Document No.");
@@ -70,7 +70,7 @@ codeunit 144041 "UT PAG Number To Text"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -80,11 +80,11 @@ codeunit 144041 "UT PAG Number To Text"
         GenJournalLine."Account Type" := AccountType;
         GenJournalLine."Account No." := AccountNo;
         GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
-        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
-        GenJournalLine.Description := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode();
+        GenJournalLine.Description := LibraryUTUtility.GetNewCode();
         GenJournalLine.Amount := LibraryRandom.RandDec(10, 2);
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
-        GenJournalLine."Bal. Account No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Bal. Account No." := LibraryUTUtility.GetNewCode();
         GenJournalLine.Insert();
     end;
 
@@ -92,7 +92,7 @@ codeunit 144041 "UT PAG Number To Text"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;

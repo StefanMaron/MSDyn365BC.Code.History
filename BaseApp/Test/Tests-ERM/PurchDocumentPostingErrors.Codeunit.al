@@ -53,7 +53,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         PurchHeader.TestField("Posting Date", WorkDate());
 
         // [WHEN] Post Invoice '1001'
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PurchHeader.SendToPosting(CODEUNIT::"Purch.-Post");
 
         // [THEN] "Error Message" page is open, where is one error:
@@ -74,14 +74,14 @@ codeunit 132502 "Purch. Document Posting Errors"
         TempErrorMessage.TestField("Table Number", DATABASE::"General Ledger Setup");
         TempErrorMessage.TestField("Field Number", GeneralLedgerSetup.FieldNo("Allow Posting From"));
         // [WHEN] DrillDown on "Source"
-        GeneralLedgerSetupPage.Trap;
-        LibraryErrorMessage.DrillDownOnSource;
+        GeneralLedgerSetupPage.Trap();
+        LibraryErrorMessage.DrillDownOnSource();
         // [THEN] opens "General Ledger Setup" page.
         GeneralLedgerSetupPage."Allow Posting To".AssertEquals(WorkDate() - 1);
         GeneralLedgerSetupPage.Close();
 
         // [WHEN] DrillDown on "Description"
-        PurchInvoicePage.Trap;
+        PurchInvoicePage.Trap();
         LibraryErrorMessage.DrillDownOnContext();
         // [THEN] opens "Purchase Invoice" page.
         PurchInvoicePage."Posting Date".AssertEquals(WorkDate());
@@ -108,7 +108,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         PurchHeader.TestField("Posting Date", WorkDate());
 
         // [WHEN] Post Invoice '1001'
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PurchHeader.SendToPosting(CODEUNIT::"Purch.-Post");
 
         // [THEN] "Error Message" page is open, where is one error:
@@ -126,14 +126,14 @@ codeunit 132502 "Purch. Document Posting Errors"
         TempErrorMessage.TestField("Record ID", UserSetup.RecordId);
         TempErrorMessage.TestField("Field Number", UserSetup.FieldNo("Allow Posting From"));
         // [WHEN] DrillDown on "Source"
-        UserSetupPage.Trap;
-        LibraryErrorMessage.DrillDownOnSource;
+        UserSetupPage.Trap();
+        LibraryErrorMessage.DrillDownOnSource();
         // [THEN] opens "User Setup" page.
         UserSetupPage."Allow Posting To".AssertEquals(WorkDate() - 1);
         UserSetupPage.Close();
 
         // [WHEN] DrillDown on "Description"
-        PurchInvoicePage.Trap;
+        PurchInvoicePage.Trap();
         LibraryErrorMessage.DrillDownOnContext();
         // [THEN] opens "Purchase Invoice" page.
         PurchInvoicePage."Posting Date".AssertEquals(WorkDate());
@@ -166,7 +166,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         GeneralPostingSetup.Modify();
 
         // [WHEN] Post Invoice '1001'
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PurchaseHeader.SendToPosting(CODEUNIT::"Purch.-Post");
 
         // [THEN] "Error Message" page is open, where is one error:
@@ -216,7 +216,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         VATPostingSetup.Modify();
 
         // [WHEN] Post Invoice '1001'
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PurchaseHeader.SendToPosting(CODEUNIT::"Purch.-Post");
 
         // [THEN] "Error Message" page is open, where is one error:
@@ -294,7 +294,7 @@ codeunit 132502 "Purch. Document Posting Errors"
             PurchaseLine[2], PurchaseHeader, "Purchase Line Type"::"G/L Account", GLAccount[2]."No.", 1);
 
         // [WHEN] Post Order '1001'
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PurchHeaderToPost(PurchaseHeader);
         PurchaseHeader.SendToPosting(CODEUNIT::"Purch.-Post");
 
@@ -343,7 +343,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibraryERM.SetAllowPostingFromTo(0D, WorkDate() - 1);
         // [GIVEN] Order '1002', where "Posting Date" is 01.01.2019
         LibraryPurchase.CreatePurchHeader(
-          PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+          PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Preview Posting of Purchase Order '1002'
         asserterror PreviewPurchDocument(PurchHeader);
@@ -384,7 +384,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchHeader[2], VendorNo);
 
         // [WHEN] Post both documents as a batch
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PurchHeader[3].SetRange("Buy-from Vendor No.", VendorNo);
         PurchBatchPostMgt.RunWithUI(PurchHeader[3], 2, '');
 
@@ -421,7 +421,6 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryDimension: Codeunit "Library - Dimension";
         VendorNo: Code[20];
-        RegisterID: Guid;
     begin
         // [FEATURE] [Batch Posting] [Job Queue]
         // [SCENARIO] Batch posting of two documents (in background) verifies "Error Messages" that contains two lines per first document and one line for second document
@@ -678,7 +677,7 @@ codeunit 132502 "Purch. Document Posting Errors"
 
         // [GIVEN] Sales Order with Drop Shipment True and Sales Line for item "I" and mandatory dimension "D"
         CreateSalesOrderWithPurchasingCode(
-            SalesLine, DimensionValue, LibrarySales.CreateCustomerNo, CreatePurchasingCodeWithDropShipment, LibraryPurchase.CreateVendorNo);
+            SalesLine, DimensionValue, LibrarySales.CreateCustomerNo(), CreatePurchasingCodeWithDropShipment(), LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Run Carry Out Action Msg. - Req. batch job.
         CarryOutActionMsgOnReqWkshForDropShipment(SalesLine);
@@ -769,7 +768,7 @@ codeunit 132502 "Purch. Document Posting Errors"
     begin
         CreateReqWkshTemplateName(RequisitionWkshName, ReqWkshTemplate);
         GetDropShipmentOnReqWksht(SalesLine, RequisitionLine, RequisitionWkshName.Name, ReqWkshTemplate.Name);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
     end;
 
     local procedure GetDropShipmentOnReqWksht(var SalesLine: Record "Sales Line"; var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Code[10]; ReqWkshTemplate: Code[10])
@@ -804,7 +803,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
     begin
         PurchHeaderToPost(PurchHeader);
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PurchPostYesNo.Preview(PurchHeader);
     end;
 

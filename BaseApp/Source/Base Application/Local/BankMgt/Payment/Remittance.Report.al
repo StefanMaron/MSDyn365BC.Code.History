@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -396,7 +396,6 @@ report 10867 Remittance
         Text001: Label ' BILL';
         Text002: Label ' BILLS';
         OutputNo: Integer;
-        Text004: Label 'Page %1';
         Text003Lbl: Label 'Remittance';
         Text000Lbl: Label 'COPY';
         PaymtHeader__No__CaptionLbl: Label 'Remittance No.';

@@ -1,4 +1,4 @@
-﻿namespace System.Automation;
+namespace System.Automation;
 
 using System;
 using System.Azure.Identity;
@@ -26,9 +26,9 @@ codeunit 6400 "Flow Service Management"
         FlowSearchTemplatesUrlTxt: Label 'https://make.powerautomate.com/templates/?q=%1', Locked = true, Comment = '%1: a query string to use for template search';
         FlowARMResourceUrlTxt: Label 'https://management.core.windows.net/', Locked = true;
         FlowServiceResourceUrlTxt: Label 'https://service.flow.microsoft.com/', Locked = true, Comment = 'Note: while the url of Power Automate changed, the AAD resource still contains the old product name"Flow".';
-        FlowEnvironmentsProdApiTxt: Label 'https://management.azure.com/providers/Microsoft.ProcessSimple/environments?api-version=2016-11-01', Locked = true;
+        FlowEnvironmentsProdApiTxt: Label 'https://api.flow.microsoft.com/providers/Microsoft.ProcessSimple/environments?api-version=2016-11-01', Locked = true;
         FlowEnvironmentsTip1ApiTxt: Label 'https://tip1.api.powerapps.com/providers/Microsoft.PowerApps/environments?api-version=2016-11-01', Locked = true;
-        GenericErr: Label 'An error occured while trying to access the Power Automate service. Please try again or contact your system administrator if the error persists.';
+        GenericErr: Label 'An error occurred while trying to access the Power Automate service. Please try again or contact your system administrator if the error persists.';
         FlowResourceNameTxt: Label 'Flow Services';
         FlowTemplatePageSizeTxt: Label '20', Locked = true;
         FlowTemplateDestinationNewTxt: Label 'new', Locked = true;
@@ -45,6 +45,8 @@ codeunit 6400 "Flow Service Management"
         CustomerFilterTxt: Label 'Customer', Locked = true;
         ItemFilterTxt: Label 'Item', Locked = true;
         VendorFilterTxt: Label 'Vendor', Locked = true;
+        EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token for Power Automate services.', Locked = true;
+        PowerAutomatePickerTelemetryCategoryLbl: Label 'AL Power Automate Environment Picker', Locked = true;
 
     procedure GetFlowUrl(): Text
     var
@@ -249,13 +251,18 @@ codeunit 6400 "Flow Service Management"
         WebRequestHelper: Codeunit "Web Request Helper";
         ResponseText: Text;
         Handled: Boolean;
+        AccessToken: Text;
     begin
         Handled := false;
         OnBeforeSendGetEnvironmentRequest(ResponseText, Handled);
         if not Handled then begin
+            AccessToken := AzureAdMgt.GetAccessToken(FlowARMResourceUrlTxt, FlowResourceNameTxt, false);
+
+            if AccessToken = '' then
+                Session.LogMessage('0000MJX', EmptyAccessTokenTelemetryMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerAutomatePickerTelemetryCategoryLbl);
+
             // Gets a list of Flow user environments from the Flow API.
-            if not WebRequestHelper.GetResponseTextUsingCharset(
-                'GET', GetFlowEnvironmentsApi(), AzureAdMgt.GetAccessToken(FlowARMResourceUrlTxt, FlowResourceNameTxt, false), ResponseText)
+            if not WebRequestHelper.GetResponseTextUsingCharset('GET', GetFlowEnvironmentsApi(), AccessToken, ResponseText)
             then
                 Error(GenericErr);
         end;
@@ -282,7 +289,7 @@ codeunit 6400 "Flow Service Management"
             Current := ObjectEnumerator.Current;
 
             if Format(Current.Key) = 'value' then begin
-                JArray := Current.Value;
+                JArray := Current.Value();
                 ArrayEnumerator := JArray.GetEnumerator();
 
                 while ArrayEnumerator.MoveNext() do begin
@@ -367,6 +374,7 @@ codeunit 6400 "Flow Service Management"
         ResponseText: Text;
         PostResult: Boolean;
         Handled: Boolean;
+        AccessToken: Text;
     begin
         Handled := false;
         OnBeforeSetDefaultEnvironmentRequest(ResponseText, Handled);
@@ -376,9 +384,13 @@ codeunit 6400 "Flow Service Management"
             if TempFlowUserEnvironmentBuffer.FindFirst() then
                 SaveFlowUserEnvironmentSelection(TempFlowUserEnvironmentBuffer)
             else begin
+                AccessToken := AzureAdMgt.GetAccessToken(FlowARMResourceUrlTxt, FlowResourceNameTxt, false);
+
+                if AccessToken = '' then
+                    Session.LogMessage('0000MJY', EmptyAccessTokenTelemetryMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerAutomatePickerTelemetryCategoryLbl);
+
                 // No environment found so make a post call to create default environment. Post call returns error but actually creates environment
-                PostResult := WebRequestHelper.GetResponseTextUsingCharset(
-                    'POST', GetFlowEnvironmentsApi(), AzureAdMgt.GetAccessToken(FlowARMResourceUrlTxt, FlowResourceNameTxt, false), ResponseText);
+                PostResult := WebRequestHelper.GetResponseTextUsingCharset('POST', GetFlowEnvironmentsApi(), AccessToken, ResponseText);
 
                 if not PostResult then
                     ; // Do nothing. Need to store the result of the POST call so that error from POST call doesn't bubble up. May need to look at this later.
@@ -397,7 +409,7 @@ codeunit 6400 "Flow Service Management"
         FlowUserEnvironmentConfig: Record "Flow User Environment Config";
         EmptyGuid: Guid;
     begin
-        exit(FlowUserEnvironmentConfig.Get(UserSecurityId()) OR FlowUserEnvironmentConfig.Get(EmptyGuid));
+        exit(FlowUserEnvironmentConfig.Get(UserSecurityId()) or FlowUserEnvironmentConfig.Get(EmptyGuid));
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'GetPowerPlatformEnvironmentId', '', true, true)]
@@ -445,4 +457,3 @@ codeunit 6400 "Flow Service Management"
     begin
     end;
 }
-

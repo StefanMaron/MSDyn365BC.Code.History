@@ -73,7 +73,7 @@ codeunit 5819 "Undo Service Consumption Line"
         TrackingSpecificationExists: Boolean;
         HideDialog: Boolean;
         Text003: Label 'Checking lines...';
-        Text004: Label 'You cannot undo consumption on the line because it has been already posted to Jobs.';
+        Text004: Label 'You cannot undo consumption on the line because it has been already posted to Projects.';
         Text005: Label 'You cannot undo consumption because the original service order %1 is already closed.';
         NextLineNo: Integer;
 
@@ -90,56 +90,54 @@ codeunit 5819 "Undo Service Consumption Line"
         ServLedgEntryNo: Integer;
         WarrantyLedgEntryNo: Integer;
     begin
-        with ServShptLine do begin
-            Clear(ItemJnlPostLine);
-            SetRange(Correction, false);
-            Find('-');
-            repeat
+        Clear(ItemJnlPostLine);
+        ServShptLine.SetRange(Correction, false);
+        ServShptLine.Find('-');
+        repeat
+            if not HideDialog then
+                Window.Open(Text003);
+            CheckServShptLine(ServShptLine);
+        until ServShptLine.Next() = 0;
+
+        ServLedgEntriesPost.InitServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
+        ServShptLine.Find('-');
+        repeat
+            if ServShptLine.Quantity <> ServShptLine."Qty. Shipped Not Invoiced" then begin
+                TempGlobalItemLedgEntry.Reset();
+                if not TempGlobalItemLedgEntry.IsEmpty() then
+                    TempGlobalItemLedgEntry.DeleteAll();
+                TempGlobalItemEntryRelation.Reset();
+                if not TempGlobalItemEntryRelation.IsEmpty() then
+                    TempGlobalItemEntryRelation.DeleteAll();
+
                 if not HideDialog then
-                    Window.Open(Text003);
-                CheckServShptLine(ServShptLine);
-            until Next() = 0;
+                    Window.Open(Text001);
 
-            ServLedgEntriesPost.InitServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
-            Find('-');
-            repeat
-                if Quantity <> "Qty. Shipped Not Invoiced" then begin
-                    TempGlobalItemLedgEntry.Reset();
-                    if not TempGlobalItemLedgEntry.IsEmpty() then
-                        TempGlobalItemLedgEntry.DeleteAll();
-                    TempGlobalItemEntryRelation.Reset();
-                    if not TempGlobalItemEntryRelation.IsEmpty() then
-                        TempGlobalItemEntryRelation.DeleteAll();
-
-                    if not HideDialog then
-                        Window.Open(Text001);
-
-                    if Type = Type::Item then begin
-                        CollectItemLedgerEntries(ServShptLine, TempTrkgItemLedgEntry);
-                        ItemShptEntryNo := PostItemJnlLine(ServShptLine, "Item Shpt. Entry No.",
-                            Quantity, "Quantity (Base)",
-                            Quantity, "Quantity (Base)",
-                            DummyItemJnlLine."Entry Type"::"Positive Adjmt.");
-                    end;
-                    if Type = Type::Resource then
-                        PostResourceJnlLine(ServShptLine);
-                    InsertCorrectiveShipmentLine(ServShptLine, ItemShptEntryNo);
-
-                    ServLedgEntriesPost.ReverseCnsmServLedgEntries(ServShptLine);
-                    if Type in [Type::Item, Type::Resource] then
-                        ServLedgEntriesPost.ReverseWarrantyEntry(ServShptLine);
-
-                    UpdateOrderLine(ServShptLine);
-                    UpdateServShptLine(ServShptLine);
-                    OnCodeOnAfterUpdateServShptLine(ServShptLine);
+                if ServShptLine.Type = ServShptLine.Type::Item then begin
+                    CollectItemLedgerEntries(ServShptLine, TempTrkgItemLedgEntry);
+                    ItemShptEntryNo := PostItemJnlLine(ServShptLine, ServShptLine."Item Shpt. Entry No.",
+                        ServShptLine.Quantity, ServShptLine."Quantity (Base)",
+                        ServShptLine.Quantity, ServShptLine."Quantity (Base)",
+                        DummyItemJnlLine."Entry Type"::"Positive Adjmt.");
                 end;
-            until Next() = 0;
-            ServLedgEntriesPost.FinishServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
+                if ServShptLine.Type = ServShptLine.Type::Resource then
+                    PostResourceJnlLine(ServShptLine);
+                InsertCorrectiveShipmentLine(ServShptLine, ItemShptEntryNo);
 
-            MakeInventoryAdjustment();
+                ServLedgEntriesPost.ReverseCnsmServLedgEntries(ServShptLine);
+                if ServShptLine.Type in [ServShptLine.Type::Item, ServShptLine.Type::Resource] then
+                    ServLedgEntriesPost.ReverseWarrantyEntry(ServShptLine);
 
-            WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
-        end;
+                UpdateOrderLine(ServShptLine);
+                UpdateServShptLine(ServShptLine);
+                OnCodeOnAfterUpdateServShptLine(ServShptLine);
+            end;
+        until ServShptLine.Next() = 0;
+        ServLedgEntriesPost.FinishServiceRegister(ServLedgEntryNo, WarrantyLedgEntryNo);
+
+        MakeInventoryAdjustment();
+
+        WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
 
         OnAfterCode(ServShptLine);
     end;
@@ -156,29 +154,26 @@ codeunit 5819 "Undo Service Consumption Line"
         if IsHandled then
             exit;
 
-        with ServShptLine do begin
-            TestField("Quantity Invoiced", 0);
-            TestField("Quantity Consumed");
-            TestField("Qty. Shipped Not Invoiced", Quantity - "Quantity Consumed");
+        ServShptLine.TestField("Quantity Invoiced", 0);
+        ServShptLine.TestField("Quantity Consumed");
+        ServShptLine.TestField("Qty. Shipped Not Invoiced", ServShptLine.Quantity - ServShptLine."Quantity Consumed");
+        // Check if there was consumption posted to jobs
+        ServiceLedgerEntry.Reset();
+        ServiceLedgerEntry.SetRange("Document No.", ServShptLine."Document No.");
+        ServiceLedgerEntry.SetRange("Posting Date", ServShptLine."Posting Date");
+        ServiceLedgerEntry.SetRange("Document Line No.", ServShptLine."Line No.");
+        ServiceLedgerEntry.SetRange("Service Order No.", ServShptLine."Order No.");
+        ServiceLedgerEntry.SetRange("Job Posted", true);
+        if not ServiceLedgerEntry.IsEmpty() then
+            Error(Text004);
 
-            // Check if there was consumption posted to jobs
-            ServiceLedgerEntry.Reset();
-            ServiceLedgerEntry.SetRange("Document No.", "Document No.");
-            ServiceLedgerEntry.SetRange("Posting Date", "Posting Date");
-            ServiceLedgerEntry.SetRange("Document Line No.", "Line No.");
-            ServiceLedgerEntry.SetRange("Service Order No.", "Order No.");
-            ServiceLedgerEntry.SetRange("Job Posted", true);
-            if not ServiceLedgerEntry.IsEmpty() then
-                Error(Text004);
-
-            if not ServLine.Get(ServLine."Document Type"::Order, "Order No.", "Order Line No.") then
-                Error(Text005, "Order No.");
-            UndoPostingMgt.TestServShptLine(ServShptLine);
-            if Type = Type::Item then begin
-                UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Service Shipment Line",
-                  "Document No.", "Line No.", "Quantity (Base)", "Item Shpt. Entry No.");
-                UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
-            end;
+        if not ServLine.Get(ServLine."Document Type"::Order, ServShptLine."Order No.", ServShptLine."Order Line No.") then
+            Error(Text005, ServShptLine."Order No.");
+        UndoPostingMgt.TestServShptLine(ServShptLine);
+        if ServShptLine.Type = ServShptLine.Type::Item then begin
+            UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Service Shipment Line",
+              ServShptLine."Document No.", ServShptLine."Line No.", ServShptLine."Quantity (Base)", ServShptLine."Item Shpt. Entry No.");
+            UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, ServShptLine."Line No.");
         end;
     end;
 
@@ -203,52 +198,50 @@ codeunit 5819 "Undo Service Consumption Line"
         SourceCodeSetup.Get();
         ServShptHeader.Get(ServShptLine."Document No.");
 
-        with ItemJnlLine do begin
-            Init();
-            "Entry Type" := EntryType;
-            "Document Line No." :=
-              ServShptLine."Line No." + GetCorrectiveShptLineNoStep(ServShptLine."Document No.", ServShptLine."Line No.");
+        ItemJnlLine.Init();
+        ItemJnlLine."Entry Type" := EntryType;
+        ItemJnlLine."Document Line No." :=
+          ServShptLine."Line No." + GetCorrectiveShptLineNoStep(ServShptLine."Document No.", ServShptLine."Line No.");
 
-            CopyDocumentFields("Document Type"::"Service Shipment", ServShptHeader."No.", '', SourceCodeSetup."Service Management", '');
+        ItemJnlLine.CopyDocumentFields(ItemJnlLine."Document Type"::"Service Shipment", ServShptHeader."No.", '', SourceCodeSetup."Service Management", '');
 
-            CopyFromServShptHeader(ServShptHeader);
-            CopyFromServShptLineUndo(ServShptLine);
+        ItemJnlLine.CopyFromServShptHeader(ServShptHeader);
+        ItemJnlLine.CopyFromServShptLineUndo(ServShptLine);
 
-            Quantity := QtyToShip;
-            "Quantity (Base)" := QtyToShipBase;
-            "Invoiced Quantity" := QtyToConsume;
-            "Invoiced Qty. (Base)" := QtyToConsumeBase;
+        ItemJnlLine.Quantity := QtyToShip;
+        ItemJnlLine."Quantity (Base)" := QtyToShipBase;
+        ItemJnlLine."Invoiced Quantity" := QtyToConsume;
+        ItemJnlLine."Invoiced Qty. (Base)" := QtyToConsumeBase;
 
-            Validate("Applies-from Entry", ItemEntryNo);
+        ItemJnlLine.Validate(ItemJnlLine."Applies-from Entry", ItemEntryNo);
 
-            OnAfterCopyItemJnlLineFromServShpt(ItemJnlLine, ServShptHeader, ServShptLine);
+        OnAfterCopyItemJnlLineFromServShpt(ItemJnlLine, ServShptHeader, ServShptLine);
 
-            WhseUndoQty.InsertTempWhseJnlLine(ItemJnlLine,
-              DATABASE::"Service Line", ServiceLine."Document Type"::Order.AsInteger(), ServShptHeader."Order No.", ServShptLine."Order Line No.",
-              TempWhseJnlLine."Reference Document"::"Posted Shipment".AsInteger(), TempWhseJnlLine, NextLineNo);
+        WhseUndoQty.InsertTempWhseJnlLine(ItemJnlLine,
+          DATABASE::"Service Line", ServiceLine."Document Type"::Order.AsInteger(), ServShptHeader."Order No.", ServShptLine."Order Line No.",
+          TempWhseJnlLine."Reference Document"::"Posted Shipment".AsInteger(), TempWhseJnlLine, NextLineNo);
 
-            if not TrackingSpecificationExists then begin
-                ItemJnlPostLine.SetServUndoConsumption(true);
-                ItemJnlPostLine.RunWithCheck(ItemJnlLine);
-                OnItemJnlPostLineOnAfteItemJnlPostLineOnBeforeExit(ItemJnlLine, ServShptLine);
-                exit("Item Shpt. Entry No.");
-            end;
-
-            TempTrkgItemLedgEntry.Reset();
-            if QtyToConsume <> 0 then begin
-                SignFactor := 1;
-                TempTrkgItemLedgEntry2.DeleteAll();
-                TempTrkgItemLedgEntry.Reset();
-                if TempTrkgItemLedgEntry.FindFirst() then
-                    repeat
-                        TempTrkgItemLedgEntry2 := TempTrkgItemLedgEntry;
-                        TempTrkgItemLedgEntry2.Insert();
-                    until TempTrkgItemLedgEntry.Next() = 0;
-                InsertNewReservationEntries(ServShptLine, EntryType, SignFactor);
-                PostItemJnlLineWithIT(ServShptLine, QtyToShip, QtyToShipBase, QtyToConsume, QtyToConsumeBase, SignFactor, EntryType);
-            end;
-            exit(0); // "Item Shpt. Entry No."
+        if not TrackingSpecificationExists then begin
+            ItemJnlPostLine.SetServUndoConsumption(true);
+            ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+            OnItemJnlPostLineOnAfteItemJnlPostLineOnBeforeExit(ItemJnlLine, ServShptLine);
+            exit(ItemJnlLine."Item Shpt. Entry No.");
         end;
+
+        TempTrkgItemLedgEntry.Reset();
+        if QtyToConsume <> 0 then begin
+            SignFactor := 1;
+            TempTrkgItemLedgEntry2.DeleteAll();
+            TempTrkgItemLedgEntry.Reset();
+            if TempTrkgItemLedgEntry.FindFirst() then
+                repeat
+                    TempTrkgItemLedgEntry2 := TempTrkgItemLedgEntry;
+                    TempTrkgItemLedgEntry2.Insert();
+                until TempTrkgItemLedgEntry.Next() = 0;
+            InsertNewReservationEntries(ServShptLine, EntryType, SignFactor);
+            PostItemJnlLineWithIT(ServShptLine, QtyToShip, QtyToShipBase, QtyToConsume, QtyToConsumeBase, SignFactor, EntryType);
+        end;
+        exit(0); // "Item Shpt. Entry No."
     end;
 
     local procedure PostResourceJnlLine(ServiceShipmentLine: Record "Service Shipment Line")
@@ -265,24 +258,22 @@ codeunit 5819 "Undo Service Consumption Line"
         SourceCodeSetup.Get();
         ServShptHeader.Get(ServiceShipmentLine."Document No.");
 
-        with ResJournalLine do begin
-            Init();
-            CopyDocumentFields(ServiceShipmentLine."Document No.", '', SourceCodeSetup."Service Management", ServShptHeader."No. Series");
+        ResJournalLine.Init();
+        ResJournalLine.CopyDocumentFields(ServiceShipmentLine."Document No.", '', SourceCodeSetup."Service Management", ServShptHeader."No. Series");
 
-            CopyFromServShptHeader(ServShptHeader);
-            CopyFromServShptLine(ServiceShipmentLine);
-            "Source Type" := "Source Type"::Customer;
-            "Source No." := ServShptHeader."Customer No.";
+        ResJournalLine.CopyFromServShptHeader(ServShptHeader);
+        ResJournalLine.CopyFromServShptLine(ServiceShipmentLine);
+        ResJournalLine."Source Type" := ResJournalLine."Source Type"::Customer;
+        ResJournalLine."Source No." := ServShptHeader."Customer No.";
 
-            Quantity := -ServiceShipmentLine."Quantity Consumed";
-            "Unit Cost" := ServiceShipmentLine."Unit Cost (LCY)";
-            "Total Cost" := ServiceShipmentLine."Unit Cost (LCY)" * Quantity;
-            "Unit Price" := 0;
-            "Total Price" := 0;
+        ResJournalLine.Quantity := -ServiceShipmentLine."Quantity Consumed";
+        ResJournalLine."Unit Cost" := ServiceShipmentLine."Unit Cost (LCY)";
+        ResJournalLine."Total Cost" := ServiceShipmentLine."Unit Cost (LCY)" * ResJournalLine.Quantity;
+        ResJournalLine."Unit Price" := 0;
+        ResJournalLine."Total Price" := 0;
 
-            OnPostResourceJnlLineOnBeforeResJnlPostLine(ResJournalLine, ServShptHeader, ServiceShipmentLine);
-            ResJnlPostLine.RunWithCheck(ResJournalLine);
-        end;
+        OnPostResourceJnlLineOnBeforeResJnlPostLine(ResJournalLine, ServShptHeader, ServiceShipmentLine);
+        ResJnlPostLine.RunWithCheck(ResJournalLine);
     end;
 
     local procedure PostItemJnlLineWithIT(var ServShptLine: Record "Service Shipment Line"; QtyToShip: Decimal; QtyToShipBase: Decimal; QtyToConsume: Decimal; QtyToConsumeBase: Decimal; SignFactor: Integer; EntryType: Enum "Item Ledger Entry Type")
@@ -290,48 +281,46 @@ codeunit 5819 "Undo Service Consumption Line"
         ItemJnlLine: Record "Item Journal Line";
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
     begin
-        with ItemJnlLine do begin
-            Init();
-            "Entry Type" := EntryType;
-            "Document Line No." :=
-              ServShptLine."Line No." + GetCorrectiveShptLineNoStep(ServShptLine."Document No.", ServShptLine."Line No.");
+        ItemJnlLine.Init();
+        ItemJnlLine."Entry Type" := EntryType;
+        ItemJnlLine."Document Line No." :=
+          ServShptLine."Line No." + GetCorrectiveShptLineNoStep(ServShptLine."Document No.", ServShptLine."Line No.");
 
-            CopyDocumentFields(
-              "Document Type"::"Service Shipment", ServShptLine."Document No.", '', SourceCodeSetup."Service Management", '');
+        ItemJnlLine.CopyDocumentFields(
+          ItemJnlLine."Document Type"::"Service Shipment", ServShptLine."Document No.", '', SourceCodeSetup."Service Management", '');
 
-            CopyFromServShptHeader(ServShptHeader);
-            CopyFromServShptLineUndo(ServShptLine);
+        ItemJnlLine.CopyFromServShptHeader(ServShptHeader);
+        ItemJnlLine.CopyFromServShptLineUndo(ServShptLine);
 
-            "Source Type" := "Source Type"::Customer;
-            "Source No." := ServShptHeader."Customer No.";
-            "Derived from Blanket Order" := false;
-            "Item Shpt. Entry No." := 0;
-            Correction := true;
+        ItemJnlLine."Source Type" := ItemJnlLine."Source Type"::Customer;
+        ItemJnlLine."Source No." := ServShptHeader."Customer No.";
+        ItemJnlLine."Derived from Blanket Order" := false;
+        ItemJnlLine."Item Shpt. Entry No." := 0;
+        ItemJnlLine.Correction := true;
 
-            SignFactor := 1;
-            Quantity := SignFactor * QtyToShip;
-            "Invoiced Quantity" := SignFactor * QtyToConsume;
-            "Quantity (Base)" := SignFactor * QtyToShipBase;
-            "Invoiced Qty. (Base)" := SignFactor * QtyToConsumeBase;
-            "Unit Cost" := ServShptLine."Unit Cost";
+        SignFactor := 1;
+        ItemJnlLine.Quantity := SignFactor * QtyToShip;
+        ItemJnlLine."Invoiced Quantity" := SignFactor * QtyToConsume;
+        ItemJnlLine."Quantity (Base)" := SignFactor * QtyToShipBase;
+        ItemJnlLine."Invoiced Qty. (Base)" := SignFactor * QtyToConsumeBase;
+        ItemJnlLine."Unit Cost" := ServShptLine."Unit Cost";
 
-            ItemTrackingMgt.AdjustQuantityRounding(QtyToShip, Quantity, QtyToShipBase, "Quantity (Base)");
+        ItemTrackingMgt.AdjustQuantityRounding(QtyToShip, ItemJnlLine.Quantity, QtyToShipBase, ItemJnlLine."Quantity (Base)");
 
-            QtyToShip -= Quantity;
-            QtyToShipBase -= "Quantity (Base)";
-            if QtyToConsume <> 0 then begin
-                QtyToConsume -= Quantity;
-                QtyToConsumeBase -= "Quantity (Base)";
-            end;
-
-            OnBeforePostItemJnlLineWithIT(ItemJnlLine, ServShptLine);
-
-            UndoPostingMgt.CollectItemLedgEntries(TempItemLedgerEntry, DATABASE::"Service Shipment Line",
-              ServShptLine."Document No.", ServShptLine."Line No.", ServShptLine."Quantity (Base)",
-              ServShptLine."Item Shpt. Entry No.");
-            UndoPostingMgt.PostItemJnlLineAppliedToList(ItemJnlLine, TempItemLedgerEntry,
-              ServShptLine.Quantity, ServShptLine."Quantity (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation);
+        QtyToShip -= ItemJnlLine.Quantity;
+        QtyToShipBase -= ItemJnlLine."Quantity (Base)";
+        if QtyToConsume <> 0 then begin
+            QtyToConsume -= ItemJnlLine.Quantity;
+            QtyToConsumeBase -= ItemJnlLine."Quantity (Base)";
         end;
+
+        OnBeforePostItemJnlLineWithIT(ItemJnlLine, ServShptLine);
+
+        UndoPostingMgt.CollectItemLedgEntries(TempItemLedgerEntry, DATABASE::"Service Shipment Line",
+          ServShptLine."Document No.", ServShptLine."Line No.", ServShptLine."Quantity (Base)",
+          ServShptLine."Item Shpt. Entry No.");
+        UndoPostingMgt.PostItemJnlLineAppliedToList(ItemJnlLine, TempItemLedgerEntry,
+          ServShptLine.Quantity, ServShptLine."Quantity (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation);
     end;
 
     local procedure InsertNewReservationEntries(var ServShptLine: Record "Service Shipment Line"; EntryType: Enum "Item Ledger Entry Type"; SignFactor: Integer)
@@ -340,47 +329,45 @@ codeunit 5819 "Undo Service Consumption Line"
         TempReservEntry: Record "Reservation Entry" temporary;
         ReserveEngineMgt: Codeunit "Reservation Engine Mgt.";
     begin
-        with TempTrkgItemLedgEntry2 do begin
-            SignFactor := -SignFactor;
-            if FindSet() then
-                repeat
-                    ReservEntry.Init();
-                    ReservEntry."Item No." := "Item No.";
-                    ReservEntry."Location Code" := "Location Code";
-                    ReservEntry."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-                    ReservEntry.CopyTrackingFromItemLedgEntry(TempTrkgItemLedgEntry2);
-                    ReservEntry."Variant Code" := "Variant Code";
-                    ReservEntry."Source ID" := '';
-                    ReservEntry."Source Type" := DATABASE::"Item Journal Line";
-                    ReservEntry."Source Subtype" := EntryType.AsInteger();
-                    ReservEntry."Source Ref. No." := 0;
-                    ReservEntry."Appl.-from Item Entry" := "Entry No.";
-                    if EntryType = DummyItemJnlLine."Entry Type"::"Positive Adjmt." then
-                        ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Surplus
-                    else
-                        ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Prospect;
-                    ReservEntry."Quantity Invoiced (Base)" := 0;
-                    ReservEntry.Validate("Quantity (Base)", -Quantity);
-                    ReservEntry.Positive := ReservEntry."Quantity (Base)" > 0;
-                    ReservEntry."Entry No." := 0;
-                    if ReservEntry.Positive then begin
-                        ReservEntry."Warranty Date" := "Warranty Date";
-                        ReservEntry."Expiration Date" := "Expiration Date";
-                        ReservEntry."Expected Receipt Date" := ServShptLine."Posting Date"
-                    end else
-                        ReservEntry."Shipment Date" := ServShptLine."Posting Date";
-                    ReservEntry.Description := ServShptLine.Description;
-                    ReservEntry."Creation Date" := WorkDate();
-                    ReservEntry."Created By" := UserId;
-                    ReservEntry.UpdateItemTracking();
-                    ReservEntry."Appl.-to Item Entry" := "Entry No.";
-                    OnBeforeReservEntryInsert(ReservEntry, TempTrkgItemLedgEntry2);
-                    ReservEntry.Insert();
-                    TempReservEntry := ReservEntry;
-                    TempReservEntry.Insert();
-                until Next() = 0;
-            ReserveEngineMgt.UpdateOrderTracking(TempReservEntry);
-        end;
+        SignFactor := -SignFactor;
+        if TempTrkgItemLedgEntry2.FindSet() then
+            repeat
+                ReservEntry.Init();
+                ReservEntry."Item No." := TempTrkgItemLedgEntry2."Item No.";
+                ReservEntry."Location Code" := TempTrkgItemLedgEntry2."Location Code";
+                ReservEntry."Qty. per Unit of Measure" := TempTrkgItemLedgEntry2."Qty. per Unit of Measure";
+                ReservEntry.CopyTrackingFromItemLedgEntry(TempTrkgItemLedgEntry2);
+                ReservEntry."Variant Code" := TempTrkgItemLedgEntry2."Variant Code";
+                ReservEntry."Source ID" := '';
+                ReservEntry."Source Type" := DATABASE::"Item Journal Line";
+                ReservEntry."Source Subtype" := EntryType.AsInteger();
+                ReservEntry."Source Ref. No." := 0;
+                ReservEntry."Appl.-from Item Entry" := TempTrkgItemLedgEntry2."Entry No.";
+                if EntryType = DummyItemJnlLine."Entry Type"::"Positive Adjmt." then
+                    ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Surplus
+                else
+                    ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Prospect;
+                ReservEntry."Quantity Invoiced (Base)" := 0;
+                ReservEntry.Validate("Quantity (Base)", -TempTrkgItemLedgEntry2.Quantity);
+                ReservEntry.Positive := ReservEntry."Quantity (Base)" > 0;
+                ReservEntry."Entry No." := 0;
+                if ReservEntry.Positive then begin
+                    ReservEntry."Warranty Date" := TempTrkgItemLedgEntry2."Warranty Date";
+                    ReservEntry."Expiration Date" := TempTrkgItemLedgEntry2."Expiration Date";
+                    ReservEntry."Expected Receipt Date" := ServShptLine."Posting Date"
+                end else
+                    ReservEntry."Shipment Date" := ServShptLine."Posting Date";
+                ReservEntry.Description := ServShptLine.Description;
+                ReservEntry."Creation Date" := WorkDate();
+                ReservEntry."Created By" := UserId;
+                ReservEntry.UpdateItemTracking();
+                ReservEntry."Appl.-to Item Entry" := TempTrkgItemLedgEntry2."Entry No.";
+                OnBeforeReservEntryInsert(ReservEntry, TempTrkgItemLedgEntry2);
+                ReservEntry.Insert();
+                TempReservEntry := ReservEntry;
+                TempReservEntry.Insert();
+            until TempTrkgItemLedgEntry2.Next() = 0;
+        ReserveEngineMgt.UpdateOrderTracking(TempReservEntry);
     end;
 
     local procedure InsertNewTrackSpecifications(var CurrentServShptLine: Record "Service Shipment Line"; Balancing: Boolean)
@@ -414,32 +401,30 @@ codeunit 5819 "Undo Service Consumption Line"
         NewTrackingSpecification: Record "Tracking Specification";
         NewEntryNo: Integer;
     begin
-        with TrackingSpecification do begin
-            Reset();
-            SetRange("Item Ledger Entry No.", OldItemShptEntryNo);
-            if FindFirst() then begin
-                NewTrackingSpecification.LockTable();
-                NewTrackingSpecification.Reset();
-                if NewTrackingSpecification.FindLast() then
-                    NewEntryNo := NewTrackingSpecification."Entry No." + 1
-                else
-                    NewEntryNo := 1;
-                NewTrackingSpecification.Init();
-                NewTrackingSpecification := TrackingSpecification;
-                NewTrackingSpecification."Entry No." := NewEntryNo;
-                NewTrackingSpecification."Item Ledger Entry No." := NewItemShptEntryNo;
-                if Balancing then begin
-                    NewTrackingSpecification."Quantity (Base)" := -"Quantity (Base)";
-                    NewTrackingSpecification."Quantity Handled (Base)" := -"Quantity (Base)";
-                    NewTrackingSpecification."Quantity Invoiced (Base)" := -"Quantity (Base)";
-                end else begin
-                    NewTrackingSpecification."Quantity (Base)" := "Quantity (Base)";
-                    NewTrackingSpecification."Quantity Handled (Base)" := "Quantity (Base)";
-                    NewTrackingSpecification."Quantity Invoiced (Base)" := 0;
-                end;
-                NewTrackingSpecification.Validate("Quantity (Base)");
-                NewTrackingSpecification.Insert();
+        TrackingSpecification.Reset();
+        TrackingSpecification.SetRange("Item Ledger Entry No.", OldItemShptEntryNo);
+        if TrackingSpecification.FindFirst() then begin
+            NewTrackingSpecification.LockTable();
+            NewTrackingSpecification.Reset();
+            if NewTrackingSpecification.FindLast() then
+                NewEntryNo := NewTrackingSpecification."Entry No." + 1
+            else
+                NewEntryNo := 1;
+            NewTrackingSpecification.Init();
+            NewTrackingSpecification := TrackingSpecification;
+            NewTrackingSpecification."Entry No." := NewEntryNo;
+            NewTrackingSpecification."Item Ledger Entry No." := NewItemShptEntryNo;
+            if Balancing then begin
+                NewTrackingSpecification."Quantity (Base)" := -TrackingSpecification."Quantity (Base)";
+                NewTrackingSpecification."Quantity Handled (Base)" := -TrackingSpecification."Quantity (Base)";
+                NewTrackingSpecification."Quantity Invoiced (Base)" := -TrackingSpecification."Quantity (Base)";
+            end else begin
+                NewTrackingSpecification."Quantity (Base)" := TrackingSpecification."Quantity (Base)";
+                NewTrackingSpecification."Quantity Handled (Base)" := TrackingSpecification."Quantity (Base)";
+                NewTrackingSpecification."Quantity Invoiced (Base)" := 0;
             end;
+            NewTrackingSpecification.Validate("Quantity (Base)");
+            NewTrackingSpecification.Insert();
         end;
     end;
 
@@ -467,28 +452,26 @@ codeunit 5819 "Undo Service Consumption Line"
     begin
         OnBeforeInsertCorrectiveShipmentLine(OldServiceShipmentLine);
 
-        with OldServiceShipmentLine do begin
-            LineSpacing := GetCorrectiveShptLineNoStep("Document No.", "Line No.");
-            NewServiceShipmentLine.Reset();
-            NewServiceShipmentLine.Init();
-            NewServiceShipmentLine.Copy(OldServiceShipmentLine);
-            NewServiceShipmentLine."Line No." := "Line No." + LineSpacing;
-            NewServiceShipmentLine."Item Shpt. Entry No." := ItemShptEntryNo;
-            NewServiceShipmentLine."Appl.-to Service Entry" := "Appl.-to Service Entry";
-            NewServiceShipmentLine.Quantity := -Quantity;
-            NewServiceShipmentLine."Quantity (Base)" := -"Quantity (Base)";
-            NewServiceShipmentLine."Qty. Shipped Not Invoiced" := 0;
-            NewServiceShipmentLine."Qty. Shipped Not Invd. (Base)" := 0;
-            NewServiceShipmentLine."Quantity Consumed" := NewServiceShipmentLine.Quantity;
-            NewServiceShipmentLine."Qty. Consumed (Base)" := NewServiceShipmentLine."Quantity (Base)";
-            NewServiceShipmentLine.Correction := true;
-            NewServiceShipmentLine.Insert();
+        LineSpacing := GetCorrectiveShptLineNoStep(OldServiceShipmentLine."Document No.", OldServiceShipmentLine."Line No.");
+        NewServiceShipmentLine.Reset();
+        NewServiceShipmentLine.Init();
+        NewServiceShipmentLine.Copy(OldServiceShipmentLine);
+        NewServiceShipmentLine."Line No." := OldServiceShipmentLine."Line No." + LineSpacing;
+        NewServiceShipmentLine."Item Shpt. Entry No." := ItemShptEntryNo;
+        NewServiceShipmentLine."Appl.-to Service Entry" := OldServiceShipmentLine."Appl.-to Service Entry";
+        NewServiceShipmentLine.Quantity := -OldServiceShipmentLine.Quantity;
+        NewServiceShipmentLine."Quantity (Base)" := -OldServiceShipmentLine."Quantity (Base)";
+        NewServiceShipmentLine."Qty. Shipped Not Invoiced" := 0;
+        NewServiceShipmentLine."Qty. Shipped Not Invd. (Base)" := 0;
+        NewServiceShipmentLine."Quantity Consumed" := NewServiceShipmentLine.Quantity;
+        NewServiceShipmentLine."Qty. Consumed (Base)" := NewServiceShipmentLine."Quantity (Base)";
+        NewServiceShipmentLine.Correction := true;
+        NewServiceShipmentLine.Insert();
 
-            UpdateItemJnlLine(NewServiceShipmentLine, ItemShptEntryNo);
-            if Type = Type::Item then begin
-                InsertNewTrackSpecifications(NewServiceShipmentLine, true);
-                InsertItemEntryRelation(TempGlobalItemEntryRelation, NewServiceShipmentLine);
-            end;
+        UpdateItemJnlLine(NewServiceShipmentLine, ItemShptEntryNo);
+        if OldServiceShipmentLine.Type = OldServiceShipmentLine.Type::Item then begin
+            InsertNewTrackSpecifications(NewServiceShipmentLine, true);
+            InsertItemEntryRelation(TempGlobalItemEntryRelation, NewServiceShipmentLine);
         end;
     end;
 
@@ -496,23 +479,19 @@ codeunit 5819 "Undo Service Consumption Line"
     var
         ServLine: Record "Service Line";
     begin
-        with ServShptLine do begin
-            ServLine.Get(ServLine."Document Type"::Order, "Order No.", "Order Line No.");
-            UndoPostingMgt.UpdateServLineCnsm(ServLine, "Quantity Consumed", "Qty. Consumed (Base)", TempGlobalItemLedgEntry);
-            OnAfterUpdateOrderLine(ServLine, ServShptLine);
-        end;
+        ServLine.Get(ServLine."Document Type"::Order, ServShptLine."Order No.", ServShptLine."Order Line No.");
+        UndoPostingMgt.UpdateServLineCnsm(ServLine, ServShptLine."Quantity Consumed", ServShptLine."Qty. Consumed (Base)", TempGlobalItemLedgEntry);
+        OnAfterUpdateOrderLine(ServLine, ServShptLine);
     end;
 
     local procedure UpdateServShptLine(var PassedServShptLine: Record "Service Shipment Line")
     begin
-        with PassedServShptLine do begin
-            "Quantity Consumed" := Quantity;
-            "Qty. Consumed (Base)" := "Quantity (Base)";
-            "Qty. Shipped Not Invoiced" := 0;
-            "Qty. Shipped Not Invd. (Base)" := 0;
-            Correction := true;
-            Modify();
-        end;
+        PassedServShptLine."Quantity Consumed" := PassedServShptLine.Quantity;
+        PassedServShptLine."Qty. Consumed (Base)" := PassedServShptLine."Quantity (Base)";
+        PassedServShptLine."Qty. Shipped Not Invoiced" := 0;
+        PassedServShptLine."Qty. Shipped Not Invd. (Base)" := 0;
+        PassedServShptLine.Correction := true;
+        PassedServShptLine.Modify();
     end;
 
     local procedure InsertItemEntryRelation(var TempItemEntryRelation: Record "Item Entry Relation" temporary; NewServShptLine: Record "Service Shipment Line")

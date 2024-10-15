@@ -36,61 +36,56 @@ codeunit 10862 "Fiscal Year-FiscalClose"
 
     local procedure "Code"()
     begin
-        with AccountingPeriod do begin
-            SetRange("New Fiscal Year", true);
-            SetRange("Fiscally Closed", false);
-            FindFirst();
-
-            // define FY starting and ending date
-            FiscalYearStartDate := "Starting Date";
-            if Find('>') then begin
-                FiscalYearEndDate := CalcDate('<-1D>', "Starting Date");
-                Find('<');
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.SetRange("Fiscally Closed", false);
+        AccountingPeriod.FindFirst();
+        // define FY starting and ending date
+        FiscalYearStartDate := AccountingPeriod."Starting Date";
+        if AccountingPeriod.Find('>') then begin
+            FiscalYearEndDate := CalcDate('<-1D>', AccountingPeriod."Starting Date");
+            AccountingPeriod.Find('<');
+        end else
+            Error(Text001);
+        // check last period in fiscal year
+        AccountingPeriod.SetRange("New Fiscal Year");
+        AccountingPeriod.SetRange("Fiscally Closed");
+        if AccountingPeriod.Find('<') then
+            if not AccountingPeriod."Fiscally Closed" then begin
+                FiscalYearEndDate := CalcDate('<-1D>', FiscalYearStartDate);
+                AccountingPeriod.SetRange("New Fiscal Year", true);
+                AccountingPeriod.SetRange("Fiscally Closed", true);
+                AccountingPeriod.FindLast();
+                FiscalYearStartDate := AccountingPeriod."Starting Date"
             end else
-                Error(Text001);
+                AccountingPeriod.Find('>');
 
-            // check last period in fiscal year
-            SetRange("New Fiscal Year");
-            SetRange("Fiscally Closed");
-            if Find('<') then
-                if not "Fiscally Closed" then begin
-                    FiscalYearEndDate := CalcDate('<-1D>', FiscalYearStartDate);
-                    SetRange("New Fiscal Year", true);
-                    SetRange("Fiscally Closed", true);
-                    FindLast();
-                    FiscalYearStartDate := "Starting Date"
-                end else
-                    Find('>');
+        if not AccountingPeriod.Closed then
+            Error(Text008, FiscalYearStartDate, FiscalYearEndDate);
 
-            if not Closed then
-                Error(Text008, FiscalYearStartDate, FiscalYearEndDate);
+        CheckGeneralJournal();
+        CheckClosingEntries();
 
-            CheckGeneralJournal();
-            CheckClosingEntries();
+        if not
+           Confirm(
+             Text002 +
+             Text003 +
+             Text004, false,
+             FiscalYearStartDate, FiscalYearEndDate)
+        then
+            exit;
 
-            if not
-               Confirm(
-                 Text002 +
-                 Text003 +
-                 Text004, false,
-                 FiscalYearStartDate, FiscalYearEndDate)
-            then
-                exit;
+        AccountingPeriod.Reset();
 
-            Reset();
+        AccountingPeriod.SetRange("Starting Date", FiscalYearStartDate, FiscalYearEndDate);
+        AccountingPeriod.SetRange("Fiscally Closed", false);
 
-            SetRange("Starting Date", FiscalYearStartDate, FiscalYearEndDate);
-            SetRange("Fiscally Closed", false);
+        AccountingPeriod.ModifyAll("Fiscal Closing Date", Today);
+        AccountingPeriod.ModifyAll("Fiscally Closed", true);
+        // update allowed posting range
+        AccountingPeriod.UpdateGLSetup(FiscalYearEndDate);
+        AccountingPeriod.UpdateUserSetup(FiscalYearEndDate);
 
-            ModifyAll("Fiscal Closing Date", Today);
-            ModifyAll("Fiscally Closed", true);
-
-            // update allowed posting range
-            UpdateGLSetup(FiscalYearEndDate);
-            UpdateUserSetup(FiscalYearEndDate);
-
-            Reset();
-        end;
+        AccountingPeriod.Reset();
     end;
 
     [Scope('OnPrem')]
@@ -98,16 +93,14 @@ codeunit 10862 "Fiscal Year-FiscalClose"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJnlLine do begin
-            SetFilter("Posting Date", '%1..%2', FiscalYearStartDate, FiscalYearEndDate);
-            if FindFirst() then
-                Error(
-                  Text006,
-                  FiscalYearStartDate, FiscalYearEndDate,
-                  FieldCaption("Journal Template Name"), "Journal Template Name",
-                  FieldCaption("Journal Batch Name"), "Journal Batch Name",
-                  FieldCaption("Line No."), "Line No.");
-        end;
+        GenJnlLine.SetFilter("Posting Date", '%1..%2', FiscalYearStartDate, FiscalYearEndDate);
+        if GenJnlLine.FindFirst() then
+            Error(
+              Text006,
+              FiscalYearStartDate, FiscalYearEndDate,
+              GenJnlLine.FieldCaption("Journal Template Name"), GenJnlLine."Journal Template Name",
+              GenJnlLine.FieldCaption("Journal Batch Name"), GenJnlLine."Journal Batch Name",
+              GenJnlLine.FieldCaption("Line No."), GenJnlLine."Line No.");
     end;
 
     [Scope('OnPrem')]
@@ -115,18 +108,16 @@ codeunit 10862 "Fiscal Year-FiscalClose"
     var
         GLAccount: Record "G/L Account";
     begin
-        with GLAccount do begin
-            SetRange("Date Filter", FiscalYearStartDate, ClosingDate(FiscalYearEndDate));
-            SetRange("Income/Balance", "Income/Balance"::"Income Statement");
-            if Find('-') then
-                repeat
-                    CalcFields("Net Change");
-                    if "Net Change" <> 0 then
-                        Error(Text007,
-                          ClosingDate(FiscalYearEndDate),
-                          FiscalYearStartDate, FiscalYearEndDate);
-                until Next() = 0;
-        end;
+        GLAccount.SetRange("Date Filter", FiscalYearStartDate, ClosingDate(FiscalYearEndDate));
+        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
+        if GLAccount.Find('-') then
+            repeat
+                GLAccount.CalcFields("Net Change");
+                if GLAccount."Net Change" <> 0 then
+                    Error(Text007,
+                      ClosingDate(FiscalYearEndDate),
+                      FiscalYearStartDate, FiscalYearEndDate);
+            until GLAccount.Next() = 0;
     end;
 
     [Scope('OnPrem')]

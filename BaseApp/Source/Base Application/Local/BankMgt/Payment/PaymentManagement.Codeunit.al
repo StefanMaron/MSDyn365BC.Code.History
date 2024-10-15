@@ -266,26 +266,38 @@ codeunit 10860 "Payment Management"
         Step: Record "Payment Step";
         Process: Record "Payment Class";
         PaymentStatus: Record "Payment Status";
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
         i: Integer;
     begin
         if FromPaymentLine.Find('-') then begin
             Step.Get(FromPaymentLine."Payment Class", NewStep);
             Process.Get(FromPaymentLine."Payment Class");
-            if PayNum = '' then
-                with ToBord do begin
-                    i := 10000;
-                    NoSeriesMgt.InitSeries(Step."Header Nos. Series", "No. Series", 0D, "No.", "No. Series");
-                    "Payment Class" := FromPaymentLine."Payment Class";
-                    "Status No." := Step."Next Status";
-                    PaymentStatus.Get("Payment Class", "Status No.");
-                    "Archiving Authorized" := PaymentStatus."Archiving Authorized";
-                    "Currency Code" := FromPaymentLine."Currency Code";
-                    "Currency Factor" := FromPaymentLine."Currency Factor";
-                    OnCopyLigBorOnBeforeInitHeader(ToBord, Process, i);
-                    InitHeader();
-                    Insert();
-                end else begin
+            if PayNum = '' then begin
+                i := 10000;
+#if not CLEAN24
+                    NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(Step."Header Nos. Series", '', 0D, ToBord."No.", ToBord."No. Series", IsHandled);
+                    if not IsHandled then begin
+#endif
+                        ToBord."No. Series" := Step."Header Nos. Series";
+                        ToBord."No." := NoSeries.GetNextNo(ToBord."No. Series");
+#if not CLEAN24
+                        NoSeriesMgt.RaiseObsoleteOnAfterInitSeries(ToBord."No. Series", Step."Header Nos. Series", 0D, ToBord."No.");
+                    end;
+#endif
+                ToBord."Payment Class" := FromPaymentLine."Payment Class";
+                ToBord."Status No." := Step."Next Status";
+                PaymentStatus.Get(ToBord."Payment Class", ToBord."Status No.");
+                ToBord."Archiving Authorized" := PaymentStatus."Archiving Authorized";
+                ToBord."Currency Code" := FromPaymentLine."Currency Code";
+                ToBord."Currency Factor" := FromPaymentLine."Currency Factor";
+                OnCopyLigBorOnBeforeInitHeader(ToBord, Process, i);
+                ToBord.InitHeader();
+                ToBord.Insert();
+            end else begin
                 ToBord.Get(PayNum);
                 ToPaymentLine.SetRange("No.", PayNum);
                 if ToPaymentLine.FindLast() then
@@ -341,7 +353,7 @@ codeunit 10860 "Payment Management"
     procedure GenerInvPostingBuffer()
     var
         PaymentClass: Record "Payment Class";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         Description: Text[98];
     begin
         StepLedger.SetRange("Payment Class", Step."Payment Class");
@@ -378,10 +390,9 @@ codeunit 10860 "Payment Management"
                     then begin
                         PaymentClass.Get(PaymentHeader."Payment Class");
                         if PaymentClass."Line No. Series" = '' then
-                            PaymentLine.TestField("Document No.", NoSeriesMgt.GetNextNo(PaymentHeader."No. Series", PaymentLine."Posting Date", false))
+                            PaymentLine.TestField("Document No.", NoSeriesBatch.GetNextNo(PaymentHeader."No. Series", PaymentLine."Posting Date"))
                         else
-                            PaymentLine.TestField("Document No.", NoSeriesMgt.GetNextNo(PaymentClass."Line No. Series", PaymentLine."Posting Date",
-                                false));
+                            PaymentLine.TestField("Document No.", NoSeriesBatch.GetNextNo(PaymentClass."Line No. Series", PaymentLine."Posting Date"));
                     end;
                     InvPostingBuffer[1]."Document No." := PaymentLine."Document No.";
                 end;
@@ -421,7 +432,7 @@ codeunit 10860 "Payment Management"
                 else
                     PaymentLine."Entry No. Credit" := InvPostingBuffer[1]."GL Entry No.";
             until StepLedger.Next() = 0;
-            NoSeriesMgt.SaveNoSeries();
+            NoSeriesBatch.SaveState();
         end;
     end;
 
@@ -661,30 +672,29 @@ codeunit 10860 "Payment Management"
         LastGLEntryNo: Integer;
     begin
         if InvPostingBuffer[1].Find('+') then
-            with PaymentHeader do
-                repeat
-                    LastGLEntryNo := PostInvPostingBuffer();
-                    PaymentLine.Reset();
-                    PaymentLine.SetRange("No.", "No.");
-                    PaymentLine.SetRange("Line No.");
-                    if GenJnlLine.Amount >= 0 then begin
-                        TotalDebit := TotalDebit + GenJnlLine."Amount (LCY)";
-                        StepLedger.Get(Step."Payment Class", Step.Line, StepLedger.Sign::Debit);
-                        PaymentLine.SetRange("Entry No. Debit", InvPostingBuffer[1]."GL Entry No.");
-                        if StepLedger."Memorize Entry" then
-                            PaymentLine.ModifyAll(PaymentLine."Entry No. Debit Memo", LastGLEntryNo);
-                        PaymentLine.ModifyAll("Entry No. Debit", LastGLEntryNo);
-                        PaymentLine.SetRange("Entry No. Debit");
-                    end else begin
-                        TotalCredit := TotalCredit + Abs(GenJnlLine."Amount (LCY)");
-                        StepLedger.Get(Step."Payment Class", Step.Line, StepLedger.Sign::Credit);
-                        PaymentLine.SetRange("Entry No. Credit", InvPostingBuffer[1]."GL Entry No.");
-                        if StepLedger."Memorize Entry" then
-                            PaymentLine.ModifyAll(PaymentLine."Entry No. Credit Memo", LastGLEntryNo);
-                        PaymentLine.ModifyAll("Entry No. Credit", LastGLEntryNo);
-                        PaymentLine.SetRange("Entry No. Credit");
-                    end;
-                until InvPostingBuffer[1].Next(-1) = 0;
+            repeat
+                LastGLEntryNo := PostInvPostingBuffer();
+                PaymentLine.Reset();
+                PaymentLine.SetRange("No.", PaymentHeader."No.");
+                PaymentLine.SetRange("Line No.");
+                if GenJnlLine.Amount >= 0 then begin
+                    TotalDebit := TotalDebit + GenJnlLine."Amount (LCY)";
+                    StepLedger.Get(Step."Payment Class", Step.Line, StepLedger.Sign::Debit);
+                    PaymentLine.SetRange("Entry No. Debit", InvPostingBuffer[1]."GL Entry No.");
+                    if StepLedger."Memorize Entry" then
+                        PaymentLine.ModifyAll(PaymentLine."Entry No. Debit Memo", LastGLEntryNo);
+                    PaymentLine.ModifyAll("Entry No. Debit", LastGLEntryNo);
+                    PaymentLine.SetRange("Entry No. Debit");
+                end else begin
+                    TotalCredit := TotalCredit + Abs(GenJnlLine."Amount (LCY)");
+                    StepLedger.Get(Step."Payment Class", Step.Line, StepLedger.Sign::Credit);
+                    PaymentLine.SetRange("Entry No. Credit", InvPostingBuffer[1]."GL Entry No.");
+                    if StepLedger."Memorize Entry" then
+                        PaymentLine.ModifyAll(PaymentLine."Entry No. Credit Memo", LastGLEntryNo);
+                    PaymentLine.ModifyAll("Entry No. Credit", LastGLEntryNo);
+                    PaymentLine.SetRange("Entry No. Credit");
+                end;
+            until InvPostingBuffer[1].Next(-1) = 0;
 
         if HeaderAccountUsedGlobally then begin
             Difference := TotalDebit - TotalCredit;
@@ -962,10 +972,9 @@ codeunit 10860 "Payment Management"
 
     local procedure ThrowPmtPostError(ReceivedPaymentLine: Record "Payment Line"; ErrorTemplate: Text; ErrorText: Text)
     begin
-        with ReceivedPaymentLine do
-            if "Line No." <> 0 then
-                Error(
-                  ErrorTemplate, PaymentHeader."No.", TableCaption(), "Line No.", ErrorText);
+        if ReceivedPaymentLine."Line No." <> 0 then
+            Error(
+              ErrorTemplate, PaymentHeader."No.", ReceivedPaymentLine.TableCaption(), ReceivedPaymentLine."Line No.", ErrorText);
         Error(ErrorTemplate, PaymentHeader."No.", ErrorText);
     end;
 
@@ -983,10 +992,9 @@ codeunit 10860 "Payment Management"
     var
         FormatAddress: Codeunit "Format Address";
     begin
-        with PaymentAddress do
-            FormatAddress.FormatAddr(
-              AddrArray, Name, "Name 2", Contact, Address, "Address 2",
-              City, "Post Code", County, "Country/Region Code");
+        FormatAddress.FormatAddr(
+              AddrArray, PaymentAddress.Name, PaymentAddress."Name 2", PaymentAddress.Contact, PaymentAddress.Address, PaymentAddress."Address 2",
+              PaymentAddress.City, PaymentAddress."Post Code", PaymentAddress.County, PaymentAddress."Country/Region Code");
     end;
 
     [Scope('OnPrem')]
@@ -994,10 +1002,9 @@ codeunit 10860 "Payment Management"
     var
         FormatAddress: Codeunit "Format Address";
     begin
-        with BankAcc do
-            FormatAddress.FormatAddr(
-              AddrArray, "Bank Name", "Bank Name 2", "Bank Contact", "Bank Address", "Bank Address 2",
-              "Bank City", "Bank Post Code", "Bank County", "Bank Country/Region Code");
+        FormatAddress.FormatAddr(
+              AddrArray, BankAcc."Bank Name", BankAcc."Bank Name 2", BankAcc."Bank Contact", BankAcc."Bank Address", BankAcc."Bank Address 2",
+              BankAcc."Bank City", BankAcc."Bank Post Code", BankAcc."Bank County", BankAcc."Bank Country/Region Code");
     end;
 
     [Scope('OnPrem')]
@@ -1027,22 +1034,20 @@ codeunit 10860 "Payment Management"
     var
         PaymentSteps: Page "Payment Steps";
     begin
-        with PaymentStep do begin
-            FilterGroup(2);
-            // Filter on "Action Type" is passed with PaymentStep
-            SetRange("Payment Class", PaymentHeader."Payment Class");
-            SetRange("Previous Status", PaymentHeader."Status No.");
-            FilterGroup(0);
-            if IsEmpty() then
-                exit(false);
+        PaymentStep.FilterGroup(2);
+        // Filter on "Action Type" is passed with PaymentStep
+        PaymentStep.SetRange("Payment Class", PaymentHeader."Payment Class");
+        PaymentStep.SetRange("Previous Status", PaymentHeader."Status No.");
+        PaymentStep.FilterGroup(0);
+        if PaymentStep.IsEmpty() then
+            exit(false);
 
-            if Count = 1 then begin
-                FindFirst();
-                exit(Confirm(Name, true));
-            end;
-
-            FindSet();
+        if PaymentStep.Count = 1 then begin
+            PaymentStep.FindFirst();
+            exit(Confirm(PaymentStep.Name, true));
         end;
+
+        PaymentStep.FindSet();
         PaymentSteps.LookupMode(true);
         PaymentSteps.SetTableView(PaymentStep);
         PaymentSteps.SetRecord(PaymentStep);
@@ -1128,48 +1133,46 @@ codeunit 10860 "Payment Management"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GenJnlLine do begin
-            Init();
-            "Posting Date" := PaymentHeader."Posting Date";
-            "Document Date" := PaymentHeader."Document Date";
-            Description := InvPostingBuffer[1].Description;
-            "Reason Code" := Step."Reason Code";
-            PaymentClass.Get(PaymentHeader."Payment Class");
-            "Delayed Unrealized VAT" :=
-              (PaymentClass."Unrealized VAT Reversal" = PaymentClass."Unrealized VAT Reversal"::Delayed);
-            "Realize VAT" := Step."Realize VAT";
-            "Created from No." := InvPostingBuffer[1]."Created from No.";
-            "Document Type" := InvPostingBuffer[1]."Document Type";
-            "Document No." := InvPostingBuffer[1]."Document No.";
-            "Account Type" := InvPostingBuffer[1]."Account Type";
-            "Account No." := InvPostingBuffer[1]."Account No.";
-            "System-Created Entry" := InvPostingBuffer[1]."System-Created Entry";
-            "Currency Code" := InvPostingBuffer[1]."Currency Code";
-            "Currency Factor" := InvPostingBuffer[1]."Currency Factor";
-            Validate(Amount, InvPostingBuffer[1].Amount);
-            Correction := InvPostingBuffer[1].Correction;
-            if PaymentHeader."Source Code" <> '' then begin
-                TestSourceCode(PaymentHeader."Source Code");
-                "Source Code" := PaymentHeader."Source Code";
-            end else begin
-                Step.TestField("Source Code");
-                TestSourceCode(Step."Source Code");
-                "Source Code" := Step."Source Code";
-            end;
-            "Applies-to ID" := InvPostingBuffer[1]."Applies-to ID";
-            if "Applies-to ID" = '' then begin
-                "Applies-to Doc. Type" := InvPostingBuffer[1]."Applies-to Doc. Type";
-                "Applies-to Doc. No." := InvPostingBuffer[1]."Applies-to Doc. No.";
-            end;
-            "Posting Group" := InvPostingBuffer[1]."Posting Group";
-            "Source Type" := InvPostingBuffer[1]."Source Type";
-            "Source No." := InvPostingBuffer[1]."Source No.";
-            "External Document No." := InvPostingBuffer[1]."External Document No.";
-            "Due Date" := InvPostingBuffer[1]."Due Date";
-            "Shortcut Dimension 1 Code" := InvPostingBuffer[1]."Global Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := InvPostingBuffer[1]."Global Dimension 2 Code";
-            "Dimension Set ID" := InvPostingBuffer[1]."Dimension Set ID";
+        GenJnlLine.Init();
+        GenJnlLine."Posting Date" := PaymentHeader."Posting Date";
+        GenJnlLine."Document Date" := PaymentHeader."Document Date";
+        GenJnlLine.Description := InvPostingBuffer[1].Description;
+        GenJnlLine."Reason Code" := Step."Reason Code";
+        PaymentClass.Get(PaymentHeader."Payment Class");
+        GenJnlLine."Delayed Unrealized VAT" :=
+          (PaymentClass."Unrealized VAT Reversal" = PaymentClass."Unrealized VAT Reversal"::Delayed);
+        GenJnlLine."Realize VAT" := Step."Realize VAT";
+        GenJnlLine."Created from No." := InvPostingBuffer[1]."Created from No.";
+        GenJnlLine."Document Type" := InvPostingBuffer[1]."Document Type";
+        GenJnlLine."Document No." := InvPostingBuffer[1]."Document No.";
+        GenJnlLine."Account Type" := InvPostingBuffer[1]."Account Type";
+        GenJnlLine."Account No." := InvPostingBuffer[1]."Account No.";
+        GenJnlLine."System-Created Entry" := InvPostingBuffer[1]."System-Created Entry";
+        GenJnlLine."Currency Code" := InvPostingBuffer[1]."Currency Code";
+        GenJnlLine."Currency Factor" := InvPostingBuffer[1]."Currency Factor";
+        GenJnlLine.Validate(Amount, InvPostingBuffer[1].Amount);
+        GenJnlLine.Correction := InvPostingBuffer[1].Correction;
+        if PaymentHeader."Source Code" <> '' then begin
+            TestSourceCode(PaymentHeader."Source Code");
+            GenJnlLine."Source Code" := PaymentHeader."Source Code";
+        end else begin
+            Step.TestField("Source Code");
+            TestSourceCode(Step."Source Code");
+            GenJnlLine."Source Code" := Step."Source Code";
         end;
+        GenJnlLine."Applies-to ID" := InvPostingBuffer[1]."Applies-to ID";
+        if GenJnlLine."Applies-to ID" = '' then begin
+            GenJnlLine."Applies-to Doc. Type" := InvPostingBuffer[1]."Applies-to Doc. Type";
+            GenJnlLine."Applies-to Doc. No." := InvPostingBuffer[1]."Applies-to Doc. No.";
+        end;
+        GenJnlLine."Posting Group" := InvPostingBuffer[1]."Posting Group";
+        GenJnlLine."Source Type" := InvPostingBuffer[1]."Source Type";
+        GenJnlLine."Source No." := InvPostingBuffer[1]."Source No.";
+        GenJnlLine."External Document No." := InvPostingBuffer[1]."External Document No.";
+        GenJnlLine."Due Date" := InvPostingBuffer[1]."Due Date";
+        GenJnlLine."Shortcut Dimension 1 Code" := InvPostingBuffer[1]."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := InvPostingBuffer[1]."Global Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := InvPostingBuffer[1]."Dimension Set ID";
 
         OnPostInvPostingBufferOnBeforeGenJnlPostLineRunWithCheck(GenJnlLine, PaymentHeader, PaymentClass);
         GenJnlPostLine.RunWithCheck(GenJnlLine);

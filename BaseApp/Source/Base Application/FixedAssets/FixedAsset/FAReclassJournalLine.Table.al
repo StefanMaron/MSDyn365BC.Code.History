@@ -7,6 +7,7 @@ using Microsoft.FixedAssets.Setup;
 table 5624 "FA Reclass. Journal Line"
 {
     Caption = 'FA Reclass. Journal Line';
+    DataClassification = CustomerContent;
 
     fields
     {

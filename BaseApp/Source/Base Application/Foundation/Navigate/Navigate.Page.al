@@ -1250,7 +1250,7 @@ page 344 Navigate
             PaymentHeader.SetFilter("No.", DocNoFilter);
             PaymentHeader.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(
-              Rec, DATABASE::"Payment Header", 0, PaymentHeader.TableCaption(), PaymentHeader.Count);
+              Rec, DATABASE::"Payment Header", PaymentHeader.TableCaption(), PaymentHeader.Count);
         end;
         if PaymentLine.ReadPermission then begin
             PaymentLine.Reset();
@@ -1258,7 +1258,7 @@ page 344 Navigate
             PaymentLine.SetFilter("Document No.", DocNoFilter);
             PaymentLine.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(
-              Rec, DATABASE::"Payment Line", 0, PaymentLine.TableCaption(), PaymentLine.Count);
+              Rec, DATABASE::"Payment Line", PaymentLine.TableCaption(), PaymentLine.Count);
         end;
         if PaymentHeaderArchive.ReadPermission then begin
             PaymentHeaderArchive.Reset();
@@ -1266,7 +1266,7 @@ page 344 Navigate
             PaymentHeaderArchive.SetFilter("No.", DocNoFilter);
             PaymentHeaderArchive.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(
-              Rec, DATABASE::"Payment Header Archive", 0, PaymentHeaderArchive.TableCaption(), PaymentHeaderArchive.Count);
+              Rec, DATABASE::"Payment Header Archive", PaymentHeaderArchive.TableCaption(), PaymentHeaderArchive.Count);
         end;
         if PaymentLineArchive.ReadPermission then begin
             PaymentLineArchive.Reset();
@@ -1274,7 +1274,7 @@ page 344 Navigate
             PaymentLineArchive.SetFilter("Document No.", DocNoFilter);
             PaymentLineArchive.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(
-              Rec, DATABASE::"Payment Line Archive", 0, PaymentLineArchive.TableCaption(), PaymentLineArchive.Count);
+              Rec, DATABASE::"Payment Line Archive", PaymentLineArchive.TableCaption(), PaymentLineArchive.Count);
         end;
 
         OnAfterFindPostedDocuments(DocNoFilter, PostingDateFilter, Rec);
@@ -2327,13 +2327,6 @@ page 344 Navigate
         Window.Close();
     end;
 
-    [Obsolete('Replaced by SetTracking with ItemTrackingSetup parameter.', '18.0')]
-    procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50])
-    begin
-        NewItemTrackingSetup."Serial No." := SerialNo;
-        NewItemTrackingSetup."Lot No." := LotNo;
-    end;
-
     procedure SetTracking(ItemTrackingSetup: Record "Item Tracking Setup")
     begin
         NewItemTrackingSetup := ItemTrackingSetup;
@@ -2517,14 +2510,6 @@ page 344 Navigate
     local procedure OnAfterFindPurchRcptHeader(var DocumentEntry: Record "Document Entry"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; DocNoFilter: Text; PostingDateFilter: Text)
     begin
     end;
-
-#if not CLEAN21
-    [Obsolete('No. of documents is not checked anymore', '21.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterGetDocumentCount(var DocCount: Integer)
-    begin
-    end;
-#endif    
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterNavigateFindExtRecords(var DocumentEntry: Record "Document Entry"; ContactType: Enum "Navigate Contact Type"; ContactNo: Code[250]; ExtDocNo: Code[250]; var FoundRecords: Boolean)

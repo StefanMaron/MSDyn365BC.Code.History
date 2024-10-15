@@ -114,7 +114,7 @@ codeunit 144042 "UT REP Number To Text"
     var
         Check: Report Check;
     begin
-        Check.InitTextVariable;
+        Check.InitTextVariable();
         Check.FormatNoText(TextStandard, Amount, '');
         Check.FormatNoTextFR(TextFR, Amount, '');
     end;
@@ -123,7 +123,7 @@ codeunit 144042 "UT REP Number To Text"
     var
         Check: Report Check;
     begin
-        Check.InitTextVariable;
+        Check.InitTextVariable();
         Check.FormatNoText(TextStandard, Amount, '');
         Check.FormatNoTextINTL(TextINTL, Amount, '');
     end;

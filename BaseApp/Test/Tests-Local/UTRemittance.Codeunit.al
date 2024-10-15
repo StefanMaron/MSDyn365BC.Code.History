@@ -39,7 +39,7 @@ codeunit 144057 "UT Remittance"
         // Setup.
         Initialize();
         CreateGenJournalLineAndRunRecapitulationForm(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer, '', '', CreateBankAccount);  // Using blank for Bank Account Code and Currency Code.
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(), '', '', CreateBankAccount());  // Using blank for Bank Account Code and Currency Code.
 
         // Verify: Bal. Account No.,Account No. and Amount on report.
         VerifyValuesOnReportRecapitulationForm(GenJournalLine."Bal. Account No.", GenJournalLine."Account No.", GenJournalLine.Amount);
@@ -57,10 +57,10 @@ codeunit 144057 "UT Remittance"
         // Purpose of the test is to validate OnAfterGetRecord - Customer Code On report 10843 Recapitulation Form.
         // Setup.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateGenJournalLineAndRunRecapitulationForm(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, CreateCustomerBankAccount(CustomerNo),
-          LibraryUTUtility.GetNewCode10, CreateBankAccount);  // Using LibraryUTUtility.GetNewCode10 for Currency Code.
+          LibraryUTUtility.GetNewCode10(), CreateBankAccount());  // Using LibraryUTUtility.GetNewCode10 for Currency Code.
 
         // Verify: Bal. Account No.,Account No. and Amount on report.
         VerifyValuesOnReportRecapitulationForm(GenJournalLine."Bal. Account No.", GenJournalLine."Account No.", GenJournalLine.Amount);
@@ -75,14 +75,14 @@ codeunit 144057 "UT Remittance"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is validate OnAfterGetRecord - Gen. Journal Line On report 10843 Recapitulation Form.
-        // Using LibraryUTUtility.GetNewCode for G/L Account No., blank for Bank Account Code and Currency Code.
+        // Using LibraryUTUtility.GetNewCode() for G/L Account No., blank for Bank Account Code and Currency Code.
         // Setup.
         Initialize();
         CreateGenJournalLineAndRunRecapitulationForm(
-          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryUTUtility.GetNewCode, '', '', CreateBankAccount);
+          GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryUTUtility.GetNewCode(), '', '', CreateBankAccount());
 
         // Verify: Verify Amount on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('GenJnlLine_Amount', GenJournalLine.Amount);
     end;
 
@@ -98,7 +98,7 @@ codeunit 144057 "UT Remittance"
         // Setup.
         Initialize();
         CreateGenJournalLineAndRunRecapitulationForm(
-          GenJournalLine, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount, '', '', '');  // Using blank for Bank Account Code,Currency Code and Bank Account No.
+          GenJournalLine, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount(), '', '', '');  // Using blank for Bank Account Code,Currency Code and Bank Account No.
 
         // Verify: RecapitulationFormRequestPageHandler opens successfully.  Blank report generate in this case.
     end;
@@ -126,14 +126,14 @@ codeunit 144057 "UT Remittance"
         // Setup.
         Initialize();
         CreateGenJournalLine(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer, '', '', CreateBankAccount);  // Using blank for Bank Account Code and Currency Code.
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(), '', '', CreateBankAccount());  // Using blank for Bank Account Code and Currency Code.
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");  // Enqueue for RecapitulationFormRequestPageHandler.
         Commit();  // Commit is required to run report. Since runmodal is used in page 255 Cash Receipt Journal.
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.FILTER.SetFilter("Account No.", GenJournalLine."Account No.");
 
         // Exercise.
-        CashReceiptJournal.PrintCheckRemittanceReport.Invoke;
+        CashReceiptJournal.PrintCheckRemittanceReport.Invoke();
 
         // Verify: Verify Debit Amount on Page.
         CashReceiptJournal."Debit Amount".AssertEquals(GenJournalLine."Debit Amount");
@@ -152,7 +152,7 @@ codeunit 144057 "UT Remittance"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -161,7 +161,7 @@ codeunit 144057 "UT Remittance"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -171,7 +171,7 @@ codeunit 144057 "UT Remittance"
         CustomerBankAccount: Record "Customer Bank Account";
     begin
         CustomerBankAccount."Customer No." := CustomerNo;
-        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10();
         CustomerBankAccount.Insert();
         exit(CustomerBankAccount.Code);
     end;
@@ -191,7 +191,7 @@ codeunit 144057 "UT Remittance"
 
     local procedure VerifyValuesOnReportRecapitulationForm(BalAccountNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Bank_Account__No__', BalAccountNo);
         LibraryReportDataset.AssertElementWithValueExists('Gen__Journal_Line_Account_No_', AccountNo);
         LibraryReportDataset.AssertElementWithValueExists('GenJnlLine_Amount', Amount);
@@ -205,7 +205,7 @@ codeunit 144057 "UT Remittance"
     begin
         LibraryVariableStorage.Dequeue(No);
         RecapitulationForm."Bank Account".SetFilter("No.", No);
-        RecapitulationForm.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RecapitulationForm.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -1,6 +1,8 @@
 namespace Microsoft.Service.Document;
 
+#pragma warning disable AL0659
 enum 5937 "Service Destination Document Type"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

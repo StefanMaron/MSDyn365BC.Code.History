@@ -41,7 +41,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         InvoiceAmount := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Posted Sales Invoice with Amount "A" and Possible Payment Tolerance "PT"
-        UpdateGeneralLedgerSetup;
+        UpdateGeneralLedgerSetup();
         CreateCustomerWithPaymentTerm(Customer);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -80,7 +80,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         InvoiceAmount := -LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Posted Purchase Invoice with Amount "A" and Possible Payment Tolerance "PT"
-        UpdateGeneralLedgerSetup;
+        UpdateGeneralLedgerSetup();
         CreateVendorWithPaymentTerm(Vendor);
         UpdateVendorPostingGroup(Vendor."Vendor Posting Group");
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -120,7 +120,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         InvoiceAmount := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Posted Sales Invoice with Amount "A" and Possible Payment Tolerance "PT"
-        UpdateGeneralLedgerSetup;
+        UpdateGeneralLedgerSetup();
         CreateCustomerWithPaymentTerm(Customer);
         UpdateCustomerPostingGroup(Customer."Customer Posting Group");
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -159,7 +159,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         InvoiceAmount := -LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Posted Purchase Invoice with Amount "A" and Possible Payment Tolerance "PT"
-        UpdateGeneralLedgerSetup;
+        UpdateGeneralLedgerSetup();
         CreateVendorWithPaymentTerm(Vendor);
         UpdateVendorPostingGroup(Vendor."Vendor Posting Group");
         LibraryJournals.CreateGenJournalLineWithBatch(
@@ -229,8 +229,8 @@ codeunit 144012 "ERM Payment Tolerance FR"
         RunVendorDetailedBalance(Vendor."No.", ApplicationDate);
 
         // [THEN] Report shows the zero balance - Nothing to Output
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(0, LibraryReportDataset.RowCount, 'Balance is Not Zero');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), 'Balance is Not Zero');
     end;
 
     [Test]
@@ -280,8 +280,8 @@ codeunit 144012 "ERM Payment Tolerance FR"
         RunCustomerDetailedBalance(Customer."No.", ApplicationDate);
 
         // [THEN] Report shows the zero balance - Nothing to Output
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreEqual(0, LibraryReportDataset.RowCount, 'Balance is Not Zero');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(0, LibraryReportDataset.RowCount(), 'Balance is Not Zero');
     end;
 
     local procedure Initialize()
@@ -297,7 +297,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Payment Tolerance FR");
 
         IsInitialized := true;
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -409,7 +409,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        UpdateGeneralLedgerSetup;
+        UpdateGeneralLedgerSetup();
         RunChangePaymentTolerance('', LibraryRandom.RandDecInRange(2, 10, 2), LibraryRandom.RandDecInRange(2, 10, 2));
         GeneralLedgerSetup.Get();
         MaxPaymentToleranceAmount := Round(InvoiceAmount * GeneralLedgerSetup."Payment Tolerance %" / 100);
@@ -526,10 +526,10 @@ codeunit 144012 "ERM Payment Tolerance FR"
     begin
         with CustomerPostingGroup do begin
             Get(PostingGroupCode);
-            Validate("Payment Disc. Debit Acc.", CreateGLAccountNo);
-            Validate("Payment Disc. Credit Acc.", CreateGLAccountNo);
-            Validate("Payment Tolerance Debit Acc.", CreateGLAccountNo);
-            Validate("Payment Tolerance Credit Acc.", CreateGLAccountNo);
+            Validate("Payment Disc. Debit Acc.", CreateGLAccountNo());
+            Validate("Payment Disc. Credit Acc.", CreateGLAccountNo());
+            Validate("Payment Tolerance Debit Acc.", CreateGLAccountNo());
+            Validate("Payment Tolerance Credit Acc.", CreateGLAccountNo());
             Modify(true);
         end;
     end;
@@ -540,10 +540,10 @@ codeunit 144012 "ERM Payment Tolerance FR"
     begin
         with VendorPostingGroup do begin
             Get(PostingGroupCode);
-            Validate("Payment Disc. Debit Acc.", CreateGLAccountNo);
-            Validate("Payment Disc. Credit Acc.", CreateGLAccountNo);
-            Validate("Payment Tolerance Debit Acc.", CreateGLAccountNo);
-            Validate("Payment Tolerance Credit Acc.", CreateGLAccountNo);
+            Validate("Payment Disc. Debit Acc.", CreateGLAccountNo());
+            Validate("Payment Disc. Credit Acc.", CreateGLAccountNo());
+            Validate("Payment Tolerance Debit Acc.", CreateGLAccountNo());
+            Validate("Payment Tolerance Credit Acc.", CreateGLAccountNo());
             Modify(true);
         end;
     end;
@@ -585,7 +585,7 @@ codeunit 144012 "ERM Payment Tolerance FR"
     [Scope('OnPrem')]
     procedure PaymentClassListPageHandler(var PaymentClassList: TestPage "Payment Class List")
     begin
-        PaymentClassList.OK.Invoke;
+        PaymentClassList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -603,8 +603,8 @@ codeunit 144012 "ERM Payment Tolerance FR"
         CustLedgerEntry.FindFirst();
 
         ApplyCustomerEntries.GotoRecord(CustLedgerEntry);
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -622,28 +622,28 @@ codeunit 144012 "ERM Payment Tolerance FR"
         VendorLedgerEntry.FindFirst();
 
         ApplyVendorrEntries.GotoRecord(VendorLedgerEntry);
-        ApplyVendorrEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorrEntries.OK.Invoke;
+        ApplyVendorrEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorrEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerBalanceRequestPageHandler(var CustomerDetailTrialBalance: TestRequestPage "Customer Detail Trial Balance")
     begin
-        CustomerDetailTrialBalance.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        CustomerDetailTrialBalance.Customer.SetFilter("Date Filter", LibraryVariableStorage.DequeueText);
+        CustomerDetailTrialBalance.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        CustomerDetailTrialBalance.Customer.SetFilter("Date Filter", LibraryVariableStorage.DequeueText());
         CustomerDetailTrialBalance.ExcludeBalanceOnly.SetValue(false);
-        CustomerDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorBalanceRequestPageHandler(var VendorDetailTrialBalance: TestRequestPage "Vendor Detail Trial Balance FR")
     begin
-        VendorDetailTrialBalance.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        VendorDetailTrialBalance.Vendor.SetFilter("Date Filter", LibraryVariableStorage.DequeueText);
+        VendorDetailTrialBalance.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        VendorDetailTrialBalance.Vendor.SetFilter("Date Filter", LibraryVariableStorage.DequeueText());
         VendorDetailTrialBalance.ExcludeBalanceOnly.SetValue(false);
-        VendorDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorDetailTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -8,6 +8,7 @@ table 10861 "Payment Status"
 {
     Caption = 'Payment Status';
     LookupPageID = "Payment Status List";
+    DataClassification = CustomerContent;
 
     fields
     {

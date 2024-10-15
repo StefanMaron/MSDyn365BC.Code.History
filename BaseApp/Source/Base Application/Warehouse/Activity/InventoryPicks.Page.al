@@ -11,6 +11,7 @@ page 9316 "Inventory Picks"
     CardPageID = "Inventory Pick";
     Editable = false;
     PageType = List;
+    RefreshOnActivate = true;
     SourceTable = "Warehouse Activity Header";
     SourceTableView = where(Type = const("Invt. Pick"));
     UsageCategory = Lists;
@@ -197,6 +198,21 @@ page 9316 "Inventory Picks"
                     end;
                 }
             }
+            action("Assign to me")
+            {
+                ApplicationArea = Warehouse;
+                Caption = 'Assign to me';
+                Image = User;
+                Gesture = LeftSwipe;
+                Scope = Repeater;
+                ToolTip = 'Assigns this pick document to the current user.';
+
+                trigger OnAction()
+                begin
+                    Rec.AssignToCurrentUser();
+                    CurrPage.Update();
+                end;
+            }
         }
         area(Promoted)
         {
@@ -228,6 +244,9 @@ page 9316 "Inventory Picks"
                 actionref("Posted Picks_Promoted"; "Posted Picks")
                 {
                 }
+                actionref("Assign to me_Promoted"; "Assign to me")
+                {
+                }
             }
         }
     }
@@ -254,8 +273,11 @@ page 9316 "Inventory Picks"
     local procedure PreviewPostPick()
     var
         WhseActivLine: Record "Warehouse Activity Line";
+        SelectedWarehouseActivityHeader: Record "Warehouse Activity Header";
         WhseActPostYesNo: Codeunit "Whse.-Act.-Post (Yes/No)";
     begin
+        CurrPage.SetSelectionFilter(SelectedWarehouseActivityHeader);
+        WhseActPostYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedWarehouseActivityHeader, Rec."No.");
         GetLinesForRec(WhseActivLine);
         WhseActPostYesNo.Preview(WhseActivLine);
     end;
@@ -272,7 +294,7 @@ page 9316 "Inventory Picks"
 
     local procedure GetLinesForRec(var WhseActivLine: Record "Warehouse Activity Line")
     begin
-        WhseActivLine.SetRange("Activity Type", WhseActivLine."activity Type"::"Invt. Pick");
+        WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::"Invt. Pick");
         WhseActivLine.SetRange("No.", Rec."No.");
         WhseActivLine.FindSet();
     end;

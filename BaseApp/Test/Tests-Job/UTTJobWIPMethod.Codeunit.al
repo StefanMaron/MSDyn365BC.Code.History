@@ -232,7 +232,7 @@ codeunit 136354 "UT T Job WIP Method"
         // [GIVEN] Record "Job WIP Method" with "Recognized Cost" <> "Usage (Total Cost)"
         JobWIPMethod.Init();
         JobWIPMethod."System Defined" := false;
-        JobWIPMethod."Recognized Costs" := LibraryRandom.RandInt(4);
+        JobWIPMethod."Recognized Costs" := "Job WIP Recognized Costs Type".FromInteger(LibraryRandom.RandInt(4));
 
         // [WHEN] Validate "WIP Cost"
         asserterror JobWIPMethod.Validate("WIP Cost", true);
@@ -263,7 +263,7 @@ codeunit 136354 "UT T Job WIP Method"
 
         CreateJobLedgerEntry(Job."No.");
         CreateUserDefinedEntry(JobWIPMethod[2]);
-        LibraryVariableStorage.Enqueue(WIPMethodQst);
+        LibraryVariableStorage.Enqueue(StrSubstNo(WIPMethodQst, JobTask.FieldCaption("WIP Method"), JobTask.TableCaption(), JobTask."WIP-Total"::Total));
 
         Job.Validate("WIP Method", JobWIPMethod[2].Code);
         Job.Modify(true);
@@ -274,22 +274,20 @@ codeunit 136354 "UT T Job WIP Method"
         JobTask.Find();
         JobTask.TestField("WIP Method", JobWIPMethod[2].Code);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure CreateUserDefinedEntry(var JobWIPMethod: Record "Job WIP Method")
     begin
-        with JobWIPMethod do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Job WIP Method");
-            Description := 'WIPTEST';
-            "WIP Cost" := true;
-            "WIP Sales" := true;
-            "Recognized Costs" := LibraryRandom.RandInt(4);
-            "Recognized Sales" := LibraryRandom.RandInt(5);
-            Valid := true;
-            Insert(true);
-        end;
+        JobWIPMethod.Init();
+        JobWIPMethod.Code := LibraryUtility.GenerateRandomCode(JobWIPMethod.FieldNo(Code), DATABASE::"Job WIP Method");
+        JobWIPMethod.Description := 'WIPTEST';
+        JobWIPMethod."WIP Cost" := true;
+        JobWIPMethod."WIP Sales" := true;
+        JobWIPMethod."Recognized Costs" := "Job WIP Recognized Costs Type".FromInteger(LibraryRandom.RandInt(4));
+        JobWIPMethod."Recognized Sales" := "Job WIP Recognized Sales Type".FromInteger(LibraryRandom.RandInt(5));
+        JobWIPMethod.Valid := true;
+        JobWIPMethod.Insert(true);
     end;
 
     local procedure CreateJobLedgerEntry(JobNo: Code[20])
@@ -301,14 +299,14 @@ codeunit 136354 "UT T Job WIP Method"
           LibraryUtility.GetNewRecNo(JobLedgerEntry, JobLedgerEntry.FieldNo("Entry No."));
         JobLedgerEntry."Job No." := JobNo;
         JobLedgerEntry."Total Cost (LCY)" := LibraryRandom.RandDec(100, 2);
-        JobLedgerEntry.Insert;
+        JobLedgerEntry.Insert();
     end;
 
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, Question, '');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), Question, '');
         Reply := true;
     end;
 }

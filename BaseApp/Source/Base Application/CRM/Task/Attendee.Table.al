@@ -6,6 +6,7 @@ using Microsoft.CRM.Team;
 table 5199 Attendee
 {
     Caption = 'Attendee';
+    DataClassification = CustomerContent;
     Permissions = tabledata "Salesperson/Purchaser" = R;
 
     fields

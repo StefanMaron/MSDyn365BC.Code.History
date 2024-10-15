@@ -27,25 +27,23 @@ codeunit 10842 "G/L Entry Application"
     var
         EntryApplID: Code[50];
     begin
-        with GLEntry do begin
-            LockTable();
-            if OnlyNotApplied then begin
-                SetFilter(Letter, '<>''''');
-                ModifyAll("Applies-to ID", '');
-                SetRange(Letter, '');
-            end;
-            if FindFirst() then begin
-                // Make Applies-to ID
-                if "Applies-to ID" <> '' then
-                    EntryApplID := ''
-                else
-                    if EntryApplID = '' then begin
-                        EntryApplID := UserId;
-                        if EntryApplID = '' then
-                            EntryApplID := '***';
-                    end;
-                ModifyAll("Applies-to ID", EntryApplID);
-            end;
+        GLEntry.LockTable();
+        if OnlyNotApplied then begin
+            GLEntry.SetFilter(Letter, '<>''''');
+            GLEntry.ModifyAll("Applies-to ID", '');
+            GLEntry.SetRange(Letter, '');
+        end;
+        if GLEntry.FindFirst() then begin
+            // Make Applies-to ID
+            if GLEntry."Applies-to ID" <> '' then
+                EntryApplID := ''
+            else
+                if EntryApplID = '' then begin
+                    EntryApplID := UserId;
+                    if EntryApplID = '' then
+                        EntryApplID := '***';
+                end;
+            GLEntry.ModifyAll("Applies-to ID", EntryApplID);
         end;
     end;
 

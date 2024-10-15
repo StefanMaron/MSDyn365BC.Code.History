@@ -39,7 +39,7 @@ page 1312 "Office 365 Credentials"
                     Editable = false;
                     ShowCaption = false;
                     Style = Attention;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
                 }
                 field(WhySignInIsNeededLbl; WhySignInIsNeededLbl)
                 {

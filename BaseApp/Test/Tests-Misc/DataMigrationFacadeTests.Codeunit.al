@@ -263,7 +263,7 @@ codeunit 135022 "Data Migration Facade Tests"
 
         // [WHEN] CreateGeneralJournalLine is called
         // [WHEN] SetGeneralJournalLineDimension is called
-        VendorDataMigrationFacade.CreateGeneralJournalLine('MIGRATION', '1', 'Document1', WorkDate(), WorkDate, 123, 123, '', 'GL0001');
+        VendorDataMigrationFacade.CreateGeneralJournalLine('MIGRATION', '1', 'Document1', WorkDate(), WorkDate(), 123, 123, '', 'GL0001');
         VendorDataMigrationFacade.SetGeneralJournalLineDimension('DEPARTMENT', 'Department', 'SALES', 'Sales');
 
         // [THEN] The Genral Journal Line is Created
@@ -523,7 +523,7 @@ codeunit 135022 "Data Migration Facade Tests"
 
         // [WHEN] CreateGeneralJournalLine is called
         // [WHEN] SetGeneralJournalLineDimension is called
-        CustomerDataMigrationFacade.CreateGeneralJournalLine('MIGRATION', '1', 'Document1', WorkDate(), WorkDate, 123, 123, '', 'GL0001');
+        CustomerDataMigrationFacade.CreateGeneralJournalLine('MIGRATION', '1', 'Document1', WorkDate(), WorkDate(), 123, 123, '', 'GL0001');
         CustomerDataMigrationFacade.SetGeneralJournalLineDimension('DEPARTMENT', 'Department', 'SALES', 'Sales');
 
         // [THEN] The Genral Journal Line is Created
@@ -560,7 +560,7 @@ codeunit 135022 "Data Migration Facade Tests"
 
         // [WHEN] Setting additional General Journal Line fields
         // [THEN] no errors are thrown
-        CustomerDataMigrationFacade.CreateGeneralJournalLine('MIGRATION', '2', 'Document2', WorkDate(), WorkDate, 123, 123, '', 'GL0001');
+        CustomerDataMigrationFacade.CreateGeneralJournalLine('MIGRATION', '2', 'Document2', WorkDate(), WorkDate(), 123, 123, '', 'GL0001');
         CustomerDataMigrationFacade.SetGeneralJournalLineDocumentType(DocumentType::Payment);
         CustomerDataMigrationFacade.SetGeneralJournalLineExternalDocumentNo('1234');
         CustomerDataMigrationFacade.SetGeneralJournalLineSourceCode('GENJNL');
@@ -573,7 +573,7 @@ codeunit 135022 "Data Migration Facade Tests"
         UnbindSubscription(DataMigrationFacadeTests);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     //[HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -583,7 +583,6 @@ codeunit 135022 "Data Migration Facade Tests"
         PriceListLine: Record "Price List Line";
         ExRateDataMigrationFacade: Codeunit "Ex. Rate Data Migration Facade";
         ItemDataMigrationFacade: Codeunit "Item Data Migration Facade";
-        LocalDataMigrationFacadeTests: Codeunit "Data Migration Facade Tests";
     begin
         // [SCENARIO] Price list line with header is created once
         Initialize();
@@ -1279,7 +1278,7 @@ codeunit 135022 "Data Migration Facade Tests"
 
         CODEUNIT.Run(CODEUNIT::"GL Acc. Data Migration Facade");
 
-        Assert.AreEqual('Migrate G/L Account', LibraryVariableStorage.DequeueText, 'OnMigrateGLAccount event was expected');
+        Assert.AreEqual('Migrate G/L Account', LibraryVariableStorage.DequeueText(), 'OnMigrateGLAccount event was expected');
 
         UnbindSubscription(DataMigrationFacadeTests);
     end;
@@ -1302,12 +1301,12 @@ codeunit 135022 "Data Migration Facade Tests"
 
         CODEUNIT.Run(CODEUNIT::"Vendor Data Migration Facade");
 
-        Assert.AreEqual('Migrate Vendor', LibraryVariableStorage.DequeueText, 'OnMigrateVendor event was expected');
-        Assert.AreEqual('Migrate Vendor Dimensions', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Vendor', LibraryVariableStorage.DequeueText(), 'OnMigrateVendor event was expected');
+        Assert.AreEqual('Migrate Vendor Dimensions', LibraryVariableStorage.DequeueText(),
           'OnMigrateVendorDimensions event was expected');
-        Assert.AreEqual('Migrate Vendor Posting Groups', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Vendor Posting Groups', LibraryVariableStorage.DequeueText(),
           'OnMigrateVendorPostingGroups event was expected');
-        Assert.AreEqual('Migrate Vendor Transactions', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Vendor Transactions', LibraryVariableStorage.DequeueText(),
           'OnMigrateVendorTransction event was expected');
 
         UnbindSubscription(DataMigrationFacadeTests);
@@ -1331,12 +1330,12 @@ codeunit 135022 "Data Migration Facade Tests"
 
         CODEUNIT.Run(CODEUNIT::"Customer Data Migration Facade");
 
-        Assert.AreEqual('Migrate Customer', LibraryVariableStorage.DequeueText, 'OnMigratedCustomer event was expected');
-        Assert.AreEqual('Migrate Customer Dimensions', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Customer', LibraryVariableStorage.DequeueText(), 'OnMigratedCustomer event was expected');
+        Assert.AreEqual('Migrate Customer Dimensions', LibraryVariableStorage.DequeueText(),
           'OnMigratedCustomerDimensions event was expected');
-        Assert.AreEqual('Migrate Customer Posting Groups', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Customer Posting Groups', LibraryVariableStorage.DequeueText(),
           'OnMigratedCustomerPostingGroups event was expected');
-        Assert.AreEqual('Migrate Customer Transactions', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Customer Transactions', LibraryVariableStorage.DequeueText(),
           'OnMigratedCustomerTransction event was expected');
 
         UnbindSubscription(DataMigrationFacadeTests);
@@ -1359,24 +1358,24 @@ codeunit 135022 "Data Migration Facade Tests"
 
         CODEUNIT.Run(CODEUNIT::"Item Data Migration Facade");
 
-        Assert.AreEqual('Migrate Item', LibraryVariableStorage.DequeueText, 'OnMigrateItem event was expected');
-        Assert.AreEqual('Migrate Item Tracking Code', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Item', LibraryVariableStorage.DequeueText(), 'OnMigrateItem event was expected');
+        Assert.AreEqual('Migrate Item Tracking Code', LibraryVariableStorage.DequeueText(),
           'OnMigrateTrackingCode event was expected');
-        Assert.AreEqual('Migrate Item Costing Method', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Item Costing Method', LibraryVariableStorage.DequeueText(),
           'OnMigrateItemCostingMethod event was expected');
-        Assert.AreEqual('Migrate Item Unit Of Measure', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Item Unit Of Measure', LibraryVariableStorage.DequeueText(),
           'OnMigrateItemUnitOfMeasure event was expected');
-        Assert.AreEqual('Migrate Item Discount Group', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Item Discount Group', LibraryVariableStorage.DequeueText(),
           'OnMigrateItemDiscountGroup event was expected');
-        Assert.AreEqual('Migrate Sales Line Discount', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Sales Line Discount', LibraryVariableStorage.DequeueText(),
           'OnMigrateItemSalesLineDiscount event was expected');
-        Assert.AreEqual('Migrate Item Price', LibraryVariableStorage.DequeueText, 'OnMigrateItemPrice event was expected');
-        Assert.AreEqual('Migrate Item Tariff Number', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Item Price', LibraryVariableStorage.DequeueText(), 'OnMigrateItemPrice event was expected');
+        Assert.AreEqual('Migrate Item Tariff Number', LibraryVariableStorage.DequeueText(),
           'OnMigrateItemTariffNo event was expected');
-        Assert.AreEqual('Migrate Item Dimensions', LibraryVariableStorage.DequeueText, 'OnMigrateItemDimensions event was expected');
-        Assert.AreEqual('Migrate Item Posting Setup', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Item Dimensions', LibraryVariableStorage.DequeueText(), 'OnMigrateItemDimensions event was expected');
+        Assert.AreEqual('Migrate Item Posting Setup', LibraryVariableStorage.DequeueText(),
           'OnMigrateItemPostingGroups event was expected');
-        Assert.AreEqual('Migrate Item Transactions', LibraryVariableStorage.DequeueText,
+        Assert.AreEqual('Migrate Item Transactions', LibraryVariableStorage.DequeueText(),
           'OnMigrateInventoryTransactions event was expected');
 
         UnbindSubscription(DataMigrationFacadeTests);

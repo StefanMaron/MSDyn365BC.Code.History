@@ -23,7 +23,9 @@ page 5196 "Task Interaction Languages"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the interaction template that you have chosen for the task.';
                 }
+#pragma warning disable AA0100
                 field("""Attachment No."" > 0"; Rec."Attachment No." > 0)
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AssistEdit = true;

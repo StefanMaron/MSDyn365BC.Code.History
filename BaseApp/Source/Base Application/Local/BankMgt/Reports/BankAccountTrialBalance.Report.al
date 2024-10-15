@@ -126,10 +126,8 @@ report 10809 "Bank Account Trial Balance"
             trigger OnAfterGetRecord()
             begin
                 BankAccount2 := "Bank Account";
-                with BankAccount2 do begin
-                    SetRange("Date Filter", 0D, PreviousEndDate);
-                    CalcFields("Debit Amount (LCY)", "Credit Amount (LCY)");
-                end;
+                BankAccount2.SetRange("Date Filter", 0D, PreviousEndDate);
+                BankAccount2.CalcFields("Debit Amount (LCY)", "Credit Amount (LCY)");
                 if not PrintBanksWithoutBalance and
                    (BankAccount2."Debit Amount (LCY)" = 0) and
                    ("Debit Amount (LCY)" = 0) and

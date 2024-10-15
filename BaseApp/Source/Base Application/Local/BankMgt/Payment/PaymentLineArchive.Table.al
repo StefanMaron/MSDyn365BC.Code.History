@@ -19,6 +19,7 @@ table 10868 "Payment Line Archive"
     Caption = 'Payment Line Archive';
     DrillDownPageID = "Payment Lines Archive List";
     LookupPageID = "Payment Lines Archive List";
+    DataClassification = CustomerContent;
 
     fields
     {

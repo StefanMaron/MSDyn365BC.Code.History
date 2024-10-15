@@ -45,11 +45,9 @@ report 5688 "Cancel FA Ledger Entries"
             trigger OnPreDataItem()
             begin
                 DepreciationCalc.SetFAFilter(FALedgEntry, '', DeprBookCode, false);
-                with FALedgEntry do begin
-                    SetRange("FA Posting Category", "FA Posting Category"::" ");
-                    SetFilter("FA Posting Type", '<=%1|%2', "FA Posting Type"::"Salvage Value", "FA Posting Type"::Derogatory);
-                    SetRange("FA Posting Date", StartingDate, EndingDate2);
-                end;
+                FALedgEntry.SetRange("FA Posting Category", FALedgEntry."FA Posting Category"::" ");
+                FALedgEntry.SetFilter("FA Posting Type", '<=%1|%2', FALedgEntry."FA Posting Type"::"Salvage Value", FALedgEntry."FA Posting Type"::Derogatory);
+                FALedgEntry.SetRange("FA Posting Date", StartingDate, EndingDate2);
             end;
         }
     }
@@ -233,7 +231,6 @@ report 5688 "Cancel FA Ledger Entries"
         FAJnlSetup: Record "FA Journal Setup";
         DerogDeprBook: Record "Depreciation Book";
         DepreciationCalc: Codeunit "Depreciation Calculation";
-        CancelFALedgEntries: Codeunit "Cancel FA Ledger Entries";
         Window: Dialog;
         CancelChoices: array[13] of Boolean;
         GLIntegration: array[13] of Boolean;
@@ -281,32 +278,30 @@ report 5688 "Cancel FA Ledger Entries"
         end;
         FirstGenJnl := false;
 
-        with GenJnlLine do begin
-            FALedgEntry.MoveToGenJnl(GenJnlLine);
-            "Shortcut Dimension 1 Code" := FALedgEntry."Global Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := FALedgEntry."Global Dimension 2 Code";
-            "Dimension Set ID" := FALedgEntry."Dimension Set ID";
-            Validate("Depreciation Book Code", DeprBookCode);
-            Validate(Amount, -Amount);
-            "FA Error Entry No." := FALedgEntry."Entry No.";
-            // to be able to filter on FA Posting Date
-            "FA Posting Date" := FALedgEntry."FA Posting Date";
-            Validate(Correction, DeprBook."Mark Errors as Corrections");
-            "Document No." := DocumentNo2;
-            "Posting No. Series" := NoSeries2;
-            "Document Type" := "Document Type"::" ";
-            "External Document No." := '';
-            if PostingDescription <> '' then
-                Description := PostingDescription;
-            GenJnlNextLineNo := GenJnlNextLineNo + 10000;
-            "Line No." := GenJnlNextLineNo;
-            OnInsertGenJnlLineOnBeforeInsert(GenJnlLine, FALedgEntry, BalAccount);
-            Insert(true);
-            if BalAccount then begin
-                FAInsertGLAcc.GetBalAcc(GenJnlLine);
-                if FindLast() then;
-                GenJnlNextLineNo := "Line No.";
-            end;
+        FALedgEntry.MoveToGenJnl(GenJnlLine);
+        GenJnlLine."Shortcut Dimension 1 Code" := FALedgEntry."Global Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := FALedgEntry."Global Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := FALedgEntry."Dimension Set ID";
+        GenJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+        GenJnlLine.Validate(Amount, -GenJnlLine.Amount);
+        GenJnlLine."FA Error Entry No." := FALedgEntry."Entry No.";
+        // to be able to filter on FA Posting Date
+        GenJnlLine."FA Posting Date" := FALedgEntry."FA Posting Date";
+        GenJnlLine.Validate(Correction, DeprBook."Mark Errors as Corrections");
+        GenJnlLine."Document No." := DocumentNo2;
+        GenJnlLine."Posting No. Series" := NoSeries2;
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
+        GenJnlLine."External Document No." := '';
+        if PostingDescription <> '' then
+            GenJnlLine.Description := PostingDescription;
+        GenJnlNextLineNo := GenJnlNextLineNo + 10000;
+        GenJnlLine."Line No." := GenJnlNextLineNo;
+        OnInsertGenJnlLineOnBeforeInsert(GenJnlLine, FALedgEntry, BalAccount);
+        GenJnlLine.Insert(true);
+        if BalAccount then begin
+            FAInsertGLAcc.GetBalAcc(GenJnlLine);
+            if GenJnlLine.FindLast() then;
+            GenJnlNextLineNo := GenJnlLine."Line No.";
         end;
     end;
 
@@ -323,27 +318,25 @@ report 5688 "Cancel FA Ledger Entries"
         end;
         FirstFAJnl := false;
 
-        with FAJnlLine do begin
-            FALedgEntry.MoveToFAJnl(FAJnlLine);
-            "Shortcut Dimension 1 Code" := FALedgEntry."Global Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := FALedgEntry."Global Dimension 2 Code";
-            "Dimension Set ID" := FALedgEntry."Dimension Set ID";
-            Validate("Depreciation Book Code", DeprBookCode);
-            Validate(Amount, -Amount);
-            "FA Error Entry No." := FALedgEntry."Entry No.";
-            // to be able to filter on FA Posting Date
-            "FA Posting Date" := FALedgEntry."FA Posting Date";
-            Validate(Correction, DeprBook."Mark Errors as Corrections");
-            "Document No." := DocumentNo3;
-            "Posting No. Series" := NoSeries3;
-            "Document Type" := "Document Type"::" ";
-            "External Document No." := '';
-            if PostingDescription <> '' then
-                Description := PostingDescription;
-            FAJnlNextLineNo := FAJnlNextLineNo + 10000;
-            "Line No." := FAJnlNextLineNo;
-            Insert(true);
-        end;
+        FALedgEntry.MoveToFAJnl(FAJnlLine);
+        FAJnlLine."Shortcut Dimension 1 Code" := FALedgEntry."Global Dimension 1 Code";
+        FAJnlLine."Shortcut Dimension 2 Code" := FALedgEntry."Global Dimension 2 Code";
+        FAJnlLine."Dimension Set ID" := FALedgEntry."Dimension Set ID";
+        FAJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+        FAJnlLine.Validate(Amount, -FAJnlLine.Amount);
+        FAJnlLine."FA Error Entry No." := FALedgEntry."Entry No.";
+        // to be able to filter on FA Posting Date
+        FAJnlLine."FA Posting Date" := FALedgEntry."FA Posting Date";
+        FAJnlLine.Validate(Correction, DeprBook."Mark Errors as Corrections");
+        FAJnlLine."Document No." := DocumentNo3;
+        FAJnlLine."Posting No. Series" := NoSeries3;
+        FAJnlLine."Document Type" := FAJnlLine."Document Type"::" ";
+        FAJnlLine."External Document No." := '';
+        if PostingDescription <> '' then
+            FAJnlLine.Description := PostingDescription;
+        FAJnlNextLineNo := FAJnlNextLineNo + 10000;
+        FAJnlLine."Line No." := FAJnlNextLineNo;
+        FAJnlLine.Insert(true);
     end;
 
     local procedure SetJournalType(var FALedgEntry: Record "FA Ledger Entry")

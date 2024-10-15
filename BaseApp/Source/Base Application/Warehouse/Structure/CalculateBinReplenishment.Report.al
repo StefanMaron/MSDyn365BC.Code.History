@@ -12,7 +12,7 @@ report 7300 "Calculate Bin Replenishment"
     {
         dataitem("Bin Content"; "Bin Content")
         {
-            DataItemTableView = SORTING("Location Code", "Item No.", "Variant Code", "Warehouse Class Code", Fixed, "Bin Ranking") ORDER(Descending) WHERE(Fixed = FILTER(true));
+            DataItemTableView = sorting("Location Code", "Item No.", "Variant Code", "Warehouse Class Code", Fixed, "Bin Ranking") order(descending) where(Fixed = filter(true));
             RequestFilterFields = "Bin Code", "Item No.";
 
             trigger OnAfterGetRecord()

@@ -35,7 +35,7 @@ codeunit 144016 "UT FR Feature Bugs"
         // Purpose of the test is to verify Country_Region_Code EC Sales List - Service Report 10876.
         // Setup.
         Initialize();
-        CountryRegionCode := CreateVATEntry;
+        CountryRegionCode := CreateVATEntry();
         CalculateDate(Calender);
 
         // Enqueue CountryRegion,Start Date and End Date.
@@ -45,7 +45,7 @@ codeunit 144016 "UT FR Feature Bugs"
         REPORT.Run(REPORT::"EC Sales List - Services");
 
         // Verify: Verifying on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Country_Region_Code', CountryRegionCode);
     end;
 
@@ -60,7 +60,7 @@ codeunit 144016 "UT FR Feature Bugs"
         // Purpose of the test is to verify Error on EC Sales List - Service Report 10876.
         // Setup.
         Initialize();
-        CountryRegionCode := CreateVATEntry;
+        CountryRegionCode := CreateVATEntry();
 
         // Enqueue CountryRegion,Start Date and End Date.
         EnqueueVariables(CountryRegionCode, WorkDate(), WorkDate());
@@ -83,7 +83,7 @@ codeunit 144016 "UT FR Feature Bugs"
         VATEntry: Record "VAT Entry";
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.Code := LibraryUTUtility.GetNewCode10;
+        CountryRegion.Code := LibraryUTUtility.GetNewCode10();
         CountryRegion."EU Country/Region Code" := CountryRegion.Code;
         CountryRegion.Insert();
         VATEntry2.FindLast();
@@ -127,7 +127,7 @@ codeunit 144016 "UT FR Feature Bugs"
         LibraryVariableStorage.Dequeue(EndDate);
         ECSalesListServices."VAT Entry".SetFilter("Country/Region Code", CountryRegionCode);
         ECSalesListServices."VAT Entry".SetFilter("Posting Date", StrSubstNo(DateFilterCap, StartDate, EndDate));
-        ECSalesListServices.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ECSalesListServices.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

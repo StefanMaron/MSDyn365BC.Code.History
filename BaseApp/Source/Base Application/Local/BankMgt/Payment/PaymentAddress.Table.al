@@ -14,6 +14,7 @@ table 10870 "Payment Address"
     Caption = 'Payment Address';
     DrillDownPageID = "Payment Addresses";
     LookupPageID = "Payment Addresses";
+    DataClassification = CustomerContent;
 
     fields
     {

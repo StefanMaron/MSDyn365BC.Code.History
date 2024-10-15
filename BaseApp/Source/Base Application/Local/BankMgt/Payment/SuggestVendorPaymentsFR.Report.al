@@ -213,7 +213,6 @@ report 10862 "Suggest Vendor Payments FR"
         TempPaymentPostBuffer: Record "Payment Post. Buffer" temporary;
         OldTempPaymentPostBuffer: Record "Payment Post. Buffer" temporary;
         PaymentClass: Record "Payment Class";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         Window: Dialog;
         UsePaymentDisc: Boolean;
         PostingDate: Date;
@@ -265,25 +264,23 @@ report 10862 "Suggest Vendor Payments FR"
 
     local procedure SaveAmount()
     begin
-        with GenPayLine do begin
-            "Account Type" := "Account Type"::Vendor;
-            Validate("Account No.", VendLedgEntry."Vendor No.");
-            "Posting Date" := VendLedgEntry."Posting Date";
-            "Currency Factor" := VendLedgEntry."Adjusted Currency Factor";
-            if "Currency Factor" = 0 then
-                "Currency Factor" := 1;
-            Validate("Currency Code", VendLedgEntry."Currency Code");
-            VendLedgEntry.CalcFields("Remaining Amount");
-            if ((VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::"Credit Memo") and
-                (VendLedgEntry."Remaining Pmt. Disc. Possible" <> 0) or
-                (VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Invoice)) and
-               (PostingDate <= VendLedgEntry."Pmt. Discount Date")
-            then
-                Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Original Pmt. Disc. Possible")
-            else
-                Amount := -VendLedgEntry."Remaining Amount";
-            Validate(Amount);
-        end;
+        GenPayLine."Account Type" := GenPayLine."Account Type"::Vendor;
+        GenPayLine.Validate("Account No.", VendLedgEntry."Vendor No.");
+        GenPayLine."Posting Date" := VendLedgEntry."Posting Date";
+        GenPayLine."Currency Factor" := VendLedgEntry."Adjusted Currency Factor";
+        if GenPayLine."Currency Factor" = 0 then
+            GenPayLine."Currency Factor" := 1;
+        GenPayLine.Validate("Currency Code", VendLedgEntry."Currency Code");
+        VendLedgEntry.CalcFields("Remaining Amount");
+        if ((VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::"Credit Memo") and
+            (VendLedgEntry."Remaining Pmt. Disc. Possible" <> 0) or
+            (VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Invoice)) and
+           (PostingDate <= VendLedgEntry."Pmt. Discount Date")
+        then
+            GenPayLine.Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Original Pmt. Disc. Possible")
+        else
+            GenPayLine.Amount := -VendLedgEntry."Remaining Amount";
+        GenPayLine.Validate(Amount);
 
         if UsePriority then
             PayableVendLedgEntry.Priority := Vendor.Priority
@@ -359,6 +356,7 @@ report 10862 "Suggest Vendor Payments FR"
     local procedure MakeGenPayLines()
     var
         GenPayLine3: Record "Gen. Journal Line";
+        NoSeries: Codeunit "No. Series";
     begin
         TempPaymentPostBuffer.DeleteAll();
 
@@ -390,7 +388,7 @@ report 10862 "Suggest Vendor Payments FR"
                                 NextDocNo := CopyStr(GenPayHead."No." + '/' + Format(LastLineNo), 1, MaxStrLen(NextDocNo));
                                 TempPaymentPostBuffer."Applies-to ID" := NextDocNo;
                             end else begin
-                                NextDocNo := NoSeriesMgt.GetNextNo(PaymentClass."Line No. Series", PostingDate, true);
+                                NextDocNo := NoSeries.GetNextNo(PaymentClass."Line No. Series", PostingDate);
                                 TempPaymentPostBuffer."Applies-to ID" := GenPayHead."No." + '/' + NextDocNo;
                             end;
                             TempPaymentPostBuffer."Document No." := NextDocNo;
@@ -431,70 +429,69 @@ report 10862 "Suggest Vendor Payments FR"
         TempPaymentPostBuffer.SetCurrentKey("Document No.");
         if TempPaymentPostBuffer.Find('-') then
             repeat
-                with GenPayLine do begin
-                    Init();
-                    Window.Update(1, TempPaymentPostBuffer."Account No.");
-                    if SummarizePer = SummarizePer::" " then begin
-                        LastLineNo := LastLineNo + 10000;
-                        "Line No." := LastLineNo;
-                        if PaymentClass."Line No. Series" = '' then begin
-                            NextDocNo := CopyStr(GenPayHead."No." + '/' + Format("Line No."), 1, MaxStrLen(NextDocNo));
-                            "Applies-to ID" := NextDocNo;
-                        end else begin
-                            NextDocNo := NoSeriesMgt.GetNextNo(PaymentClass."Line No. Series", PostingDate, true);
-                            "Applies-to ID" := GenPayHead."No." + '/' + NextDocNo;
-                        end;
+                GenPayLine.Init();
+                Window.Update(1, TempPaymentPostBuffer."Account No.");
+                if SummarizePer = SummarizePer::" " then begin
+                    LastLineNo := LastLineNo + 10000;
+                    GenPayLine."Line No." := LastLineNo;
+                    if PaymentClass."Line No. Series" = '' then begin
+                        NextDocNo := CopyStr(GenPayHead."No." + '/' + Format(GenPayLine."Line No."), 1, MaxStrLen(NextDocNo));
+                        GenPayLine."Applies-to ID" := NextDocNo;
                     end else begin
-                        "Line No." := TempPaymentPostBuffer."Payment Line No.";
-                        NextDocNo := TempPaymentPostBuffer."Document No.";
-                        "Applies-to ID" := TempPaymentPostBuffer."Applies-to ID";
+                        NextDocNo := NoSeries.GetNextNo(PaymentClass."Line No. Series", PostingDate);
+                        GenPayLine."Applies-to ID" := GenPayHead."No." + '/' + NextDocNo;
                     end;
-                    "Document No." := NextDocNo;
-                    OldTempPaymentPostBuffer := TempPaymentPostBuffer;
-                    OldTempPaymentPostBuffer."Document No." := "Document No.";
-                    if SummarizePer = SummarizePer::" " then begin
-                        VendLedgEntry.Get(TempPaymentPostBuffer."Auxiliary Entry No.");
-                        VendLedgEntry."Applies-to ID" := "Applies-to ID";
-                        VendLedgEntry.Modify();
-                    end;
-                    "Account Type" := "Account Type"::Vendor;
-                    Validate("Account No.", TempPaymentPostBuffer."Account No.");
-                    "Currency Code" := TempPaymentPostBuffer."Currency Code";
-                    "Currency Factor" := GenPayHead."Currency Factor";
-                    if "Currency Factor" = 0 then
-                        "Currency Factor" := 1;
-                    Validate(Amount, TempPaymentPostBuffer.Amount);
-                    Vend2.Get("Account No.");
-                    Validate("Bank Account Code", Vend2."Preferred Bank Account Code");
-                    "Payment Class" := GenPayHead."Payment Class";
-                    Validate("Status No.");
-                    "Posting Date" := PostingDate;
-                    if SummarizePer = SummarizePer::" " then begin
-                        "Applies-to Doc. Type" := VendLedgEntry."Document Type";
-                        "Applies-to Doc. No." := VendLedgEntry."Document No.";
-                        "Dimension Set ID" := VendLedgEntry."Dimension Set ID";
-                    end;
-                    case SummarizePer of
-                        SummarizePer::" ":
-                            "Due Date" := VendLedgEntry."Due Date";
-                        SummarizePer::Vendor:
-                            begin
-                                PayableVendLedgEntry.SetCurrentKey("Vendor No.", "Due Date");
-                                PayableVendLedgEntry.SetRange("Vendor No.", TempPaymentPostBuffer."Account No.");
-                                PayableVendLedgEntry.Find('-');
-                                "Due Date" := PayableVendLedgEntry."Due Date";
-                                PayableVendLedgEntry.DeleteAll();
-                            end;
-                        SummarizePer::"Due date":
-                            "Due Date" := TempPaymentPostBuffer."Due Date";
-                    end;
-                    if Amount <> 0 then begin
-                        if "Dimension Set ID" = 0 then // per "Customer", per "Due Date"
-                            DimensionSetup();
-                        Insert();
-                    end;
-                    GenPayLineInserted := true;
+                end else begin
+                    GenPayLine."Line No." := TempPaymentPostBuffer."Payment Line No.";
+                    NextDocNo := TempPaymentPostBuffer."Document No.";
+                    GenPayLine."Applies-to ID" := TempPaymentPostBuffer."Applies-to ID";
                 end;
+                GenPayLine."Document No." := NextDocNo;
+                OldTempPaymentPostBuffer := TempPaymentPostBuffer;
+                OldTempPaymentPostBuffer."Document No." := GenPayLine."Document No.";
+                if SummarizePer = SummarizePer::" " then begin
+                    VendLedgEntry.Get(TempPaymentPostBuffer."Auxiliary Entry No.");
+                    VendLedgEntry."Applies-to ID" := GenPayLine."Applies-to ID";
+                    VendLedgEntry.Modify();
+                end;
+                GenPayLine."Account Type" := GenPayLine."Account Type"::Vendor;
+                GenPayLine.Validate("Account No.", TempPaymentPostBuffer."Account No.");
+                GenPayLine."Currency Code" := TempPaymentPostBuffer."Currency Code";
+                GenPayLine."Currency Factor" := GenPayHead."Currency Factor";
+                if GenPayLine."Currency Factor" = 0 then
+                    GenPayLine."Currency Factor" := 1;
+                GenPayLine.Validate(Amount, TempPaymentPostBuffer.Amount);
+                Vend2.Get(GenPayLine."Account No.");
+                GenPayLine.Validate("Bank Account Code", Vend2."Preferred Bank Account Code");
+                GenPayLine."Payment Class" := GenPayHead."Payment Class";
+                GenPayLine.Validate("Status No.");
+                GenPayLine."Posting Date" := PostingDate;
+                if SummarizePer = SummarizePer::" " then begin
+                    GenPayLine."Applies-to Doc. Type" := VendLedgEntry."Document Type";
+                    GenPayLine."Applies-to Doc. No." := VendLedgEntry."Document No.";
+                    GenPayLine."Dimension Set ID" := VendLedgEntry."Dimension Set ID";
+                end;
+                case SummarizePer of
+                    SummarizePer::" ":
+                        GenPayLine."Due Date" := VendLedgEntry."Due Date";
+                    SummarizePer::Vendor:
+                        begin
+                            PayableVendLedgEntry.SetCurrentKey("Vendor No.", "Due Date");
+                            PayableVendLedgEntry.SetRange("Vendor No.", TempPaymentPostBuffer."Account No.");
+                            PayableVendLedgEntry.Find('-');
+                            GenPayLine."Due Date" := PayableVendLedgEntry."Due Date";
+                            PayableVendLedgEntry.DeleteAll();
+                        end;
+                    SummarizePer::"Due date":
+                        GenPayLine."Due Date" := TempPaymentPostBuffer."Due Date";
+                end;
+                if GenPayLine.Amount <> 0 then begin
+                    if GenPayLine."Dimension Set ID" = 0 then
+                        // per "Customer", per "Due Date"
+                        GenPayLine.DimensionSetup();
+                    GenPayLine.Insert();
+                end;
+                GenPayLineInserted := true;
             until TempPaymentPostBuffer.Next() = 0;
     end;
 
