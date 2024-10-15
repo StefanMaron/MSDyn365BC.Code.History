@@ -686,7 +686,7 @@ table 6661 "Return Receipt Line"
 
             if not ExtTextLine then begin
                 IsHandled := false;
-                OnInsertInvLineFromRetRcptLineOnBeforeValidateSalesLineQuantity(Rec, SalesLine, IsHandled);
+                OnInsertInvLineFromRetRcptLineOnBeforeValidateSalesLineQuantity(Rec, SalesLine, IsHandled, SalesHeader);
                 if not IsHandled then
                     SalesLine.Validate(Quantity, Quantity - "Quantity Invoiced");
 
@@ -715,6 +715,7 @@ table 6661 "Return Receipt Line"
                 SetRange("Attached to Line No.", "Line No.");
 
         until (Next() = 0) or ("Attached to Line No." = 0);
+        OnInsertInvLineFromRetRcptLineOnAfterInsertAllLines(Rec, SalesLine);
 
         if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Return Order No.") then begin
             SalesOrderHeader."Get Shipment Used" := true;
@@ -885,7 +886,12 @@ table 6661 "Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertInvLineFromRetRcptLineOnBeforeValidateSalesLineQuantity(var ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnInsertInvLineFromRetRcptLineOnAfterInsertAllLines(ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRetRcptLineOnBeforeValidateSalesLineQuantity(var ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 

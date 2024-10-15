@@ -111,6 +111,7 @@ report 298 "Batch Post Sales Credit Memos"
             ReplaceDocumentDate := false;
             PrintDoc := false;
             PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
+            OnAfterOnOpenPage(CalcInvDisc, ReplacePostingDate, ReplaceDocumentDate, PrintDoc, PrintDocVisible, PostingDateReq);
         end;
     }
 
@@ -127,5 +128,10 @@ report 298 "Batch Post Sales Credit Memos"
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnOpenPage(var CalcInvDisc: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PrintDoc: Boolean; var PrintDocVisible: Boolean; var PostingDateReq: Date)
+    begin
+    end;
 }
 

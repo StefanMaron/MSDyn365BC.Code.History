@@ -282,12 +282,12 @@ page 9305 "Sales Order List"
                 field(Amount; Amount)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the sum of amounts in the Line Amount field on the sales order lines.';
+                    ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
                 }
                 field("Amount Including VAT"; "Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the total of the amounts, including VAT, on all the lines on the document.';
+                    ToolTip = 'Specifies the sum of amounts, including VAT, on all the lines in the document. This will include invoice discounts.';
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -738,8 +738,7 @@ page 9305 "Sales Order List"
                     begin
                         CurrPage.SetSelectionFilter(SalesHeader);
                         if SalesHeader.Count > 1 then begin
-                            BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Invoice, true);
-                            BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Ship, true);
+                            BatchProcessingMgt.SetParametersForPageID(Page::"Sales Order List");
 
                             SalesBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
                             SalesBatchPostMgt.RunWithUI(SalesHeader, Count, ReadyToPostQst);
@@ -840,7 +839,7 @@ page 9305 "Sales Order List"
 
                     trigger OnAction()
                     begin
-                        DocPrint.PrintSalesOrder(Rec, Usage::"Work Order");
+                        PrintForUsage(Usage::"Work Order");
                     end;
                 }
                 action("Pick Instruction")
@@ -852,7 +851,7 @@ page 9305 "Sales Order List"
 
                     trigger OnAction()
                     begin
-                        DocPrint.PrintSalesOrder(Rec, Usage::"Pick Instruction");
+                        PrintForUsage(Usage::"Pick Instruction");
                     end;
                 }
             }
@@ -1036,6 +1035,18 @@ page 9305 "Sales Order List"
         OnlyShowHeadersWithVat := true;
     end;
 
+    local procedure PrintForUsage(UsageParam: Option)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePrintForUsage(Rec, UsageParam, IsHandled);
+        if IsHandled then
+            exit;
+
+        DocPrint.PrintSalesOrder(Rec, UsageParam);
+    end;
+
     local procedure SetFilterOnPositiveVatPostingGroups()
     var
         VatPostingSetup: Record "VAT Posting Setup";
@@ -1057,6 +1068,11 @@ page 9305 "Sales Order List"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxStatistics(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforePrintForUsage(var SalesHeader: Record "Sales Header"; UsageParam: Option; var IsHandled: Boolean)
     begin
     end;
 }

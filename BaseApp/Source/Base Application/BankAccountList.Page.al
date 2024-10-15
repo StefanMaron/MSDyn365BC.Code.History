@@ -271,8 +271,6 @@ page 371 "Bank Account List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Reconciliations';
                     Image = List;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Posted Bank Rec. List";
                     RunPageLink = "Bank Account No." = FIELD("No.");
                     ToolTip = 'View the entries and the balance on your bank accounts against a statement from the bank.';
@@ -476,7 +474,7 @@ page 371 "Bank Account List"
                                   ORDER(Descending);
                     ToolTip = 'View the bank ledger entries that are related to Positive Pay transactions.';
                 }
-            }           
+            }
             group(History)
             {
                 Caption = 'History';

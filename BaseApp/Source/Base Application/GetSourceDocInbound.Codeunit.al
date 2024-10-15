@@ -1,4 +1,4 @@
-codeunit 5751 "Get Source Doc. Inbound"
+﻿codeunit 5751 "Get Source Doc. Inbound"
 {
 
     trigger OnRun()
@@ -35,7 +35,7 @@ codeunit 5751 "Get Source Doc. Inbound"
         GetSourceDocuments.RunModal();
 
         GetSourceDocuments.GetLastReceiptHeader(WhseReceiptHeader);
-        OnAfterCreateWhseReceiptHeaderFromWhseRequest(WhseReceiptHeader);
+        OnAfterCreateWhseReceiptHeaderFromWhseRequest(WhseReceiptHeader, WarehouseRequest);
         exit(true);
     end;
 
@@ -304,7 +304,7 @@ codeunit 5751 "Get Source Doc. Inbound"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateWhseReceiptHeaderFromWhseRequest(var WhseReceiptHeader: Record "Warehouse Receipt Header");
+    local procedure OnAfterCreateWhseReceiptHeaderFromWhseRequest(var WhseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseRequest: Record "Warehouse Request");
     begin
     end;
 

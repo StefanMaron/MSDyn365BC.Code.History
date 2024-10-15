@@ -491,7 +491,13 @@ table 270 "Bank Account"
             trigger OnValidate()
             var
                 CompanyInfo: Record "Company Information";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateIBAN(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CompanyInfo.CheckIBAN(IBAN);
             end;
         }
@@ -1416,6 +1422,11 @@ table 270 "Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var BankAccount: Record "Bank Account"; var xBankAccount: Record "Bank Account"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateIBAN(var BankAccount: Record "Bank Account"; var xBankAccount: Record "Bank Account"; var IsHandled: Boolean)
     begin
     end;
 

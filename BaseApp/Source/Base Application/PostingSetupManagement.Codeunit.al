@@ -13,7 +13,7 @@ codeunit 48 PostingSetupManagement
         SetupMissingAccountTxt: Label 'Set up missing account';
         MissingAccountNotificationTxt: Label 'G/L Account is missing in posting group or setup.';
         MissingAccountNotificationDescriptionTxt: Label 'Show a warning when required G/L Account is missing in posting group or setup.';
-        NotAllowedToPostAfterCurrentDateErr: Label 'Cannot post because one or more transactions have dates after the current calendar date.';
+        NotAllowedToPostAfterWorkingDateErr: Label 'Cannot post because one or more transactions have dates after the working date.';
 
     procedure CheckCustPostingGroupReceivablesAccount(PostingGroup: Code[20])
     var
@@ -141,7 +141,14 @@ codeunit 48 PostingSetupManagement
         exit('7c2a2ca8-bdf7-4428-b520-ed17887ff30c');
     end;
 
+#if not CLEAN21
+    [Obsolete('Renamed to ConfirmPostingAfterWorkingDate', '21.0')]
     procedure ConfirmPostingAfterCurrentCalendarDate(ConfirmQst: Text; PostingDate: Date): Boolean
+    begin
+        exit(ConfirmPostingAfterWorkingDate(ConfirmQst, PostingDate));
+    end;
+#endif
+    procedure ConfirmPostingAfterWorkingDate(ConfirmQst: Text; PostingDate: Date): Boolean
     var
         AccountingPeriod: Record "Accounting Period";
         InstructionMgt: Codeunit "Instruction Mgt.";
@@ -149,12 +156,12 @@ codeunit 48 PostingSetupManagement
         if AccountingPeriod.IsEmpty() then
             exit(true);
         if GuiAllowed and
-           InstructionMgt.IsMyNotificationEnabled(InstructionMgt.GetPostingAfterCurrentCalendarDateNotificationId)
+           InstructionMgt.IsMyNotificationEnabled(InstructionMgt.GetPostingAfterWorkingDateNotificationId())
         then
             if PostingDate > WorkDate then begin
                 if Confirm(ConfirmQst, false) then
                     exit(true);
-                Error(NotAllowedToPostAfterCurrentDateErr);
+                Error(NotAllowedToPostAfterWorkingDateErr);
             end;
     end;
 
@@ -326,9 +333,16 @@ codeunit 48 PostingSetupManagement
         FldRef := RecRef.Field(FieldNumber);
 
         ErrorMessageMgt.LogContextFieldError(
-              0, StrSubstNo(MissingAccountTxt, FldRef.Caption, RecRef.Caption),
+              0, StrSubstNo(MissingAccountTxt, FldRef.Caption, GetRecordIdDescription(RecRef)),
               RecRef.RecordId, FieldNumber,
               ForwardLinkMgt.GetHelpCodeForEmptyPostingSetupAccount());
+    end;
+
+    local procedure GetRecordIdDescription(RecRef: RecordRef): Text
+    begin
+        RecRef.Reset();
+        RecRef.SetRecFilter();
+        exit(RecRef.Caption() + ' ' + RecRef.GetFilters());
     end;
 
     procedure SendVATPostingSetupNotification(VATPostingSetup: Record "VAT Posting Setup"; FieldCaption: Text)

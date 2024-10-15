@@ -421,30 +421,38 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
+        RecordCount: Integer;
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         if SalesHeader.FindSet() then
             repeat
                 InsertOrModifyFromSalesHeader(SalesHeader);
+                APIDataUpgrade.CountRecordsAndCommit(RecordCount);
             until SalesHeader.Next() = 0;
 
         if SalesCrMemoHeader.FindSet() then
             repeat
                 InsertOrModifyFromSalesCreditMemoHeader(SalesCrMemoHeader);
+                APIDataUpgrade.CountRecordsAndCommit(RecordCount);
             until SalesCrMemoHeader.Next() = 0;
 
         SalesCrMemoEntityBuffer.SetRange(Posted, false);
         if SalesCrMemoEntityBuffer.FindSet(true, false) then
             repeat
-                if not SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesCrMemoEntityBuffer."No.") then
+                if not SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesCrMemoEntityBuffer."No.") then begin
                     SalesCrMemoEntityBuffer.Delete(true);
+                    APIDataUpgrade.CountRecordsAndCommit(RecordCount);
+                end;
             until SalesCrMemoEntityBuffer.Next() = 0;
 
         SalesCrMemoEntityBuffer.SetRange(Posted, true);
         if SalesCrMemoEntityBuffer.FindSet(true, false) then
             repeat
-                if not SalesCrMemoHeader.Get(SalesCrMemoEntityBuffer."No.") then
+                if not SalesCrMemoHeader.Get(SalesCrMemoEntityBuffer."No.") then begin
                     SalesCrMemoEntityBuffer.Delete(true);
+                    APIDataUpgrade.CountRecordsAndCommit(RecordCount);
+                end;
             until SalesCrMemoEntityBuffer.Next() = 0;
     end;
 
@@ -966,14 +974,14 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
         CompletelyShipped: Boolean;
     begin
-        SearchSalesLine.Copy(SalesLine);
+        SearchSalesLine.CopyFilters(SalesLine);
         SearchSalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SearchSalesLine.SetRange("Document No.", SalesLine."Document No.");
         SearchSalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
         SearchSalesLine.SetRange("Location Code", SalesLine."Location Code");
         SearchSalesLine.SetRange("Completely Shipped", false);
 
-        CompletelyShipped := not SearchSalesLine.FindFirst();
+        CompletelyShipped := SearchSalesLine.IsEmpty();
 
         if not SalesCrMemoEntityBuffer.Get(SalesLine."Document No.") then
             exit;

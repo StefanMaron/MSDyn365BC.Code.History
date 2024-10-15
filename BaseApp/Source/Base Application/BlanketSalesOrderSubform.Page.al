@@ -51,6 +51,7 @@
                     begin
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec);
                         InsertExtendedText(false);
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -160,6 +161,8 @@
                     begin
                         QuantityOnAfterValidate();
                         DeltaUpdateTotals();
+                        if SalesReceivablesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Qty. to Assemble to Order"; Rec."Qty. to Assemble to Order")
@@ -808,6 +811,7 @@
                         trigger OnAction()
                         begin
                             Rec.RollupAsmPrice();
+                            CalculateTotals();
                         end;
                     }
                     action("Roll Up &Cost")
@@ -821,6 +825,7 @@
                         trigger OnAction()
                         begin
                             Rec.RollUpAsmCost();
+                            CalculateTotals();
                         end;
                     }
                 }
@@ -1020,6 +1025,7 @@
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
 #if not CLEAN19
         [InDataSet]

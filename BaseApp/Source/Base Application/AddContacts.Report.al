@@ -367,7 +367,14 @@ report 5198 "Add Contacts"
     end;
 
     local procedure AddPeople()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddPeople(TempCont, TempCont2, Cont, "Contact Mailing Group", IsHandled);
+        if IsHandled then
+            exit;
+
         TempCont.Reset();
         if TempCont.Find('-') then
             repeat
@@ -508,6 +515,11 @@ report 5198 "Add Contacts"
                                     exit(true);
                     end;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddPeople(var TempContact: Record Contact temporary; var TempContact2: Record Contact temporary; Contact: Record Contact; ContactMailingGroup: Record "Contact Mailing Group"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

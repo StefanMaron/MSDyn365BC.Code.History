@@ -954,12 +954,17 @@ page 370 "Bank Account Card"
     trigger OnOpenPage()
     var
         Contact: Record Contact;
+#if not CLEAN21
         BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
+#endif
     begin
         OnBeforeOnOpenPage();
         ContactActionVisible := Contact.ReadPermission;
         SetNoFieldVisible;
+        BankDepositFeatureEnabled := true;
+#if not CLEAN21
         BankDepositFeatureEnabled := BankDepositFeatureMgt.IsEnabled();
+#endif
     end;
 
     var

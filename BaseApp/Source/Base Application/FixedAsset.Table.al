@@ -364,7 +364,10 @@
     end;
 
     trigger OnInsert()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000H4G', 'Fixed Asset', Enum::"Feature Uptake Status"::"Set up");
         InitFANo();
 
         "Main Asset/Component" := "Main Asset/Component"::" ";

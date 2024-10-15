@@ -684,6 +684,8 @@
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" := DimMgt.GetDefaultDimID(DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
 #if not CLEAN20
@@ -935,6 +937,11 @@
         DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Bank Rec. Line", DefaultDimSource, TableID, No);
     end;
 #endif
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var BankRecLine: Record "Bank Rec. Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var BankRecLine: Record "Bank Rec. Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])

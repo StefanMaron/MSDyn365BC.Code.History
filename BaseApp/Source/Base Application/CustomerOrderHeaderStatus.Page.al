@@ -1,4 +1,4 @@
-page 10009 "Customer Order Header Status"
+﻿page 10009 "Customer Order Header Status"
 {
     Caption = 'Customer Order Header Status';
     DeleteAllowed = false;
@@ -211,6 +211,8 @@ page 10009 "Customer Order Header Status"
 
     trigger OnAfterGetRecord()
     begin
+        OnBeforeOnAfterGetRecord(Rec);
+
         GetLastShipmentInvoice;
         AfterGetCurrentRecord;
     end;
@@ -262,6 +264,7 @@ page 10009 "Customer Order Header Status"
         SalesHeader.Copy(Rec);
         if SalesHeader.Find('-') then
             repeat
+                OnUpdateTotalOnBeforeSalesHeaderCalcOutstandingAmount(SalesHeader);
                 SalesHeader.CalcFields("Outstanding Amount ($)");
                 TotalOpenAmount := TotalOpenAmount + SalesHeader."Outstanding Amount ($)";
                 if SalesHeader."On Hold" <> '' then
@@ -338,6 +341,16 @@ page 10009 "Customer Order Header Status"
     begin
         xRec := Rec;
         UpdateTotal;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterGetRecord(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateTotalOnBeforeSalesHeaderCalcOutstandingAmount(var SalesHeader: Record "Sales Header")
+    begin
     end;
 }
 

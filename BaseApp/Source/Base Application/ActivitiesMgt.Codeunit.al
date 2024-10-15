@@ -142,13 +142,20 @@ codeunit 1311 "Activities Mgt."
             VendorLedgerEntry.SetFilter("Due Date", '<%1', Today)
         else
             VendorLedgerEntry.SetFilter("Due Date", '<%1', GetDefaultWorkDate());
+        OnAfterSetFilterOverduePurchaseInvoice(VendorLedgerEntry, CalledFromWebService);
     end;
 
     procedure DrillDownOverduePurchaseInvoiceAmount()
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDrillDownOverduePurchaseInvoiceAmount(VendorLedgerEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         SetFilterOverduePurchaseInvoice(VendorLedgerEntry, false);
         VendorLedgerEntry.SetFilter("Remaining Amt. (LCY)", '<>0');
         VendorLedgerEntry.SetCurrentKey("Remaining Amt. (LCY)");
@@ -321,6 +328,7 @@ codeunit 1311 "Activities Mgt."
             ActivitiesCue."Average Collection Days" := CalcAverageCollectionDays;
 
         ActivitiesCue."Last Date/Time Modified" := CurrentDateTime;
+        OnRefreshActivitiesCueDataOnBeforeModify(ActivitiesCue);
         ActivitiesCue.Modify();
         Commit();
     end;
@@ -407,7 +415,17 @@ codeunit 1311 "Activities Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilterOverduePurchaseInvoice(var VendorLedgerEntry: Record "Vendor Ledger Entry"; CalledFromWebService: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDrillDownCalcOverdueSalesInvoiceAmount(var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDrillDownOverduePurchaseInvoiceAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -418,6 +436,11 @@ codeunit 1311 "Activities Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnGetRefreshInterval(var Interval: Duration)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRefreshActivitiesCueDataOnBeforeModify(var ActivitiesCue: Record "Activities Cue")
     begin
     end;
 }

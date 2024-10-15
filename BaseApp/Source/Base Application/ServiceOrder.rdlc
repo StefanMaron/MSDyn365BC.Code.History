@@ -7,7 +7,6 @@
         <DataProvider>SQL</DataProvider>
         <ConnectString />
       </ConnectionProperties>
-      <rd:SecurityType>None</rd:SecurityType>
       <rd:DataSourceID>604b2c62-486f-4804-bb97-1911ed9536e1</rd:DataSourceID>
     </DataSource>
   </DataSources>
@@ -1194,8 +1193,8 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                                 </Filter>
                               </Filters>
                               <Top>0.37495in</Top>
-                              <Height>0.66614in</Height>
-                              <Width>6.77165in</Width>
+                              <Height>0.66615in</Height>
+                              <Width>6.77164in</Width>
                               <ZIndex>4</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF(Fields!Service_Item_LinesCaption.Value = "",True,False)</Hidden>
@@ -1579,7 +1578,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                                                   </TablixMembers>
                                                 </TablixRowHierarchy>
                                                 <Height>0.16654in</Height>
-                                                <Width>6.73228in</Width>
+                                                <Width>6.73227in</Width>
                                                 <Style />
                                               </Tablix>
                                               <Tablix Name="table6">
@@ -1786,8 +1785,8 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                                                   </Filter>
                                                 </Filters>
                                                 <Top>0.17706in</Top>
-                                                <Height>0.49961in</Height>
-                                                <Width>6.77103in</Width>
+                                                <Height>0.49962in</Height>
+                                                <Width>6.77102in</Width>
                                                 <ZIndex>1</ZIndex>
                                                 <Visibility>
                                                   <Hidden>=IIF(Fields!Fault_CommentsCaption.Value = "",True,False)</Hidden>
@@ -1994,8 +1993,8 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                                                   </Filter>
                                                 </Filters>
                                                 <Top>0.68742in</Top>
-                                                <Height>0.49961in</Height>
-                                                <Width>6.77103in</Width>
+                                                <Height>0.49962in</Height>
+                                                <Width>6.77102in</Width>
                                                 <ZIndex>2</ZIndex>
                                                 <Visibility>
                                                   <Hidden>=IIF(Fields!Resolution_CommentsCaption.Value = "",True,False)</Hidden>
@@ -4549,8 +4548,8 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                                 </Filter>
                               </Filters>
                               <Top>2.24972in</Top>
-                              <Height>1.49882in</Height>
-                              <Width>6.84646in</Width>
+                              <Height>1.49885in</Height>
+                              <Width>6.84645in</Width>
                               <ZIndex>6</ZIndex>
                               <Visibility>
                                 <Hidden>=IIF(Fields!Service_LinesCaption.Value = "",True,False)</Hidden>
@@ -4868,7 +4867,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                                 </Filter>
                               </Filters>
                               <Top>3.77036in</Top>
-                              <Height>1.33228in</Height>
+                              <Height>1.33232in</Height>
                               <Width>2.48031in</Width>
                               <ZIndex>7</ZIndex>
                               <Visibility>
@@ -5058,7 +5057,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
       <Width>7.11024in</Width>
       <Page>
         <PageHeader>
-          <Height>3.0393in</Height>
+          <Height>3.65389in</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -5078,7 +5077,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.19621in</Top>
+              <Top>2.82121in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>1.00394in</Width>
@@ -5088,7 +5087,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
             </Textbox>
             <Image Name="CompanyInfo2_Picture1">
               <Source>Database</Source>
-              <Value>=Convert.FromBase64String(Code.GetPicture(3))</Value>
+              <Value>=Convert.ToBase64String(Fields!CompanyInfo2_Picture.Value)</Value>
               <MIMEType>image/bmp</MIMEType>
               <Sizing>FitProportional</Sizing>
               <Left>12cm</Left>
@@ -5096,10 +5095,14 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
               <Width>60mm</Width>
               <ZIndex>1</ZIndex>
               <Visibility>
-                <Hidden>=iif(Code.GetPicture(3) = "",true,false)</Hidden>
+                <Hidden>=iif(IsNothing(Fields!CompanyInfo2_Picture.Value) = true, true, false)</Hidden>
               </Visibility>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Image>
             <Textbox Name="Service_Header___E_Mail_Caption1">
               <KeepTogether>true</KeepTogether>
@@ -5116,7 +5119,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.6966in</Top>
+              <Top>2.3216in</Top>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
               <ZIndex>2</ZIndex>
@@ -5126,7 +5129,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
             </Textbox>
             <Image Name="CompanyInfo1_Picture1">
               <Source>Database</Source>
-              <Value>=Convert.FromBase64String(Code.GetPicture(2))</Value>
+              <Value>=Convert.ToBase64String(Fields!CompanyInfo1_Picture.Value)</Value>
               <MIMEType>image/bmp</MIMEType>
               <Sizing>FitProportional</Sizing>
               <Left>6cm</Left>
@@ -5134,10 +5137,14 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
               <Width>60mm</Width>
               <ZIndex>3</ZIndex>
               <Visibility>
-                <Hidden>=iif(Code.GetPicture(2) = "",true,false)</Hidden>
+                <Hidden>=iif(IsNothing(Fields!CompanyInfo1_Picture.Value) = true, true, false)</Hidden>
               </Visibility>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Image>
             <Textbox Name="Service_Header___Phone_No__Caption1">
               <KeepTogether>true</KeepTogether>
@@ -5154,7 +5161,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.53007in</Top>
+              <Top>2.15507in</Top>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
               <ZIndex>4</ZIndex>
@@ -5164,17 +5171,21 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
             </Textbox>
             <Image Name="CompanyInfo_Picture1">
               <Source>Database</Source>
-              <Value>=Convert.FromBase64String(Code.GetPicture(1))</Value>
+              <Value>=Convert.ToBase64String(Fields!CompanyInfo_Picture.Value)</Value>
               <MIMEType>image/bmp</MIMEType>
               <Sizing>FitProportional</Sizing>
               <Height>14mm</Height>
               <Width>60mm</Width>
               <ZIndex>5</ZIndex>
               <Visibility>
-                <Hidden>=iif(Code.GetPicture(1) = "",true,false)</Hidden>
+                <Hidden>=iif(IsNothing(Fields!CompanyInfo_Picture.Value) = true, true, false)</Hidden>
               </Visibility>
               <DataElementOutput>NoOutput</DataElementOutput>
-              <Style />
+              <Style>
+                <Border>
+                  <Style>None</Style>
+                </Border>
+              </Style>
             </Image>
             <Textbox Name="CompanyInfo__Fax_No__Caption1">
               <KeepTogether>true</KeepTogether>
@@ -5191,7 +5202,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.6966in</Top>
+              <Top>2.3216in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
@@ -5215,7 +5226,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.53007in</Top>
+              <Top>2.15507in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>0.82677in</Width>
@@ -5240,7 +5251,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.19621in</Top>
+              <Top>2.82121in</Top>
               <Height>0.16654in</Height>
               <Width>1.00394in</Width>
               <ZIndex>8</ZIndex>
@@ -5264,7 +5275,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.02967in</Top>
+              <Top>2.65467in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>1.00394in</Width>
@@ -5289,7 +5300,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.36274in</Top>
+              <Top>2.98774in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>1.00394in</Width>
@@ -5314,7 +5325,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.52928in</Top>
+              <Top>3.15428in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>1.00394in</Width>
@@ -5339,7 +5350,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.69581in</Top>
+              <Top>3.32081in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>1.00394in</Width>
@@ -5364,7 +5375,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.86235in</Top>
+              <Top>3.48735in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>1.00394in</Width>
@@ -5390,7 +5401,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.19621in</Top>
+              <Top>2.82121in</Top>
               <Left>5.66929in</Left>
               <Height>0.16654in</Height>
               <Width>1.06299in</Width>
@@ -5416,7 +5427,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.6966in</Top>
+              <Top>2.3216in</Top>
               <Left>0.88583in</Left>
               <Height>0.16654in</Height>
               <Width>2.83465in</Width>
@@ -5440,7 +5451,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.53007in</Top>
+              <Top>2.15507in</Top>
               <Left>0.88583in</Left>
               <Height>0.16654in</Height>
               <Width>1.65354in</Width>
@@ -5464,7 +5475,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.6966in</Top>
+              <Top>2.3216in</Top>
               <Left>5.51575in</Left>
               <Height>0.16654in</Height>
               <Width>1.59449in</Width>
@@ -5488,7 +5499,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.53007in</Top>
+              <Top>2.15507in</Top>
               <Left>5.51575in</Left>
               <Height>0.16654in</Height>
               <Width>1.59449in</Width>
@@ -5512,7 +5523,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0.03125in</Top>
+              <Top>0.65625in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -5537,7 +5548,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0.53085in</Top>
+              <Top>1.15585in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -5561,7 +5572,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0.69739in</Top>
+              <Top>1.32239in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -5585,7 +5596,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>0.86393in</Top>
+              <Top>1.48893in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -5609,7 +5620,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.03046in</Top>
+              <Top>1.65546in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -5635,7 +5646,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.36274in</Top>
+              <Top>2.98774in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>24</ZIndex>
@@ -5658,7 +5669,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.19699in</Top>
+              <Top>1.82199in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -5682,7 +5693,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>1.36353in</Top>
+              <Top>1.98853in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
@@ -5708,7 +5719,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.53085in</Top>
+              <Top>1.15585in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>27</ZIndex>
@@ -5733,7 +5744,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.02967in</Top>
+              <Top>2.65467in</Top>
               <Left>5.66929in</Left>
               <Height>0.16654in</Height>
               <Width>1.06299in</Width>
@@ -5759,7 +5770,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.69739in</Top>
+              <Top>1.32239in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>29</ZIndex>
@@ -5782,7 +5793,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   <Style />
                 </Paragraph>
               </Paragraphs>
-              <Top>2.36274in</Top>
+              <Top>2.98774in</Top>
               <Left>5.66929in</Left>
               <Height>0.16654in</Height>
               <Width>1.06299in</Width>
@@ -5808,7 +5819,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.86393in</Top>
+              <Top>1.48893in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>31</ZIndex>
@@ -5834,7 +5845,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.52928in</Top>
+              <Top>3.15428in</Top>
               <Left>5.66929in</Left>
               <Height>0.16654in</Height>
               <Width>1.06299in</Width>
@@ -5860,7 +5871,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.03046in</Top>
+              <Top>1.65546in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>33</ZIndex>
@@ -5885,7 +5896,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.19699in</Top>
+              <Top>1.82199in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>34</ZIndex>
@@ -5910,7 +5921,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.36353in</Top>
+              <Top>1.98853in</Top>
               <Height>0.16654in</Height>
               <Width>2.48031in</Width>
               <ZIndex>35</ZIndex>
@@ -5935,7 +5946,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.69581in</Top>
+              <Top>3.32081in</Top>
               <Left>5.66929in</Left>
               <Height>0.16654in</Height>
               <Width>1.06299in</Width>
@@ -5961,7 +5972,7 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.86235in</Top>
+              <Top>3.48735in</Top>
               <Left>5.66929in</Left>
               <Height>0.16654in</Height>
               <Width>1.06299in</Width>
@@ -5987,97 +5998,13 @@ Fields!Service_Header___Contract_No__.Value, 2)</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.19778in</Top>
+              <Top>0.82278in</Top>
               <Left>4.6063in</Left>
               <Height>0.16654in</Height>
               <Width>1.14298in</Width>
               <ZIndex>38</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="DataPictureLeft">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value />
-                      <Style>
-                        <Color>Red</Color>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Left>0.99987in</Left>
-              <Height>0.12498in</Height>
-              <Width>0.37495in</Width>
-              <ZIndex>41</ZIndex>
-              <Visibility>
-                <Hidden>=Code.SetPicture(ReportItems!CompanyInfo_Picture.Value,1)</Hidden>
-              </Visibility>
-              <DataElementOutput>NoOutput</DataElementOutput>
-              <Style>
-                <PaddingLeft>2pt</PaddingLeft>
-                <PaddingRight>2pt</PaddingRight>
-              </Style>
-            </Textbox>
-            <Textbox Name="DataPictureCenter">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value />
-                      <Style>
-                        <Color>Red</Color>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Left>1.49981in</Left>
-              <Height>0.12498in</Height>
-              <Width>0.37495in</Width>
-              <ZIndex>42</ZIndex>
-              <Visibility>
-                <Hidden>=Code.SetPicture(ReportItems!CompanyInfo1_Picture.Value,2)</Hidden>
-              </Visibility>
-              <DataElementOutput>NoOutput</DataElementOutput>
-              <Style>
-                <PaddingLeft>2pt</PaddingLeft>
-                <PaddingRight>2pt</PaddingRight>
-              </Style>
-            </Textbox>
-            <Textbox Name="DataPictureRight">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value />
-                      <Style>
-                        <Color>Red</Color>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style />
-                </Paragraph>
-              </Paragraphs>
-              <Left>1.99975in</Left>
-              <Height>0.12498in</Height>
-              <Width>0.37495in</Width>
-              <ZIndex>43</ZIndex>
-              <Visibility>
-                <Hidden>=Code.SetPicture(ReportItems!CompanyInfo2_Picture.Value,3)</Hidden>
-              </Visibility>
-              <DataElementOutput>NoOutput</DataElementOutput>
-              <Style>
-                <PaddingLeft>2pt</PaddingLeft>
-                <PaddingRight>2pt</PaddingRight>
               </Style>
             </Textbox>
           </ReportItems>

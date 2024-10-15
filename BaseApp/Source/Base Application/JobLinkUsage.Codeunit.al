@@ -48,6 +48,7 @@ codeunit 1026 "Job Link Usage"
                     MatchedQty := JobPlanningLine."Remaining Qty. (Base)"
                 else
                     MatchedQty := RemainingQtyToMatch;
+                OnMatchUsageUnspecifiedOnAfterCalcMatchedQty(JobLedgerEntry, MatchedQty);
                 MatchedTotalCost := (JobLedgerEntry."Total Cost" / JobLedgerEntry."Quantity (Base)") * MatchedQty;
                 MatchedLineAmount := (JobLedgerEntry."Line Amount" / JobLedgerEntry."Quantity (Base)") * MatchedQty;
 
@@ -58,6 +59,7 @@ codeunit 1026 "Job Link Usage"
                         MatchedQty, JobPlanningLine."Qty. per Unit of Measure"),
                     MatchedTotalCost, MatchedLineAmount, JobLedgerEntry."Posting Date", JobLedgerEntry."Currency Factor");
                 RemainingQtyToMatch -= MatchedQty;
+                OnMatchUsageUnspecifiedOnAfterUpdateRemainingQtyToMatch(JobLedgerEntry, RemainingQtyToMatch);
             end;
         until RemainingQtyToMatch = 0;
     end;
@@ -144,6 +146,7 @@ codeunit 1026 "Job Link Usage"
         end;
 
         // Match most specific Job Planning Line.
+        OnFindMatchingJobPlanningLineOnBeforeMatchSpecificJobPlanningLine(JobPlanningLine);
         if JobPlanningLine.FindFirst() then
             exit(true);
 
@@ -151,6 +154,7 @@ codeunit 1026 "Job Link Usage"
         JobPlanningLine.SetRange("Work Type Code", '');
 
         // Match Location Code, while Variant Code and Work Type Code are blank.
+        OnFindMatchingJobPlanningLineOnBeforeMatchJobPlanningLineLocation(JobPlanningLine, JobLedgerEntry);
         if JobPlanningLine.FindFirst() then
             exit(true);
 
@@ -248,6 +252,26 @@ codeunit 1026 "Job Link Usage"
 
     [IntegrationEvent(false, false)]
     local procedure OnMatchUsageUnspecifiedOnBeforeConfirm(JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry"; var Confirmed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMatchUsageUnspecifiedOnAfterCalcMatchedQty(var JobLedgerEntry: Record "Job Ledger Entry"; var MatchedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMatchUsageUnspecifiedOnAfterUpdateRemainingQtyToMatch(var JobLedgerEntry: Record "Job Ledger Entry"; var RemainingQtyToMatch: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindMatchingJobPlanningLineOnBeforeMatchSpecificJobPlanningLine(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindMatchingJobPlanningLineOnBeforeMatchJobPlanningLineLocation(var JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry")
     begin
     end;
 }

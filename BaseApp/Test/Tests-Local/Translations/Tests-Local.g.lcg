@@ -4199,6 +4199,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Intercompany - NamedType ValuesAsOfLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 844991240 - NamedType 4113653600" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amounts are in %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=currency code]D;]A;(LookupHint=Codeunit UT REP Purchase Payables - NamedType AmountsAreInLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4109158811 - NamedType 684839871" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Sales Invoice and Sales Retrun document to be updated from Sales Comment Line.]]></Val>

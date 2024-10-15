@@ -731,6 +731,7 @@
         Text000: Label 'You cannot rename a %1.';
         Text001: Label '%1 and %2 cannot be the same in %3 %4.';
         Text002: Label 'Do you want to change %1?';
+        SameLocationErr: Label 'Transfer order %1 cannot be posted because %2 and %3 are the same.', Comment = '%1 - order number, %2 - location from, %3 - location to';
         TransferOrderPostedMsg1: Label 'Transfer order %1 was successfully posted and is now deleted.', Comment = '%1 = transfer order number e.g. Transfer order 1003 was successfully posted and is now deleted ';
         TransferRoute: Record "Transfer Route";
         TransHeader: Record "Transfer Header";
@@ -999,7 +1000,9 @@
                     else
                         OnUpdateTransLines(TransferLine, TransferHeader, FieldID);
                 end;
+                OnUpdateTransLinesOnBeforeModifyTransferLine(TransferHeader, TransferLine);
                 TransferLine.Modify(true);
+                OnUpdateTransLinesOnAfterModifyTransferLine(TransferHeader, TransferLine);
             until TransferLine.Next() = 0;
         end;
     end;
@@ -1107,7 +1110,7 @@
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         OnShowDocDimOnAfterAssignDimensionSetID(Rec);
 
@@ -1182,6 +1185,24 @@
         TestField("Posting Date");
 
         OnAfterCheckBeforePost(Rec);
+    end;
+
+    procedure CheckBeforeTransferPost()
+    begin
+        TestField("Transfer-from Code");
+        TestField("Transfer-to Code");
+        TestField("Direct Transfer");
+        if ("Transfer-from Code" <> '') and
+           ("Transfer-from Code" = "Transfer-to Code")
+        then
+            Error(
+              SameLocationErr,
+              "No.", FieldCaption("Transfer-from Code"), FieldCaption("Transfer-to Code"));
+        TestField("In-Transit Code", '');
+        TestField(Status, Status::Released);
+        TestField("Posting Date");
+
+        OnAfterCheckBeforeTransferPost(TransHeader);
     end;
 
     local procedure CheckTransferFromAndToCodesNotTheSame()
@@ -1382,6 +1403,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckBeforeTransferPost(var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetNoSeriesCode(var TransferHeader: Record "Transfer Header"; var NoSeriesCode: Code[20])
     begin
     end;
@@ -1508,6 +1534,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateTransLinesOnShippingAgentCodeOnBeforeBlockDynamicTracking(var TransferLine: record "Transfer Line"; var TransferHeader: record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateTransLinesOnBeforeModifyTransferLine(TransferHeader: Record "Transfer Header"; var TransferLine: record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateTransLinesOnAfterModifyTransferLine(TransferHeader: Record "Transfer Header"; var TransferLine: record "Transfer Line")
     begin
     end;
 

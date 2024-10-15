@@ -286,6 +286,7 @@ page 36630 "Customer List - Credit Mgmt."
                 }
                 action("Co&mments")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     Promoted = true;

@@ -180,16 +180,16 @@ report 10046 "Customer Register"
 
             trigger OnPreDataItem()
             var
-                GLSETUP: Record "General Ledger Setup";
+                GLSetup: Record "General Ledger Setup";
                 Dimension: Record Dimension;
             begin
-                GLSETUP.Get();
+                GLSetup.Get();
 
-                Dimension.Get(GLSETUP."Global Dimension 1 Code");
-                GlobalDim1Code := Dimension."Code Caption";
+                if Dimension.Get(GLSetup."Global Dimension 1 Code") then
+                    GlobalDim1Code := Dimension."Code Caption";
 
-                Dimension.Get(GLSETUP."Global Dimension 2 Code");
-                GlobalDim2Code := Dimension."Code Caption";
+                if Dimension.Get(GLSetup."Global Dimension 2 Code") then
+                    GlobalDim2Code := Dimension."Code Caption";
             end;
         }
     }

@@ -1584,6 +1584,7 @@ codeunit 398 "Sales Tax Calculate"
                     PurchLine.SetRange("Tax Group Code", "Tax Group Code");
                     PurchLine.SetRange("Use Tax", "Use Tax");
                     PurchLine.SetCurrentKey(Amount);
+					OnDistTaxOverPurchLinesOnBeforeFindPurchLineSetTempSalesTaxLineAmount(PurchLine, TempSalesTaxAmountLine);
                     PurchLine.FindSet(true);
                     repeat
                         if (TaxCountry = TaxCountry::US) or
@@ -1665,6 +1666,7 @@ codeunit 398 "Sales Tax Calculate"
             PurchLine.SetRange("Use Tax");
             PurchLine.SetRange("Document Type", PurchHeader."Document Type");
             PurchLine.SetRange("Document No.", PurchHeader."No.");
+			OnDistTaxOverPurchLinesOnBeforeFindPurchLineAmounts(PurchLine, TempSalesTaxAmountLine);
             if PurchLine.FindSet(true) then
                 repeat
                     PurchLine."Amount Including VAT" := Round(PurchLine."Amount Including VAT", Currency."Amount Rounding Precision");
@@ -2264,7 +2266,17 @@ codeunit 398 "Sales Tax Calculate"
     local procedure OnDistTaxOverSalesLinesOnTempSalesTaxLineLoopOnAfterSetTempSalesTaxLineAmount(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var Amount: Decimal)
     begin
     end;
-
+	
+	[IntegrationEvent(false, false)]
+    local procedure OnDistTaxOverPurchLinesOnBeforeFindPurchLineSetTempSalesTaxLineAmount(var PurchLine: Record "Purchase Line"; var TempSalesTaxAmountLine : Record "Sales Tax Amount Line" temporary)
+    begin
+    end;
+	
+	[IntegrationEvent(false, false)]
+    local procedure OnDistTaxOverPurchLinesOnBeforeFindPurchLineAmounts(var PurchLine: Record "Purchase Line"; var TempSalesTaxAmountLine : Record "Sales Tax Amount Line" temporary)
+    begin
+    end;
+	
     [IntegrationEvent(false, false)]
     local procedure OnEndSalesTaxCalculationOnBeforeSalesTaxAmountLine2Insert(var SalesTaxAmountLine2: Record "Sales Tax Amount Line" temporary; var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary)
     begin

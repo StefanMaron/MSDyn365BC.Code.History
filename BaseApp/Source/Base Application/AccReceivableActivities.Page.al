@@ -99,8 +99,10 @@
     }
 
     trigger OnOpenPage()
+#if not CLEAN21
     var
         BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
+#endif
     begin
         Rec.Reset();
         if not Rec.Get() then begin
@@ -109,7 +111,10 @@
         end;
 
         Rec.SetFilter("Overdue Date Filter", '<%1', WorkDate());
+        BankDepositFeatureEnabled := true;
+#if not CLEAN21
         BankDepositFeatureEnabled := BankDepositFeatureMgt.IsEnabled();
+#endif
     end;
 
     var

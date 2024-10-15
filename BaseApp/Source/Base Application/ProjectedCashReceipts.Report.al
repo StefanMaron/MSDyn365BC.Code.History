@@ -652,7 +652,7 @@ report 10057 "Projected Cash Receipts"
                 exit('101,1,' + Text004);
 
             GetCurrencyRecord(Currency, CurrencyCode);
-            exit('101,4,' + StrSubstNo(Text004, Currency.Description));
+            exit(StrSubstNo(Text004, Currency.Description));
         end;
         exit('');
     end;

@@ -1098,6 +1098,8 @@ table 5407 "Prod. Order Component"
             exit;
 
         TestField("Item No.");
+        Item.Get("Item No.");
+        Item.TestField(Reserve);
         Clear(Reservation);
         Reservation.SetReservSource(Rec);
         Reservation.RunModal();
@@ -1230,6 +1232,8 @@ table 5407 "Prod. Order Component"
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, '',
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", ProdOrderLine."Dimension Set ID", DATABASE::Item);
+
+        OnAfterCreateDim(Rec, DefaultDimSource);
     end;
 
     procedure IsInbound(): Boolean
@@ -1700,7 +1704,7 @@ table 5407 "Prod. Order Component"
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2 %3', Status, "Prod. Order No.", "Prod. Order Line No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', Status, "Prod. Order No.", "Prod. Order Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
@@ -1879,6 +1883,11 @@ table 5407 "Prod. Order Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignDecsriptionFromItemOrVariant(var ProdOrderComponent: Record "Prod. Order Component"; xProdOrderComponent: Record "Prod. Order Component"; Item: Record Item; ItemVariant: Record "Item Variant")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var ProdOrderComponent: Record "Prod. Order Component"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 

@@ -215,15 +215,14 @@ codeunit 229 "Document-Print"
 
     procedure PrintBankAccStmt(BankAccStmt: Record "Bank Account Statement")
     var
-        ReportSelections: Record "Report Selections";
         IsPrinted: Boolean;
     begin
-        BankAccStmt.SetRecFilter;
+        BankAccStmt.SetRecFilter();
         OnBeforePrintBankAccStmt(BankAccStmt, IsPrinted);
         if IsPrinted then
             exit;
 
-        ReportSelections.PrintReport(ReportSelections.Usage::"B.Stmt", BankAccStmt);
+        Report.RunModal(Report::"Bank Account Statement", true, false, BankAccStmt);
     end;
 
     procedure PrintPostedPaymentReconciliation(PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr")
@@ -240,12 +239,12 @@ codeunit 229 "Document-Print"
     end;
 
     procedure PrintBankRecStmt(PostedBankRecHdr: Record "Posted Bank Rec. Header")
-    var
-        ReportSelection: Record "Report Selections";
     begin
-        PostedBankRecHdr.SetRecFilter;
+#if not CLEAN20
+        PostedBankRecHdr.SetRecFilter();
 
-        ReportSelection.PrintReport(ReportSelection.Usage::"B.Stmt", PostedBankRecHdr);
+        Report.RunModal(Report::"Bank Reconciliation", true, false, PostedBankRecHdr);
+#endif
     end;
 
     procedure PrintCheck(var NewGenJnlLine: Record "Gen. Journal Line")

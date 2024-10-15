@@ -1,4 +1,4 @@
-report 94 "Close Income Statement"
+﻿report 94 "Close Income Statement"
 {
     AdditionalSearchTerms = 'year closing statement,close accounting period statement,close fiscal year statement';
     ApplicationArea = Basic, Suite;
@@ -118,6 +118,7 @@ report 94 "Close Income Statement"
                                 GenJnlLine."Shortcut Dimension 2 Code" := '';
                                 if ClosePerGlobalDim2 then
                                     GenJnlLine."Shortcut Dimension 2 Code" := GlobalDimVal2;
+                                OnPostDataItemOnAfterGenJnlLineDimUpdated(GenJnlLine, ClosePerGlobalDim1, ClosePerGlobalDim2);
 
                                 if PostToRetainedEarningsAcc = PostToRetainedEarningsAcc::Details then begin
                                     GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"G/L Account";
@@ -695,6 +696,11 @@ report 94 "Close Income Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDataItemOnAfterGenJnlLineDimUpdated(var GenJnlLine: Record "Gen. Journal Line"; ClosePerGlobalDim1: Boolean; ClosePerGlobalDim2: Boolean)
     begin
     end;
 

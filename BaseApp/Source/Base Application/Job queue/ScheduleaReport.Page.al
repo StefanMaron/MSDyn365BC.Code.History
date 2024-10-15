@@ -124,6 +124,7 @@ page 682 "Schedule a Report"
         JobQueueEntry."Run in User Session" := not JobQueueEntry.IsNextRunDateFormulaSet;
         if JobQueueEntry.Description = '' then
             JobQueueEntry.Description := CopyStr("Object Caption to Run", 1, MaxStrLen(JobQueueEntry.Description));
+        OnOnQueryClosePageOnBeforeJobQueueEnqueue(Rec, JobQueueEntry);
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
         if JobQueueEntry.IsToReportInbox then
             Message(ReportScheduledMsg);
@@ -164,6 +165,11 @@ page 682 "Schedule a Report"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetReportDescription(var ReportDescription: Text[250]; RequestPageXml: Text; ReportId: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnQueryClosePageOnBeforeJobQueueEnqueue(JobQueueEntryRec: Record "Job Queue Entry"; var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 }

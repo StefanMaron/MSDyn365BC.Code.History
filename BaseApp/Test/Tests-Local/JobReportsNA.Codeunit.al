@@ -813,9 +813,8 @@ codeunit 142065 "Job Reports NA"
         Customer: Record Customer;
         JobWIPMethod: Record "Job WIP Method";
     begin
-        LibraryJob.CreateJob(Job);
         LibrarySales.CreateCustomer(Customer);
-        Job.Validate("Sell-to Customer No.", Customer."No.");
+        LibraryJob.CreateJob(Job, Customer."No.");
         LibraryJob.CreateJobWIPMethod(JobWIPMethod);
         Job.Validate("WIP Method", JobWIPMethod.Code);
         Job.Modify(true);
@@ -827,10 +826,8 @@ codeunit 142065 "Job Reports NA"
         Customer: Record Customer;
         JobJournalLine: Record "Job Journal Line";
     begin
-        LibraryJob.CreateJob(Job);
         LibrarySales.CreateCustomer(Customer);
-        Job.Validate("Bill-to Customer No.", Customer."No.");
-        Job.Modify(true);
+        LibraryJob.CreateJob(Job, Customer."No.");
         LibraryJob.CreateJobTask(Job, JobTask);
         CreateAndPostJobJournalLine(JobTask, CreateResource, JobJournalLine.Type::Resource, LineType, PostingDate);
     end;

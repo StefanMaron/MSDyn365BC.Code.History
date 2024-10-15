@@ -65,7 +65,7 @@ codeunit 99000830 "Create Reserv. Entry"
         end;
         ReservEntry."Untracked Surplus" := InsertReservEntry."Untracked Surplus" and not ReservEntry.Positive;
 
-        OnCreateEntryOnBeforeSurplusCondition(ReservEntry, QtyToHandleAndInvoiceIsSet);
+        OnCreateEntryOnBeforeSurplusCondition(ReservEntry, QtyToHandleAndInvoiceIsSet, InsertReservEntry);
 
         if (Status = Status::Reservation) or (Status = Status::Tracking) then begin
             InsertReservEntry2.TestField("Source Type");
@@ -1149,7 +1149,7 @@ codeunit 99000830 "Create Reserv. Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateEntryOnBeforeSurplusCondition(var ReservEntry: Record "Reservation Entry"; QtyToHandleAndInvoiceIsSet: Boolean)
+    local procedure OnCreateEntryOnBeforeSurplusCondition(var ReservEntry: Record "Reservation Entry"; QtyToHandleAndInvoiceIsSet: Boolean; var InsertReservEntry: Record "Reservation Entry")
     begin
     end;
 
