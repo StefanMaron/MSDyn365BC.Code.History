@@ -1,4 +1,3 @@
-#if not CLEAN19
 codeunit 14060 "UPG Data Out Of Geo. Apps"
 {
     Subtype = Upgrade;
@@ -34,4 +33,3 @@ codeunit 14060 "UPG Data Out Of Geo. Apps"
             DataOutOfGeoApp.Add(AppID);
     end;
 }
-#endif

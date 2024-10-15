@@ -329,7 +329,14 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Qty. per Unit of Measure", 1);
                 Validate(Quantity, "Quantity (Base)");
             end;
@@ -1053,7 +1060,14 @@
     end;
 
     local procedure GetHeader()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetHeader(Rec, AssemblyHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if (AssemblyHeader."No." <> "Document No.") and ("Document No." <> '') then
             AssemblyHeader.Get("Document Type", "Document No.");
     end;
@@ -1872,12 +1886,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetHeader(var AssemblyLine: Record "Assembly Line"; var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitQtyToConsume(var AssemblyLine: Record "Assembly Line"; xAssemblyLine: Record "Assembly Line"; CurrentFieldNo: Integer);
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var AssemblyLine: Record "Assembly Line"; var xAssemblyLine: Record "Assembly Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityBase(var AssemblyLine: Record "Assembly Line"; var xAssemblyLine: Record "Assembly Line"; FieldNumber: Integer; var IsHandled: Boolean)
     begin
     end;
 

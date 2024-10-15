@@ -250,6 +250,7 @@ page 35516 "Cash Receipt Journal FactBox"
         ExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
         IsAppliedToOneEntry: Boolean;
+        IsHandled: Boolean;
         CurrOeRemainAmountFC: Decimal;
         CurrPMTDiscount: Decimal;
         CurrPaymDiscDeductAmount: Decimal;
@@ -285,6 +286,11 @@ page 35516 "Cash Receipt Journal FactBox"
             else
                 exit;
         end;
+
+        IsHandled := false;
+        OnUpdateInfoBoxOnAfterSetCustLedgEntryFilters(Rec, CustLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
 
         if not CustLedgEntry.FindSet() then
             exit;
@@ -373,6 +379,11 @@ page 35516 "Cash Receipt Journal FactBox"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateInfoBoxOnAfterCalcCurrPMTDiscount(PostingDateField: Date; PostingDate: Date; CustLedgEntry: Record "Cust. Ledger Entry"; PmtDiscDate: Date; DueDate: Date; AgeDays: Integer; PaymDiscDays: Integer; DueDays: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateInfoBoxOnAfterSetCustLedgEntryFilters(var GenJournalLine : Record "Gen. Journal Line"; var CustLedgerEntry : Record "Cust. Ledger Entry"; var IsHandled : Boolean)
     begin
     end;
 }

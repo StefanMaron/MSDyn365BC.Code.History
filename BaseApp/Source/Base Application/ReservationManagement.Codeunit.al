@@ -655,6 +655,7 @@
         RemainingQtyToReserve: Decimal;
         RemainingQtyToReserveBase: Decimal;
         i: Integer;
+        ValueArrayNo: Integer;
         StopReservation: Boolean;
         IsHandled: Boolean;
     begin
@@ -710,7 +711,8 @@
             exit;
         end;
 
-        for i := 1 to SetValueArray(0) do
+        OnAutoReserveOnBeforeSetValueArray(ValueArrayNo);
+        for i := 1 to SetValueArray(ValueArrayNo) do
             AutoReserveOneLine(ValueArray[i], RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate);
 
         FullAutoReservation := (RemainingQtyToReserveBase = 0);
@@ -2940,11 +2942,17 @@
         exit(false);
     end;
 
-    procedure FindUnfinishedSpecialOrderSalesNo(ItemLedgerEntry: Record "Item Ledger Entry"): Code[20]
+    procedure FindUnfinishedSpecialOrderSalesNo(ItemLedgerEntry: Record "Item Ledger Entry") Result: Code[20]
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindUnfinishedSpecialOrderSalesNo(ItemLedgerEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Purchase Receipt" then
             if PurchRcptLine.Get(ItemLedgerEntry."Document No.", ItemLedgerEntry."Document Line No.") then
                 if SalesLine.Get(
@@ -3080,6 +3088,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAutoReserveOnBeforeSetValueArray(var ValueArrayNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAutoReserveOneLineOnAfterUpdateSearchNextStep(var Item: Record Item; var Positive: Boolean; var Search: Text[1]; var NextStep: Integer; var InvSearch: Text[1]; InvNextStep: Integer)
     begin
     end;
@@ -3169,6 +3182,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteReservEntries(var ReservationEntry: Record "Reservation Entry"; var DownToQuantity: Decimal; CalcReservEntry: Record "Reservation Entry"; var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindUnfinishedSpecialOrderSalesNo(ItemLedgerEntry: Record "Item Ledger Entry"; var Result: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

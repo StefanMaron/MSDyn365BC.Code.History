@@ -26,6 +26,7 @@ page 5730 "Item Categories"
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the code for the item category.';
+                    Editable = false;
 
                     trigger OnValidate()
                     begin

@@ -229,7 +229,8 @@ report 11012 "Intrastat - Form DE"
                        ("Intrastat Jnl. Line"."Transport Method" <> IntrastatJnlLine1."Transport Method") or
                        ("Intrastat Jnl. Line".Area <> IntrastatJnlLine1.Area) or
                        ("Intrastat Jnl. Line"."Transaction Specification" <> IntrastatJnlLine1."Transaction Specification") or
-                       ("Intrastat Jnl. Line"."Country/Region of Origin Code" <> IntrastatJnlLine1."Country/Region of Origin Code")
+                       ("Intrastat Jnl. Line"."Country/Region of Origin Code" <> IntrastatJnlLine1."Country/Region of Origin Code") or
+                       ("Intrastat Jnl. Line"."Partner VAT ID" <> IntrastatJnlLine1."Partner VAT ID")
                     then begin
                         NoOfRecords := NoOfRecords + 1;
                         Transtotal := 0;

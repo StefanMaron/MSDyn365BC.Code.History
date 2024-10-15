@@ -1260,6 +1260,8 @@ page 50 "Purchase Order"
                     Caption = 'Get Recurring Purchase Lines';
                     Ellipsis = true;
                     Image = VendorCode;
+                    Promoted = true;
+                    PromotedCategory = Category7;
                     ToolTip = 'Insert purchase document lines that you have set up for the vendor as recurring. Recurring purchase lines could be for a monthly replenishment order or a fixed freight expense.';
 
                     trigger OnAction()
@@ -1882,8 +1884,8 @@ page 50 "Purchase Order"
     begin
         CalculateCurrentShippingAndPayToOption;
         ShowOverReceiptNotification();
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean

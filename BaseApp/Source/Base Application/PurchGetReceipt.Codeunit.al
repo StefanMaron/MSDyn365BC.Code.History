@@ -111,6 +111,7 @@
             PurchRcptLine.InsertInvLineFromRcptLine(PurchLine);
             CalcUpdatePrepmtAmtToDeductRounding(PurchRcptLine, PurchLine, PrepmtAmtToDeductRounding);
         end;
+        OnAfterInsertInvoiceLineFromReceiptLine(PurchRcptLine, PurchLine, PurchRcptLine2, TransferLine);
     end;
 
     procedure SetPurchHeader(var PurchHeader2: Record "Purchase Header")
@@ -303,6 +304,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertLines(var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertInvoiceLineFromReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchLine: Record "Purchase Line"; PurchRcptLine2: Record "Purch. Rcpt. Line"; TransferLine: Boolean)
     begin
     end;
 

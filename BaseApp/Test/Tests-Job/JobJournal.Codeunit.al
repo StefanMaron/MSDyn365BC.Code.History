@@ -22,6 +22,7 @@ codeunit 136305 "Job Journal"
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryMarketing: Codeunit "Library - Marketing";
@@ -2336,6 +2337,43 @@ codeunit 136305 "Job Journal"
 
         // [THEN] "Job Card"."Email" = "contact2@mail.com"
         JobCard.ContactEmail.AssertEquals(Contact2."E-Mail");
+    end;
+
+    [Test]
+    procedure CreatingJobJournalForTrackedItemAndResource()
+    var
+        Item: Record Item;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        JobJournalLine: Record "Job Journal Line";
+        ResourceNo: Code[20];
+    begin
+        // [FEATURE] [Job Journal] [Item Tracking] [Resource]
+        // [SCENARIO 414283] Creating job journal for two planning lines - first for tracked item, second for resource.
+        Initialize();
+
+        LibraryItemTracking.CreateLotItem(Item);
+        ResourceNo := LibraryResource.CreateResourceNo();
+
+        CreateJobWithJobTask(JobTask);
+
+        CreateJobPlanningLine(
+          JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, Item."No.", JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate(Quantity, 1);
+        JobPlanningLine.Modify(true);
+        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeBlank(), 1, JobJournalLine);
+
+        JobJournalLine.TestField(Type, JobJournalLine.Type::Item);
+        JobJournalLine.TestField("No.", Item."No.");
+
+        CreateJobPlanningLine(
+          JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, ResourceNo, JobPlanningLine.Type::Resource);
+        JobPlanningLine.Validate(Quantity, 1);
+        JobPlanningLine.Modify(true);
+        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeBlank(), 1, JobJournalLine);
+
+        JobJournalLine.TestField(Type, JobJournalLine.Type::Resource);
+        JobJournalLine.TestField("No.", ResourceNo);
     end;
 
     local procedure Initialize()

@@ -1,4 +1,4 @@
-codeunit 1520 "Workflow Event Handling"
+﻿codeunit 1520 "Workflow Event Handling"
 {
 
     trigger OnRun()
@@ -806,10 +806,10 @@ codeunit 1520 "Workflow Event Handling"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunWorkflowOnSendPurchaseDocForApproval(PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeRunWorkflowOnSendPurchaseDocForApproval(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunWorkflowOnApproveApprovalRequest(var ApprovalEntry: Record "Approval Entry")
     begin

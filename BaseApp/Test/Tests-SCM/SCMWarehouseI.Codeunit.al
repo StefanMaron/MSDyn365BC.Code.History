@@ -2164,6 +2164,69 @@ codeunit 137047 "SCM Warehouse I"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesAssignLotPageHandler,ConfirmHandlerTrue')]
+    procedure FailedAttemptToReallocateReservEntriesLocatesIssue()
+    var
+        Location: Record Location;
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Reservation] [Item Tracking] [Late Binding] [Pick]
+        // [SCENARIO 406879] Failed attempt to reallocate reservation entries must provide specifics to locate the issue.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+
+        // [GIVEN] Location set up for directed put-away and pick.
+        CreateFullWMSLocation(Location, 2);
+
+        // [GIVEN] Lot-tracked item.
+        CreateItemWithLotWarehouseTracking(Item);
+
+        // [GIVEN] Post 80 pcs to the location, assign lot no. "L".
+        UpdateInventoryOnDirectedPutAwayPickLocationTrackedItem(Item."No.", Location.Code, 4 * Qty, LotNo);
+        BinContent.SetRange("Item No.", Item."No.");
+        BinContent.FindFirst();
+
+        // [GIVEN] Sales order "1" for 40 pcs, reserve.
+        CreateSalesDocumentWithLine(SalesLine, Item."No.", Location.Code, 2 * Qty);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+
+        // [GIVEN] Sales order "2" for 20 pcs, reserve.
+        // [GIVEN] Create warehouse shipment and pick from the sales order.
+        CreateSalesDocumentWithLine(SalesLine, Item."No.", Location.Code, Qty);
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        CreateWhsePickFromSalesOrder(SalesHeader);
+
+        // [GIVEN] Register negative adjustment for 60 pcs from the location using warehouse journal.
+        // [GIVEN] Note the warning of disrupted reservation entries.
+        PostNegativeAdjustmentOnWarehouse(Location.Code, BinContent."Bin Code", Item."No.", LotNo, 3 * Qty);
+
+        // [GIVEN] Locate the warehouse pick for the sales order "2", select lot "L" on the lines.
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.ModifyAll("Lot No.", LotNo);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+
+        // [WHEN] Try to register the pick.
+        asserterror LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] An error message is thrown reading that lot "L" is not available on inventory.
+        Assert.ExpectedError(
+          StrSubstNo(
+            'Lot No. %1 is not available on inventory or it has already been reserved for another document.', LotNo));
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2722,6 +2785,28 @@ codeunit 137047 "SCM Warehouse I"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
+    local procedure PostNegativeAdjustmentOnWarehouse(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal)
+    var
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+    begin
+        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
+        LibraryWarehouse.CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, LocationCode);
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, LocationCode, '', '',
+          WarehouseJournalLine."Entry Type"::"Negative Adjmt.", ItemNo, -Qty);
+        WarehouseJournalLine.Validate("Bin Code", BinCode);
+        WarehouseJournalLine.Modify(true);
+
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        WarehouseJournalLine.OpenItemTrackingLines();
+
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", LocationCode, true);
+    end;
+
     local procedure UpdateTransferLine(var TransferLine: Record "Transfer Line"; DimensionSetEntryRequired: Boolean)
     begin
         if not DimensionSetEntryRequired then begin
@@ -3157,6 +3242,12 @@ codeunit 137047 "SCM Warehouse I"
         ConfirmMessageText := LibraryVariableStorage.DequeueText;
         Assert.IsTrue(StrPos(ConfirmMessage, ConfirmMessageText) > 0, ConfirmMessage);
         Reply := LibraryVariableStorage.DequeueBoolean;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [MessageHandler]
