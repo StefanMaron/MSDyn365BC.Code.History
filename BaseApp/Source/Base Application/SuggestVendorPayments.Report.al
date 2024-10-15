@@ -978,6 +978,8 @@
                   "Shortcut Dimension 2 Code");
             end;
         end;
+
+        OnAfterUpdateDimensions(GenJnlLine, SummarizePerVend);
     end;
 
     local procedure SetBankAccCurrencyFilter(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
@@ -1246,6 +1248,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetVendLedgEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor; PostingDate: Date; LastDueDateToPayReq: Date; UseVendorPriority: Boolean; UseDueDateAsPostingDate: Boolean; DueDateOffset: DateFormula; Positive: Boolean; Future: Boolean; var PayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry" temporary; var NextEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDimensions(var GenJournalLine: Record "Gen. Journal Line"; SummarizePerVend: Boolean)
     begin
     end;
 

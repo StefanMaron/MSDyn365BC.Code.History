@@ -70,6 +70,14 @@ table 309 "No. Series Line"
             begin
                 UpdateLine("Last No. Used", FieldCaption("Last No. Used"));
                 Validate(Open);
+                if "Allow Gaps in Nos." then begin
+                    UpdateStartingSequenceNo();
+                    "Sequence Name" := '';
+                    CreateNewSequence();
+                    "Last No. Used" := '';
+                    if "Line No." <> 0 then
+                        if Modify() then;
+                end;
             end;
         }
         field(9; Open; Boolean)

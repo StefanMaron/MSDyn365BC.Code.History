@@ -1099,8 +1099,13 @@
         SelectRequisitionLineForActionMessage(RequisitionLine, Item."No.", RequisitionLine."Action Message"::Reschedule);
         VerifyRequisitionLine(RequisitionLine, Abs(ReservationEntry."Quantity (Base)"), 0,
           RequisitionLine."Ref. Order Type"::"Prod. Order");
+
         SelectRequisitionLineForActionMessage(RequisitionLine, ChildItem."No.", RequisitionLine."Action Message"::New);
-        VerifyRequisitionLine(RequisitionLine, Quantity * QuantityPer, 0, RequisitionLine."Ref. Order Type"::Purchase);
+        RequisitionLine.CalcSums(Quantity, "Original Quantity");
+        RequisitionLine.TestField(Quantity, Quantity * QuantityPer);
+        RequisitionLine.TestField("Original Quantity", 0);
+        RequisitionLine.TestField("Ref. Order Type", RequisitionLine."Ref. Order Type"::Purchase);
+        Assert.RecordCount(RequisitionLine, Quantity);
     end;
 
     [Test]

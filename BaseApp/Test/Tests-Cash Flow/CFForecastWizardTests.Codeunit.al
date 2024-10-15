@@ -13,6 +13,7 @@ codeunit 139315 "CF Forecast Wizard Tests"
         Assert: Codeunit Assert;
         DefaultTxt: Label 'Default';
         LibraryCashFlow: Codeunit "Library - Cash Flow";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         UpdateFrequency: Option Never,Daily,Weekly;
 
     local procedure Initialize()
@@ -20,13 +21,23 @@ codeunit 139315 "CF Forecast Wizard Tests"
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
         CashFlowManagement: Codeunit "Cash Flow Management";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
+        IsInitialized: Boolean;
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"CF Forecast Wizard Tests");
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
         AssistedSetupTestLibrary.DeleteAll();
         AssistedSetupTestLibrary.CallOnRegister();
         DeleteCashFlowSetup;
         CashFlowManagement.DeleteJobQueueEntries;
+
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"CF Forecast Wizard Tests");
+        IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"CF Forecast Wizard Tests");
     end;
 
     local procedure DeleteCashFlowSetup()

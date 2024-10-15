@@ -237,8 +237,15 @@ page 5708 "Get Shipment Lines"
         GetDataFromShipmentHeader();
     end;
 
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    trigger OnQueryClosePage(CloseAction: Action) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnQueryClosePage(CloseAction, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then
             CreateLines;
     end;
@@ -255,7 +262,14 @@ page 5708 "Get Shipment Lines"
         ExternalDocumentNo: Text[35];
 
     procedure SetSalesHeader(var SalesHeader2: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSalesHeader(SalesHeader2, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesHeader.Get(SalesHeader2."Document Type", SalesHeader2."No.");
         SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Invoice);
     end;
@@ -303,6 +317,16 @@ page 5708 "Get Shipment Lines"
         OrderNo := SalesShipmentHeader."Order No.";
         YourReference := SalesShipmentHeader."Your Reference";
         ExternalDocumentNo := SalesShipmentHeader."External Document No.";
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnQueryClosePage(CloseAction: Action; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetSalesHeader(SalesHeader2: Record "Sales Header"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(true, false)]

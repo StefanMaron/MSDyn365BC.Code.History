@@ -72,6 +72,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         Clear(PurchHeader);
         PurchHeader."No." := '';
         PurchHeader."Document Type" := PurchHeader."Document Type"::Invoice;
+        OnCreateCopyDocumentOnBeforePurchHeaderInsert(PurchHeader, PurchCrMemoHdr);
         PurchHeader.Insert(true);
         CopyDocMgt.SetPropertiesForInvoiceCorrection(false);
         CopyDocMgt.CopyPurchDocForCrMemoCancelling(PurchCrMemoHdr."No.", PurchHeader);
@@ -310,6 +311,9 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         if IsHandled then
             exit;
 
+        if PurchCrMemoLine."VAT Calculation Type" = PurchCrMemoLine."VAT Calculation Type"::"Sales Tax" then
+            exit;
+
         with GenPostingSetup do begin
             Get(PurchCrMemoLine."Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group");
             TestField("Purch. Account");
@@ -508,6 +512,11 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestIfUnapplied(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCopyDocumentOnBeforePurchHeaderInsert(var PurchHeader: Record "Purchase Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     begin
     end;
 }

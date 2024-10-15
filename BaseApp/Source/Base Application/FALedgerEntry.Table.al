@@ -599,7 +599,7 @@ table 5601 "FA Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterConvertPostingTypeElse(var FAJournalLine: Record "FA Journal Line"; FALedgerEntry: Record "FA Ledger Entry")
+    local procedure OnAfterConvertPostingTypeElse(var FAJournalLine: Record "FA Journal Line"; var FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
 

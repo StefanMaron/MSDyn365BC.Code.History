@@ -44,11 +44,14 @@ codeunit 49 GlobalTriggerManagement
         ChangeLogMgt: Codeunit "Change Log Management";
         APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
     begin
-        ChangeLogMgt.GetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
         IntegrationManagement.GetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
         CRMIntegrationManagement.GetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
         APIWebhookNotificationMgt.GetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
         OnAfterGetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
+
+        // We don't want to allow anyone to disable change log management in normal execution context
+        if GetExecutionContext() = ExecutionContext::Normal then
+            ChangeLogMgt.GetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'OnDatabaseInsert', '', false, false)]
@@ -60,18 +63,17 @@ codeunit 49 GlobalTriggerManagement
         APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
         IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeOnDatabaseInsert(RecRef, IsHandled);
-        if IsHandled then
-            exit;
-
-        // Do not write to Change Log during upgrade
-        if GetExecutionContext() <> ExecutionContext::Upgrade then
+        // We don't want to allow anyone to disable change log management in normal execution context
+        if GetExecutionContext() = ExecutionContext::Normal then
             ChangeLogMgt.LogInsertion(RecRef);
 
-        IntegrationManagement.OnDatabaseInsert(RecRef);
-        CRMIntegrationManagement.OnDatabaseInsert(RecRef);
-        APIWebhookNotificationMgt.OnDatabaseInsert(RecRef);
+        IsHandled := false;
+        OnBeforeOnDatabaseInsert(RecRef, IsHandled);
+        if not IsHandled then begin
+            IntegrationManagement.OnDatabaseInsert(RecRef);
+            CRMIntegrationManagement.OnDatabaseInsert(RecRef);
+            APIWebhookNotificationMgt.OnDatabaseInsert(RecRef);
+        end;
         OnAfterOnDatabaseInsert(RecRef);
     end;
 
@@ -84,18 +86,17 @@ codeunit 49 GlobalTriggerManagement
         APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
         IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeOnDatabaseModify(RecRef, IsHandled);
-        if IsHandled then
-            exit;
-
-        // Do not write to Change Log during upgrade
-        if GetExecutionContext() <> ExecutionContext::Upgrade then
+        // We don't want to allow anyone to disable change log management in normal execution context
+        if GetExecutionContext() = ExecutionContext::Normal then
             ChangeLogMgt.LogModification(RecRef);
 
-        IntegrationManagement.OnDatabaseModify(RecRef);
-        CRMIntegrationManagement.OnDatabaseModify(RecRef);
-        APIWebhookNotificationMgt.OnDatabaseModify(RecRef);
+        IsHandled := false;
+        OnBeforeOnDatabaseModify(RecRef, IsHandled);
+        if not IsHandled then begin
+            IntegrationManagement.OnDatabaseModify(RecRef);
+            CRMIntegrationManagement.OnDatabaseModify(RecRef);
+            APIWebhookNotificationMgt.OnDatabaseModify(RecRef);
+        end;
         OnAfterOnDatabaseModify(RecRef);
     end;
 
@@ -107,17 +108,16 @@ codeunit 49 GlobalTriggerManagement
         APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
         IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeOnDatabaseDelete(RecRef, IsHandled);
-        if IsHandled then
-            exit;
-
-        // Do not write to Change Log during upgrade
-        if GetExecutionContext() <> ExecutionContext::Upgrade then
+        // We don't want to allow anyone to disable change log management in normal execution context
+        if GetExecutionContext() = ExecutionContext::Normal then
             ChangeLogMgt.LogDeletion(RecRef);
 
-        IntegrationManagement.OnDatabaseDelete(RecRef);
-        APIWebhookNotificationMgt.OnDatabaseDelete(RecRef);
+        IsHandled := false;
+        OnBeforeOnDatabaseDelete(RecRef, IsHandled);
+        if not IsHandled then begin
+            IntegrationManagement.OnDatabaseDelete(RecRef);
+            APIWebhookNotificationMgt.OnDatabaseDelete(RecRef);
+        end;
         OnAfterOnDatabaseDelete(RecRef);
     end;
 
@@ -130,18 +130,17 @@ codeunit 49 GlobalTriggerManagement
         APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
         IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeOnDatabaseRename(RecRef, xRecRef, IsHandled);
-        if IsHandled then
-            exit;
-
-        // Do not write to Change Log during upgrade
-        if GetExecutionContext() <> ExecutionContext::Upgrade then
+        // We don't want to allow anyone to disable change log management in normal execution context
+        if GetExecutionContext() = ExecutionContext::Normal then
             ChangeLogMgt.LogRename(RecRef, xRecRef);
 
-        IntegrationManagement.OnDatabaseRename(RecRef, xRecRef);
-        CRMIntegrationManagement.OnDatabaseRename(RecRef, xRecRef);
-        APIWebhookNotificationMgt.OnDatabaseRename(RecRef, xRecRef);
+        IsHandled := false;
+        OnBeforeOnDatabaseRename(RecRef, xRecRef, IsHandled);
+        if not IsHandled then begin
+            IntegrationManagement.OnDatabaseRename(RecRef, xRecRef);
+            CRMIntegrationManagement.OnDatabaseRename(RecRef, xRecRef);
+            APIWebhookNotificationMgt.OnDatabaseRename(RecRef, xRecRef);
+        end;
         OnAfterOnDatabaseRename(RecRef, xRecRef);
     end;
 
@@ -215,4 +214,3 @@ codeunit 49 GlobalTriggerManagement
     begin
     end;
 }
-

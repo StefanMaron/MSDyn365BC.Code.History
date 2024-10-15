@@ -39,6 +39,8 @@ report 7391 "Whse. Get Bin Content"
                         end;
                     DestinationType2::InternalMovementHeader:
                         InsertIntMovementLine("Bin Content");
+                    else
+                        OnBinContentOnAfterGetRecordOnDestinationTypeElseCase(QtyToEmptyBase, "Bin Content");
                 end;
 
                 GetItemTracking("Bin Content");
@@ -367,7 +369,7 @@ report 7391 "Whse. Get Bin Content"
     end;
 #endif
 
-    local procedure GetItemTracking(BinContent: Record "Bin Content")
+    local procedure GetItemTracking(var BinContent: Record "Bin Content")
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
         WarehouseEntry: Record "Warehouse Entry";
@@ -378,7 +380,13 @@ report 7391 "Whse. Get Bin Content"
         Direction: Enum "Transfer Direction";
         TrackedQtyToEmptyBase: Decimal;
         TotalTrackedQtyBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetItemTracking(BinContent, IsHandled);
+        if IsHandled then
+            exit;
+
         Clear(ItemTrackingMgt);
         if not ItemTrackingMgt.GetWhseItemTrkgSetup(BinContent."Item No.") then
             exit;
@@ -393,6 +401,7 @@ report 7391 "Whse. Get Bin Content"
             SetRange("Location Code", BinContent."Location Code");
             SetRange("Variant Code", BinContent."Variant Code");
             SetRange("Unit of Measure Code", BinContent."Unit of Measure Code");
+            OnGetItemTrackingOnAfterWarehouseEntrySetFilters(WarehouseEntry, "Bin Content");
             if FindSet() then
                 repeat
                     if TrackingExists() then begin
@@ -522,7 +531,17 @@ report 7391 "Whse. Get Bin Content"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBinContentOnAfterGetRecordOnDestinationTypeElseCase(QtyToEmptyBase: Decimal; var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertTempTrackingSpecOnAfterAssignTracking(var TempTrackingSpecification: Record "Tracking Specification" temporary; WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItemTracking(var BinContent: Record "Bin Content"; var IsHandled: Boolean)
     begin
     end;
 
@@ -543,6 +562,11 @@ report 7391 "Whse. Get Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertWWLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetItemTrackingOnAfterWarehouseEntrySetFilters(var WarehouseEntry: Record "Warehouse Entry"; var BinContent: Record "Bin Content")
     begin
     end;
 

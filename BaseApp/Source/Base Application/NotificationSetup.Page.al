@@ -1,7 +1,7 @@
 page 1512 "Notification Setup"
 {
     ApplicationArea = Suite;
-    Caption = 'Notification Setup';
+    Caption = 'Workflow Notification Setup';
     PageType = List;
     RefreshOnActivate = true;
     ShowFilter = false;
@@ -56,13 +56,15 @@ page 1512 "Notification Setup"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "User ID" := CleanWebFilter(GetFilter("User ID"));
+        Rec."User ID" := CleanWebFilter(Rec.GetFilter("User ID"));
     end;
 
     trigger OnOpenPage()
     begin
-        if not HasFilter then
-            SetRange("User ID", "User ID");
+        if not Rec.HasFilter then
+            Rec.SetRange("User ID", Rec."User ID")
+        else
+            CurrPage.Caption := CurrPage.Caption + ': ' + Rec."User ID";
     end;
 
     local procedure CleanWebFilter(FilterString: Text): Text[50]

@@ -645,6 +645,7 @@
         CurrencyForReminderLevel.Init();
         ReminderLevel.SetRange("Reminder Terms Code", "Reminder Terms Code");
         ReminderLevel.SetRange("No.", 1, "Reminder Level");
+        OnInsertLinesOnAfterReminderLevelSetFilters(Rec, ReminderLevel);
         if ReminderLevel.FindLast() then begin
             CalcFields("Remaining Amount");
             AdditionalFee := ReminderLevel.GetAdditionalFee("Remaining Amount", "Currency Code", false, "Posting Date");
@@ -739,6 +740,7 @@
 
         ReminderLevel.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
         ReminderLevel.SetRange("No.", 1, ReminderHeader."Reminder Level");
+        OnInsertBeginTextsOnAfterReminderLevelSetFilters(ReminderLevel, ReminderHeader);
         if ReminderLevel.FindLast() then begin
             ReminderText.Reset();
             ReminderText.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
@@ -786,6 +788,7 @@
               ReminderLine."Line Type"::"Reminder Line",
               ReminderLine."Line Type"::"Additional Fee",
               ReminderLine."Line Type"::Rounding);
+            OnInsertEndTextsOnAfterReminderLineSetFilters(ReminderLine, ReminderHeader);
             if ReminderLine.FindLast() then
                 NextLineNo := ReminderLine."Line No."
             else
@@ -872,7 +875,14 @@
     end;
 
     local procedure InsertBlankLine(LineType: Enum "Reminder Line Type")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertBlankLine(Rec, LineType, NextLineNo, LineSpacing, IsHandled);
+        if IsHandled then
+            exit;
+
         NextLineNo := NextLineNo + LineSpacing;
         ReminderLine.Init();
         ReminderLine."Line No." := NextLineNo;
@@ -897,8 +907,15 @@
         end;
     end;
 
-    procedure ConfirmDeletion(): Boolean
+    procedure ConfirmDeletion() Confirmed: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConfirmDeletion(Rec, IssuedReminderHeader, Confirmed, IsHandled);
+        if IsHandled then
+            exit(Confirmed);
+
         ReminderIssue.TestDeleteHeader(Rec, IssuedReminderHeader);
         if IssuedReminderHeader."No." <> '' then
             if not Confirm(
@@ -1072,7 +1089,7 @@
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         OnAfterShowDocDim(Rec);
@@ -1246,6 +1263,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmDeletion(ReminderHeader: Record "Reminder Header"; IssuedReminderHeader: Record "Issued Reminder Header"; var Confirmed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimProcedure(var ReminderHeader: Record "Reminder Header"; CurrFieldNo: Integer; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
@@ -1338,12 +1360,32 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertEndTextsOnAfterReminderLineSetFilters(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertBeginTextsOnAfterReminderLevelSetFilters(var ReminderLevel: Record "Reminder Level"; var ReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertLinesOnAfterReminderLevelSetFilters(var ReminderHeader: Record "Reminder Header"; var ReminderLevel: Record "Reminder Level")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeReminderRounding(var ReminderHeader: Record "Reminder Header"; var Handled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertBeginTexts(var ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertBlankLine(var ReminderHeader: Record "Reminder Header"; LineType: Enum "Reminder Line Type"; NextLineNo: Integer; LineSpacing: Integer; var IsHandled: Boolean)
     begin
     end;
 

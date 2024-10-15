@@ -85,6 +85,7 @@
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec, SalesHeader);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
 #if not CLEAN20
                         OnCrossReferenceNoOnLookup(Rec);
 #endif                        
@@ -296,6 +297,8 @@
                     begin
                         QuantityOnAfterValidate();
                         DeltaUpdateTotals();
+                        if SalesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Qty. to Assemble to Order"; "Qty. to Assemble to Order")
@@ -1262,7 +1265,7 @@
                         ApplicationArea = ItemTracking;
                         Caption = 'Item &Tracking Lines';
                         Image = ItemTrackingLines;
-                        ShortCutKey = 'Ctrl+Alt+I'; 
+                        ShortCutKey = 'Ctrl+Alt+I';
                         Enabled = Type = Type::Item;
                         ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
@@ -1388,6 +1391,7 @@
                             trigger OnAction()
                             begin
                                 RollupAsmPrice();
+                                CalculateTotals();
                             end;
                         }
                         action("Roll Up &Cost")
@@ -1401,6 +1405,7 @@
                             trigger OnAction()
                             begin
                                 RollUpAsmCost();
+                                CalculateTotals();
                             end;
                         }
                     }
@@ -1859,6 +1864,8 @@
 
     procedure NoOnAfterValidate()
     begin
+        OnBeforeNoOnAfterValidate(Rec, xRec);
+
         InsertExtendedText(false);
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and
            (xRec."No." <> '')
@@ -1899,6 +1906,8 @@
             AutoReserve();
             CurrPage.Update(false);
         end;
+
+        OnAfterLocationCodeOnAfterValidate(Rec, xRec);
     end;
 
     protected procedure ReserveOnAfterValidate()
@@ -2126,13 +2135,18 @@
         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, DimIndex);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterLocationCodeOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -2151,13 +2165,18 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeDeleteReservationEntries(var SalesLine: Record "Sales Line");
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 

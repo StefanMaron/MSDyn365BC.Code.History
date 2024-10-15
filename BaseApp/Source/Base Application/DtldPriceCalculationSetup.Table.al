@@ -43,7 +43,7 @@ table 7008 "Dtld. Price Calculation Setup"
             trigger OnValidate()
             begin
                 if "Asset Type" <> xRec."Asset Type" then
-                    "Asset No." := '';
+                    SetAssetNo('');
             end;
         }
         field(6; "Asset No."; Code[20])
@@ -56,6 +56,7 @@ table 7008 "Dtld. Price Calculation Setup"
                 xRec.CopyTo(PriceAsset);
                 PriceAsset.Validate("Asset No.", "Asset No.");
                 CopyFrom(PriceAsset);
+                "Product No." := "Asset No.";
             end;
 
             trigger OnLookup()
@@ -74,7 +75,7 @@ table 7008 "Dtld. Price Calculation Setup"
             begin
                 if "Source Group" <> xRec."Source Group" then begin
                     Validate("Source Type", "Source Group".AsInteger());
-                    "Source No." := '';
+                    SetSourceNo('');
                 end;
             end;
         }
@@ -95,12 +96,13 @@ table 7008 "Dtld. Price Calculation Setup"
         field(9; "Source No."; Code[20])
         {
             DataClassification = CustomerContent;
-            Caption = 'Assign-to';
+            Caption = 'Assign-to No.';
             trigger OnValidate()
             begin
                 xRec.CopyTo(PriceSource);
                 PriceSource.Validate("Source No.", "Source No.");
                 CopyFrom(PriceSource);
+                "Assign-to No." := "Source No.";
             end;
 
             trigger OnLookup()
@@ -120,6 +122,43 @@ table 7008 "Dtld. Price Calculation Setup"
         }
         field(12; Enabled; Boolean)
         {
+        }
+        field(13; "Product No."; Code[20])
+        {
+            Caption = 'Product No.';
+            DataClassification = CustomerContent;
+            TableRelation = IF ("Asset Type" = CONST(Item)) Item where("No." = field("Product No."))
+            ELSE
+            IF ("Asset Type" = CONST("G/L Account")) "G/L Account"
+            ELSE
+            IF ("Asset Type" = CONST(Resource)) Resource
+            ELSE
+            IF ("Asset Type" = CONST("Resource Group")) "Resource Group"
+            ELSE
+            IF ("Asset Type" = CONST("Item Discount Group")) "Item Discount Group"
+            ELSE
+            IF ("Asset Type" = CONST("Service Cost")) "Service Cost";
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            begin
+                Validate("Asset No.", "Product No.");
+            end;
+        }
+        field(14; "Assign-to No."; Code[20])
+        {
+            DataClassification = CustomerContent;
+            TableRelation = IF ("Source Type" = CONST(Customer)) Customer
+            ELSE
+            IF ("Source Type" = CONST(Job)) Job
+            ELSE
+            IF ("Source Type" = CONST(Vendor)) Vendor;
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            begin
+                Validate("Source No.", "Assign-to No.");
+            end;
         }
     }
     keys
@@ -149,13 +188,13 @@ table 7008 "Dtld. Price Calculation Setup"
     local procedure CopyFrom(PriceAsset: Record "Price Asset")
     begin
         "Asset Type" := PriceAsset."Asset Type";
-        "Asset No." := PriceAsset."Asset No.";
+        SetAssetNo(PriceAsset."Asset No.");
     end;
 
     local procedure CopyFrom(PriceSource: Record "Price Source")
     begin
         "Source Type" := PriceSource."Source Type";
-        "Source No." := PriceSource."Source No.";
+        SetSourceNo(PriceSource."Source No.");
     end;
 
     procedure CopyTo(var PriceAsset: Record "Price Asset")
@@ -168,6 +207,18 @@ table 7008 "Dtld. Price Calculation Setup"
     begin
         PriceSource."Source Type" := "Source Type";
         PriceSource."Source No." := "Source No.";
+    end;
+
+    local procedure SetAssetNo(AssetNo: Code[20])
+    begin
+        "Asset No." := AssetNo;
+        "Product No." := AssetNo;
+    end;
+
+    local procedure SetSourceNo(SourceNo: Code[20])
+    begin
+        "Source No." := SourceNo;
+        "Assign-to No." := SourceNo;
     end;
 
     local procedure VerifySourceType()

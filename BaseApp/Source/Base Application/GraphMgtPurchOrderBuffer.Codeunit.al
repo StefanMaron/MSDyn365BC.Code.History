@@ -204,17 +204,22 @@ codeunit 5497 "Graph Mgt - Purch Order Buffer"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseOrderEntityBuffer: Record "Purchase Order Entity Buffer";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
+        RecordCount: Integer;
     begin
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         if PurchaseHeader.FindSet() then
             repeat
                 InsertOrModifyFromPurchaseHeader(PurchaseHeader);
+                APIDataUpgrade.CountRecordsAndCommit(RecordCount);
             until PurchaseHeader.Next() = 0;
 
         if PurchaseOrderEntityBuffer.FindSet(true, false) then
             repeat
-                if not PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseOrderEntityBuffer."No.") then
+                if not PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseOrderEntityBuffer."No.") then begin
                     PurchaseOrderEntityBuffer.Delete(true);
+                    APIDataUpgrade.CountRecordsAndCommit(RecordCount);
+                end;
             until PurchaseOrderEntityBuffer.Next() = 0;
     end;
 

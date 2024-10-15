@@ -165,6 +165,8 @@ report 321 "Vendor - Balance to Date"
                         VendLedgDocumentNo := "External Document No."
                     else
                         VendLedgDocumentNo := "Document No.";
+
+                    OnAfterVendLedgEntry3OnAfterGetRecord(VendLedgEntry3, PrintAmountInLCY, OriginalAmt, RemainingAmt, CurrencyCode);
                 end;
 
                 trigger OnPreDataItem()
@@ -460,15 +462,7 @@ report 321 "Vendor - Balance to Date"
             AddVendorDimensionFilter(TempVendorLedgerEntry);
             if FindSet() then
                 repeat
-                    if PrintAmountInLCY then begin
-                        CalcFields("Remaining Amt. (LCY)");
-                        RemainingAmt := "Remaining Amt. (LCY)";
-                        CurrencyCode := '';
-                    end else begin
-                        CalcFields("Remaining Amount");
-                        RemainingAmt := "Remaining Amount";
-                        CurrencyCode := "Currency Code";
-                    end;
+                    CalcVendorRemainingAmount(TempVendorLedgerEntry);
 
                     if (RemainingAmt <> 0) or ShowEntriesWithZeroBalance then
                         CurrencyTotalBuffer.UpdateTotal(
@@ -478,6 +472,21 @@ report 321 "Vendor - Balance to Date"
                           Counter1);
                 until Next() = 0;
         end;
+    end;
+
+    local procedure CalcVendorRemainingAmount(var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary)
+    begin
+        if PrintAmountInLCY then begin
+            TempVendorLedgerEntry.CalcFields("Remaining Amt. (LCY)");
+            RemainingAmt := TempVendorLedgerEntry."Remaining Amt. (LCY)";
+            CurrencyCode := '';
+        end else begin
+            TempVendorLedgerEntry.CalcFields("Remaining Amount");
+            RemainingAmt := TempVendorLedgerEntry."Remaining Amount";
+            CurrencyCode := TempVendorLedgerEntry."Currency Code";
+        end;
+
+        OnAfterCalcVendorRemainingAmount(TempVendorLedgerEntry, PrintAmountInLCY, RemainingAmt, CurrencyCode);
     end;
 
     local procedure CheckVendEntryIncluded(EntryNo: Integer): Boolean
@@ -522,6 +531,16 @@ report 321 "Vendor - Balance to Date"
             exit(VendorLedgerEntry."External Document No.");
 
         exit('');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcVendorRemainingAmount(var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; PrintAmountInLCY: Boolean; var RemainingAmt: Decimal; var CurrencyCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterVendLedgEntry3OnAfterGetRecord(VendorLedgerEntry: Record "Vendor Ledger Entry"; PrintAmountInLCY: Boolean; var OriginalAmt: Decimal; var RemainingAmt: Decimal; var CurrencyCode: Code[10])
+    begin
     end;
 
     [IntegrationEvent(true, false)]
