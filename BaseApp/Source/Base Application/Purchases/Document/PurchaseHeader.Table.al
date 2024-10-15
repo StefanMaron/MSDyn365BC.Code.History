@@ -4802,9 +4802,12 @@ table 38 "Purchase Header"
 
     procedure PrepareOpeningDocumentStatistics()
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        PurchaseHeader: Record "Purchase Header";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         PurchaseLine: Record "Purchase Line";
     begin
-        if not WritePermission() or not PurchaseLine.WritePermission() then
+        if not PurchaseHeader.WritePermission() or not PurchaseLine.WritePermission() then
             Error(StatisticsInsuffucientPermissionsErr);
 
         CalcInvDiscForHeader();
