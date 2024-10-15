@@ -63,8 +63,8 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
     local procedure TransferDocAttachmentToBuffer(var DocumentAttachment: Record "Document Attachment"; var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; LoadContent: Boolean)
     var
-        TenantMedia: Record "Tenant Media";
         FileManagement: Codeunit "File Management";
+        TempBlob: Codeunit "Temp Blob";
         ContentOutStream: OutStream;
     begin
         Clear(TempAttachmentEntityBuffer."Byte Size");
@@ -82,14 +82,14 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
         if LoadContent then begin
             TempAttachmentEntityBuffer.Content.CreateOutStream(ContentOutStream);
-            DocumentAttachment."Document Reference ID".ExportStream(ContentOutStream);
+            DocumentAttachment.ExportToStream(ContentOutStream);
             TempAttachmentEntityBuffer.Modify();
         end;
 
-        if not LoadContent and (not IsNullGuid(DocumentAttachment."Document Reference ID".MediaId)) then begin
-            TenantMedia.SetAutoCalcFields(Content);
-            TenantMedia.Get(DocumentAttachment."Document Reference ID".MediaId);
-            TempAttachmentEntityBuffer."Byte Size" := TenantMedia.Content.Length();
+        if not LoadContent and DocumentAttachment.HasContent() then begin
+            DocumentAttachment.GetAsTempBlob(TempBlob);
+
+            TempAttachmentEntityBuffer."Byte Size" := TempBlob.Length();
             TempAttachmentEntityBuffer.Modify();
         end;
     end;

@@ -62,6 +62,8 @@ page 256 "Payment Journal"
                         CurrPage.SaveRecord();
                         GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                         SetControlAppearanceFromBatch();
+                        OnLookupCurrentJnlBatchNameOnAfterSetControlAppearanceFromBatch(CurrentJnlBatchName);
+
                         CurrPage.Update(false);
                     end;
 
@@ -69,6 +71,7 @@ page 256 "Payment Journal"
                     begin
                         GenJnlManagement.CheckName(CurrentJnlBatchName, Rec);
                         CurrentJnlBatchNameOnAfterVali();
+                        OnAfterValidateCurrentJnlBatchName(CurrentJnlBatchName);
                     end;
                 }
                 field(GenJnlBatchApprovalStatus; GenJnlBatchApprovalStatus)
@@ -903,7 +906,12 @@ page 256 "Payment Journal"
                     trigger OnAction()
                     var
                         SuggestVendorPayments: Report "Suggest Vendor Payments";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeSuggestVendorPaymentsAction(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
                         Clear(SuggestVendorPayments);
                         SuggestVendorPayments.SetGenJnlLine(Rec);
                         SuggestVendorPayments.RunModal();
@@ -2417,6 +2425,21 @@ page 256 "Payment Journal"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetControlAppearanceFromBatch(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupCurrentJnlBatchNameOnAfterSetControlAppearanceFromBatch(CurrentJnlBatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateCurrentJnlBatchName(CurrentJnlBatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSuggestVendorPaymentsAction(var GenJournalLine: Record "Gen. Journal Line"; var IsHanlded: Boolean)
     begin
     end;
 }

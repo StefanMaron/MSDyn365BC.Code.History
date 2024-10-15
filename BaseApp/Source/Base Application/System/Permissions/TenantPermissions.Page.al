@@ -971,7 +971,10 @@ page 9850 "Tenant Permissions"
     var
         TempTenantPermission: Record "Tenant Permission" temporary;
         OriginalTenantPermission: Record "Tenant Permission";
+        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
     begin
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
+
         OriginalTenantPermission := Rec;
         TempTenantPermission.Copy(Rec, true);
         CurrPage.SetSelectionFilter(TempTenantPermission);

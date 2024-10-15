@@ -492,7 +492,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             "Remaining Pmt. Disc. Possible" := RemainingPmtDiscPossible;
             "Max. Payment Tolerance" := MaxPaymentTolerance;
             IsHandled := false;
-            OnBeforeInsertDtldCVLedgEntry(DtldCVLedgEntryBuf, GenJnlLine, IsHandled);
+            OnBeforeInsertDtldCVLedgEntry(DtldCVLedgEntryBuf, GenJnlLine, IsHandled, CVLedgEntryBuf);
             if not IsHandled then
                 InsertDtldCVLedgEntry(DtldCVLedgEntryBuf, CVLedgEntryBuf, false);
         end;
@@ -534,7 +534,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertDtldCVLedgEntry(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; GenJournalLine: Record "Gen. Journal Line"; var IsHanled: Boolean)
+    local procedure OnBeforeInsertDtldCVLedgEntry(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; GenJournalLine: Record "Gen. Journal Line"; var IsHanled: Boolean; var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer")
     begin
     end;
 

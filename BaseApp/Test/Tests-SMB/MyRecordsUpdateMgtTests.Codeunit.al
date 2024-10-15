@@ -192,7 +192,7 @@ codeunit 138076 "My Records Update Mgt. Tests"
         // [WHEN] Modify "Name" and "Phone No." fields of Customer Temporary record
         TempCustomer.Validate(Name, LibraryUtility.GenerateRandomText(MaxStrLen(TempCustomer.Name)));
         TempCustomer.Validate("Phone No.", Format(LibraryRandom.RandIntInRange(100000000, 999999999)));
-        TempCustomer.Modify(true);
+        TempCustomer.Modify();
 
         // [THEN] My Customer record wasn't changed
         VerifyCustomerChangesPropagatedToMyCustomers(Customer);

@@ -81,7 +81,7 @@ codeunit 5804 ItemCostManagement
                 Validate("Price/Profit Calculation");
 
             RunOnModifyTrigger := CalledByFieldNo <> 0;
-            OnUpdateUnitCostOnAfterCalcRunOnModifyTrigger(Item, RunOnModifyTrigger);
+            OnUpdateUnitCostOnAfterCalcRunOnModifyTrigger(Item, RunOnModifyTrigger, CalledByFieldNo);
             if CheckItem.Get("No.") then
                 if RunOnModifyTrigger then
                     Modify(true)
@@ -745,7 +745,7 @@ codeunit 5804 ItemCostManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateUnitCostOnAfterCalcRunOnModifyTrigger(Item: Record Item; var RunOnModifyTrigger: Boolean)
+    local procedure OnUpdateUnitCostOnAfterCalcRunOnModifyTrigger(var Item: Record Item; var RunOnModifyTrigger: Boolean; CalledByFieldNo: Integer)
     begin
     end;
 

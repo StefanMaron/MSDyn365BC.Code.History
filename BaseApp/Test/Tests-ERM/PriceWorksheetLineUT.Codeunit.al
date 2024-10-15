@@ -736,7 +736,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [WHEN] Set "Source Type" as "Customer" in Price list header
         PriceWorksheetLine.Validate("Source Type", "Price Source Type"::Customer);
         // [THEN] "Amount Type" is 'Price'
-        PriceWorksheetLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceWorksheetLine.TestField("Amount Type", "Price Amount Type"::Any);
     end;
 
     [Test]

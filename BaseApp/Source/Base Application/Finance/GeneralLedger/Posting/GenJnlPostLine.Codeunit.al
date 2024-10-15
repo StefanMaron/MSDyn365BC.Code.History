@@ -2080,6 +2080,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     if Amount <> Round(Amount) then
                         FieldError(Amount, StrSubstNo(NeedsRoundingErr, Amount));
 
+                OnInsertGLEntryOnBeforeUpdateCheckAmounts(GLSetup, GLEntry, BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2);
                 UpdateCheckAmounts(
                   "Posting Date", Amount, "Additional-Currency Amount",
                   BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2);
@@ -3411,6 +3412,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
             RemAmtWHT := TempOldCustLedgEntry."Remaining Amount";
 
+            if (OldCVLedgEntryBuf."Currency Code" = NewCVLedgEntryBuf."Currency Code") and (OldCVLedgEntryBuf."Applies-to ID" = '') then
+                OldCVLedgEntryBuf."Amount to Apply" := 0;
             TempOldCustLedgEntry.CopyFromCVLedgEntryBuffer(OldCVLedgEntryBuf);
             SavedTempOldCustLedgEntry := TempOldCustLedgEntry;
             TempOldCustLedgEntry."Remaining Amount" := TempOldCustLedgEntry.Amount;
@@ -4829,8 +4832,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
         IsHandled := false;
         OnPostDtldVendLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(VendPostingGr, DetailedCVLedgEntryBuffer, GenJournalLine, TempDimensionPostingBuffer, AdjAmount, SaveEntryNo, LedgEntryInserted, IsHandled);
         if not IsHandled then
-        CreateVendGLEntriesForTotalAmounts(
-            GenJournalLine, TempDimensionPostingBuffer, VendPostingGr, AdjAmount, SaveEntryNo, LedgEntryInserted);
+            CreateVendGLEntriesForTotalAmounts(
+                GenJournalLine, TempDimensionPostingBuffer, VendPostingGr, AdjAmount, SaveEntryNo, LedgEntryInserted);
 
         OnPostDtldVendLedgEntriesOnAfterCreateGLEntriesForTotalAmounts(TempGLEntryBuf, GlobalGLEntry, NextTransactionNo);
 
@@ -8562,7 +8565,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                     if "Document Type" = "Document Type"::Refund then
                                         WHTAmountLCY := -Abs(WHTAmountLCY);
                                 end;
-                        if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment then
+                        if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and (not "Financial Void") then
                             Error(Text016, WHTPostingSetup."Realized WHT Type");
                     end;
                 if ("Currency Code" <> '') and (CurrFactor <> 0) then
@@ -11749,6 +11752,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnStartPostingOnAfterSetNextVatEntryNo(var VatEntry: Record "VAT Entry"; var NextVATEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertGLEntryOnBeforeUpdateCheckAmounts(GeneralLedgerSetup: Record "General Ledger Setup"; var GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAmount2: Decimal; var BalanceCheckAddCurrAmount: Decimal; var BalanceCheckAddCurrAmount2: Decimal);
     begin
     end;
 }

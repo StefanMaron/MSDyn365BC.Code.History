@@ -31,6 +31,8 @@ codeunit 134918 "ERM Sales/Purchase Application"
         DocumentAmountLogicErr: Label 'The document amount is not correct.  Expected:  %1, Actual:  %2';
         SalesJournalDefaultsErr: Label 'The default for the Sales Journal was not correct.  Expected %1, Actual %2';
         TemplateLogicErrorMsg: Label 'Expected to find SALES1 general journal template but didn''t';
+        RemainingAmountErr: Label 'Remaining Amount must be 0.';
+        CustLedgerEntryOpenErr: Label 'Cust. Ledger Entry must be Close.';
 
     [Test]
     [HandlerFunctions('ApplyCustEntryPageHandler')]
@@ -1298,6 +1300,66 @@ codeunit 134918 "ERM Sales/Purchase Application"
         // [THEN] "Amount to Apply" is 50.
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyCustomerApplicationAfterPostingTwoReceipt()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+        GLAccount: Record "G/L Account";
+        InvoiceAmount: Decimal;
+        Payment: Decimal;
+        Payment2: Decimal;
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 491576] When Posting a Payment with several lines the Apply to Oldest is not applied properly
+        Initialize();
+
+        // [GIVEN] Create Customer with  Application method = "Apply to Oldest", Payment Term and Payment Method Code
+        CreateCustomerWithApplicationMethod(Customer);
+
+        // [GIVEN] Create and post sales order
+        CreateAndPostSalesOrder(Customer."No.", InvoiceAmount);
+
+        // [GIVEN] Assume two payment, first will be small amount and second larger than first.
+        Payment := 100;
+        Payment2 := InvoiceAmount - Payment;
+
+        // [GIVEN] Create General Journal Batch for Cash Receipt Journal
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, FindCashReceiptTemplate());
+
+        // [GIVEN] Create balancing G/l Account
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // [GIVEN] Create first Payment without balancing account 
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, Customer."No.", GenJournalLine."Document Type"::Payment, -Payment, '', GenJournalLine."Account Type"::Customer);
+
+        // [GIVEN] Save Document No. of Gen. Journal Line.
+        DocumentNo := GenJournalLine."Document No.";
+
+        // [GIVEN] Create second Payment without balancing account
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, Customer."No.", GenJournalLine."Document Type"::Payment, -Payment2, '', GenJournalLine."Account Type"::Customer);
+
+        // [GIVEN] Update same Document No. on Gen. Journal Line
+        GenJournalLine."Document No." := DocumentNo;
+        GenJournalLine.Modify();
+
+        // [GIVEN] Create third balancing line of Account type G/l Account
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, GLAccount."No.", GenJournalLine."Document Type"::Payment, InvoiceAmount, '', GenJournalLine."Account Type"::"G/L Account");
+
+        // [GIVEN] Update same Document No. on Gen. Journal Line
+        GenJournalLine."Document No." := DocumentNo;
+        GenJournalLine.Modify();
+
+        // [WHEN] Post the payment from Cash Receipt Journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [VERIFY]: Verify Remaining Amount and Open field on Customer Ledger Entries.
+        VerifyCustomerLedgerEntry(Customer."No.");
+    end;
+
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1684,6 +1746,52 @@ codeunit 134918 "ERM Sales/Purchase Application"
                 asserterror ApplyCustomerEntries."Document Type".AssertEquals(LibraryVariableStorage.DequeueInteger);
         end;
         ApplyCustomerEntries.OK.Invoke;
+    end;
+
+    local procedure CreateCustomerWithApplicationMethod(var Customer: Record Customer)
+    var
+        PaymentTerms: Record "Payment Terms";
+        PaymentMethod: Record "Payment Method";
+    begin
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        LibrarySales.CreateCustomer(Customer);
+
+        Customer.Validate("Payment Method Code", PaymentMethod.Code);
+        Customer.Validate("Payment Terms Code", PaymentTerms.Code);
+        Customer.Validate("Application Method", Customer."Application Method"::"Apply to Oldest");
+        Customer.Modify();
+    end;
+
+    local procedure CreateAndPostSalesOrder(CustomerNo: Code[20]; var Amount: Decimal)
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LibraryInventory: Codeunit "Library - Inventory";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        SalesLine.Modify(true);
+
+        Amount := SalesLine.Amount;
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure VerifyCustomerLedgerEntry(CustomerNo: Code[20])
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.FindSet();
+        repeat
+            CustLedgerEntry.CalcFields("Remaining Amount");
+            Assert.AreEqual(0, CustLedgerEntry."Remaining Amount", RemainingAmountErr);
+            Assert.AreEqual(false, CustLedgerEntry.Open, CustLedgerEntryOpenErr);
+        until CustLedgerEntry.Next() = 0;
     end;
 
     [ModalPageHandler]
