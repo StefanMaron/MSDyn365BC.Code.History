@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Inventory.Analysis;
+
 permissionset 949 "Inventory Analysis - Edit"
 {
     Access = Public;

@@ -1,13 +1,15 @@
+namespace Microsoft.Service.Document;
+
 codeunit 5905 "Service-Printed"
 {
     TableNo = "Service Header";
 
     trigger OnRun()
     begin
-        Find();
-        "No. Printed" := "No. Printed" + 1;
+        Rec.Find();
+        Rec."No. Printed" := Rec."No. Printed" + 1;
         OnBeforeModify(Rec);
-        Modify();
+        Rec.Modify();
         Commit();
     end;
 

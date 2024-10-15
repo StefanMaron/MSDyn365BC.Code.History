@@ -1,3 +1,16 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Currency;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Receivables;
+
 table 86 "Exch. Rate Adjmt. Reg."
 {
     Caption = 'Exch. Rate Adjmt. Reg.';
@@ -21,11 +34,11 @@ table 86 "Exch. Rate Adjmt. Reg."
         field(4; "Posting Group"; Code[20])
         {
             Caption = 'Posting Group';
-            TableRelation = IF ("Account Type" = CONST(Customer)) "Customer Posting Group"
-            ELSE
-            IF ("Account Type" = CONST(Vendor)) "Vendor Posting Group"
-            ELSE
-            IF ("Account Type" = CONST("Bank Account")) "Bank Account Posting Group";
+            TableRelation = if ("Account Type" = const(Customer)) "Customer Posting Group"
+            else
+            if ("Account Type" = const(Vendor)) "Vendor Posting Group"
+            else
+            if ("Account Type" = const("Bank Account")) "Bank Account Posting Group";
         }
         field(5; "Currency Code"; Code[10])
         {
@@ -40,7 +53,7 @@ table 86 "Exch. Rate Adjmt. Reg."
         }
         field(7; "Adjusted Base"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Adjusted Base';
         }
@@ -79,21 +92,21 @@ table 86 "Exch. Rate Adjmt. Reg."
         field(21; "Adjusted Customers"; Integer)
         {
             Caption = 'No. of Adj. Cust. Ledger Entries';
-            CalcFormula = Count("Detailed Cust. Ledg. Entry" WHERE("Exch. Rate Adjmt. Reg. No." = FIELD("No.")));
+            CalcFormula = count("Detailed Cust. Ledg. Entry" where("Exch. Rate Adjmt. Reg. No." = field("No.")));
             Editable = false;
             FieldClass = FlowField;
         }
         field(22; "Adjusted Vendors"; Integer)
         {
             Caption = 'No. of Adj. Vend. Ledger Entries';
-            CalcFormula = Count("Detailed Vendor Ledg. Entry" WHERE("Exch. Rate Adjmt. Reg. No." = FIELD("No.")));
+            CalcFormula = count("Detailed Vendor Ledg. Entry" where("Exch. Rate Adjmt. Reg. No." = field("No.")));
             Editable = false;
             FieldClass = FlowField;
         }
         field(23; "Adjustment Amount"; Decimal)
         {
             Caption = 'Adjustment Amount';
-            CalcFormula = Sum("Exch. Rate Adjmt. Ledg. Entry"."Adjustment Amount" WHERE("Register No." = FIELD("No.")));
+            CalcFormula = sum("Exch. Rate Adjmt. Ledg. Entry"."Adjustment Amount" where("Register No." = field("No.")));
             Editable = false;
             FieldClass = FlowField;
         }

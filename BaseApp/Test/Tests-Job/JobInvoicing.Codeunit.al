@@ -1861,7 +1861,7 @@ codeunit 136306 "Job Invoicing"
         // [GIVEN] Posted sales invoice "I" created from job "X" with the job planning line
         // [GIVEN] Created "Job Planning Line Invoice" for "I" has "Transfered Date" and "Invoiced Date" = WORKDATE
         CreateSimpleSalesInvoiceFromJobPlanningLine(
-          SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandInt(5));
+          SalesHeader, JobPlanningLine, LibraryJob.PlanningLineTypeContract, LibraryRandom.RandDecInRange(0, 1, 2));
 
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -3083,6 +3083,233 @@ codeunit 136306 "Job Invoicing"
         ReversedJobPlanningLine.TestField("Unit Cost", JobPlanningLine."Unit Cost");
     end;
 
+    [Test]
+    [HandlerFunctions('TransferSalesCreditMemoReportWithDatesHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DatesPropagateFromTransferRequestPageToSalesCreditMemo()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobTask: Record "Job Task";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        PostingDate, DocumentDate : Date;
+    begin
+        // [SCENARIO 474989] New Document date field in Transfer Job Create Invoice request page
+        // [GIVEN] New job, job task, dates
+        Initialize();
+        CreateJobWithJobTask(JobTask);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeContract(), JobTask, JobPlanningLine);
+        PostingDate := WorkDate() + 20;
+        DocumentDate := WorkDate() + 10;
+        Commit();
+
+        // [WHEN] Sales credit memo created via "Job Transfer to Credit Memo" request page, where the fields for dates are set manually
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, true);
+        GetSalesHeaderFromJobPlanningLine(JobPlanningLine, SalesHeader, false);
+
+        // [THEN] The dates correctly propagate from the request page to the created Sales Credit Memo
+        Assert.AreEqual(PostingDate, SalesHeader."Posting Date", 'Wrong Posting Date on created job sales credit memo.');
+        Assert.AreEqual(DocumentDate, SalesHeader."Document Date", 'Wrong Document Date on created job sales credit memo.');
+
+        JobPlanningLine.Delete();
+        SalesHeader.Delete();
+        JobTask.Delete();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateSalesInvoiceReportWithDatesHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DatesPropagateFromCreateRequestPageToSalesInvoice()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobTask: Record "Job Task";
+        PostingDate, DocumentDate : Date;
+    begin
+        // [SCENARIO 474989] New Document date field in Create Job Sales Invoice request page
+        // [GIVEN] New job, job task, dates
+        Initialize();
+        CreateJobWithJobTask(JobTask);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeContract(), JobTask, JobPlanningLine);
+        PostingDate := WorkDate() + 20;
+        DocumentDate := WorkDate() + 10;
+
+        // [WHEN] Sales invoice created via "Job Create Sales Invoice" request page, where the fields for dates are set manually
+        CreateSalesInvoiceWithDates(SalesHeader, JobTask, PostingDate, DocumentDate);
+
+        // [THEN] The dates correctly propagates from the request page to the created Sales Invoice
+        Assert.AreEqual(PostingDate, SalesHeader."Posting Date", 'Wrong Posting Date on created job sales invoice');
+        Assert.AreEqual(DocumentDate, SalesHeader."Document Date", 'Wrong Document Date on created job sales invoice');
+
+        SalesHeader.Delete();
+        JobTask.Delete();
+    end;
+
+    [Test]
+    [HandlerFunctions('TransferSalesInvoiceReportWithDatesHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DatesPropagateFromTransferRequestPageToSalesInvoice()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobTask: Record "Job Task";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        PostingDate, DocumentDate : Date;
+    begin
+        // [SCENARIO 474989] New Document date field in Transfer Job Sales Invoice request page
+        // [GIVEN] New job, job task, dates
+        Initialize();
+        CreateJobWithJobTask(JobTask);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.ItemType(), LibraryJob.PlanningLineTypeContract(), JobTask, JobPlanningLine);
+        PostingDate := WorkDate() + 20;
+        DocumentDate := WorkDate() + 10;
+        Commit();
+
+        // [WHEN] Sales invoice created via "Job Transfer to Sales Invoice" request page, where the fields for dates are set manually
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+        GetSalesHeaderFromJobPlanningLine(JobPlanningLine, SalesHeader, true);
+
+        // [THEN] The dates correctly propagates from the request page to the created Sales Invoice
+        Assert.AreEqual(SalesHeader."Posting Date", PostingDate, 'Wrong Posting Date on created job sales invoice');
+        Assert.AreEqual(SalesHeader."Document Date", DocumentDate, 'Wrong Document Date on created job sales invoice');
+
+        SalesHeader.Delete();
+        JobPlanningLine.Delete();
+        JobTask.Delete();
+    end;
+
+    [Test]
+    [HandlerFunctions('JobTransferToSalesInvoiceHandler')]
+    [Scope('OnPrem')]
+    procedure DatesFollowSalesReceivablesSetupOnTransferToSalesInvoiceRequestPage_DatesLinked()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        JobTransferToSalesInvoiceReport: Report "Job Transfer to Sales Invoice";
+    begin
+        // [SCENARIO 474989] New Document date field in Job Transfer to Sales Invoice request page
+        // [GIVEN] New date, setting on
+        SalesReceivablesSetup.GetRecordOnce();
+        SalesReceivablesSetup."Link Doc. Date To Posting Date" := true;
+        SalesReceivablesSetup.Modify();
+        Commit();
+
+        // [WHEN] User inputs DocumentDate, then PostingDate in the report's request page
+        JobTransferToSalesInvoiceReport.RunModal();
+
+        // [THEN] The DocumentDate is equal to the PostingDate on the request page because of the setting
+        // This is checked within the RequestPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('JobTransferToSalesInvoiceHandler2')]
+    [Scope('OnPrem')]
+    procedure DatesFollowSalesReceivablesSetupOnTransferToSalesInvoiceRequestPage_DatesNotLinked()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        JobTransferToSalesInvoiceReport: Report "Job Transfer to Sales Invoice";
+    begin
+        // [SCENARIO 474989] New Document date field in Job Transfer to Sales Invoice request page
+        // [GIVEN] New date, setting off
+        SalesReceivablesSetup.GetRecordOnce();
+        SalesReceivablesSetup."Link Doc. Date To Posting Date" := false;
+        SalesReceivablesSetup.Modify();
+        Commit();
+
+        // [WHEN] User inputs DocumentDate, then PostingDate in the report's request page
+        JobTransferToSalesInvoiceReport.RunModal();
+
+        // [THEN] The DocumentDate is not equal to the PostingDate on the request page because of the setting
+        // This is checked within the RequestPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateSalesInvoiceHandler')]
+    [Scope('OnPrem')]
+    procedure DatesFollowSalesReceivablesSetupOnCreateSalesInvoiceRequestPage_DatesLinked()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        JobCreateSalesInvoiceReport: Report "Job Create Sales Invoice";
+    begin
+        // [SCENARIO 474989] New Document date field in Job Create Sales Invoice request page
+        // [GIVEN] New date, setting on
+        SalesReceivablesSetup.GetRecordOnce();
+        SalesReceivablesSetup."Link Doc. Date To Posting Date" := true;
+        SalesReceivablesSetup.Modify();
+        Commit();
+
+        // [WHEN] User inputs DocumentDate, then PostingDate in the report's request page
+        JobCreateSalesInvoiceReport.RunModal();
+
+        // [THEN] The DocumentDate is equal to the PostingDate on the request page because of the setting
+        // This is checked within the RequestPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateSalesInvoiceHandler2')]
+    [Scope('OnPrem')]
+    procedure DatesFollowSalesReceivablesSetupOnCreateSalesInvoiceRequestPage_DatesNotLinked()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        JobCreateSalesInvoiceReport: Report "Job Create Sales Invoice";
+    begin
+        // [SCENARIO 474989] New Document date field in Job Create Sales Invoice request page
+        // [GIVEN] New date, setting off
+        SalesReceivablesSetup.GetRecordOnce();
+        SalesReceivablesSetup."Link Doc. Date To Posting Date" := false;
+        SalesReceivablesSetup.Modify();
+        Commit();
+
+        // [WHEN] User inputs DocumentDate, then PostingDate in the report's request page
+        JobCreateSalesInvoiceReport.RunModal();
+
+        // [THEN] The DocumentDate is not equal to the PostingDate on the request page because of the setting
+        // This is checked within the RequestPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('JobTransferToCreditMemoHandler')]
+    [Scope('OnPrem')]
+    procedure DatesFollowSalesReceivablesSetupOnTransferToCreditMemoRequestPage_DatesLinked()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        JobTransferToCreditMemoReport: Report "Job Transfer to Credit Memo";
+    begin
+        // [SCENARIO 474989] New Document date field in Job Transfer to Sales Invoice request page
+        // [GIVEN] New date, setting on
+        SalesReceivablesSetup.GetRecordOnce();
+        SalesReceivablesSetup."Link Doc. Date To Posting Date" := true;
+        SalesReceivablesSetup.Modify();
+        Commit();
+
+        // [WHEN] User inputs DocumentDate, then PostingDate in the report's request page
+        JobTransferToCreditMemoReport.RunModal();
+
+        // [THEN] The DocumentDate is equal to the PostingDate on the request page because of the setting
+        // This is checked within the RequestPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('JobTransferToCreditMemoHandler2')]
+    [Scope('OnPrem')]
+    procedure DatesFollowSalesReceivablesSetupOnTransferToCreditMemoRequestPage_DatesNotLinked()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        JobTransferToCreditMemoReport: Report "Job Transfer to Credit Memo";
+    begin
+        // [SCENARIO 474989] New Document date field in Job Transfer to Sales Invoice request page
+        // [GIVEN] New date, setting off
+        SalesReceivablesSetup.GetRecordOnce();
+        SalesReceivablesSetup."Link Doc. Date To Posting Date" := false;
+        SalesReceivablesSetup.Modify();
+        Commit();
+
+        // [WHEN] User inputs DocumentDate, then PostingDate in the report's request page
+        JobTransferToCreditMemoReport.RunModal();
+
+        // [THEN] The DocumentDate is not equal to the PostingDate on the request page because of the setting
+        // This is checked within the RequestPageHandler
+    end;
+
     local procedure CreateJobAndJobTask(var JobTask: Record "Job Task")
     var
         Customer: Record Customer;
@@ -3094,6 +3321,7 @@ codeunit 136306 "Job Invoicing"
         Job.Modify(true);
         LibraryJob.CreateJobTask(Job, JobTask);
     end;
+
 
     local procedure CreateJobPlanningLineWithItem(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; ItemNo: Code[20]; Quantity: Decimal)
     begin
@@ -4735,6 +4963,126 @@ codeunit 136306 "Job Invoicing"
         Assert.IsTrue(JobInvoices."Transferred Date".Visible, JobInvoices."Transferred Date".Caption);
         Assert.IsTrue(JobInvoices."Invoiced Date".Visible, JobInvoices."Invoiced Date".Caption);
         Assert.IsTrue(JobInvoices."Job Ledger Entry No.".Visible, JobInvoices."Job Ledger Entry No.".Caption);
+    end;
+
+    local procedure GetSalesHeaderFromJobPlanningLine(JobPlanningLine: Record "Job Planning Line"; var SalesHeader: Record "Sales Header"; isInvoice: Boolean)
+    var
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+    begin
+        with JobPlanningLine do begin
+            if "Line No." = 0 then
+                exit;
+            TestField("Job No.");
+            TestField("Job Task No.");
+
+            JobPlanningLineInvoice.SetRange("Job No.", "Job No.");
+            JobPlanningLineInvoice.SetRange("Job Task No.", "Job Task No.");
+            JobPlanningLineInvoice.SetRange("Job Planning Line No.", "Line No.");
+            if JobPlanningLineInvoice.FindFirst() then
+                if isInvoice then
+                    SalesHeader.Get(SalesHeader."Document Type"::Invoice, JobPlanningLineInvoice."Document No.")
+                else
+                    SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", JobPlanningLineInvoice."Document No.");
+        end;
+    end;
+
+    local procedure CreateSalesInvoiceWithDates(var SalesHeader: Record "Sales Header"; JobTask: Record "Job Task"; PostingDate: Date; DocumentDate: Date)
+    begin
+        Commit();
+        JobTask.SetRecFilter();
+        REPORT.Run(REPORT::"Job Create Sales Invoice", true, false, JobTask);
+
+        SalesHeader.Reset();
+        SalesHeader.SetRange("Posting Date", PostingDate);
+        SalesHeader.SetRange("Document Date", DocumentDate);
+        SalesHeader.FindFirst();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure TransferSalesCreditMemoReportWithDatesHandler(var JobTransferToCreditMemo: TestRequestPage "Job Transfer to Credit Memo")
+    begin
+        JobTransferToCreditMemo.PostingDate.SetValue(WorkDate() + 20);
+        JobTransferToCreditMemo."Document Date".SetValue(WorkDate() + 10);
+        JobTransferToCreditMemo.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateSalesInvoiceReportWithDatesHandler(var JobCreateSalesInvoice: TestRequestPage "Job Create Sales Invoice")
+    begin
+        JobCreateSalesInvoice.PostingDate.SetValue(WorkDate() + 20);
+        JobCreateSalesInvoice."Document Date".SetValue(WorkDate() + 10);
+        JobCreateSalesInvoice.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure TransferSalesInvoiceReportWithDatesHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
+    begin
+        JobTransferToSalesInvoice.PostingDate.SetValue(WorkDate() + 20);
+        JobTransferToSalesInvoice."Document Date".SetValue(WorkDate() + 10);
+        JobTransferToSalesInvoice.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure JobTransferToCreditMemoHandler2(var JobTransferToCreditMemo: TestRequestPage "Job Transfer to Credit Memo")
+    begin
+        JobTransferToCreditMemo."Document Date".SetValue(WorkDate());
+        JobTransferToCreditMemo.PostingDate.SetValue(WorkDate() + 10);
+        Assert.AreNotEqual(JobTransferToCreditMemo.PostingDate.AsDate(), JobTransferToCreditMemo."Document Date".AsDate(), 'Wrong Document Date');
+        JobTransferToCreditMemo.Cancel().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure JobTransferToCreditMemoHandler(var JobTransferToCreditMemo: TestRequestPage "Job Transfer to Credit Memo")
+    begin
+        JobTransferToCreditMemo."Document Date".SetValue(WorkDate());
+        JobTransferToCreditMemo.PostingDate.SetValue(WorkDate() + 10);
+        Assert.AreEqual(JobTransferToCreditMemo.PostingDate.AsDate(), JobTransferToCreditMemo."Document Date".AsDate(), 'Wrong Document Date');
+        JobTransferToCreditMemo.Cancel().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure JobTransferToSalesInvoiceHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
+    begin
+        JobTransferToSalesInvoice."Document Date".SetValue(WorkDate());
+        JobTransferToSalesInvoice.PostingDate.SetValue(WorkDate() + 10);
+        Assert.AreEqual(JobTransferToSalesInvoice.PostingDate.AsDate(), JobTransferToSalesInvoice."Document Date".AsDate(), 'Wrong Document Date');
+        JobTransferToSalesInvoice.Cancel().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure JobTransferToSalesInvoiceHandler2(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
+    begin
+        JobTransferToSalesInvoice."Document Date".SetValue(WorkDate());
+        JobTransferToSalesInvoice.PostingDate.SetValue(WorkDate() + 10);
+        Assert.AreNotEqual(JobTransferToSalesInvoice.PostingDate.AsDate(), JobTransferToSalesInvoice."Document Date".AsDate(), 'Wrong Document Date');
+        JobTransferToSalesInvoice.Cancel().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateSalesInvoiceHandler(var JobCreateSalesInvoice: TestRequestPage "Job Create Sales Invoice")
+    begin
+        JobCreateSalesInvoice."Document Date".SetValue(WorkDate());
+        JobCreateSalesInvoice.PostingDate.SetValue(WorkDate() + 10);
+        Assert.AreEqual(JobCreateSalesInvoice.PostingDate.AsDate(), JobCreateSalesInvoice."Document Date".AsDate(), 'Wrong Document Date');
+        JobCreateSalesInvoice.Cancel().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateSalesInvoiceHandler2(var JobCreateSalesInvoice: TestRequestPage "Job Create Sales Invoice")
+    begin
+        JobCreateSalesInvoice."Document Date".SetValue(WorkDate());
+        JobCreateSalesInvoice.PostingDate.SetValue(WorkDate() + 10);
+        Assert.AreNotEqual(JobCreateSalesInvoice.PostingDate.AsDate(), JobCreateSalesInvoice."Document Date".AsDate(), 'Wrong Document Date');
+        JobCreateSalesInvoice.Cancel().Invoke();
     end;
 }
 

@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.FinancialReports;
+
 page 763 "Account Schedules Chart Setup"
 {
     Caption = 'Financial Report Chart Setup';
@@ -34,7 +36,7 @@ page 763 "Account Schedules Chart Setup"
                     trigger OnValidate()
                     begin
                         SetEnabled();
-                        SetAccScheduleName("Account Schedule Name");
+                        Rec.SetAccScheduleName(Rec."Account Schedule Name");
                         CurrPage.Update(false);
                     end;
                 }
@@ -47,7 +49,7 @@ page 763 "Account Schedules Chart Setup"
                     trigger OnValidate()
                     begin
                         SetEnabled();
-                        SetColumnLayoutName("Column Layout Name");
+                        Rec.SetColumnLayoutName(Rec."Column Layout Name");
                         CurrPage.Update(false);
                     end;
                 }
@@ -59,7 +61,7 @@ page 763 "Account Schedules Chart Setup"
                     trigger OnValidate()
                     begin
                         SetEnabled();
-                        SetShowPer("Base X-Axis on");
+                        Rec.SetShowPer(Rec."Base X-Axis on");
                         CurrPage.Update(false);
                     end;
                 }
@@ -124,8 +126,8 @@ page 763 "Account Schedules Chart Setup"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        "Start Date" := WorkDate();
-        "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
+        Rec."Start Date" := WorkDate();
+        Rec."User ID" := CopyStr(UserId(), 1, MaxStrLen(Rec."User ID"));
     end;
 
     trigger OnOpenPage()
@@ -140,9 +142,9 @@ page 763 "Account Schedules Chart Setup"
 
     local procedure SetEnabled()
     begin
-        IsNoOfPeriodsEnabled := "Base X-Axis on" = "Base X-Axis on"::Period;
-        IsXAxisVisible := "Base X-Axis on" <> "Base X-Axis on"::Period;
-        IsEndDateEnabled := "Base X-Axis on" <> "Base X-Axis on"::Period;
+        IsNoOfPeriodsEnabled := Rec."Base X-Axis on" = Rec."Base X-Axis on"::Period;
+        IsXAxisVisible := Rec."Base X-Axis on" <> Rec."Base X-Axis on"::Period;
+        IsEndDateEnabled := Rec."Base X-Axis on" <> Rec."Base X-Axis on"::Period;
         CurrPage.SetupYAxis.PAGE.SetViewAsMeasure(true);
         CurrPage.SetupYAxis.PAGE.SetSetupRec(Rec);
         CurrPage.SetupXAxis.PAGE.SetViewAsMeasure(false);

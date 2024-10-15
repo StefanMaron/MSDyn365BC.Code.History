@@ -572,15 +572,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension General Part-1 - NamedType InvalidColumnIndexErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2914739929 - NamedType 2649846943" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1..%2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension General Part-1 - NamedType PKRangeMsg)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2914739929 - NamedType 279306324" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong Caption %1.]]></Val>

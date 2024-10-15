@@ -20,7 +20,7 @@ codeunit 136612 "ERM RS Process Data"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
-        FilterInfoOneFieldMsg: Label '%1=%2';
+        FilterInfoOneFieldMsg: Label '%1=%2', Locked = true;
         FilterInfoTwoFieldsMsg: Label '%1=%2, %3=%4';
         ActionMustBeCustomErr: Label 'Action must be equal to ''Custom''';
         CustomProcCodIDMustHaveValueErr: Label 'Custom Processing Codeunit ID must have a value';

@@ -1,3 +1,10 @@
+namespace Microsoft.Service.Resources;
+
+using Microsoft.Foundation.Calendar;
+using Microsoft.Foundation.Company;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Service.Setup;
+
 page 6013 "Resource Capacity Settings"
 {
     Caption = 'Resource Capacity Settings';
@@ -181,14 +188,14 @@ page 6013 "Resource Capacity Settings"
                     if EndDate = 0D then
                         Error(Text003);
 
-                    if not Confirm(Text004, false, TableCaption(), "No.") then
+                    if not Confirm(Text004, false, Rec.TableCaption(), Rec."No.") then
                         exit;
 
                     SetCalendar(CustomizedCalendarChange);
 
                     ResCapacityEntry.Reset();
                     ResCapacityEntry.SetCurrentKey("Resource No.", Date);
-                    ResCapacityEntry.SetRange("Resource No.", "No.");
+                    ResCapacityEntry.SetRange("Resource No.", Rec."No.");
                     TempDate := StartDate;
                     ChangedDays := 0;
                     repeat
@@ -210,8 +217,8 @@ page 6013 "Resource Capacity Settings"
                             ResCapacityEntry2.Init();
                             ResCapacityEntry2."Entry No." := LastEntry;
                             ResCapacityEntry2.Capacity := -NewCapacity;
-                            ResCapacityEntry2."Resource No." := "No.";
-                            ResCapacityEntry2."Resource Group No." := "Resource Group No.";
+                            ResCapacityEntry2."Resource No." := Rec."No.";
+                            ResCapacityEntry2."Resource Group No." := Rec."Resource Group No.";
                             ResCapacityEntry2.Date := TempDate;
                             if ResCapacityEntry2.Insert(true) then;
                             ChangedDays := ChangedDays + 1;
@@ -245,7 +252,7 @@ page 6013 "Resource Capacity Settings"
 
     trigger OnAfterGetRecord()
     begin
-        if not WorkTemplateRec.Get(WorkTemplateCode) and ("No." <> xRec."No.") then
+        if not WorkTemplateRec.Get(WorkTemplateCode) and (Rec."No." <> xRec."No.") then
             Clear(WorkTemplateRec);
         SumWeekTotal();
     end;

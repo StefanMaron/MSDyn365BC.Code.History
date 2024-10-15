@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Contract;
+
 table 932 "Contract Trend Buffer"
 {
     DataClassification = SystemMetadata;

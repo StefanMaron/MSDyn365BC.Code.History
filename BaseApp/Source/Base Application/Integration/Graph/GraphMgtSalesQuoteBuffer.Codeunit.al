@@ -1,3 +1,16 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Graph;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Integration.Entity;
+using Microsoft.Sales.Document;
+using Microsoft.Utilities;
+using System.Reflection;
+using Microsoft.API.Upgrade;
+
 codeunit 5506 "Graph Mgt - Sales Quote Buffer"
 {
 

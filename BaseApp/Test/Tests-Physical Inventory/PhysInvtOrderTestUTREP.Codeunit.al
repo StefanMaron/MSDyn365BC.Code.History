@@ -9,6 +9,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     end;
 
     var
+        LibraryInventory: Codeunit "Library - Inventory";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryRandom: Codeunit "Library - Random";
@@ -165,6 +166,38 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     end;
 
     [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure OnAfterGetRecordPhysInventoryOrderLineItemVariantBlockedWarning()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        RequestPageXML: Text;
+    begin
+        // [SCENARIO] validate Function OnAfterGetRecord for Dataset Phys. Inventory Order Line - Report 5005352 - Phys. Invt. Order - Test.
+        Initialize();
+
+        // [GIVEN] Blocked Item Variant exists
+        LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItem(Item));
+        ItemVariant.Blocked := true;
+        ItemVariant.Modify();
+
+        // [GIVEN] Phys. Invt. Order with blocked item variant exists
+        CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", Item."No.");
+        PhysInvtOrderLine."Variant Code" := ItemVariant.Code;
+        PhysInvtOrderLine.Modify();
+
+        // [WHEN] Report "Phys. Invt. Order - Test" is run
+        PhysInvtOrderHeader.SetRecFilter();
+        LibraryReportDataset.RunReportAndLoad(Report::"Phys. Invt. Order - Test", PhysInvtOrderHeader, RequestPageXML);
+
+        // [THEN] Verify Warning for Blocked Item Variant on Report Phys. Invt. Order - Test.
+        LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control41', StrSubstNo('Blocked must be No for Item Variant %1 %2.', PhysInvtOrderLine."Item No.", PhysInvtOrderLine."Variant Code"));
+    end;
+
+    [Test]
     [HandlerFunctions('PhysInvtOrderTestWithFiltersRequestPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -270,6 +303,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
 
     local procedure Initialize()
     begin
+        Clear(LibraryReportDataset);
         LibraryVariableStorage.Clear();
     end;
 

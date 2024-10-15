@@ -24,6 +24,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
+        IsUsingSimpleYesConfirmHandler: Boolean;
         AvailabilityWarning: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         DeleteItemTrackingCodeError: Label 'You cannot delete %1 %2 because it is used on one or more items.', Comment = '%1:FieldCaption1,%2:Value1';
         MultipleExpirDateError: Label 'There are multiple expiration dates registered for lot %1.';
@@ -41,6 +42,8 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LotNoBySNNotFoundErr: Label 'A lot number could not be found for serial number';
         QtyToInvoiceDoesNotMatchItemTrackingErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
         InventoryNotAvailableErr: Label '%1 %2 is not available on inventory or it has already been reserved for another document.', Comment = '%1 = Item Tracking ID, %2 = Item Tracking No."';
+        CloseItemTrackingLinesWithQtyZeroConfirmErr: Label 'One or more lines have tracking specified';
+        VariableIsUsingSinpleYesConfirmInitErr: Label 'The variable IsUsingSimpleYesConfirmHandler should be initialzied with false but now it is true.';
         CreateSNInfo: Boolean;
 
     [Test]
@@ -177,6 +180,8 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         SalesLine.OpenItemTrackingLines();
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));  // Dates based on WORKDATE.
 
+        // [GIVEN] Now set the confirm handler to simple yes.
+        IsUsingSimpleYesConfirmHandler := true;
         // Exercise: Delete Item Tracking Lines from Planning Worksheet.
         DeleteItemTrackingLines(SalesLine);
 
@@ -1956,7 +1961,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ConfirmHandler')]
     procedure ResetItemTrackingOnItemJnlLineForEmptyLot()
     var
         LotTrackedItem: Record Item;
@@ -1977,9 +1982,11 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(CloseItemTrackingLinesWithQtyZeroConfirmErr);
 
         ItemJournal.OpenEdit();
         ItemJournal.GoToRecord(ItemJournalLine);
+        IsUsingSimpleYesConfirmHandler := true;
         ItemJournal.ItemTrackingLines.Invoke();
 
         ItemJournalLine.Find();
@@ -2060,6 +2067,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Item Tracking II");
         // Clear Global variables.
         LibraryVariableStorage.Clear();
+        IsUsingSimpleYesConfirmHandler := false;
         // Lazy Setup.
         if isInitialized then
             exit;
@@ -2689,6 +2697,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         FindRequisitionLine(RequisitionLine, SalesLine."No.", SalesLine."Location Code");
         LibraryVariableStorage.Enqueue(TrackingOption::EditValue); // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(''); // Enqueue value for ItemTrackingLinesPageHandler.
+        LibraryVariableStorage.Enqueue(CloseItemTrackingLinesWithQtyZeroConfirmErr);
         RequisitionLine.OpenItemTrackingLines();
     end;
 

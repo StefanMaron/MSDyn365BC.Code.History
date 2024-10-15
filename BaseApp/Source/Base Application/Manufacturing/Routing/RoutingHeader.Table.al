@@ -1,3 +1,10 @@
+namespace Microsoft.Manufacturing.Routing;
+
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.Comment;
+using Microsoft.Manufacturing.Setup;
+
 table 99000763 "Routing Header"
 {
     Caption = 'Routing Header';
@@ -35,8 +42,8 @@ table 99000763 "Routing Header"
         }
         field(12; Comment; Boolean)
         {
-            CalcFormula = Exist("Manufacturing Comment Line" WHERE("Table Name" = CONST("Routing Header"),
-                                                                    "No." = FIELD("No.")));
+            CalcFormula = exist("Manufacturing Comment Line" where("Table Name" = const("Routing Header"),
+                                                                    "No." = field("No.")));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;

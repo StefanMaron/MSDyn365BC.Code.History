@@ -1,3 +1,14 @@
+namespace Microsoft.Finance.Consolidation;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Period;
+using System.Environment;
+using System.IO;
+
 report 91 "Export Consolidation"
 {
     ApplicationArea = Suite;
@@ -9,11 +20,11 @@ report 91 "Export Consolidation"
     {
         dataitem("G/L Account"; "G/L Account")
         {
-            DataItemTableView = SORTING("No.") WHERE("Account Type" = CONST(Posting));
+            DataItemTableView = sorting("No.") where("Account Type" = const(Posting));
             dataitem("G/L Entry"; "G/L Entry")
             {
-                DataItemLink = "G/L Account No." = FIELD("No.");
-                DataItemTableView = SORTING("G/L Account No.", "Posting Date");
+                DataItemLink = "G/L Account No." = field("No.");
+                DataItemTableView = sorting("G/L Account No.", "Posting Date");
 
                 trigger OnAfterGetRecord()
                 begin
@@ -198,7 +209,7 @@ report 91 "Export Consolidation"
         }
         dataitem("Currency Exchange Rate"; "Currency Exchange Rate")
         {
-            DataItemTableView = SORTING("Currency Code", "Starting Date");
+            DataItemTableView = sorting("Currency Code", "Starting Date");
 
             trigger OnAfterGetRecord()
             begin
@@ -405,7 +416,6 @@ report 91 "Export Consolidation"
         ConsolidEndDate: Date;
         TransferPerDay: Boolean;
         TransferPerDayReq: Boolean;
-        [InDataSet]
         FOLegalEntityIDVisible: Boolean;
         ColumnDim: Text[250];
         ParentCurrencyCode: Code[10];

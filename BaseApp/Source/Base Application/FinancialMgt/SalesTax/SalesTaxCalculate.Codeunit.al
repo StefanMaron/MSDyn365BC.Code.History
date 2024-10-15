@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.SalesTax;
+
+using Microsoft.Finance.GeneralLedger.Journal;
+
 codeunit 398 "Sales Tax Calculate"
 {
 

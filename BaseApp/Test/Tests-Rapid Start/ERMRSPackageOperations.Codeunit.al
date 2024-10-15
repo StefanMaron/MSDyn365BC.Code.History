@@ -1677,6 +1677,7 @@ codeunit 136603 "ERM RS Package Operations"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmYesHandler')]
     procedure ExportImportPackageWithAutoIncrementFieldMarkedAsPK()
     var
         ConfigPackage: Record "Config. Package";

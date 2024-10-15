@@ -1,3 +1,16 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
+using Microsoft.Finance.GeneralLedger.Posting;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Posting;
+
 codeunit 5346 "CRM Sales Document Posting Mgt"
 {
     SingleInstance = true;
@@ -269,7 +282,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
             exit;
 
         CRMPostBuffer.ID := CreateGuid();
-        CRMPostBuffer."Table ID" := DATABASE::"Sales Header";
+        CRMPostBuffer."Table ID" := Database::"Sales Header";
         CRMPostBuffer.RecId := RecId;
         CRMPostBuffer.ChangeType := ChangeType;
         CRMPostBuffer.ChangeDateTime := CurrentDateTime;

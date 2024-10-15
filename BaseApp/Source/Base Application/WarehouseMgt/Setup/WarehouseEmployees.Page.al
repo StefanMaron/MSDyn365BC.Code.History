@@ -1,3 +1,8 @@
+namespace Microsoft.Warehouse.Setup;
+
+using Microsoft.Inventory.Location;
+using System.Security.User;
+
 page 7328 "Warehouse Employees"
 {
     AdditionalSearchTerms = 'warehouse worker';
@@ -7,6 +12,7 @@ page 7328 "Warehouse Employees"
     PageType = List;
     SourceTable = "Warehouse Employee";
     UsageCategory = Administration;
+    PopulateAllFields = true;
 
     layout
     {
@@ -58,6 +64,42 @@ page 7328 "Warehouse Employees"
 
     actions
     {
+        area(Processing)
+        {
+            action("Add Me")
+            {
+                Caption = 'Add me as Warehouse Employee';
+                ToolTip = 'Add yourself as a warehouse employee at selected locations.';
+                Image = Employee;
+
+                trigger OnAction()
+                var
+                    Location: Record Location;
+                    WarehouseEmployee: Record "Warehouse Employee";
+                    SelectedLocationsFilter: Text;
+                begin
+                    SelectedLocationsFilter := Location.SelectMultipleLocations();
+                    if SelectedLocationsFilter = '' then
+                        exit;
+
+                    Location.SetFilter(Code, SelectedLocationsFilter);
+                    if Location.FindSet() then
+                        repeat
+                            WarehouseEmployee.Init();
+                            WarehouseEmployee."User ID" := CopyStr(UserId(), 1, MaxStrLen(WarehouseEmployee."User ID"));
+                            WarehouseEmployee."Location Code" := Location.Code;
+                            if WarehouseEmployee.Insert() then;
+                        until Location.Next() = 0;
+                end;
+            }
+        }
+        area(Promoted)
+        {
+            actionref("Add Me_Promoted"; "Add Me")
+            {
+
+            }
+        }
     }
 }
 

@@ -1,6 +1,14 @@
+namespace System.Environment;
+
+using Microsoft.API.Webhooks;
+using Microsoft.Integration.Dataverse;
+using System.Diagnostics;
+
 codeunit 49 GlobalTriggerManagement
 {
     SingleInstance = true;
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

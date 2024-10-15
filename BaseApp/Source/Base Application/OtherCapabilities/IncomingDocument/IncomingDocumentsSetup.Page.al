@@ -1,3 +1,9 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.EServices.EDocument;
+
 page 191 "Incoming Documents Setup"
 {
     AdditionalSearchTerms = 'electronic document setup,e-invoice setup,ocr setup,ecommerce setup,document exchange setup,import invoice setup';
@@ -59,10 +65,10 @@ page 191 "Incoming Documents Setup"
 
     trigger OnOpenPage()
     begin
-        Reset();
-        if not Get() then begin
-            Init();
-            Insert();
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
     end;
 }

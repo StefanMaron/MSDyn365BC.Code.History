@@ -1,3 +1,45 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Utilities;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Inventory.Location;
+using Microsoft.Projects.TimeSheet;
+using Microsoft.EServices.EDocument;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Task;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using System.Environment.Configuration;
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.AllocationAccount;
+using Microsoft.Finance.Analysis;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Setup;
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.Address;
+using Microsoft.Finance.Currency;
+using System.IO;
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Intercompany.BankAccount;
+using Microsoft.Intercompany.Dimension;
+using Microsoft.Intercompany.GLAccount;
+using Microsoft.Intercompany.Partner;
+using Microsoft.Intercompany.Setup;
+using Microsoft.Foundation.NoSeries;
+using System.Device;
+using System.Xml;
+using System.Security.User;
+using System.Automation;
+using Microsoft.Foundation.Period;
+using Microsoft.Integration.Graph;
+using Microsoft.Foundation.Calendar;
+
 permissionset 4423 "General Ledger - Admin"
 {
     Access = Public;
@@ -10,6 +52,10 @@ permissionset 4423 "General Ledger - Admin"
                   tabledata "Acc. Sched. KPI Web Srv. Setup" = RIMD,
                   tabledata "Accounting Period" = RI,
                   tabledata "Activity Log" = RIMD,
+                  tabledata "Alloc. Account Distribution" = R,
+                  tabledata "Allocation Account" = R,
+                  tabledata "Allocation Line" = RIMD,
+                  tabledata "Alloc. Acc. Manual Override" = RIMD,
                   tabledata "Analysis View" = RIMD,
                   tabledata "Analysis View Filter" = RIMD,
                   tabledata "Attachment Entity Buffer" = RIMD,
@@ -68,9 +114,6 @@ permissionset 4423 "General Ledger - Admin"
                   tabledata "Incoming Document Attachment" = RIMD,
                   tabledata "Incoming Documents Setup" = RIMD,
                   tabledata "Intermediate Data Import" = Rimd,
-#if not CLEAN20
-                  tabledata "Native - Payment" = MD,
-#endif
                   tabledata "No. Series" = RIMD,
                   tabledata "No. Series Line" = RIMD,
                   tabledata "No. Series Relationship" = RIMD,
@@ -126,16 +169,6 @@ permissionset 4423 "General Ledger - Admin"
                   tabledata "Workflow Table Relation Value" = Rimd,
                   tabledata "Workflow User Group" = RIMD,
                   tabledata "Workflow User Group Member" = RIMD,
-#if not CLEAN20
-                  tabledata "XBRL Comment Line" = RIMD,
-                  tabledata "XBRL G/L Map Line" = RIMD,
-                  tabledata "XBRL Linkbase" = RIMD,
-                  tabledata "XBRL Rollup Line" = RIMD,
-                  tabledata "XBRL Schema" = RIMD,
-                  tabledata "XBRL Taxonomy" = RIMD,
-                  tabledata "XBRL Taxonomy Label" = RIMD,
-                  tabledata "XBRL Taxonomy Line" = RIMD,
-#endif
                   tabledata "XML Buffer" = R,
                   tabledata "XML Schema" = RIMD,
                   tabledata "XML Schema Element" = RIMD,

@@ -16,6 +16,7 @@ codeunit 132201 "Library - Inventory"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         JOURNAL: Label ' journal';
         ReserveConfirmMsg: Label 'Do you want to reserve specific tracking numbers?';
 
@@ -906,6 +907,19 @@ codeunit 132201 "Library - Inventory"
         Item.Modify(true);
     end;
 
+    procedure CreateTransferHeader(var TransferHeader: Record "Transfer Header")
+    var
+        Location: Record Location;
+        FromLocationCode, ToLocationCode, InTransitLocationCode : Text[10];
+    begin
+        FromLocationCode := LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        ToLocationCode := LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryWarehouse.CreateInTransitLocation(Location);
+        InTransitLocationCode := Location.Code;
+
+        CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, InTransitLocationCode);
+    end;
+
     procedure CreateTransferHeader(var TransferHeader: Record "Transfer Header"; FromLocation: Text[10]; ToLocation: Text[10]; InTransitCode: Text[10])
     var
         Handled: Boolean;
@@ -1157,12 +1171,14 @@ codeunit 132201 "Library - Inventory"
         InventorySetup.Validate("Internal Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Validate("Inventory Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Validate("Inventory Pick Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Inventory Put-away Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Validate("Posted Invt. Pick Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Validate("Posted Transfer Rcpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Validate("Posted Transfer Shpt. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Validate("Registered Invt. Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Validate("Transfer Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Posted Invt. Put-away Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Modify(true);
     end;
 

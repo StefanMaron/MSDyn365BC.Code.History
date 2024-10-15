@@ -25,6 +25,7 @@ codeunit 137404 "SCM Manufacturing"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
+        DateChangeFormula: DateFormula;
         ExchangeNo: Code[20];
         ItemNo2: Code[20];
         LocationCode2: Code[10];
@@ -34,31 +35,24 @@ codeunit 137404 "SCM Manufacturing"
         CreateNewVersion: Boolean;
         DeleteExchangedComponent: Boolean;
         isInitialized: Boolean;
-        ShowError: Boolean;
-        BlankDeleteBeforeDateError: Label 'You must enter the date to delete before.';
-        CopyDocumentError: Label 'Production Order was not copied successfully.';
-        MustNotExistError: Label '%1 must not exist.';
-        ProductionBOMStatusError: Label 'The maximum number of BOM levels, %1, was exceeded. The process stopped at item number %2, BOM header number %3, BOM level %4.', Comment = '%1 = Max. Level Value, %2 = Item No. Value, %3 = Bom Header No. Value, %4 = Level Value';
-        StartingDateError: Label 'The Starting Date field must not be blank.';
-        StartingDateError2: Label 'You must enter a Starting Date.';
-        StartingDateError3: Label 'You must fill in the starting date field.';
-        TimeError: Label 'Validation error for Field: EndingTime,  Message = ''The ending time must be later than the starting time.''';
-        UnknownError: Label 'Unknown Error.';
-        EndingTimeError: Boolean;
-        OverWrite: Boolean;
-        StartingTime: Time;
-        EndingTime: Time;
-        CapacityValue: Decimal;
+        BlankDeleteBeforeDateErr: Label 'You must enter the date to delete before.';
+        CopyDocumentErr: Label 'Production Order was not copied successfully.';
+        MustNotExistErr: Label '%1 must not exist.', Comment = '%1: Table caption "Production BOM Line".';
+        ProductionBOMStatusErr: Label 'The maximum number of BOM levels, %1, was exceeded. The process stopped at item number %2, BOM header number %3, BOM level %4.', Comment = '%1 = Max. Level Value, %2 = Item No. Value, %3 = Bom Header No. Value, %4 = Level Value';
+        StartingDateMustNotBeBlankErr: Label 'The Starting Date field must not be blank.';
+        MustEnterStartingDateErr: Label 'You must enter a Starting Date.';
+        MustFillStartingDateFieldErr: Label 'You must fill in the starting date field.';
+        EndingTimeValidationErr: Label 'Validation error for Field: EndingTime,  Message = ''The ending time must be later than the starting time.''';
+        UnknownErr: Label 'Unknown Error.';
         Capacity2: Decimal;
-        DateChangeFormula: DateFormula;
         GLB_ItemTrackingQty: Integer;
         GLB_SerialNo: Code[50];
-        DocumentNoError: Label 'Document No. %1 does not exist.';
-        ExpectedQuantityError: Label 'Quantity must be %1.';
+        DocumentNoDoesNotExistErr: Label 'Document No. %1 does not exist.', Comment = '%1: Document number (Code)';
+        ExpectedQuantityErr: Label 'Quantity must be %1.', Comment = '%1: Quantity (decimal value)';
         ModifyRtngErr: Label 'You cannot modify Routing No. %1 because there is at least one %2 associated with it.';
         DeleteRtngErr: Label 'You cannot delete Prod. Order Line %1 because there is at least one %2 associated with it.';
-        CapLedgEntryCap: Label 'Capacity Ledger Entry';
-        ItemLedgEntryCap: Label 'Item Ledger Entry';
+        CapLedgEntryTxt: Label 'Capacity Ledger Entry';
+        ItemLedgEntryTxt: Label 'Item Ledger Entry';
         ReservationDateConflictTxt: Label 'The change causes a date conflict with an existing reservation';
         ReservDateConflictErr: Label 'The change leads to a date conflict with existing reservations.';
         ProdOrdRtngLnExistErr: Label 'Production Order Routing Lines exist, contrary to the expected result.';
@@ -83,8 +77,8 @@ codeunit 137404 "SCM Manufacturing"
         ItemNoProdOrderErr: Label '%1 must be equal to';
         DueDateEmptyErr: Label 'Due Date must have a value in Production Order';
         CircularRefInBOMErr: Label 'The production BOM %1 has a circular reference. Pay attention to the production BOM %2 that closes the loop.', Comment = '%1 = Production BOM No., %2 = Production BOM No.';
-        ExpectedWhsePickRequest: Label 'Expected a Warehouse Pick Request associated with the Production Order Component Line, since the line has a positive remaining quantity';
-        DidntExpectWhsePickRequest: Label 'Did not expect a Warehouse Pick Request associated with the Production Order Component Line, since the line doesn''t have a postitive remaining quantity';
+        ExpectedWhsePickMsg: Label 'Expected a Warehouse Pick Request associated with the Production Order Component Line, since the line has a positive remaining quantity';
+        DidntExpectWhsePickMsg: Label 'Did not expect a Warehouse Pick Request associated with the Production Order Component Line, since the line doesn''t have a postitive remaining quantity';
         ProdOrderNoHandlerErr: Label 'Prod. Order No. must be %1, actual value is %2.', Comment = '%1: Expected Prod. Order No. Value; %2: Actual Prod. Order No. Value.';
         ProdOrderStatusHandlerErr: Label 'Prod. Order Status must be %1, actual value is %2.', Comment = '%1: Expected Prod. Order Status Value; %2: Actual Prod. Order Status Value.';
 
@@ -97,6 +91,8 @@ codeunit 137404 "SCM Manufacturing"
         ItemLedgerEntryPositive: Record "Item Ledger Entry";
         ItemLedgerEntryNegative: Record "Item Ledger Entry";
         OutputQuantity: Integer;
+        ExpectedILETxt: Label 'Expected ILE within filter %1 after posting/reverse posting to output journal',
+            Comment = '%1: Table filters';
     begin
         // [FEATURE] [Item Tracking]
         // [GIVEN] Production Order with serial tracked item
@@ -124,8 +120,7 @@ codeunit 137404 "SCM Manufacturing"
             ItemLedgerEntryNegative.SetRange("Serial No.", ItemLedgerEntryPositive."Serial No.");
             ItemLedgerEntryNegative.SetRange("Applies-to Entry", ItemLedgerEntryPositive."Entry No.");
             Assert.IsTrue(ItemLedgerEntryNegative.IsEmpty,
-              StrSubstNo('Expected ILE within filter %1 after posting/reverse posting to output journal',
-                ItemLedgerEntryNegative.GetFilters));
+              StrSubstNo(ExpectedILETxt, ItemLedgerEntryNegative.GetFilters()));
         until ItemLedgerEntryPositive.Next() = 0;
     end;
 
@@ -388,7 +383,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Set ShowError as True so that it does not enters data in the Handler.
         Initialize();
-        ShowError := true;  // This variable is made Global as it is used in the Handler.
+        LibraryVariableStorage.Enqueue(true);  // ShowError := true;
 
         // [WHEN] Run the Registered Absence From Work Center Report with blank data and catch the Error.
         Commit();
@@ -396,7 +391,7 @@ codeunit 137404 "SCM Manufacturing"
         asserterror RegAbsFromWorkCenter.Run();
 
         // [THEN] Verify the error message.
-        Assert.AreEqual(StrSubstNo(StartingDateError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(StartingDateMustNotBeBlankErr), GetLastErrorText, UnknownErr);
     end;
 
     [Test]
@@ -404,8 +399,8 @@ codeunit 137404 "SCM Manufacturing"
     [Scope('OnPrem')]
     procedure RegisteredAbsenceFromWorkCenterReportWithOverwriteFalse()
     var
-        RegisteredAbsence: Record "Registered Absence";
         WorkCenter: Record "Work Center";
+        CapacityValue: Decimal;
         Capacity: Decimal;
         Date: Date;
     begin
@@ -417,12 +412,12 @@ codeunit 137404 "SCM Manufacturing"
         CreateWorkCenterWithWorkCenterGroup(WorkCenter, '');
 
         // These variables are made Global as they are used in the Handler and CreateRegisteredAbsence helper method.
-        OverWrite := false;
-        StartingTime := CalculateRandomTime;
-        EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
-        CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
+        LibraryVariableStorage.Enqueue(false);  // ShowError = false
+        LibraryVariableStorage.Enqueue(false);  // OverWrite := false;
         Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate());
-        Capacity := CreateRegisteredAbsence(RegisteredAbsence."Capacity Type"::"Work Center", WorkCenter."No.", Date);
+        Capacity := CreateRegisteredAbsenceAndEnqueueTime(WorkCenter, Date);
+        CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
+        LibraryVariableStorage.Enqueue(CapacityValue);
 
         // [WHEN] Run Registered Absence From Work Center Report with Overwrite as False.
         RunRegAbsFromWorkCenterReport(WorkCenter."No.");
@@ -437,8 +432,8 @@ codeunit 137404 "SCM Manufacturing"
     [Scope('OnPrem')]
     procedure RegisteredAbsenceFromWorkCenterReportWithOverwriteTrue()
     var
-        RegisteredAbsence: Record "Registered Absence";
         WorkCenter: Record "Work Center";
+        CapacityValue: Decimal;
         Date: Date;
     begin
         // [FEATURE] [Capacity] [Absence]
@@ -449,12 +444,13 @@ codeunit 137404 "SCM Manufacturing"
         CreateWorkCenterWithWorkCenterGroup(WorkCenter, '');
 
         // These variables are made Global as they are used in the Handler and CreateRegisteredAbsence helper method.
-        OverWrite := true;
-        StartingTime := CalculateRandomTime;
-        EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
-        CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
+        LibraryVariableStorage.Enqueue(false);  // ShowError = false
+        LibraryVariableStorage.Enqueue(true);   // OverWrite := true;
+
         Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate());
-        CreateRegisteredAbsence(RegisteredAbsence."Capacity Type"::"Work Center", WorkCenter."No.", Date);
+        CreateRegisteredAbsenceAndEnqueueTime(WorkCenter, Date);
+        CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
+        LibraryVariableStorage.Enqueue(CapacityValue);
 
         // [WHEN] Run Registered Absence From Work Center Report with Overwrite as True.
         RunRegAbsFromWorkCenterReport(WorkCenter."No.");
@@ -464,7 +460,7 @@ codeunit 137404 "SCM Manufacturing"
     end;
 
     [Test]
-    [HandlerFunctions('RegAbsFromMachineCenterReportHandler')]
+    [HandlerFunctions('RegAbsFromMachineCenterEndingTimeErrorReportHandler')]
     [Scope('OnPrem')]
     procedure RegisteredAbsenceFromMachineCenterReportWithStartingDateError()
     var
@@ -475,8 +471,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Set ShowError as True so that it does not enters data in the Handler.
         Initialize();
-        ShowError := true;  // This variable is made Global as it is used in the Handler.
-        EndingTimeError := true;  // This variable is made Global as it is used in the Handler.
+        LibraryVariableStorage.Enqueue(true);  // ShowError := true;
 
         // [WHEN] Run the Registered Absence From Machine Center report with blank data and catch the Error.
         Commit();
@@ -484,27 +479,31 @@ codeunit 137404 "SCM Manufacturing"
         asserterror RegAbsFromMachineCtr.Run();
 
         // [THEN] Verify the error message.
-        Assert.AreEqual(StrSubstNo(StartingDateError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(StartingDateMustNotBeBlankErr), GetLastErrorText, UnknownErr);
     end;
 
     [Test]
-    [HandlerFunctions('RegAbsFromMachineCenterReportHandler')]
+    [HandlerFunctions('RegAbsFromMachineCenterEndingTimeErrorReportHandler')]
     [Scope('OnPrem')]
     procedure RegisteredAbsenceFromMachineCenterReportWithTimeError()
     var
         WorkCenter: Record "Work Center";
         RegAbsFromMachineCtr: Report "Reg. Abs. (from Machine Ctr.)";
+        StartingTime: Time;
+        EndingTime: Time;
     begin
         // [FEATURE] [Capacity] [Absence]
         // [SCENARIO] Error message should be generated when Registered Absence From Machine Center Report is run with Starting Time later than the Ending Time.
 
         // [GIVEN] Create a Work Center with Work Center Group. Set EndingTimeError as True so that it does not enters other values besides Times in the handler. Set Ending Time and Starting Time.
         Initialize();
-        ShowError := false;  // This variable is made Global as it is used in the Handler.
-        EndingTimeError := true;  // This variable is made Global as it is used in the Handler.
+        LibraryVariableStorage.Enqueue(false);  // ShowError := false;
         WorkCenter.Init();  // Required to initialize the Variable.
-        EndingTime := CalculateRandomTime;
+        EndingTime := CalculateRandomTime();
         StartingTime := CalculateEndingTime(WorkCenter, EndingTime + 10000);  // StartingTime must be Greater than EndingTime to Generate the Error.
+
+        LibraryVariableStorage.Enqueue(StartingTime);
+        LibraryVariableStorage.Enqueue(EndingTime);
 
         // [WHEN] Run the Registered Absence From Machine Center report and catch the Error.
         Commit();
@@ -512,7 +511,7 @@ codeunit 137404 "SCM Manufacturing"
         asserterror RegAbsFromMachineCtr.Run();
 
         // [THEN] Verify the error message.
-        Assert.AreEqual(StrSubstNo(TimeError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(EndingTimeValidationErr), GetLastErrorText, UnknownErr);
     end;
 
     [Test]
@@ -520,9 +519,9 @@ codeunit 137404 "SCM Manufacturing"
     [Scope('OnPrem')]
     procedure RegisteredAbsenceFromMachineCenterReportWithOverwriteFalse()
     var
-        RegisteredAbsence: Record "Registered Absence";
         WorkCenter: Record "Work Center";
         MachineCenterNo: Code[20];
+        CapacityValue: Decimal;
         Capacity: Decimal;
         Date: Date;
     begin
@@ -535,12 +534,12 @@ codeunit 137404 "SCM Manufacturing"
         MachineCenterNo := CreateMachineCenter(WorkCenter."No.");
 
         // These variables are made Global as they are used in the Handler and CreateRegisteredAbsence helper method.
-        OverWrite := false;
-        StartingTime := CalculateRandomTime;
-        EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
-        CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
+        LibraryVariableStorage.Enqueue(false);  // ShowError = false
         Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate());
-        Capacity := CreateRegisteredAbsence(RegisteredAbsence."Capacity Type"::"Machine Center", MachineCenterNo, Date);
+        Capacity := CreateMachineCenterRegAbsenceAndEnqueueTime(WorkCenter, MachineCenterNo, Date);
+        CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
+        LibraryVariableStorage.Enqueue(CapacityValue);
+        LibraryVariableStorage.Enqueue(false);  // OverWrite := false;
 
         // [WHEN] Run Registered Absence From Machine Center Report with Overwrite as False.
         RunRegAbsFromMachineCenterReport(MachineCenterNo);
@@ -555,9 +554,9 @@ codeunit 137404 "SCM Manufacturing"
     [Scope('OnPrem')]
     procedure RegisteredAbsenceFromMachineCenterReportWithOverwriteTrue()
     var
-        RegisteredAbsence: Record "Registered Absence";
         WorkCenter: Record "Work Center";
         MachineCenterNo: Code[20];
+        CapacityValue: Decimal;
         Date: Date;
     begin
         // [FEATURE] [Capacity] [Absence]
@@ -569,12 +568,12 @@ codeunit 137404 "SCM Manufacturing"
         MachineCenterNo := CreateMachineCenter(WorkCenter."No.");
 
         // These variables are made Global as they are used in the Handler and CreateRegisteredAbsence helper method.
-        OverWrite := true;
-        StartingTime := CalculateRandomTime;
-        EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
-        CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
+        LibraryVariableStorage.Enqueue(false);  // ShowError = false
         Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate());
-        CreateRegisteredAbsence(RegisteredAbsence."Capacity Type"::"Machine Center", MachineCenterNo, Date);
+        CreateMachineCenterRegAbsenceAndEnqueueTime(WorkCenter, MachineCenterNo, Date);
+        CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
+        LibraryVariableStorage.Enqueue(CapacityValue);
+        LibraryVariableStorage.Enqueue(true);   // OverWrite := true;
 
         // [WHEN] Run Registered Absence From Machine Center Report with Overwrite as True.
         RunRegAbsFromMachineCenterReport(MachineCenterNo);
@@ -641,7 +640,7 @@ codeunit 137404 "SCM Manufacturing"
         WorkCenterNo2 := WorkCenter."No.";  // Use WorkCenterNo2 as global for Handler.
 
         // [THEN] Verify Calculated Capacity on WorkCenterCalendarMatrixHandler function and verification is done in Handler.
-        VerifyCalculatedCapacity;
+        VerifyCalculatedCapacity();
     end;
 
     [Test]
@@ -874,7 +873,7 @@ codeunit 137404 "SCM Manufacturing"
     end;
 
     [Test]
-    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    [HandlerFunctions('ExchangeProductionBOMItemErrorHandler')]
     [Scope('OnPrem')]
     procedure ExchangeProductionBOMItemError()
     begin
@@ -884,11 +883,10 @@ codeunit 137404 "SCM Manufacturing"
         Initialize();
 
         // [WHEN] Run Exchange Production BOM Item report with blank Starting Date.
-        ShowError := true;
-        asserterror RunExchangeProductionBOMItemReport;
+        asserterror RunExchangeProductionBOMItemReport();
 
         // [THEN] Error message: "You must enter a Starting Date."
-        Assert.AreEqual(StrSubstNo(StartingDateError2), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(MustEnterStartingDateErr), GetLastErrorText, UnknownErr);
     end;
 
     [Test]
@@ -904,15 +902,15 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Create two Items with Routing and Production BOM.
         Initialize();
-        Item.Get(CreateItemWithRoutingAndProductionBOM);
-        Item2.Get(CreateItemWithRoutingAndProductionBOM);
+        Item.Get(CreateItemWithRoutingAndProductionBOM());
+        Item2.Get(CreateItemWithRoutingAndProductionBOM());
         ExchangeNo := FindProductionBOMComponent(Item."Production BOM No.");  // Use ExchangeNo as global for handler.
         WithNo := FindProductionBOMComponent(Item2."Production BOM No.");  // Use WithNo as global for handler.
         CreateNewVersion := true;  // Use CreateNewVersion as global for handler.
         DeleteExchangedComponent := false;
 
         // [WHEN] Run Exchange Production BOM Item report with Create New Version as true and Delete Exchanged Component as false.
-        RunExchangeProductionBOMItemReport;
+        RunExchangeProductionBOMItemReport();
 
         // [THEN] Item has been exchanged.
         VerifyProductionBOMLineNotExists(Item."Production BOM No.", FindLastBOMVersionCode(Item."Production BOM No."), ExchangeNo);
@@ -932,8 +930,8 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Create two Items with Routing and Production BOM. Run Exchange Production BOM Item report with Create New Version as true and Delete Exchanged Component as false.
         Initialize();
-        Item.Get(CreateItemWithRoutingAndProductionBOM);
-        Item2.Get(CreateItemWithRoutingAndProductionBOM);
+        Item.Get(CreateItemWithRoutingAndProductionBOM());
+        Item2.Get(CreateItemWithRoutingAndProductionBOM());
         ExchangeNo := FindProductionBOMComponent(Item."Production BOM No.");  // Use ExchangeNo as global for handler.
         WithNo := FindProductionBOMComponent(Item2."Production BOM No.");  // Use WithNo as global for handler.
         // BOM Comment is required for IN localization
@@ -942,7 +940,7 @@ codeunit 137404 "SCM Manufacturing"
         // [WHEN] Run Exchange Production BOM Item report with Create New Version as false and Delete Exchanged Component as true.
         CreateNewVersion := false;  // Use CreateNewVersion as global for handler.
         DeleteExchangedComponent := true;
-        RunExchangeProductionBOMItemReport;
+        RunExchangeProductionBOMItemReport();
 
         // [THEN] Exchanged Item has been removed from the BOM.
         VerifyProductionBOMLineNotExists(Item."Production BOM No.", '', ExchangeNo);
@@ -971,7 +969,7 @@ codeunit 137404 "SCM Manufacturing"
         Initialize();
 
         // [GIVEN] Create Routing
-        RoutingNo := CreateRoutingWithRoutingLinkCode;
+        RoutingNo := CreateRoutingWithRoutingLinkCode();
         RoutingLine.SetRange("Routing No.", RoutingNo);
         RoutingLine.FindFirst();
 
@@ -1012,7 +1010,7 @@ codeunit 137404 "SCM Manufacturing"
         DeleteExchangedComponent := true;
 
         // [WHEN] Run Exchange Production BOM Item report
-        asserterror RunExchangeProductionBOMItemReport;
+        asserterror RunExchangeProductionBOMItemReport();
 
         // [THEN] Production Order Status is Certified, the previous component lines have been restored and the lines for exchange item have been rolled back
         ProductionBOMHeaderNoRouting.Find('=');
@@ -1040,14 +1038,14 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Create Item and Production BOM. Add Parent Item as a Component in BOM.
         Initialize();
-        Item.Get(CreateItemWithRoutingAndProductionBOM);
+        Item.Get(CreateItemWithRoutingAndProductionBOM());
         AddParentItemAsBOMComponent(ProductionBOMHeader, ProductionBOMLine, Item);
 
         // [WHRN] Change the Status of Production BOM and catch the error.
         asserterror ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
 
         // [THEN] Status error in Production BOM when Status is set to Certified.
-        Assert.AreEqual(StrSubstNo(ProductionBOMStatusError, 50, '', Item."No.", 1), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(ProductionBOMStatusErr, 50, '', Item."No.", 1), GetLastErrorText, UnknownErr);
     end;
 
     [Test]
@@ -1063,7 +1061,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Create Item and Production BOM. Add Parent Item in Production BOM Line and set Status as Under Development.
         Initialize();
-        Item.Get(CreateItemWithRoutingAndProductionBOM);
+        Item.Get(CreateItemWithRoutingAndProductionBOM());
         AddParentItemAsBOMComponent(ProductionBOMHeader, ProductionBOMLine, Item);
         CreateCommentLineForItem(Item."No.");
         // [WHEN] Delete Production BOM Line with Parent Item and set Production BOM status as Certified.
@@ -1092,7 +1090,7 @@ codeunit 137404 "SCM Manufacturing"
         asserterror LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, 0D, WorkDate());
 
         // [THEN] Error message that Starting Date must have a value.
-        Assert.AreEqual(StrSubstNo(StartingDateError3), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(MustFillStartingDateFieldErr), GetLastErrorText, UnknownErr);
     end;
 
     [Test]
@@ -1136,11 +1134,11 @@ codeunit 137404 "SCM Manufacturing"
         Initialize();
 
         // [WHEN] Run Delete Expired Components report with blank Delete Before Date.
-        ShowError := true;  // This variable is made Global as it is used in the Handler.
+        LibraryVariableStorage.Enqueue(true);  // ShowError := true;
         asserterror RunDeleteExpiredComponentsReport(ProductionBOMHeader);
 
         // [THEN] Verify blank Delete Before Date error message.
-        Assert.AreEqual(StrSubstNo(BlankDeleteBeforeDateError), GetLastErrorText, UnknownError);
+        Assert.AreEqual(StrSubstNo(BlankDeleteBeforeDateErr), GetLastErrorText, UnknownErr);
     end;
 
     [Test]
@@ -1159,12 +1157,13 @@ codeunit 137404 "SCM Manufacturing"
         CreateAndModifyProductionBOM(ProductionBOMHeader);
 
         // [WHEN]  Run Delete Expired Components report.
+        LibraryVariableStorage.Enqueue(false);  // ShowError := false;
         ProductionBOMHeader.SetRange("No.", ProductionBOMHeader."No.");
         RunDeleteExpiredComponentsReport(ProductionBOMHeader);
 
         // [THEN] Verify expired component must not exist.
         Assert.IsFalse(
-          FindProductionBOMLine(ProductionBOMLine, ProductionBOMHeader."No."), StrSubstNo(MustNotExistError, ProductionBOMLine.TableCaption()));
+          FindProductionBOMLine(ProductionBOMLine, ProductionBOMHeader."No."), StrSubstNo(MustNotExistErr, ProductionBOMLine.TableCaption()));
     end;
 
     [Test]
@@ -1211,7 +1210,7 @@ codeunit 137404 "SCM Manufacturing"
         RequisitionLine.DeleteAll(true);
 
         // [THEN] Verify all Planning Worksheet Lines must be deleted.
-        Assert.AreEqual(0, RequisitionLine.Count, StrSubstNo(MustNotExistError, RequisitionLine.TableCaption()));
+        Assert.AreEqual(0, RequisitionLine.Count, StrSubstNo(MustNotExistErr, RequisitionLine.TableCaption()));
     end;
 
     [Test]
@@ -1326,11 +1325,11 @@ codeunit 137404 "SCM Manufacturing"
         CreateAndPostSalesOrder(SalesHeader, ProductionOrder."Source No.", Quantity);
         LibraryVariableStorage.Enqueue(ProductionOrder."Source No.");
         LibraryVariableStorage.Enqueue(-1 * Quantity);
-        ApplicationWorksheet.OpenEdit;
+        ApplicationWorksheet.OpenEdit();
         ApplicationWorksheet.FILTER.SetFilter("Item No.", ProductionOrder."Source No.");
 
         // [WHEN] Open View Applied Entries Page.
-        ApplicationWorksheet.AppliedEntries.Invoke;
+        ApplicationWorksheet.AppliedEntries.Invoke();
 
         // [THEN] "Applied Quantity" = "Q2"
         // Verification done in ViewAppliedEntriesPageHandler.
@@ -1470,10 +1469,10 @@ codeunit 137404 "SCM Manufacturing"
         ProdOrdLn.Get(ProdOrdLn.Status, ProdOrdLn."Prod. Order No.", ProdOrdLn."Line No.");
 
         // [WHEN] Change Routing No. on the first line
-        asserterror ProdOrdLn.Validate("Routing No.", CreateRouting);
+        asserterror ProdOrdLn.Validate("Routing No.", CreateRouting());
 
         // [THEN] Error message: "You cannot modify Routing No.".
-        Assert.AreEqual(StrSubstNo(ModifyRtngErr, ProdOrdLn."Routing No.", CapLedgEntryCap), GetLastErrorText, '');
+        Assert.AreEqual(StrSubstNo(ModifyRtngErr, ProdOrdLn."Routing No.", CapLedgEntryTxt), GetLastErrorText, '');
     end;
 
     [Test]
@@ -1497,7 +1496,7 @@ codeunit 137404 "SCM Manufacturing"
         asserterror ProdOrdLn.Delete(true);
 
         // [THEN] Error message: "You cannot delete Prod. Order Line"
-        Assert.AreEqual(StrSubstNo(DeleteRtngErr, ProdOrdLn."Line No.", ItemLedgEntryCap), GetLastErrorText, '');
+        Assert.AreEqual(StrSubstNo(DeleteRtngErr, ProdOrdLn."Line No.", ItemLedgEntryTxt), GetLastErrorText, '');
     end;
 
     [Test]
@@ -1513,7 +1512,7 @@ codeunit 137404 "SCM Manufacturing"
         // [SCENARIO] Production Order Routing Lines should be be deleted for the specific production order line when the Routing No. is changed
 
         Initialize();
-        Item.Get(CreateItemWithRoutingAndProductionBOM);
+        Item.Get(CreateItemWithRoutingAndProductionBOM());
 
         // [GIVEN] Create a released Prod. Order, create 2 Prod. Order lines, calculate routings
         SetupProdOrdWithRtng(ProdOrd, Item."No.");
@@ -1525,7 +1524,7 @@ codeunit 137404 "SCM Manufacturing"
         Assert.IsTrue(FindProductionOrderRoutingLine(ProdOrdRtngLn, ProdOrdLn), ProdOrdRtngLnNotExistErr);
 
         // [WHEN] Change the Routing No. of the first Prod. Order line
-        ProdOrdLn.Validate("Routing No.", CreateRouting);
+        ProdOrdLn.Validate("Routing No.", CreateRouting());
 
         // [THEN] Table 5409 (Prod. Order Routing Line) has no Routing Lines for the first Prod. Order Line
         Assert.IsFalse(FindProductionOrderRoutingLine(ProdOrdRtngLn, ProdOrdLn), ProdOrdRtngLnExistErr);
@@ -1544,7 +1543,7 @@ codeunit 137404 "SCM Manufacturing"
         // [SCENARIO] Production Order Routing Lines should be be deleted for the specific production order line when the Routing No. is changed
 
         Initialize();
-        Item.Get(CreateItemWithRoutingAndProductionBOM);
+        Item.Get(CreateItemWithRoutingAndProductionBOM());
 
         // [GIVEN] Create a released Prod. Order, create 2 Prod. Order lines, calculate routings
         SetupProdOrdWithRtng(ProdOrd, Item."No.");
@@ -2160,36 +2159,6 @@ codeunit 137404 "SCM Manufacturing"
         // [THEN] 'Prod. Forecast Quantity (Base)' is same as the qty. set on forecast entry where the 'Variant Code' is same as the code in 'Variant Filter'
         Item.TestField("Prod. Forecast Quantity (Base)", ForecastWithVariantCode);
     end;
-#if not CLEAN20
-    [Test]
-    [Scope('OnPrem')]
-    procedure FilterOnProductionForecast()
-    var
-        ProductionForecastName: Record "Production Forecast Name";
-        ProductionForecastEntry: Record "Production Forecast Entry";
-        Item: Record Item;
-        ProductionForecast: TestPage "Demand Forecast";
-        ForecastType: Option "Sales Item",Component,Both;
-    begin
-        // [FEATURE] [Production Forecast]
-        // [SCENARIO] Check filtering on Production Forecast can provide expected results.
-
-        // [GIVEN] Create Production Forecast Name, create Production Forecast Entry.
-        // [GIVEN] Open Production Forecast Page, set filters related to the Production Forecast Entry.
-        Initialize();
-        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name);
-        OpenProductionForecast(
-          ProductionForecast, ProductionForecastName.Name, ProductionForecastEntry."Location Code", ForecastType::Component);
-
-        // [WHEN] Set filter on "Prod. Forecast Quantity (Base)"
-        ProductionForecast.Matrix.FILTER.SetFilter("Prod. Forecast Quantity (Base)", '>0');
-
-        // [THEN] Item with "Prod. Forecast Quantity (Base)" > 0 can be found in Production Forecast Matrix
-        Item.Get(ProductionForecastEntry."Item No.");
-        Assert.IsTrue(ProductionForecast.Matrix.GotoRecord(Item), StrSubstNo(ItemShouldExistErr, Item."No."));
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('ProdOrderRoutingHandler')]
@@ -2207,7 +2176,7 @@ codeunit 137404 "SCM Manufacturing"
         CreateProdOrderLineWithWhiteLocationAndUpdateWorkCenterBinCode(ProdOrderLine, WorkCenter, RoutingRefNo);
 
         LibraryVariableStorage.Enqueue(WorkCenter."No.");
-        ProdOrderLine.ShowRouting; // set WorkCenterNo in ProdOrderRoutingHandler
+        ProdOrderLine.ShowRouting(); // set WorkCenterNo in ProdOrderRoutingHandler
 
         VerifyProdOrderLineBinCode(ProdOrderLine, WorkCenter."From-Production Bin Code");
     end;
@@ -2319,25 +2288,26 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Item with Routing of two Routing Lines with different Work Centers.
         ItemNo := CreateItemWithRoutingAndTwoWorkCenters(WorkCenter, WorkCenter2, RoutingNo);
-        // [GIVEN] Calculate Calendar for Work Center in last Routing Line and Reset Time in first Routing Line
+        // [GIVEN] Calculate Calendar for Work Center in first Routing Line and Reset Time in last Routing Line
         LibraryManufacturing.CalculateWorkCenterCalendar(
-          WorkCenter2, CalcDate('<-1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
-        ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter."No.");
+            WorkCenter, CalcDate('<-1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
+        ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter2."No.");
 
         // [GIVEN] Released Production Order
         LibraryManufacturing.CreateProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo,
-          LibraryRandom.RandDec(10, 2));
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo,
+            LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Refresh Production Order. Calculate Forward
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, true, true, false, false);
 
         // [THEN] Prod Order Routing Line has Starting Date-Time equal to Ending Date-Time
-        FindProdOrderRtngLn(ProdOrderRoutingLine, ProductionOrder.Status::Released, ProductionOrder."No.", RoutingNo, WorkCenter2."No.");
-        PrevOperationEndingDateTime := ProdOrderRoutingLine."Ending Date-Time";
         FindProdOrderRtngLn(ProdOrderRoutingLine, ProductionOrder.Status::Released, ProductionOrder."No.", RoutingNo, WorkCenter."No.");
-        ProdOrderRoutingLine.TestField("Starting Date-Time", PrevOperationEndingDateTime);
-        ProdOrderRoutingLine.TestField("Ending Date-Time", ProdOrderRoutingLine."Starting Date-Time");
+        PrevOperationEndingDateTime := ProdOrderRoutingLine."Ending Date-Time";
+
+        FindProdOrderRtngLn(ProdOrderRoutingLine, ProductionOrder.Status::Released, ProductionOrder."No.", RoutingNo, WorkCenter2."No.");
+        Assert.AreEqual(PrevOperationEndingDateTime, ProdOrderRoutingLine."Starting Date-Time", StartingDateTimeErr);
+        Assert.AreEqual(ProdOrderRoutingLine."Starting Date-Time", ProdOrderRoutingLine."Ending Date-Time", EndingDateTimeErr);
     end;
 
     [Test]
@@ -2358,25 +2328,25 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Item with Routing of two Routing Lines with different Work Centers.
         ItemNo := CreateItemWithRoutingAndTwoWorkCenters(WorkCenter, WorkCenter2, RoutingNo);
-        // [GIVEN] Calculate Calendar for Work Center in First Routing Line and Reset Time in last Routing Line
-        LibraryManufacturing.CalculateWorkCenterCalendar(
-          WorkCenter, CalcDate('<-1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
-        ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter2."No.");
+        // [GIVEN] Calculate Calendar for Work Center in last Routing Line and Reset Time in first Routing Line
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter2, CalcDate('<-1D>', WorkDate()), CalcDate('<1D>', WorkDate()));
+        ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter."No.");
 
         // [GIVEN] Released Production Order
         LibraryManufacturing.CreateProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo,
-          LibraryRandom.RandDec(10, 2));
+            ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo,
+            LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Refresh Production Order. Calculate Backward
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, false, false);
 
         // [THEN] Prod Order Routing Line has Ending Date-Time equal to Starting Date-Time
-        FindProdOrderRtngLn(ProdOrderRoutingLine, ProductionOrder.Status::Released, ProductionOrder."No.", RoutingNo, WorkCenter."No.");
-        NextOperationEndingDateTime := ProdOrderRoutingLine."Starting Date-Time";
         FindProdOrderRtngLn(ProdOrderRoutingLine, ProductionOrder.Status::Released, ProductionOrder."No.", RoutingNo, WorkCenter2."No.");
-        ProdOrderRoutingLine.TestField("Ending Date-Time", NextOperationEndingDateTime);
-        ProdOrderRoutingLine.TestField("Starting Date-Time", ProdOrderRoutingLine."Ending Date-Time");
+        NextOperationEndingDateTime := ProdOrderRoutingLine."Starting Date-Time";
+
+        FindProdOrderRtngLn(ProdOrderRoutingLine, ProductionOrder.Status::Released, ProductionOrder."No.", RoutingNo, WorkCenter."No.");
+        Assert.AreEqual(NextOperationEndingDateTime, ProdOrderRoutingLine."Ending Date-Time", EndingDateTimeErr);
+        Assert.AreEqual(ProdOrderRoutingLine."Ending Date-Time", ProdOrderRoutingLine."Starting Date-Time", StartingDateTimeErr);
     end;
 
     [Test]
@@ -2399,12 +2369,12 @@ codeunit 137404 "SCM Manufacturing"
 
         // [WHEN] Manufacturing Ending Date is set to WORKDATE - 1 day
         LibraryVariableStorage.Enqueue(ReservationDateConflictTxt);
-        LibraryVariableStorage.Enqueue(MessageCount);
+        LibraryVariableStorage.Enqueue(0);
         FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", ProductionOrder."Source No.");
         ProdOrderLine.Validate("Ending Date", CalcDate('<-1D>', ProdOrderLine."Ending Date"));
 
         // [THEN] One warning message is raised.
-        MessageCount := LibraryVariableStorage.DequeueInteger;
+        MessageCount := LibraryVariableStorage.DequeueInteger();
         Assert.AreEqual(1, MessageCount, WrongNumberOfMessagesErr);
 
         // Text verification is done in MessageHandler2
@@ -2491,7 +2461,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Item "I2"
         // [WHEN] Run "Exchange Production BOM Item" to replace item "I1" with "I2" and "Create New Version" option
-        RunExchangeProdBOMItemReportWithParameters(ChildItemNo, LibraryInventory.CreateItemNo, true, false);
+        RunExchangeProdBOMItemReportWithParameters(ChildItemNo, LibraryInventory.CreateItemNo(), true, false);
 
         // [THEN] Version for parent BOM has not been created
         ParentProdBOMVersion.SetRange("Production BOM No.", ParentBOMNo);
@@ -2595,8 +2565,8 @@ codeunit 137404 "SCM Manufacturing"
         CreateProdOrderLineWithWhiteLocationAndUpdateWorkCenterBinCode(ProdOrderLine[1], WorkCenter, RoutingRefNo);
 
         Location.Get(ProdOrderLine[1]."Location Code");
-        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID, '', '');
-        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
         Location."From-Production Bin Code" := Bin[2].Code;
         Location.Modify();
 
@@ -2613,7 +2583,7 @@ codeunit 137404 "SCM Manufacturing"
         ProdOrderComponent.Modify();
 
         // [WHEN] Open prod. order routing for the low-level line
-        ProdOrderLine[2].ShowRouting;
+        ProdOrderLine[2].ShowRouting();
         ProdOrderLine[2].Find();
 
         // [THEN] Bin code in production order line is "B1"
@@ -2702,29 +2672,29 @@ codeunit 137404 "SCM Manufacturing"
         SaveExistingILEs(TempItemLedgEntry, ProdOrderComponent."Item No.");
 
         // [GIVEN] In Application Worksheet Consumption unapplied, Sale applied to Purchase
-        ApplicationWorksheet.OpenEdit;
+        ApplicationWorksheet.OpenEdit();
         ApplicationWorksheet.FILTER.SetFilter("Item No.", ProdOrderComponent."Item No.");
 
-        ApplicationWorksheet.First;
-        while ApplicationWorksheet."Entry Type".AsInteger <> TempItemLedgEntry."Entry Type"::Consumption.AsInteger() do
+        ApplicationWorksheet.First();
+        while ApplicationWorksheet."Entry Type".AsInteger() <> TempItemLedgEntry."Entry Type"::Consumption.AsInteger() do
             if not ApplicationWorksheet.Next() then
-                Error(StrSubstNo(EntryOfTypeNotFoundErr, TempItemLedgEntry."Entry Type"::Consumption));
-        ApplicationWorksheet.AppliedEntries.Invoke;
+                Error(EntryOfTypeNotFoundErr, TempItemLedgEntry."Entry Type"::Consumption);
+        ApplicationWorksheet.AppliedEntries.Invoke();
 
-        ApplicationWorksheet.First;
-        while ApplicationWorksheet."Entry Type".AsInteger <> TempItemLedgEntry."Entry Type"::Sale.AsInteger() do
+        ApplicationWorksheet.First();
+        while ApplicationWorksheet."Entry Type".AsInteger() <> TempItemLedgEntry."Entry Type"::Sale.AsInteger() do
             if not ApplicationWorksheet.Next() then
-                Error(StrSubstNo(EntryOfTypeNotFoundErr, TempItemLedgEntry."Entry Type"::Sale));
-        ApplicationWorksheet.UnappliedEntries.Invoke;
+                Error(EntryOfTypeNotFoundErr, TempItemLedgEntry."Entry Type"::Sale);
+        ApplicationWorksheet.UnappliedEntries.Invoke();
 
         Commit();
 
         // [GIVEN] 'Reapply All' gives an error, due to negative Consumption entry.
-        asserterror ApplicationWorksheet.Reapply.Invoke; // Reapply All
+        asserterror ApplicationWorksheet.Reapply.Invoke(); // Reapply All
         Assert.ExpectedError(CannotUnapplyItemLedgEntryErr);
 
         // [WHEN] 'Undo Manual Changes' invoked.
-        ApplicationWorksheet.UndoApplications.Invoke;
+        ApplicationWorksheet.UndoApplications.Invoke();
 
         // [THEN] Item Ledger Entries are reverted to previous state.
         VerifyExistingILEs(TempItemLedgEntry, ProdOrderComponent."Item No.");
@@ -2745,7 +2715,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Item with 2 Item Ledger Entries: positive "P" and negative "N", not applied.
         Initialize();
-        ItemNo := PrepareUndoApplication;
+        ItemNo := PrepareUndoApplication();
         FindILE(PositiveItemLedgEntry, ItemNo, PositiveItemLedgEntry."Entry Type"::Purchase);
         FindILE(NegativeItemLedgEntry, ItemNo, NegativeItemLedgEntry."Entry Type"::Sale);
         Unapply(PositiveItemLedgEntry."Entry No.", NegativeItemLedgEntry."Entry No.");
@@ -2778,7 +2748,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Item with 2 Item Ledger Entries: positive "P" and negative "N", not applied.
         Initialize();
-        ItemNo := PrepareUndoApplication;
+        ItemNo := PrepareUndoApplication();
         FindILE(PositiveItemLedgEntry, ItemNo, PositiveItemLedgEntry."Entry Type"::Purchase);
         FindILE(NegativeItemLedgEntry, ItemNo, NegativeItemLedgEntry."Entry Type"::Sale);
         Unapply(PositiveItemLedgEntry."Entry No.", NegativeItemLedgEntry."Entry No.");
@@ -2813,7 +2783,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Item with 2 Item Ledger Entries: positive "P" and negative "N", fully applied.
         Initialize();
-        ItemNo := PrepareUndoApplication;
+        ItemNo := PrepareUndoApplication();
         FindILE(PositiveItemLedgEntry, ItemNo, PositiveItemLedgEntry."Entry Type"::Purchase);
         FindILE(NegativeItemLedgEntry, ItemNo, NegativeItemLedgEntry."Entry Type"::Sale);
 
@@ -2876,7 +2846,7 @@ codeunit 137404 "SCM Manufacturing"
         Item.Delete(true);
 
         // [THEN] Item "X" successfully deleted
-        Assert.IsFalse(Item.Find, 'Item should be deleted');
+        Assert.IsFalse(Item.Find(), 'Item should be deleted');
     end;
 
     [Test]
@@ -3068,7 +3038,7 @@ codeunit 137404 "SCM Manufacturing"
         // [GIVEN] Production BOM version with "Version Code" = '9'
         CreateNamedProductionBOMVersion(
           ProdBomVersion, ProdBOMHeader."No.", ProdBOMHeader."Unit of Measure Code",
-          WorkDate, ProductionBOMLine.Type::Item, Components[1], 1, '9');
+          WorkDate(), ProductionBOMLine.Type::Item, Components[1], 1, '9');
 
         // [WHEN] Run "Exchange Production BOM Item" twice with "Create New Version" option to replace item "I1" with "I2" first time and to replace item "I2" with "I3" second time
         RunExchangeProdBOMItemReportWithParameters(Components[1], Components[2], true, false);
@@ -3101,21 +3071,21 @@ codeunit 137404 "SCM Manufacturing"
           DefaultDimension, DATABASE::"Work Center", WorkCenter."No.", DefaultDimension."Value Posting"::" ");
 
         // [GIVEN] List of work centers is opened. Work Center "X" is selected on the list.
-        WorkCenterList.OpenView;
+        WorkCenterList.OpenView();
         WorkCenterList.GotoRecord(WorkCenter);
-        DefaultDimensions.Trap;
+        DefaultDimensions.Trap();
 
         // [WHEN] Click on "Dimensions-Single" button on the page's ribbon.
-        WorkCenterList."Dimensions-Single".Invoke;
+        WorkCenterList."Dimensions-Single".Invoke();
 
         // [THEN] Default Dimensions page is opened.
         // [THEN] Dimension "DCod" with "DVal" value is shown.
-        DefaultDimensions.Last;
+        DefaultDimensions.Last();
         DefaultDimensions."Dimension Code".AssertEquals(DefaultDimension."Dimension Code");
         DefaultDimensions."Dimension Value Code".AssertEquals(DefaultDimension."Dimension Value Code");
 
         // [THEN] No other dimension codes and values are shown on the page.
-        Assert.IsFalse(DefaultDimensions.Previous, 'Wrong set of default dimensions is shown for the work center');
+        Assert.IsFalse(DefaultDimensions.Previous(), 'Wrong set of default dimensions is shown for the work center');
 
         // [THEN] The page is filtered by Work Center table ID and the number of work center "X".
         Assert.AreEqual(
@@ -3237,7 +3207,7 @@ codeunit 137404 "SCM Manufacturing"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
 
         // [GIVEN] Sales order with two lines: the first line with item "P1" on location "BLUE", the second - item "P2" on location "RED"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[3]."No.", 10);
         SalesLine.Validate("Location Code", Location[1].Code);
         SalesLine.Modify(true);
@@ -3295,7 +3265,7 @@ codeunit 137404 "SCM Manufacturing"
           Item[4], Item[2]."Base Unit of Measure", Item[2]."No.", ItemVariant[2].Code, LibraryRandom.RandInt(20));
 
         // [GIVEN] Sales order with two lines: the first line with item "P1", the second - item "P2"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[3]."No.", 10);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[4]."No.", 10);
 
@@ -3349,7 +3319,7 @@ codeunit 137404 "SCM Manufacturing"
         ProdOrderComponent.Modify(true);
 
         // [WHEN] Trying to set "Item No." field into any other in "Prod. Order Component" table
-        asserterror ProdOrderComponent.Validate("Item No.", LibraryInventory.CreateItemNo);
+        asserterror ProdOrderComponent.Validate("Item No.", LibraryInventory.CreateItemNo());
 
         // [THEN] Error message: "Act. Consumption (Qty)" must be equal to '0'...
         Assert.ExpectedError(StrSubstNo(ItemNoProdOrderErr, ProdOrderComponent.FieldCaption("Act. Consumption (Qty)")));
@@ -3385,7 +3355,7 @@ codeunit 137404 "SCM Manufacturing"
         // [GIVEN] Create a Production Order
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released,
-          ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
 
         // [GIVEN] Set Due Date field to void
         ProductionOrder.Validate("Due Date", 0D);
@@ -3453,8 +3423,8 @@ codeunit 137404 "SCM Manufacturing"
         Initialize();
 
         // [GIVEN] Create two Items with Routing and Production BOM. Run Exchange Production BOM Item report with Create New Version as true and Delete Exchanged Component as false.
-        Item.Get(CreateItemWithRoutingAndProductionBOM);
-        Item2.Get(CreateItemWithRoutingAndProductionBOM);
+        Item.Get(CreateItemWithRoutingAndProductionBOM());
+        Item2.Get(CreateItemWithRoutingAndProductionBOM());
         ExchangeNo := FindProductionBOMComponent(Item."Production BOM No.");  // Use ExchangeNo as global for handler.
         WithNo := FindProductionBOMComponent(Item2."Production BOM No.");  // Use WithNo as global for handler.
 
@@ -3465,7 +3435,7 @@ codeunit 137404 "SCM Manufacturing"
         // [WHEN] Run "Exchange Production BOM Item" with Delete Exchanged Component option
         CreateNewVersion := false;  // Use CreateNewVersion as global for handler.
         DeleteExchangedComponent := true;
-        RunExchangeProductionBOMItemReport;
+        RunExchangeProductionBOMItemReport();
 
         // [THEN] Position fields are transferred to the new Producion BOM Line
         VerifyProducionBOMLinePositionFields(ProductionBOMLine, Item."Production BOM No.", '', WithNo);
@@ -3486,7 +3456,7 @@ codeunit 137404 "SCM Manufacturing"
         CalendarEntry.SetRange("No.");
 
         // [WHEN] Call Caption from Calendar Entry
-        CaptionText := CalendarEntry.Caption;
+        CaptionText := CalendarEntry.Caption();
 
         // [THEN] Caption returns <blank> text
         Assert.AreEqual('', CaptionText, '');
@@ -3520,7 +3490,7 @@ codeunit 137404 "SCM Manufacturing"
         CalendarEntry.SetRange("No.", WorkCenterNo);
 
         // [WHEN] Call Caption from Calendar Entry
-        CaptionText := CalendarEntry.Caption;
+        CaptionText := CalendarEntry.Caption();
 
         // [THEN] Caption returns 'APG-LACK & PACKAGING XXX'
         Assert.AreEqual(StrSubstNo('%1 %2', WorkCenterNo, WorkCenterName), CaptionText, '');
@@ -3555,7 +3525,7 @@ codeunit 137404 "SCM Manufacturing"
         CalendarEntry.SetRange("No.", MachineCenterNo);
 
         // [WHEN] Call Caption from Calendar Entry
-        CaptionText := CalendarEntry.Caption;
+        CaptionText := CalendarEntry.Caption();
 
         // [THEN] Caption returns 'APG-LACK & PACKAGING XXX'
         Assert.AreEqual(StrSubstNo('%1 %2', MachineCenterNo, MachineCenterName), CaptionText, '');
@@ -3639,23 +3609,23 @@ codeunit 137404 "SCM Manufacturing"
         Item.Validate("Reorder Quantity", 200);
         Item.Modify(true);
 
-        // [GIVEN] Calculate calendar and zero out run time on routing line for work center "WC1".
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter2, WorkDate() - 10, WorkDate() + 10);
-        ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter."No.");
+        // [GIVEN] Calculate calendar and zero out run time on routing line for work center "WC2".
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate() - 10, WorkDate() + 10);
+        ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter2."No.");
 
         // [WHEN] Calculate regenerative plan.
         Item.SetRecFilter();
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
-        // [THEN] Starting Date-Time = Ending Date-Time on the work center "WC" and are equal to Ending Date-Time of work center "WC2".
-        PlanningRoutingLine.SetRange("Work Center No.", WorkCenter2."No.");
+        // [THEN] Starting Date-Time = Ending Date-Time on the work center "WC2" and are equal to Ending Date-Time of work center "WC1".
+        PlanningRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
         PlanningRoutingLine.FindFirst();
         PrevOperationEndingDateTime := PlanningRoutingLine."Ending Date-Time";
 
-        PlanningRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
+        PlanningRoutingLine.SetRange("Work Center No.", WorkCenter2."No.");
         PlanningRoutingLine.FindFirst();
-        PlanningRoutingLine.TestField("Starting Date-Time", PrevOperationEndingDateTime);
-        PlanningRoutingLine.TestField("Ending Date-Time", PlanningRoutingLine."Starting Date-Time");
+        Assert.AreEqual(PrevOperationEndingDateTime, PlanningRoutingLine."Starting Date-Time", StartingDateTimeErr);
+        Assert.AreEqual(PrevOperationEndingDateTime, PlanningRoutingLine."Ending Date-Time", EndingDateTimeErr);
     end;
 
     [Test]
@@ -3679,9 +3649,9 @@ codeunit 137404 "SCM Manufacturing"
         Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
         Item.Modify(true);
 
-        // [GIVEN] Calculate calendar and zero out run time on routing line for work center "WC2".
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate() - 10, WorkDate() + 10);
-        ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter2."No.");
+        // [GIVEN] Calculate calendar and zero out run time on routing line for work center "WC1".
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter2, WorkDate() - 10, WorkDate() + 10);
+        ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter."No.");
 
         // [GIVEN] Create sales order to make a demand.
         CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandInt(10));
@@ -3690,15 +3660,15 @@ codeunit 137404 "SCM Manufacturing"
         Item.SetRecFilter();
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
-        // [THEN] Starting Date-Time = Ending Date-Time on the work center "WC2" and are equal to Starting Date-Time of work center "WC".
-        PlanningRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
+        // [THEN] Starting Date-Time = Ending Date-Time on the work center "WC1" and are equal to Starting Date-Time of work center "WC2".
+        PlanningRoutingLine.SetRange("Work Center No.", WorkCenter2."No.");
         PlanningRoutingLine.FindFirst();
         NextOperationEndingDateTime := PlanningRoutingLine."Starting Date-Time";
 
-        PlanningRoutingLine.SetRange("Work Center No.", WorkCenter2."No.");
+        PlanningRoutingLine.SetRange("Work Center No.", WorkCenter."No.");
         PlanningRoutingLine.FindFirst();
-        PlanningRoutingLine.TestField("Starting Date-Time", NextOperationEndingDateTime);
-        PlanningRoutingLine.TestField("Ending Date-Time", PlanningRoutingLine."Starting Date-Time");
+        Assert.AreEqual(NextOperationEndingDateTime, PlanningRoutingLine."Starting Date-Time", StartingDateTimeErr);
+        Assert.AreEqual(NextOperationEndingDateTime, PlanningRoutingLine."Ending Date-Time", EndingDateTimeErr);
     end;
 
     [Test]
@@ -3792,7 +3762,7 @@ codeunit 137404 "SCM Manufacturing"
         LibraryManufacturing.CreateProductionBOMLine(
           ProductionBOMHeader[2], ProductionBOMLine, '', ProductionBOMLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         LibraryManufacturing.CreateProductionBOMVersion(
-          ProductionBOMVersion, ProductionBOMHeader[2]."No.", LibraryUtility.GenerateGUID, Item."Base Unit of Measure");
+          ProductionBOMVersion, ProductionBOMHeader[2]."No.", LibraryUtility.GenerateGUID(), Item."Base Unit of Measure");
         LibraryManufacturing.CreateProductionBOMLine(
           ProductionBOMHeader[2], ProductionBOMLine, ProductionBOMVersion."Version Code",
           ProductionBOMLine.Type::"Production BOM", ProductionBOMHeader[1]."No.", 1);
@@ -3981,7 +3951,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [WHEN] Create and refresh production order with Due Date = "WorkDate" and Scheduling Direction = "Forward".
         CreateAndRefreshProdOrderWithSpecificDueDate(
-          ProductionOrder, Item."No.", WorkDate, LibraryRandom.RandIntInRange(1000, 2000), true);
+          ProductionOrder, Item."No.", WorkDate(), LibraryRandom.RandIntInRange(1000, 2000), true);
 
         // [THEN] No Prod. Order Capacity Need for the absence period is created.
         FilteringOnProdOrderCapacityNeed(ProdOrderCapacityNeed, RoutingLine."No.", WorkDate());
@@ -4013,7 +3983,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [WHEN] Create and refresh production order with Due Date = "WorkDate" and Scheduling Direction = "Backward".
         CreateAndRefreshProdOrderWithSpecificDueDate(
-          ProductionOrder, Item."No.", WorkDate + 1, LibraryRandom.RandIntInRange(1000, 2000), false);
+          ProductionOrder, Item."No.", WorkDate() + 1, LibraryRandom.RandIntInRange(1000, 2000), false);
 
         // [THEN] No Prod. Order Capacity Need for the absence period is created.
         FilteringOnProdOrderCapacityNeed(ProdOrderCapacityNeed, RoutingLine."No.", WorkDate());
@@ -4034,7 +4004,7 @@ codeunit 137404 "SCM Manufacturing"
         // [GIVEN] Create a Production Order
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released,
-          ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
 
         // [WHEN] Refresh the Production Order, direction - Forward
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -4049,12 +4019,6 @@ codeunit 137404 "SCM Manufacturing"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manufacturing");
         // Clear global variables.
-        Clear(ShowError);
-        Clear(EndingTimeError);
-        Clear(OverWrite);
-        Clear(StartingTime);
-        Clear(EndingTime);
-        Clear(CapacityValue);
         Clear(WorkCenterNo2);
         Clear(Capacity2);
         Clear(ProductionForecastName2);
@@ -4136,7 +4100,7 @@ codeunit 137404 "SCM Manufacturing"
             repeat
                 TempItemLedgEntry := ItemLedgEntry;
                 TempItemLedgEntry.Insert();
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -4219,7 +4183,7 @@ codeunit 137404 "SCM Manufacturing"
     local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"): Code[20]
     begin
         CreateAndRefreshProductionOrderWithItem(
-          ProductionOrder, Status, CreateItemWithRoutingAndProductionBOM, LibraryRandom.RandDec(10, 2));
+          ProductionOrder, Status, CreateItemWithRoutingAndProductionBOM(), LibraryRandom.RandDecInRange(11, 20, 2));
         exit(ProductionOrder."No.");
     end;
 
@@ -4240,7 +4204,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // Set Due Date and Refresh Production Order
         // Use page to modify Due Date of Production Order, since using Validate method on Production Order Record cannot work
-        RlsdProdOrder.OpenEdit;
+        RlsdProdOrder.OpenEdit();
         RlsdProdOrder.FILTER.SetFilter("No.", ProductionOrder."No.");
         RlsdProdOrder."Due Date".SetValue(DueDate);
         ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
@@ -4287,7 +4251,7 @@ codeunit 137404 "SCM Manufacturing"
             LocationCode := Location.Code;
         end;
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         for i := 1 to SalesLineCount do begin
             if DifferentLocations then begin
                 LibraryWarehouse.CreateLocation(Location);
@@ -4329,8 +4293,8 @@ codeunit 137404 "SCM Manufacturing"
 
     local procedure CreateItemAndItemComponent(var ItemNo: Code[20]; var ComponentNo: Code[20])
     begin
-        ItemNo := CreateItemWithRoutingAndProductionBOM;
-        ComponentNo := CreateItemWithRoutingAndProductionBOM;
+        ItemNo := CreateItemWithRoutingAndProductionBOM();
+        ComponentNo := CreateItemWithRoutingAndProductionBOM();
     end;
 
     local procedure CreateItemReclassJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal)
@@ -4367,7 +4331,7 @@ codeunit 137404 "SCM Manufacturing"
         Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2));  // Use random value for Unit Price.
         Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));  // Use random value for Unit Cost.
         Item.Validate("Production BOM No.", CreateProductionBOM(Item."Base Unit of Measure"));
-        Item.Validate("Routing No.", CreateRouting);
+        Item.Validate("Routing No.", CreateRouting());
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
         Item.Modify(true);
         exit(Item."No.");
@@ -4427,10 +4391,10 @@ codeunit 137404 "SCM Manufacturing"
         CreateItemWithReorderingPolicy(
           Item2, Item."Replenishment System"::"Prod. Order", Item2."Manufacturing Policy"::"Make-to-Stock",
           InventoryPostingGroup.Code,
-          CreateProductionBOMLineForSelectedItem(Item."No.", Item."Base Unit of Measure", Quantity), CreateRoutingWithRoutingLinkCode);
+          CreateProductionBOMLineForSelectedItem(Item."No.", Item."Base Unit of Measure", Quantity), CreateRoutingWithRoutingLinkCode());
     end;
 
-    local procedure CreateItemWithReorderingPolicyAndInventoryPostingGroup(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ManufacturingPolicy: Enum "Manufacturing Policy"): Code[10]
+    local procedure CreateItemWithReorderingPolicyAndInventoryPostingGroup(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ManufacturingPolicy: Enum "Manufacturing Policy"): Code[20]
     var
         InventoryPostingGroup: Record "Inventory Posting Group";
         BlankLocation: Record Location;
@@ -4438,15 +4402,13 @@ codeunit 137404 "SCM Manufacturing"
         LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
         BlankLocation.Init();
         LibraryInventory.UpdateInventoryPostingSetup(BlankLocation);
-        CreateItemWithReorderingPolicy(
-          Item, ReplenishmentSystem, ManufacturingPolicy, InventoryPostingGroup.Code, '', '');
+        CreateItemWithReorderingPolicy(Item, ReplenishmentSystem, ManufacturingPolicy, InventoryPostingGroup.Code, '', '');
         exit(InventoryPostingGroup.Code);
     end;
 
     local procedure CreateLocation(): Code[10]
     var
         Location: Record Location;
-        LibraryWarehouse: Codeunit "Library - Warehouse";
     begin
         LibraryWarehouse.CreateLocation(Location);
         exit(Location.Code);
@@ -4511,7 +4473,7 @@ codeunit 137404 "SCM Manufacturing"
         ProdBOMLine: Record "Production BOM Line";
     begin
         ProdBOMHeader.Get(ProductionBOMNo);
-        LibraryManufacturing.CreateProductionBOMVersion(ProdBomVersion, ProductionBOMNo, LibraryUtility.GenerateGUID, UnitOfMeasureCode);
+        LibraryManufacturing.CreateProductionBOMVersion(ProdBomVersion, ProductionBOMNo, LibraryUtility.GenerateGUID(), UnitOfMeasureCode);
         ProdBomVersion.Validate("Starting Date", StartingDate);
         LibraryManufacturing.CreateProductionBOMLine(ProdBOMHeader, ProdBOMLine, ProdBomVersion."Version Code", Type, No, Quantity);
     end;
@@ -4550,12 +4512,12 @@ codeunit 137404 "SCM Manufacturing"
         Item: Record Item;
     begin
         LibraryManufacturing.CreateProductionForecastEntry(
-          ProductionForecastEntry, ProductionForecastName, LibraryInventory.CreateItem(Item), CreateLocation, WorkDate(), true);
+          ProductionForecastEntry, ProductionForecastName, LibraryInventory.CreateItem(Item), CreateLocation(), WorkDate(), true);
         ProductionForecastEntry.Validate("Forecast Quantity (Base)", LibraryRandom.RandDec(100, 2));  // Use random value for Forecast Quantity Base.
         ProductionForecastEntry.Modify(true);
     end;
 
-    local procedure CreateRegisteredAbsence(CapacityType: Enum "Capacity Type"; No: Code[20]; Date: Date): Decimal
+    local procedure CreateRegisteredAbsence(CapacityType: Enum "Capacity Type"; No: Code[20]; Date: Date; StartingTime: Time; EndingTime: Time): Decimal
     var
         RegisteredAbsence: Record "Registered Absence";
     begin
@@ -4563,6 +4525,34 @@ codeunit 137404 "SCM Manufacturing"
         RegisteredAbsence.Validate(Capacity, 100 + LibraryRandom.RandDec(10, 2));  // Taking Random value for Capacity.
         RegisteredAbsence.Modify(true);
         exit(RegisteredAbsence.Capacity);
+    end;
+
+    local procedure CreateRegisteredAbsenceAndEnqueueTime(WorkCenter: Record "Work Center"; Date: Date): Decimal
+    var
+        StartingTime: Time;
+        EndingTime: Time;
+    begin
+        StartingTime := CalculateRandomTime();
+        EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
+
+        LibraryVariableStorage.Enqueue(StartingTime);
+        LibraryVariableStorage.Enqueue(EndingTime);
+
+        exit(CreateRegisteredAbsence(Enum::"Capacity Type"::"Work Center", WorkCenter."No.", Date, StartingTime, EndingTime));
+    end;
+
+    local procedure CreateMachineCenterRegAbsenceAndEnqueueTime(WorkCenter: Record "Work Center"; MachineCenterNo: Code[20]; Date: Date): Decimal
+    var
+        StartingTime: Time;
+        EndingTime: Time;
+    begin
+        StartingTime := CalculateRandomTime();
+        EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
+
+        LibraryVariableStorage.Enqueue(StartingTime);
+        LibraryVariableStorage.Enqueue(EndingTime);
+
+        exit(CreateRegisteredAbsence(Enum::"Capacity Type"::"Machine Center", MachineCenterNo, Date, StartingTime, EndingTime));
     end;
 
     local procedure CreateReleasedProductionOrder(var ProductionOrder: Record "Production Order"): Integer
@@ -4600,7 +4590,7 @@ codeunit 137404 "SCM Manufacturing"
             Validate("Action Message", "Action Message"::New);
             Validate("Starting Date", WorkDate());
             Validate("Starting Time", Time);
-            Validate("Ending Date", WorkDate + 1);
+            Validate("Ending Date", WorkDate() + 1);
             Validate("Ending Time", Time + 1);
             Modify(true);
         end;
@@ -4615,12 +4605,12 @@ codeunit 137404 "SCM Manufacturing"
             CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
 
             CreateRoutingLine(
-              RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenterNo);
+                RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID(), RoutingLine.Type::"Work Center", WorkCenterNo);
             RoutingLine.Validate("Run Time", LibraryRandom.RandInt(10));
             RoutingLine.Modify();
 
             CreateRoutingLine(
-              RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenterNo2);
+                RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID(), RoutingLine.Type::"Work Center", WorkCenterNo2);
             RoutingLine.Validate("Run Time", LibraryRandom.RandInt(10));
             RoutingLine.Modify();
         end;
@@ -4788,7 +4778,7 @@ codeunit 137404 "SCM Manufacturing"
 
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         LibraryManufacturing.CreateRoutingLine(
-          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID, RoutingLine.Type::"Work Center", WorkCenter."No.");
+          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID(), RoutingLine.Type::"Work Center", WorkCenter."No.");
         RoutingLine.Validate("Run Time", RunTime);
         RoutingLine.Modify(true);
 
@@ -4825,7 +4815,7 @@ codeunit 137404 "SCM Manufacturing"
         ShopCalendarWorkingDays2: Record "Shop Calendar Working Days";
         ShopCalendarCode: Code[10];
     begin
-        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays();
         ShopCalendarWorkingDays.SetRange("Shop Calendar Code", ShopCalendarCode);
         ShopCalendarWorkingDays.FindFirst();
         LibraryManufacturing.CreateShopCalendarWorkingDays(
@@ -5121,7 +5111,7 @@ codeunit 137404 "SCM Manufacturing"
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
     begin
         // Create Routing, set work center and run time in routing line
-        RoutingHeader.Get(CreateRouting);
+        RoutingHeader.Get(CreateRouting());
         RoutingLine.SetRange("Routing No.", RoutingHeader."No.");
         RoutingLine.FindFirst();
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Minutes); // Create Unit Of Measure (Minutes) for Run Time on routing line
@@ -5139,7 +5129,7 @@ codeunit 137404 "SCM Manufacturing"
         WorkCenter: Record "Work Center";
         OperationNo: Integer;
     begin
-        CreateWorkCenterWithCalendarCode(WorkCenter, LibraryManufacturing.UpdateShopCalendarWorkingDays);
+        CreateWorkCenterWithCalendarCode(WorkCenter, LibraryManufacturing.UpdateShopCalendarWorkingDays());
         LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<+1M>', WorkDate()));
 
         // Create Production Item with Routing, use the work center created above in routing line
@@ -5199,7 +5189,7 @@ codeunit 137404 "SCM Manufacturing"
         WorkCenter: Record "Work Center";
     begin
         // Create Production Item with two Routing Lines, the 1st one contains only run time, the second one contains only wait time
-        CreateWorkCenterWithCalendarCode(WorkCenter, LibraryManufacturing.UpdateShopCalendarWorkingDays);
+        CreateWorkCenterWithCalendarCode(WorkCenter, LibraryManufacturing.UpdateShopCalendarWorkingDays());
         LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<+1M>', WorkDate()));
 
         // Create Production Item with Routing, use the work center created above in routing line
@@ -5572,17 +5562,6 @@ codeunit 137404 "SCM Manufacturing"
         CreateOutputJournal(ItemJournalBatch, ItemJournalLine, ProductionOrder."No.");
         LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
     end;
-#if not CLEAN20
-    local procedure OpenProductionForecast(ProductionForecast: TestPage "Demand Forecast"; ProductionForecastName: Code[10]; LocationCode: Code[10]; ForecastTypeOption: Option)
-    begin
-        with ProductionForecast do begin
-            OpenEdit;
-            ProductionForecastName.SetValue(ProductionForecastName);
-            LocationFilter.SetValue(LocationCode);
-            ForecastType.SetValue(ForecastTypeOption);
-        end;
-    end;
-#endif
 
     local procedure PopulateRoutingOnOutputJournalLine(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
     begin
@@ -5687,7 +5666,7 @@ codeunit 137404 "SCM Manufacturing"
         WithNo := NewItemNo;
         CreateNewVersion := CreateVersion;
         DeleteExchangedComponent := DeleteExchangedComp;
-        RunExchangeProductionBOMItemReport;
+        RunExchangeProductionBOMItemReport();
     end;
 
     local procedure RunImplementRegisteredAbsenceReport(RegisteredAbsence: Record "Registered Absence")
@@ -5778,14 +5757,14 @@ codeunit 137404 "SCM Manufacturing"
         LibraryManufacturing.CreateProductionOrder(
           ProdOrd, ProdOrd.Status::Released, ProdOrd."Source Type"::Item, ItemNo,
           LibraryRandom.RandDec(10, 2));  // Taking Random Quantity.
-        RlsdProdOrd.OpenEdit;
+        RlsdProdOrd.OpenEdit();
         RlsdProdOrd.FILTER.SetFilter("No.", ProdOrd."No.");
 
         // Create Released Prod. Order Lines
         with RlsdProdOrd.ProdOrderLines do begin
             "Item No.".SetValue(ItemNo);
             Quantity.SetValue(ProdOrd.Quantity / 2);
-            Next;
+            Next();
             "Item No.".SetValue(ItemNo);
             Quantity.SetValue(ProdOrd.Quantity / 2);
         end;
@@ -5799,7 +5778,7 @@ codeunit 137404 "SCM Manufacturing"
         ProdOrd: Record "Production Order";
         ProdJnlMgt: Codeunit "Production Journal Mgt";
     begin
-        Item.Get(CreateItemWithRoutingAndProductionBOM);
+        Item.Get(CreateItemWithRoutingAndProductionBOM());
 
         // Create a released Prod. Order, create 2 Prod. Order lines, calculate routings
         SetupProdOrdWithRtng(ProdOrd, Item."No.");
@@ -5839,7 +5818,7 @@ codeunit 137404 "SCM Manufacturing"
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Days); // Create Unit Of Measure (Days) for Wait Time on routing line
 
         // Create Routing with 2 routing lines
-        RoutingHeader.Get(CreateRouting);
+        RoutingHeader.Get(CreateRouting());
         RoutingHeader.Validate(Status, RoutingHeader.Status::"Under Development");
         RoutingHeader.Modify(true);
         LibraryManufacturing.CreateRoutingLine(
@@ -6012,8 +5991,8 @@ codeunit 137404 "SCM Manufacturing"
             Capacity2 :=
               (ShopCalendarWorkingDays."Ending Time" - ShopCalendarWorkingDays."Starting Time") /
               CalendarManagement.TimeFactor(WorkCenter."Unit of Measure Code"); // Use Capacity2 as global for Handler.
-        WorkCenterCalendar.OpenEdit;
-        WorkCenterCalendar.ShowMatrix.Invoke;
+        WorkCenterCalendar.OpenEdit();
+        WorkCenterCalendar.ShowMatrix.Invoke();
     end;
 
     local procedure VerifyCalendarAbsenceEntry(WorkCenterNo: Code[20]; RegisteredAbsence: Record "Registered Absence")
@@ -6084,7 +6063,7 @@ codeunit 137404 "SCM Manufacturing"
         ProdOrderComponent.Modify(true);
 
         // [Then] There is a warehouse pick request associated with the Production Order Component Line
-        Assert.IsTrue(WhsePickRequestExistsForReleasedProdOrder(ProductionOrder."No.", ProdOrderComponent."Location Code"), ExpectedWhsePickRequest);
+        Assert.IsTrue(WhsePickRequestExistsForReleasedProdOrder(ProductionOrder."No.", ProdOrderComponent."Location Code"), ExpectedWhsePickMsg);
     end;
 
     local procedure VerifyNoWhsePickRequestOnZeroRemQty(var ProductionOrder: Record "Production Order"; var ProdOrderComponent: Record "Prod. Order Component")
@@ -6094,7 +6073,7 @@ codeunit 137404 "SCM Manufacturing"
         ProdOrderComponent.Modify(true);
 
         // [Then] There is no warehouse pick request associated with the Production Order Component Line
-        Assert.IsFalse(WhsePickRequestExistsForReleasedProdOrder(ProductionOrder."No.", ProdOrderComponent."Location Code"), DidntExpectWhsePickRequest);
+        Assert.IsFalse(WhsePickRequestExistsForReleasedProdOrder(ProductionOrder."No.", ProdOrderComponent."Location Code"), DidntExpectWhsePickMsg);
     end;
 
     local procedure WhsePickRequestExistsForReleasedProdOrder(DocNo: Code[20]; LocationCode: Code[10]): Boolean
@@ -6119,7 +6098,7 @@ codeunit 137404 "SCM Manufacturing"
             repeat
                 TestField("Shortcut Dimension 1 Code", ShortcutDimension1Code);
                 TestField("Shortcut Dimension 2 Code", ShortcutDimension2Code);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -6173,7 +6152,7 @@ codeunit 137404 "SCM Manufacturing"
     begin
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        Assert.IsTrue(ProdOrderLine.Count > NoOfRowsBeforeCopy, CopyDocumentError);
+        Assert.IsTrue(ProdOrderLine.Count > NoOfRowsBeforeCopy, CopyDocumentErr);
     end;
 
     local procedure VerifyProductionForecastEntry(ProductionForecastEntry: Record "Production Forecast Entry")
@@ -6190,14 +6169,6 @@ codeunit 137404 "SCM Manufacturing"
         ProductionForecastEntry2.TestField("Component Forecast", ProductionForecastEntry."Component Forecast");
     end;
 
-    local procedure VerifyProductionForecastName()
-    var
-        ProductionForecastName: Record "Production Forecast Name";
-    begin
-        ProductionForecastName.Get('');
-        ProductionForecastName.TestField(Description, '');
-    end;
-
     local procedure VerifyProductionOrderStatistics(ProductionOrderNo: Code[20])
     var
         ProdOrderLine: Record "Prod. Order Line";
@@ -6206,10 +6177,10 @@ codeunit 137404 "SCM Manufacturing"
     begin
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderLine.FindFirst();
-        ReleasedProductionOrders.OpenView;
+        ReleasedProductionOrders.OpenView();
         ReleasedProductionOrders.FILTER.SetFilter("No.", ProductionOrderNo);
-        ProductionOrderStatistics.Trap;
-        ReleasedProductionOrders.Statistics.Invoke;
+        ProductionOrderStatistics.Trap();
+        ReleasedProductionOrders.Statistics.Invoke();
         ProductionOrderStatistics.ExpCapNeed.AssertEquals(
           (ProdOrderLine."Ending Date-Time" - ProdOrderLine."Starting Date-Time") /
           CalendarManagement.TimeFactor(Format(ProductionOrderStatistics.CapacityUoM)));
@@ -6232,15 +6203,16 @@ codeunit 137404 "SCM Manufacturing"
     end;
 
     local procedure VerifyILEs(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; Quantity: Integer; AppliesToEntryFilter: Text[100]; "Count": Integer)
+    var
+        MissingILEErr: Label 'Missing or excess Item Ledger Entries after reverse posting to Output Journal, under filters %1',
+            Comment = '%1: Table filters';
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetFilter("Applies-to Entry", AppliesToEntryFilter);
         ItemLedgerEntry.SetRange(Quantity, Quantity);
         ItemLedgerEntry.FindSet();
         // Output Qty. * two normal postings
-        Assert.AreEqual(Count, ItemLedgerEntry.Count,
-          StrSubstNo('Missing or excess Item Ledger Entries after reverse posting to Output Journal, under filters %1',
-            ItemLedgerEntry.GetFilters));
+        Assert.AreEqual(Count, ItemLedgerEntry.Count, StrSubstNo(MissingILEErr, ItemLedgerEntry.GetFilters));
     end;
 
     local procedure VerifyDocumentNoExistOnItemLedgerEntry(DocumentNo: Code[20])
@@ -6249,7 +6221,7 @@ codeunit 137404 "SCM Manufacturing"
     begin
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
         if ItemLedgerEntry.IsEmpty() then
-            Error(DocumentNoError, DocumentNo);
+            Error(DocumentNoDoesNotExistErr, DocumentNo);
     end;
 
     local procedure VerifyQuantityOnProdOrderLine(Status: Enum "Production Order Status"; ProductionOrderNo: Code[20]; ItemNo: Code[20]; QtyOnComponentLines: Decimal)
@@ -6272,10 +6244,10 @@ codeunit 137404 "SCM Manufacturing"
         ExpectedQuantity := ProdOrderComponent."Quantity per" * ProdOrderLineQuantity;
         Assert.AreNearlyEqual(
           ExpectedQuantity, ProdOrderComponent."Expected Quantity", Item."Rounding Precision",
-          StrSubstNo(ExpectedQuantityError, ExpectedQuantity));
+          StrSubstNo(ExpectedQuantityErr, ExpectedQuantity));
         Assert.AreNearlyEqual(
           ExpectedQuantity, ProdOrderComponent."Remaining Quantity", Item."Rounding Precision",
-          StrSubstNo(ExpectedQuantityError, ExpectedQuantity));
+          StrSubstNo(ExpectedQuantityErr, ExpectedQuantity));
     end;
 
     local procedure VerifyDateTimeOnProdOrderRoutingLine(ProductionOrder: Record "Production Order"; RoutingNo: Code[20]; WorkCenterNo: Code[20]; WaitTime: Integer)
@@ -6330,7 +6302,7 @@ codeunit 137404 "SCM Manufacturing"
             repeat
                 TempItemLedgEntry.Get("Entry No.");
                 TestField("Remaining Quantity", TempItemLedgEntry."Remaining Quantity");
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -6409,10 +6381,10 @@ codeunit 137404 "SCM Manufacturing"
     [Scope('OnPrem')]
     procedure CopyProductionOrderDocumentHandler(var CopyProductionOrderDocument: TestRequestPage "Copy Production Order Document")
     begin
-        CopyProductionOrderDocument.Status.SetValue(LibraryVariableStorage.DequeueInteger);
-        CopyProductionOrderDocument.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
+        CopyProductionOrderDocument.Status.SetValue(LibraryVariableStorage.DequeueInteger());
+        CopyProductionOrderDocument.DocumentNo.SetValue(LibraryVariableStorage.DequeueText());
         CopyProductionOrderDocument.IncludeHeader.SetValue(true);
-        CopyProductionOrderDocument.OK.Invoke;
+        CopyProductionOrderDocument.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -6420,7 +6392,7 @@ codeunit 137404 "SCM Manufacturing"
     procedure ImplementRegisteredAbsenceHandler(var ImplementRegisteredAbsence: TestRequestPage "Implement Registered Absence")
     begin
         ImplementRegisteredAbsence.Overwrite.SetValue(true);
-        ImplementRegisteredAbsence.OK.Invoke;
+        ImplementRegisteredAbsence.OK().Invoke();
     end;
 
     [ReportHandler]
@@ -6432,44 +6404,68 @@ codeunit 137404 "SCM Manufacturing"
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RegAbsFromWorkCenterReportHandler(var RegAbsFromWorkCenter: TestRequestPage "Reg. Abs. (from Work Center)")
+    var
+        ShowError: Boolean;
     begin
         RegAbsFromWorkCenter.StartingDate.SetValue(Format(0D));
 
+        ShowError := LibraryVariableStorage.DequeueBoolean();
         if not ShowError then begin
-            RegAbsFromWorkCenter.StartingTime.SetValue(Format(StartingTime));
-            RegAbsFromWorkCenter.EndingTime.SetValue(Format(EndingTime));
+            RegAbsFromWorkCenter.Overwrite.SetValue(LibraryVariableStorage.DequeueBoolean());
+            RegAbsFromWorkCenter.StartingTime.SetValue(Format(LibraryVariableStorage.DequeueTime()));
+            RegAbsFromWorkCenter.EndingTime.SetValue(Format(LibraryVariableStorage.DequeueTime()));
             RegAbsFromWorkCenter.StartingDate.SetValue(Format(WorkDate()));
             RegAbsFromWorkCenter.EndingDate.SetValue(Format(WorkDate()));
-            RegAbsFromWorkCenter.Capacity.SetValue(CapacityValue);
-            RegAbsFromWorkCenter.Overwrite.SetValue(OverWrite);
+            RegAbsFromWorkCenter.Capacity.SetValue(LibraryVariableStorage.DequeueDecimal());
+
         end;
-        RegAbsFromWorkCenter.OK.Invoke;
+        RegAbsFromWorkCenter.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RegAbsFromMachineCenterReportHandler(var RegAbsFromMachineCenter: TestRequestPage "Reg. Abs. (from Machine Ctr.)")
+    var
+        ShowError: Boolean;
+    begin
+        ShowError := LibraryVariableStorage.DequeueBoolean();
+
+        if not ShowError then begin
+            RegAbsFromMachineCenter.StartingTime.SetValue(Format(LibraryVariableStorage.DequeueTime()));
+            RegAbsFromMachineCenter.EndingTime.SetValue(Format(LibraryVariableStorage.DequeueTime()));
+        end;
+
+        RegAbsFromMachineCenter.StartingDate.SetValue(Format(WorkDate()));
+        RegAbsFromMachineCenter.EndingDate.SetValue(Format(WorkDate()));
+        RegAbsFromMachineCenter.Capacity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        RegAbsFromMachineCenter.Overwrite.SetValue(LibraryVariableStorage.DequeueBoolean());
+
+        RegAbsFromMachineCenter.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RegAbsFromMachineCenterEndingTimeErrorReportHandler(var RegAbsFromMachineCenter: TestRequestPage "Reg. Abs. (from Machine Ctr.)")
+    var
+        ShowError: Boolean;
     begin
         RegAbsFromMachineCenter.StartingDate.SetValue(Format(0D));
 
+        ShowError := LibraryVariableStorage.DequeueBoolean();
+
         if not ShowError then begin
-            RegAbsFromMachineCenter.StartingTime.SetValue(Format(StartingTime));
-            RegAbsFromMachineCenter.EndingTime.SetValue(Format(EndingTime));
+            RegAbsFromMachineCenter.StartingTime.SetValue(Format(LibraryVariableStorage.DequeueTime()));
+            RegAbsFromMachineCenter.EndingTime.SetValue(Format(LibraryVariableStorage.DequeueTime()));
         end;
-        if not EndingTimeError then begin
-            RegAbsFromMachineCenter.StartingDate.SetValue(Format(WorkDate()));
-            RegAbsFromMachineCenter.EndingDate.SetValue(Format(WorkDate()));
-            RegAbsFromMachineCenter.Capacity.SetValue(CapacityValue);
-            RegAbsFromMachineCenter.Overwrite.SetValue(OverWrite);
-        end;
-        RegAbsFromMachineCenter.OK.Invoke;
+
+        RegAbsFromMachineCenter.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WorkCenterCalendarMatrixHandler(var WorkCenterCalendarMatrix: TestPage "Work Center Calendar Matrix")
     begin
-        WorkCenterCalendarMatrix.FILTER.SetFilter("No.", WorkCenterNo2);
+        WorkCenterCalendarMatrix.Filter.SetFilter("No.", WorkCenterNo2);
         WorkCenterCalendarMatrix.Field1.AssertEquals(Capacity2);
     end;
 
@@ -6477,10 +6473,10 @@ codeunit 137404 "SCM Manufacturing"
     [Scope('OnPrem')]
     procedure ProductionJournalHandler(var ProductionJournal: TestPage "Production Journal")
     begin
-        ProductionJournal.Last;
+        ProductionJournal.Last();
         ProductionJournal."Setup Time".SetValue(LibraryRandom.RandInt(5));  // Use random Setup Time value is not important.
         ProductionJournal."Run Time".SetValue(LibraryRandom.RandInt(5));  // Use random Run Time value is not important.
-        ProductionJournal.Post.Invoke;
+        ProductionJournal.Post.Invoke();
     end;
 
     [RequestPageHandler]
@@ -6492,36 +6488,44 @@ codeunit 137404 "SCM Manufacturing"
         CopyProductionForecast.LocationCode.SetValue(LocationCode2);
         CopyProductionForecast.ComponentForecast.SetValue(true);
         CopyProductionForecast.DateChangeFormula.SetValue(DateChangeFormula);
-        CopyProductionForecast.OK.Invoke;
+        CopyProductionForecast.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ExchangeProductionBOMItemHandler(var ExchangeProductionBOMItem: TestRequestPage "Exchange Production BOM Item")
     begin
-        ExchangeProductionBOMItem.StartingDate.SetValue('');
+        ExchangeProductionBOMItem.ExchangeType.SetValue(1);  // Use 1 for Item.
+        ExchangeProductionBOMItem.ExchangeNo.SetValue(ExchangeNo);
+        ExchangeProductionBOMItem.WithType.SetValue(1);   // Use 1 for Item.
+        ExchangeProductionBOMItem.WithNo.SetValue(WithNo);
+        ExchangeProductionBOMItem."Create New Version".SetValue(CreateNewVersion);
+        ExchangeProductionBOMItem.StartingDate.SetValue(Format(WorkDate()));
+        ExchangeProductionBOMItem.Recertify.SetValue(true);
+        ExchangeProductionBOMItem.CopyRoutingLink.SetValue(true);
+        ExchangeProductionBOMItem."Delete Exchanged Component".SetValue(DeleteExchangedComponent);
 
-        if not ShowError then begin
-            ExchangeProductionBOMItem.ExchangeType.SetValue(1);  // Use 1 for Item.
-            ExchangeProductionBOMItem.ExchangeNo.SetValue(ExchangeNo);
-            ExchangeProductionBOMItem.WithType.SetValue(1);   // Use 1 for Item.
-            ExchangeProductionBOMItem.WithNo.SetValue(WithNo);
-            ExchangeProductionBOMItem."Create New Version".SetValue(CreateNewVersion);
-            ExchangeProductionBOMItem.StartingDate.SetValue(Format(WorkDate()));
-            ExchangeProductionBOMItem.Recertify.SetValue(true);
-            ExchangeProductionBOMItem.CopyRoutingLink.SetValue(true);
-            ExchangeProductionBOMItem."Delete Exchanged Component".SetValue(DeleteExchangedComponent);
-        end;
-        ExchangeProductionBOMItem.OK.Invoke;
+        ExchangeProductionBOMItem.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ExchangeProductionBOMItemErrorHandler(var ExchangeProductionBOMItem: TestRequestPage "Exchange Production BOM Item")
+    begin
+        ExchangeProductionBOMItem.StartingDate.SetValue('');
+        ExchangeProductionBOMItem.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DeleteExpiredComponentsHandler(var DeleteExpiredComponents: TestRequestPage "Delete Expired Components")
+    var
+        ShowError: Boolean;
     begin
+        ShowError := LibraryVariableStorage.DequeueBoolean();
         if not ShowError then
             DeleteExpiredComponents.DeleteBefore.SetValue(Format(WorkDate()));
-        DeleteExpiredComponents.OK.Invoke;
+        DeleteExpiredComponents.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -6543,8 +6547,8 @@ codeunit 137404 "SCM Manufacturing"
     var
         MessageCount: Integer;
     begin
-        Assert.IsTrue(StrPos(Message, LibraryVariableStorage.DequeueText) > 0, Message);
-        MessageCount := LibraryVariableStorage.DequeueInteger;
+        Assert.IsTrue(StrPos(Message, LibraryVariableStorage.DequeueText()) > 0, Message);
+        MessageCount := LibraryVariableStorage.DequeueInteger();
         MessageCount += 1;
         LibraryVariableStorage.Enqueue(MessageCount);
     end;
@@ -6579,18 +6583,18 @@ codeunit 137404 "SCM Manufacturing"
         ItemJournalLine.DeleteAll();
         Commit();
 
-        OutputJournal.OpenEdit;
+        OutputJournal.OpenEdit();
         OutputJournal."Order No.".SetValue(ProductionOrder."No.");
         OutputJournal."Item No.".SetValue(ProductionOrder."Source No.");
-        OutputJournal."Operation No.".SetValue(OperationNo(ProductionOrder));
+        OutputJournal."Operation No.".SetValue(FindOperationNo(ProductionOrder));
         OutputJournal."Output Quantity".SetValue(Quantity);
 
         GLB_ItemTrackingQty := Quantity;
         GLB_SerialNo := 'OUTPUT_REVERT_SN1';
 
-        OutputJournal."Item Tracking Lines".Invoke; // Jump to: OutputJournalItemtrackingPageHandler
+        OutputJournal."Item Tracking Lines".Invoke(); // Jump to: OutputJournalItemtrackingPageHandler
         Commit();
-        OutputJournal.Post.Invoke;
+        OutputJournal.Post.Invoke();
     end;
 
     local procedure SetQuantity(var ProductionOrder: Record "Production Order"; Quantity: Integer)
@@ -6600,7 +6604,7 @@ codeunit 137404 "SCM Manufacturing"
         ProductionOrder.Modify(true);
     end;
 
-    local procedure OperationNo(ProductionOrder: Record "Production Order"): Code[10]
+    local procedure FindOperationNo(ProductionOrder: Record "Production Order"): Code[10]
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
@@ -6631,21 +6635,21 @@ codeunit 137404 "SCM Manufacturing"
         LibraryVariableStorage.Dequeue(AppliedQuantity);
         ViewAppliedEntries.FILTER.SetFilter("Item No.", ItemNo);
         ViewAppliedEntries.ApplQty.AssertEquals(AppliedQuantity);
-        ViewAppliedEntries.OK.Invoke;
+        ViewAppliedEntries.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure ViewAppliedEntriesPageHandler2(var ViewAppliedEntries: TestPage "View Applied Entries")
     begin
-        ViewAppliedEntries.RemoveAppButton.Invoke
+        ViewAppliedEntries.RemoveAppButton.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ViewAppliedEntriesModalPageHandler(var ViewAppliedEntries: TestPage "View Applied Entries")
     begin
-        ViewAppliedEntries.OK.Invoke;
+        ViewAppliedEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -6656,30 +6660,30 @@ codeunit 137404 "SCM Manufacturing"
     begin
         LibraryVariableStorage.Dequeue(Variant);
         ProdOrderRouting."No.".SetValue(Variant);
-        ProdOrderRouting.OK.Invoke;
+        ProdOrderRouting.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DummyProdOrderRoutingHandler(var ProdOrderRouting: TestPage "Prod. Order Routing")
     begin
-        ProdOrderRouting.OK.Invoke;
+        ProdOrderRouting.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure MachineCenterPageHandler(var MachineCenter: TestPage "Machine Center List")
     begin
-        MachineCenter.OK.Invoke;
+        MachineCenter.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationHandler(var ReservationPage: TestPage Reservation)
     begin
-        ReservationPage.First;
-        ReservationPage."Auto Reserve".Invoke;
-        ReservationPage.OK.Invoke;
+        ReservationPage.First();
+        ReservationPage."Auto Reserve".Invoke();
+        ReservationPage.OK().Invoke();
     end;
 
     [PageHandler]
@@ -6694,7 +6698,7 @@ codeunit 137404 "SCM Manufacturing"
         ExpectedProdOrderNo: Code[20];
         ExpectedProdOrderStatus: Integer;
     begin
-        ExpectedProdOrderNo := LibraryVariableStorage.DequeueText();
+        ExpectedProdOrderNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(ExpectedProdOrderNo));
         ExpectedProdOrderStatus := LibraryVariableStorage.DequeueInteger();
 
         Assert.IsTrue(
@@ -6751,7 +6755,7 @@ codeunit 137404 "SCM Manufacturing"
                   DT2Date(ExpStartDateTime), DT2Date("Starting Date-Time"), StrSubstNo(WrongDateTimeErr, FieldCaption("Starting Date")));
                 Assert.AreEqual(
                   DT2Time(ExpStartDateTime), DT2Time("Starting Date-Time"), StrSubstNo(WrongDateTimeErr, FieldCaption("Starting Time")));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 }

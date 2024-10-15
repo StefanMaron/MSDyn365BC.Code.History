@@ -987,7 +987,7 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('VatStmtLineRowNo', VATStatementLine."Row No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(NoDataRowErr, 'VatStmtLineRowNo', VATStatementLine."Row No."));
+            Error(NoDataRowErr, 'VatStmtLineRowNo', VATStatementLine."Row No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmount', Amount);
 
         // Tear Down: Delete VAT Statement Template created earlier.

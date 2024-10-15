@@ -25,12 +25,12 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
-        ErrMessageNotFoundZeroAmt: Label 'The sum of amounts must be zero.';
-        ErrMessageAmountDoNotMatch: Label 'The amount totals must be equal.';
-        ErrMessageGLEntryNoRowExist: Label 'G/L Entry for the particular Document No and Account must not exist.';
+        SumMustBeZeroErr: Label 'The sum of amounts must be zero.';
+        AmountsDoNotMatchErr: Label 'The amount totals must be equal.';
+        GLEntryNoRowExistErr: Label 'G/L Entry for the particular Document No and Account must not exist.';
         ExpectedMsg: Label 'Expected Cost Posting to G/L has been changed.';
-        WrongLastDirectCostErr: Label 'Last Direct Cost is incorrect.';
-        ExpectedCostPostingConfirm: Label 'Do you really want to change the Expected Cost Posting to G/L?';
+        WrongFieldValueErr: Label '%1 is incorrect.', Comment = '%1: Field name';
+        ExpectedCostPostingQst: Label 'Do you really want to change the Expected Cost Posting to G/L?';
         ExpectedMaterialCostErr: Label 'Standart Material Cost should match Item Single-Level Material Cost';
 
     [Test]
@@ -1506,8 +1506,8 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, AutoCostPosting, false, "Automatic Cost Adjustment Type"::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
         CreateComponentItems(ItemNo, ItemNo2, "Costing Method"::Average, FlushingMethod, false);
-        CreatePurchaseOrderAddnlCurr(PurchaseHeader, PurchaseLine, CurrencyCode, ItemNo, ItemNo2, Qty, QtyToReceive, DirectUnitCost);
-        CurrencyCode := UpdateAddnlReportingCurrency;
+        CreatePurchaseOrderAddnlCurr(PurchaseHeader, PurchaseLine, '', ItemNo, ItemNo2, Qty, QtyToReceive, DirectUnitCost);
+        CurrencyCode := UpdateAddnlReportingCurrency();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Receive.
         CopyPurchaseLinesToTemp(TempPurchaseLine, PurchaseHeader);
 
@@ -1689,7 +1689,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ProdItem.Find();
         Assert.AreNearlyEqual(
           ProdItem."Last Direct Cost", DirectUnitCost + ItemChargeAmt / Quantity, GLSetup."Unit-Amount Rounding Precision",
-          WrongLastDirectCostErr);
+          StrSubstNo(WrongFieldValueErr, ProdItem.FieldName("Last Direct Cost")));
 
         // [THEN] Unit Cost of "I" = "X + dX".
         ProdItem.TestField("Unit Cost", ProdItem."Last Direct Cost");
@@ -1756,7 +1756,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Setup Demonstration data.
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateInventoryPostingSetup;
+        LibraryERMCountryData.UpdateInventoryPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
@@ -1928,7 +1928,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             CalculateMachineCntrCalendar(MachineCenter2."No.");
         CalculateWorkCntrCalendar(WorkCenterNo);
         Qty := LibraryRandom.RandInt(10) + 50;
-        CurrencyCode := UpdateAddnlReportingCurrency;
+        CurrencyCode := UpdateAddnlReportingCurrency();
         if not PartialPurchasePosting then
             CreatePurchaseOrderAddnlCurr(PurchaseHeader, PurchaseLine, CurrencyCode, ItemNo, ItemNo2, Qty, Qty, DirectUnitCost)
         else
@@ -2036,9 +2036,9 @@ codeunit 137003 "SCM WIP Costing Production-I"
         DotPosIndex: Integer;
     begin
         if not GetAmtPrecFromGLSetup then
-            Accurancy := Format(LibraryERM.GetAmountRoundingPrecision, 0, 9)
+            Accurancy := Format(LibraryERM.GetAmountRoundingPrecision(), 0, 9)
         else
-            Accurancy := Format(LibraryERM.GetUnitAmountRoundingPrecision, 0, 9);
+            Accurancy := Format(LibraryERM.GetUnitAmountRoundingPrecision(), 0, 9);
         DotPosIndex := StrPos(Accurancy, '.');
         if DotPosIndex = 0 then
             Precision := 0
@@ -2057,7 +2057,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         Item.Modify(true);
 
         // This is to make sure the handlers are always executed otherwise tests would fail.
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
     end;
 
     local procedure CreateManufacturingItem(var ProdItem: Record Item; var CompItemNo: Code[20])
@@ -2131,7 +2131,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+          SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
     end;
 
@@ -2241,7 +2241,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             repeat
                 Item.Get("No.");
                 MaterialCost += Item."Single-Level Material Cost";
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -2336,7 +2336,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     local procedure UpdateAddnlReportingCurrency() CurrencyCode: Code[10]
     begin
         // Create new Currency code and set Residual Gains Account and Residual Losses Account for Currency.
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Commit();
 
         // Update Additional Reporting Currency on G/L setup.
@@ -2345,7 +2345,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure SelectGLAccountNo(): Code[10]
+    local procedure SelectGLAccountNo(): Code[20]
     var
         GLAccount: Record "G/L Account";
     begin
@@ -2362,10 +2362,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         // Create new currency and validate the required GL Accounts.
         LibraryERM.CreateCurrency(Currency);
-        Currency.Validate("Residual Gains Account", SelectGLAccountNo);
-        Currency.Validate("Residual Losses Account", SelectGLAccountNo);
-        Currency.Validate("Realized G/L Gains Account", SelectGLAccountNo);
-        Currency.Validate("Realized G/L Losses Account", SelectGLAccountNo);
+        Currency.Validate("Residual Gains Account", SelectGLAccountNo());
+        Currency.Validate("Residual Losses Account", SelectGLAccountNo());
+        Currency.Validate("Realized G/L Gains Account", SelectGLAccountNo());
+        Currency.Validate("Realized G/L Losses Account", SelectGLAccountNo());
         Currency.Modify(true);
         Commit();  // Required to run the Test Case on RTC.
 
@@ -2517,7 +2517,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     local procedure VerifyZeroWIPAmount(TotalAmount: Decimal)
     begin
         // Verify total WIP Account amount is Zero.
-        Assert.AreEqual(0, TotalAmount, ErrMessageNotFoundZeroAmt);
+        Assert.AreEqual(0, TotalAmount, SumMustBeZeroErr);
     end;
 
     local procedure VerifyTotalWIPAmount(ProductionOrder: Record "Production Order"; ActualAmount: Decimal; AdjustCost: Boolean)
@@ -2547,7 +2547,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Verify WIP Account amounts and expected WIP amounts are equal.
         Assert.AreNearlyEqual(
           Round(ExpectedWIPAmount, GeneralLedgerSetup."Amount Rounding Precision"),
-          ActualAmount, GeneralLedgerSetup."Amount Rounding Precision", ErrMessageAmountDoNotMatch);
+          ActualAmount, GeneralLedgerSetup."Amount Rounding Precision", AmountsDoNotMatchErr);
     end;
 
     local procedure SelectProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrder: Record "Production Order"; Finished: Boolean)
@@ -2633,7 +2633,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
         LibraryPurchase.CreatePurchHeader(
-          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryInventory.CreateItemCharge(ItemCharge);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", ItemCharge."No.", 1);
@@ -2674,7 +2674,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         GLEntry.SetRange("G/L Account No.", InventoryPostingSetup."Inventory Account");
 
         // Verify no row exist for Inventory Account in G/L Entry.
-        Assert.IsFalse(GLEntry.FindFirst, ErrMessageGLEntryNoRowExist);
+        Assert.RecordIsEmpty(GLEntry);
     end;
 
     local procedure VerifyInvtAmountGLEntry(var TempPurchaseLine: Record "Purchase Line" temporary; PurchInvHeaderNo: Code[20]; ItemNo: Code[20]; CurrencyCode: Code[10]; AddnlCurrency: Boolean)
@@ -2702,7 +2702,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         GLEntry.SetRange("G/L Account No.", InventoryPostingSetup."WIP Account");
 
         // Verify no row exist for WIP Account in G/L Entry.
-        Assert.IsFalse(GLEntry.FindFirst, ErrMessageGLEntryNoRowExist);
+        Assert.RecordIsEmpty(GLEntry);
     end;
 
     local procedure VerifyTotalInvtAmount(var TempPurchaseLine: Record "Purchase Line" temporary; ActualTotalAmount: Decimal; CurrencyCode: Code[10]; AddnlCurrency: Boolean)
@@ -2723,10 +2723,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
                 CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount" *
                 ExpectedInventoryAmount,
                 Currency."Amount Rounding Precision"),
-              ActualTotalAmount, GeneralLedgerSetup."Amount Rounding Precision", ErrMessageAmountDoNotMatch);
+              ActualTotalAmount, GeneralLedgerSetup."Amount Rounding Precision", GLEntryNoRowExistErr);
         end else
             Assert.AreNearlyEqual(
-              ExpectedInventoryAmount, ActualTotalAmount, GeneralLedgerSetup."Amount Rounding Precision", ErrMessageAmountDoNotMatch);
+              ExpectedInventoryAmount, ActualTotalAmount, GeneralLedgerSetup."Amount Rounding Precision", GLEntryNoRowExistErr);
     end;
 
     local procedure VerifyMaterialCost(ProductionOrderNo: Code[20]; ExpectedMaterialCost: Decimal)
@@ -2742,10 +2742,10 @@ codeunit 137003 "SCM WIP Costing Production-I"
             FindSet();
             repeat
                 CostCalculationMgt.CalcProdOrderLineStdCost(
-                  ProdOrderLine, 1, LibraryERM.GetUnitAmountRoundingPrecision,
+                  ProdOrderLine, 1, LibraryERM.GetUnitAmountRoundingPrecision(),
                   StdCost[1], StdCost[2], StdCost[3], StdCost[4], StdCost[5]);
                 ActualMaterialCost += StdCost[1] / "Quantity (Base)";
-            until Next = 0;
+            until Next() = 0;
         end;
 
         Assert.AreEqual(ExpectedMaterialCost, ActualMaterialCost, ExpectedMaterialCostErr);
@@ -2808,7 +2808,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Verify WIP Account amount after Consumption is equal to calculated amount.
         Assert.AreNearlyEqual(
           ExpectedWIPAmount, CalculateGLEntryTotalAmount(GLEntry, false), GeneralLedgerSetup."Amount Rounding Precision",
-          ErrMessageAmountDoNotMatch);
+          GLEntryNoRowExistErr);
     end;
 
     local procedure OverheadIndirectValue(ProductionOrderQty: Decimal; ProductionBOMLineQtyPer: Decimal; ItemNo: Code[20]): Decimal
@@ -2856,7 +2856,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // Verify WIP Account amounts and calculated WIP amounts are equal.
         Assert.AreNearlyEqual(
-          ItemTotalCostValue(TempPurchaseLine), GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision", ErrMessageAmountDoNotMatch);
+          ItemTotalCostValue(TempPurchaseLine), GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision", GLEntryNoRowExistErr);
     end;
 
     local procedure VerifyWIPAmountExclCostFinish(ProductionOrder: Record "Production Order"; ItemNo: Code[20]; ItemNo2: Code[20]; AdjustCost: Boolean)
@@ -2924,7 +2924,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Verify WIP Account amounts and calculated WIP amounts are equal.
         Assert.AreNearlyEqual(
           ExpectedWIPAmount, CalculateGLEntryAmountExclCost(GLEntry, ProductionOrder."No.", ItemNo2),
-          GeneralLedgerSetup."Amount Rounding Precision", ErrMessageAmountDoNotMatch);
+          GeneralLedgerSetup."Amount Rounding Precision", GLEntryNoRowExistErr);
     end;
 
     local procedure VerifyWIPAddnlCurrGLEntry(ProductionOrder: Record "Production Order"; CurrencyCode: Code[10]; ItemNo: Code[20]; Positive: Boolean)
@@ -2994,14 +2994,18 @@ codeunit 137003 "SCM WIP Costing Production-I"
             CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount" * CalculatedWIPAmount,
             Currency."Amount Rounding Precision"),
           ActualAddnlCurrencyAmount, Currency."Amount Rounding Precision" * 4,
-          ErrMessageAmountDoNotMatch);
+          GLEntryNoRowExistErr);
     end;
 
     local procedure VerifyAvgItemCost(var Item: Record Item; LastDirectCost: Decimal; UnitCost: Decimal)
     begin
         Item.Find();
-        Item.TestField("Last Direct Cost", LastDirectCost);
-        Item.TestField("Unit Cost", UnitCost);
+        Assert.AreNearlyEqual(
+            LastDirectCost, Item."Last Direct Cost", LibraryERM.GetUnitAmountRoundingPrecision(),
+            StrSubstNo(WrongFieldValueErr, Item.FieldName("Last Direct Cost")));
+        Assert.AreNearlyEqual(
+            UnitCost, Item."Unit Cost", LibraryERM.GetUnitAmountRoundingPrecision(),
+            StrSubstNo(WrongFieldValueErr, Item.FieldName("Unit Cost")));
     end;
 
     [ModalPageHandler]
@@ -3018,7 +3022,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ItemJournalLine: Record "Item Journal Line";
     begin
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
-        ItemJournalLine.SetRange("Order No.", LibraryVariableStorage.DequeueText);
+        ItemJournalLine.SetRange("Order No.", LibraryVariableStorage.DequeueText());
         ItemJournalLine.FindSet();
         repeat
             CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
@@ -3050,7 +3054,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         // Generate dummy messages.
         Message(ExpectedMsg);
-        if Confirm(ExpectedCostPostingConfirm) then;
+        if Confirm(ExpectedCostPostingQst) then;
     end;
 }
 

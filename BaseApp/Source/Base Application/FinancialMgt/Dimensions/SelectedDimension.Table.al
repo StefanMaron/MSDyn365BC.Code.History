@@ -1,3 +1,8 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Finance.Analysis;
+using System.Security.AccessControl;
+
 table 369 "Selected Dimension"
 {
     Caption = 'Selected Dimension';
@@ -9,8 +14,6 @@ table 369 "Selected Dimension"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(2; "Object Type"; Integer)
         {

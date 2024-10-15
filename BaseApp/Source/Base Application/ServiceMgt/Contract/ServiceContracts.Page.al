@@ -1,3 +1,13 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Document;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Reports;
+
 page 9321 "Service Contracts"
 {
     ApplicationArea = Service;
@@ -6,7 +16,7 @@ page 9321 "Service Contracts"
     Editable = false;
     PageType = List;
     SourceTable = "Service Contract Header";
-    SourceTableView = WHERE("Contract Type" = CONST(Contract));
+    SourceTableView = where("Contract Type" = const(Contract));
     UsageCategory = Lists;
 
     layout
@@ -118,15 +128,15 @@ page 9321 "Service Contracts"
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Bill-to Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             systempart(Control1900383207; Links)
@@ -161,7 +171,7 @@ page 9321 "Service Contracts"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -171,8 +181,8 @@ page 9321 "Service Contracts"
                     Caption = 'Service Ledger E&ntries';
                     Image = ServiceLedger;
                     RunObject = Page "Service Ledger Entries";
-                    RunPageLink = "Service Contract No." = FIELD("Contract No.");
-                    RunPageView = SORTING("Service Contract No.");
+                    RunPageLink = "Service Contract No." = field("Contract No.");
+                    RunPageView = sorting("Service Contract No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents.';
                 }
@@ -182,8 +192,8 @@ page 9321 "Service Contracts"
                     Caption = '&Warranty Ledger Entries';
                     Image = WarrantyLedger;
                     RunObject = Page "Warranty Ledger Entries";
-                    RunPageLink = "Service Contract No." = FIELD("Contract No.");
-                    RunPageView = SORTING("Service Contract No.", "Posting Date", "Document No.");
+                    RunPageLink = "Service Contract No." = field("Contract No.");
+                    RunPageView = sorting("Service Contract No.", "Posting Date", "Document No.");
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents that contain warranty agreements.';
                 }
                 action("Service Dis&counts")
@@ -192,8 +202,8 @@ page 9321 "Service Contracts"
                     Caption = 'Service Dis&counts';
                     Image = Discount;
                     RunObject = Page "Contract/Service Discounts";
-                    RunPageLink = "Contract Type" = FIELD("Contract Type"),
-                                  "Contract No." = FIELD("Contract No.");
+                    RunPageLink = "Contract Type" = field("Contract Type"),
+                                  "Contract No." = field("Contract No.");
                     ToolTip = 'View or edit the discounts that you grant for the contract on spare parts in particular service item groups, the discounts on resource hours for resources in particular resource groups, and the discounts on particular service costs.';
                 }
                 action("Service &Hours")
@@ -202,8 +212,8 @@ page 9321 "Service Contracts"
                     Caption = 'Service &Hours';
                     Image = ServiceHours;
                     RunObject = Page "Service Hours";
-                    RunPageLink = "Service Contract No." = FIELD("Contract No."),
-                                  "Service Contract Type" = FILTER(Contract);
+                    RunPageLink = "Service Contract No." = field("Contract No."),
+                                  "Service Contract Type" = filter(Contract);
                     ToolTip = 'View the service hours that are valid for the service contract. This window displays the starting and ending service hours for the contract for each weekday.';
                 }
                 action("Co&mments")
@@ -212,10 +222,10 @@ page 9321 "Service Contracts"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Contract"),
-                                  "Table Subtype" = FIELD("Contract Type"),
-                                  "No." = FIELD("Contract No."),
-                                  "Table Line No." = CONST(0);
+                    RunPageLink = "Table Name" = const("Service Contract"),
+                                  "Table Subtype" = field("Contract Type"),
+                                  "No." = field("Contract No."),
+                                  "Table Line No." = const(0);
                     ToolTip = 'View or add comments for the record.';
                 }
                 group(Statistics)
@@ -228,8 +238,8 @@ page 9321 "Service Contracts"
                         Caption = 'Statistics';
                         Image = Statistics;
                         RunObject = Page "Contract Statistics";
-                        RunPageLink = "Contract Type" = CONST(Contract),
-                                      "Contract No." = FIELD("Contract No.");
+                        RunPageLink = "Contract Type" = const(Contract),
+                                      "Contract No." = field("Contract No.");
                         ShortCutKey = 'F7';
                         ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     }
@@ -239,8 +249,8 @@ page 9321 "Service Contracts"
                         Caption = 'Tr&endscape';
                         Image = Trendscape;
                         RunObject = Page "Contract Trendscape";
-                        RunPageLink = "Contract Type" = CONST(Contract),
-                                      "Contract No." = FIELD("Contract No.");
+                        RunPageLink = "Contract Type" = const(Contract),
+                                      "Contract No." = field("Contract No.");
                         ToolTip = 'View a detailed account of service item transactions by time intervals.';
                     }
                 }
@@ -250,10 +260,10 @@ page 9321 "Service Contracts"
                     Caption = 'Filed Contracts';
                     Image = Agreement;
                     RunObject = Page "Filed Service Contract List";
-                    RunPageLink = "Contract Type Relation" = FIELD("Contract Type"),
-                                  "Contract No. Relation" = FIELD("Contract No.");
-                    RunPageView = SORTING("Contract Type Relation", "Contract No. Relation", "File Date", "File Time")
-                                  ORDER(Descending);
+                    RunPageLink = "Contract Type Relation" = field("Contract Type"),
+                                  "Contract No. Relation" = field("Contract No.");
+                    RunPageView = sorting("Contract Type Relation", "Contract No. Relation", "File Date", "File Time")
+                                  order(Descending);
                     ToolTip = 'View service contracts that are filed.';
                 }
                 group("Ser&vice Overview")
@@ -266,9 +276,9 @@ page 9321 "Service Contracts"
                         Caption = 'Service Orders';
                         Image = Document;
                         RunObject = Page "Service List";
-                        RunPageLink = "Document Type" = CONST(Order),
-                                      "Contract No." = FIELD("Contract No.");
-                        RunPageView = SORTING("Contract No.");
+                        RunPageLink = "Document Type" = const(Order),
+                                      "Contract No." = field("Contract No.");
+                        RunPageView = sorting("Contract No.");
                         ToolTip = 'Open the list of ongoing service orders.';
                     }
                     action("Posted Service Invoices")
@@ -277,10 +287,10 @@ page 9321 "Service Contracts"
                         Caption = 'Posted Service Invoices';
                         Image = PostedServiceOrder;
                         RunObject = Page "Service Document Registers";
-                        RunPageLink = "Source Document No." = FIELD("Contract No.");
-                        RunPageView = SORTING("Source Document Type", "Source Document No.", "Destination Document Type", "Destination Document No.")
-                                      WHERE("Source Document Type" = CONST(Contract),
-                                            "Destination Document Type" = CONST("Posted Invoice"));
+                        RunPageLink = "Source Document No." = field("Contract No.");
+                        RunPageView = sorting("Source Document Type", "Source Document No.", "Destination Document Type", "Destination Document No.")
+                                      where("Source Document Type" = const(Contract),
+                                            "Destination Document Type" = const("Posted Invoice"));
                         ToolTip = 'Open the list of posted service invoices.';
                     }
                 }
@@ -290,9 +300,9 @@ page 9321 "Service Contracts"
                     Caption = 'C&hange Log';
                     Image = ChangeLog;
                     RunObject = Page "Contract Change Log";
-                    RunPageLink = "Contract No." = FIELD("Contract No.");
-                    RunPageView = SORTING("Contract No.")
-                                  ORDER(Descending);
+                    RunPageLink = "Contract No." = field("Contract No.");
+                    RunPageView = sorting("Contract No.")
+                                  order(Descending);
                     ToolTip = 'View all changes that have been made to the service contract.';
                 }
                 action("&Gain/Loss Entries")
@@ -301,9 +311,9 @@ page 9321 "Service Contracts"
                     Caption = '&Gain/Loss Entries';
                     Image = GainLossEntries;
                     RunObject = Page "Contract Gain/Loss Entries";
-                    RunPageLink = "Contract No." = FIELD("Contract No.");
-                    RunPageView = SORTING("Contract No.", "Change Date")
-                                  ORDER(Descending);
+                    RunPageLink = "Contract No." = field("Contract No.");
+                    RunPageView = sorting("Contract No.", "Change Date")
+                                  order(Descending);
                     ToolTip = 'View the contract number, reason code, contract group code, responsibility center, customer number, ship-to code, customer name, and type of change, as well as the contract gain and loss. You can print all your service contract gain/loss entries.';
                 }
             }
@@ -519,7 +529,7 @@ page 9321 "Service Contracts"
 
     trigger OnOpenPage()
     begin
-        SetSecurityFilterOnRespCenter();
+        Rec.SetSecurityFilterOnRespCenter();
     end;
 }
 

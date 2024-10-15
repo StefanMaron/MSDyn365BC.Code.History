@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Maintenance;
+
 page 5927 "Fault Codes"
 {
     ApplicationArea = Service;
@@ -26,7 +28,7 @@ page 5927 "Fault Codes"
                     ToolTip = 'Specifies the code of the symptom linked to the fault code.';
                     Visible = SymptomCodeVisible;
                 }
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for the fault.';
@@ -81,9 +83,7 @@ page 5927 "Fault Codes"
     end;
 
     var
-        [InDataSet]
         FaultAreaCodeVisible: Boolean;
-        [InDataSet]
         SymptomCodeVisible: Boolean;
 }
 

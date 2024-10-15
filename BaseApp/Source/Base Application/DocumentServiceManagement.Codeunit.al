@@ -1,7 +1,23 @@
-﻿codeunit 9510 "Document Service Management"
+﻿namespace Microsoft.EServices.EDocument;
+
+using System;
+using System.Azure.Identity;
+using System.Azure.KeyVault;
+using System.Environment;
+using System.Integration;
+using System.IO;
+using System.Privacy;
+using System.Security.Authentication;
+using System.Security.Encryption;
+using System.Telemetry;
+using System.Utilities;
+
+codeunit 9510 "Document Service Management"
 {
     // Provides functions for the storage of documents to online services such as O365 (Office 365).
     Permissions = tabledata "Tenant Media" = rimd;
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     trigger OnRun()
     begin

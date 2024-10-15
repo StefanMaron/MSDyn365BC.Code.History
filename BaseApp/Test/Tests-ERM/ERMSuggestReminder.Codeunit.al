@@ -17,7 +17,7 @@ codeunit 134910 "ERM Suggest Reminder"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
-        ReminderCaptionTxt: Label 'Edit - Reminder Text - %1 %2 Beginning', Comment = '%1=Reminder Terms Code;%2=Reminder Level';
+        ReminderCaptionTxt: Label 'Reminder Text - %1 %2 Beginning', Comment = '%1=Reminder Terms Code;%2=Reminder Level';
         CaptionErr: Label 'Page Captions must match.';
         ReminderLineExistErr: Label 'Reminder Line must not exist.';
         ReminderHeaderExistErr: Label 'Reminder Header must not exist.';

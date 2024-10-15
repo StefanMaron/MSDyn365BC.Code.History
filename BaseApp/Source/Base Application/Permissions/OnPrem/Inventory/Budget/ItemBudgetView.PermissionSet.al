@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Inventory.Analysis;
+
 permissionset 5863 "Item Budget - View"
 {
     Access = Public;

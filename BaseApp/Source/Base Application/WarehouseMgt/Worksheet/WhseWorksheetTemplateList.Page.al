@@ -1,3 +1,5 @@
+namespace Microsoft.Warehouse.Worksheet;
+
 page 7366 "Whse. Worksheet Template List"
 {
     Caption = 'Whse. Worksheet Template List';
@@ -68,7 +70,7 @@ page 7366 "Whse. Worksheet Template List"
                     Caption = 'Names';
                     Image = Description;
                     RunObject = Page "Whse. Worksheet Names";
-                    RunPageLink = "Worksheet Template Name" = FIELD(Name);
+                    RunPageLink = "Worksheet Template Name" = field(Name);
                     ToolTip = 'View the list of available template names.';
                 }
             }

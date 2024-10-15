@@ -6253,20 +6253,29 @@
   </Item>
   <Item ItemId=";Codeunit 1253956902 - NamedType 534968786" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot purchase item %1 because the Purchasing Blocked check box is selected on the item card.]]></Val>
+      <Val><![CDATA[You cannot purchase %1 %2 because the %3 check box is selected on the %1 card.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Item No.]D;]A;(LookupHint=Codeunit Skipped Document Lines - NamedType IsPurchBlockedItemErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - Table Caption (item/variant), %2 - Entity Code, %3 - Field Caption]D;]A;(LookupHint=Codeunit Skipped Document Lines - NamedType IsPurchBlockedItemErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1253956902 - NamedType 3869603910" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot sell item %1 because the Sales Blocked check box is selected on the item card.]]></Val>
+      <Val><![CDATA[You cannot sell %1 %2 because the %3 check box is selected on the %1 card.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - Item No.]D;]A;(LookupHint=Codeunit Skipped Document Lines - NamedType IsSalesBlockedItemErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - Table Caption (item/variant), %2 - Entity Code, %3 - Field Caption]D;]A;(LookupHint=Codeunit Skipped Document Lines - NamedType IsSalesBlockedItemErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1253956902 - NamedType 797974543" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Item No., %2 - Variant Code]D;]A;(LookupHint=Codeunit Skipped Document Lines - NamedType ItemItemVariantLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1253956902 - NamedType 1304771032" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -8229,33 +8238,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REST - NamedType XmlDocLoadErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 465773095 - NamedType 3656088082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The address %1 was possible to connect to without a certificate validation error.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[The address https://www.example.com/ was possible to connect to without a certificate validation error.]D;]A;(LookupHint=Codeunit Validate Service Certificates - NamedType AddressIsReachableErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 465773095 - NamedType 2410102011" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The address %1 was not possible to connect to.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[The address https://www.example.com/ was not possible to connect to.]D;]A;(LookupHint=Codeunit Validate Service Certificates - NamedType AddressNotReachableErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 465773095 - NamedType 266485133" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The remote certificate is invalid according to the validation procedure.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Validate Service Certificates - NamedType CertificateValidationErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4119262855 - NamedType 2421578029" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

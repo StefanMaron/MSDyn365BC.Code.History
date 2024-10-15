@@ -1,4 +1,17 @@
-﻿report 6032 "Post Prepaid Contract Entries"
+﻿namespace Microsoft.Service.Contract;
+
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Posting;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Sales.Setup;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Reports;
+using Microsoft.Service.Setup;
+
+report 6032 "Post Prepaid Contract Entries"
 {
     ApplicationArea = Service;
     Caption = 'Post Prepaid Service Contract Entries';
@@ -10,7 +23,7 @@
     {
         dataitem("Service Ledger Entry"; "Service Ledger Entry")
         {
-            DataItemTableView = SORTING("Service Contract No.") WHERE(Type = CONST("Service Contract"), "Moved from Prepaid Acc." = CONST(false), Open = CONST(false));
+            DataItemTableView = sorting("Service Contract No.") where(Type = const("Service Contract"), "Moved from Prepaid Acc." = const(false), Open = const(false));
             RequestFilterFields = "Service Contract No.";
 
             trigger OnAfterGetRecord()

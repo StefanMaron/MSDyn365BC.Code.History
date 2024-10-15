@@ -1,3 +1,8 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Service.History;
+using System.Utilities;
+
 report 6002 "Delete Service Document Log"
 {
     Caption = 'Delete Service Document Log';
@@ -7,7 +12,7 @@ report 6002 "Delete Service Document Log"
     {
         dataitem("Service Document Log"; "Service Document Log")
         {
-            DataItemTableView = SORTING("Change Date");
+            DataItemTableView = sorting("Change Date");
             RequestFilterFields = "Change Date", "Document Type", "Document No.";
 
             trigger OnAfterGetRecord()

@@ -523,6 +523,66 @@ codeunit 138028 "O365 Adjust Inventory"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('VerifyQtyToAdjustOnAdjustInventoryCard')]
+    procedure QtyToAdjustOnAdjustInventoryPageWithNonSpecifiedLocation()
+    var
+        Item: Record Item;
+        ItemCard: TestPage "Item Card";
+    begin
+        // [SCENARIO 454842] Verify "Qty. to Adjust" on Adjust Inventory page opened in card mode.
+        Initialize();
+
+        // [GIVEN] Create item, post 10 pcs to inventory.
+        CreateNumberOfItem(Item);
+        PostItemPurchase(Item, '', LibraryRandom.RandInt(10));
+        Item.CalcFields(Inventory);
+
+        // [WHEN] Open item card and select "Adjust Inventory".
+        ItemCard.OpenEdit();
+        ItemCard.Filter.SetFilter("No.", Item."No.");
+        LibraryVariableStorage.Enqueue(Item.Inventory);
+        ItemCard.AdjustInventory.Invoke();
+
+        // [THEN] "Adjust Inventory" page is opened in "Not-specified-location" mode.
+        // [THEN] Set the new quantity = 15 and ensure that "Qty. to Adjust" = 15 - 10 = 5.
+        // Verification is done in VerifyQtyToAdjustOnAdjustInventoryCard handler.
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyQtyToAdjustOnAdjustInventoryList')]
+    procedure QtyToAdjustOnAdjustInventoryPageByLocations()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemCard: TestPage "Item Card";
+    begin
+        // [SCENARIO 454842] Verify "Qty. to Adjust" on Adjust Inventory page opened in list mode.
+        Initialize();
+        LibraryApplicationArea.EnableLocationsSetup();
+
+        // [GIVEN] Create item, post 10 pcs to inventory at location "L".
+        CreateNumberOfItem(Item);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        PostItemPurchase(Item, Location.Code, LibraryRandom.RandInt(10));
+        Item.CalcFields(Inventory);
+
+        // [WHEN] Open item card and select "Adjust Inventory".
+        ItemCard.OpenEdit();
+        ItemCard.Filter.SetFilter("No.", Item."No.");
+        LibraryVariableStorage.Enqueue(Location.Code);
+        LibraryVariableStorage.Enqueue(Item.Inventory);
+        ItemCard.AdjustInventory.Invoke();
+
+        // [THEN] "Adjust Inventory" page is opened in "By-locations" mode.
+        // [THEN] Set the new quantity = 15 and ensure that "Qty. to Adjust" = 15 - 10 = 5.
+        // Verification is done in VerifyQtyToAdjustOnAdjustInventoryList handler.
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -600,6 +660,37 @@ codeunit 138028 "O365 Adjust Inventory"
     begin
         AdjustInventory.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
         LibraryVariableStorage.Enqueue(AdjustInventory.First);
+    end;
+
+    [ModalPageHandler]
+    procedure VerifyQtyToAdjustOnAdjustInventoryCard(var AdjustInventory: TestPage "Adjust Inventory")
+    var
+        CurrentInventory: Decimal;
+        NewInventory: Decimal;
+    begin
+        CurrentInventory := AdjustInventory.CurrentInventoryNoLocation.AsDecimal();
+        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal(), CurrentInventory, '');
+        NewInventory := CurrentInventory + LibraryRandom.RandInt(10);
+        AdjustInventory.NewInventoryNoLocation.SetValue(NewInventory);
+        AdjustInventory.QtyToAdjustNoLocation.AssertEquals(NewInventory - CurrentInventory);
+
+        AdjustInventory.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure VerifyQtyToAdjustOnAdjustInventoryList(var AdjustInventory: TestPage "Adjust Inventory")
+    var
+        CurrentInventory: Decimal;
+        NewInventory: Decimal;
+    begin
+        AdjustInventory.Filter.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        CurrentInventory := AdjustInventory.CurrentInventory.AsDecimal();
+        Assert.AreEqual(LibraryVariableStorage.DequeueDecimal(), CurrentInventory, '');
+        NewInventory := CurrentInventory + LibraryRandom.RandInt(10);
+        AdjustInventory.NewInventory.SetValue(NewInventory);
+        AdjustInventory.QtyToAdjust.AssertEquals(NewInventory - CurrentInventory);
+
+        AdjustInventory.Cancel().Invoke();
     end;
 
     local procedure CreateNumberOfItem(var MyItem: Record Item)

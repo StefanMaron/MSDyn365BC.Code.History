@@ -135,7 +135,7 @@
               GenJournalLine, "Document Type"::" ", "Account Type"::Customer, LibrarySales.CreateCustomerNo,
               "Bank Payment Type"::" ", CreateCurrency, CreateBankAccount, LibraryRandom.RandDec(100, 2), '');
             ModifyCurrencyAndExchangeRate("Currency Code");
-#if not CLEAN20
+#if not CLEAN23
             LibraryERM.RunAdjustExchangeRatesSimple("Currency Code", WorkDate(), WorkDate());
 #else
             LibraryERM.RunExchRateAdjustmentSimple("Currency Code", WorkDate(), WorkDate());

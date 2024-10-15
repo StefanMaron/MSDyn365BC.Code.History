@@ -1,3 +1,7 @@
+namespace System.Privacy;
+
+using System.Reflection;
+
 table 1181 "Data Privacy Records"
 {
     Access = Public;
@@ -18,8 +22,8 @@ table 1181 "Data Privacy Records"
         }
         field(3; "Table Name"; Text[30])
         {
-            CalcFormula = Lookup (Field.TableName WHERE(TableNo = FIELD("Table No."),
-                                                        "No." = FIELD("Field No.")));
+            CalcFormula = Lookup(Field.TableName where(TableNo = field("Table No."),
+                                                        "No." = field("Field No.")));
             Caption = 'Table Name';
             FieldClass = FlowField;
         }
@@ -30,8 +34,8 @@ table 1181 "Data Privacy Records"
         }
         field(5; "Field Name"; Text[30])
         {
-            CalcFormula = Lookup (Field.FieldName WHERE(TableNo = FIELD("Table No."),
-                                                        "No." = FIELD("Field No.")));
+            CalcFormula = Lookup(Field.FieldName where(TableNo = field("Table No."),
+                                                        "No." = field("Field No.")));
             Caption = 'Field Name';
             FieldClass = FlowField;
         }

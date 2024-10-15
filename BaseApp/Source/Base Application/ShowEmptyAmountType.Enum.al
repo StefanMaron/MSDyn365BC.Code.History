@@ -1,4 +1,6 @@
-Enum 25 "Show Empty Amount Type"
+namespace Microsoft.Finance.FinancialReports;
+
+enum 25 "Show Empty Amount Type"
 {
     Extensible = true;
 

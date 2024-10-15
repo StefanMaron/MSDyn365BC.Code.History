@@ -465,48 +465,6 @@ codeunit 134150 "ERM Intrastat Journal"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestPackageNoIsIncludedInInternetAddressLink()
-    var
-        SalesShipmentHeader: Record "Sales Shipment Header";
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        Initialize();
-        CreateSalesShipmentHeader(SalesShipmentHeader, '%1');
-        ShippingAgent.Get(SalesShipmentHeader."Shipping Agent Code");
-        Assert.AreEqual(
-          SalesShipmentHeader."Package Tracking No.",
-          CopyStr(ShippingAgent.GetTrackingInternetAddr(SalesShipmentHeader."Package Tracking No."), StrLen(HttpTxt) + 1),
-          PackageTrackingNoErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestInternetAddressWithoutHttp()
-    var
-        SalesShipmentHeader: Record "Sales Shipment Header";
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        Initialize();
-        CreateSalesShipmentHeader(SalesShipmentHeader, InternetURLTxt);
-        ShippingAgent.Get(SalesShipmentHeader."Shipping Agent Code");
-        Assert.AreEqual(HttpTxt + InternetURLTxt, ShippingAgent.GetTrackingInternetAddr(SalesShipmentHeader."Package Tracking No."), InvalidURLTxt);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestInternetAddressWithHttp()
-    var
-        SalesShipmentHeader: Record "Sales Shipment Header";
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        Initialize();
-        CreateSalesShipmentHeader(SalesShipmentHeader, HttpTxt + InternetURLTxt);
-        ShippingAgent.Get(SalesShipmentHeader."Shipping Agent Code");
-        Assert.AreEqual(HttpTxt + InternetURLTxt, ShippingAgent.GetTrackingInternetAddr(SalesShipmentHeader."Package Tracking No."), InvalidURLTxt);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestNoPackageNoExistIfNoPlaceHolderExistInURL()
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
@@ -1105,63 +1063,6 @@ codeunit 134150 "ERM Intrastat Journal"
     procedure CreateFileMessageHandler(Message: Text)
     begin
         Assert.AreEqual('One or more errors were found. You must resolve all the errors before you can proceed.', Message, '');
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatJnlTemplateListPageHandler,GetItemLedgerEntriesReportHandler,GreateFileReportHandler')]
-    [Scope('OnPrem')]
-    procedure E2EErrorHandlingOfIntrastatJournal()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        SalesLine: Record "Sales Line";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ShipmentMethod: Record "Shipment Method";
-        TransactionType: Record "Transaction Type";
-        IntrastatJournalPage: TestPage "Intrastat Journal";
-        InvoiceDate: Date;
-    begin
-        // [FEATURE] [Intrastat Journal] [Error handling]
-        // [SCENARIO 219210] Deliverable 219210:Reporting - Errors and warnings and export in case of zero "Total Weight"
-        // [GIVEN] Posted Sales Order for intrastat
-        // [GIVEN] Journal Template and Batch
-        Initialize();
-        InvoiceDate := CalcDate('<-5Y>');
-        CreateAndPostSalesOrder(SalesLine, InvoiceDate);
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, InvoiceDate);
-        Commit();
-
-        // [GIVEN] A Intrastat Journal
-        OpenIntrastatJournalAndGetEntries(IntrastatJournalPage, IntrastatJnlBatch."Journal Template Name");
-
-        // [WHEN] Running Checklist
-        IntrastatJournalPage.ChecklistReport.Invoke;
-
-        // [THEN] You got a error
-        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Transaction Type"));
-
-        // [WHEN] Fixing the error
-        TransactionType.Code := LibraryUtility.GenerateGUID();
-        TransactionType.Insert();
-        IntrastatJournalPage."Transaction Type".Value(TransactionType.Code);
-        // [WHEN] Running Checklist
-        IntrastatJournalPage.ChecklistReport.Invoke;
-
-        // [WHEN] Fixing the error
-        IntrastatJournalPage."Total Weight".Value('1');
-        // [WHEN] Fixing the error
-        ShipmentMethod.FindFirst();
-        IntrastatJournalPage."Shpt. Method Code".Value(ShipmentMethod.Code);
-        // [WHEN] Running Checklist
-        IntrastatJournalPage.ChecklistReport.Invoke;
-
-        // [THEN] You no more errors
-        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals('');
-
-        // [WHEN] Running Create File
-        // [THEN] You do not get any errors
-        IntrastatJournalPage.CreateFile.Invoke;
-
-        IntrastatJournalPage.Close();
     end;
 
     [Test]

@@ -47,7 +47,7 @@ codeunit 137295 "SCM Inventory Misc. III"
         ValidationError: Label '%1 must be %2.', Comment = '%1:Field1,%2:Value1';
         StandardCostRollup: Label 'The standard costs have been rolled up successfully.';
         UnadjustedValueEntriesMessage: Label 'Some unadjusted value entries will not be covered with the new setting. You must run the Adjust Cost - Item Entries batch job once to adjust these.';
-        ItemFilter: Label '%1|%2';
+        ItemFilter: Label '%1|%2', Locked = true;
         ProductionOrderCreatedMsg: Label 'Released Prod. Order';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
         UsageNotLinkedToBlankLineTypeMsg: Label 'Usage will not be linked to the job planning line because the Line Type field is empty';

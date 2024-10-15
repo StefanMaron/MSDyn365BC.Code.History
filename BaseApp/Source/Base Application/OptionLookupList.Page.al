@@ -1,3 +1,5 @@
+namespace Microsoft.Utilities;
+
 page 1670 "Option Lookup List"
 {
     Caption = 'Option Lookup List';

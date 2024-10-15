@@ -1,3 +1,15 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Graph;
+
+using Microsoft.EServices.EDocument;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Purchases.History;
+using Microsoft.Sales.History;
+using System.Reflection;
+
 codeunit 5509 "Graph Mgt - Inc Doc Attachment"
 {
     Permissions = TableData "Sales Invoice Header" = rm,

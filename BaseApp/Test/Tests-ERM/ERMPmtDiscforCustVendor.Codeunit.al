@@ -136,7 +136,7 @@
         UpdateVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
@@ -271,7 +271,7 @@
         UpdateVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
@@ -1785,7 +1785,7 @@
         CurrencyExchangeRate.Modify(true);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     local procedure CreateAndPostDocument(var DocumentNo: Code[20]; CurrencyCode: Code[10]) PmtDiscAmount: Decimal
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";

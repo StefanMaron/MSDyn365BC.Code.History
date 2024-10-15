@@ -1,4 +1,22 @@
-﻿page 1803 "Assisted Company Setup Wizard"
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Company;
+using System.Email;
+using System.IO;
+using System.Reflection;
+using System.Utilities;
+using System.Integration;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Azure.Identity;
+
+page 1803 "Assisted Company Setup Wizard"
 {
     Caption = 'Company Setup';
     DeleteAllowed = false;
@@ -119,7 +137,7 @@
                         NotBlank = true;
                         ShowMandatory = true;
                     }
-                    field(Address; Address)
+                    field(Address; Rec.Address)
                     {
                         ApplicationArea = Basic, Suite;
                     }
@@ -132,7 +150,7 @@
                     {
                         ApplicationArea = Basic, Suite;
                     }
-                    field(City; City)
+                    field(City; Rec.City)
                     {
                         ApplicationArea = Basic, Suite;
                     }
@@ -153,19 +171,19 @@
                         ShowMandatory = true;
                         Visible = false;
                     }
-                    field(Picture; Picture)
+                    field(Picture; Rec.Picture)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Company Logo';
 
                         trigger OnValidate()
                         begin
-                            LogoPositionOnDocumentsShown := Picture.HasValue;
+                            LogoPositionOnDocumentsShown := Rec.Picture.HasValue;
                             if LogoPositionOnDocumentsShown then begin
-                                if "Logo Position on Documents" = "Logo Position on Documents"::"No Logo" then
-                                    "Logo Position on Documents" := "Logo Position on Documents"::Right;
+                                if Rec."Logo Position on Documents" = Rec."Logo Position on Documents"::"No Logo" then
+                                    Rec."Logo Position on Documents" := Rec."Logo Position on Documents"::Right;
                             end else
-                                "Logo Position on Documents" := "Logo Position on Documents"::"No Logo";
+                                Rec."Logo Position on Documents" := Rec."Logo Position on Documents"::"No Logo";
                             CurrPage.Update(true);
                         end;
                     }
@@ -187,10 +205,10 @@
                         var
                             TypeHelper: Codeunit "Type Helper";
                         begin
-                            if "Phone No." = '' then
+                            if Rec."Phone No." = '' then
                                 exit;
 
-                            if not TypeHelper.IsPhoneNumber("Phone No.") then
+                            if not TypeHelper.IsPhoneNumber(Rec."Phone No.") then
                                 Error(InvalidPhoneNumberErr)
                         end;
                     }
@@ -203,10 +221,10 @@
                         var
                             MailManagement: Codeunit "Mail Management";
                         begin
-                            if "E-Mail" = '' then
+                            if Rec."E-Mail" = '' then
                                 exit;
 
-                            MailManagement.CheckValidEmailAddress("E-Mail");
+                            MailManagement.CheckValidEmailAddress(Rec."E-Mail");
                         end;
                     }
                     field("Home Page"; Rec."Home Page")
@@ -217,10 +235,10 @@
                         var
                             WebRequestHelper: Codeunit "Web Request Helper";
                         begin
-                            if "Home Page" = '' then
+                            if Rec."Home Page" = '' then
                                 exit;
 
-                            WebRequestHelper.IsValidUriWithoutProtocol("Home Page");
+                            WebRequestHelper.IsValidUriWithoutProtocol(Rec."Home Page");
                         end;
                     }
                 }
@@ -254,7 +272,7 @@
                     {
                         ApplicationArea = Basic, Suite;
                     }
-                    field(IBAN; IBAN)
+                    field(IBAN; Rec.IBAN)
                     {
                         ApplicationArea = Basic, Suite;
                     }
@@ -356,7 +374,7 @@
 
     trigger OnAfterGetRecord()
     begin
-        LogoPositionOnDocumentsShown := Picture.HasValue;
+        LogoPositionOnDocumentsShown := Rec.Picture.HasValue;
     end;
 
     trigger OnInit()
@@ -508,16 +526,16 @@
     var
         CompanyInformation: Record "Company Information";
     begin
-        Init();
+        Rec.Init();
 
         if CompanyInformation.Get() then begin
-            TransferFields(CompanyInformation);
-            if Name = '' then
-                Name := CompanyName;
+            Rec.TransferFields(CompanyInformation);
+            if Rec.Name = '' then
+                Rec.Name := CompanyName;
         end else
-            Name := CompanyName;
+            Rec.Name := CompanyName;
 
-        Insert();
+        Rec.Insert();
     end;
 
     local procedure LoadTopBanners()
@@ -533,7 +551,7 @@
 
     local procedure ValidateBankAccountNotEmpty(): Boolean
     begin
-        exit(("Bank Account No." <> '') or TempOnlineBankAccLink.IsEmpty);
+        exit((Rec."Bank Account No." <> '') or TempOnlineBankAccLink.IsEmpty);
     end;
 
     [TryFunction]
@@ -546,11 +564,11 @@
     var
         Company: Record Company;
     begin
-        if COMPANYPROPERTY.DisplayName() = Name then
+        if COMPANYPROPERTY.DisplayName() = Rec.Name then
             exit;
 
         Company.Get(CompanyName);
-        Company."Display Name" := Name;
+        Company."Display Name" := Rec.Name;
         Company.Modify();
     end;
 

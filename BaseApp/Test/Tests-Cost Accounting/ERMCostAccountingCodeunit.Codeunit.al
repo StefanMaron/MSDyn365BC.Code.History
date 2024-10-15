@@ -52,7 +52,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         UnexpectedMessage: Label 'Actual Message [%1] must be equal to Expected Message [%2].';
         CostJnlBatchNameLengthError: Label '%1 cannot exceed %2 characters in %3 %4=''%5'',%6=''%7''.', Comment = '%1:Field Caption;%2:Field Value;%3:Table Caption;%4:Field Caption;%5:Field Value;%6:Field Caption;%7:Field Value;';
         CostJournalLineBalanceError: Label 'The lines in Cost Journal are out of balance by %1. Verify that %2 and %3 are correct for each line.', Comment = '%1:Field Value;%2:Field Caption;%3:Field Caption;';
-        CostTypeFilterDefinition: Label '%1..%2', Comment = '%1 - Field Value;%2 - Field Value';
+        CostTypeFilterDefinition: Label '%1..%2', Comment = '%1 - Field Value;%2 - Field Value', Locked = true;
         CostCenterObjectFilterDefinition: Label '%1|%2|%3', Comment = '%1 - Field Value;%2 - Field Value;%3 - Field Value';
         ExpectedTotaling3: Label 'Number of records without a Totaling value is not 3.';
         ExpectedTotaling1: Label 'Number of records with Totaling not empty is not 1.';
@@ -3824,7 +3824,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostEntry: Record "Cost Entry";
     begin
         if not CostRegister.FindLast() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostRegister.TableCaption(), CostRegister.GetFilters));
+            Error(NoRecordsInFilterErr, CostRegister.TableCaption(), CostRegister.GetFilters);
 
         CostEntry.SetRange("Allocated with Journal No.", CostRegister."No.");
         CostEntry.FindFirst();
@@ -3844,7 +3844,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostJournalTemplate: Record "Cost Journal Template";
     begin
         if not CostJournalTemplate.FindLast() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostJournalTemplate.TableCaption(), CostJournalTemplate.GetFilters));
+            Error(NoRecordsInFilterErr, CostJournalTemplate.TableCaption(), CostJournalTemplate.GetFilters);
         LibraryCostAccounting.FindCostJournalBatch(CostJournalBatch, CostJournalTemplate.Name);
         LibraryCostAccounting.ClearCostJournalLines(CostJournalBatch);
     end;
@@ -3869,7 +3869,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostType.SetFilter("Cost Center Code", '<>%1&<>%2', '', CostCenterCode);
         CostType.SetFilter("Cost Object Code", '%1', '');
         if CostType.IsEmpty() then
-            Error(StrSubstNo(NoRecordsInFilterErr, CostType.TableCaption(), CostType.GetFilters));
+            Error(NoRecordsInFilterErr, CostType.TableCaption(), CostType.GetFilters);
 
         CostType.Next(LibraryRandom.RandInt(CostType.Count));
     end;

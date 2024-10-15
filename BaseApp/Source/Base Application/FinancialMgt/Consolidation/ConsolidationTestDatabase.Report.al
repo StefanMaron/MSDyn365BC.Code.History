@@ -1,3 +1,12 @@
+namespace Microsoft.Finance.Consolidation;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Projects.Project.Job;
+using System.Utilities;
+
 report 14 "Consolidation - Test Database"
 {
     DefaultLayout = RDLC;
@@ -8,14 +17,14 @@ report 14 "Consolidation - Test Database"
     {
         dataitem("Business Unit"; "Business Unit")
         {
-            DataItemTableView = SORTING(Code) WHERE(Consolidate = CONST(true));
+            DataItemTableView = sorting(Code) where(Consolidate = const(true));
             RequestFilterFields = "Code";
             column(Business_Unit_Code; Code)
             {
             }
             dataitem(Header; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
                 {
                 }
@@ -72,7 +81,7 @@ report 14 "Consolidation - Test Database"
                 }
                 dataitem(BusUnitErrorLoop; "Integer")
                 {
-                    DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
                     column(ErrorText_Number_; ErrorText[Number])
                     {
                     }
@@ -92,7 +101,7 @@ report 14 "Consolidation - Test Database"
                 }
                 dataitem("G/L Account"; "G/L Account")
                 {
-                    DataItemTableView = SORTING("No.") WHERE("Account Type" = CONST(Posting));
+                    DataItemTableView = sorting("No.") where("Account Type" = const(Posting));
                     PrintOnlyIfDetail = true;
                     column(G_L_Account__No__; "No.")
                     {
@@ -126,8 +135,8 @@ report 14 "Consolidation - Test Database"
                     }
                     dataitem("G/L Entry"; "G/L Entry")
                     {
-                        DataItemLink = "G/L Account No." = FIELD("No.");
-                        DataItemTableView = SORTING("G/L Account No.", "Posting Date");
+                        DataItemLink = "G/L Account No." = field("No.");
+                        DataItemTableView = sorting("G/L Account No.", "Posting Date");
                         column(EntryNo_GLEntry; "Entry No.")
                         {
                         }
@@ -211,7 +220,7 @@ report 14 "Consolidation - Test Database"
                     }
                     dataitem(ErrorLoop; "Integer")
                     {
-                        DataItemTableView = SORTING(Number);
+                        DataItemTableView = sorting(Number);
                         column(ErrorText_Number__Control23; ErrorText[Number])
                         {
                         }

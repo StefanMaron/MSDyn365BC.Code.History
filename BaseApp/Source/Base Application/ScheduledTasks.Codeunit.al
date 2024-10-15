@@ -1,3 +1,7 @@
+namespace System.Threading;
+
+using System.Environment;
+
 codeunit 3846 "Scheduled Tasks"
 {
     Access = Internal;

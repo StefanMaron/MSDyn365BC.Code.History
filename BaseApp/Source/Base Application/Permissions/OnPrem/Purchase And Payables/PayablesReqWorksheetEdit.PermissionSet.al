@@ -1,3 +1,28 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Warehouse.Structure;
+using Microsoft.Sales.Customer;
+using Microsoft.Finance.Dimension;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Location;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Purchases.Pricing;
+using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Requisition;
+using Microsoft.Sales.Document;
+using System.Security.User;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Foundation.AuditCodes;
+
 permissionset 552 "Payables Req Worksheet - Edit"
 {
     Access = Public;

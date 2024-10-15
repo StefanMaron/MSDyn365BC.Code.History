@@ -1,3 +1,9 @@
+namespace Microsoft.Finance.ReceivablesPayables;
+
+using Microsoft.Purchases.Payables;
+using Microsoft.Utilities;
+using System.Visualization;
+
 codeunit 764 "Aged Acc. Payable"
 {
 

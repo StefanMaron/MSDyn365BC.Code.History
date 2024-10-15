@@ -1,3 +1,22 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Receivables;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Purchases.Payables;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using System.Environment.Configuration;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Inventory.Costing;
+using Microsoft.Foundation.BatchProcessing;
+using Microsoft.Sales.Pricing;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Projects.Project.Ledger;
+
 permissionset 681 "D365 JOURNALS, POST"
 {
     Assignable = true;

@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 enum 353 "Default Dimension Value Posting Type"
 {
     Extensible = true;

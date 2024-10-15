@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using System.Security.User;
+
 page 953 "Manager Time Sheet List"
 {
     ApplicationArea = Jobs;
@@ -8,7 +16,7 @@ page 953 "Manager Time Sheet List"
     CardPageID = "Time Sheet Card";
     RefreshOnActivate = true;
     SourceTable = "Time Sheet Header";
-    SourceTableView = SORTING("Resource No.", "Starting Date") order(descending);
+    SourceTableView = sorting("Resource No.", "Starting Date") order(descending);
     UsageCategory = Tasks;
     Editable = false;
 
@@ -140,7 +148,7 @@ page 953 "Manager Time Sheet List"
                     DrillDown = false;
                     ToolTip = 'Specifies whether there are time sheet lines with the status Posted.';
                 }
-                field(Comment; Comment)
+                field(Comment; Rec.Comment)
                 {
                     ApplicationArea = Comments;
                     DrillDown = false;
@@ -195,8 +203,8 @@ page 953 "Manager Time Sheet List"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Time Sheet Comment Sheet";
-                    RunPageLink = "No." = FIELD("No."),
-                                  "Time Sheet Line No." = CONST(0);
+                    RunPageLink = "No." = field("No."),
+                                  "Time Sheet Line No." = const(0);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action("Posting E&ntries")
@@ -205,7 +213,7 @@ page 953 "Manager Time Sheet List"
                     Caption = 'Posting E&ntries';
                     Image = PostingEntries;
                     RunObject = Page "Time Sheet Posting Entries";
-                    RunPageLink = "Time Sheet No." = FIELD("No.");
+                    RunPageLink = "Time Sheet No." = field("No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the resource ledger entries that have been posted in connection with the.';
                 }
@@ -250,7 +258,7 @@ page 953 "Manager Time Sheet List"
 #endif
         TimeSheetAdminActionsVisible := UserSetup."Time Sheet Admin.";
 
-        TimeSheetMgt.FilterTimeSheets(Rec, FieldNo("Approver User ID"));
+        TimeSheetMgt.FilterTimeSheets(Rec, Rec.FieldNo("Approver User ID"));
 
         OnAfterOnOpenPage(Rec);
     end;
@@ -270,7 +278,7 @@ page 953 "Manager Time Sheet List"
         TimeSheetCard: Page "Time Sheet Card";
     begin
         if not TimeSheetV2Enabled then begin
-            TimeSheetMgt.SetTimeSheetNo("No.", TimeSheetLine);
+            TimeSheetMgt.SetTimeSheetNo(Rec."No.", TimeSheetLine);
             Page.Run(Page::"Manager Time Sheet", TimeSheetLine);
             exit;
         end;

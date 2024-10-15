@@ -833,9 +833,9 @@ codeunit 134188 "WF Demo General Journal Line"
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
 
         // [THEN] Approval actions?
-        Assert.IsTrue(GeneralJournal.SendApprovalRequestJournalLine.Enabled, 'Send should be enabled');
+        Assert.IsFalse(GeneralJournal.SendApprovalRequestJournalLine.Enabled, 'Send should be disabled');
         Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalLine.Enabled, 'Send should be disabled');
-        Assert.IsTrue(GeneralJournal.SendApprovalRequestJournalBatch.Enabled, 'SendBatch should be enabled');
+        Assert.Isfalse(GeneralJournal.SendApprovalRequestJournalBatch.Enabled, 'SendBatch should be disabled');
         Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalBatch.Enabled, 'SendBatch should be disabled');
         Assert.IsFalse(GeneralJournal.Approve.Visible, '');
         Assert.IsFalse(GeneralJournal.Reject.Visible, '');

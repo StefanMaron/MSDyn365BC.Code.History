@@ -459,7 +459,7 @@ codeunit 138043 "O365 Standard Document Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('DocumentNo', DocumentNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'DocumentNo', DocumentNo));
+            Error(RowNotFoundErr, 'DocumentNo', DocumentNo);
 
         LibraryReportDataset.Reset();
         Row := LibraryReportDataset.FindRow('ItemNo_Line', ItemNo);
@@ -485,7 +485,7 @@ codeunit 138043 "O365 Standard Document Reports"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_PurchHeader', DocumentNo);
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, 'No_PurchHeader', DocumentNo));
+            Error(RowNotFoundErr, 'No_PurchHeader', DocumentNo);
 
         LibraryReportDataset.Reset();
         Row := LibraryReportDataset.FindRow('No_PurchLine', ItemNo);

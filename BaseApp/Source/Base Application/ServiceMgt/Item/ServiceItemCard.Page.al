@@ -1,3 +1,19 @@
+namespace Microsoft.Service.Item;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Address;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Reports;
+using Microsoft.Service.Resources;
+
 page 5980 "Service Item Card"
 {
     Caption = 'Service Item Card';
@@ -19,7 +35,7 @@ page 5980 "Service Item Card"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -39,9 +55,9 @@ page 5980 "Service Item Card"
                     var
                         Item: Record "Item";
                     begin
-                        CalcFields("Item Description");
-                        if "Variant Code" = '' then
-                            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
+                        Rec.CalcFields("Item Description");
+                        if Rec."Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(true, Rec."Item No.");
                     end;
                 }
                 field("Item Description"; Rec."Item Description")
@@ -70,8 +86,8 @@ page 5980 "Service Item Card"
                     var
                         Item: Record "Item";
                     begin
-                        if "Variant Code" = '' then
-                            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
+                        if Rec."Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(true, Rec."Item No.");
                     end;
                 }
                 field("Serial No."; Rec."Serial No.")
@@ -86,14 +102,14 @@ page 5980 "Service Item Card"
                     begin
                         Clear(ItemLedgerEntry);
                         ItemLedgerEntry.FilterGroup(2);
-                        ItemLedgerEntry.SetRange("Item No.", "Item No.");
-                        if "Variant Code" <> '' then
-                            ItemLedgerEntry.SetRange("Variant Code", "Variant Code");
+                        ItemLedgerEntry.SetRange("Item No.", Rec."Item No.");
+                        if Rec."Variant Code" <> '' then
+                            ItemLedgerEntry.SetRange("Variant Code", Rec."Variant Code");
                         ItemLedgerEntry.SetFilter("Serial No.", '<>%1', '');
                         ItemLedgerEntry.FilterGroup(0);
 
                         if PAGE.RunModal(0, ItemLedgerEntry) = ACTION::LookupOK then
-                            Validate("Serial No.", ItemLedgerEntry."Serial No.");
+                            Rec.Validate("Serial No.", ItemLedgerEntry."Serial No.");
                     end;
                 }
                 field(Status; Rec.Status)
@@ -117,7 +133,7 @@ page 5980 "Service Item Card"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated number of hours this item requires before service on it should be started.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service priority for this item.';
@@ -175,10 +191,10 @@ page 5980 "Service Item Card"
 
                     trigger OnValidate()
                     begin
-                        CalcFields(Name, "Name 2", Address, "Address 2", "Post Code",
+                        Rec.CalcFields(Name, "Name 2", Address, "Address 2", "Post Code",
                           City, Contact, "Phone No.", County, "Country/Region Code");
                         CustomerNoOnAfterValidate();
-                        IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+                        IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                     end;
                 }
                 group("Sell-to")
@@ -191,7 +207,7 @@ page 5980 "Service Item Card"
                         Importance = Promoted;
                         ToolTip = 'Specifies the name of the customer who owns this item.';
                     }
-                    field(Address; Address)
+                    field(Address; Rec.Address)
                     {
                         ApplicationArea = Service;
                         DrillDown = false;
@@ -205,7 +221,7 @@ page 5980 "Service Item Card"
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field(City; City)
+                    field(City; Rec.City)
                     {
                         ApplicationArea = Service;
                         DrillDown = false;
@@ -216,7 +232,7 @@ page 5980 "Service Item Card"
                     {
                         ShowCaption = false;
                         Visible = IsSellToCountyVisible;
-                        field(County; County)
+                        field(County; Rec.County)
                         {
                             ApplicationArea = Service;
                             QuickEntry = false;
@@ -236,7 +252,7 @@ page 5980 "Service Item Card"
                         QuickEntry = false;
                         ToolTip = 'Specifies the country/region of the address.';
                     }
-                    field(Contact; Contact)
+                    field(Contact; Rec.Contact)
                     {
                         ApplicationArea = Service;
                         DrillDown = false;
@@ -269,7 +285,7 @@ page 5980 "Service Item Card"
                     trigger OnValidate()
                     begin
                         UpdateShipToCode();
-                        IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+                        IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                     end;
                 }
                 group("Ship-to")
@@ -382,7 +398,7 @@ page 5980 "Service Item Card"
 
                     trigger OnValidate()
                     begin
-                        CalcFields("Vendor Name");
+                        Rec.CalcFields("Vendor Name");
                     end;
                 }
                 field("Vendor Name"; Rec."Vendor Name")
@@ -437,8 +453,8 @@ page 5980 "Service Item Card"
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
-                              "Date Filter" = FIELD("Date Filter");
+                SubPageLink = "No." = field("Customer No."),
+                              "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             systempart(Control1900383207; Links)
@@ -468,9 +484,9 @@ page 5980 "Service Item Card"
                     Caption = '&Components';
                     Image = Components;
                     RunObject = Page "Service Item Component List";
-                    RunPageLink = Active = CONST(true),
-                                  "Parent Service Item No." = FIELD("No.");
-                    RunPageView = SORTING(Active, "Parent Service Item No.", "Line No.");
+                    RunPageLink = Active = const(true),
+                                  "Parent Service Item No." = field("No.");
+                    RunPageView = sorting(Active, "Parent Service Item No.", "Line No.");
                     ToolTip = 'View components that are used in the service item.';
                 }
                 action("&Dimensions")
@@ -479,8 +495,8 @@ page 5980 "Service Item Card"
                     Caption = '&Dimensions';
                     Image = Dimensions;
                     RunObject = Page "Default Dimensions";
-                    RunPageLink = "Table ID" = CONST(5940),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table ID" = const(5940),
+                                  "No." = field("No.");
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to journal lines to distribute costs and analyze transaction history.';
                 }
@@ -494,7 +510,7 @@ page 5980 "Service Item Card"
                         Caption = 'Statistics';
                         Image = Statistics;
                         RunObject = Page "Service Item Statistics";
-                        RunPageLink = "No." = FIELD("No.");
+                        RunPageLink = "No." = field("No.");
                         ShortCutKey = 'F7';
                         ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     }
@@ -504,7 +520,7 @@ page 5980 "Service Item Card"
                         Caption = 'Tr&endscape';
                         Image = Trendscape;
                         RunObject = Page "Service Item Trendscape";
-                        RunPageLink = "No." = FIELD("No.");
+                        RunPageLink = "No." = field("No.");
                         ToolTip = 'View a detailed account of service item transactions by time intervals.';
                     }
                 }
@@ -518,8 +534,8 @@ page 5980 "Service Item Card"
                         Caption = 'Troubleshooting Setup';
                         Image = Troubleshoot;
                         RunObject = Page "Troubleshooting Setup";
-                        RunPageLink = Type = CONST("Service Item"),
-                                      "No." = FIELD("No.");
+                        RunPageLink = Type = const("Service Item"),
+                                      "No." = field("No.");
                         ToolTip = 'View or edit your settings for troubleshooting service items.';
                     }
                     action("<Page Troubleshooting>")
@@ -543,8 +559,8 @@ page 5980 "Service Item Card"
                     Caption = 'Resource Skills';
                     Image = ResourceSkills;
                     RunObject = Page "Resource Skills";
-                    RunPageLink = Type = CONST("Service Item"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = Type = const("Service Item"),
+                                  "No." = field("No.");
                     ToolTip = 'View the assignment of skills to resources, items, service item groups, and service items. You can use skill codes to allocate skilled resources to service items or items that need special skills for servicing.';
                 }
                 action("S&killed Resources")
@@ -557,7 +573,7 @@ page 5980 "Service Item Card"
                     trigger OnAction()
                     begin
                         Clear(SkilledResourceList);
-                        SkilledResourceList.Initialize(ResourceSkill.Type::"Service Item", "No.", Description);
+                        SkilledResourceList.Initialize(ResourceSkill.Type::"Service Item", Rec."No.", Rec.Description);
                         SkilledResourceList.RunModal();
                     end;
                 }
@@ -567,9 +583,9 @@ page 5980 "Service Item Card"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Item"),
-                                  "Table Subtype" = CONST("0"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const("Service Item"),
+                                  "Table Subtype" = const("0"),
+                                  "No." = field("No.");
                     ToolTip = 'View or add comments for the record.';
                 }
             }
@@ -587,8 +603,8 @@ page 5980 "Service Item Card"
                         Caption = '&Item Lines';
                         Image = ItemLines;
                         RunObject = Page "Service Item Lines";
-                        RunPageLink = "Service Item No." = FIELD("No.");
-                        RunPageView = SORTING("Service Item No.");
+                        RunPageLink = "Service Item No." = field("No.");
+                        RunPageView = sorting("Service Item No.");
                         ToolTip = 'View ongoing service item lines for the item. ';
                     }
                     action("&Service Lines")
@@ -597,8 +613,8 @@ page 5980 "Service Item Card"
                         Caption = '&Service Lines';
                         Image = ServiceLines;
                         RunObject = Page "Service Line List";
-                        RunPageLink = "Service Item No." = FIELD("No.");
-                        RunPageView = SORTING("Service Item No.");
+                        RunPageLink = "Service Item No." = field("No.");
+                        RunPageView = sorting("Service Item No.");
                         ToolTip = 'View ongoing service lines for the item.';
                     }
                 }
@@ -612,8 +628,8 @@ page 5980 "Service Item Card"
                         Caption = '&Item Lines';
                         Image = ItemLines;
                         RunObject = Page "Posted Shpt. Item Line List";
-                        RunPageLink = "Service Item No." = FIELD("No.");
-                        RunPageView = SORTING("Service Item No.");
+                        RunPageLink = "Service Item No." = field("No.");
+                        RunPageView = sorting("Service Item No.");
                         ToolTip = 'View ongoing service item lines for the item. ';
                     }
                     action(Action113)
@@ -622,8 +638,8 @@ page 5980 "Service Item Card"
                         Caption = '&Service Lines';
                         Image = ServiceLines;
                         RunObject = Page "Posted Serv. Shpt. Line List";
-                        RunPageLink = "Service Item No." = FIELD("No.");
-                        RunPageView = SORTING("Service Item No.");
+                        RunPageLink = "Service Item No." = field("No.");
+                        RunPageView = sorting("Service Item No.");
                         ToolTip = 'View ongoing service lines for the item.';
                     }
                 }
@@ -633,8 +649,8 @@ page 5980 "Service Item Card"
                     Caption = 'Ser&vice Contracts';
                     Image = ServiceAgreement;
                     RunObject = Page "Serv. Contr. List (Serv. Item)";
-                    RunPageLink = "Service Item No." = FIELD("No.");
-                    RunPageView = SORTING("Service Item No.", "Contract Status");
+                    RunPageLink = "Service Item No." = field("No.");
+                    RunPageView = sorting("Service Item No.", "Contract Status");
                     ToolTip = 'Open the list of ongoing service contracts.';
                 }
             }
@@ -648,7 +664,7 @@ page 5980 "Service Item Card"
                     Caption = 'Service Item Lo&g';
                     Image = Log;
                     RunObject = Page "Service Item Log";
-                    RunPageLink = "Service Item No." = FIELD("No.");
+                    RunPageLink = "Service Item No." = field("No.");
                     ToolTip = 'View a list of the service document changes that have been logged. The program creates entries in the window when, for example, the response time or service order status changed, a resource was allocated, a service order was shipped or invoiced, and so on. Each line in this window identifies the event that occurred to the service document. The line contains the information about the field that was changed, its old and new value, the date and time when the change took place, and the ID of the user who actually made the changes.';
                 }
                 action("Service Ledger E&ntries")
@@ -657,11 +673,11 @@ page 5980 "Service Item Card"
                     Caption = 'Service Ledger E&ntries';
                     Image = ServiceLedger;
                     RunObject = Page "Service Ledger Entries";
-                    RunPageLink = "Service Item No. (Serviced)" = FIELD("No."),
-                                  "Service Order No." = FIELD("Service Order Filter"),
-                                  "Service Contract No." = FIELD("Contract Filter"),
-                                  "Posting Date" = FIELD("Date Filter");
-                    RunPageView = SORTING("Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.", Type, "Posting Date");
+                    RunPageLink = "Service Item No. (Serviced)" = field("No."),
+                                  "Service Order No." = field("Service Order Filter"),
+                                  "Service Contract No." = field("Contract Filter"),
+                                  "Posting Date" = field("Date Filter");
+                    RunPageView = sorting("Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.", Type, "Posting Date");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents.';
                 }
@@ -671,8 +687,8 @@ page 5980 "Service Item Card"
                     Caption = '&Warranty Ledger Entries';
                     Image = WarrantyLedger;
                     RunObject = Page "Warranty Ledger Entries";
-                    RunPageLink = "Service Item No. (Serviced)" = FIELD("No.");
-                    RunPageView = SORTING("Service Item No. (Serviced)", "Posting Date", "Document No.");
+                    RunPageLink = "Service Item No. (Serviced)" = field("No.");
+                    RunPageView = sorting("Service Item No. (Serviced)", "Posting Date", "Document No.");
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents that contain warranty agreements.';
                 }
             }
@@ -766,27 +782,27 @@ page 5980 "Service Item Card"
         Item: Record Item;
     begin
         UpdateShipToCode();
-        if "Variant Code" = '' then
-            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
+        if Rec."Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(true, Rec."Item No.");
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        if "Item No." = '' then
-            if GetFilter("Item No.") <> '' then
-                if GetRangeMin("Item No.") = GetRangeMax("Item No.") then
-                    "Item No." := GetRangeMin("Item No.");
+        if Rec."Item No." = '' then
+            if Rec.GetFilter("Item No.") <> '' then
+                if Rec.GetRangeMin("Item No.") = Rec.GetRangeMax("Item No.") then
+                    Rec."Item No." := Rec.GetRangeMin("Item No.");
 
-        if "Customer No." = '' then
-            if GetFilter("Customer No.") <> '' then
-                if GetRangeMin("Customer No.") = GetRangeMax("Customer No.") then
-                    "Customer No." := GetRangeMin("Customer No.");
+        if Rec."Customer No." = '' then
+            if Rec.GetFilter("Customer No.") <> '' then
+                if Rec.GetRangeMin("Customer No.") = Rec.GetRangeMax("Customer No.") then
+                    Rec."Customer No." := Rec.GetRangeMin("Customer No.");
     end;
 
     trigger OnOpenPage()
     begin
-        IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
-        IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+        IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
     end;
 
     var
@@ -799,24 +815,24 @@ page 5980 "Service Item Card"
 
     local procedure UpdateShipToCode()
     begin
-        if "Ship-to Code" = '' then begin
-            "Ship-to Name" := Name;
-            "Ship-to Address" := Address;
-            "Ship-to Address 2" := "Address 2";
-            "Ship-to Post Code" := "Post Code";
-            "Ship-to City" := City;
-            "Ship-to County" := County;
-            "Ship-to Phone No." := "Phone No.";
-            "Ship-to Contact" := Contact;
+        if Rec."Ship-to Code" = '' then begin
+            Rec."Ship-to Name" := Rec.Name;
+            Rec."Ship-to Address" := Rec.Address;
+            Rec."Ship-to Address 2" := Rec."Address 2";
+            Rec."Ship-to Post Code" := Rec."Post Code";
+            Rec."Ship-to City" := Rec.City;
+            Rec."Ship-to County" := Rec.County;
+            Rec."Ship-to Phone No." := Rec."Phone No.";
+            Rec."Ship-to Contact" := Rec.Contact;
         end else
-            CalcFields(
+            Rec.CalcFields(
               "Ship-to Name", "Ship-to Name 2", "Ship-to Address", "Ship-to Address 2", "Ship-to Post Code", "Ship-to City",
               "Ship-to County", "Ship-to Country/Region Code", "Ship-to Contact", "Ship-to Phone No.");
     end;
 
     local procedure CustomerNoOnAfterValidate()
     begin
-        if "Customer No." <> xRec."Customer No." then
+        if Rec."Customer No." <> xRec."Customer No." then
             UpdateShipToCode();
     end;
 }
