@@ -145,7 +145,7 @@ report 109 "Customer - Summary Aging Simp."
                     TotalCustBalanceLCY := TotalCustBalanceLCY + CustBalanceDueLCY[i];
                 end;
                 if not PrintCust then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

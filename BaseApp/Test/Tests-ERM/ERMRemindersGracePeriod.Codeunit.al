@@ -632,7 +632,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reminders - Grace Period");
     end;
 
@@ -920,7 +920,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         CustLedgerEntry.CalcFields(Amount);
         CreateGeneralJournalLine(GenJournalLine, CustomerNo, CustLedgerEntry.Amount);
         GenJournalLine.Validate("Posting Date", PostingDate);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;
@@ -967,7 +967,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         ReminderLine: Record "Reminder Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::"Reminder Line");
         ReminderLine.SetRange("Document Type", ReminderLine."Document Type"::Invoice);

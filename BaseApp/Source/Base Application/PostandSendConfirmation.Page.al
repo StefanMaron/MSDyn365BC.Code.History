@@ -25,7 +25,7 @@ page 365 "Post and Send Confirmation"
                 begin
                     TempDocumentSendingProfile.Copy(Rec);
                     TempDocumentSendingProfile.Code := CurrentDocumentSendingProfileCode;
-                    TempDocumentSendingProfile.Insert;
+                    TempDocumentSendingProfile.Insert();
 
                     if PAGE.RunModal(PAGE::"Select Sending Options", TempDocumentSendingProfile) = ACTION::LookupOK then begin
                         Copy(TempDocumentSendingProfile);

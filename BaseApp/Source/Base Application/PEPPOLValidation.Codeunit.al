@@ -26,8 +26,8 @@ codeunit 1620 "PEPPOL Validation"
         Customer: Record Customer;
     begin
         with SalesHeader do begin
-            CompanyInfo.Get;
-            GLSetup.Get;
+            CompanyInfo.Get();
+            GLSetup.Get();
 
             CheckCurrencyCode("Currency Code");
 
@@ -238,10 +238,10 @@ codeunit 1620 "PEPPOL Validation"
     begin
         CheckSalesDocument(SalesHeader);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 CheckSalesDocumentLine(SalesLine);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure CheckCurrencyCode(CurrencyCode: Code[10])
@@ -253,7 +253,7 @@ codeunit 1620 "PEPPOL Validation"
         MaxCurrencyCodeLength := 3;
 
         if CurrencyCode = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetup.TestField("LCY Code");
             CurrencyCode := GLSetup."LCY Code";
         end;
@@ -277,7 +277,7 @@ codeunit 1620 "PEPPOL Validation"
         MaxCountryCodeLength := 2;
 
         if CountryRegionCode = '' then begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             CompanyInfo.TestField("Country/Region Code");
             CountryRegionCode := CompanyInfo."Country/Region Code";
         end;

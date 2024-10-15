@@ -45,7 +45,7 @@ codeunit 10613 "E-Invoice Check Fin. Chrg.Memo"
     local procedure ReadCompanyInfo()
     begin
         if not CompanyInfoRead then begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             CompanyInfoRead := true;
         end;
     end;
@@ -53,7 +53,7 @@ codeunit 10613 "E-Invoice Check Fin. Chrg.Memo"
     local procedure ReadGLSetup()
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
     end;

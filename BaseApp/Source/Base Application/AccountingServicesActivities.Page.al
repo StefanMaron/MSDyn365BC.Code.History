@@ -42,12 +42,17 @@ page 9070 "Accounting Services Activities"
                         var
                             IncomingDocument: Record "Incoming Document";
                             InStr: InStream;
-                            PictureName: Text;
                         begin
-                            if not Camera.GetPicture(InStr, PictureName) then
+                            if not HasCamera then
                                 exit;
 
-                            IncomingDocument.CreateIncomingDocument(InStr, PictureName);
+                            Camera.SetQuality(100); // 100%
+                            Camera.RunModal();
+                            if Camera.HasPicture() then begin
+                                Camera.GetPicture(InStr);
+                                IncomingDocument.CreateIncomingDocument(InStr, 'Incoming Document Picture');
+                            end;
+                            Clear(Camera);
                             CurrPage.Update;
                         end;
                     }
@@ -103,7 +108,7 @@ page 9070 "Accounting Services Activities"
 
     var
         UserTaskManagement: Codeunit "User Task Management";
-        Camera: Codeunit Camera;
+        Camera: Page Camera;
         [InDataSet]
         HasCamera: Boolean;
 }

@@ -18,7 +18,7 @@ codeunit 5639 "FA Get Journal"
         TemplateName2: Code[10];
         BatchName2: Code[10];
 
-    procedure JnlName(DeprBookCode: Code[10]; BudgetAsset: Boolean; FAPostingType: Option "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value"; var GLIntegration: Boolean; var TemplateName: Code[10]; var BatchName: Code[10])
+    procedure JnlName(DeprBookCode: Code[10]; BudgetAsset: Boolean; FAPostingType: Enum "FA Journal Line FA Posting Type"; var GLIntegration: Boolean; var TemplateName: Code[10]; var BatchName: Code[10])
     var
         GLIntegration2: Boolean;
     begin
@@ -103,7 +103,7 @@ codeunit 5639 "FA Get Journal"
         end;
     end;
 
-    local procedure CalcGLIntegration(BudgetAsset: Boolean; FAPostingType: Option "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value"): Boolean
+    local procedure CalcGLIntegration(BudgetAsset: Boolean; FAPostingType: Enum "FA Journal Line FA Posting Type"): Boolean
     begin
         if BudgetAsset then
             exit(false);

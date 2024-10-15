@@ -156,7 +156,7 @@ codeunit 311 "Item-Check Avail."
         OldItemNetChange := 0;
         OldSalesLine := SalesLine;
         if OldSalesLine.Find then begin // Find previous quantity within Check-Avail. Period
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             LookAheadDate :=
               AvailableToPromise.GetLookAheadPeriodEndDate(
                 CompanyInfo."Check-Avail. Period Calc.", CompanyInfo."Check-Avail. Time Bucket", SalesLine."Shipment Date");
@@ -194,7 +194,7 @@ codeunit 311 "Item-Check Avail."
             OldSalesLine."Shipment Date"));
     end;
 
-    local procedure ShowWarning(ItemNoArg: Code[20]; ItemVariantCodeArg: Code[10]; ItemLocationCodeArg: Code[10]; UnitOfMeasureCodeArg: Code[10]; QtyPerUnitOfMeasureArg: Decimal; NewItemNetChangeArg: Decimal; OldItemNetChangeArg: Decimal; ShipmentDateArg: Date; OldShipmentDateArg: Date): Boolean
+    procedure ShowWarning(ItemNoArg: Code[20]; ItemVariantCodeArg: Code[10]; ItemLocationCodeArg: Code[10]; UnitOfMeasureCodeArg: Code[10]; QtyPerUnitOfMeasureArg: Decimal; NewItemNetChangeArg: Decimal; OldItemNetChangeArg: Decimal; ShipmentDateArg: Date; OldShipmentDateArg: Date): Boolean
     var
         Item: Record Item;
     begin
@@ -235,7 +235,7 @@ codeunit 311 "Item-Check Avail."
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         QtyAvailToPromise(Item, CompanyInfo);
         EarliestAvailDate := EarliestAvailabilityDate(Item, CompanyInfo);
 
@@ -462,7 +462,7 @@ codeunit 311 "Item-Check Avail."
             if "Due Date" = 0D then
                 "Due Date" := WorkDate;
             SetFilterOnItem(Item, "Item No.", "Variant Code", "Location Code", "Due Date");
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             QtyAvailToPromise(Item, CompanyInfo);
 
             OldAssemblyHeader := AssemblyHeader;
@@ -507,7 +507,7 @@ codeunit 311 "Item-Check Avail."
         Error(Text000);
     end;
 
-    local procedure ShowAndHandleAvailabilityPage(RecordId: RecordID) Rollback: Boolean
+    procedure ShowAndHandleAvailabilityPage(RecordId: RecordID) Rollback: Boolean
     var
         ItemNo2: Code[20];
         UnitOfMeasureCode2: Code[10];
@@ -587,7 +587,7 @@ codeunit 311 "Item-Check Avail."
                 exit(true);
             Item."Stockout Warning"::Default:
                 begin
-                    SalesSetup.Get;
+                    SalesSetup.Get();
                     if SalesSetup."Stockout Warning" then
                         exit(true);
                     exit(false);

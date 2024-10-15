@@ -36,7 +36,7 @@ page 9820 "Control Add-ins"
                 field(Category; Category)
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the category of the add-in. The following table describes the types that are available:';
+                    ToolTip = 'Specifies the category of the add-in. There are four categories: DotNet Control Add-in, DotNet Interoperability, Javascript Control Add-in and Language Resource.';
                 }
                 field(Description; Description)
                 {
@@ -47,7 +47,7 @@ page 9820 "Control Add-ins"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Resource', Locked = true;
-                    ToolTip = 'Specifies the URL to the resource zip file.';
+                    ToolTip = 'Specifies if the add-in has a resource. The resource can be used to stream the add-in to the Business Central Server instance.';
                 }
             }
         }

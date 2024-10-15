@@ -43,7 +43,7 @@ xmlport 10601 "EHF Reminder 3.0"
                 trigger OnBeforePassVariable()
                 begin
                     if Note = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(TaxPointDate)
@@ -53,7 +53,7 @@ xmlport 10601 "EHF Reminder 3.0"
                 trigger OnBeforePassVariable()
                 begin
                     if TaxPointDate = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(DocumentCurrencyCode)
@@ -67,7 +67,7 @@ xmlport 10601 "EHF Reminder 3.0"
                 trigger OnBeforePassVariable()
                 begin
                     if AccountingCost = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(BuyerReference)
@@ -98,7 +98,7 @@ xmlport 10601 "EHF Reminder 3.0"
                       EndDate);
 
                     if (StartDate = '') and (EndDate = '') then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(BillingReference)
@@ -119,7 +119,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     trigger OnBeforePassVariable()
                     begin
                         if InvoiceDocRefID = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
 
@@ -147,7 +147,7 @@ xmlport 10601 "EHF Reminder 3.0"
                         trigger OnBeforePassVariable()
                         begin
                             if SupplierEndpointID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(PartyIdentification)
@@ -166,7 +166,7 @@ xmlport 10601 "EHF Reminder 3.0"
                         trigger OnBeforePassVariable()
                         begin
                             if PartyIdentificationID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(supplierpartyname)
@@ -190,7 +190,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if StreetName = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(supplieradditionalstreetname)
@@ -201,7 +201,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if SupplierAdditionalStreetName = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(CityName)
@@ -211,7 +211,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if CityName = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(PostalZone)
@@ -221,7 +221,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if PostalZone = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(CountrySubentity)
@@ -231,7 +231,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if CountrySubentity = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(Country)
@@ -256,7 +256,7 @@ xmlport 10601 "EHF Reminder 3.0"
                                 trigger OnBeforePassVariable()
                                 begin
                                     if CompanyIDSchemeID = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                         }
@@ -267,7 +267,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if ExemptionReason = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(suppliertaxscheme)
@@ -284,7 +284,7 @@ xmlport 10601 "EHF Reminder 3.0"
                         trigger OnBeforePassVariable()
                         begin
                             if CompanyID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(partytaxschemeno)
@@ -302,7 +302,7 @@ xmlport 10601 "EHF Reminder 3.0"
                                 trigger OnBeforePassVariable()
                                 begin
                                     if CompanyIDSchemeID = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
                         }
@@ -314,7 +314,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if ExemptionReason = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(suppliertaxschemeno)
@@ -331,7 +331,7 @@ xmlport 10601 "EHF Reminder 3.0"
                         trigger OnBeforePassVariable()
                         begin
                             if CompanyIDNO = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(PartyLegalEntity)
@@ -345,7 +345,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if PartyLegalEntityRegName = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(partylegalentitycompanyid)
@@ -359,14 +359,14 @@ xmlport 10601 "EHF Reminder 3.0"
                                 trigger OnBeforePassVariable()
                                 begin
                                     if PartyLegalEntitySchemeID = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
 
                             trigger OnBeforePassVariable()
                             begin
                                 if PartyLegalEntityCompanyID = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                     }
@@ -381,7 +381,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if ContactName = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(Telephone)
@@ -391,7 +391,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if Telephone = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(Telefax)
@@ -401,7 +401,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if Telefax = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(ElectronicMail)
@@ -411,14 +411,14 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if ElectronicMail = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
 
                         trigger OnBeforePassVariable()
                         begin
                             if (ContactName = '') and (Telephone = '') and (Telefax = '') and (ElectronicMail = '') then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                 }
@@ -491,7 +491,7 @@ xmlport 10601 "EHF Reminder 3.0"
                         trigger OnBeforePassVariable()
                         begin
                             if CustomerEndpointID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(customerpartyidentification)
@@ -511,7 +511,7 @@ xmlport 10601 "EHF Reminder 3.0"
                         trigger OnBeforePassVariable()
                         begin
                             if CustomerPartyIdentificationID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(custoemerpartyname)
@@ -541,7 +541,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if CustomerAdditionalStreetName = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(customercityname)
@@ -562,7 +562,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if CustomerCountrySubentity = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(customercountry)
@@ -591,14 +591,14 @@ xmlport 10601 "EHF Reminder 3.0"
                                 trigger OnBeforePassVariable()
                                 begin
                                     if CustPartyTaxSchemeCompIDSchID = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
 
                             trigger OnBeforePassVariable()
                             begin
                                 if CustPartyTaxSchemeCompanyID = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(custtaxscheme)
@@ -615,7 +615,7 @@ xmlport 10601 "EHF Reminder 3.0"
                         trigger OnBeforePassVariable()
                         begin
                             if CustTaxSchemeID = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(custpartylegalentity)
@@ -630,7 +630,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if CustPartyLegalEntityRegName = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(custpartylegalentitycompanyid)
@@ -644,14 +644,14 @@ xmlport 10601 "EHF Reminder 3.0"
                                 trigger OnBeforePassVariable()
                                 begin
                                     if schemeID = '' then
-                                        currXMLport.Skip;
+                                        currXMLport.Skip();
                                 end;
                             }
 
                             trigger OnBeforePassVariable()
                             begin
                                 if CustPartyLegalEntityCompanyID = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                     }
@@ -672,7 +672,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if CustContactTelephone = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(custcontacttelefax)
@@ -683,7 +683,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if CustContactTelefax = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(custcontactelectronicmail)
@@ -694,7 +694,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if CustContactElectronicMail = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
 
@@ -703,7 +703,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             if (CustContactName = '') and (CustContactElectronicMail = '') and
                                (CustContactTelephone = '') and (CustContactTelefax = '')
                             then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                 }
@@ -789,7 +789,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     trigger OnBeforePassVariable()
                     begin
                         if PayeePartyTaxScheme = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
 
@@ -802,7 +802,7 @@ xmlport 10601 "EHF Reminder 3.0"
                       PayeePartyTaxSchemeTaxSchemeID);
 
                     if TaxRepPartyPartyName = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(PaymentMeans)
@@ -819,7 +819,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     trigger OnBeforePassVariable()
                     begin
                         if PaymentChannelCode = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(PaymentID)
@@ -829,7 +829,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     trigger OnBeforePassVariable()
                     begin
                         if PaymentID = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(CardAccount)
@@ -847,7 +847,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     trigger OnBeforePassVariable()
                     begin
                         if PrimaryAccountNumberID = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(PayeeFinancialAccount)
@@ -908,7 +908,7 @@ xmlport 10601 "EHF Reminder 3.0"
                       PaymentTermsNote);
 
                     if PaymentTermsNote = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
 
                 trigger OnPreXmlItem()
@@ -932,7 +932,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     trigger OnBeforePassVariable()
                     begin
                         if AllowanceChargeReasonCode = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(AllowanceChargeReason)
@@ -942,7 +942,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     trigger OnBeforePassVariable()
                     begin
                         if AllowanceChargeReason = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(Amount)
@@ -972,7 +972,7 @@ xmlport 10601 "EHF Reminder 3.0"
                         trigger OnBeforePassVariable()
                         begin
                             if Percent = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
                     }
                     textelement(TaxScheme)
@@ -989,7 +989,7 @@ xmlport 10601 "EHF Reminder 3.0"
                 trigger OnAfterGetRecord()
                 begin
                     if not FindNextVATAmtRec(TempVATAmtLine, AllowanceChargeLoop.Number) then
-                        currXMLport.Break;
+                        currXMLport.Break();
 
                     PEPPOLMgt.GetAllowanceChargeInfoReminder(
                       TempVATAmtLine,
@@ -1005,7 +1005,7 @@ xmlport 10601 "EHF Reminder 3.0"
                       AllowanceChargeTaxSchemeID);
 
                     if ChargeIndicator = '' then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
                 end;
             }
             textelement(TaxTotal)
@@ -1065,7 +1065,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if TaxExemptionReason = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(taxsubtotaltaxscheme)
@@ -1086,7 +1086,7 @@ xmlport 10601 "EHF Reminder 3.0"
                         TransCurrTaxAmtCurrencyID: Text;
                     begin
                         if not FindNextVATAmtRec(TempVATAmtLine, TaxSubtotalLoop.Number) then
-                            currXMLport.Break;
+                            currXMLport.Break();
 
                         PEPPOLMgt.GetTaxSubtotalInfo(
                           TempVATAmtLine,
@@ -1153,7 +1153,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     trigger OnBeforePassVariable()
                     begin
                         if AllowanceTotalAmount = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(ChargeTotalAmount)
@@ -1167,7 +1167,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     trigger OnBeforePassVariable()
                     begin
                         if ChargeTotalAmount = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(PrepaidAmount)
@@ -1189,7 +1189,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     trigger OnBeforePassVariable()
                     begin
                         if PayableRoundingAmount = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(PayableAmount)
@@ -1247,7 +1247,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     begin
                         ReminderLineNote := TempSalesLine."Description 2";
                         if ReminderLineNote = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(InvoicedQuantity)
@@ -1274,7 +1274,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     trigger OnBeforePassVariable()
                     begin
                         if InvoiceLineAccountingCost = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(invoicelineinvoiceperiod)
@@ -1299,7 +1299,7 @@ xmlport 10601 "EHF Reminder 3.0"
                           InvLineInvoicePeriodEndDate);
 
                         if (InvLineInvoicePeriodStartDate = '') and (InvLineInvoicePeriodEndDate = '') then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(OrderLineReference)
@@ -1314,7 +1314,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     trigger OnBeforePassVariable()
                     begin
                         if OrderLineReferenceLineID = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 textelement(invoicelinedelivery)
@@ -1403,7 +1403,7 @@ xmlport 10601 "EHF Reminder 3.0"
                            (InvoiceLineDeliveryStreetName = '') and
                            (InvoiceLineActualDeliveryDate = '')
                         then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
                 }
                 tableelement(invlnallowancechargeloop; Integer)
@@ -1442,7 +1442,7 @@ xmlport 10601 "EHF Reminder 3.0"
                           InvLnAllowanceChargeAmtCurrID);
 
                         if InvLnAllowanceChargeIndicator = '' then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                     end;
 
                     trigger OnPreXmlItem()
@@ -1477,7 +1477,7 @@ xmlport 10601 "EHF Reminder 3.0"
                             trigger OnBeforePassVariable()
                             begin
                                 if InvoiceLineTaxPercent = '' then
-                                    currXMLport.Skip;
+                                    currXMLport.Skip();
                             end;
                         }
                         textelement(classifiedtaxcategorytaxscheme)
@@ -1582,7 +1582,7 @@ xmlport 10601 "EHF Reminder 3.0"
                               PriceAllowChargeBaseAmtCurrID);
 
                             if PriceChargeIndicator = '' then
-                                currXMLport.Skip;
+                                currXMLport.Skip();
                         end;
 
                         trigger OnPreXmlItem()
@@ -1606,10 +1606,10 @@ xmlport 10601 "EHF Reminder 3.0"
                 trigger OnAfterGetRecord()
                 begin
                     if ReminderLineLoop.Number = 1 then
-                        TempSalesLine.FindFirst
+                        TempSalesLine.FindFirst()
                     else
-                        if TempSalesLine.Next = 0 then
-                            currXMLport.Break;
+                        if TempSalesLine.Next() = 0 then
+                            currXMLport.Break();
 
                     PEPPOLMgt.GetLineGeneralInfo(
                       TempSalesLine,
@@ -1630,10 +1630,10 @@ xmlport 10601 "EHF Reminder 3.0"
                 TaxCurrencyCode: Text;
                 TaxCurrencyCodeListID: Text;
             begin
-                if not TempSalesHeader.FindFirst then
-                    currXMLport.Break;
+                if not TempSalesHeader.FindFirst() then
+                    currXMLport.Break();
 
-                GetTotals;
+                GetTotals();
 
                 PEPPOLMgt.GetGeneralInfo(
                   TempSalesHeader,
@@ -1684,18 +1684,18 @@ xmlport 10601 "EHF Reminder 3.0"
 
     local procedure GetTotals()
     begin
-        if TempSalesLine.FindSet then
+        if TempSalesLine.FindSet() then
             repeat
                 PEPPOLMgt.GetTotals(TempSalesLine, TempVATAmtLine);
                 PEPPOLMgt.GetTaxCategories(TempSalesLine, TempVATProductPostingGroup);
-            until TempSalesLine.Next = 0;
+            until TempSalesLine.Next() = 0;
     end;
 
     local procedure FindNextVATAmtRec(var VATAmtLine: Record "VAT Amount Line"; Position: Integer): Boolean
     begin
         if Position = 1 then
-            exit(VATAmtLine.FindFirst);
-        exit(VATAmtLine.Next <> 0);
+            exit(VATAmtLine.FindFirst());
+        exit(VATAmtLine.Next() <> 0);
     end;
 
     procedure Initialize(DocVariant: Variant)
@@ -1705,7 +1705,7 @@ xmlport 10601 "EHF Reminder 3.0"
         RecRef: RecordRef;
     begin
         RecRef.GetTable(DocVariant);
-        case RecRef.Number of
+        case RecRef.Number() of
             DATABASE::"Issued Reminder Header":
                 begin
                     RecRef.SetTable(IssuedReminderHeader);
@@ -1717,7 +1717,7 @@ xmlport 10601 "EHF Reminder 3.0"
                     PEPPOLMgt.CopyIssuedFinCharge(TempSalesHeader, TempSalesLine, IssuedFinChargeMemoHeader."No.");
                 end;
             else
-                Error(UnSupportedTableTypeErr, RecRef.Number);
+                Error(UnSupportedTableTypeErr, RecRef.Number());
         end;
     end;
 }

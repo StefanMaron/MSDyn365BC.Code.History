@@ -1,4 +1,4 @@
-﻿page 508 "Blanket Sales Order Subform"
+page 508 "Blanket Sales Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -768,7 +768,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowPrices
+                        PickPrice();
                     end;
                 }
                 action("Get Li&ne Discount")
@@ -782,7 +782,7 @@
 
                     trigger OnAction()
                     begin
-                        ShowLineDisc
+                        PickDiscount();
                     end;
                 }
                 action("E&xplode BOM")
@@ -841,7 +841,7 @@
 
     trigger OnInit()
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         Currency.InitRoundingPrecision;
     end;
 
@@ -866,11 +866,9 @@
         SalesLine: Record "Sales Line";
         TotalSalesHeader: Record "Sales Header";
         TotalSalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
         Currency: Record Currency;
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         DocumentTotals: Codeunit "Document Totals";
@@ -922,7 +920,7 @@
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.SalesCheckIfAnyExtText(Rec, Unconditionally) then begin
             CurrPage.SaveRecord;
-            Commit;
+            Commit();
             TransferExtendedText.InsertSalesExtText(Rec);
         end;
         if TransferExtendedText.MakeUpdate then
@@ -958,24 +956,10 @@
         InvDiscAmountEditable := CurrPage.Editable and not SalesReceivablesSetup."Calc. Inv. Discount";
     end;
 
-    local procedure ShowPrices()
-    begin
-        SalesHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetSalesLinePrice(SalesHeader, Rec);
-    end;
-
-    local procedure ShowLineDisc()
-    begin
-        SalesHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetSalesLineLineDisc(SalesHeader, Rec);
-    end;
-
     local procedure ShowOrders()
     begin
         CurrentSalesLine := Rec;
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
@@ -986,7 +970,7 @@
     local procedure ShowInvoices()
     begin
         CurrentSalesLine := Rec;
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
@@ -997,7 +981,7 @@
     local procedure ShowReturnOrders()
     begin
         CurrentSalesLine := Rec;
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Return Order");
         SalesLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
@@ -1008,7 +992,7 @@
     local procedure ShowCreditMemos()
     begin
         CurrentSalesLine := Rec;
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
@@ -1021,7 +1005,7 @@
         SaleShptLine: Record "Sales Shipment Line";
     begin
         CurrentSalesLine := Rec;
-        SaleShptLine.Reset;
+        SaleShptLine.Reset();
         SaleShptLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
         SaleShptLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
         SaleShptLine.SetRange("Blanket Order Line No.", CurrentSalesLine."Line No.");
@@ -1033,7 +1017,7 @@
         SalesInvLine: Record "Sales Invoice Line";
     begin
         CurrentSalesLine := Rec;
-        SalesInvLine.Reset;
+        SalesInvLine.Reset();
         SalesInvLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
         SalesInvLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
         SalesInvLine.SetRange("Blanket Order Line No.", CurrentSalesLine."Line No.");
@@ -1045,7 +1029,7 @@
         ReturnRcptLine: Record "Return Receipt Line";
     begin
         CurrentSalesLine := Rec;
-        ReturnRcptLine.Reset;
+        ReturnRcptLine.Reset();
         ReturnRcptLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
         ReturnRcptLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
         ReturnRcptLine.SetRange("Blanket Order Line No.", CurrentSalesLine."Line No.");
@@ -1057,7 +1041,7 @@
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
         CurrentSalesLine := Rec;
-        SalesCrMemoLine.Reset;
+        SalesCrMemoLine.Reset();
         SalesCrMemoLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
         SalesCrMemoLine.SetRange("Blanket Order No.", CurrentSalesLine."Document No.");
         SalesCrMemoLine.SetRange("Blanket Order Line No.", CurrentSalesLine."Line No.");

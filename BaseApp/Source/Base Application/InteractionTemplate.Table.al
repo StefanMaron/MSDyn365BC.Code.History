@@ -66,11 +66,9 @@ table 5064 "Interaction Template"
         {
             Caption = 'Campaign Response';
         }
-        field(12; "Correspondence Type (Default)"; Option)
+        field(12; "Correspondence Type (Default)"; Enum "Correspondence Type")
         {
             Caption = 'Correspondence Type (Default)';
-            OptionCaption = ' ,Hard Copy,Email,Fax';
-            OptionMembers = " ","Hard Copy",Email,Fax;
 
             trigger OnValidate()
             var
@@ -140,11 +138,11 @@ table 5064 "Interaction Template"
             begin
                 if not InteractTmplLanguage.Get(Code, "Language Code (Default)") then begin
                     if Confirm(Text004, true, InteractTmplLanguage.TableCaption, "Language Code (Default)") then begin
-                        InteractTmplLanguage.Init;
+                        InteractTmplLanguage.Init();
                         InteractTmplLanguage."Interaction Template Code" := Code;
                         InteractTmplLanguage."Language Code" := "Language Code (Default)";
                         InteractTmplLanguage.Description := Description;
-                        InteractTmplLanguage.Insert;
+                        InteractTmplLanguage.Insert();
                     end else
                         Error('');
                 end;
@@ -158,11 +156,9 @@ table 5064 "Interaction Template"
                 CalcFields("Attachment No.");
             end;
         }
-        field(18; "Wizard Action"; Option)
+        field(18; "Wizard Action"; Enum "Interaction Template Wizard Action")
         {
             Caption = 'Wizard Action';
-            OptionCaption = ' ,Open,Import,Merge';
-            OptionMembers = " ",Open,Import,Merge;
 
             trigger OnValidate()
             var

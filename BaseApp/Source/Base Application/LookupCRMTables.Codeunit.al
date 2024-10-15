@@ -8,8 +8,13 @@ codeunit 5332 "Lookup CRM Tables"
     procedure Lookup(CRMTableID: Integer; NAVTableId: Integer; SavedCRMId: Guid; var CRMId: Guid): Boolean
     var
         IntTableFilter: Text;
+        Handled: Boolean;
     begin
         IntTableFilter := GetIntegrationTableFilter(CRMTableID, NAVTableId);
+
+        OnLookupCRMTables(CRMTableID, NAVTableId, SavedCRMId, CRMId, IntTableFilter, Handled);
+        if Handled then
+            exit(true);
 
         case CRMTableID of
             DATABASE::"CRM Account":
@@ -305,6 +310,11 @@ codeunit 5332 "Lookup CRM Tables"
             until IntegrationTableMapping.Next = 0;
 
         exit(RecRef[1].GetView(false));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupCRMTables(CRMTableID: Integer; NAVTableId: Integer; SavedCRMId: Guid; var CRMId: Guid; IntTableFilter: Text; var Handled: Boolean)
+    begin
     end;
 }
 

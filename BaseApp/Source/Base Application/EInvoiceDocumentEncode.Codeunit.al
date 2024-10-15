@@ -119,7 +119,7 @@ codeunit 10610 "E-Invoice Document Encode"
     procedure ReadCompanyInfo()
     begin
         if not CompanyInfoRead then begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             CompanyInfoRead := true;
         end;
     end;
@@ -128,7 +128,7 @@ codeunit 10610 "E-Invoice Document Encode"
     procedure ReadGLSetup()
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
     end;

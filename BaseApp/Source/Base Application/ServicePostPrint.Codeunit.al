@@ -40,20 +40,21 @@ codeunit 5982 "Service-Post+Print"
             exit;
 
         with ServiceHeader do begin
-            case "Document Type" of
-                "Document Type"::Order:
-                    begin
-                        Selection := StrMenu(Text000, 3);
-                        if Selection = 0 then
+            if not HideDialog then
+                case "Document Type" of
+                    "Document Type"::Order:
+                        begin
+                            Selection := StrMenu(Text000, 3);
+                            if Selection = 0 then
+                                exit;
+                            Ship := Selection in [1, 3, 4];
+                            Consume := Selection in [4];
+                            Invoice := Selection in [2, 3];
+                        end
+                    else
+                        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text001, "Document Type"), true) then
                             exit;
-                        Ship := Selection in [1, 3, 4];
-                        Consume := Selection in [4];
-                        Invoice := Selection in [2, 3];
-                    end
-                else
-                    if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text001, "Document Type"), true) then
-                        exit;
-            end;
+                end;
 
             OnAfterConfirmPost(ServiceHeader, Ship, Consume, Invoice);
 
@@ -61,7 +62,7 @@ codeunit 5982 "Service-Post+Print"
             OnAfterPost(ServiceHeader);
 
             GetReport(ServiceHeader);
-            Commit;
+            Commit();
         end;
     end;
 

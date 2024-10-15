@@ -182,7 +182,7 @@ report 130 "EC Sales List"
                                 if (VATEntry."EU Service" = "EU Service") and (VATEntry."EU 3-Party Trade" = "EU 3-Party Trade") then
                                     CurrReport.Skip
                             end else
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         ResetVATEntry := true
                     end;
 
@@ -208,7 +208,7 @@ report 130 "EC Sales List"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
                 ThirdPartyTrade := (ReportLayout = ReportLayout::"Separate &Lines");
             end;
@@ -248,12 +248,12 @@ report 130 "EC Sales List"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
 
         VATEntryFilter := "VAT Entry".GetFilters;
 
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

@@ -17,7 +17,7 @@ codeunit 15000300 "Repeating Order to Order"
         TestField("Deactivate recurrence", false);
         TestField("Order Date");
 
-        SalesSetup.Get;
+        SalesSetup.Get();
 
         BlanketOrderSalesLine.SetRange("Document Type", "Document Type");
         BlanketOrderSalesLine.SetRange("Document No.", "No.");
@@ -46,7 +46,7 @@ codeunit 15000300 "Repeating Order to Order"
             repeat
                 Validate("Order Date", NextOrderDate);
                 NextOrderDate := CalcDate(RecurringGroup."Date formula", "Order Date");
-                // Stop if the date is overwritten or not moved (Date formula is for inst. 0D):
+            // Stop if the date is overwritten or not moved (Date formula is for inst. 0D):
             until (NextOrderDate > ProcessingDate) or (NextOrderDate = "Order Date");
         end else
             NextOrderDate := CalcDate(RecurringGroup."Date formula", "Order Date");
@@ -60,7 +60,7 @@ codeunit 15000300 "Repeating Order to Order"
         SalesOrderHeader.Status := SalesOrderHeader.Status::Open;
         SalesOrderHeader."No." := '';
 
-        SalesOrderLine.LockTable;
+        SalesOrderLine.LockTable();
         SalesOrderHeader.Insert(true);
 
         SalesOrderHeader."Dimension Set ID" := "Dimension Set ID";
@@ -80,9 +80,9 @@ codeunit 15000300 "Repeating Order to Order"
         // SalesOrderHeader."Shipment Date" := "Shipment Date";
         SalesOrderHeader."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
         SalesOrderHeader."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
-        SalesOrderHeader.Modify;
+        SalesOrderHeader.Modify();
 
-        BlanketOrderSalesLine.Reset;
+        BlanketOrderSalesLine.Reset();
         BlanketOrderSalesLine.SetRange("Document Type", "Document Type");
         BlanketOrderSalesLine.SetRange("Document No.", "No.");
 
@@ -149,7 +149,7 @@ codeunit 15000300 "Repeating Order to Order"
                         SalesOrderLine.Validate("Unit Price", 0);
                 end;
                 SalesOrderLine."Dimension Set ID" := BlanketOrderSalesLine."Dimension Set ID";
-                SalesOrderLine.Insert;
+                SalesOrderLine.Insert();
 
                 if BlanketOrderSalesLine."Qty. to Ship" <> 0 then begin
                     LinesCreated := true;
@@ -160,7 +160,7 @@ codeunit 15000300 "Repeating Order to Order"
                         RecurringGroup."Update Number"::Reduce:
                             BlanketOrderSalesLine.Validate("Qty. to Ship", 0); // This is the usual procedure
                     end;
-                    BlanketOrderSalesLine.Modify;
+                    BlanketOrderSalesLine.Modify();
                 end;
             until BlanketOrderSalesLine.Next = 0;
 
@@ -173,9 +173,9 @@ codeunit 15000300 "Repeating Order to Order"
             if SalesCommentLine.Find('-') then
                 repeat
                     SalesCommentLine2 := SalesCommentLine;
-                    SalesCommentLine2."Document Type" := SalesOrderHeader."Document Type";
+                    SalesCommentLine2."Document Type" := SalesOrderHeader."Document Type".AsInteger();
                     SalesCommentLine2."No." := SalesOrderHeader."No.";
-                    SalesCommentLine2.Insert;
+                    SalesCommentLine2.Insert();
                 until SalesCommentLine.Next = 0;
         end;
 
@@ -183,7 +183,7 @@ codeunit 15000300 "Repeating Order to Order"
         Modify;
         CreatePost(Rec, SalesOrderHeader);
 
-        Commit;
+        Commit();
         Clear(CustCheckCreditLimit);
         Clear(ItemCheckAvail);
     end;

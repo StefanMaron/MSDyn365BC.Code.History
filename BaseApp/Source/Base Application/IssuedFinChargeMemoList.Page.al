@@ -1,4 +1,4 @@
-﻿page 452 "Issued Fin. Charge Memo List"
+page 452 "Issued Fin. Charge Memo List"
 {
     ApplicationArea = Suite;
     Caption = 'Issued Finance Charge Memos';
@@ -218,7 +218,7 @@
                 Ellipsis = true;
                 Image = Cancel;
                 Promoted = true;
-                PromotedCategory = New;
+                PromotedCategory = Process;
                 ToolTip = 'Cancel the issued finance charge memo.';
 
                 trigger OnAction()

@@ -47,7 +47,7 @@ report 15000062 "Remittance - Import (Bank)"
                     end;
                 end;
                 PaymentOrderData := PaymentOrderData2;
-                PaymentOrderData.Insert;
+                PaymentOrderData.Insert();
             end;
 
             trigger OnPreDataItem()
@@ -75,7 +75,7 @@ report 15000062 "Remittance - Import (Bank)"
 
     trigger OnInitReport()
     begin
-        GenLedgSetup.Get;
+        GenLedgSetup.Get();
         GenLedgSetup.TestField("LCY Code");
         DateNow := Today;
         TimeNow := Time;
@@ -103,7 +103,7 @@ report 15000062 "Remittance - Import (Bank)"
         then
             Error(Text15000005);
 
-        PaymentOrderData2.DeleteAll;
+        PaymentOrderData2.DeleteAll();
     end;
 
     trigger OnPreReport()
@@ -118,11 +118,11 @@ report 15000062 "Remittance - Import (Bank)"
         CreatePaymOrder;
         while TxtFile.Len <> TxtFile.Pos do begin
             TxtFile.Read(FileData);
-            PaymentOrderData2.Init;
+            PaymentOrderData2.Init();
             PaymentOrderData2."Payment Order No." := PaymOrder.ID;
             PaymentOrderData2."Line No" += 1;
             PaymentOrderData2.Data := PadStr(FileData, 80, ' '); // Make sure the line is 80 chars long.;
-            PaymentOrderData2.Insert;
+            PaymentOrderData2.Insert();
         end
     end;
 
@@ -354,7 +354,7 @@ report 15000062 "Remittance - Import (Bank)"
                     WaitingJournal.FieldError("Remittance Status");
             end;
             WaitingJournal.Validate("Payment Order ID - Approved", PaymOrder.ID);
-            WaitingJournal.Modify;
+            WaitingJournal.Modify();
         end else
             if ReturnCode = '02' then begin
                 // Chek whether balance entry is created by the time the next transaction is read:
@@ -392,7 +392,7 @@ report 15000062 "Remittance - Import (Bank)"
                       "Remittance Status", StrSubstNo(Text15000012, WaitingJournal."Remittance Status"));
                 end;
                 // Prepare and insert the journal:
-                GenJournalLine.Init;
+                GenJournalLine.Init();
                 GenJournalLine.TransferFields(WaitingJournal);
                 InitJournalLine(GenJournalLine, RemAccount);
                 if GenJournalLine."Posting Date" <> ValueDate then
@@ -471,14 +471,14 @@ report 15000062 "Remittance - Import (Bank)"
     begin
         // Create import PaymOrder.
         // Select ID. Find the next one:
-        PaymOrder.LockTable;
+        PaymOrder.LockTable();
         if PaymOrder.FindLast then
             NextPaymOrderId := PaymOrder.ID + 1
         else
             NextPaymOrderId := 1;
 
         // Insert new PaymOrder. Remaining data are set later:
-        PaymOrder.Init;
+        PaymOrder.Init();
         PaymOrder.Validate(ID, NextPaymOrderId);
         PaymOrder.Validate(Date, DateNow);
         PaymOrder.Validate(Time, TimeNow);
@@ -546,7 +546,7 @@ report 15000062 "Remittance - Import (Bank)"
         // Post commission:
         if TransCommission <> 0 then begin
             LatestRemAccount.TestField("Charge Account No.");
-            GenJournalLine.Init;
+            GenJournalLine.Init();
             InitJournalLine(GenJournalLine, LatestRemAccount);
             GenJournalLine.Validate("Posting Date", LatestDate);
             GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
@@ -561,7 +561,7 @@ report 15000062 "Remittance - Import (Bank)"
         end;
 
         // Create balance entry:
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         InitJournalLine(GenJournalLine, LatestRemAccount);
         GenJournalLine.Validate("Posting Date", LatestDate);
         GenJournalLine.Validate("Account Type", LatestRemAccount."Account Type");
@@ -590,7 +590,7 @@ report 15000062 "Remittance - Import (Bank)"
         DivergenceLCY := -(GenJournalLine."Amount (LCY)" + BalanceEntryAmountLCY);
         if DivergenceLCY <> 0 then begin
             LatestRemAccount.TestField("Round off/Divergence Acc. No.");
-            GenJournalLine.Init;
+            GenJournalLine.Init();
             InitJournalLine(GenJournalLine, LatestRemAccount);
             GenJournalLine.Validate("Posting Date", LatestDate);
             GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
@@ -756,7 +756,7 @@ report 15000062 "Remittance - Import (Bank)"
                   "Remittance Status", StrSubstNo(Text15000028));
 
             // Release customer entry
-            GenJournalLine.Init; // A journal line with data is used to mark entry.
+            GenJournalLine.Init(); // A journal line with data is used to mark entry.
             GenJournalLine.TransferFields(WaitingJournal); // Copy Waiting journal to gen. journal.
             RemTools.MarkEntry(GenJournalLine, RemAgreement."On Hold Rejection Code", 0);
 
@@ -828,7 +828,7 @@ report 15000062 "Remittance - Import (Bank)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGenJournalLineInsertBalanceEntry(var GenJournalLine: Record "Gen. Journal Line"; BalanceEntryAmountLCY: Decimal);
+    local procedure OnBeforeGenJournalLineInsertBalanceEntry(var GenJournalLine: Record "Gen. Journal Line"; var BalanceEntryAmountLCY: Decimal);
     begin
     end;
 }

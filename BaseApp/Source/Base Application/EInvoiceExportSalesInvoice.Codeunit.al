@@ -64,7 +64,7 @@ codeunit 10619 "E-Invoice Export Sales Invoice"
         until TempEInvoiceExportLine.Next = 0;
 
         // Save file
-        SalesSetup.Get;
+        SalesSetup.Get();
         EInvoiceExportCommon.SaveToXML(TempEInvoiceTransferFile, SalesSetup."E-Invoice Sales Invoice Path", "No.");
         SetEInvoiceStatusCreated("No.");
     end;
@@ -89,10 +89,10 @@ codeunit 10619 "E-Invoice Export Sales Invoice"
         SalesInvoiceHeader."Currency Code" := EInvoiceDocumentEncode.GetEInvoiceCurrencyCode(SalesInvoiceHeader."Currency Code");
 
         // Fill-in the fields which have the same field ID and type
-        TempEInvoiceExportHeader.Init;
+        TempEInvoiceExportHeader.Init();
         TempEInvoiceExportHeader.TransferFields(SalesInvoiceHeader, true);
         if TempEInvoiceExportHeader."Currency Code" = '' then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             TempEInvoiceExportHeader."Currency Code" := GeneralLedgerSetup."LCY Code";
         end;
 
@@ -154,14 +154,14 @@ codeunit 10619 "E-Invoice Export Sales Invoice"
         if TempEInvoiceExportLine.FindLast then
             Id := TempEInvoiceExportLine.ID + 1;
 
-        TempEInvoiceExportLine.Init;
+        TempEInvoiceExportLine.Init();
         TempEInvoiceExportLine.ID := Id;
         TempEInvoiceExportLine.TransferFields(SalesInvoiceLine, true);
         if SalesCommentLine.Get(
              SalesCommentLine."Document Type"::"Posted Invoice", SalesInvoiceLine."Document No.", SalesInvoiceLine."Line No.", 10000)
         then
             TempEInvoiceExportLine.Comment := SalesCommentLine.Comment;
-        TempEInvoiceExportLine.Insert;
+        TempEInvoiceExportLine.Insert();
     end;
 
     local procedure GetCustomizationID(SalesInvoiceHeader: Record "Sales Invoice Header"): Text[250]
@@ -180,7 +180,7 @@ codeunit 10619 "E-Invoice Export Sales Invoice"
             if ResponsibilityCenter.Get(SalesInvoiceHeader."Responsibility Center") then
                 CountryCode := ResponsibilityCenter."Country/Region Code"
             else begin
-                CompanyInformation.Get;
+                CompanyInformation.Get();
                 CountryCode := CompanyInformation."Country/Region Code";
             end;
 
@@ -212,7 +212,7 @@ codeunit 10619 "E-Invoice Export Sales Invoice"
     begin
         SalesInvoiceHeader.Get(DocumentNo);
         SalesInvoiceHeader."E-Invoice Created" := true;
-        SalesInvoiceHeader.Modify;
+        SalesInvoiceHeader.Modify();
     end;
 }
 

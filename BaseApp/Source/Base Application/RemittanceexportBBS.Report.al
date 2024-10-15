@@ -21,6 +21,7 @@ report 15000060 "Remittance - export (BBS)"
                 LastLine: Boolean;
                 VendBalance: Decimal;
                 FirstPaymOrder: Boolean;
+                UndefinedValue: Integer;
             begin
                 OnBeforeOnPreDataItemGenJournalLine(CurrentGenJournalLine, "Gen. Journal Line");
 
@@ -56,7 +57,8 @@ report 15000060 "Remittance - export (BBS)"
                 // 5. Done when all the lines are processed.
                 GenJournalLineRec.Find('-');  // Start with the first line, the new key applied.
                 StoreGenJournalLine.Init();
-                StoreGenJournalLine."Remittance Type" := -1;
+                UndefinedValue := -1;
+                StoreGenJournalLine."Remittance Type" := UndefinedValue;
                 FirstPaymOrder := true;
                 repeat
                     if NextSelection then begin  // Continue with next selection:
@@ -273,7 +275,7 @@ report 15000060 "Remittance - export (BBS)"
 
     trigger OnPreReport()
     begin
-        GenLedgSetup.Get;
+        GenLedgSetup.Get();
         GenLedgSetup.TestField("LCY Code");
     end;
 
@@ -686,7 +688,7 @@ report 15000060 "Remittance - export (BBS)"
     [Scope('OnPrem')]
     procedure MoveToWaitingJournal(JournalLine: Record "Gen. Journal Line")
     begin
-        WaitingJournal.Init;
+        WaitingJournal.Init();
         WaitingJournal.TransferFields(JournalLine);
         WaitingJournal."Payment Order ID - Sent" := RemittancePaymentOrder.ID;
         WaitingJournal."Remittance Status" := WaitingJournal."Remittance Status"::Sent;
@@ -764,8 +766,8 @@ report 15000060 "Remittance - export (BBS)"
     var
         WaitingJournal: Record "Waiting Journal";
     begin
-        WaitingJournal.LockTable;  // Serial no. depends on the existing Waiting journal.
-        WaitingJournal.Init;
+        WaitingJournal.LockTable();  // Serial no. depends on the existing Waiting journal.
+        WaitingJournal.Init();
         if WaitingJournal.FindLast then
             exit(WaitingJournal.Reference + 1);
 

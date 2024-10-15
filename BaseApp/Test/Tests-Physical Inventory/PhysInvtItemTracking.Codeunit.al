@@ -486,7 +486,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         LibraryVariableStorage.Clear;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Phys. Invt. Item Tracking");
     end;
 
@@ -522,7 +522,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
 
     local procedure CreatePhysInventoryOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; LocationCode: Code[10])
     begin
-        PhysInvtOrderHeader.Init;
+        PhysInvtOrderHeader.Init();
         PhysInvtOrderHeader.Insert(true);
         PhysInvtOrderHeader.Validate("Location Code", LocationCode);
         PhysInvtOrderHeader.Modify(true);
@@ -532,7 +532,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     var
         RecRef: RecordRef;
     begin
-        PhysInvtOrderLine.Init;
+        PhysInvtOrderLine.Init();
         PhysInvtOrderLine.Validate("Document No.", DocumentNo);
         RecRef.GetTable(PhysInvtOrderLine);
         PhysInvtOrderLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, PhysInvtOrderLine.FieldNo("Line No.")));
@@ -573,7 +573,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         ItemJournalBatch: Record "Item Journal Batch";
         Bin: Record Bin;
     begin
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
         SelectItemJournalBatch(ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
@@ -592,7 +592,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, BinCode, 1);
         LibraryVariableStorage.Enqueue(SerialNo); // Enqueue value for use in ItemTrackingSetSerialNoPageHandler
         ItemJournalLine.OpenItemTrackingLines(false);  // Invokes ItemTrackingPageHandler.
@@ -603,7 +603,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        ItemJournalLine.DeleteAll;
+        ItemJournalLine.DeleteAll();
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, '', Qty);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -692,7 +692,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     var
         PhysInventoryOrder: TestPage "Physical Inventory Order";
     begin
-        Commit;  // COMMIT required for explicit commit used in CalculateLines - OnAction, Page 5005350 Phys. Inventory Order.
+        Commit();  // COMMIT required for explicit commit used in CalculateLines - OnAction, Page 5005350 Phys. Inventory Order.
         // Enqueue value for use in CalcPhysOrderLinesRequestPageHandler.
         LibraryVariableStorage.Enqueue(LocationCode);
         LibraryVariableStorage.Enqueue(ItemNo);
@@ -706,7 +706,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
     var
         PhysInventoryOrder: TestPage "Physical Inventory Order";
     begin
-        Commit;  // COMMIT required for explicit commit used in CalculateLines - OnAction, Page 5005350 Phys. Inventory Order.
+        Commit();  // COMMIT required for explicit commit used in CalculateLines - OnAction, Page 5005350 Phys. Inventory Order.
         // Enqueue value for use in CalcPhysOrderLinesBinsRequestPageHandler.
         LibraryVariableStorage.Enqueue(LocationCode);
         LibraryVariableStorage.Enqueue(ItemNo);
@@ -727,7 +727,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         Clear(CopyOfPhysInvtRecordLine);
         CopyOfPhysInvtRecordLine := PhysInvtRecordLine;
         CopyOfPhysInvtRecordLine."Line No." := LineNo;
-        CopyOfPhysInvtRecordLine.Insert;
+        CopyOfPhysInvtRecordLine.Insert();
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20])

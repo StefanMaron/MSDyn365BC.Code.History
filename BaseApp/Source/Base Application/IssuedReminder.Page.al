@@ -1,4 +1,4 @@
-﻿page 438 "Issued Reminder"
+page 438 "Issued Reminder"
 {
     Caption = 'Issued Reminder';
     DeleteAllowed = true;

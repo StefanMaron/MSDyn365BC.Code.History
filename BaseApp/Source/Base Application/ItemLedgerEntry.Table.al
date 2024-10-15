@@ -161,22 +161,18 @@ table 32 "Item Ledger Entry"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(79; "Document Type"; Option)
+        field(79; "Document Type"; Enum "Item Ledger Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Sales Shipment,Sales Invoice,Sales Return Receipt,Sales Credit Memo,Purchase Receipt,Purchase Invoice,Purchase Return Shipment,Purchase Credit Memo,Transfer Shipment,Transfer Receipt,Service Shipment,Service Invoice,Service Credit Memo,Posted Assembly';
-            OptionMembers = " ","Sales Shipment","Sales Invoice","Sales Return Receipt","Sales Credit Memo","Purchase Receipt","Purchase Invoice","Purchase Return Shipment","Purchase Credit Memo","Transfer Shipment","Transfer Receipt","Service Shipment","Service Invoice","Service Credit Memo","Posted Assembly";
         }
         field(80; "Document Line No."; Integer)
         {
             Caption = 'Document Line No.';
         }
-        field(90; "Order Type"; Option)
+        field(90; "Order Type"; Enum "Inventory Order Type")
         {
             Caption = 'Order Type';
             Editable = false;
-            OptionCaption = ' ,Production,Transfer,Service,Assembly';
-            OptionMembers = " ",Production,Transfer,Service,Assembly;
         }
         field(91; "Order No."; Code[20])
         {
@@ -416,12 +412,10 @@ table 32 "Item Ledger Entry"
         {
             Caption = 'Expiration Date';
         }
-        field(6510; "Item Tracking"; Option)
+        field(6510; "Item Tracking"; Enum "Item Tracking Entry Type")
         {
             Caption = 'Item Tracking';
             Editable = false;
-            OptionCaption = 'None,Lot No.,Lot and Serial No.,Serial No.';
-            OptionMembers = "None","Lot No.","Lot and Serial No.","Serial No.";
         }
         field(6602; "Return Reason Code"; Code[10])
         {
@@ -523,9 +517,6 @@ table 32 "Item Ledger Entry"
 
     var
         GLSetup: Record "General Ledger Setup";
-        ReservEntry: Record "Reservation Entry";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
-        ReserveItemLedgEntry: Codeunit "Item Ledger Entry-Reserve";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         GLSetupRead: Boolean;
         IsNotOnInventoryErr: Label 'You have insufficient quantity of Item %1 on inventory.';
@@ -533,16 +524,25 @@ table 32 "Item Ledger Entry"
     local procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");
     end;
 
-    procedure ShowReservationEntries(Modal: Boolean)
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
     begin
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, true);
-        ReserveItemLedgEntry.FilterReservFor(ReservEntry, Rec);
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
+    procedure ShowReservationEntries(Modal: Boolean)
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(true);
+        SetReservationFilters(ReservEntry);
         if Modal then
             PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry)
         else
@@ -625,9 +625,15 @@ table 32 "Item Ledger Entry"
 
     procedure UpdateItemTracking()
     var
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ReservEntry: Record "Reservation Entry";
     begin
-        "Item Tracking" := ItemTrackingMgt.ItemTrackingOption("Lot No.", "Serial No.");
+        ReservEntry.CopyTrackingFromItemLedgEntry(Rec);
+        "Item Tracking" := ReservEntry.GetItemTrackingEntryType();
+    end;
+
+    procedure GetSourceCaption(): Text
+    begin
+        exit(StrSubstNo('%1 %2', TableCaption, "Entry No."));
     end;
 
     procedure GetUnitCostLCY(): Decimal
@@ -665,6 +671,23 @@ table 32 "Item Ledger Entry"
     begin
         FilterLinesWithItemToPlan(Item, NetChange);
         exit(not IsEmpty);
+    end;
+
+    procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; NewPositive: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        Reset;
+        SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
+        SetRange("Item No.", ReservationEntry."Item No.");
+        SetRange(Open, true);
+        IsHandled := false;
+        OnFilterLinesForReservationOnBeforeSetFilterVariantCode(Rec, ReservationEntry, Positive, IsHandled);
+        if not IsHandled then
+            SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange(Positive, NewPositive);
+        SetRange("Location Code", ReservationEntry."Location Code");
+        SetRange("Drop Shipment", false);
     end;
 
     procedure IsOutbndSale(): Boolean
@@ -751,6 +774,29 @@ table 32 "Item Ledger Entry"
         exit(("Serial No." <> '') or ("Lot No." <> ''));
     end;
 
+    procedure CopyTrackingFromItemJnlLine(ItemJnlLine: Record "Item Journal Line")
+    begin
+        "Serial No." := ItemJnlLine."Serial No.";
+        "Lot No." := ItemJnlLine."Lot No.";
+
+        OnAfterCopyTrackingFromItemJnlLine(Rec, ItemJnlLine);
+    end;
+
+    procedure CopyTrackingFromNewItemJnlLine(ItemJnlLine: Record "Item Journal Line")
+    begin
+        "Serial No." := ItemJnlLine."New Serial No.";
+        "Lot No." := ItemJnlLine."New Lot No.";
+
+        OnAfterCopyTrackingFromNewItemJnlLine(Rec, ItemJnlLine);
+    end;
+
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyToReserve: Decimal)
+    begin
+        CalcFields("Reserved Quantity");
+        QtyReserved := "Reserved Quantity";
+        QtyToReserve := "Remaining Quantity" - "Reserved Quantity";
+    end;
+
     procedure SetItemVariantLocationFilters(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; PostingDate: Date)
     begin
         Reset;
@@ -761,23 +807,78 @@ table 32 "Item Ledger Entry"
         SetRange("Posting Date", 0D, PostingDate);
     end;
 
+    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSource(DATABASE::"Item Ledger Entry", 0, '', "Entry No.", '', 0);
+        ReservEntry.SetItemData("Item No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        Positive := "Remaining Quantity" <= 0;
+        if Positive then begin
+            ReservEntry."Expected Receipt Date" := DMY2Date(31, 12, 9999);
+            ReservEntry."Shipment Date" := DMY2Date(31, 12, 9999);
+        end else begin
+            ReservEntry."Expected Receipt Date" := 0D;
+            ReservEntry."Shipment Date" := 0D;
+        end;
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSourceFilter(DATABASE::"Item Ledger Entry", 0, '', "Entry No.", false);
+        ReservEntry.SetSourceFilter('', 0);
+
+        OnAfterSetReservationFilters(ReservEntry, Rec);
+    end;
+
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
     begin
         SetRange("Serial No.", SerialNo);
         SetRange("Lot No.", LotNo);
     end;
 
+    procedure SetTrackingFilterFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        SetRange("Serial No.", ItemLedgEntry."Serial No.");
+        SetRange("Lot No.", ItemLedgEntry."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemLedgEntry(Rec, ItemLedgEntry);
+    end;
+
+    procedure SetTrackingFilterFromItemJournalLine(ItemJournalLine: Record "Item Journal Line")
+    begin
+        SetRange("Serial No.", ItemJournalLine."Serial No.");
+        SetRange("Lot No.", ItemJournalLine."Lot No.");
+
+        OnAfterSetTrackingFilterFromItemJournalLine(Rec, ItemJournalLine);
+    end;
+
     procedure SetTrackingFilterFromSpec(TrackingSpecification: Record "Tracking Specification")
     begin
         SetRange("Serial No.", TrackingSpecification."Serial No.");
         SetRange("Lot No.", TrackingSpecification."Lot No.");
+
+        OnAfterSetTrackingFilterFromSpec(Rec, TrackingSpecification);
     end;
 
-    [Scope('OnPrem')]
     procedure ClearTrackingFilter()
     begin
         SetRange("Serial No.");
         SetRange("Lot No.");
+    end;
+
+    procedure TestTrackingEqualToTrackingSpec(TrackingSpecification: Record "Tracking Specification")
+    begin
+        TestField("Serial No.", TrackingSpecification."Serial No.");
+        TestField("Lot No.", TrackingSpecification."Lot No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemJnlLine(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromNewItemJnlLine(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJnlLine: Record "Item Journal Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -786,7 +887,32 @@ table 32 "Item Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; FromItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromItemJournalLine(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromSpec(var ItemLedgerEntry: Record "Item Ledger Entry"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeVerifyOnInventory(var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFilterLinesForReservationOnBeforeSetFilterVariantCode(var ItemLedgerEntry: Record "Item Ledger Entry"; var ReservationEntry: Record "Reservation Entry"; var Positive: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -92,7 +92,7 @@ report 10609 "Vendor - Balance"
             begin
                 CalcFields("Balance (LCY)", "Balance Due (LCY)", "Net Change (LCY)");
                 if ShowIfNetChange and ("Net Change (LCY)" = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 ReadAmount;
             end;
         }

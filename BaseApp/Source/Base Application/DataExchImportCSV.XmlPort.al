@@ -215,7 +215,7 @@ xmlport 1220 "Data Exch. Import - CSV"
             exit;
         end;
         if savedColumnValue <> '' then begin
-            DataExchField.Init;
+            DataExchField.Init();
             DataExchField.Validate("Data Exch. No.", DataExchEntryNo);
             DataExchField.Validate("Line No.", ImportedLineNo);
             DataExchField.Validate("Column No.", columnNumber);

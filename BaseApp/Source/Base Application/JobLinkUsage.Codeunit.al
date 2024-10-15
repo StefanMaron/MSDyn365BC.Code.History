@@ -52,8 +52,11 @@ codeunit 1026 "Job Link Usage"
                 MatchedLineAmount := (JobLedgerEntry."Line Amount" / JobLedgerEntry."Quantity (Base)") * MatchedQty;
 
                 OnBeforeJobPlanningLineUse(JobPlanningLine, JobLedgerEntry);
-                JobPlanningLine.Use(UOMMgt.CalcQtyFromBase(MatchedQty, JobPlanningLine."Qty. per Unit of Measure"),
-                  MatchedTotalCost, MatchedLineAmount, JobLedgerEntry."Posting Date", JobLedgerEntry."Currency Factor");
+                JobPlanningLine.Use(
+                    UOMMgt.CalcQtyFromBase(
+                        JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
+                        MatchedQty, JobPlanningLine."Qty. per Unit of Measure"),
+                    MatchedTotalCost, MatchedLineAmount, JobLedgerEntry."Posting Date", JobLedgerEntry."Currency Factor");
                 RemainingQtyToMatch -= MatchedQty;
             end;
         until RemainingQtyToMatch = 0;
@@ -81,11 +84,17 @@ codeunit 1026 "Job Link Usage"
         TotalRemainingQtyPrePostBase := JobJournalLine."Quantity (Base)" + JobJournalLine."Remaining Qty. (Base)";
         TotalQtyBase := PostedQtyBase + TotalRemainingQtyPrePostBase;
         JobPlanningLine.SetBypassQtyValidation(true);
-        JobPlanningLine.Validate(Quantity, UOMMgt.CalcQtyFromBase(TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure"));
+        JobPlanningLine.Validate(Quantity,
+            UOMMgt.CalcQtyFromBase(
+                JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
+                TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure"));
         JobPlanningLine.Validate("Serial No.", JobLedgerEntry."Serial No.");
         JobPlanningLine.Validate("Lot No.", JobLedgerEntry."Lot No.");
-        JobPlanningLine.Use(UOMMgt.CalcQtyFromBase(JobLedgerEntry."Quantity (Base)", JobPlanningLine."Qty. per Unit of Measure"),
-          JobLedgerEntry."Total Cost", JobLedgerEntry."Line Amount", JobLedgerEntry."Posting Date", JobLedgerEntry."Currency Factor");
+        JobPlanningLine.Use(
+            UOMMgt.CalcQtyFromBase(
+                JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
+                JobLedgerEntry."Quantity (Base)", JobPlanningLine."Qty. per Unit of Measure"),
+            JobLedgerEntry."Total Cost", JobLedgerEntry."Line Amount", JobLedgerEntry."Posting Date", JobLedgerEntry."Currency Factor");
         JobUsageLink.Create(JobPlanningLine, JobLedgerEntry);
     end;
 
@@ -95,7 +104,7 @@ codeunit 1026 "Job Link Usage"
         "Filter": Text;
         JobPlanningLineFound: Boolean;
     begin
-        JobPlanningLine.Reset;
+        JobPlanningLine.Reset();
         JobPlanningLine.SetCurrentKey("Job No.", "Schedule Line", Type, "No.", "Planning Date");
         JobPlanningLine.SetRange("Job No.", JobLedgerEntry."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobLedgerEntry."Job Task No.");
@@ -168,7 +177,10 @@ codeunit 1026 "Job Link Usage"
         Job: Record Job;
         JobPostLine: Codeunit "Job Post-Line";
     begin
-        RemainingQtyToMatch := UOMMgt.CalcQtyFromBase(RemainingQtyToMatch, JobLedgerEntry."Qty. per Unit of Measure");
+        RemainingQtyToMatch :=
+            UOMMgt.CalcQtyFromBase(
+                JobLedgerEntry."No.", JobLedgerEntry."Variant Code", JobLedgerEntry."Unit of Measure Code",
+                RemainingQtyToMatch, JobLedgerEntry."Qty. per Unit of Measure");
 
         case JobLedgerEntry."Line Type" of
             JobLedgerEntry."Line Type"::" ":
@@ -176,7 +188,7 @@ codeunit 1026 "Job Link Usage"
             JobLedgerEntry."Line Type"::Billable:
                 JobLedgerEntry."Line Type" := JobLedgerEntry."Line Type"::"Both Budget and Billable";
         end;
-        JobPlanningLine.Reset;
+        JobPlanningLine.Reset();
         JobPostLine.InsertPlLineFromLedgEntry(JobLedgerEntry);
         // Retrieve the newly created Job PlanningLine.
         JobPlanningLine.SetRange("Job No.", JobLedgerEntry."Job No.");
@@ -186,7 +198,7 @@ codeunit 1026 "Job Link Usage"
         JobPlanningLine.Validate("Usage Link", true);
         JobPlanningLine.Validate(Quantity, RemainingQtyToMatch);
         OnBeforeModifyJobPlanningLine(JobPlanningLine, JobLedgerEntry);
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
 
         // If type is Both Budget And Billable and that type isn't allowed,
         // retrieve the Billabe line and modify the quantity as well.
@@ -197,7 +209,7 @@ codeunit 1026 "Job Link Usage"
         then begin
             JobPlanningLine.Get(JobLedgerEntry."Job No.", JobLedgerEntry."Job Task No.", JobPlanningLine."Line No." + 10000);
             JobPlanningLine.Validate(Quantity, RemainingQtyToMatch);
-            JobPlanningLine.Modify;
+            JobPlanningLine.Modify();
             JobPlanningLine.Get(JobLedgerEntry."Job No.", JobLedgerEntry."Job Task No.", JobPlanningLine."Line No." - 10000);
         end;
     end;

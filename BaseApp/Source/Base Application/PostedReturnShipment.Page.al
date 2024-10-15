@@ -1,4 +1,4 @@
-﻿page 6650 "Posted Return Shipment"
+page 6650 "Posted Return Shipment"
 {
     Caption = 'Posted Return Shipment';
     InsertAllowed = false;

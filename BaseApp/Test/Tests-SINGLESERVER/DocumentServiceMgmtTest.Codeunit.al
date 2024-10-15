@@ -68,7 +68,7 @@ codeunit 139101 "Document Service Mgmt Test"
     var
         DocumentServiceConfiguration: Record "Document Service";
     begin
-        DocumentServiceConfiguration.DeleteAll;
+        DocumentServiceConfiguration.DeleteAll();
         CallTestConnectionAndExpectError(NoConfigErr);
     end;
 
@@ -105,7 +105,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceConfiguration: Record "Document Service";
         DocumentServiceMgt: Codeunit "Document Service Management";
     begin
-        DocumentServiceConfiguration.DeleteAll;
+        DocumentServiceConfiguration.DeleteAll();
         if DocumentServiceMgt.IsConfigured then
             Error(TestIsConfiguredFalseErr);
     end;
@@ -162,7 +162,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceConfiguration: Record "Document Service";
         SampleFile: Text;
     begin
-        DocumentServiceConfiguration.DeleteAll;
+        DocumentServiceConfiguration.DeleteAll();
         SampleFile := CreateSampleFile;
 
         CallSaveFileAndExpectError(SampleFile, 'My.txt', false, NoConfigErr);
@@ -318,7 +318,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentServiceManagement: Codeunit "Document Service Management";
     begin
         // Clean configuration table to ensure SharePoint is NOT configured.
-        DocumentService.DeleteAll;
+        DocumentService.DeleteAll();
         if DocumentServiceManagement.IsConfigured then
             Error(TestDocumentConfiguredErr);
 
@@ -353,7 +353,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentService: Record "Document Service";
         DocumentServiceManagement: Codeunit "Document Service Management";
     begin
-        DocumentService.DeleteAll;
+        DocumentService.DeleteAll();
         if DocumentServiceManagement.IsConfigured then
             Error(TestDocumentConfiguredErr);
         DocumentServiceManagement.SetServiceType(MockServiceTypeTok);
@@ -368,7 +368,7 @@ codeunit 139101 "Document Service Mgmt Test"
         DocumentService: Record "Document Service";
         DocumentServiceManagement: Codeunit "Document Service Management";
     begin
-        DocumentService.DeleteAll;
+        DocumentService.DeleteAll();
         if DocumentServiceManagement.IsConfigured then
             Error(TestDocumentConfiguredErr);
         DocumentServiceManagement.SetServiceType(MockServiceTypeTok);
@@ -437,14 +437,14 @@ codeunit 139101 "Document Service Mgmt Test"
             Folder := DocFolder;
             Insert(true);
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure SetDocumentServiceConfig(ServiceID: Code[30]; ServiceDescription: Text[80]; Location: Text[250]; Usr: Text[128]; Pwd: Text[128]; DocRepository: Text[250]; Folder: Text[250])
     var
         DocumentServiceConfiguration: Record "Document Service";
     begin
-        DocumentServiceConfiguration.DeleteAll;
+        DocumentServiceConfiguration.DeleteAll();
         InsertDocumentServiceRec(ServiceID, ServiceDescription, Location, Usr, Pwd, DocRepository, Folder);
     end;
 

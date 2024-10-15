@@ -34,7 +34,7 @@ report 15000300 "Create Recurring Orders"
                     // Check if the order recurs
                     // Stop if the date is overwritten or if the order date is not moved (Date formula is for inst. 0D):
                     if ("Sales Header"."Order Date" > ProcessingDate) or (StoreOrderDate = "Sales Header"."Order Date") then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -44,13 +44,13 @@ report 15000300 "Create Recurring Orders"
                 RecurringGroup.Get("Recurring Group Code");
                 if HideError then begin
                     if "Order Date" > ProcessingDate then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if (RecurringGroup."Starting date" > ProcessingDate) or
                        ((RecurringGroup."Closing date" < ProcessingDate) and (RecurringGroup."Closing date" <> 0D))
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if "Deactivate recurrence" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             end;
 

@@ -145,19 +145,19 @@ table 5879 "Pstd. Phys. Invt. Order Hdr"
         PhysInvtCommentLine: Record "Phys. Invt. Comment Line";
         PstdPhysInvtRecordHdr: Record "Pstd. Phys. Invt. Record Hdr";
     begin
-        LockTable;
+        LockTable();
 
-        PstdPhysInvtOrderLine.Reset;
+        PstdPhysInvtOrderLine.Reset();
         PstdPhysInvtOrderLine.SetRange("Document No.", "No.");
         PstdPhysInvtOrderLine.DeleteAll(true);
 
-        PhysInvtCommentLine.Reset;
+        PhysInvtCommentLine.Reset();
         PhysInvtCommentLine.SetRange("Document Type", PhysInvtCommentLine."Document Type"::"Posted Order");
         PhysInvtCommentLine.SetRange("Order No.", "No.");
         PhysInvtCommentLine.SetRange("Recording No.", 0);
-        PhysInvtCommentLine.DeleteAll;
+        PhysInvtCommentLine.DeleteAll();
 
-        PstdPhysInvtRecordHdr.Reset;
+        PstdPhysInvtRecordHdr.Reset();
         PstdPhysInvtRecordHdr.SetRange("Order No.", "No.");
         PstdPhysInvtRecordHdr.DeleteAll(true);
     end;
@@ -167,10 +167,11 @@ table 5879 "Pstd. Phys. Invt. Order Hdr"
 
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     procedure ShowDimensions()

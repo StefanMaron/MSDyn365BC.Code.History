@@ -1,4 +1,4 @@
-﻿page 570 "Chart of Accounts (G/L)"
+page 570 "Chart of Accounts (G/L)"
 {
     Caption = 'Chart of Accounts (G/L)';
     CardPageID = "G/L Account Card";

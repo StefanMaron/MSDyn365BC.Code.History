@@ -126,7 +126,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         VerifySalesReturnOrderIsPendingApproval(SalesHeader);
 
         // Exercise
-        Commit;
+        Commit();
         SalesReturnOrder.OpenView;
         SalesReturnOrder.GotoRecord(SalesHeader);
         asserterror SalesReturnOrder.Release.Invoke;
@@ -232,7 +232,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         // Verify - Approval requests and their data
         VerifySalesReturnOrderIsReleased(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -289,7 +289,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         // Verify - Approval requests and their data
         VerifySalesReturnOrderIsOpen(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsRejected(ApprovalEntry);
     end;
@@ -357,7 +357,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         // Verify - Approval requests and their data
         VerifySalesReturnOrderIsPendingApproval(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntryApproverID(ApprovalEntry, FinalApproverUserSetup."User ID");
@@ -370,7 +370,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         // Verify - Approval requests and their data
         VerifySalesReturnOrderIsReleased(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -424,7 +424,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         // Verify - Approval requests and their data
         VerifySalesReturnOrderIsOpen(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -446,7 +446,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         // [WHEN] SalesHeader card is opened.
         CreateSalesReturnOrder(SalesHeader);
-        Commit;
+        Commit();
         SalesReturnOrder.OpenEdit;
         SalesReturnOrder.GotoRecord(SalesHeader);
 
@@ -525,7 +525,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         // [WHEN] SalesHeader card is opened.
         CreateSalesReturnOrder(SalesHeader);
-        Commit;
+        Commit();
         SalesReturnOrderList.OpenEdit;
         SalesReturnOrderList.GotoRecord(SalesHeader);
 
@@ -629,7 +629,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         // Verify - Approval requests and their data
         VerifySalesReturnOrderIsReleased(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
@@ -702,7 +702,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
 
         // Verify - Approval requests and their data
         VerifySalesReturnOrderIsOpen(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -722,7 +722,7 @@ codeunit 134173 "WF Demo Sales RtOrder Approval"
         UserSetup: Record "User Setup";
     begin
         LibraryVariableStorage.Clear;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;

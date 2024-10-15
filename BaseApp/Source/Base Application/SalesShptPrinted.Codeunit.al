@@ -5,12 +5,13 @@ codeunit 314 "Sales Shpt.-Printed"
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec, SuppressCommit);
         Find;
         "No. Printed" := "No. Printed" + 1;
         OnBeforeModify(Rec);
         Modify;
         if not SuppressCommit then
-            Commit;
+            Commit();
     end;
 
     var
@@ -23,6 +24,11 @@ codeunit 314 "Sales Shpt.-Printed"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModify(var SalesShipmentHeader: Record "Sales Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var SalesShipmentHeader: Record "Sales Shipment Header"; var SuppressCommit: Boolean)
     begin
     end;
 }

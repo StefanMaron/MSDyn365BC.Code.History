@@ -158,7 +158,7 @@ report 705 "Inventory Availability"
                 trigger OnPreDataItem()
                 begin
                     if not UseStockkeepingUnit then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SKUPrintLoop := 0;
                 end;

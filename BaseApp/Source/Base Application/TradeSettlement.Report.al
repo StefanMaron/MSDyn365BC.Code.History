@@ -335,7 +335,7 @@ report 10602 "Trade Settlement"
                 StartPeriod: Integer;
                 EndPeriod: Integer;
             begin
-                GLSetup.Get;
+                GLSetup.Get();
 
                 case Selection of
                     Selection::Open:

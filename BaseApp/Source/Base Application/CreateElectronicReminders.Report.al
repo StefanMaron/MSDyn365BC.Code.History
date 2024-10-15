@@ -17,13 +17,13 @@ report 10642 "Create Electronic Reminders"
                 EInvoiceExportIssReminder.Run("Issued Reminder Header");
                 EInvoiceExportIssReminder.GetExportedFileInfo(TempEInvoiceTransferFile);
                 TempEInvoiceTransferFile."Line No." := Counter + 1;
-                TempEInvoiceTransferFile.Insert;
+                TempEInvoiceTransferFile.Insert();
 
                 if LogInteraction then
                     SegManagement.LogDocument(
                       8, "No.", 0, 0, DATABASE::Customer, "Customer No.", '', '', "Posting Description", '');
 
-                Commit;
+                Commit();
                 Counter := Counter + 1;
             end;
 

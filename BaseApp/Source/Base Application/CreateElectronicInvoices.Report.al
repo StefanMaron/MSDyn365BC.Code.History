@@ -17,7 +17,7 @@ report 10640 "Create Electronic Invoices"
                 EInvoiceExportSalesInvoice.Run("Sales Invoice Header");
                 EInvoiceExportSalesInvoice.GetExportedFileInfo(TempEInvoiceTransferFile);
                 TempEInvoiceTransferFile."Line No." := Counter + 1;
-                TempEInvoiceTransferFile.Insert;
+                TempEInvoiceTransferFile.Insert();
 
                 if LogInteraction then
                     if "Bill-to Contact No." <> '' then
@@ -29,7 +29,7 @@ report 10640 "Create Electronic Invoices"
                           4, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                           "Campaign No.", "Posting Description", '');
 
-                Commit;
+                Commit();
                 Counter := Counter + 1;
             end;
 

@@ -508,11 +508,11 @@ xmlport 1000 "SEPA CT pain.001.001.03"
         InitPmtGroup(PaymentGroupNo);
         repeat
             if IsNewGroup then begin
-                PaymentExportDataGroup.Insert;
+                PaymentExportDataGroup.Insert();
                 InitPmtGroup(PaymentGroupNo);
             end;
 
-            WaitingJournal.Reset;
+            WaitingJournal.Reset();
             WaitingJournal.SetFilter("SEPA Msg. ID", PaymentExportData."Message ID");
             WaitingJournal.SetFilter("SEPA Payment Inf ID", PaymentExportData."Payment Information ID");
             WaitingJournal.SetFilter("SEPA End To End ID", PaymentExportData."End-to-End ID");
@@ -523,7 +523,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
             PaymentExportDataGroup."Line No." += 1;
             PaymentExportDataGroup.Amount += PaymentExportData.Amount;
         until PaymentExportData.Next = 0;
-        PaymentExportDataGroup.Insert;
+        PaymentExportDataGroup.Insert();
     end;
 
     local procedure IsNewGroup(): Boolean

@@ -1,4 +1,4 @@
-﻿page 144 "Posted Sales Credit Memos"
+page 144 "Posted Sales Credit Memos"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Posted Sales Credit Memos';
@@ -337,7 +337,6 @@
                     Caption = 'Create Electronic Credit Memo';
                     Image = CreateDocument;
                     ToolTip = 'Create one or more XML documents that you can send to the customer. You can run the batch job for multiple credit memos or you can run it for an individual credit memo. The document number is used as the file name. The files are stored at the location that has been specified in the Sales & Receivables Setup window.';
-                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -495,6 +494,24 @@
                         SalesCrMemoHeader := Rec;
                         CurrPage.SetSelectionFilter(SalesCrMemoHeader);
                         SalesCrMemoHeader.EmailRecords(true);
+                    end;
+                }
+                action(AttachAsPDF)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Attach as PDF';
+                    Image = PrintAttachment;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    ToolTip = 'Create a PDF file and attach it to the document.';
+
+                    trigger OnAction()
+                    var
+                        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+                    begin
+                        SalesCrMemoHeader := Rec;
+                        CurrPage.SetSelectionFilter(SalesCrMemoHeader);
+                        PrintToDocumentAttachment(SalesCrMemoHeader);
                     end;
                 }
             }

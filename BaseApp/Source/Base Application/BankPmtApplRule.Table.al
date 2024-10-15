@@ -88,7 +88,7 @@ table 1252 "Bank Pmt. Appl. Rule"
         if not IsTemporary then
             Error(LoadRulesOnlyOnTempRecordsErr);
 
-        DeleteAll;
+        DeleteAll();
         if BankPmtApplRule.FindSet then
             repeat
                 TransferFields(BankPmtApplRule);
@@ -388,7 +388,7 @@ table 1252 "Bank Pmt. Appl. Rule"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
-        BankPmtApplRule.Init;
+        BankPmtApplRule.Init();
         BankPmtApplRule."Match Confidence" := MatchConfidence;
         BankPmtApplRule.Priority := RulePriority;
         BankPmtApplRule."Related Party Matched" := RelatedPartyIdentification;

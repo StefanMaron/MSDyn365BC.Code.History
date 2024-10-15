@@ -35,7 +35,7 @@ codeunit 137024 "DateFormulas in local settings"
         PurchaseLine: Record "Purchase Line";
         ExpectedDF: DateFormula;
     begin
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         Evaluate(PurchaseLine."Safety Lead Time", SafetyLeadTimeDF);
         Evaluate(PurchaseLine."Inbound Whse. Handling Time", InbndWhseHandlingTime);
         Evaluate(ExpectedDF, ExpectedResult);

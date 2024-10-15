@@ -47,7 +47,7 @@ codeunit 10621 "E-Invoice Exp. Iss. Fin. Chrg."
         until TempEInvoiceExportLine.Next = 0;
 
         // Save file
-        SalesSetup.Get;
+        SalesSetup.Get();
         EInvoiceExportCommon.SaveToXML(TempEInvoiceTransferFile, SalesSetup."E-Invoice Fin. Charge Path", "No.");
 
         ModifyIssFinChrg("No.");
@@ -70,7 +70,7 @@ codeunit 10621 "E-Invoice Exp. Iss. Fin. Chrg."
           EInvoiceDocumentEncode.GetEInvoiceCurrencyCode(IssuedFinChrgMemoHeader."Currency Code");
 
         with IssuedFinChrgMemoHeader do begin
-            TempEInvoiceExportHeader.Init;
+            TempEInvoiceExportHeader.Init();
             TempEInvoiceExportHeader.ID := 0;
             TempEInvoiceExportHeader."No." := "No.";
             TempEInvoiceExportHeader."Bill-to Customer No." := "Customer No.";
@@ -130,7 +130,7 @@ codeunit 10621 "E-Invoice Exp. Iss. Fin. Chrg."
             Id := 0;
             if TempEInvoiceExportLine.FindLast then
                 Id := TempEInvoiceExportLine.ID + 1;
-            TempEInvoiceExportLine.Init;
+            TempEInvoiceExportLine.Init();
             TempEInvoiceExportLine.ID := Id;
             TempEInvoiceExportLine."Document No." := "Document No.";
             TempEInvoiceExportLine."Line No." := "Line No.";
@@ -170,7 +170,7 @@ codeunit 10621 "E-Invoice Exp. Iss. Fin. Chrg."
     begin
         IssuedFinChargeMemoHeader2.Get(DocumentNo);
         IssuedFinChargeMemoHeader2."E-Invoice Created" := true;
-        IssuedFinChargeMemoHeader2.Modify;
+        IssuedFinChargeMemoHeader2.Modify();
     end;
 }
 

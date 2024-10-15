@@ -221,6 +221,7 @@ page 1328 "Purch. Order From Sales Order"
                     PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
+                    Visible = false;
 
                     trigger OnAction()
                     begin

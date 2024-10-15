@@ -82,7 +82,7 @@ codeunit 10636 "Import Pain002"
             TransactionStatus := ImportSEPACommon.FindFirstNodeTxt(XmlNodeGroupHeader, XmlNamespaceManagerPain002, './n:GrpSts', true);
             GetStatusInfo(XmlNodeGroupHeader, TransactionCauseCode, TransactionCauseInfo);
             // update all transactions that match the filter
-            WaitingJournal.Reset;
+            WaitingJournal.Reset();
             WaitingJournal.SetFilter("SEPA Msg. ID", OriginalMsgId);
             if not WaitingJournal.FindFirst then
                 Error(WaitingJournal.GetWaitingJournalNotFoundForRemittanceImport);
@@ -121,7 +121,7 @@ codeunit 10636 "Import Pain002"
         TransactionCauseInfo: Text[150];
     begin
         OriginalPmtInfId := ImportSEPACommon.FindFirstNodeTxt(XmlNodePayment, XmlNamespaceManagerPain002, './n:OrgnlPmtInfId', true);
-        WaitingJournal.Reset;
+        WaitingJournal.Reset();
         WaitingJournal.SetFilter("SEPA Msg. ID", OriginalMsgId);
         WaitingJournal.SetFilter("SEPA Payment Inf ID", OriginalPmtInfId);
 

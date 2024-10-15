@@ -91,6 +91,9 @@
 			"path": "..\\Tests\\SMB"
 		},
 		{
+			"path": "..\\Tests\\SMTP"
+		},
+		{
 			"path": "..\\Tests\\TestLibraries"
 		},
 		{
@@ -104,6 +107,9 @@
 		},
 		{
 			"path": "C:\\git\\nav\\App\\ExtensionV2\\APIV1\\app"
+		},
+		{
+			"path": "C:\\Enlist\\main\\App\\Views\\es\\DemoTool"
 		}
 	],
 	"settings": {}

@@ -121,16 +121,16 @@ codeunit 139172 "CRM Quotes Integr.Test"
         ClearCRMData;
 
         // [GIVEN] "G/L Freight Account No." is empty in Sales & Receivables Setup
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Freight G/L Acc. No.", '');
         SalesReceivablesSetup.Modify(true);
 
         // [GIVEN] CRM Quote, where is freight amount 300
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateCRMQuoteWithCurrency(CRMQuote, GeneralLedgerSetup.GetCurrencyCode(''));
         LibraryCRMIntegration.CreateCRMQuoteLine(CRMQuote, CRMQuotedetail);
         CRMQuote.FreightAmount := LibraryRandom.RandDecInRange(10, 100, 2);
-        CRMQuote.Modify;
+        CRMQuote.Modify();
 
         // [WHEN] Run 'Create in NAV' CRM Sales Quotes page
         asserterror CreateSalesQuoteInNAV(CRMQuote, SalesHeader);
@@ -420,7 +420,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
 
         // [GIVEN] Remove coupling for customer 1 to cause error while creating NAV Sales Quote
         CRMIntegrationRecord.FindByCRMID(CRMQuote[1].CustomerId);
-        CRMIntegrationRecord.Delete;
+        CRMIntegrationRecord.Delete();
 
         // [GIVEN] CRM Quote 2 for customer 2 in local currency with item
         CreateCRMQuoteInLCY(CRMQuote[2]);
@@ -456,7 +456,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         // [GIVEN] CRM Quote Name = "ABC"
         CRMQuote.Name :=
           UpperCase(LibraryUtility.GenerateRandomText(MaxStrLen(CRMQuote.Name)));
-        CRMQuote.Modify;
+        CRMQuote.Modify();
 
         // [WHEN] NAV Quote is being created from CRM Quote
         CreateSalesQuoteInNAV(CRMQuote, SalesHeader);
@@ -492,14 +492,14 @@ codeunit 139172 "CRM Quotes Integr.Test"
 
         // [WHEN] The user clicks 'Process Sales Quote' on the CRM Sales Quotes page on the initial CRM Quote
         CreateSalesQuoteInNAV(CRMQuote, SalesHeader);
-        Commit;
+        Commit();
 
         // [GIVEN] The sales quote's status becomes "Won"
         WinCRMQuote(CRMQuote);
 
         // [WHEN] The user clicks 'Process Sales Quote' CRM Sales Quotes page on the revisioned CRM Quote
         CreateSalesQuoteInNAV(CRMQuote, ProcessedSalesHeader);
-        Commit;
+        Commit();
 
         // [THEN] The sales quote and sales qoutes lines are deleted from the Sales Quotes
         Assert.AreEqual(SalesHeader."Document Type"::Quote, SalesHeader."Document Type", StrSubstNo(SalesQuoteDeleteErr, CRMQuote.QuoteId));
@@ -517,7 +517,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         Assert.IsTrue(CRMIntegrationRecord.Get(CRMQuote.QuoteId, BlankGUID), StrSubstNo(EmptyCRMIntegrationRecErr, CRMQuote.QuoteId));
 
         // [THEN] A BC Sales Order has been created for the processed won quote
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", ProcessedSalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Your Reference", CRMQuote.QuoteNumber);
         Assert.IsTrue(SalesHeader.FindFirst, StrSubstNo(SalesOrderCreateErr, CRMQuote.QuoteId));
@@ -552,12 +552,12 @@ codeunit 139172 "CRM Quotes Integr.Test"
         CreateSalesQuoteInNAV(CRMQuote, ProcessedSalesHeader);
 
         // [THEN] The initial sales quote and corresponding sales line is being archieved
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("External Document No.", CRMQuote.QuoteNumber);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
         Assert.IsFalse(SalesHeader.FindFirst, StrSubstNo(SalesQuoteDeleteErr, CRMQuote.QuoteId));
 
-        SalesHeaderArchive.Reset;
+        SalesHeaderArchive.Reset();
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type"::Quote);
         Assert.AreEqual(SalesHeaderArchive.Count, 1, StrSubstNo(SalesQuoteDeleteErr, CRMQuote.QuoteId));
         SalesHeaderArchive.FindFirst;
@@ -568,7 +568,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         Assert.IsTrue(CRMIntegrationRecord.Get(CRMQuote.QuoteId, BlankGUID), StrSubstNo(EmptyCRMIntegrationRecErr, CRMQuote.QuoteId));
 
         // [THEN] A BC Sales Order has been created for the processed won quote
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Your Reference", CRMQuote.QuoteNumber);
         Assert.IsTrue(SalesHeader.FindFirst, StrSubstNo(SalesOrderCreateErr, CRMQuote.QuoteId));
@@ -599,7 +599,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
 
         // [WHEN] The user clicks 'Process Sales Quote' on the CRM Sales Quotes page on the initial CRM Quote
         CreateSalesQuoteInNAV(CRMQuote, SalesHeader);
-        Commit;
+        Commit();
 
         // [GIVEN] The sales quote's status becomes "Won"
         WinCRMQuote(CRMQuote);
@@ -625,7 +625,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         Assert.IsTrue(CRMIntegrationRecord.Get(CRMQuote.QuoteId, BlankGUID), StrSubstNo(EmptyCRMIntegrationRecErr, CRMQuote.QuoteId));
 
         // [THEN] A BC Sales Order has been created for the processed won quote
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Your Reference", CRMQuote.QuoteNumber);
         Assert.IsTrue(SalesHeader.FindFirst, StrSubstNo(SalesOrderCreateErr, CRMQuote.QuoteId));
@@ -652,7 +652,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         LibraryCRMIntegration.ConfigureCRM;
         isInitialized := true;
         MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
     end;
 
@@ -662,9 +662,9 @@ codeunit 139172 "CRM Quotes Integr.Test"
         CRMAccount: Record "CRM Account";
         CRMQuote: Record "CRM Quote";
     begin
-        CRMAccount.DeleteAll;
-        CRMTransactioncurrency.DeleteAll;
-        CRMQuote.DeleteAll;
+        CRMAccount.DeleteAll();
+        CRMTransactioncurrency.DeleteAll();
+        CRMQuote.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -674,10 +674,10 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesHeaderArchive: Record "Sales Header Archive";
         SalesLine: Record "Sales Line";
     begin
-        SalesHeader.DeleteAll;
-        SalesHeaderArchive.DeleteAll;
-        SalesLine.DeleteAll;
-        SalesHeaderArchive.DeleteAll;
+        SalesHeader.DeleteAll();
+        SalesHeaderArchive.DeleteAll();
+        SalesLine.DeleteAll();
+        SalesHeaderArchive.DeleteAll();
     end;
 
     local procedure CreateCRMQuoteWithCurrency(var CRMQuote: Record "CRM Quote"; CurrencyCode: Code[10])
@@ -700,13 +700,13 @@ codeunit 139172 "CRM Quotes Integr.Test"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateCRMQuoteWithCurrency(CRMQuote, GeneralLedgerSetup.GetCurrencyCode(''));
     end;
 
     local procedure CreateCRMQuotedetailWithEmptyProductId(CRMQuote: Record "CRM Quote"; var CRMQuotedetail: Record "CRM Quotedetail")
     begin
-        CRMQuotedetail.Init;
+        CRMQuotedetail.Init();
         LibraryCRMIntegration.PrepareCRMQuoteLine(CRMQuote, CRMQuotedetail, CRMQuotedetail.ProductId);
     end;
 
@@ -717,7 +717,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
             LibraryUtility.GenerateRandomText(MaxStrLen(CRMQuotedetail.ProductDescription)),
             1,
             MaxStrLen(CRMQuotedetail.ProductDescription));
-        CRMQuotedetail.Modify;
+        CRMQuotedetail.Modify();
     end;
 
     local procedure MockLongCRMQuotedetailDescription(var CRMQuotedetail: Record "CRM Quotedetail")
@@ -726,7 +726,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         CRMQuotedetail.Description.CreateOutStream(OutStream);
         OutStream.Write(LibraryUtility.GenerateRandomText(LibraryRandom.RandIntInRange(150, 3000)));
-        CRMQuotedetail.Modify;
+        CRMQuotedetail.Modify();
     end;
 
     local procedure MockCRMQuoteNote(var CRMAnnotation: Record "CRM Annotation"; CRMQuote: Record "CRM Quote"; AnnotationText: Text)
@@ -738,7 +738,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         CRMAnnotation.ObjectId := CRMQuote.QuoteId;
         CRMAnnotation.NoteText.CreateOutStream(OutStream, TEXTENCODING::UTF16);
         OutStream.Write(AnnotationText);
-        CRMAnnotation.Insert;
+        CRMAnnotation.Insert();
     end;
 
     local procedure RunCodeunitProcessActivatedCRMQuotes()

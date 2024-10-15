@@ -57,11 +57,9 @@ table 298 "Issued Reminder Line"
         {
             Caption = 'Due Date';
         }
-        field(10; "Document Type"; Option)
+        field(10; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(11; "Document No."; Code[20])
         {
@@ -122,11 +120,9 @@ table 298 "Issued Reminder Line"
             Caption = 'VAT %';
             DecimalPlaces = 0 : 5;
         }
-        field(20; "VAT Calculation Type"; Option)
+        field(20; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(21; "VAT Amount"; Decimal)
         {
@@ -160,11 +156,9 @@ table 298 "Issued Reminder Line"
             Caption = 'VAT Clause Code';
             TableRelation = "VAT Clause";
         }
-        field(27; "Applies-To Document Type"; Option)
+        field(27; "Applies-To Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-To Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(28; "Applies-To Document No."; Code[20])
         {

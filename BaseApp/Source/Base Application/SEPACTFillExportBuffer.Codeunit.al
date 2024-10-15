@@ -33,7 +33,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         TempGenJnlLine.CopyFilters(GenJnlLine);
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Prepare Source", TempGenJnlLine);
 
-        TempGenJnlLine.Reset;
+        TempGenJnlLine.Reset();
         TempGenJnlLine.FindSet;
         BankAccount.Get(TempGenJnlLine."Bal. Account No.");
         BankAccount.TestField(IBAN);
@@ -47,13 +47,13 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         until TempGenJnlLine.Next = 0;
 
         if TempGenJnlLine.HasPaymentFileErrorsInBatch then begin
-            Commit;
+            Commit();
             Error(HasErrorsErr);
         end;
 
         CreatePaymOrderHead;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("LCY Code");
 
         MessageID := BankAccount.GetCreditTransferMessageNo;
@@ -121,7 +121,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                 UpdateGenJnlFields(PaymentExportData, TempGenJnlLine, BankExportImportSetup."Reg.Reporting Thresh.Amt (LCY)");
                 ValidatePaymentExportData(PaymentExportData, TempGenJnlLine);
                 Insert(true);
-                TempInteger.DeleteAll;
+                TempInteger.DeleteAll();
                 GetAppliesToDocEntryNumbers(TempGenJnlLine, TempInteger);
                 if TempInteger.FindSet then
                     repeat
@@ -259,7 +259,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
             if FindSet then
                 repeat
                     TempInteger.Number := FieldRef.Value;
-                    TempInteger.Insert;
+                    TempInteger.Insert();
                 until Next = 0;
         end;
     end;
@@ -304,7 +304,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
     var
         WaitingJournal: Record "Waiting Journal";
     begin
-        WaitingJournal.Init;
+        WaitingJournal.Init();
         WaitingJournal.TransferFields(GenJournalLine);
         WaitingJournal."Payment Order ID - Sent" := RemittancePaymentOrder.ID;
         WaitingJournal."Remittance Status" := WaitingJournal."Remittance Status"::Sent;
@@ -322,8 +322,8 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
     var
         WaitingJournal: Record "Waiting Journal";
     begin
-        WaitingJournal.LockTable;  // Serial no. depends on the existing Waiting journal.
-        WaitingJournal.Init;
+        WaitingJournal.LockTable();  // Serial no. depends on the existing Waiting journal.
+        WaitingJournal.Init();
         if WaitingJournal.FindLast then
             exit(WaitingJournal.Reference + 1);
 
@@ -337,19 +337,19 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
     begin
         // Create a PaymOrder for import.
         // Select ID. Find next:
-        RemittancePaymentOrder.LockTable;
+        RemittancePaymentOrder.LockTable();
         if RemittancePaymentOrder.FindLast then
             NextID := RemittancePaymentOrder.ID + 1
         else
             NextID := 1;
 
         // Insert new PaymOrder. Remaining data are processed later:
-        RemittancePaymentOrder.Init;
+        RemittancePaymentOrder.Init();
         RemittancePaymentOrder.ID := NextID;
         RemittancePaymentOrder.Date := Today;
         RemittancePaymentOrder.Time := Time;
         RemittancePaymentOrder.Type := RemittancePaymentOrder.Type::Export;
-        RemittancePaymentOrder.Insert;
+        RemittancePaymentOrder.Insert();
     end;
 
     local procedure UpdateGenJnlFields(var PaymentExportData: Record "Payment Export Data"; GenJournalLine: Record "Gen. Journal Line"; RegRepThreshAmt: Decimal)

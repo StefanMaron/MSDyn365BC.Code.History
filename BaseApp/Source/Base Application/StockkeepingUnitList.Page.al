@@ -1,4 +1,4 @@
-﻿page 5701 "Stockkeeping Unit List"
+page 5701 "Stockkeeping Unit List"
 {
     AdditionalSearchTerms = 'sku';
     ApplicationArea = Warehouse;

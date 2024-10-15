@@ -313,10 +313,10 @@ report 15000002 "Remittance Test Report"
                     begin
                         if Number = 1 then begin
                             if not DimSetEntry.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if not Continue then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         DimText := GetDimText(Number);
                     end;
@@ -324,7 +324,7 @@ report 15000002 "Remittance Test Report"
                     trigger OnPreDataItem()
                     begin
                         if not ShowDim then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         DimSetEntry.SetRange("Dimension Set ID", "Gen. Journal Line"."Dimension Set ID");
                     end;
@@ -418,7 +418,7 @@ report 15000002 "Remittance Test Report"
                         UnstructuredPaym := true;
                     "Gen. Journal Line".SetRange("Structured Payment", Transaction."Structured Payment");
 
-                    NumberOfPayments := "Gen. Journal Line".Count;
+                    NumberOfPayments := "Gen. Journal Line".Count();
                 end;
             }
             dataitem(ErrorLoopTransaction; "Integer")
@@ -509,12 +509,12 @@ report 15000002 "Remittance Test Report"
                 SetRange("Journal Template Name", CurrentJnlLine."Journal Template Name");
                 SetRange("Journal Batch Name", CurrentJnlLine."Journal Batch Name");
 
-                GenLedgSetup.Get;
+                GenLedgSetup.Get();
                 StoreJnlFilters.Copy(Transaction); // Store user-set filters
                 TransactionNo := 0;
                 StoreAgreementCode := '';
 
-                PurchaseSetup.Get;
+                PurchaseSetup.Get();
             end;
         }
         dataitem(ReportTotal; "Integer")

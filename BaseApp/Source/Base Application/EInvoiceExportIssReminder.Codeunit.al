@@ -47,7 +47,7 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
         until TempEInvoiceExportLine.Next = 0;
 
         // Save file
-        SalesSetup.Get;
+        SalesSetup.Get();
         EInvoiceExportCommon.SaveToXML(TempEInvoiceTransferFile, SalesSetup."E-Invoice Reminder Path", "No.");
 
         ModifyIssuedReminderHeader("No.");
@@ -69,7 +69,7 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
         IssuedReminderHeader."Currency Code" := EInvoiceDocumentEncode.GetEInvoiceCurrencyCode(IssuedReminderHeader."Currency Code");
 
         with IssuedReminderHeader do begin
-            TempEInvoiceExportHeader.Init;
+            TempEInvoiceExportHeader.Init();
             TempEInvoiceExportHeader.ID := 0;
             TempEInvoiceExportHeader."No." := "No.";
             TempEInvoiceExportHeader."Bill-to Customer No." := "Customer No.";
@@ -129,7 +129,7 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
             Id := 0;
             if TempEInvoiceExportLine.FindLast then
                 Id := TempEInvoiceExportLine.ID + 1;
-            TempEInvoiceExportLine.Init;
+            TempEInvoiceExportLine.Init();
             TempEInvoiceExportLine.ID := Id;
             TempEInvoiceExportLine."Document No." := "Document No.";
             TempEInvoiceExportLine."Line No." := "Line No.";
@@ -170,7 +170,7 @@ codeunit 10622 "E-Invoice Export Iss. Reminder"
     begin
         IssuedReminderHeader2.Get(DocumentNo);
         IssuedReminderHeader2."E-Invoice Created" := true;
-        IssuedReminderHeader2.Modify;
+        IssuedReminderHeader2.Modify();
     end;
 }
 

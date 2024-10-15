@@ -74,11 +74,9 @@ table 10605 "E-Invoice Export Line"
         {
             Caption = 'Inv. Discount Amount';
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(90; "VAT Prod. Posting Group"; Code[20])
         {
@@ -96,11 +94,9 @@ table 10605 "E-Invoice Export Line"
         {
             Caption = 'Account Code';
         }
-        field(10680; "Document Type"; Option)
+        field(10680; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
     }
 

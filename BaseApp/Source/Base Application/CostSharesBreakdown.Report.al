@@ -21,7 +21,7 @@ report 5848 "Cost Shares Breakdown"
                 begin
                     CalcRemainingQty("Item Ledger Entry");
                     if RemainingQty = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
@@ -41,7 +41,7 @@ report 5848 "Cost Shares Breakdown"
             trigger OnAfterGetRecord()
             begin
                 if "Costing Method" = "Costing Method"::Average then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
         dataitem("Production Order"; "Production Order")
@@ -69,7 +69,7 @@ report 5848 "Cost Shares Breakdown"
             trigger OnAfterGetRecord()
             begin
                 if CostSharePrint <> CostSharePrint::"WIP Inventory" then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem(PrintHeader; "Integer")
@@ -273,13 +273,13 @@ report 5848 "Cost Shares Breakdown"
                 begin
                     if Number = 1 then begin
                         if not CostShareBuf.Find('-') then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end else
                         if CostShareBuf.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                     if CostShareBuf."Posting Date" > EndDate then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     case CostSharePrint of
                         CostSharePrint::Sales:
@@ -290,17 +290,17 @@ report 5848 "Cost Shares Breakdown"
                         CostSharePrint::Inventory:
                             begin
                                 if CostShareBuf."New Quantity" = 0 then
-                                    CurrReport.Skip;
+                                    CurrReport.Skip();
                             end;
                         CostSharePrint::"WIP Inventory":
                             begin
                                 if InvtAdjmtEntryOrder.Get(CostShareBuf."Order Type", CostShareBuf."Order No.", CostShareBuf."Order Line No.") then begin
                                     Item.Get(InvtAdjmtEntryOrder."Item No.");
                                     TempItem := Item;
-                                    TempItem.Insert;
+                                    TempItem.Insert();
                                     TempItem.CopyFilters(Item);
                                     if TempItem.IsEmpty then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                 end;
 
                                 if CostShareBuf."Entry Type" = CostShareBuf."Entry Type"::" " then begin
@@ -372,22 +372,22 @@ report 5848 "Cost Shares Breakdown"
                     CostSharePrint::Sales, CostSharePrint::Inventory:
                         if Number = 1 then begin
                             if not ItemPrint.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if ItemPrint.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                     CostSharePrint::"WIP Inventory":
                         if Number = 1 then begin
                             if not ProdOrderPrint.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if ProdOrderPrint.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                 end;
 
-                CostShareBuf.Reset;
+                CostShareBuf.Reset();
                 if not CostShareBuf.Find('-') then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
@@ -473,8 +473,8 @@ report 5848 "Cost Shares Breakdown"
         ItemFilter := Item.GetFilters;
         ProdOrderFilter := "Production Order".GetFilters;
 
-        CostShareBuf.Reset;
-        CostShareBuf.DeleteAll;
+        CostShareBuf.Reset();
+        CostShareBuf.DeleteAll();
     end;
 
     var
@@ -599,7 +599,7 @@ report 5848 "Cost Shares Breakdown"
                     UpdateCosts(FromCostShareBuf, ToCostShareBuf, CostShare, true);
 
                     CostShareBuf := ToCostShareBuf;
-                    CostShareBuf.Modify;
+                    CostShareBuf.Modify();
 
                     ForwardToAppliedOutbndEntry("Item Ledger Entry No.");
                     if "New Quantity" - ToItemLedgEntry."Remaining Quantity" = 0 then
@@ -613,7 +613,7 @@ report 5848 "Cost Shares Breakdown"
                         CostShare := -CostShare;
                         UpdateCosts(FromCostShareBuf, ToCostShareBuf, CostShare, false);
                         CostShareBuf := ToCostShareBuf;
-                        CostShareBuf.Modify;
+                        CostShareBuf.Modify();
                     end;
                 end;
             end;
@@ -633,7 +633,7 @@ report 5848 "Cost Shares Breakdown"
                 UpdateCosts(FromCostShareBuf, FromCostShareBuf, CostShare, false);
             end;
             CostShareBuf := FromCostShareBuf;
-            CostShareBuf.Modify;
+            CostShareBuf.Modify();
         end;
     end;
 

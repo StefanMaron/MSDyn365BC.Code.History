@@ -20,7 +20,7 @@ codeunit 10629 "E-Invoice Check Common"
             exit;
 
         // CurrencyCode is equal to LCY - ok
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if CurrencyCode = GeneralLedgerSetup."LCY Code" then
             exit;
 

@@ -18,11 +18,11 @@ report 1200 "Create Direct Debit Collection"
                 begin
                     if OnlyCustomersWithMandate then
                         if not Customer.HasValidDDMandate("Due Date") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     if OnlyInvoicesWithMandate then begin
                         SEPADirectDebitMandate.Get("Direct Debit Mandate ID");
                         if not SEPADirectDebitMandate.IsMandateActive("Due Date") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     if not EntryFullyCollected("Entry No.") then begin
@@ -142,7 +142,7 @@ report 1200 "Create Direct Debit Collection"
     trigger OnPreReport()
     begin
         BankAccount.Get(BankAccount."No.");
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

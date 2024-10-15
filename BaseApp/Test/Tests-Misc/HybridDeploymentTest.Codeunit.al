@@ -24,11 +24,11 @@ codeunit 139065 "Hybrid Deployment Test"
         HybridDeploymentSetup: Record "Hybrid Deployment Setup";
     begin
         if not HybridDeploymentSetup.Get then begin
-            HybridDeploymentSetup.Init;
-            HybridDeploymentSetup.Insert;
+            HybridDeploymentSetup.Init();
+            HybridDeploymentSetup.Insert();
         end;
         HybridDeploymentSetup."Handler Codeunit ID" := CODEUNIT::"Hybrid Deployment Test";
-        HybridDeploymentSetup.Modify;
+        HybridDeploymentSetup.Modify();
     end;
 
     [Test]
@@ -265,9 +265,9 @@ codeunit 139065 "Hybrid Deployment Test"
         Initialize;
 
         // [GIVEN] No handler codeunit is set to handle the request.
-        HybridDeploymentSetup.Get;
+        HybridDeploymentSetup.Get();
         HybridDeploymentSetup."Handler Codeunit ID" := 0;
-        HybridDeploymentSetup.Modify;
+        HybridDeploymentSetup.Modify();
 
         // [WHEN] A hybrid service request is attempted
         asserterror HybridDeployment.RunReplication(RunId, 0);

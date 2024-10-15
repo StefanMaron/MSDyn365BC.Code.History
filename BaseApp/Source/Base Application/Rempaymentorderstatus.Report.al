@@ -163,7 +163,7 @@ report 15000006 "Rem. payment order status"
                         trigger OnPreDataItem()
                         begin
                             if "Waiting Journal"."Remittance Status" <> "Waiting Journal"."Remittance Status"::Rejected then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
 

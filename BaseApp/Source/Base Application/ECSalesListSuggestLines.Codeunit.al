@@ -29,7 +29,7 @@ codeunit 140 "EC Sales List Suggest Lines"
         CompanyInformation: Record "Company Information";
         EUVATEntries: Query "EU VAT Entries";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         EUVATEntries.SetRange(PostingDate, VATReportHeader."Start Date", VATReportHeader."End Date");
         EUVATEntries.SetFilter(CountryCode, '<>%1', CompanyInformation."Country/Region Code");
 
@@ -52,18 +52,18 @@ codeunit 140 "EC Sales List Suggest Lines"
         ECSLVATReportLine.SetRange("Transaction Indicator", TrnIndicator);
 
         if not ECSLVATReportLine.FindFirst then begin
-            ECSLVATReportLine.Reset;
+            ECSLVATReportLine.Reset();
             ECSLVATReportLine.SetRange("Report No.", VATReportHeader."No.");
             if ECSLVATReportLine.FindLast then
                 LastId := ECSLVATReportLine."Line No.";
 
-            ECSLVATReportLine.Init;
+            ECSLVATReportLine.Init();
             ECSLVATReportLine."Line No." := LastId + 1;
             ECSLVATReportLine.Validate("Report No.", VATReportHeader."No.");
             ECSLVATReportLine.Validate("Country Code", EUVATEntries.CountryCode);
             ECSLVATReportLine.Validate("Customer VAT Reg. No.", EUVATEntries.VAT_Registration_No);
             ECSLVATReportLine.Validate("Transaction Indicator", TrnIndicator);
-            ECSLVATReportLine.Insert;
+            ECSLVATReportLine.Insert();
         end;
     end;
 
@@ -126,10 +126,10 @@ codeunit 140 "EC Sales List Suggest Lines"
 
         repeat
             ECSLVATReportLineRelation.SetRange("ECSL Line No.", ECSLVATReportLine."Line No.");
-            ECSLVATReportLineRelation.DeleteAll;
+            ECSLVATReportLineRelation.DeleteAll();
         until ECSLVATReportLine.Next = 0;
 
-        ECSLVATReportLine.DeleteAll;
+        ECSLVATReportLine.DeleteAll();
     end;
 }
 

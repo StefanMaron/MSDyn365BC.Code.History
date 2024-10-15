@@ -49,7 +49,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
         BankAcc.IBAN := '';
-        BankAcc.Modify;
+        BankAcc.Modify();
         asserterror GenJnlLineTemplate.ImportBankStatement;
     end;
 
@@ -79,7 +79,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
         BankAcc.IBAN := '';
-        BankAcc.Modify;
+        BankAcc.Modify();
         GenJnlLineTemplate.ImportBankStatement;
 
         // Verify
@@ -112,7 +112,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
         BankAcc.IBAN := LibraryUtility.GenerateGUID;
-        BankAcc.Modify;
+        BankAcc.Modify();
         GenJnlLineTemplate.ImportBankStatement;
 
         // Verify: In confirm handler.
@@ -144,7 +144,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         BankAcc.IBAN := IBANTxt;
         BankAcc."Currency Code" :=
           LibraryERM.CreateCurrencyWithExchangeRate(DMY2Date(1, 1, 2000), 1, 1);
-        BankAcc.Modify;
+        BankAcc.Modify();
 
         // Exercise
         asserterror GenJnlLineTemplate.ImportBankStatement;
@@ -272,7 +272,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
         BankAcc.IBAN := LibraryUtility.GenerateGUID;
-        BankAcc.Modify;
+        BankAcc.Modify();
         asserterror GenJnlLineTemplate.ImportBankStatement;
 
         // Verify
@@ -304,7 +304,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
         BankAcc.IBAN := IBANTxt;
-        BankAcc.Modify;
+        BankAcc.Modify();
 
         asserterror GenJnlLineTemplate.ImportBankStatement;
         Assert.ExpectedError(MultiStatementErr);
@@ -336,7 +336,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
         BankAcc.IBAN := IBANTxt;
-        BankAcc.Modify;
+        BankAcc.Modify();
 
         GenJnlLineTemplate.ImportBankStatement;
 
@@ -375,7 +375,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         CreateGenJnlLineTemplateWithFilter(GenJnlLineTemplate, 'SEPA CAMT');
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
         BankAcc.IBAN := IBANTxt;
-        BankAcc.Modify;
+        BankAcc.Modify();
 
         GenJnlLineTemplate.ImportBankStatement;
         DataExch.SetRange("Data Exch. Def Code", 'SEPA CAMT');
@@ -528,7 +528,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         IBANTxt := '15415024154';
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERM.SetLCYCode(CurrTxt);
-        Commit;
+        Commit();
 
         IsInitialized := true;
     end;
@@ -862,12 +862,12 @@ codeunit 132549 "Import XML Gen Jnl Line"
 
         DataExchDef.Get(DataExchDefCode);
         DataExchDef."Ext. Data Handling Codeunit" := CODEUNIT::"ERM PE Source Test Mock";
-        DataExchDef.Modify;
+        DataExchDef.Modify();
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.FindFirst;
         DataExchLineDef.Namespace := NamespaceTxt;
-        DataExchLineDef.Modify;
+        DataExchLineDef.Modify();
     end;
 
     local procedure SetupGenJnlLineForImport(var GenJnlLine: Record "Gen. Journal Line")
@@ -900,7 +900,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
         GenJnlBatch."Bal. Account Type" := GenJnlBatch."Bal. Account Type"::"Bank Account";
         GenJnlBatch."Bal. Account No." := BankAccount."No.";
-        GenJnlBatch.Modify;
+        GenJnlBatch.Modify();
 
         LibraryERM.CreateGeneralJnlLine(GenJnlLineTemplate, GenJnlTemplate.Name,
           GenJnlBatch.Name, GenJnlLineTemplate."Document Type"::Payment, GenJnlLineTemplate."Account Type"::"G/L Account", '', 0);
@@ -927,7 +927,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         GenJnlBatch."Bal. Account Type" := GenJnlBatch."Bal. Account Type"::"G/L Account";
         GenJnlBatch."Bal. Account No." := GLAccount."No.";
         GenJnlBatch."Bank Statement Import Format" := BankExportImportSetup.Code;
-        GenJnlBatch.Modify;
+        GenJnlBatch.Modify();
 
         LibraryERM.CreateGeneralJnlLine(GenJnlLineTemplate, GenJnlTemplate.Name,
           GenJnlBatch.Name, GenJnlLineTemplate."Document Type"::Payment, GenJnlLineTemplate."Account Type"::"G/L Account", '', 0);
@@ -949,7 +949,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         TempGenJnlLine.Validate("Transaction Information", TransactionInfo);
         TempGenJnlLine.Validate(Amount, Amount);
         TempGenJnlLine.Validate("Currency Code", CurrencyCode);
-        TempGenJnlLine.Insert;
+        TempGenJnlLine.Insert();
     end;
 
     local procedure CreateLine(var TempGenJnlLine: Record "Gen. Journal Line" temporary; GenJnlLineTemplate: Record "Gen. Journal Line"; DataExchEntryNo: Integer; DataExchLineNo: Integer; LineNo: Integer; DocumentNo: Code[20]; PostingDate: Date; Description: Text[50]; PayerInfo: Text[50]; TransactionInfo: Text[50]; Amount: Decimal; CurrencyCode: Code[10])
@@ -972,13 +972,13 @@ codeunit 132549 "Import XML Gen Jnl Line"
 
     local procedure CreateBankExportImportSetup(var BankExportImportSetup: Record "Bank Export/Import Setup"; DataExchDefCode: Code[20])
     begin
-        BankExportImportSetup.Init;
+        BankExportImportSetup.Init();
         BankExportImportSetup.Code :=
           LibraryUtility.GenerateRandomCode(BankExportImportSetup.FieldNo(Code), DATABASE::"Bank Export/Import Setup");
         BankExportImportSetup.Direction := BankExportImportSetup.Direction::Import;
         if DataExchDefCode <> '' then
             BankExportImportSetup."Data Exch. Def. Code" := DataExchDefCode;
-        BankExportImportSetup.Insert;
+        BankExportImportSetup.Insert();
     end;
 
     local procedure PrepareImportedDataValidation(var TempExpdGenJnlLine: Record "Gen. Journal Line" temporary; GenJnlLineTemplate: Record "Gen. Journal Line"; CurrencyCode: Code[10])

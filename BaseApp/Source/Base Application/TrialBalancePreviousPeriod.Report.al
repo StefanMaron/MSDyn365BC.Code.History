@@ -166,25 +166,25 @@ report 10601 "Trial Balance/Previous Period"
 
                     GLAccountType := "Account Type";
 
-                    Incoming.Reset;
+                    Incoming.Reset();
                     Incoming := "G/L Account";
                     Incoming.CopyFilters("G/L Account");
                     Incoming.SetRange("Date Filter", 0D, LastDayPrevYear);
                     Incoming.CalcFields("Net Change");
 
-                    YearToDate.Reset;
+                    YearToDate.Reset();
                     YearToDate := "G/L Account";
                     YearToDate.CopyFilters("G/L Account");
                     YearToDate.SetRange("Date Filter", FirstDayThisYear, PeriodEndThisYear);
                     YearToDate.CalcFields("Net Change");
 
-                    PrevYearToDate.Reset;
+                    PrevYearToDate.Reset();
                     PrevYearToDate := "G/L Account";
                     PrevYearToDate.CopyFilters("G/L Account");
                     PrevYearToDate.SetRange("Date Filter", FirstDayPrevYear, PeriodEndPrevYear);
                     PrevYearToDate.CalcFields("Net Change");
 
-                    PeriodPrevYear.Reset;
+                    PeriodPrevYear.Reset();
                     PeriodPrevYear := "G/L Account";
                     PeriodPrevYear.CopyFilters("G/L Account");
                     PeriodPrevYear.SetRange("Date Filter", PeriodStartPrevYear, PeriodEndPrevYear);
@@ -211,7 +211,7 @@ report 10601 "Trial Balance/Previous Period"
                        (PeriodPrevYear."Net Change" = 0) and (PrevYearToDate."Net Change" = 0)
                     then
                         if not (("Income/Balance" = "Income/Balance"::"Balance Sheet") and (Incoming."Net Change" <> 0)) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     if "G/L Account"."New Page" then
                         NewPageStatus := true
                     else
@@ -225,7 +225,7 @@ report 10601 "Trial Balance/Previous Period"
                     "G/L Account".SetRange("Income/Balance", IncomeOrBalance.Number);
 
                     if IsEmpty then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     PeriodStartThisYear := GetRangeMin("Date Filter");
                     PeriodEndThisYear := GetRangeMax("Date Filter");

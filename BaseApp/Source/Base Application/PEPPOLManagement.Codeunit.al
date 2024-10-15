@@ -33,31 +33,17 @@ codeunit 1605 "PEPPOL Management"
         ID := SalesHeader."No.";
 
         IssueDate := Format(SalesHeader."Document Date", 0, 9);
-        InvoiceTypeCode := GetInvoiceTypeCode();
-        InvoiceTypeCodeListID := GetUNCL1001ListID();
+        InvoiceTypeCode := GetInvoiceTypeCode;
+        InvoiceTypeCodeListID := GetUNCL1001ListID;
         Note := '';
 
-        GLSetup.Get;
+        GLSetup.Get();
         TaxPointDate := '';
         DocumentCurrencyCode := GetSalesDocCurrencyCode(SalesHeader);
-        DocumentCurrencyCodeListID := GetISO4217ListID();
+        DocumentCurrencyCodeListID := GetISO4217ListID;
         TaxCurrencyCode := DocumentCurrencyCode;
-        TaxCurrencyCodeListID := GetISO4217ListID();
+        TaxCurrencyCodeListID := GetISO4217ListID;
         AccountingCost := '';
-    end;
-
-    procedure GetGeneralInfoBIS(SalesHeader: Record "Sales Header"; var ID: Text; var IssueDate: Text; var InvoiceTypeCode: Text; var Note: Text; var TaxPointDate: Text; var DocumentCurrencyCode: Text; var AccountingCost: Text)
-    begin
-        ID := SalesHeader."No.";
-        IssueDate := Format(SalesHeader."Document Date", 0, 9);
-        InvoiceTypeCode := GetInvoiceTypeCode();
-        Note := '';
-        TaxPointDate := '';
-        DocumentCurrencyCode := GetSalesDocCurrencyCode(SalesHeader);
-        AccountingCost := '';
-
-        OnAfterGetGeneralInfo(
-          SalesHeader, ID, IssueDate, InvoiceTypeCode, Note, TaxPointDate, DocumentCurrencyCode, AccountingCost);
     end;
 
     procedure GetInvoicePeriodInfo(var StartDate: Text; var EndDate: Text)
@@ -69,8 +55,6 @@ codeunit 1605 "PEPPOL Management"
     procedure GetOrderReferenceInfo(SalesHeader: Record "Sales Header"; var OrderReferenceID: Text)
     begin
         OrderReferenceID := SalesHeader."External Document No.";
-
-        OnAfterGetOrderReferenceInfo(SalesHeader, OrderReferenceID);
     end;
 
     procedure GetOrderReferenceInfoBIS(SalesHeader: Record "Sales Header"; var OrderReferenceID: Text)
@@ -84,7 +68,7 @@ codeunit 1605 "PEPPOL Management"
     begin
         ContractDocumentReferenceID := SalesHeader."No.";
         DocumentTypeCode := '';
-        ContractRefDocTypeCodeListID := GetUNCL1001ListID();
+        ContractRefDocTypeCodeListID := GetUNCL1001ListID;
         DocumentType := '';
     end;
 
@@ -95,9 +79,6 @@ codeunit 1605 "PEPPOL Management"
         URI := '';
         MimeCode := '';
         EmbeddedDocumentBinaryObject := '';
-
-        OnAfterGetAdditionalDocRefInfo(
-          AdditionalDocumentReferenceID, AdditionalDocRefDocumentType, URI, MimeCode, EmbeddedDocumentBinaryObject);
     end;
 
     procedure GetAccountingSupplierPartyInfo(var SupplierEndpointID: Text; var SupplierSchemeID: Text; var SupplierName: Text)
@@ -114,15 +95,17 @@ codeunit 1605 "PEPPOL Management"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
-        if (CompanyInfo.GLN <> '') and CompanyInfo."Use GLN in Electronic Document" then begin
+        CompanyInfo.Get();
+        // Always use "VAT Registration No." for BIS Billing 3.0
+        if (CompanyInfo.GLN <> '') and not IsBISBilling then begin
             SupplierEndpointID := CompanyInfo.GLN;
             SupplierSchemeID := GetGLNSchemeIDByFormat(IsBISBilling);
-        end else begin
-            SupplierEndpointID :=
-              FormatVATRegistrationNo(CompanyInfo.GetVATRegistrationNumber(), CompanyInfo."Country/Region Code", IsBISBilling, false);
-            SupplierSchemeID := GetVATScheme(CompanyInfo."Country/Region Code");
-        end;
+        end else
+            if CompanyInfo."VAT Registration No." <> '' then begin
+                SupplierEndpointID :=
+                  FormatVATRegistrationNo(CompanyInfo."VAT Registration No.", CompanyInfo."Country/Region Code", IsBISBilling, false);
+                SupplierSchemeID := GetVATScheme(CompanyInfo."Country/Region Code");
+            end;
 
         SupplierName := CompanyInfo.Name;
     end;
@@ -132,7 +115,7 @@ codeunit 1605 "PEPPOL Management"
         CompanyInfo: Record "Company Information";
         RespCenter: Record "Responsibility Center";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if RespCenter.Get(SalesHeader."Responsibility Center") then begin
             CompanyInfo.Address := RespCenter.Address;
             CompanyInfo."Address 2" := RespCenter."Address 2";
@@ -150,22 +133,24 @@ codeunit 1605 "PEPPOL Management"
         PostalZone := CompanyInfo."Post Code";
         CountrySubentity := CompanyInfo.County;
         IdentificationCode := CompanyInfo."Country/Region Code";
-        ListID := GetISO3166_1Alpha2();
+        ListID := GetISO3166_1Alpha2;
     end;
 
     procedure GetAccountingSupplierPartyTaxScheme(var CompanyID: Text; var CompanyIDSchemeID: Text; var TaxSchemeID: Text)
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
-        CompanyID := FormatVATRegistrationNo(CompanyInfo.GetVATRegistrationNumber(), CompanyInfo."Country/Region Code", true, true);
-        CompanyIDSchemeID := GetVATScheme(CompanyInfo."Country/Region Code");
-        TaxSchemeID := VATTxt;
+        CompanyInfo.Get();
+        if CompanyInfo."VAT Registration No." <> '' then begin
+            CompanyID := FormatVATRegistrationNo(CompanyInfo."VAT Registration No.", CompanyInfo."Country/Region Code", true, true);
+            CompanyIDSchemeID := GetVATScheme(CompanyInfo."Country/Region Code");
+            TaxSchemeID := VATTxt;
+        end;
     end;
 
     procedure GetAccountingSupplierPartyTaxSchemeBIS(var VATAmtLine: Record "VAT Amount Line"; var CompanyID: Text; var CompanyIDSchemeID: Text; var TaxSchemeID: Text)
     begin
-        VATAmtLine.SetFilter("Tax Category", '<>%1', GetTaxCategoryO());
+        VATAmtLine.SetFilter("Tax Category", '<>%1', GetTaxCategoryO);
         if not VATAmtLine.IsEmpty then
             GetAccountingSupplierPartyTaxScheme(CompanyID, CompanyIDSchemeID, TaxSchemeID);
         VATAmtLine.SetRange("Tax Category");
@@ -198,21 +183,23 @@ codeunit 1605 "PEPPOL Management"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         PartyLegalEntityRegName := CompanyInfo.Name;
-        if (CompanyInfo.GLN <> '') and CompanyInfo."Use GLN in Electronic Document" then begin
+        // Always use "VAT Registration No." for BIS Billing 3.0
+        if (CompanyInfo.GLN <> '') and not IsBISBilling then begin
             PartyLegalEntityCompanyID := CompanyInfo.GLN;
             PartyLegalEntitySchemeID := GetGLNSchemeIDByFormat(IsBISBilling);
-        end else begin
-            PartyLegalEntityCompanyID :=
-              FormatVATRegistrationNo(CompanyInfo.GetVATRegistrationNumber(), CompanyInfo."Country/Region Code", IsBISBilling, false);
-            PartyLegalEntitySchemeID := GetVATSchemeByFormat(CompanyInfo."Country/Region Code", IsBISBilling);
-        end;
+        end else
+            if CompanyInfo."VAT Registration No." <> '' then begin
+                PartyLegalEntityCompanyID :=
+                  FormatVATRegistrationNo(CompanyInfo."VAT Registration No.", CompanyInfo."Country/Region Code", IsBISBilling, false);
+                PartyLegalEntitySchemeID := GetVATSchemeByFormat(CompanyInfo."Country/Region Code", IsBISBilling);
+            end;
 
         SupplierRegAddrCityName := CompanyInfo.City;
         SupplierRegAddrCountryIdCode := CompanyInfo."Country/Region Code";
-        SupplRegAddrCountryIdListId := GetISO3166_1Alpha2();
+        SupplRegAddrCountryIdListId := GetISO3166_1Alpha2;
     end;
 
     procedure GetAccountingSupplierPartyContact(SalesHeader: Record "Sales Header"; var ContactID: Text; var ContactName: Text; var Telephone: Text; var Telefax: Text; var ElectronicMail: Text)
@@ -220,7 +207,7 @@ codeunit 1605 "PEPPOL Management"
         CompanyInfo: Record "Company Information";
         Salesperson: Record "Salesperson/Purchaser";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         GetSalesperson(SalesHeader, Salesperson);
         ContactID := SalespersonTxt;
         ContactName := Salesperson.Name;
@@ -248,18 +235,21 @@ codeunit 1605 "PEPPOL Management"
         Cust: Record Customer;
     begin
         Cust.Get(SalesHeader."Bill-to Customer No.");
-        if (Cust.GLN <> '') and Cust."Use GLN in Electronic Document" then begin
+        // Always use "VAT Registration No." for BIS Billing 3.0
+        if (Cust.GLN <> '') and not IsBISBilling then begin
             CustomerEndpointID := Cust.GLN;
             CustomerSchemeID := GetGLNSchemeIDByFormat(IsBISBilling);
-        end else begin
-            CustomerEndpointID :=
-              FormatVATRegistrationNo(
-                SalesHeader.GetCustomerVATRegistrationNumber(), SalesHeader."Bill-to Country/Region Code", IsBISBilling, false);
-            CustomerSchemeID := GetVATScheme(SalesHeader."Bill-to Country/Region Code");
-        end;
+        end else
+            if SalesHeader."VAT Registration No." <> '' then begin
+                CustomerEndpointID :=
+                  FormatVATRegistrationNo(SalesHeader."VAT Registration No.", SalesHeader."Bill-to Country/Region Code", IsBISBilling, false);
+                CustomerSchemeID := GetVATScheme(SalesHeader."Bill-to Country/Region Code");
+            end;
 
-        CustomerPartyIdentificationID := Cust.GLN;
-        CustomerPartyIDSchemeID := GetGLNSchemeIDByFormat(IsBISBilling);
+        if not IsBISBilling then begin
+            CustomerPartyIdentificationID := Cust.GLN;
+            CustomerPartyIDSchemeID := GetGLNSchemeIDByFormat(IsBISBilling);
+        end;
         CustomerName := SalesHeader."Bill-to Name";
     end;
 
@@ -271,7 +261,7 @@ codeunit 1605 "PEPPOL Management"
         CustomerPostalZone := SalesHeader."Bill-to Post Code";
         CustomerCountrySubentity := SalesHeader."Bill-to County";
         CustomerIdentificationCode := SalesHeader."Bill-to Country/Region Code";
-        CustomerListID := GetISO3166_1Alpha2();
+        CustomerListID := GetISO3166_1Alpha2;
     end;
 
     procedure GetAccountingCustomerPartyTaxScheme(SalesHeader: Record "Sales Header"; var CustPartyTaxSchemeCompanyID: Text; var CustPartyTaxSchemeCompIDSchID: Text; var CustTaxSchemeID: Text)
@@ -288,11 +278,12 @@ codeunit 1605 "PEPPOL Management"
 
     local procedure GetAccountingCustomerPartyTaxSchemeByFormat(SalesHeader: Record "Sales Header"; var CustPartyTaxSchemeCompanyID: Text; var CustPartyTaxSchemeCompIDSchID: Text; var CustTaxSchemeID: Text; IsBISBilling: Boolean)
     begin
-        CustPartyTaxSchemeCompanyID :=
-          FormatVATRegistrationNo(
-            SalesHeader.GetCustomerVATRegistrationNumber(), SalesHeader."Bill-to Country/Region Code", IsBISBilling, true);
-        CustPartyTaxSchemeCompIDSchID := GetVATSchemeByFormat(SalesHeader."Bill-to Country/Region Code", IsBISBilling);
-        CustTaxSchemeID := VATTxt;
+        if SalesHeader."VAT Registration No." <> '' then begin
+            CustPartyTaxSchemeCompanyID :=
+              FormatVATRegistrationNo(SalesHeader."VAT Registration No.", SalesHeader."Bill-to Country/Region Code", IsBISBilling, true);
+            CustPartyTaxSchemeCompIDSchID := GetVATSchemeByFormat(SalesHeader."Bill-to Country/Region Code", IsBISBilling);
+            CustTaxSchemeID := VATTxt;
+        end;
     end;
 
     procedure GetAccountingCustomerPartyLegalEntity(SalesHeader: Record "Sales Header"; var CustPartyLegalEntityRegName: Text; var CustPartyLegalEntityCompanyID: Text; var CustPartyLegalEntityIDSchemeID: Text)
@@ -313,15 +304,16 @@ codeunit 1605 "PEPPOL Management"
     begin
         if Customer.Get(SalesHeader."Bill-to Customer No.") then begin
             CustPartyLegalEntityRegName := Customer.Name;
-            if (Customer.GLN <> '') and Customer."Use GLN in Electronic Document" then begin
+            // Always use "VAT Registration No." for BIS Billing 3.0
+            if (Customer.GLN <> '') and not IsBISBilling then begin
                 CustPartyLegalEntityCompanyID := Customer.GLN;
                 CustPartyLegalEntityIDSchemeID := GetGLNSchemeIDByFormat(IsBISBilling);
-            end else begin
-                CustPartyLegalEntityCompanyID :=
-                  FormatVATRegistrationNo(
-                    SalesHeader.GetCustomerVATRegistrationNumber(), SalesHeader."Bill-to Country/Region Code", IsBISBilling, false);
-                CustPartyLegalEntityIDSchemeID := GetVATSchemeByFormat(SalesHeader."Bill-to Country/Region Code", IsBISBilling);
-            end;
+            end else
+                if SalesHeader."VAT Registration No." <> '' then begin
+                    CustPartyLegalEntityCompanyID :=
+                      FormatVATRegistrationNo(SalesHeader."VAT Registration No.", SalesHeader."Bill-to Country/Region Code", IsBISBilling, false);
+                    CustPartyLegalEntityIDSchemeID := GetVATSchemeByFormat(SalesHeader."Bill-to Country/Region Code", IsBISBilling);
+                end;
         end;
     end;
 
@@ -343,12 +335,12 @@ codeunit 1605 "PEPPOL Management"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         PayeePartyID := CompanyInfo.GLN;
         PayeePartyIDSchemeID := GLNTxt;
         PayeePartyNameName := CompanyInfo.Name;
-        PayeePartyLegalEntityCompanyID := CompanyInfo.GetVATRegistrationNumber();
+        PayeePartyLegalEntityCompanyID := CompanyInfo."VAT Registration No.";
         PayeePartyLegalCompIDSchemeID := GetVATScheme(CompanyInfo."Country/Region Code");
     end;
 
@@ -400,7 +392,7 @@ codeunit 1605 "PEPPOL Management"
         DeliveryPostalZone := SalesHeader."Ship-to Post Code";
         DeliveryCountrySubentity := SalesHeader."Ship-to County";
         DeliveryCountryIdCode := SalesHeader."Ship-to Country/Region Code";
-        DeliveryCountryListID := GetISO3166_1Alpha2();
+        DeliveryCountryListID := GetISO3166_1Alpha2;
     end;
 
     procedure GetPaymentMeansInfo(SalesHeader: Record "Sales Header"; var PaymentMeansCode: Text; var PaymentMeansListID: Text; var PaymentDueDate: Text; var PaymentChannelCode: Text; var PaymentID: Text; var PrimaryAccountNumberID: Text; var NetworkID: Text)
@@ -408,7 +400,7 @@ codeunit 1605 "PEPPOL Management"
         DocumentTools: Codeunit DocumentTools;
     begin
         PaymentMeansCode := PaymentMeansFundsTransferCodeTxt;
-        PaymentMeansListID := GetUNCL4461ListID();
+        PaymentMeansListID := GetUNCL4461ListID;
         PaymentDueDate := Format(SalesHeader."Due Date", 0, 9);
         PaymentChannelCode := '';
         PaymentID := DocumentTools.GetEInvoicePEPPOLPaymentID(SalesHeader);
@@ -420,7 +412,7 @@ codeunit 1605 "PEPPOL Management"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if CompanyInfo.IBAN <> '' then begin
             PayeeFinancialAccountID := DelChr(CompanyInfo.IBAN, '=', ' ');
             PaymentMeansSchemeID := IBANPaymentSchemeIDTxt;
@@ -434,21 +426,6 @@ codeunit 1605 "PEPPOL Management"
         FinancialInstitutionID := DelChr(CompanyInfo."SWIFT Code", '=', ' ');
         FinancialInstitutionSchemeID := BICTxt;
         FinancialInstitutionName := CompanyInfo."Bank Name";
-    end;
-
-    procedure GetPaymentMeansPayeeFinancialAccBIS(var PayeeFinancialAccountID: Text; var FinancialInstitutionBranchID: Text)
-    var
-        CompanyInfo: Record "Company Information";
-    begin
-        CompanyInfo.Get();
-        if CompanyInfo.IBAN <> '' then
-            PayeeFinancialAccountID := DelChr(CompanyInfo.IBAN, '=', ' ')
-        else
-            if CompanyInfo."Bank Account No." <> '' then
-                PayeeFinancialAccountID := CompanyInfo."Bank Account No.";
-        FinancialInstitutionBranchID := CompanyInfo."Bank Branch No.";
-
-        OnAfterGetPaymentMeansPayeeFinancialAccBIS(PayeeFinancialAccountID, FinancialInstitutionBranchID);
     end;
 
     procedure GetPaymentMeansFinancialInstitutionAddr(var FinancialInstitutionStreetName: Text; var AdditionalStreetName: Text; var FinancialInstitutionCityName: Text; var FinancialInstitutionPostalZone: Text; var FinancialInstCountrySubentity: Text; var FinancialInstCountryIdCode: Text; var FinancialInstCountryListID: Text)
@@ -485,12 +462,12 @@ codeunit 1605 "PEPPOL Management"
 
         ChargeIndicator := 'false';
         AllowanceChargeReasonCode := AllowanceChargeReasonCodeTxt;
-        AllowanceChargeListID := GetUNCL4465ListID();
+        AllowanceChargeListID := GetUNCL4465ListID;
         AllowanceChargeReason := InvoiceDisAmtTxt;
         Amount := Format(VATAmtLine."Invoice Discount Amount", 0, 9);
         AllowanceChargeCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         TaxCategoryID := VATAmtLine."Tax Category";
-        TaxCategorySchemeID := GetUNCL5305ListID();
+        TaxCategorySchemeID := GetUNCL5305ListID;
         Percent := Format(VATAmtLine."VAT %", 0, 9);
         AllowanceChargeTaxSchemeID := VATTxt;
     end;
@@ -500,7 +477,7 @@ codeunit 1605 "PEPPOL Management"
         GetAllowanceChargeInfo(
           VATAmtLine, SalesHeader, ChargeIndicator, AllowanceChargeReasonCode, AllowanceChargeListID, AllowanceChargeReason,
           Amount, AllowanceChargeCurrencyID, TaxCategoryID, TaxCategorySchemeID, Percent, AllowanceChargeTaxSchemeID);
-        if TaxCategoryID = GetTaxCategoryO() then
+        if TaxCategoryID = GetTaxCategoryO then
             Percent := '';
     end;
 
@@ -512,7 +489,7 @@ codeunit 1605 "PEPPOL Management"
         Amount := Format(VATAmtLine."Amount Including VAT" - VATAmtLine."VAT Amount", 0, 9);
         AllowanceChargeCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         TaxCategoryID := VATAmtLine."Tax Category";
-        TaxCategorySchemeID := GetUNCL5305ListID;
+        TaxCategorySchemeID := GetUNCL5305ListID();
         Percent := Format(VATAmtLine."VAT %", 0, 9);
         AllowanceChargeTaxSchemeID := VATTxt;
     end;
@@ -521,14 +498,14 @@ codeunit 1605 "PEPPOL Management"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."LCY Code" = GetSalesDocCurrencyCode(SalesHeader) then
             exit;
 
         SourceCurrencyCode := GetSalesDocCurrencyCode(SalesHeader);
-        SourceCurrencyCodeListID := GetISO4217ListID();
+        SourceCurrencyCodeListID := GetISO4217ListID;
         TargetCurrencyCode := GLSetup."LCY Code";
-        TargetCurrencyCodeListID := GetISO4217ListID();
+        TargetCurrencyCodeListID := GetISO4217ListID;
         CalculationRate := Format(SalesHeader."Currency Factor", 0, 9);
         MathematicOperatorCode := MultiplyTxt;
         Date := Format(SalesHeader."Posting Date", 0, 9);
@@ -539,8 +516,6 @@ codeunit 1605 "PEPPOL Management"
         VATAmtLine.CalcSums(VATAmtLine."VAT Amount");
         TaxAmount := Format(VATAmtLine."VAT Amount", 0, 9);
         TaxTotalCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
-
-        OnAfterGetTaxTotalInfo(SalesHeader, VATAmtLine, TaxAmount);
     end;
 
     procedure GetTaxSubtotalInfo(VATAmtLine: Record "VAT Amount Line"; SalesHeader: Record "Sales Header"; var TaxableAmount: Text; var TaxAmountCurrencyID: Text; var SubtotalTaxAmount: Text; var TaxSubtotalCurrencyID: Text; var TransactionCurrencyTaxAmount: Text; var TransCurrTaxAmtCurrencyID: Text; var TaxTotalTaxCategoryID: Text; var schemeID: Text; var TaxCategoryPercent: Text; var TaxTotalTaxSchemeID: Text)
@@ -551,7 +526,7 @@ codeunit 1605 "PEPPOL Management"
         TaxAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         SubtotalTaxAmount := Format(VATAmtLine."VAT Amount", 0, 9);
         TaxSubtotalCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."LCY Code" <> GetSalesDocCurrencyCode(SalesHeader) then begin
             TransactionCurrencyTaxAmount :=
               Format(
@@ -562,19 +537,14 @@ codeunit 1605 "PEPPOL Management"
             TransCurrTaxAmtCurrencyID := GLSetup."LCY Code";
         end;
         TaxTotalTaxCategoryID := VATAmtLine."Tax Category";
-        schemeID := GetUNCL5305ListID();
+        schemeID := GetUNCL5305ListID;
         TaxCategoryPercent := Format(VATAmtLine."VAT %", 0, 9);
         TaxTotalTaxSchemeID := VATTxt;
-
-        OnAfterGetTaxSubtotalInfo(
-          VATAmtLine, SalesHeader, TaxableAmount, SubtotalTaxAmount,
-          TransactionCurrencyTaxAmount, TaxTotalTaxCategoryID, schemeID,
-          TaxCategoryPercent, TaxTotalTaxSchemeID);
     end;
 
     procedure GetLegalMonetaryInfo(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var LegalMonetaryTotalCurrencyID: Text; var TaxExclusiveAmount: Text; var TaxExclusiveAmountCurrencyID: Text; var TaxInclusiveAmount: Text; var TaxInclusiveAmountCurrencyID: Text; var AllowanceTotalAmount: Text; var AllowanceTotalAmountCurrencyID: Text; var ChargeTotalAmount: Text; var ChargeTotalAmountCurrencyID: Text; var PrepaidAmount: Text; var PrepaidCurrencyID: Text; var PayableRoundingAmount: Text; var PayableRndingAmountCurrencyID: Text; var PayableAmount: Text; var PayableAmountCurrencyID: Text)
     begin
-        VATAmtLine.Reset;
+        VATAmtLine.Reset();
         VATAmtLine.CalcSums("Line Amount", "VAT Base", "Amount Including VAT", "Invoice Discount Amount");
 
         LineExtensionAmount := Format(Round(VATAmtLine."VAT Base", 0.01) + Round(VATAmtLine."Invoice Discount Amount", 0.01), 0, 9);
@@ -602,10 +572,6 @@ codeunit 1605 "PEPPOL Management"
 
         PayableAmount := Format(Round(VATAmtLine."Amount Including VAT", 0.01), 0, 9);
         PayableAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
-
-        OnAfterGetLegalMonetaryInfo(
-          SalesHeader, VATAmtLine, LineExtensionAmount, TaxExclusiveAmount, TaxInclusiveAmount,
-          AllowanceTotalAmount, ChargeTotalAmount, PrepaidAmount, PayableRoundingAmount, PayableAmount);
     end;
 
     procedure GetLineGeneralInfo(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var InvoiceLineID: Text; var InvoiceLineNote: Text; var InvoicedQuantity: Text; var InvoiceLineExtensionAmount: Text; var LineExtensionAmountCurrencyID: Text; var InvoiceLineAccountingCost: Text)
@@ -616,10 +582,6 @@ codeunit 1605 "PEPPOL Management"
         InvoiceLineExtensionAmount := Format(SalesLine."VAT Base Amount" + SalesLine."Inv. Discount Amount", 0, 9);
         LineExtensionAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         InvoiceLineAccountingCost := '';
-
-        OnAfterGetLineGeneralInfo(
-          SalesLine, SalesHeader, InvoiceLineID, InvoiceLineNote, InvoicedQuantity,
-          InvoiceLineExtensionAmount, InvoiceLineAccountingCost);
     end;
 
     procedure GetLineUnitCodeInfo(SalesLine: Record "Sales Line"; var unitCode: Text; var unitCodeListID: Text)
@@ -627,7 +589,7 @@ codeunit 1605 "PEPPOL Management"
         UOM: Record "Unit of Measure";
     begin
         unitCode := '';
-        unitCodeListID := GetUNECERec20ListID();
+        unitCodeListID := GetUNECERec20ListID;
 
         if SalesLine.Quantity = 0 then begin
             unitCode := UoMforPieceINUNECERec20ListIDTxt; // unitCode is required
@@ -678,7 +640,7 @@ codeunit 1605 "PEPPOL Management"
         InvoiceLineDeliveryPostalZone := '';
         InvLnDeliveryCountrySubentity := '';
         InvLnDeliveryCountryIdCode := '';
-        InvLineDeliveryCountryListID := GetISO3166_1Alpha2();
+        InvLineDeliveryCountryListID := GetISO3166_1Alpha2;
     end;
 
     procedure GetLineAllowanceChargeInfo(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var InvLnAllowanceChargeIndicator: Text; var InvLnAllowanceChargeReason: Text; var InvLnAllowanceChargeAmount: Text; var InvLnAllowanceChargeAmtCurrID: Text)
@@ -722,7 +684,7 @@ codeunit 1605 "PEPPOL Management"
         OriginCountryIdCode := '';
         OriginCountryIdCodeListID := '';
         if SalesLine.Type <> SalesLine.Type::" " then
-            OriginCountryIdCodeListID := GetISO3166_1Alpha2()
+            OriginCountryIdCodeListID := GetISO3166_1Alpha2
     end;
 
     procedure GetLineItemCommodityClassficationInfo(var CommodityCode: Text; var CommodityCodeListID: Text; var ItemClassificationCode: Text; var ItemClassificationCodeListID: Text)
@@ -744,11 +706,11 @@ codeunit 1605 "PEPPOL Management"
         end;
 
         if ClassifiedTaxCategoryID = '' then begin
-            ClassifiedTaxCategoryID := GetTaxCategoryE;
+            ClassifiedTaxCategoryID := GetTaxCategoryE();
             InvoiceLineTaxPercent := '0';
         end;
 
-        ItemSchemeID := GetUNCL5305ListID();
+        ItemSchemeID := GetUNCL5305ListID;
         ClassifiedTaxCategorySchemeID := VATTxt;
     end;
 
@@ -756,7 +718,7 @@ codeunit 1605 "PEPPOL Management"
     begin
         GetLineItemClassfiedTaxCategory(
           SalesLine, ClassifiedTaxCategoryID, ItemSchemeID, InvoiceLineTaxPercent, ClassifiedTaxCategorySchemeID);
-        if ClassifiedTaxCategoryID = GetTaxCategoryO() then
+        if ClassifiedTaxCategoryID = GetTaxCategoryO then
             InvoiceLineTaxPercent := '';
     end;
 
@@ -791,9 +753,6 @@ codeunit 1605 "PEPPOL Management"
         InvLinePriceAmountCurrencyID := GetSalesDocCurrencyCode(SalesHeader);
         BaseQuantity := '1';
         GetLineUnitCodeInfo(SalesLine, UnitCode, unitCodeListID);
-
-        OnAfterGetLinePriceInfo(
-          SalesLine, SalesHeader, InvoiceLinePriceAmount, BaseQuantity, UnitCode);
     end;
 
     procedure GetLinePriceAllowanceChargeInfo(var PriceChargeIndicator: Text; var PriceAllowanceChargeAmount: Text; var PriceAllowanceAmountCurrencyID: Text; var PriceAllowanceChargeBaseAmount: Text; var PriceAllowChargeBaseAmtCurrID: Text)
@@ -810,7 +769,7 @@ codeunit 1605 "PEPPOL Management"
         GLSetup: Record "General Ledger Setup";
     begin
         if SalesHeader."Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetup.TestField("LCY Code");
             exit(GLSetup."LCY Code");
         end;
@@ -842,7 +801,7 @@ codeunit 1605 "PEPPOL Management"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         if not VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
-            VATPostingSetup.Init;
+            VATPostingSetup.Init();
         with VATAmtLine do begin
             Init;
             "VAT Identifier" := VATPostingSetup."VAT Identifier";
@@ -855,12 +814,9 @@ codeunit 1605 "PEPPOL Management"
             if SalesLine."Allow Invoice Disc." then
                 "Inv. Disc. Base Amount" := SalesLine."Line Amount";
             "Invoice Discount Amount" := SalesLine."Inv. Discount Amount";
-
-            OnGetTotalsOnBeforeInsertVATAmtLine(SalesLine, VATAmtLine);
-
             if InsertLine then begin
                 "Line Amount" += SalesLine."Line Amount";
-                Modify;
+                Modify();
             end;
         end;
     end;
@@ -872,20 +828,20 @@ codeunit 1605 "PEPPOL Management"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         if not VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
-            VATPostingSetup.Init;
+            VATPostingSetup.Init();
         if not VATProductPostingGroup.Get(SalesLine."VAT Prod. Posting Group") then
-            VATProductPostingGroup.Init;
+            VATProductPostingGroup.Init();
 
-        VATProductPostingGroupCategory.Init;
+        VATProductPostingGroupCategory.Init();
         VATProductPostingGroupCategory.Code := VATPostingSetup."Tax Category";
         VATProductPostingGroupCategory.Description := VATProductPostingGroup.Description;
-        if VATProductPostingGroupCategory.Insert then;
+        if VATProductPostingGroupCategory.Insert() then;
     end;
 
     [Scope('OnPrem')]
     procedure GetTaxExemptionReason(var VATProductPostingGroupCategory: Record "VAT Product Posting Group"; var TaxExemptionReasonTxt: Text; TaxCategoryID: Text)
     begin
-        if not (TaxCategoryID in [GetTaxCategoryE(), GetTaxCategoryG(), GetTaxCategoryK(), GetTaxCategoryO(), GetTaxCategoryAE()]) then
+        if not (TaxCategoryID in [GetTaxCategoryE, GetTaxCategoryG, GetTaxCategoryK, GetTaxCategoryO, GetTaxCategoryAE]) then
             exit;
         if VATProductPostingGroupCategory.Get(TaxCategoryID) then
             TaxExemptionReasonTxt := VATProductPostingGroupCategory.Description;
@@ -940,7 +896,7 @@ codeunit 1605 "PEPPOL Management"
     local procedure GetGLNSchemeIDByFormat(IsBISBillling: Boolean): Text
     begin
         if IsBISBillling then
-            exit(GetGLNSchemeID());
+            exit(GetGLNSchemeID);
         exit(GLNTxt);
     end;
 
@@ -962,7 +918,7 @@ codeunit 1605 "PEPPOL Management"
         CompanyInfo: Record "Company Information";
     begin
         if CountryRegionCode = '' then begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             CompanyInfo.TestField("Country/Region Code");
             CountryRegion.Get(CompanyInfo."Country/Region Code");
         end else
@@ -1000,8 +956,6 @@ codeunit 1605 "PEPPOL Management"
         CountryRegion: Record "Country/Region";
         EInvoiceDocumentEncode: Codeunit "E-Invoice Document Encode";
     begin
-        if VATRegistrationNo = '' then
-            exit;
         if IsBISBilling then begin
             VATRegistrationNo := DelChr(VATRegistrationNo);
             VATRegistrationNo :=
@@ -1104,6 +1058,7 @@ codeunit 1605 "PEPPOL Management"
     [Scope('OnPrem')]
     procedure FindNextInvoiceRec(var SalesInvoiceHeader: Record "Sales Invoice Header"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer): Boolean
     var
+        PEPPOLValidation: Codeunit "PEPPOL Validation";
         Found: Boolean;
     begin
         case ProcessedDocType of
@@ -1113,8 +1068,10 @@ codeunit 1605 "PEPPOL Management"
                         Found := SalesInvoiceHeader.Find('-')
                     else
                         Found := SalesInvoiceHeader.Next <> 0;
-                    if Found then
+                    if Found then begin
                         SalesHeader.TransferFields(SalesInvoiceHeader);
+                        PEPPOLValidation.CheckSalesInvoice(SalesInvoiceHeader);
+                    end;
                 end;
             ProcessedDocType::Service:
                 begin
@@ -1122,8 +1079,10 @@ codeunit 1605 "PEPPOL Management"
                         Found := ServiceInvoiceHeader.Find('-')
                     else
                         Found := ServiceInvoiceHeader.Next <> 0;
-                    if Found then
+                    if Found then begin
                         TransferHeaderToSalesHeader(ServiceInvoiceHeader, SalesHeader);
+                        PEPPOLValidation.CheckServiceInvoice(ServiceInvoiceHeader);
+                    end;
                 end;
         end;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
@@ -1165,6 +1124,7 @@ codeunit 1605 "PEPPOL Management"
     [Scope('OnPrem')]
     procedure FindNextCreditMemoRec(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer): Boolean
     var
+        PEPPOLValidation: Codeunit "PEPPOL Validation";
         Found: Boolean;
     begin
         case ProcessedDocType of
@@ -1174,8 +1134,10 @@ codeunit 1605 "PEPPOL Management"
                         Found := SalesCrMemoHeader.Find('-')
                     else
                         Found := SalesCrMemoHeader.Next <> 0;
-                    if Found then
+                    if Found then begin
                         SalesHeader.TransferFields(SalesCrMemoHeader);
+                        PEPPOLValidation.CheckSalesCreditMemo(SalesCrMemoHeader);
+                    end;
                 end;
             ProcessedDocType::Service:
                 begin
@@ -1183,8 +1145,10 @@ codeunit 1605 "PEPPOL Management"
                         Found := ServiceCrMemoHeader.Find('-')
                     else
                         Found := ServiceCrMemoHeader.Next <> 0;
-                    if Found then
+                    if Found then begin
                         TransferHeaderToSalesHeader(ServiceCrMemoHeader, SalesHeader);
+                        PEPPOLValidation.CheckServiceCreditMemo(ServiceCrMemoHeader);
+                    end;
                 end;
         end;
 
@@ -1235,11 +1199,11 @@ codeunit 1605 "PEPPOL Management"
         IssuedReminderHeader.TransferFields(IssuedFinChargeMemoHeader);
         ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader);
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", FinChargeNo);
-        if IssuedFinChargeMemoLine.FindSet then
+        if IssuedFinChargeMemoLine.FindSet() then
             repeat
                 IssuedReminderLine.TransferFields(IssuedFinChargeMemoLine);
                 ReminderLineToSalesLine(TempSalesLine, IssuedReminderHeader, IssuedReminderLine);
-            until IssuedFinChargeMemoLine.Next = 0;
+            until IssuedFinChargeMemoLine.Next() = 0;
     end;
 
     procedure CopyIssuedReminder(var TempSalesHeader: Record "Sales Header" temporary; var TempSalesLine: Record "Sales Line" temporary; ReminderNo: Code[20])
@@ -1251,10 +1215,10 @@ codeunit 1605 "PEPPOL Management"
         ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader);
 
         IssuedReminderLine.SetRange("Reminder No.", ReminderNo);
-        if IssuedReminderLine.FindSet then
+        if IssuedReminderLine.FindSet() then
             repeat
                 ReminderLineToSalesLine(TempSalesLine, IssuedReminderHeader, IssuedReminderLine);
-            until IssuedReminderLine.Next = 0;
+            until IssuedReminderLine.Next() = 0;
     end;
 
     procedure CopyFinCharge(var TempSalesHeader: Record "Sales Header" temporary; var TempSalesLine: Record "Sales Line" temporary; FinChargeNo: Code[20])
@@ -1268,11 +1232,11 @@ codeunit 1605 "PEPPOL Management"
         IssuedReminderHeader.TransferFields(FinanceChargeMemoHeader);
         ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader);
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinChargeNo);
-        if FinanceChargeMemoLine.FindSet then
+        if FinanceChargeMemoLine.FindSet() then
             repeat
                 IssuedReminderLine.TransferFields(FinanceChargeMemoLine);
                 ReminderLineToSalesLine(TempSalesLine, IssuedReminderHeader, IssuedReminderLine);
-            until FinanceChargeMemoLine.Next = 0;
+            until FinanceChargeMemoLine.Next() = 0;
     end;
 
     procedure CopyReminder(var TempSalesHeader: Record "Sales Header" temporary; var TempSalesLine: Record "Sales Line" temporary; ReminderNo: Code[20])
@@ -1286,17 +1250,17 @@ codeunit 1605 "PEPPOL Management"
         IssuedReminderHeader.TransferFields(ReminderHeader);
         ReminderHeaderToSalesHeader(TempSalesHeader, IssuedReminderHeader);
         ReminderLine.SetRange("Reminder No.", ReminderNo);
-        if ReminderLine.FindSet then
+        if ReminderLine.FindSet() then
             repeat
                 IssuedReminderLine.TransferFields(ReminderLine);
                 ReminderLineToSalesLine(TempSalesLine, IssuedReminderHeader, IssuedReminderLine);
-            until ReminderLine.Next = 0;
+            until ReminderLine.Next() = 0;
     end;
 
     local procedure ReminderHeaderToSalesHeader(var TempSalesHeader: Record "Sales Header" temporary; IssuedReminderHeader: Record "Issued Reminder Header")
     begin
         with TempSalesHeader do begin
-            Init;
+            Init();
             "No." := IssuedReminderHeader."No.";
             "Document Date" := IssuedReminderHeader."Document Date";
             "Posting Date" := IssuedReminderHeader."Posting Date";
@@ -1319,7 +1283,7 @@ codeunit 1605 "PEPPOL Management"
             "Ship-to City" := "Bill-to City";
             "Ship-to Post Code" := "Bill-to Post Code";
             "Ship-to Country/Region Code" := "Bill-to Country/Region Code";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1331,7 +1295,7 @@ codeunit 1605 "PEPPOL Management"
             exit;
 
         with TempSalesLine do begin
-            Init;
+            Init();
             "Document No." := IssuedReminderLine."Reminder No.";
             "Line No." := IssuedReminderLine."Line No.";
 
@@ -1354,14 +1318,14 @@ codeunit 1605 "PEPPOL Management"
             "VAT Calculation Type" := IssuedReminderLine."VAT Calculation Type";
             "Tax Group Code" := IssuedReminderLine."Tax Group Code";
             "Outstanding Amount" := IssuedReminderLine."Remaining Amount";
-            Insert;
+            Insert();
         end;
     end;
 
     procedure GetBillingReferenceInfo(var TempSalesLine: Record "Sales Line" temporary; var InvoiceDocRefID: Text)
     begin
         TempSalesLine.SetFilter("Document No.", '<>%1', '');
-        TempSalesLine.FindFirst;
+        TempSalesLine.FindFirst();
         InvoiceDocRefID := TempSalesLine."Document No.";
     end;
 
@@ -1372,56 +1336,6 @@ codeunit 1605 "PEPPOL Management"
 
         exit(
           StrSubstNo(ReminderLineTxt, SalesLine."Description 2", SalesLine."Outstanding Amount"))
-    end;
-    
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetAdditionalDocRefInfo(var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetGeneralInfo(SalesHeader: Record "Sales Header"; var ID: Text; var IssueDate: Text; var InvoiceTypeCode: Text; var Note: Text; var TaxPointDate: Text; var DocumentCurrencyCode: Text; var AccountingCost: Text)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetLegalMonetaryInfo(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var TaxExclusiveAmount: Text; var TaxInclusiveAmount: Text; var AllowanceTotalAmount: Text; var ChargeTotalAmount: Text; var PrepaidAmount: Text; var PayableRoundingAmount: Text; var PayableAmount: Text)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetLineGeneralInfo(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var InvoiceLineID: Text; var InvoiceLineNote: Text; var InvoicedQuantity: Text; var InvoiceLineExtensionAmount: Text; var InvoiceLineAccountingCost: Text)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetLinePriceInfo(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var InvoiceLinePriceAmount: Text; var BaseQuantity: Text; var UnitCode: Text)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetOrderReferenceInfo(SalesHeader: Record "Sales Header"; var OrderReferenceID: Text)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetPaymentMeansPayeeFinancialAccBIS(var PayeeFinancialAccountID: Text; var FinancialInstitutionBranchID: Text)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetTaxTotalInfo(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var TaxAmount: Text)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetTaxSubtotalInfo(VATAmtLine: Record "VAT Amount Line"; SalesHeader: Record "Sales Header"; var TaxableAmount: Text; var SubtotalTaxAmount: Text; var TransactionCurrencyTaxAmount: Text; var TaxTotalTaxCategoryID: Text; var schemeID: Text; var TaxCategoryPercent: Text; var TaxTotalTaxSchemeID: Text)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnGetTotalsOnBeforeInsertVATAmtLine(SalesLine: Record "Sales Line"; var VATAmtLine: Record "VAT Amount Line")
-    begin
     end;
 }
 

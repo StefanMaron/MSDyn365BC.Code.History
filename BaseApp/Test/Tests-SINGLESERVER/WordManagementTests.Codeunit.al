@@ -142,10 +142,10 @@ codeunit 139021 "WordManagement Tests"
 
         // [THEN] Two rows, each of 48 fields.
         MergeFileContent := GetFileContent(MergeFileNameClient);
-        CountTR := RegEx.Matches(MergeFileContent, '<TR>', RegExOptions.IgnoreCase).Count;
+        CountTR := RegEx.Matches(MergeFileContent, '<TR>', RegExOptions.IgnoreCase).Count();
         Assert.AreEqual(2, CountTR, 'Number of TR elements are not as expected');
 
-        CountTD := RegEx.Matches(MergeFileContent, '<TD>', RegExOptions.IgnoreCase).Count;
+        CountTD := RegEx.Matches(MergeFileContent, '<TD>', RegExOptions.IgnoreCase).Count();
         Assert.IsTrue(CountTD >= 96, 'Number of TD elements are not as expected');
     end;
 
@@ -175,10 +175,10 @@ codeunit 139021 "WordManagement Tests"
 
         // [THEN] One row with 48 fields.
         MergeFileContent := GetFileContent(MergeFileNameClient);
-        CountTR := RegEx.Matches(MergeFileContent, '<TR>', RegExOptions.IgnoreCase).Count;
+        CountTR := RegEx.Matches(MergeFileContent, '<TR>', RegExOptions.IgnoreCase).Count();
         Assert.AreEqual(1, CountTR, 'Number of TR elements are not as expected');
 
-        CountTD := RegEx.Matches(MergeFileContent, '<TD>', RegExOptions.IgnoreCase).Count;
+        CountTD := RegEx.Matches(MergeFileContent, '<TD>', RegExOptions.IgnoreCase).Count();
         Assert.IsTrue(CountTD >= 48, 'Number of TD elements are not as expected');
     end;
 
@@ -224,10 +224,10 @@ codeunit 139021 "WordManagement Tests"
         Assert.IsTrue(StrPos(MergeFileContent, CompanyName) > 0, 'Contact company name was not in the merge file');
 
         // [THEN] Two rows, each of 48 fields.
-        CountTR := RegEx.Matches(MergeFileContent, '<TR>', RegExOptions.IgnoreCase).Count;
+        CountTR := RegEx.Matches(MergeFileContent, '<TR>', RegExOptions.IgnoreCase).Count();
         Assert.AreEqual(2, CountTR, 'Number of TR elements are not as expected');
 
-        CountTD := RegEx.Matches(MergeFileContent, '<TD>', RegExOptions.IgnoreCase).Count;
+        CountTD := RegEx.Matches(MergeFileContent, '<TD>', RegExOptions.IgnoreCase).Count();
         Assert.IsTrue(CountTD >= 96, 'Number of TD elements are not as expected');
     end;
 
@@ -273,10 +273,10 @@ codeunit 139021 "WordManagement Tests"
         Assert.IsTrue(StrPos(MergeFileContent, CompanyName) > 0, 'Contact company name was not in the merge file');
 
         // [THEN] Two rows, each of 48 fields.
-        CountTR := RegEx.Matches(MergeFileContent, '<TR>', RegExOptions.IgnoreCase).Count;
+        CountTR := RegEx.Matches(MergeFileContent, '<TR>', RegExOptions.IgnoreCase).Count();
         Assert.AreEqual(2, CountTR, 'Number of TR elements are not as expected');
 
-        CountTD := RegEx.Matches(MergeFileContent, '<TD>', RegExOptions.IgnoreCase).Count;
+        CountTD := RegEx.Matches(MergeFileContent, '<TD>', RegExOptions.IgnoreCase).Count();
         Assert.IsTrue(CountTD >= 96, 'Number of TD elements are not as expected');
     end;
 
@@ -519,9 +519,9 @@ codeunit 139021 "WordManagement Tests"
         MarketingSetup: Record "Marketing Setup";
     begin
         if not Initialized then begin
-            MarketingSetup.Get;
+            MarketingSetup.Get();
             MarketingSetup."Mergefield Language ID" := 1033;
-            MarketingSetup.Modify;
+            MarketingSetup.Modify();
 
             Initialized := true;
         end;
@@ -540,7 +540,7 @@ codeunit 139021 "WordManagement Tests"
         else
             for i := -1 downto Number do
                 if TempNameValueBuffer.Next(-1) <> 0 then
-                    TempNameValueBuffer.Delete;
+                    TempNameValueBuffer.Delete();
     end;
 
     local procedure FindInteractLogEntry(var InteractLogEntry: Record "Interaction Log Entry"; var Contact: Record Contact)
@@ -552,7 +552,7 @@ codeunit 139021 "WordManagement Tests"
         if Contact."Salutation Code" = '' then begin
             Salutation.FindFirst;
             Contact.Validate("Salutation Code", Salutation.Code);
-            Contact.Modify;
+            Contact.Modify();
         end;
     end;
 

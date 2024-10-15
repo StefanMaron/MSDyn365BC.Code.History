@@ -99,7 +99,7 @@ table 237 "Job Journal Batch"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         JobJnlTemplate.Get("Journal Template Name");
     end;
 

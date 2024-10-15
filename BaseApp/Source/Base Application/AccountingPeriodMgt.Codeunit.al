@@ -47,7 +47,7 @@ codeunit 360 "Accounting Period Mgt."
         AccountingPeriod.SetRange("Starting Date", 0D, BalanceDate);
         if AccountingPeriod.FindLast then
             exit(AccountingPeriod."Starting Date");
-        AccountingPeriod.Reset;
+        AccountingPeriod.Reset();
         AccountingPeriod.FindFirst;
         exit(AccountingPeriod."Starting Date");
     end;
@@ -76,13 +76,13 @@ codeunit 360 "Accounting Period Mgt."
     begin
         AccountingPeriod.SetFilter("Starting Date", '<=%1', Date);
         if not AccountingPeriod.FindLast then begin
-            AccountingPeriod.Reset;
+            AccountingPeriod.Reset();
             if Steps < 0 then
                 AccountingPeriod.FindFirst
             else
                 AccountingPeriod.FindLast
         end;
-        AccountingPeriod.Reset;
+        AccountingPeriod.Reset();
 
         case Type of
             Type::Period:
@@ -151,11 +151,11 @@ codeunit 360 "Accounting Period Mgt."
                 begin
                     AccountingPeriod.SetRange("New Fiscal Year", true);
                     if not AccountingPeriod.Find('>') then begin
-                        AccountingPeriod.Reset;
+                        AccountingPeriod.Reset();
                         AccountingPeriod.Find('+');
                         exit;
                     end;
-                    AccountingPeriod.Reset;
+                    AccountingPeriod.Reset();
                     AccountingPeriod.Find('<');
                     exit;
                 end;
@@ -176,12 +176,12 @@ codeunit 360 "Accounting Period Mgt."
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        AccountingPeriod.Init;
+        AccountingPeriod.Init();
         AccountingPeriod."Starting Date" := CalcDate('<-CM>', StartingDate);
-        AccountingPeriod.Name := Format(AccountingPeriod."Starting Date", 0, '<Month Text>');
+        AccountingPeriod.Name := Format(AccountingPeriod."Starting Date", 0, '<Month Text,10>');
         AccountingPeriod."New Fiscal Year" := NewFiscalYear;
         if NewFiscalYear then begin
-            InventorySetup.Get;
+            InventorySetup.Get();
             AccountingPeriod."Average Cost Calc. Type" := InventorySetup."Average Cost Calc. Type";
             AccountingPeriod."Average Cost Period" := InventorySetup."Average Cost Period";
         end;

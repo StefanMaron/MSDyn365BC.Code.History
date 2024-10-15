@@ -12,7 +12,7 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
         EInvoiceExportCommon: Codeunit "E-Invoice Export Common";
     begin
         // Is there a location for storing the file? If not, don't bother processing it.
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup."E-Invoice Service Invoice Path" := DelChr(ServiceMgtSetup."E-Invoice Service Invoice Path", '>', '\');
         ServiceMgtSetup.TestField("E-Invoice Service Invoice Path");
         if not FileMgt.DirectoryExistsOnDotNetClient(ServiceMgtSetup."E-Invoice Service Invoice Path") then
@@ -94,12 +94,12 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
         ServiceCommentLine: Record "Service Comment Line";
         DocumentTools: Codeunit DocumentTools;
     begin
-        TempEInvoiceExportHeader.Init;
+        TempEInvoiceExportHeader.Init();
 
         // Fill-in the fields which have the same field ID and type
         TempEInvoiceExportHeader.TransferFields(ServiceInvoiceHeader, true);
         if TempEInvoiceExportHeader."Currency Code" = '' then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             TempEInvoiceExportHeader."Currency Code" := GeneralLedgerSetup."LCY Code";
         end;
 
@@ -161,11 +161,11 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
         if TempEInvoiceExportLine.FindLast then
             Id := TempEInvoiceExportLine.ID + 1;
 
-        TempEInvoiceExportLine.Init;
+        TempEInvoiceExportLine.Init();
         TempEInvoiceExportLine.ID := Id;
         TempEInvoiceExportLine.TransferFields(ServiceInvoiceLine, true);
         TempEInvoiceExportLine."Account Code" := ServiceInvoiceLine."Account Code";
-        TempEInvoiceExportLine.Insert;
+        TempEInvoiceExportLine.Insert();
     end;
 
     local procedure GetCustomizationID(ServiceInvoiceHeader: Record "Service Invoice Header"): Text[250]
@@ -184,7 +184,7 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
             if ResponsibilityCenter.Get(ServiceInvoiceHeader."Responsibility Center") then
                 CountryCode := ResponsibilityCenter."Country/Region Code"
             else begin
-                CompanyInformation.Get;
+                CompanyInformation.Get();
                 CountryCode := CompanyInformation."Country/Region Code";
             end;
 
@@ -219,7 +219,7 @@ codeunit 10626 "E-Invoice Export Serv. Invoice"
     begin
         ServiceInvoiceHeader.Get(DocumentNo);
         ServiceInvoiceHeader."E-Invoice Created" := true;
-        ServiceInvoiceHeader.Modify;
+        ServiceInvoiceHeader.Modify();
     end;
 }
 

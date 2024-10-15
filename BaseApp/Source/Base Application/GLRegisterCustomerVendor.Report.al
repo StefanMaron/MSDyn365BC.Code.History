@@ -195,7 +195,7 @@ report 10603 "G/L Register Customer/Vendor"
                     trigger OnAfterGetRecord()
                     begin
                         if not GLAcc.Get("G/L Account No.") then
-                            GLAcc.Init;
+                            GLAcc.Init();
 
                         CustomerVendorNo := '';
                         CustomerOrVendor := '';

@@ -1,4 +1,4 @@
-﻿page 5979 "Posted Service Invoice Subform"
+page 5979 "Posted Service Invoice Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

@@ -70,7 +70,7 @@ page 1252 "Payment Application Rules"
                     if not Confirm(ResetToDefaultsQst) then
                         exit;
 
-                    DeleteAll;
+                    DeleteAll();
                     InsertDefaultMatchingRules;
                 end;
             }

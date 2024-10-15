@@ -297,14 +297,11 @@ page 1818 "Cash Flow Forecast Wizard"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
     begin
-        if CloseAction = ACTION::OK then begin
-            NavApp.GetCurrentModuleInfo(Info);
-            if AssistedSetup.ExistsAndIsNotComplete(Info.Id(), PAGE::"Cash Flow Forecast Wizard") then
+        if CloseAction = ACTION::OK then 
+            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Cash Flow Forecast Wizard") then
                 if not Confirm(SetupNotCompletedQst, false) then
                     Error('');
-        end;
     end;
 
     var
@@ -366,23 +363,21 @@ page 1818 "Cash Flow Forecast Wizard"
         CashFlowSetup: Record "Cash Flow Setup";
         CashFlowManagement: Codeunit "Cash Flow Management";
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
     begin
         CashFlowManagement.SetupCashFlow(LiquidFundsGLAccountFilter);
 
         CashFlowSetup.UpdateTaxPaymentInfo(TaxablePeriod, TaxPaymentWindow,
           DummyCashFlowSetup."Tax Bal. Account Type", DummyCashFlowSetup."Tax Bal. Account No.");
 
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowSetup.Validate("Azure AI Enabled", AzureAIEnabled);
         CashFlowSetup.Validate("API URL", APIURL);
         CashFlowSetup.SaveUserDefinedAPIKey(APIKEY);
         CashFlowSetup.Validate("Automatic Update Frequency", UpdateFrequency);
-        CashFlowSetup.Modify;
+        CashFlowSetup.Modify();
 
         CashFlowManagement.UpdateCashFlowForecast(AzureAIEnabled);
-        NavApp.GetCurrentModuleInfo(Info);
-        AssistedSetup.Complete(Info.Id(), PAGE::"Cash Flow Forecast Wizard");
+        AssistedSetup.Complete(PAGE::"Cash Flow Forecast Wizard");
         CurrPage.Close;
     end;
 

@@ -279,7 +279,7 @@ xmlport 10618 "Trade Settlement 2017"
 
     trigger OnInitXmlPort()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
     end;
 
     var

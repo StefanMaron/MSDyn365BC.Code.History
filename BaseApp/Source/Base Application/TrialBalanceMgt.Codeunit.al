@@ -29,7 +29,7 @@ codeunit 1318 "Trial Balance Mgt."
     var
         TrialBalanceSetup: Record "Trial Balance Setup";
     begin
-        TrialBalanceSetup.Get;
+        TrialBalanceSetup.Get();
         TrialBalanceSetup.TestField("Account Schedule Name");
         TrialBalanceSetup.TestField("Column Layout Name");
 

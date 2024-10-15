@@ -56,8 +56,8 @@ report 15000064 "OCR Payment - BBS"
 
     trigger OnInitReport()
     begin
-        OCRSetup.Get;
-        SalesSetup.Get;
+        OCRSetup.Get();
+        SalesSetup.Get();
         BalAccType := OCRSetup."Bal. Account Type";
         BalAccNo := OCRSetup."Bal. Account No.";
     end;
@@ -117,7 +117,7 @@ report 15000064 "OCR Payment - BBS"
         NumberOfWarnings := 0;
         NumberOfEntries := 0;
         NewDocumentNo := false;
-        Commit;
+        Commit();
         LatestBBSDate := 0D;
         LatestPaymentRef := '';
 

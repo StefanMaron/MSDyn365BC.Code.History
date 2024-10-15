@@ -180,10 +180,10 @@ report 15000100 "OCR Journal - Test"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             DimText := GetDimText;
                         end;
@@ -191,7 +191,7 @@ report 15000100 "OCR Journal - Test"
                         trigger OnPreDataItem()
                         begin
                             if not ShowDim then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             DimSetEntry.SetRange("Dimension Set ID", "Gen. Journal Line"."Dimension Set ID");
                         end;
@@ -230,7 +230,7 @@ report 15000100 "OCR Journal - Test"
                         No: array[10] of Code[20];
                     begin
                         if ShowOnlyOCRErrors and not "Gen. Journal Line".Warning then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         // Delete backslash (=newline) in the error text
                         OCRWarningText := ConvertStr("Warning text", '\', ' ');
 
@@ -608,10 +608,10 @@ report 15000100 "OCR Journal - Test"
                         CurrentCustomerVendors := 0;
                         VATEntryCreated := false;
 
-                        GenJnlLine2.Reset;
+                        GenJnlLine2.Reset();
                         GenJnlLine2.CopyFilters("Gen. Journal Line");
 
-                        GLAccNetChange.DeleteAll;
+                        GLAccNetChange.DeleteAll();
                     end;
                 }
                 dataitem(ReconcileLoop; "Integer")
@@ -643,7 +643,7 @@ report 15000100 "OCR Journal - Test"
 
                     trigger OnPostDataItem()
                     begin
-                        GLAccNetChange.DeleteAll;
+                        GLAccNetChange.DeleteAll();
                     end;
 
                     trigger OnPreDataItem()
@@ -653,16 +653,11 @@ report 15000100 "OCR Journal - Test"
                 }
             }
 
-            trigger OnAfterGetRecord()
-            begin
-                CurrReport.PageNo := 1;
-            end;
-
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
-                SalesSetup.Get;
-                PurchSetup.Get;
+                GLSetup.Get();
+                SalesSetup.Get();
+                PurchSetup.Get();
                 AmountLCY := 0;
                 BalanceLCY := 0;
             end;
@@ -738,7 +733,7 @@ report 15000100 "OCR Journal - Test"
         WrongRecurringMethodForBalAccountTypeMsg: Label 'Recurring Method must not be %1 when Bal. Account Type = %2.';
         Text021: Label 'Allocations can only be used with recurring journals.';
         Text022: Label 'Please specify %1 in the %2 allocation lines.';
-        Text023: Label '<Month Text>';
+        Text023: Label '<Month Text>', Locked = true;
         Text024: Label '%1 %2 posted on %3, must be separated by an empty line', Comment = 'Parameter 1 - Document Type( ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund), 2 - Document No, 3 - Posting Date';
         Text025: Label '%1 %2 is out of balance by %3.', Comment = 'Parameter 1 - Document Type( ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund), 2 - Document No, 3 - Document Balance';
         Text026: Label 'The reversing entries for %1 %2 are out of balance by %3.', Comment = 'Parameter 1 - Document Type( ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund), 2 - Document No, 3 - Document Balance';
@@ -900,7 +895,7 @@ report 15000100 "OCR Journal - Test"
                ["Recurring Method"::"B  Balance",
                 "Recurring Method"::"RB Reversing Balance"]
             then begin
-                GenJnlAlloc.Reset;
+                GenJnlAlloc.Reset();
                 GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
                 GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
                 GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
@@ -908,7 +903,7 @@ report 15000100 "OCR Journal - Test"
                     AddError(Text061);
             end;
 
-            GenJnlAlloc.Reset;
+            GenJnlAlloc.Reset();
             GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
             GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
@@ -1095,15 +1090,15 @@ report 15000100 "OCR Journal - Test"
         if not GLAccNetChange.Get(GLAccNo) then begin
             GLAcc.Get(GLAccNo);
             GLAcc.CalcFields("Balance at Date");
-            GLAccNetChange.Init;
+            GLAccNetChange.Init();
             GLAccNetChange."No." := GLAcc."No.";
             GLAccNetChange.Name := GLAcc.Name;
             GLAccNetChange."Balance after Posting" := GLAcc."Balance at Date";
-            GLAccNetChange.Insert;
+            GLAccNetChange.Insert();
         end;
         GLAccNetChange."Net Change in Jnl." := GLAccNetChange."Net Change in Jnl." + ReconcileAmount;
         GLAccNetChange."Balance after Posting" := GLAccNetChange."Balance after Posting" + ReconcileAmount;
-        GLAccNetChange.Modify;
+        GLAccNetChange.Modify();
     end;
 
     local procedure CheckGLAcc(var GenJnlLine: Record "Gen. Journal Line"; var AccName: Text[100])
@@ -1200,7 +1195,7 @@ report 15000100 "OCR Journal - Test"
                        ["Document Type"::Invoice, "Document Type"::"Credit Memo",
                         "Document Type"::"Finance Charge Memo"]
                     then begin
-                        OldCustLedgEntry.Reset;
+                        OldCustLedgEntry.Reset();
                         OldCustLedgEntry.SetCurrentKey("Document Type", "Document No.", "Customer No.");
                         OldCustLedgEntry.SetRange("Document Type", "Document Type");
                         OldCustLedgEntry.SetRange("Document No.", "Document No.");
@@ -1249,7 +1244,7 @@ report 15000100 "OCR Journal - Test"
                        ["Document Type"::Invoice, "Document Type"::"Credit Memo",
                         "Document Type"::"Finance Charge Memo"]
                     then begin
-                        OldVendLedgEntry.Reset;
+                        OldVendLedgEntry.Reset();
                         OldVendLedgEntry.SetCurrentKey("Document No.");
                         OldVendLedgEntry.SetRange("Document Type", "Document Type");
                         OldVendLedgEntry.SetRange("Document No.", "Document No.");
@@ -1267,7 +1262,7 @@ report 15000100 "OCR Journal - Test"
                                 AddError(
                                   StrSubstNo(
                                     Text041, FieldCaption("External Document No.")));
-                            OldVendLedgEntry.Reset;
+                            OldVendLedgEntry.Reset();
                             OldVendLedgEntry.SetCurrentKey("External Document No.");
                             OldVendLedgEntry.SetRange("Document Type", "Document Type");
                             OldVendLedgEntry.SetRange("External Document No.", "External Document No.");
@@ -1482,7 +1477,7 @@ report 15000100 "OCR Journal - Test"
                             AllowFAPostingTo := UserSetup."Allow FA Posting To";
                         end;
                     if (AllowFAPostingFrom = 0D) and (AllowFAPostingTo = 0D) then begin
-                        FASetup.Get;
+                        FASetup.Get();
                         AllowFAPostingFrom := FASetup."Allow FA Posting From";
                         AllowFAPostingTo := FASetup."Allow FA Posting To";
                     end;
@@ -1497,7 +1492,7 @@ report 15000100 "OCR Journal - Test"
                         Text053,
                         FieldCaption("FA Posting Date")));
             end;
-            FASetup.Get;
+            FASetup.Get();
             if ("FA Posting Type" = "FA Posting Type"::"Acquisition Cost") and
                ("Insurance No." <> '') and ("Depreciation Book Code" <> FASetup."Insurance Depr. Book")
             then

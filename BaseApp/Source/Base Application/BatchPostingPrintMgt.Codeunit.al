@@ -38,7 +38,7 @@ codeunit 1373 "Batch Posting Print Mgt."
         if not SalesHeader."Print Posted Documents" then
             exit;
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         with SalesHeader do
             case "Document Type" of
                 "Document Type"::Order:
@@ -106,7 +106,7 @@ codeunit 1373 "Batch Posting Print Mgt."
         if not PurchaseHeader."Print Posted Documents" then
             exit;
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         with PurchaseHeader do
             case "Document Type" of
                 "Document Type"::Order:
@@ -174,7 +174,7 @@ codeunit 1373 "Batch Posting Print Mgt."
         RecRef.SetTable(GenJrnlLine);
         GenJnlTemplate.Get(GenJrnlLine."Journal Template Name");
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         with GenJrnlLine do
             if GLReg.Get(GenJrnlLine."Line No.") then begin
                 if GenJnlTemplate."Cust. Receipt Report ID" <> 0 then begin
@@ -213,7 +213,7 @@ codeunit 1373 "Batch Posting Print Mgt."
         if IsHandled then
             exit;
 
-        ReportSelections.Reset;
+        ReportSelections.Reset();
         ReportSelections.SetRange(Usage, ReportUsage);
         ReportSelections.FindSet;
         repeat
@@ -239,7 +239,7 @@ codeunit 1373 "Batch Posting Print Mgt."
             "Record ID to Process" := RecRefToPrint.RecordId;
             Description := Format("Report Output Type");
             CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
-            Commit;
+            Commit();
         end;
     end;
 

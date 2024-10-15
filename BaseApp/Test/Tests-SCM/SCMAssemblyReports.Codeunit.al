@@ -79,7 +79,7 @@ codeunit 137307 "SCM Assembly Reports"
         GlobalLanguage(ActualReportLanguage);
         OrderConfirmation.InitializeRequest(0, false, false, false, false, true);
         OrderConfirmation.SetTableView(SalesHeader);
-        Commit;
+        Commit();
         OrderConfirmation.Run;
         VerifyOrderConfirmationLines(OrderConfirmation.BlanksForIndent);
         GlobalLanguage(ActualGlobalLanguage);
@@ -112,7 +112,7 @@ codeunit 137307 "SCM Assembly Reports"
             GlobalLanguage(ActualReportLanguage);
         SalesShipment.InitializeRequest(0, false, false, false, true, true);
         SalesShipment.SetTableView(SalesShipmentHeader);
-        Commit;
+        Commit();
         SalesShipment.Run;
         VerifySalesShipmentLines(SalesShipment.BlanksForIndent);
         if ActualReportLanguage <> ActualGlobalLanguage then
@@ -147,7 +147,7 @@ codeunit 137307 "SCM Assembly Reports"
             GlobalLanguage(ActualReportLanguage);
         SalesInvoice.InitializeRequest(0, false, false, true);
         SalesInvoice.SetTableView(SalesInvoiceHeader);
-        Commit;
+        Commit();
         SalesInvoice.Run;
         VerifySalesInvoiceLines(SalesInvoice.BlanksForIndent);
         if ActualReportLanguage <> ActualGlobalLanguage then
@@ -163,12 +163,12 @@ codeunit 137307 "SCM Assembly Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('Desc_SalesLine', UsedVariantCode[1]);
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_SalesLine', 1);
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('AsmLineNo', Blanks + AssemblyItemNo[5]);
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('AsmLineQuantity', 2);
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('AsmLineNo', Blanks + AssemblyItemNo[6]);
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('AsmLineQuantity', 8);
@@ -182,12 +182,12 @@ codeunit 137307 "SCM Assembly Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('Description_SalesShptLine', UsedVariantCode[1]);
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_SalesShptLine', 1);
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('PostedAsmLineItemNo', Blanks + AssemblyItemNo[5]);
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('PostedAsmLineQuantity', 2);
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('PostedAsmLineItemNo', Blanks + AssemblyItemNo[6]);
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('PostedAsmLineQuantity', 8);
@@ -201,12 +201,12 @@ codeunit 137307 "SCM Assembly Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('Desc_SalesInvLine', UsedVariantCode[1]);
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_SalesInvLine', 1);
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TempPostedAsmLineNo', Blanks + AssemblyItemNo[5]);
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('TempPostedAsmLineQuantity', 2);
 
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TempPostedAsmLineNo', Blanks + AssemblyItemNo[6]);
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('TempPostedAsmLineQuantity', 8);
@@ -217,11 +217,11 @@ codeunit 137307 "SCM Assembly Reports"
         ReservationEntry: Record "Reservation Entry";
         NextEntryNo: Integer;
     begin
-        ReservationEntry.Reset;
+        ReservationEntry.Reset();
         NextEntryNo := 1;
         if ReservationEntry.FindLast then
             NextEntryNo := ReservationEntry."Entry No." + 1;
-        ReservationEntry.Init;
+        ReservationEntry.Init();
         ReservationEntry."Entry No." := NextEntryNo;
         ReservationEntry.Positive := true;
         ReservationEntry."Item No." := ItemJournalLine."Item No.";
@@ -244,7 +244,7 @@ codeunit 137307 "SCM Assembly Reports"
             ReservationEntry."Item Tracking" := ReservationEntry."Item Tracking"::"Serial No."
         else
             ReservationEntry."Item Tracking" := ReservationEntry."Item Tracking"::"Lot No.";
-        ReservationEntry.Insert;
+        ReservationEntry.Insert();
     end;
 
     local procedure GetSerialNoLotNoCode()
@@ -365,13 +365,13 @@ codeunit 137307 "SCM Assembly Reports"
         AssemblyItemNo[5] := LibraryAssembly.CreateItem(Item, 0, 0, '', '');
         Item.Get(AssemblyItemNo[5]);
         Item."Item Tracking Code" := SerialNoCode;
-        Item.Modify;
+        Item.Modify();
         SerialNoComponentQuantity := 6; // Quantity to put in stock of the serial no. item
         CreateAssemblyComponent(AssemblyItemNo[1], AssemblyItemNo[5], 2, 5, 1);  // Quantity = SerialNoComponentQuantity, Line = 5, Type = 1 = item
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, AssemblyTemplate, AssemblyBatch, 0, AssemblyItemNo[5], SerialNoComponentQuantity);
         ItemJournalLine.Validate("Location Code", BlueLocation);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         SN := 'SN000';
         for i := 1 to SerialNoComponentQuantity do begin
             SN := IncStr(SN);
@@ -384,12 +384,12 @@ codeunit 137307 "SCM Assembly Reports"
         Item.Get(AssemblyItemNo[6]);
         Item."Item Tracking Code" := LotNoCode;
         Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
-        Item.Modify;
+        Item.Modify();
         LotNoComponentQuantity := 8;
         CreateAssemblyComponent(AssemblyItemNo[1], AssemblyItemNo[6], LotNoComponentQuantity, 6, 1);  // Quantity = LotNoComponentQuantity, Line = 6, Type = 1 = item
         LibraryInventory.CreateItemJournalLine(ItemJournalLine, AssemblyTemplate, AssemblyBatch, 0, AssemblyItemNo[6], 100);
         ItemJournalLine.Validate("Location Code", BlueLocation);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
         InsertReservationEntry(ItemJournalLine, '', 'LOT001');
         LibraryInventory.PostItemJournalLine(AssemblyTemplate, AssemblyBatch);
     end;
@@ -405,7 +405,7 @@ codeunit 137307 "SCM Assembly Reports"
         if not SetupDataInitialized then
             exit;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if OldSalesOrderNoSeriesName <> '' then begin
             SalesSetup.Validate("Order Nos.", OldSalesOrderNoSeriesName);
             OldSalesOrderNoSeriesName := '';
@@ -420,11 +420,11 @@ codeunit 137307 "SCM Assembly Reports"
         end;
         SalesSetup."Credit Warnings" := OldCreditWarning;
         SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Modify;
+        SalesSetup.Modify();
         if OldAssemblyOrderNoSeries <> '' then begin
-            AssemblySetup.Get;
+            AssemblySetup.Get();
             AssemblySetup."Assembly Order Nos." := OldAssemblyOrderNoSeries;
-            AssemblySetup.Modify;
+            AssemblySetup.Modify();
         end;
 
         if ItemJournalBatch.Get(AssemblyTemplate, AssemblyBatch) then
@@ -443,21 +443,21 @@ codeunit 137307 "SCM Assembly Reports"
         // No. series
         NoSeriesName := 'ASMB__TEST';
         Clear(NoSeries);
-        NoSeries.Init;
+        NoSeries.Init();
         NoSeries.Code := NoSeriesName;
         NoSeries.Description := NoSeriesName;
         NoSeries."Default Nos." := true;
-        if NoSeries.Insert then begin
-            NoSeriesLine.Init;
+        if NoSeries.Insert() then begin
+            NoSeriesLine.Init();
             NoSeriesLine."Series Code" := NoSeriesName;
             NoSeriesLine."Line No." := 10000;
             NoSeriesLine."Starting No." := 'X00001';
             NoSeriesLine."Ending No." := 'X99999';
             NoSeriesLine."Increment-by No." := 1;
-            NoSeriesLine.Insert;
+            NoSeriesLine.Insert();
         end;
         // Setup data
-        SalesSetup.Get;
+        SalesSetup.Get();
         OldSalesOrderNoSeriesName := SalesSetup."Order Nos.";
         OldInvoiceNoSeriesName := SalesSetup."Posted Invoice Nos.";
         OldStockoutWarning := SalesSetup."Stockout Warning";
@@ -467,11 +467,11 @@ codeunit 137307 "SCM Assembly Reports"
         SalesSetup."Credit Warnings" := SalesSetup."Credit Warnings"::"No Warning";
         SalesSetup."Order Nos." := NoSeriesName;
         SalesSetup."Posted Invoice Nos." := NoSeriesName;
-        SalesSetup.Modify;
-        AssemblySetup.Get;
+        SalesSetup.Modify();
+        AssemblySetup.Get();
         OldAssemblyOrderNoSeries := AssemblySetup."Assembly Order Nos.";
         AssemblySetup."Assembly Order Nos." := NoSeriesName;
-        AssemblySetup.Modify;
+        AssemblySetup.Modify();
     end;
 
     local procedure CreateAssemblyItem()
@@ -483,7 +483,7 @@ codeunit 137307 "SCM Assembly Reports"
         LibraryAssembly.CreateItem(Item, 0, 3, '', '');
         Item.Validate("Replenishment System", Item."Replenishment System"::Assembly);
         Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
-        Item.Modify;
+        Item.Modify();
         AssemblyItemNo[1] := Item."No.";
         CreateVariant(1);
         for i := 2 to 4 do begin
@@ -501,18 +501,18 @@ codeunit 137307 "SCM Assembly Reports"
         ItemVariant: Record "Item Variant";
     begin
         UsedVariantCode[VariantNo] := 'TESTVAR_ ' + Format(VariantNo);
-        ItemVariant.Init;
+        ItemVariant.Init();
         ItemVariant."Item No." := AssemblyItemNo[VariantNo];
         ItemVariant.Code := UsedVariantCode[VariantNo];
         ItemVariant.Description := UsedVariantCode[VariantNo];
-        ItemVariant.Insert;
+        ItemVariant.Insert();
     end;
 
     local procedure CreateAssemblyComponent(ParentItemNo: Code[20]; ChildNo: Code[20]; Quantity: Decimal; Line: Integer; Type: Option " ",Item,Resource)
     var
         BOMComponent: Record "BOM Component";
     begin
-        BOMComponent.Init;
+        BOMComponent.Init();
         BOMComponent."Parent Item No." := ParentItemNo;
         BOMComponent."Line No." := (Line - 1) * 10000;
         case Type of
@@ -568,7 +568,7 @@ codeunit 137307 "SCM Assembly Reports"
             LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, AssemblyBatch, 0, AssemblyItemNo[i], 1000);
             ItemJournalLine.Validate("Location Code", BlueLocation);
             ItemJournalLine.Validate("Variant Code", UsedVariantCode[i]);
-            ItemJournalLine.Modify;
+            ItemJournalLine.Modify();
         end;
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, AssemblyBatch);
     end;
@@ -580,7 +580,7 @@ codeunit 137307 "SCM Assembly Reports"
         NoSeriesMgt: Codeunit NoSeriesManagement;
         LibrarySales: Codeunit "Library - Sales";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         case HeaderType of
             HeaderType::Quote:
                 SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
@@ -593,7 +593,7 @@ codeunit 137307 "SCM Assembly Reports"
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Customer No.", SellToCustomerNo);
         SalesHeader.Validate("Location Code", BlueLocation);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         if AssemblyItemQuantity > 0 then begin
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, 2, AssemblyItemNo[1], AssemblyItemQuantity); // 2 -> Item
             SalesLine.Validate("Location Code", BlueLocation);
@@ -678,7 +678,7 @@ codeunit 137307 "SCM Assembly Reports"
         i: Integer;
     begin
         for i := 1 to 4 do begin
-            SKU.Init;
+            SKU.Init();
             SKU."Location Code" := BlueLocation;
             SKU."Item No." := AssemblyItemNo[1];
             SKU."Variant Code" := UsedVariantCode[i];

@@ -109,16 +109,16 @@ table 8623 "Config. Package"
         ConfigPackageTable.DeletePackageDataForPackage(Code, 0);
         ConfigPackageTable.DeleteRelatedTables(Code, 0);
         ConfigPackageTable.SetRange("Package Code", Code);
-        ConfigPackageTable.DeleteAll;
+        ConfigPackageTable.DeleteAll();
 
         ConfigMediaBuffer.SetRange("Package Code", Code);
-        ConfigMediaBuffer.DeleteAll;
+        ConfigMediaBuffer.DeleteAll();
 
         ConfigLine.SetRange("Package Code", Code);
         ConfigLine.ModifyAll("Package Code", '');
 
         TenantConfigPackageFile.SetRange(Code, Code);
-        TenantConfigPackageFile.DeleteAll;
+        TenantConfigPackageFile.DeleteAll();
     end;
 
     [Scope('OnPrem')]

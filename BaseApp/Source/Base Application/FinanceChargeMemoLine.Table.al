@@ -103,11 +103,9 @@ table 303 "Finance Charge Memo Line"
             Caption = 'Due Date';
             Editable = false;
         }
-        field(10; "Document Type"; Option)
+        field(10; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
 
             trigger OnValidate()
             begin
@@ -278,12 +276,10 @@ table 303 "Finance Charge Memo Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
-        field(20; "VAT Calculation Type"; Option)
+        field(20; "VAT Calculation Type"; enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(21; "VAT Amount"; Decimal)
         {
@@ -411,7 +407,7 @@ table 303 "Finance Charge Memo Line"
     begin
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", "Finance Charge Memo No.");
         FinChrgMemoLine.SetRange("Attached to Line No.", "Line No.");
-        FinChrgMemoLine.DeleteAll;
+        FinChrgMemoLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -485,7 +481,7 @@ table 303 "Finance Charge Memo Line"
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", "Finance Charge Memo No.");
         FinChrgMemoLine.SetRange("Detailed Interest Rates Entry", true);
         FinChrgMemoLine.SetRange("Entry No.", "Entry No.");
-        FinChrgMemoLine.DeleteAll;
+        FinChrgMemoLine.DeleteAll();
         CustLedgEntry.Get("Entry No.");
         if CustLedgEntry."On Hold" <> '' then
             exit;
@@ -568,7 +564,7 @@ table 303 "Finance Charge Memo Line"
     begin
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", "Finance Charge Memo No.");
         FinChrgMemoLine.SetRange("Attached to Line No.", "Line No.");
-        FinChrgMemoLine.DeleteAll;
+        FinChrgMemoLine.DeleteAll();
     end;
 
     local procedure SetCustLedgEntryView()
@@ -799,7 +795,7 @@ table 303 "Finance Charge Memo Line"
         UseCalcDate := 0D;
         NrOfLinesToInsert := 0;
 
-        FinanceChargeInterestRate.Init;
+        FinanceChargeInterestRate.Init();
         FinanceChargeInterestRate.SetRange("Fin. Charge Terms Code", FinChrgMemoHeader."Fin. Charge Terms Code");
         FinanceChargeInterestRate."Fin. Charge Terms Code" := FinChrgMemoHeader."Fin. Charge Terms Code";
         if FinChrgTerms."Interest Calculation Method" = FinChrgTerms."Interest Calculation Method"::"Average Daily Balance" then
@@ -842,7 +838,7 @@ table 303 "Finance Charge Memo Line"
         UseInterestPeriod: Integer;
     begin
         NrOfDays := 0;
-        ExtraFinChrgMemoLine.Reset;
+        ExtraFinChrgMemoLine.Reset();
         ExtraFinChrgMemoLine.SetRange("Finance Charge Memo No.", "Finance Charge Memo No.");
         ExtraFinChrgMemoLine := Rec;
         if ExtraFinChrgMemoLine.Find('>') then begin
@@ -853,7 +849,7 @@ table 303 "Finance Charge Memo Line"
         end else
             LineSpacing := 10000;
         NextLineNo := "Line No." + LineSpacing;
-        FinanceChargeInterestRate.Init;
+        FinanceChargeInterestRate.Init();
         FinanceChargeInterestRate.SetRange("Fin. Charge Terms Code", FinChrgMemoHeader."Fin. Charge Terms Code");
         FinanceChargeInterestRate."Fin. Charge Terms Code" := FinChrgMemoHeader."Fin. Charge Terms Code";
         FinanceChargeInterestRate."Start Date" := CalcDate('<+1D>', CustLedgEntry."Due Date");
@@ -889,7 +885,7 @@ table 303 "Finance Charge Memo Line"
                         CumAmount := CumAmount + ExtraFinChrgMemoLine.Amount;
                         ExtraFinChrgMemoLine."Detailed Interest Rates Entry" := true;
                         if not Checking then
-                            ExtraFinChrgMemoLine.Insert;
+                            ExtraFinChrgMemoLine.Insert();
                         InsertedLines := true;
                         NextLineNo := ExtraFinChrgMemoLine."Line No." + LineSpacing;
                     end;

@@ -28,9 +28,6 @@ report 10606 "Sales Order Picking List"
                     column(CopyText; StrSubstNo(Text004, CopyText))
                     {
                     }
-                    column(PageNo; StrSubstNo(PageCaptionLbl, Format(CurrReport.PageNo)))
-                    {
-                    }
                     column(CustAddr1; CustAddr[1])
                     {
                     }
@@ -184,10 +181,10 @@ report 10606 "Sales Order Picking List"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             DimText := GetDimText;
                         end;
@@ -195,7 +192,7 @@ report 10606 "Sales Order Picking List"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Sales Line"; "Sales Line")
@@ -206,7 +203,7 @@ report 10606 "Sales Order Picking List"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -305,10 +302,10 @@ report 10606 "Sales Order Picking List"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 DimText := GetDimText;
                             end;
@@ -316,7 +313,7 @@ report 10606 "Sales Order Picking List"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 DimSetEntry.SetRange("Dimension Set ID", "Sales Line"."Dimension Set ID");
                             end;
@@ -336,7 +333,7 @@ report 10606 "Sales Order Picking List"
 
                         trigger OnPostDataItem()
                         begin
-                            SalesLine.DeleteAll;
+                            SalesLine.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
@@ -348,7 +345,7 @@ report 10606 "Sales Order Picking List"
                             do
                                 MoreLines := SalesLine.Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             SalesLine.SetRange("Line No.", 0, SalesLine."Line No.");
                             SetRange(Number, 1, SalesLine.Count);
                         end;
@@ -391,7 +388,7 @@ report 10606 "Sales Order Picking List"
                         trigger OnPreDataItem()
                         begin
                             if not ShowShippingAddr then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -408,8 +405,6 @@ report 10606 "Sales Order Picking List"
                         CopyText := Text003;
                         OutputNo += 1;
                     end;
-
-                    CurrReport.PageNo := 1;
                 end;
 
                 trigger OnPreDataItem()
@@ -461,7 +456,7 @@ report 10606 "Sales Order Picking List"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
             end;
         }
     }
@@ -504,7 +499,7 @@ report 10606 "Sales Order Picking List"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

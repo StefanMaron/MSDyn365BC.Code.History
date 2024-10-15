@@ -20,7 +20,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
         FAJnlLine: Record "FA Journal Line";
         DepreciationCalc: Codeunit "Depreciation Calculation";
         FAGetJnl: Codeunit "FA Get Journal";
-        FAPostingType: Option Acquisition,Depr,WriteDown,Appr,Custom1,Custom2,Disposal,Maintenance,"Salvage Value";
+        FAPostingType: Enum "FA Journal Line FA Posting Type";
         TransferToGenJnl: Boolean;
         TemplateName: Code[10];
         BatchName: Code[10];
@@ -169,18 +169,18 @@ codeunit 5642 "FA Reclass. Transfer Line"
     local procedure SetJnlRange()
     begin
         if (FAJnlNextLineNo = 0) and not TransferToGenJnl then begin
-            FAJnlLine.LockTable;
+            FAJnlLine.LockTable();
             FAGetJnl.SetFAJnlRange(FAJnlLine, TemplateName, BatchName);
             FAJnlNextLineNo := FAJnlLine."Line No.";
         end;
         if (GenJnlNextLineNo = 0) and TransferToGenJnl then begin
-            GenJnlLine.LockTable;
+            GenJnlLine.LockTable();
             FAGetJnl.SetGenJnlRange(GenJnlLine, TemplateName, BatchName);
             GenJnlNextLineNo := GenJnlLine."Line No.";
         end;
     end;
 
-    local procedure Convert(OldNewFA: Option OldFA,NewFA; J: Integer; var FAPostingType: Option Acquisition,Depr,WriteDown,Appr,Custom1,Custom2,Disposal,Maintenance,"Salvage Value"; var Sign: Integer; var FANo: Code[20])
+    local procedure Convert(OldNewFA: Option OldFA,NewFA; J: Integer; var FAPostingType: Enum "FA Journal Line FA Posting Type"; var Sign: Integer; var FANo: Code[20])
     begin
         if OldNewFA = OldNewFA::OldFA then begin
             Sign := -1;
@@ -194,34 +194,34 @@ codeunit 5642 "FA Reclass. Transfer Line"
                 1:
                     FAPostingType := FAPostingType::"Salvage Value";
                 2:
-                    FAPostingType := FAPostingType::Depr;
+                    FAPostingType := FAPostingType::Depreciation;
                 3:
-                    FAPostingType := FAPostingType::WriteDown;
+                    FAPostingType := FAPostingType::"Write-Down";
                 4:
-                    FAPostingType := FAPostingType::Custom1;
+                    FAPostingType := FAPostingType::"Custom 1";
                 5:
-                    FAPostingType := FAPostingType::Custom2;
+                    FAPostingType := FAPostingType::"Custom 2";
                 6:
-                    FAPostingType := FAPostingType::Appr;
+                    FAPostingType := FAPostingType::Appreciation;
                 9:
-                    FAPostingType := FAPostingType::Acquisition;
+                    FAPostingType := FAPostingType::"Acquisition Cost";
             end;
         if OldNewFA = OldNewFA::NewFA then
             case J of
                 1:
-                    FAPostingType := FAPostingType::Acquisition;
+                    FAPostingType := FAPostingType::"Acquisition Cost";
                 2:
                     FAPostingType := FAPostingType::"Salvage Value";
                 3:
-                    FAPostingType := FAPostingType::Appr;
+                    FAPostingType := FAPostingType::Appreciation;
                 4:
-                    FAPostingType := FAPostingType::WriteDown;
+                    FAPostingType := FAPostingType::"Write-Down";
                 5:
-                    FAPostingType := FAPostingType::Custom1;
+                    FAPostingType := FAPostingType::"Custom 1";
                 6:
-                    FAPostingType := FAPostingType::Custom2;
+                    FAPostingType := FAPostingType::"Custom 2";
                 9:
-                    FAPostingType := FAPostingType::Depr;
+                    FAPostingType := FAPostingType::Depreciation;
             end;
     end;
 
@@ -406,12 +406,12 @@ codeunit 5642 "FA Reclass. Transfer Line"
         FADeprBook."Temp. Fixed Depr. Amount" :=
           Round(FixedAmount * (100 - FAReclassJnlLine."Reclassify Acq. Cost %") / 100);
         FADeprBook."Temp. Ending Date" := DeprUntilDate;
-        FADeprBook.Modify;
+        FADeprBook.Modify();
 
         FADeprBook2."Temp. Fixed Depr. Amount" :=
           Round(FixedAmount2 + FixedAmount - FADeprBook."Temp. Fixed Depr. Amount");
         FADeprBook2."Temp. Ending Date" := FADeprBook."Temp. Ending Date";
-        FADeprBook2.Modify;
+        FADeprBook2.Modify();
     end;
 
     [IntegrationEvent(false, false)]

@@ -19,11 +19,9 @@ table 99000772 "Production BOM Line"
             Caption = 'Version Code';
             TableRelation = "Production BOM Version"."Version Code" WHERE("Production BOM No." = FIELD("Production BOM No."));
         }
-        field(10; Type; Option)
+        field(10; Type; Enum "Production BOM Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Item,Production BOM';
-            OptionMembers = " ",Item,"Production BOM";
 
             trigger OnValidate()
             begin
@@ -69,6 +67,8 @@ table 99000772 "Production BOM Line"
                             OnValidateNoOnAfterAssignProdBOMFields(Rec, ProdBOMHeader, xRec, CurrFieldNo);
                         end;
                 end;
+
+                OnAfterValidateNo(Rec);
             end;
         }
         field(12; Description; Text[100])
@@ -235,11 +235,9 @@ table 99000772 "Production BOM Line"
                 Validate("Calculation Formula");
             end;
         }
-        field(44; "Calculation Formula"; Option)
+        field(44; "Calculation Formula"; Enum "Quantity Calculation Formula")
         {
             Caption = 'Calculation Formula';
-            OptionCaption = ' ,Length,Length * Width,Length * Width * Depth,Weight';
-            OptionMembers = " ",Length,"Length * Width","Length * Width * Depth",Weight;
 
             trigger OnValidate()
             begin
@@ -256,6 +254,8 @@ table 99000772 "Production BOM Line"
                         Quantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision);
                     "Calculation Formula"::Weight:
                         Quantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision);
+                    else
+                        OnValidateCalculationFormulaEnumExtension(Rec);
                 end;
             end;
         }
@@ -293,17 +293,20 @@ table 99000772 "Production BOM Line"
     begin
         if Type <> Type::" " then begin
             TestStatus;
-            if Type = Type::Item then
-                PlanningAssignment.AssignPlannedOrders("No.", false)
-            else
-                if Type = Type::"Production BOM" then
+            case Type of
+                Type::Item:
+                    PlanningAssignment.AssignPlannedOrders("No.", false);
+                Type::"Production BOM":
                     PlanningAssignment.OldBom("No.");
+                else
+                    OnDeleteOnCaseTypeElse(Rec);
+            end;
         end;
 
         ProdBOMComment.SetRange("Production BOM No.", "Production BOM No.");
         ProdBOMComment.SetRange("BOM Line No.", "Line No.");
         ProdBOMComment.SetRange("Version Code", "Version Code");
-        ProdBOMComment.DeleteAll;
+        ProdBOMComment.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -398,6 +401,21 @@ table 99000772 "Production BOM Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestStatus(ProductionBOMLine: Record "Production BOM Line"; ProductionBOMHeader: Record "Production BOM Header"; ProductionBOMVersion: Record "Production BOM Version")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateNo(var ProductionBOMLine: Record "Production BOM Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnCaseTypeElse(var ProductionBOMLine: Record "Production BOM Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCalculationFormulaEnumExtension(var ProductionBOMLine: Record "Production BOM Line")
     begin
     end;
 

@@ -63,7 +63,7 @@ codeunit 138931 "O365 Brand Color Tests"
     begin
         // Setup
         ColorValue := RandomColor;
-        O365BrandColor.DeleteAll;
+        O365BrandColor.DeleteAll();
 
         // Exercise
         O365BrandColor.CreateOrUpdateCustomColor(O365BrandColor, ColorValue);
@@ -106,7 +106,7 @@ codeunit 138931 "O365 Brand Color Tests"
         CreateO365BrandColor(O365BrandColor, RandomColor);
 
         // Exercise
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("Brand Color Value", O365BrandColor."Color Value");
 
         // Verify
@@ -128,7 +128,7 @@ codeunit 138931 "O365 Brand Color Tests"
         ColorValue := '#FF' + CopyStr(ColorValue, 2, 6);
 
         // Exercise
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("Brand Color Value", ColorValue);
 
         // Verify
@@ -145,11 +145,11 @@ codeunit 138931 "O365 Brand Color Tests"
         ColorValue: Code[10];
     begin
         // Setup
-        O365BrandColor.DeleteAll;
+        O365BrandColor.DeleteAll();
         ColorValue := RandomColor;
 
         // Exercise
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("Brand Color Value", ColorValue);
 
         // Verify
@@ -170,12 +170,12 @@ codeunit 138931 "O365 Brand Color Tests"
         ColorValueRGBA: Code[10];
     begin
         // Setup
-        O365BrandColor.DeleteAll;
+        O365BrandColor.DeleteAll();
         ColorValue := RandomColor;
         ColorValueRGBA := '#FF' + CopyStr(ColorValue, 2, 6);
 
         // Exercise
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("Brand Color Value", ColorValueRGBA);
 
         // Verify
@@ -195,11 +195,11 @@ codeunit 138931 "O365 Brand Color Tests"
     begin
         // Setup
         ColorValue := RandomColor;
-        O365BrandColor.DeleteAll;
+        O365BrandColor.DeleteAll();
         O365BrandColor.CreateOrUpdateCustomColor(O365BrandColor, ColorValue);
 
         // Exercise
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("Brand Color Value", ColorValue);
 
         // Verify
@@ -282,7 +282,7 @@ codeunit 138931 "O365 Brand Color Tests"
         // [SCENARIO 222331] When validating a blank color value, default to blue.
 
         // [GIVEN] Default brand colors exist.
-        O365BrandColor.DeleteAll;
+        O365BrandColor.DeleteAll();
         O365BrandColor.CreateDefaultBrandColors;
 
         // [WHEN] We try to find an empty color from the O365 Brand Color table.
@@ -304,11 +304,11 @@ codeunit 138931 "O365 Brand Color Tests"
         // [SCENARIO 222331] When validating a blank color value, default to blue.
 
         // [GIVEN] Default brand colors exist.
-        O365BrandColor.DeleteAll;
+        O365BrandColor.DeleteAll();
         O365BrandColor.CreateDefaultBrandColors;
 
         // [WHEN] We try to find an empty color from the O365 Brand Color table.
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("Brand Color Value", '');
 
         // [THEN] Color value is defaulted to Blue.
@@ -326,7 +326,7 @@ codeunit 138931 "O365 Brand Color Tests"
         // [SCENARIO] Default colors created when page Brand Colors is being opened if O 365 Brand Color table is empty
 
         // [GIVEN] Empty O365 Brand Color table
-        O365BrandColor.DeleteAll;
+        O365BrandColor.DeleteAll();
 
         // [WHEN] Page O365 Brand Colros is being opened
         O365BrandColors.OpenView;
@@ -337,11 +337,11 @@ codeunit 138931 "O365 Brand Color Tests"
 
     local procedure CreateO365BrandColor(var O365BrandColor: Record "O365 Brand Color"; ColorValue: Code[10])
     begin
-        O365BrandColor.DeleteAll;
-        O365BrandColor.Init;
+        O365BrandColor.DeleteAll();
+        O365BrandColor.Init();
         O365BrandColor.Code := LibraryUtility.GenerateGUID;
         O365BrandColor."Color Value" := ColorValue;
-        O365BrandColor.Insert;
+        O365BrandColor.Insert();
     end;
 
     local procedure RandomColor() ColorValue: Code[10]

@@ -510,10 +510,10 @@ codeunit 137045 "SCM Bugfixes"
         // [GIVEN] Item "A" with "Unit Cost" = "X"
         LibraryInventory.CreateItem(Item);
         Item."Unit Cost" := LibraryRandom.RandDec(1000, 2);
-        Item.Modify;
+        Item.Modify();
 
         // [WHEN] "Item No." is set to "A" in a new stockkeeping unit card
-        SKU.Init;
+        SKU.Init();
         SKU.Validate("Item No.", Item."No.");
 
         // [THEN] "Unit Cost" is "X" in the stockkeping unit card
@@ -675,7 +675,7 @@ codeunit 137045 "SCM Bugfixes"
         LibraryPurchase.CreateVendorWithLocationCode(Vendor, Location.Code);
 
         // [GIVEN] Initialize a purchase order for vendor "V".
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
 
         // [WHEN] Insert the purchase header record.
@@ -699,9 +699,9 @@ codeunit 137045 "SCM Bugfixes"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Bugfixes");
     end;
 
@@ -709,9 +709,9 @@ codeunit 137045 "SCM Bugfixes"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         TempSalesReceivablesSetup := SalesReceivablesSetup;
-        TempSalesReceivablesSetup.Insert;
+        TempSalesReceivablesSetup.Insert();
 
         SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
@@ -1082,7 +1082,7 @@ codeunit 137045 "SCM Bugfixes"
 
     local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; FromDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo"; DocumentNo: Code[20])
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Insert(true);
         LibrarySales.CopySalesDocument(SalesHeader, FromDocType, DocumentNo, true, true);
@@ -1136,7 +1136,7 @@ codeunit 137045 "SCM Bugfixes"
 
     local procedure RestoreSalesReceivablesSetup(TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Warnings", TempSalesReceivablesSetup."Credit Warnings");
         SalesReceivablesSetup.Validate("Stockout Warning", TempSalesReceivablesSetup."Stockout Warning");
         SalesReceivablesSetup.Modify(true);

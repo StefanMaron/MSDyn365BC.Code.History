@@ -17,9 +17,9 @@ report 10645 "Create Elec. Service Cr. Memos"
                 EInvoiceExpServCrMemo.Run("Service Cr.Memo Header");
                 EInvoiceExpServCrMemo.GetExportedFileInfo(TempEInvoiceTransferFile);
                 TempEInvoiceTransferFile."Line No." := Counter + 1;
-                TempEInvoiceTransferFile.Insert;
+                TempEInvoiceTransferFile.Insert();
 
-                Commit;
+                Commit();
                 Counter := Counter + 1;
             end;
 

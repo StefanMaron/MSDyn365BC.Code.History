@@ -122,7 +122,7 @@ report 3 "G/L Register"
                 trigger OnAfterGetRecord()
                 begin
                     if not GLAcc.Get("G/L Account No.") then
-                        GLAcc.Init;
+                        GLAcc.Init();
                 end;
 
                 trigger OnPreDataItem()

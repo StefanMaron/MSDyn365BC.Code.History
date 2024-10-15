@@ -1,4 +1,4 @@
-﻿page 5978 "Posted Service Invoice"
+page 5978 "Posted Service Invoice"
 {
     Caption = 'Posted Service Invoice';
     DeleteAllowed = false;
@@ -485,13 +485,13 @@
                     var
                         TempServDocLog: Record "Service Document Log" temporary;
                     begin
-                        TempServDocLog.Reset;
-                        TempServDocLog.DeleteAll;
+                        TempServDocLog.Reset();
+                        TempServDocLog.DeleteAll();
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Posted Invoice", "No.");
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Order, "Order No.");
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Invoice, "Pre-Assigned No.");
 
-                        TempServDocLog.Reset;
+                        TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
                         TempServDocLog.Ascending(false);
 
@@ -512,7 +512,6 @@
                     Ellipsis = true;
                     Image = CreateDocument;
                     ToolTip = 'Create one or more XML documents that you can send to the customer. You can run the batch job for multiple invoices or you can run it for an individual invoice. The document number is used as the file name. The files are stored at the location that has been specified in the Sales & Receivables Setup window.';
-                    Visible = false;
 
                     trigger OnAction()
                     begin

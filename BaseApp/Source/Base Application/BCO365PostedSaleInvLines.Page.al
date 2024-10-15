@@ -127,7 +127,7 @@ page 2304 "BC O365 Posted Sale Inv. Lines"
     begin
         SalesInvoiceHeader.Get("Document No.");
         if SalesInvoiceHeader."Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             CurrencySymbol := GLSetup.GetCurrencySymbol;
         end else begin
             if Currency.Get(SalesInvoiceHeader."Currency Code") then;

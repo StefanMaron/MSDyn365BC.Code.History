@@ -1,4 +1,4 @@
-﻿page 5745 "Posted Transfer Receipt"
+page 5745 "Posted Transfer Receipt"
 {
     Caption = 'Posted Transfer Receipt';
     InsertAllowed = false;

@@ -198,10 +198,10 @@ report 105 "Customer - Summary Aging"
                         Currency2.Find('-')
                     else
                         if Currency2.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     Currency2.CalcFields("Cust. Ledg. Entries in Filter");
                     if not Currency2."Cust. Ledg. Entries in Filter" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     PrintLine := false;
                     LineTotalCustBalance := 0;
@@ -222,8 +222,8 @@ report 105 "Customer - Summary Aging"
                 trigger OnPreDataItem()
                 begin
                     if PrintAmountsInLCY or not PrintLine then
-                        CurrReport.Break;
-                    Currency2.Reset;
+                        CurrReport.Break();
+                    Currency2.Reset();
                     Currency2.SetRange("Customer Filter", Customer."No.");
                     Customer.CopyFilter("Currency Filter", Currency2.Code);
                     if (Customer.GetFilter("Global Dimension 1 Filter") <> '') or
@@ -260,7 +260,7 @@ report 105 "Customer - Summary Aging"
                 end;
 
                 if not PrintLine then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
@@ -269,11 +269,11 @@ report 105 "Customer - Summary Aging"
                 Clear(CustBalanceDueLCY);
                 Clear(TotalCustBalanceLCY);
                 Currency2.Code := '';
-                Currency2.Insert;
+                Currency2.Insert();
                 if Currency.Find('-') then
                     repeat
                         Currency2 := Currency;
-                        Currency2.Insert;
+                        Currency2.Insert();
                     until Currency.Next = 0;
             end;
         }

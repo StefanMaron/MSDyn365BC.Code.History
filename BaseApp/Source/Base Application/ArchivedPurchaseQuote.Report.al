@@ -164,10 +164,10 @@ report 415 "Archived Purchase Quote"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -191,7 +191,7 @@ report 415 "Archived Purchase Quote"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Purchase Line Archive"; "Purchase Line Archive")
@@ -202,7 +202,7 @@ report 415 "Archived Purchase Quote"
 
                         trigger OnPreDataItem()
                         begin
-                            CurrReport.Break;
+                            CurrReport.Break();
                         end;
                     }
                     dataitem(RoundLoop; "Integer")
@@ -276,10 +276,10 @@ report 415 "Archived Purchase Quote"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -303,7 +303,7 @@ report 415 "Archived Purchase Quote"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
 
@@ -322,7 +322,7 @@ report 415 "Archived Purchase Quote"
 
                         trigger OnPostDataItem()
                         begin
-                            PurchLineArchive.DeleteAll;
+                            PurchLineArchive.DeleteAll();
                         end;
 
                         trigger OnPreDataItem()
@@ -334,7 +334,7 @@ report 415 "Archived Purchase Quote"
                             do
                                 MoreLines := PurchLineArchive.Next(-1) <> 0;
                             if not MoreLines then
-                                CurrReport.Break;
+                                CurrReport.Break();
                             PurchLineArchive.SetRange("Line No.", 0, PurchLineArchive."Line No.");
                             SetRange(Number, 1, PurchLineArchive.Count);
                         end;
@@ -362,7 +362,7 @@ report 415 "Archived Purchase Quote"
                         trigger OnPreDataItem()
                         begin
                             if "Purchase Header Archive"."Buy-from Vendor No." = "Purchase Header Archive"."Pay-to Vendor No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem(Total3; "Integer")
@@ -399,7 +399,7 @@ report 415 "Archived Purchase Quote"
                         trigger OnPreDataItem()
                         begin
                             if ("Purchase Header Archive"."Sell-to Customer No." = '') and (ShipToAddr[1] = '') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                 }
@@ -409,14 +409,14 @@ report 415 "Archived Purchase Quote"
                     PurchLineArchive2: Record "Purchase Line Archive";
                 begin
                     Clear(PurchLineArchive);
-                    PurchLineArchive.DeleteAll;
+                    PurchLineArchive.DeleteAll();
                     PurchLineArchive2.SetRange("Document Type", "Purchase Header Archive"."Document Type");
                     PurchLineArchive2.SetRange("Document No.", "Purchase Header Archive"."No.");
                     PurchLineArchive2.SetRange("Version No.", "Purchase Header Archive"."Version No.");
                     if PurchLineArchive2.FindSet then
                         repeat
                             PurchLineArchive := PurchLineArchive2;
-                            PurchLineArchive.Insert;
+                            PurchLineArchive.Insert();
                         until PurchLineArchive2.Next = 0;
 
                     if Number > 1 then begin
@@ -492,7 +492,7 @@ report 415 "Archived Purchase Quote"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var

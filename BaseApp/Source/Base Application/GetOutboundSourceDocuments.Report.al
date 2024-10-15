@@ -57,7 +57,7 @@ report 7304 "Get Outbound Source Documents"
                     if "Whse. Pick Request"."Document Type" <>
                        "Whse. Pick Request"."Document Type"::Shipment
                     then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     OnWhseShipHeaderOnPreDataItem("Warehouse Shipment Header");
                 end;
@@ -91,7 +91,7 @@ report 7304 "Get Outbound Source Documents"
                 trigger OnPreDataItem()
                 begin
                     if "Whse. Pick Request"."Document Type" <> "Whse. Pick Request"."Document Type"::"Internal Pick" then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Production Order"; "Production Order")
@@ -108,7 +108,7 @@ report 7304 "Get Outbound Source Documents"
                         ToBinCode: Code[20];
                     begin
                         if ("Flushing Method" = "Flushing Method"::"Pick + Forward") and ("Routing Link Code" = '') then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         GetLocation("Location Code");
                         ToBinCode := "Bin Code";
@@ -131,7 +131,7 @@ report 7304 "Get Outbound Source Documents"
                 trigger OnPreDataItem()
                 begin
                     if "Whse. Pick Request"."Document Type" <> "Whse. Pick Request"."Document Type"::Production then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem("Assembly Header"; "Assembly Header")
@@ -157,7 +157,7 @@ report 7304 "Get Outbound Source Documents"
                 trigger OnPreDataItem()
                 begin
                     if "Whse. Pick Request"."Document Type" <> "Whse. Pick Request"."Document Type"::Assembly then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 

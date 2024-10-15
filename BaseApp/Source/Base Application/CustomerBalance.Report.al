@@ -92,7 +92,7 @@ report 10608 "Customer - Balance"
             begin
                 CalcFields("Net Change (LCY)");
                 if ShowIfNetChange and ("Net Change (LCY)" = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }

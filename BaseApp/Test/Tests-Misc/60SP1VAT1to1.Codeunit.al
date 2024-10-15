@@ -98,7 +98,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(false);
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"6.0SP1 - VAT 1 to 1");
@@ -794,7 +794,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Currency.Validate("Residual Losses Account", GLAccount."No.");
         Currency.Modify(true);
 
-        CurrencyExchangeRate.Init;
+        CurrencyExchangeRate.Init();
         CurrencyExchangeRate.Validate("Currency Code", Currency.Code);
         Evaluate(DateForm, '<-12Y>');
         CurrencyExchangeRate.Validate("Starting Date", CalcDate(DateForm, WorkDate));
@@ -833,8 +833,8 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        Commit;
-        GeneralLedgerSetup.Get;
+        Commit();
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Additional Reporting Currency", CurrencyCode);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1173,7 +1173,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
         // Setup No series for prepayment invoice
         NoSeries.FindFirst;
-        SalesReceivableSetup.Get;
+        SalesReceivableSetup.Get();
         SalesReceivableSetup.Validate("Posted Prepmt. Inv. Nos.", NoSeries.Code);
         SalesReceivableSetup.Modify(true);
 
@@ -1302,7 +1302,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
         // Setup No series for prepayment invoice
         NoSeries.FindFirst;
-        PurchasePaybleSetup.Get;
+        PurchasePaybleSetup.Get();
         PurchasePaybleSetup.Validate("Posted Prepmt. Inv. Nos.", NoSeries.Code);
         PurchasePaybleSetup.Modify(true);
         InvDisc := 15;
@@ -2708,7 +2708,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         JournalSetup(JournalTemplate, JournalBatch);
 
         // Setup unrealized VAT
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Unrealized VAT", true);
         GeneralLedgerSetup.Modify(true);
 
@@ -2746,8 +2746,8 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
         // Step1:  Create a general journal Line invoice
         LineAmt := 1000;
-        GenJournalLine.Init;
-        GenJournalLine.DeleteAll;
+        GenJournalLine.Init();
+        GenJournalLine.DeleteAll();
         CreateJournalLine(GenJournalLine,
           JournalTemplate, JournalBatch, GenJournalLine."Account Type"::"G/L Account", PurchaseVATAcc, WorkDate,
           GenJournalLine."Document Type"::Invoice, LineAmt, GenJournalLine."Bal. Account Type"::Vendor, Vendor."No.");
@@ -2776,7 +2776,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         ValidateVATEntry(GLRegister, 0, 0, 0);
 
         // Step 2: Create a general journal line payment and apply to above invoice
-        Commit;
+        Commit();
         CreateJournalLine(GenJournalLine,
           JournalTemplate, JournalBatch, GenJournalLine."Account Type"::Vendor, Vendor."No.", WorkDate,
           GenJournalLine."Document Type"::Payment, LineAmt, GenJournalLine."Bal. Account Type"::"Bank Account", BankAcc);
@@ -2849,7 +2849,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         ValidateVATEntry(GLRegister, 0, 0, UnrealizedVATEntryNo);
 
         // Test Cleanup
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Unrealized VAT" := false;
         GeneralLedgerSetup.Modify(true);
     end;
@@ -3129,7 +3129,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Customer.Modify(true);
 
         if InvDisc <> 0 then begin
-            CustInvDisc.Init;
+            CustInvDisc.Init();
             CustInvDisc.Validate(Code, Customer."No.");
             CustInvDisc.Validate("Discount %", InvDiscount);
             CustInvDisc.Insert(true);
@@ -3159,7 +3159,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         Vendor.Modify(true);
 
         if InvDisc <> 0 then begin
-            VendInvDisc.Init;
+            VendInvDisc.Init();
             VendInvDisc.Validate(Code, Vendor."No.");
             VendInvDisc.Validate("Discount %", InvDiscount);
             VendInvDisc.Insert(true);
@@ -3193,7 +3193,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         DueDate: DateFormula;
         DiscDate: DateFormula;
     begin
-        PaymentTerms.Init;
+        PaymentTerms.Init();
         repeat
             PaymentTermsCode := Format(LibraryRandom.RandInt(2147483647)) // max int
         until not PaymentTerms.Get(PaymentTermsCode);
@@ -3210,7 +3210,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
     local procedure CreateVATProdPostingGroup(var VATProdPostingGroup: Record "VAT Product Posting Group")
     begin
-        VATProdPostingGroup.Init;
+        VATProdPostingGroup.Init();
         VATProdPostingGroup.Validate(
           Code,
           CopyStr(
@@ -3444,11 +3444,11 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
     local procedure FindDefaultDim(var Dimension: Record Dimension; var DimensionValue: Record "Dimension Value")
     begin
-        Dimension.Reset;
+        Dimension.Reset();
         Dimension.SetRange(Blocked, false);
         Dimension.FindFirst;
 
-        DimensionValue.Reset;
+        DimensionValue.Reset();
         DimensionValue.SetRange("Dimension Code", Dimension.Code);
         DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
         DimensionValue.FindFirst;
@@ -3456,12 +3456,12 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
     local procedure FindLineDim(var Dimension: Record Dimension; var DimensionValue: Record "Dimension Value"; DimCode: Code[20])
     begin
-        Dimension.Reset;
+        Dimension.Reset();
         Dimension.SetRange(Blocked, false);
         Dimension.SetFilter(Code, '<>' + DimCode);
         Dimension.FindFirst;
 
-        DimensionValue.Reset;
+        DimensionValue.Reset();
         DimensionValue.SetRange("Dimension Code", Dimension.Code);
         DimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type"::Standard);
         DimensionValue.FindFirst;
@@ -3545,8 +3545,8 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerentry: Record "Vendor Ledger Entry";
     begin
-        GenJournalLine.Init;
-        GenJournalLine.DeleteAll;
+        GenJournalLine.Init();
+        GenJournalLine.DeleteAll();
 
         if AccType = 'Customer' then begin
             if DocType = 'Refund' then begin
@@ -3611,7 +3611,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         if GeneralPostingSetup."COGS Account" = '' then begin
             LibraryERM.CreateGLAccount(GLAccount);
             GeneralPostingSetup."COGS Account" := GLAccount."No.";
-            GeneralPostingSetup.Modify;
+            GeneralPostingSetup.Modify();
         end;
     end;
 
@@ -3639,13 +3639,13 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
         // Setup Cal. Inv. Disc. on sales
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Calc. Inv. Discount", true);
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"No Warning");
         SalesReceivablesSetup.Modify(true);
 
         // Setup Cal. Inv. Disc. on purchase
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Calc. Inv. Discount", true);
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
         PurchasesPayablesSetup.Modify(true);
@@ -3825,7 +3825,7 @@ codeunit 132517 "6.0SP1 - VAT 1 to 1"
 
     local procedure FindReverseChargeVATPostSetup(var VATPostingSetup: Record "VAT Posting Setup"; AdjForPaymentDisc: Boolean)
     begin
-        VATPostingSetup.Reset;
+        VATPostingSetup.Reset();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         VATPostingSetup.Validate("Adjust for Payment Discount", AdjForPaymentDisc);
         VATPostingSetup.Modify(true);

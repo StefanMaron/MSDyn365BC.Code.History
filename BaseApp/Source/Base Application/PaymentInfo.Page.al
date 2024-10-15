@@ -188,7 +188,7 @@ page 15000001 "Payment Info"
     local procedure InitVendEntry()
     begin
         if "Applies-to Doc. No." = '' then begin
-            VendEntry.Init;
+            VendEntry.Init();
             Message(Text001);
         end else
             RemTools.SearchEntry(Rec, VendEntry);

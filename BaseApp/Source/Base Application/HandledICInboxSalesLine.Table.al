@@ -99,12 +99,10 @@ table 439 "Handled IC Inbox Sales Line"
             Caption = 'Line Amount';
             Editable = false;
         }
-        field(107; "IC Partner Ref. Type"; Option)
+        field(107; "IC Partner Ref. Type"; Enum "IC Partner Reference Type")
         {
             Caption = 'IC Partner Ref. Type';
             Editable = false;
-            OptionCaption = ' ,G/L Account,Item,,,Charge (Item),Cross reference,Common Item No.,Vendor Item No.';
-            OptionMembers = " ","G/L Account",Item,,,"Charge (Item)","Cross reference","Common Item No.","Vendor Item No.";
         }
         field(108; "IC Partner Reference"; Code[20])
         {
@@ -118,7 +116,7 @@ table 439 "Handled IC Inbox Sales Line"
             ELSE
             IF ("IC Partner Ref. Type" = CONST("Charge (Item)")) "Item Charge"
             ELSE
-            IF ("IC Partner Ref. Type" = CONST("Cross reference")) "Item Cross Reference";
+            IF ("IC Partner Ref. Type" = CONST("Cross Reference")) "Item Cross Reference";
         }
         field(125; "IC Partner Code"; Code[20])
         {

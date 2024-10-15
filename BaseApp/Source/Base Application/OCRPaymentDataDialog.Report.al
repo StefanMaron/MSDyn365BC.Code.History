@@ -51,8 +51,8 @@ report 15000065 "OCR Payment - Data Dialog"
 
     trigger OnInitReport()
     begin
-        OCRSetup.Get;
-        SalesSetup.Get;
+        OCRSetup.Get();
+        SalesSetup.Get();
         FileName := OCRSetup.FileName;
         BalAccType := OCRSetup."Bal. Account Type";
         BalAccNo := OCRSetup."Bal. Account No.";
@@ -113,7 +113,7 @@ report 15000065 "OCR Payment - Data Dialog"
         NumberOfWarnings := 0;
         NumberOfEntries := 0;
         NewDocumentNo := false;
-        Commit;
+        Commit();
         LatestOCRDate := 0D;
 
         while TxtFile.Len <> TxtFile.Pos do begin
@@ -327,7 +327,7 @@ report 15000065 "OCR Payment - Data Dialog"
         GenJnlLine.Validate(
           Description, StrSubstNo(text160804, CustEntry."Document Type", CustEntry."Document No."));
         GenJnlLine.Validate(Amount, DivergenceAmount);
-        GenJnlLine.Insert;
+        GenJnlLine.Insert();
         PrevGenJnlLine := GenJnlLine;
     end;
 

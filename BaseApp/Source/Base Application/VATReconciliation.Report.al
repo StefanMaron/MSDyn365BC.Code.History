@@ -104,9 +104,9 @@ report 10630 "VAT Reconciliation"
                 SalesVATRevCharges := 0;
 
                 if not ShowDetails and ("VAT Amount" = 0) and not ShowTransWithoutVAT then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
-                VATEntry.Reset;
+                VATEntry.Reset();
                 VATEntry.SetRange("Transaction No.", "Transaction No.");
                 VATEntry.SetRange(Amount, "VAT Amount");
                 if VATEntry.FindFirst then begin
@@ -122,7 +122,7 @@ report 10630 "VAT Reconciliation"
                             PurchVAT := VATEntry.Amount;
                         end;
                 end else begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     VATEntry.SetRange("Transaction No.", "Transaction No.");
                     VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                     VATEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");

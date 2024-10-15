@@ -492,7 +492,7 @@ codeunit 137404 "SCM Manufacturing"
         Initialize;
         ShowError := false;  // This variable is made Global as it is used in the Handler.
         EndingTimeError := true;  // This variable is made Global as it is used in the Handler.
-        WorkCenter.Init;  // Required to initialize the Variable.
+        WorkCenter.Init();  // Required to initialize the Variable.
         EndingTime := CalculateRandomTime;
         StartingTime := CalculateEndingTime(WorkCenter, EndingTime + 10000);  // StartingTime must be Greater than EndingTime to Generate the Error.
 
@@ -1104,7 +1104,7 @@ codeunit 137404 "SCM Manufacturing"
         // [SCENARIO] Validate Consumption Journal After release Production Order and calculate Consumption.
 
         // [GIVEN] Create and Release Production Order.
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(true, true);
         CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
 
@@ -1133,7 +1133,7 @@ codeunit 137404 "SCM Manufacturing"
         // [SCENARIO] Validate Output Journal after Posting Consumption Journal.
 
         // [GIVEN] Create and Release Production Order and Calculate Consumption Journal.
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(true, true);
         CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
         CreateAndPostConsumptionJournal(ProductionOrder."No.");
@@ -1162,7 +1162,7 @@ codeunit 137404 "SCM Manufacturing"
         // [SCENARIO] Validate G/L Entry after posting output Journal.
 
         // [GIVEN] Create and Release Production Order, Calculate Consumption Journal and create Output Journal.
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateInventorySetup(true, true);
         CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
         CreateAndPostConsumptionJournal(ProductionOrder."No.");
@@ -1643,7 +1643,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // Find the Prod. Order Line calculated by refreshing the production order
         FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status::Released, ProductionOrder."No.", Item."No.");
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
 
         // Verify: The Starting Date on Prod. Orde Line should be ahead of the original Due Date of Prod. Order by Default Safety Lead Time
         Assert.AreEqual(
@@ -2340,19 +2340,19 @@ codeunit 137404 "SCM Manufacturing"
         LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID, '', '');
         LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID, '', '');
         Location."From-Production Bin Code" := Bin[2].Code;
-        Location.Modify;
+        Location.Modify();
 
         ProdOrderLine[2] := ProdOrderLine[1];
         ProdOrderLine[2]."Line No." := ProdOrderLine[1]."Line No." + 10000;
         ProdOrderLine[2]."Planning Level Code" := ProdOrderLine[1]."Planning Level Code" + 1;
         ProdOrderLine[2]."Bin Code" := Bin[1].Code;
-        ProdOrderLine[2].Insert;
+        ProdOrderLine[2].Insert();
 
         // [GIVEN] Set bin code = "B1" on production order line
         FindProductionOrderComponent(ProdOrderComponent, ProdOrderLine[1].Status, ProdOrderLine[1]."Prod. Order No.");
         ProdOrderComponent."Bin Code" := Bin[1].Code;
         ProdOrderComponent."Supplied-by Line No." := ProdOrderLine[2]."Line No.";
-        ProdOrderComponent.Modify;
+        ProdOrderComponent.Modify();
 
         // [WHEN] Open prod. order routing for the low-level line
         ProdOrderLine[2].ShowRouting;
@@ -2459,7 +2459,7 @@ codeunit 137404 "SCM Manufacturing"
                 Error(StrSubstNo(EntryOfTypeNotFoundErr, TempItemLedgEntry."Entry Type"::Sale));
         ApplicationWorksheet.UnappliedEntries.Invoke;
 
-        Commit;
+        Commit();
 
         // [GIVEN] 'Reapply All' gives an error, due to negative Consumption entry.
         asserterror ApplicationWorksheet.Reapply.Invoke; // Reapply All
@@ -3071,7 +3071,7 @@ codeunit 137404 "SCM Manufacturing"
         // [GIVEN] Create & Release "Prod. Order" for 10 pcs of single item.
         CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
         CalculateConsumptionJournal(ItemJournalBatch, ProductionOrder."No.");
-        ItemJournalLine.Reset;
+        ItemJournalLine.Reset();
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrder."No.");
         ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Consumption);
@@ -3105,7 +3105,7 @@ codeunit 137404 "SCM Manufacturing"
         // [SCENARIO 255348] Init value in "Doc No is Prod Order" field should be Yes in Manufacturing Setup
 
         // [WHEN] Manufacturing Setup is being initialized
-        ManufacturingSetup.Init;
+        ManufacturingSetup.Init();
 
         // [THEN] "Doc No is Prod Order" = Yes
         ManufacturingSetup.TestField("Doc. No. Is Prod. Order No.", true);
@@ -3250,10 +3250,10 @@ codeunit 137404 "SCM Manufacturing"
         WorkCenterName := LibraryUtility.GenerateGUID;
 
         // [GIVEN] Work Center with No. = 'APG-LACK & PACKAGING' (20 symbols and one symbol is '&') and Name 'XXX'
-        WorkCenter.Init;
+        WorkCenter.Init();
         WorkCenter."No." := WorkCenterNo;
         WorkCenter.Name := CopyStr(WorkCenterName, 1, MaxStrLen(WorkCenter.Name));
-        WorkCenter.Insert;
+        WorkCenter.Insert();
 
         // [GIVEN] Calendar Entry with Filter on this No.
         CalendarEntry.SetRange("No.", WorkCenterNo);
@@ -3284,10 +3284,10 @@ codeunit 137404 "SCM Manufacturing"
         MachineCenterName := LibraryUtility.GenerateGUID;
 
         // [GIVEN] Machine Center with No. = 'APG-LACK & PACKAGING' (20 symbols and one symbol is '&') and Name 'XXX'
-        MachineCenter.Init;
+        MachineCenter.Init();
         MachineCenter."No." := MachineCenterNo;
         MachineCenter.Name := CopyStr(MachineCenterName, 1, MaxStrLen(MachineCenter.Name));
-        MachineCenter.Insert;
+        MachineCenter.Insert();
 
         // [GIVEN] Calendar Entry with Filter on this No. and Capacity Type Machine Center
         CalendarEntry."Capacity Type" := CalendarEntry."Capacity Type"::"Machine Center";
@@ -3334,7 +3334,7 @@ codeunit 137404 "SCM Manufacturing"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Manufacturing");
     end;
 
@@ -3388,7 +3388,7 @@ codeunit 137404 "SCM Manufacturing"
             FindSet;
             repeat
                 TempItemLedgEntry := ItemLedgEntry;
-                TempItemLedgEntry.Insert;
+                TempItemLedgEntry.Insert();
             until Next = 0;
         end;
     end;
@@ -3671,7 +3671,7 @@ codeunit 137404 "SCM Manufacturing"
         BlankLocation: Record Location;
     begin
         LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
-        BlankLocation.Init;
+        BlankLocation.Init();
         LibraryInventory.UpdateInventoryPostingSetup(BlankLocation);
         CreateItemWithReorderingPolicy(
           Item, Item."Replenishment System"::Purchase, Item."Manufacturing Policy"::"Make-to-Stock",
@@ -3688,7 +3688,7 @@ codeunit 137404 "SCM Manufacturing"
         BlankLocation: Record Location;
     begin
         LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
-        BlankLocation.Init;
+        BlankLocation.Init();
         LibraryInventory.UpdateInventoryPostingSetup(BlankLocation);
         CreateItemWithReorderingPolicy(
           Item, ReplenishmentSystem, ManufacturingPolicy, InventoryPostingGroup.Code, '', '');
@@ -3837,7 +3837,7 @@ codeunit 137404 "SCM Manufacturing"
         RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
-        Item.Modify;
+        Item.Modify();
         RequisitionLine.Validate("No.", Item."No.");
         RequisitionLine.Validate("Ending Date", WorkDate);
         RequisitionLine.Validate("Due Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Use random Due Date.
@@ -3869,12 +3869,12 @@ codeunit 137404 "SCM Manufacturing"
             CreateRoutingLine(
               RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenterNo);
             RoutingLine.Validate("Run Time", LibraryRandom.RandInt(10));
-            RoutingLine.Modify;
+            RoutingLine.Modify();
 
             CreateRoutingLine(
               RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenterNo2);
             RoutingLine.Validate("Run Time", LibraryRandom.RandInt(10));
-            RoutingLine.Modify;
+            RoutingLine.Modify();
         end;
 
         with RoutingHeader do begin
@@ -3945,7 +3945,7 @@ codeunit 137404 "SCM Manufacturing"
     begin
         for i := FromChildNo to ToChildNo do begin
             TempChildSetItem := ChildItem[i];
-            TempChildSetItem.Insert;
+            TempChildSetItem.Insert();
         end;
         ParentItem.Validate(
           "Production BOM No.", CreateProductionBOMForSetOfItems(TempChildSetItem, ParentItem."Base Unit of Measure"));
@@ -3980,7 +3980,7 @@ codeunit 137404 "SCM Manufacturing"
 
         FindProductionOrderRoutingLine(ProdOrderRoutingLine, ProdOrderLine);
         ProdOrderRoutingLine."From-Production Bin Code" := LibraryUtility.GenerateGUID;
-        ProdOrderRoutingLine.Modify;
+        ProdOrderRoutingLine.Modify();
         UpdateWorkCenterLocationCodeAndFromProdBinCode(WorkCenter, ProdOrderRoutingLine."Work Center No.", Location.Code, Bin.Code);
         RoutingRefNo := ProdOrderRoutingLine."Routing Reference No.";
     end;
@@ -3996,7 +3996,7 @@ codeunit 137404 "SCM Manufacturing"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue[1], GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDimensionValue(DimensionValue[2], GeneralLedgerSetup."Global Dimension 2 Code");
 
@@ -4237,7 +4237,7 @@ codeunit 137404 "SCM Manufacturing"
                   Item[ItemArrayCounter]."No.", LibraryRandom.RandInt(100));
                 if RoutingLinkCode[ItemArrayCounter] <> '' then begin
                     ProductionBOMLine.Validate("Routing Link Code", RoutingLinkCode[ItemArrayCounter]);
-                    ProductionBOMLine.Modify;
+                    ProductionBOMLine.Modify();
                 end;
             end;
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
@@ -4513,7 +4513,7 @@ codeunit 137404 "SCM Manufacturing"
         if ProductionBOMLine.FindSet then
             repeat
                 ProductionBOMLineBuf := ProductionBOMLine;
-                ProductionBOMLineBuf.Insert;
+                ProductionBOMLineBuf.Insert();
             until ProductionBOMLine.Next = 0;
     end;
 
@@ -4633,15 +4633,15 @@ codeunit 137404 "SCM Manufacturing"
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin
-        ProductionBOMHeader.Init;
+        ProductionBOMHeader.Init();
         ProductionBOMHeader."No." := LibraryUtility.GenerateGUID;
         ProductionBOMHeader.Status := ProductionBOMHeader.Status::"Under Development";
-        ProductionBOMHeader.Insert;
-        ProductionBOMVersion.Init;
+        ProductionBOMHeader.Insert();
+        ProductionBOMVersion.Init();
         ProductionBOMVersion."Production BOM No." := ProductionBOMHeader."No.";
         ProductionBOMVersion."Version Code" := LibraryUtility.GenerateGUID;
         ProductionBOMVersion.Status := VersionStatus;
-        ProductionBOMVersion.Insert;
+        ProductionBOMVersion.Insert();
         MockProdBOMLine(ItemNo, ProductionBOMHeader."No.", ProductionBOMVersion."Version Code");
     end;
 
@@ -4649,12 +4649,12 @@ codeunit 137404 "SCM Manufacturing"
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
-        ProductionBOMLine.Init;
+        ProductionBOMLine.Init();
         ProductionBOMLine."Production BOM No." := ProdBOMHeaderNo;
         ProductionBOMLine."Version Code" := VersionNo;
         ProductionBOMLine.Type := ProductionBOMLine.Type::Item;
         ProductionBOMLine."No." := ItemNo;
-        ProductionBOMLine.Insert;
+        ProductionBOMLine.Insert();
     end;
 
     local procedure ModifyCapacityOfMachineCenter(MachineCenterNo: Code[20]): Decimal
@@ -4859,7 +4859,7 @@ codeunit 137404 "SCM Manufacturing"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Doc. No. Is Prod. Order No.", DocNoIsProdOrderNo);
         ManufacturingSetup.Modify(true);
     end;
@@ -4879,7 +4879,7 @@ codeunit 137404 "SCM Manufacturing"
     var
         CopyProductionForecast: Report "Copy Production Forecast";
     begin
-        Commit;  // Commit required for batch job report.
+        Commit();  // Commit required for batch job report.
         Clear(CopyProductionForecast);
         CopyProductionForecast.SetTableView(ProductionForecastEntry);
         CopyProductionForecast.Run;
@@ -4889,7 +4889,7 @@ codeunit 137404 "SCM Manufacturing"
     var
         DeleteExpiredComponents: Report "Delete Expired Components";
     begin
-        Commit;  // Commit required for batch job.
+        Commit();  // Commit required for batch job.
         Clear(DeleteExpiredComponents);
         DeleteExpiredComponents.SetTableView(ProductionBOMHeader);
         DeleteExpiredComponents.Run;
@@ -4900,7 +4900,7 @@ codeunit 137404 "SCM Manufacturing"
         ExchangeProductionBOMItem: Report "Exchange Production BOM Item";
     begin
         Clear(ExchangeProductionBOMItem);
-        Commit;  // Commit required for batch job report.
+        Commit();  // Commit required for batch job report.
         ExchangeProductionBOMItem.Run;
     end;
 
@@ -4916,7 +4916,7 @@ codeunit 137404 "SCM Manufacturing"
     var
         ImplementRegisteredAbsence: Report "Implement Registered Absence";
     begin
-        Commit;  // Commit is required to run the Report.
+        Commit();  // Commit is required to run the Report.
         RegisteredAbsence.SetRange("No.", RegisteredAbsence."No.");
         Clear(ImplementRegisteredAbsence);
         ImplementRegisteredAbsence.SetTableView(RegisteredAbsence);
@@ -4928,7 +4928,7 @@ codeunit 137404 "SCM Manufacturing"
         RecalculateCalendar: Report "Recalculate Calendar";
     begin
         Clear(RecalculateCalendar);
-        Commit;  // COMMIT is required to run the Report.
+        Commit();  // COMMIT is required to run the Report.
         RecalculateCalendar.SetTableView(CalendarEntry);
         RecalculateCalendar.Run;
     end;
@@ -4941,7 +4941,7 @@ codeunit 137404 "SCM Manufacturing"
         MachineCenter.SetRange("No.", MachineCenterNo);
         Clear(RegAbsFromMachineCtr);
         RegAbsFromMachineCtr.SetTableView(MachineCenter);
-        Commit;  // COMMIT is required to run the Report.
+        Commit();  // COMMIT is required to run the Report.
         RegAbsFromMachineCtr.Run;
     end;
 
@@ -4953,7 +4953,7 @@ codeunit 137404 "SCM Manufacturing"
         WorkCenter.SetRange("No.", WorkCenterNo);
         Clear(RegAbsFromWorkCenter);
         RegAbsFromWorkCenter.SetTableView(WorkCenter);
-        Commit;  // COMMIT is required to run the Report.
+        Commit();  // COMMIT is required to run the Report.
         RegAbsFromWorkCenter.Run;
     end;
 
@@ -5085,7 +5085,7 @@ codeunit 137404 "SCM Manufacturing"
         // Calculate the due date of prod. order, since the ending date - starting date = WaitTime + 1 for the last routing line,
         // the ending date of the last routing line + Default Safety Lead Time = the prod. order due date
         // so use below formula to calculate prod. due date
-        MfgSetup.Get;
+        MfgSetup.Get();
         exit(CalcDate(MfgSetup."Default Safety Lead Time", CalcDate('<+' + Format(WaitTime + 1) + 'D>', StartingDate)));
     end;
 
@@ -5149,7 +5149,7 @@ codeunit 137404 "SCM Manufacturing"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Expected Cost Posting to G/L", ExpectedCostPostingtoGL);
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
         InventorySetup.Modify(true);
@@ -5159,7 +5159,7 @@ codeunit 137404 "SCM Manufacturing"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         OldDocNoIsProdOrderNo := ManufacturingSetup."Doc. No. Is Prod. Order No.";
         RestoreManufacturingSetup(NewDocNoIsProdOrderNo);
     end;
@@ -5182,7 +5182,7 @@ codeunit 137404 "SCM Manufacturing"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldCreditWarnings := SalesReceivablesSetup."Credit Warnings";
         OldStockoutWarning := SalesReceivablesSetup."Stockout Warning";
         SalesReceivablesSetup.Validate("Credit Warnings", NewCreditWarnings);
@@ -5201,7 +5201,7 @@ codeunit 137404 "SCM Manufacturing"
     local procedure UpdateProdOrderLineLocationCode(var ProdOrderLine: Record "Prod. Order Line"; LocationCode: Code[10])
     begin
         ProdOrderLine.Validate("Location Code", LocationCode);
-        ProdOrderLine.Modify;
+        ProdOrderLine.Modify();
     end;
 
     local procedure UpdateWorkCenterLocationCodeAndFromProdBinCode(var WorkCenter: Record "Work Center"; WorkCenterNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20])
@@ -5209,7 +5209,7 @@ codeunit 137404 "SCM Manufacturing"
         WorkCenter.Get(WorkCenterNo);
         WorkCenter.Validate("Location Code", LocationCode);
         WorkCenter.Validate("From-Production Bin Code", BinCode);
-        WorkCenter.Modify;
+        WorkCenter.Modify();
     end;
 
     local procedure VerifyCalculatedCapacity()
@@ -5468,7 +5468,7 @@ codeunit 137404 "SCM Manufacturing"
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
-        ProductionBOMLine.Init;
+        ProductionBOMLine.Init();
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
         ProductionBOMLine.SetRange("Version Code", VersionCode);
         ProductionBOMLine.SetRange("No.", No);
@@ -5479,7 +5479,7 @@ codeunit 137404 "SCM Manufacturing"
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
-        ProductionBOMLine.Init;
+        ProductionBOMLine.Init();
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
         ProductionBOMLine.SetRange("Version Code", VersionCode);
         ProductionBOMLine.SetRange("No.", No);
@@ -5734,7 +5734,7 @@ codeunit 137404 "SCM Manufacturing"
             ItemTrackingLines."Serial No.".SetValue(GLB_SerialNo);
             ItemTrackingLines."Quantity (Base)".SetValue(GLB_ItemTrackingQty / Abs(GLB_ItemTrackingQty));
             ItemTrackingLines.Next;
-            Commit;
+            Commit();
             GLB_SerialNo := IncStr(GLB_SerialNo);
         end;
     end;
@@ -5744,8 +5744,8 @@ codeunit 137404 "SCM Manufacturing"
         ItemJournalLine: Record "Item Journal Line";
         OutputJournal: TestPage "Output Journal";
     begin
-        ItemJournalLine.DeleteAll;
-        Commit;
+        ItemJournalLine.DeleteAll();
+        Commit();
 
         OutputJournal.OpenEdit;
         OutputJournal."Order No.".SetValue(ProductionOrder."No.");
@@ -5757,7 +5757,7 @@ codeunit 137404 "SCM Manufacturing"
         GLB_SerialNo := 'OUTPUT_REVERT_SN1';
 
         OutputJournal."Item Tracking Lines".Invoke; // Jump to: OutputJournalItemtrackingPageHandler
-        Commit;
+        Commit();
         OutputJournal.Post.Invoke;
     end;
 

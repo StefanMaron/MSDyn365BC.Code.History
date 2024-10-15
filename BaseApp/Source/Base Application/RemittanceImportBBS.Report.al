@@ -41,7 +41,7 @@ report 15000063 "Remittance - Import (BBS)"
                 end;
 
                 PaymentOrderData := PaymentOrderData2;
-                PaymentOrderData.Insert;
+                PaymentOrderData.Insert();
             end;
 
             trigger OnPreDataItem()
@@ -91,7 +91,7 @@ report 15000063 "Remittance - Import (BBS)"
         then
             Error(Text15000003);
 
-        PaymentOrderData2.DeleteAll;
+        PaymentOrderData2.DeleteAll();
     end;
 
     trigger OnPreReport()
@@ -107,11 +107,11 @@ report 15000063 "Remittance - Import (BBS)"
         CreatePaymOrder;
         while TxtFile.Len <> TxtFile.Pos do begin
             TxtFile.Read(FileData);
-            PaymentOrderData2.Init;
+            PaymentOrderData2.Init();
             PaymentOrderData2."Payment Order No." := PaymOrder.ID;
             PaymentOrderData2."Line No" += 1;
             PaymentOrderData2.Data := PadStr(FileData, 80, ' '); // Make sure the line is 80 chars long.;
-            PaymentOrderData2.Insert;
+            PaymentOrderData2.Insert();
         end
     end;
 
@@ -241,7 +241,7 @@ report 15000063 "Remittance - Import (BBS)"
                   "Remittance Status", StrSubstNo(Text15000010, WaitingJournal."Remittance Status"));
 
             // Prepare and insert into journal:
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             GenJnlLine.TransferFields(WaitingJournal);
             InitJournalLine(GenJnlLine, RemAccount);
             if GenJnlLine."Posting Date" <> TransBBSDate then
@@ -278,14 +278,14 @@ report 15000063 "Remittance - Import (BBS)"
     begin
         // Create import of PaymOrder.
         // Find ID. Find Next:
-        PaymOrder.LockTable;
+        PaymOrder.LockTable();
         if PaymOrder.FindLast then
             NextPaymOrderID := PaymOrder.ID + 1
         else
             NextPaymOrderID := 1;
 
         // Insert new PaymOrder. Set the remaining data later:
-        PaymOrder.Init;
+        PaymOrder.Init();
         PaymOrder.Validate(ID, NextPaymOrderID);
         PaymOrder.Validate(Date, DateNow);
         PaymOrder.Validate(Time, TimeNow);
@@ -330,7 +330,7 @@ report 15000063 "Remittance - Import (BBS)"
             exit;
 
         // Create balance entry:
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         InitJournalLine(GenJnlLine, LatestRemAccount);
         GenJnlLine.Validate("Posting Date", LatestDate);
         GenJnlLine.Validate("Account Type", LatestRemAccount."Account Type");

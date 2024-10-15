@@ -88,7 +88,7 @@ codeunit 139010 "ADCS Tests"
         UserName: Text[50];
         ClearTextPassword: Text[250];
     begin
-        ADCSUser.Init;
+        ADCSUser.Init();
         ClearTextPassword := CopyStr(Format(CreateGuid), 1, 30);
         UserName := CopyStr('USER.' + ClearTextPassword, 1, MaxStrLen(ADCSUser.Name));
         ADCSUser.Name := UserName;
@@ -108,7 +108,7 @@ codeunit 139010 "ADCS Tests"
         ClearTextPassword: Text[250];
         FirstPassword: Text[250];
     begin
-        ADCSUser.Init;
+        ADCSUser.Init();
         ClearTextPassword := CopyStr(Format(CreateGuid), 1, 27);
         UserName := CopyStr('USER.' + ClearTextPassword, 1, 50);
         ADCSUser.Name := UserName;
@@ -135,10 +135,10 @@ codeunit 139010 "ADCS Tests"
         UserNameSfx: Text[50];
     begin
         UserNameSfx := Format(CreateGuid);
-        ADCSUser.Init;
+        ADCSUser.Init();
         ADCSUser.Name := CopyStr('USER1.' + UserNameSfx, 1, MaxStrLen(ADCSUser.Name));
         ADCSUser.Password := 'MyPassword';
-        ADCSUser.Insert;
+        ADCSUser.Insert();
 
         asserterror ADCSUser.Rename(CopyStr('USER2.' + UserNameSfx, 1, MaxStrLen(ADCSUser.Name)));
     end;
@@ -179,14 +179,14 @@ codeunit 139010 "ADCS Tests"
         ADCSCommunication: Codeunit "ADCS Communication";
     begin
         // [SCENARIO 381268] GetFunctionKey returns KeyDef of MiniformFunctionGroup when FunctionKey exists
-        MiniformFunctionGroup.Init;
+        MiniformFunctionGroup.Init();
         MiniformFunctionGroup.Code := PadStr('', MaxStrLen(MiniformFunctionGroup.Code), '0');
         MiniformFunctionGroup.KeyDef := 2;
-        MiniformFunctionGroup.Insert;
-        MiniformFunction.Init;
+        MiniformFunctionGroup.Insert();
+        MiniformFunction.Init();
         MiniformFunction."Miniform Code" := PadStr('', MaxStrLen(MiniformFunction."Miniform Code"), '0');
         MiniformFunction."Function Code" := MiniformFunctionGroup.Code;
-        MiniformFunction.Insert;
+        MiniformFunction.Insert();
         Assert.AreEqual(
           MiniformFunctionGroup.KeyDef,
           ADCSCommunication.GetFunctionKey(MiniformFunction."Miniform Code", MiniformFunctionGroup.Code),

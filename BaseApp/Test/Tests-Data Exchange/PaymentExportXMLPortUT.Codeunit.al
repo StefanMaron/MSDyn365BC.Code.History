@@ -304,7 +304,7 @@ codeunit 132573 "Payment Export XMLPort UT"
 
         for i := 1 to ArrayLen(ExportTextArray, 1) do
             CreateDataExchFieldForLine(ExportTextArray, i, DataExch."Entry No.", 1, 1, ArrayLen(ExportTextArray, 2), '');
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
 
         // Execute
@@ -332,7 +332,7 @@ codeunit 132573 "Payment Export XMLPort UT"
 
         CreateDataExchFieldForLine(ExportTextArray, 1, DataExch."Entry No.", 1, 1, ArrayLen(ExportTextArray, 2), '');
         CreateDataExchFieldForLine(ExportTextArray, 3, DataExch."Entry No.", 1, 1, ArrayLen(ExportTextArray, 2), '');
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
 
         // Execute
@@ -359,7 +359,7 @@ codeunit 132573 "Payment Export XMLPort UT"
           DataExchDef."File Type"::"Variable Text");
 
         CreateDataExchFieldForLine(ExportTextArray, 3, DataExch."Entry No.", 1, 1, ArrayLen(ExportTextArray, 2), '');
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
 
         // Execute
@@ -388,7 +388,7 @@ codeunit 132573 "Payment Export XMLPort UT"
 
         for i := 1 to ArrayLen(ExportTextArray, 1) do
             CreateDataExchFieldForLine(ExportTextArray, i, DataExch."Entry No.", 1, 2, ArrayLen(ExportTextArray, 2), '');
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
 
         // Execute
@@ -417,7 +417,7 @@ codeunit 132573 "Payment Export XMLPort UT"
 
         for i := 1 to ArrayLen(ExportTextArray, 1) do
             CreateDataExchFieldForLine(ExportTextArray, i, DataExch."Entry No.", 2, 1, ArrayLen(ExportTextArray, 2), '');
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
 
         // Execute
@@ -447,7 +447,7 @@ codeunit 132573 "Payment Export XMLPort UT"
 
         for i := 1 to ArrayLen(ExportTextArray, 1) do
             CreateDataExchFieldForLine(ExportTextArray, i, DataExch."Entry No.", 1, 1, ArrayLen(ExportTextArray, 2), '');
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
 
         // Execute
@@ -475,7 +475,7 @@ codeunit 132573 "Payment Export XMLPort UT"
 
         CreateDataExchFieldForLine(ExportTextArray, 1, DataExch."Entry No.", 1, 1, ArrayLen(ExportTextArray, 2), '');
         CreateDataExchFieldForLine(ExportTextArray, 3, DataExch."Entry No.", 1, 1, ArrayLen(ExportTextArray, 2), '');
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
 
         // Execute
@@ -502,7 +502,7 @@ codeunit 132573 "Payment Export XMLPort UT"
           DataExchDef."File Type"::"Fixed Text");
 
         CreateDataExchFieldForLine(ExportTextArray, 3, DataExch."Entry No.", 1, 1, ArrayLen(ExportTextArray, 2), '');
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
 
         // Execute
@@ -531,7 +531,7 @@ codeunit 132573 "Payment Export XMLPort UT"
 
         for i := 1 to ArrayLen(ExportTextArray, 1) do
             CreateDataExchFieldForLine(ExportTextArray, i, DataExch."Entry No.", 1, 2, ArrayLen(ExportTextArray, 2), '');
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
 
         // Execute
@@ -560,7 +560,7 @@ codeunit 132573 "Payment Export XMLPort UT"
 
         for i := 1 to ArrayLen(ExportTextArray, 1) do
             CreateDataExchFieldForLine(ExportTextArray, i, DataExch."Entry No.", 2, 1, ArrayLen(ExportTextArray, 2), '');
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
 
         // Execute
@@ -595,7 +595,7 @@ codeunit 132573 "Payment Export XMLPort UT"
 
         for CurrentColumnNo := 1 to ArrayLen(ExportTextArray, 1) do
             CreateDataExchFieldForLine(ExportTextArray, CurrentColumnNo, DataExch."Entry No.", 1, 1, ArrayLen(ExportTextArray, 2), '');
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
 
         // [WHEN] Export through XMLPORT "Export Generic Fixed Width"
@@ -634,7 +634,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExchColumnDef.InsertRecForExport(DataExchDefCode, DataExchLineDefCode, ColumnNo, '',
           DataExchColumnDef."Data Type"::Text, '', 0, '');
         DataExchColumnDef.Path := Path;
-        DataExchColumnDef.Modify;
+        DataExchColumnDef.Modify();
     end;
 
     local procedure CreateExportData(var ExportText: array[10, 100] of Text[250])
@@ -681,7 +681,7 @@ codeunit 132573 "Payment Export XMLPort UT"
           LibraryUtility.GenerateGUID, DataExchDef.Type::"Payment Export", ProcessingXMLport, FileType);
         DataExchDef."Column Separator" := ColumnSeparator;
         DataExchDef."File Encoding" := DataExchDef."File Encoding"::WINDOWS;
-        DataExchDef.Modify;
+        DataExchDef.Modify();
     end;
 
     local procedure GetExpectedLine(ExportData: array[10, 100] of Text; LineNo: Integer; ColumnSeparator: Text; ColumnDelimiter: Text): Text
@@ -699,7 +699,7 @@ codeunit 132573 "Payment Export XMLPort UT"
     local procedure InsertDataExch(var DataExch: Record "Data Exch.")
     begin
         DataExch."Entry No." := 0;
-        DataExch.Insert;
+        DataExch.Insert();
     end;
 
     local procedure InsertDataExchLine(DataExch: Record "Data Exch."; NoOfColumns: Integer)
@@ -707,13 +707,13 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExchField: Record "Data Exch. Field";
         i: Integer;
     begin
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField."Data Exch. No." := DataExch."Entry No.";
         DataExchField."Line No." := FindLastDataExchLineNo(DataExch."Entry No.") + 1;
         for i := 1 to NoOfColumns do begin
             DataExchField."Column No." := i;
             DataExchField.Value := StrSubstNo('Line %1 - Column %2', DataExchField."Line No.", DataExchField."Column No.");
-            DataExchField.Insert;
+            DataExchField.Insert();
         end;
     end;
 
@@ -728,14 +728,14 @@ codeunit 132573 "Payment Export XMLPort UT"
         DataExchField: Record "Data Exch. Field";
         i: Integer;
     begin
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField."Data Exch. No." := DataExch."Entry No.";
         DataExchField."Line No." := FindLastDataExchLineNo(DataExch."Entry No.") + 1;
         for i := 1 to NoOfColumns do
             if (i mod 2) = 1 then begin // only insert odd numbered columns
                 DataExchField."Column No." := i;
                 DataExchField.Value := StrSubstNo('Line %1 - Column %2', DataExchField."Line No.", DataExchField."Column No.");
-                DataExchField.Insert;
+                DataExchField.Insert();
             end;
     end;
 

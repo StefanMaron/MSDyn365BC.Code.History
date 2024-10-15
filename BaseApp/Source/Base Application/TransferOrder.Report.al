@@ -99,10 +99,10 @@ report 5703 "Transfer Order"
                         begin
                             if Number = 1 then begin
                                 if not DimSetEntry1.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if not Continue then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             Clear(DimText);
                             Continue := false;
@@ -126,7 +126,7 @@ report 5703 "Transfer Order"
                         trigger OnPreDataItem()
                         begin
                             if not ShowInternalInfo then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
                     dataitem("Transfer Line"; "Transfer Line")
@@ -186,10 +186,10 @@ report 5703 "Transfer Order"
                             begin
                                 if Number = 1 then begin
                                     if not DimSetEntry2.FindSet then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if not Continue then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
 
                                 Clear(DimText);
                                 Continue := false;
@@ -213,7 +213,7 @@ report 5703 "Transfer Order"
                             trigger OnPreDataItem()
                             begin
                                 if not ShowInternalInfo then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end;
                         }
 
@@ -248,7 +248,7 @@ report 5703 "Transfer Order"
                 FormatAddr.TransferHeaderTransferTo(TransferToAddr, "Transfer Header");
 
                 if not ShipmentMethod.Get("Shipment Method Code") then
-                    ShipmentMethod.Init;
+                    ShipmentMethod.Init();
             end;
         }
     }

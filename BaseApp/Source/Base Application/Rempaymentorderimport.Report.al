@@ -18,7 +18,7 @@ report 15000003 "Rem. payment order - Import"
                 ImportCAMT054: Codeunit "Import CAMT054";
             begin
                 // Import all files:
-                ReturnFile.Reset;
+                ReturnFile.Reset();
                 ReturnFile.SetRange(Import, true);
                 if ReturnFile.FindSet() then
                     repeat
@@ -50,7 +50,7 @@ report 15000003 "Rem. payment order - Import"
                         end;
                     until ReturnFile.Next() = 0;
                 if (NumberSettled > 0) and MoreReturnJournals and not ControlBatch then begin
-                    Commit;
+                    Commit();
                     SettlementStatus.SetPaymOrder(PaymOrder);
                     SettlementStatus.RunModal();
                 end;
@@ -108,7 +108,7 @@ report 15000003 "Rem. payment order - Import"
                         trigger OnAssistEdit()
                         begin
                             Clear(FileList);
-                            ReturnFile.Reset;
+                            ReturnFile.Reset();
                             FileList.SetRecord(ReturnFile);
                             FileList.SetTableView(ReturnFile);
                             FileList.RunModal();
@@ -127,8 +127,8 @@ report 15000003 "Rem. payment order - Import"
         var
             FileManagement: Codeunit "File Management";
         begin
-            ReturnFile.Reset;
-            ReturnFile.DeleteAll;
+            ReturnFile.Reset();
+            ReturnFile.DeleteAll();
             if not ReturnFileSetup.Find('-') and FileManagement.IsLocalFileSystemAccessible then
                 Error(Text003, RemAgreement.TableCaption);
             repeat
@@ -231,7 +231,7 @@ report 15000003 "Rem. payment order - Import"
         // Note: File.Name is case-sensitive. Names are therefore copied to a temporary table:
         FilePath := FileMgt.GetDirectoryName(ReturnFileSetup."Return File Name") + '\';
 
-        FileCopy.DeleteAll;
+        FileCopy.DeleteAll();
 
         if FileMgt.ClientDirectoryExists(FilePath) then begin
             FileMgt.GetClientDirectoryFilesList(TempNameValueBuffer, FilePath);
@@ -240,7 +240,7 @@ report 15000003 "Rem. payment order - Import"
                     FileCopy.Name := LowerCase(FileMgt.GetFileName(TempNameValueBuffer.Name));
                     FileMgt.GetClientFileProperties(TempNameValueBuffer.Name, FileCopy.Date, FileCopy.Time, FileSize);
                     FileCopy.Size := FileSize;
-                    FileCopy.Insert;
+                    FileCopy.Insert();
                 until TempNameValueBuffer.Next = 0;
         end;
 
@@ -248,7 +248,7 @@ report 15000003 "Rem. payment order - Import"
         FileCopy.SetFilter(Name, LowerCase(FileMgt.GetFileName(ReturnFileSetup."Return File Name")));
         if FileCopy.FindSet then
             repeat
-                ReturnFile.Init;
+                ReturnFile.Init();
                 ReturnFile."Line No." := NextFileNo;
                 NextFileNo := NextFileNo + 10000;
                 ReturnFile."File Name" := FilePath + FileCopy.Name;
@@ -269,14 +269,14 @@ report 15000003 "Rem. payment order - Import"
                     else
                         Error(Text007);
                 end;
-                ReturnFile.Insert;
+                ReturnFile.Insert();
             until FileCopy.Next = 0;
 
         // Note: file name must not end with .tmp and '~'. Delete all such names :
-        ReturnFile.Reset;
+        ReturnFile.Reset();
         ReturnFile.SetFilter("File Name", Text009);
-        ReturnFile.DeleteAll;
-        ReturnFile.Reset;
+        ReturnFile.DeleteAll();
+        ReturnFile.Reset();
     end;
 
     [Scope('OnPrem')]
@@ -292,11 +292,11 @@ report 15000003 "Rem. payment order - Import"
         FileNumber1: Integer;
         FileNumber2: Integer;
     begin
-        ReturnFile.Reset;
-        FileNumber1 := ReturnFile.Count;
+        ReturnFile.Reset();
+        FileNumber1 := ReturnFile.Count();
 
         ReturnFile.SetRange(Import, true);
-        FileNumber2 := ReturnFile.Count;
+        FileNumber2 := ReturnFile.Count();
 
         if (FileNumber1 > 0) or (FileNumber2 > 0) then
             Filenames := '*'
@@ -364,7 +364,7 @@ report 15000003 "Rem. payment order - Import"
         if IsHandled then
             exit;
 
-        ReturnFile.Reset;
+        ReturnFile.Reset();
         ReturnFile.SetRange(Import, true);
         if ReturnFile.Find('-') then
             repeat

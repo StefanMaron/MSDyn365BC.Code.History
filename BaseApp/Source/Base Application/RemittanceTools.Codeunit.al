@@ -358,7 +358,7 @@ codeunit 15000002 "Remittance Tools"
     begin
         // Find next sequence number for RemAccount, depending on parameter.
         // Daily : no. is returned with the length of 6 chars. Global: the length is 4. Leading zeros.
-        RemAgreement.LockTable;
+        RemAgreement.LockTable();
         case NoType of
             NoType::Daily:
                 begin
@@ -452,7 +452,7 @@ codeunit 15000002 "Remittance Tools"
     procedure SearchEntry(JournalLine: Record "Gen. Journal Line"; var VendEntry: Record "Vendor Ledger Entry")
     begin
         // Find entry(s) for journal line:
-        VendEntry.Init;
+        VendEntry.Init();
         VendEntry.SetCurrentKey("Document No.");
         VendEntry.SetRange("Document Type", JournalLine."Applies-to Doc. Type");
         VendEntry.SetRange("Document No.", JournalLine."Applies-to Doc. No.");
@@ -486,7 +486,7 @@ codeunit 15000002 "Remittance Tools"
         if GenJnlLine."Applies-to Doc. No." <> '' then
             SearchEntry(GenJnlLine, VendEntry)
         else
-            VendEntry.Init;
+            VendEntry.Init();
         // Decide if the recipient ref. comes from vendor or rem. account, and if the text is for invoice or credit memo
         if Vendor."Own Vendor Recipient Ref." then begin
             if GenJnlLine.Amount >= 0 then begin
@@ -805,7 +805,7 @@ codeunit 15000002 "Remittance Tools"
     procedure NextBBSPaymOrderNo(RemAgreement: Record "Remittance Agreement"): Integer
     begin
         // Find and update next payment order no. for BBS payments.
-        RemAgreement.LockTable;
+        RemAgreement.LockTable();
         RemAgreement."Latest BBS Payment Order No." := RemAgreement."Latest BBS Payment Order No." + 1;
         if RemAgreement."Latest BBS Payment Order No." > 9999999 then
             RemAgreement."Latest BBS Payment Order No." := 1;

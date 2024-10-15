@@ -1,4 +1,4 @@
-﻿page 440 "Issued Reminder List"
+page 440 "Issued Reminder List"
 {
     ApplicationArea = Suite;
     Caption = 'Issued Reminders';

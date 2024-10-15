@@ -228,7 +228,7 @@ codeunit 10628 "E-Invoice Export Common"
         County: Text[250];
         CountryRegionCode: Text[10];
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         if TempEInvoiceExportHeader."Responsibility Center" <> '' then begin
             ResponsibilityCenter.Get(TempEInvoiceExportHeader."Responsibility Center");
@@ -495,7 +495,7 @@ codeunit 10628 "E-Invoice Export Common"
         CompanyAndCustomerInSameCountry: Boolean;
         AtLeastOnePaymentMeansAdded: Boolean;
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         AtLeastOnePaymentMeansAdded := false;
         CompanyAndCustomerInSameCountry := AreCustomerAndSupplierInSameCountry;
@@ -547,7 +547,7 @@ codeunit 10628 "E-Invoice Export Common"
         AddAttribute(XMLCurrNode, 'listID', 'ISO4217');
         XMLCurrNode := XMLCurrNode.ParentNode;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         AddGroupNodeWithData(XMLCurrNode, 'TargetCurrencyCode', GeneralLedgerSetup."LCY Code", BasicCompSpaceNameTxt, CBCTxt);
         AddAttribute(XMLCurrNode, 'listID', 'ISO4217');
         XMLCurrNode := XMLCurrNode.ParentNode;
@@ -833,7 +833,7 @@ codeunit 10628 "E-Invoice Export Common"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         AddGroupNode(XMLCurrNode, 'PartyLegalEntity', AggregateCompSpaceNameTxt, CACTxt);
 
@@ -864,7 +864,7 @@ codeunit 10628 "E-Invoice Export Common"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         // Header->PaymentMeans
         AddGroupNode(XMLCurrNode, 'PaymentMeans', AggregateCompSpaceNameTxt, CACTxt);
@@ -908,7 +908,7 @@ codeunit 10628 "E-Invoice Export Common"
             repeat
                 WriteTaxSubTotal(TempVATAmountLine);
             until TempVATAmountLine.Next = 0;
-        TempVATAmountLine.DeleteAll;
+        TempVATAmountLine.DeleteAll();
     end;
 
     local procedure DocumentHasForeignCurrency(): Boolean
@@ -918,7 +918,7 @@ codeunit 10628 "E-Invoice Export Common"
         if TempEInvoiceExportHeader."Currency Code" = '' then
             exit(false);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if TempEInvoiceExportHeader."Currency Code" = GeneralLedgerSetup."LCY Code" then
             exit(false);
 
@@ -932,15 +932,15 @@ codeunit 10628 "E-Invoice Export Common"
             if FindSet then
                 repeat
                     if not TempVATAmountLine.Get("VAT Identifier", "VAT Calculation Type", '', false, false) then begin
-                        TempVATAmountLine.Init;
+                        TempVATAmountLine.Init();
                         TempVATAmountLine."VAT Identifier" := "VAT Identifier";
                         TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         TempVATAmountLine."VAT %" := "VAT %";
-                        TempVATAmountLine.Insert;
+                        TempVATAmountLine.Insert();
                     end;
                     TempVATAmountLine."VAT Base" += Amount;
                     TempVATAmountLine."VAT Amount" += "Amount Including VAT" - Amount;
-                    TempVATAmountLine.Modify;
+                    TempVATAmountLine.Modify();
                 until Next = 0;
     end;
 
@@ -951,7 +951,7 @@ codeunit 10628 "E-Invoice Export Common"
         CompanyInformation: Record "Company Information";
         CompanyCountryRegionCode: Code[10];
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if TempEInvoiceExportHeader."Responsibility Center" <> '' then begin
             ResponsibilityCenter.Get(TempEInvoiceExportHeader."Responsibility Center");
             CompanyCountryRegionCode := ResponsibilityCenter."Country/Region Code";
@@ -1042,7 +1042,7 @@ codeunit 10628 "E-Invoice Export Common"
         TaxCategoryID: Text[2];
         TransactionCurrTaxAmount: Text[30];
     begin
-        TempEInvoiceExportLine.Reset;
+        TempEInvoiceExportLine.Reset();
         TempEInvoiceExportLine.SetRange("VAT Identifier", TempVATAmountLine."VAT Identifier");
         TempEInvoiceExportLine.SetRange("VAT Calculation Type", TempVATAmountLine."VAT Calculation Type");
         TempEInvoiceExportLine.FindFirst;
@@ -1062,7 +1062,7 @@ codeunit 10628 "E-Invoice Export Common"
 
         // Header->TaxTotal->TaxSubTotal->TransactionCurrencyTaxAmount
         if DocumentHasForeignCurrency then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             TransactionCurrTaxAmount :=
               EInvoiceDocumentEncode.DecimalToText(TempVATAmountLine."VAT Amount" * GetCurrMultiplicationFactor);
             AddGroupNodeWithData(

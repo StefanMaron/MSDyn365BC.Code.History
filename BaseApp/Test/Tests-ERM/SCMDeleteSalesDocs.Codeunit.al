@@ -37,11 +37,11 @@ codeunit 137208 "SCM Delete Sales Docs"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Bank Account No." := 'A';
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Delete Sales Docs");
     end;
 

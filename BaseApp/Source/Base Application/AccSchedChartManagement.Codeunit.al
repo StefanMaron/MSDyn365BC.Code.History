@@ -498,7 +498,7 @@ codeunit 762 "Acc. Sched. Chart Management"
     local procedure RoundAmount(Amount: Decimal): Decimal
     begin
         if not GLSetupLoaded then begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             GLSetupLoaded := true;
         end;
 

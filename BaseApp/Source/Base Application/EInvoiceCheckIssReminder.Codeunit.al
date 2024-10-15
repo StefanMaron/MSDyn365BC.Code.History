@@ -17,7 +17,7 @@ codeunit 10618 "E-Invoice Check Iss. Reminder"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         CompanyInfo.TestField(Name);
         CompanyInfo.TestField(Address);
@@ -33,7 +33,7 @@ codeunit 10618 "E-Invoice Check Iss. Reminder"
         SalesSetup: Record "Sales & Receivables Setup";
         FileMgt: Codeunit "File Management";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.TestField("E-Invoice Reminder Path");
         if not FileMgt.DirectoryExistsOnDotNetClient(SalesSetup."E-Invoice Reminder Path") then
             SalesSetup.FieldError("E-Invoice Reminder Path", InvalidPathErr);

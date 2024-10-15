@@ -751,7 +751,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Inv Disc VAT Sale/Purch II");
     end;
@@ -759,13 +759,13 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     local procedure CopyPurchaseLine(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
     begin
         TempPurchaseLine := PurchaseLine;
-        TempPurchaseLine.Insert;
+        TempPurchaseLine.Insert();
     end;
 
     local procedure CopySalesLine(var TempSalesLine: Record "Sales Line" temporary; SalesLine: Record "Sales Line")
     begin
         TempSalesLine := SalesLine;
-        TempSalesLine.Insert;
+        TempSalesLine.Insert();
     end;
 
     local procedure CreateCurrency(VATRoundingType: Option): Code[10]
@@ -1011,7 +1011,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(Round(VATAmount, GeneralLedgerSetup."Amount Rounding Precision", RoundingType));
     end;
 
@@ -1060,7 +1060,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGLEntry(GLEntry, GLAccountNo, DocumentType, DocumentNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
@@ -1077,7 +1077,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         ActualVATAmount: Decimal;
         ExpectedVATAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         GLEntry.FindSet;
@@ -1095,7 +1095,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATAmountLine: Record "VAT Amount Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VATAmountLine.SetRange("VAT %", VATPct);
         VATAmountLine.FindFirst;
         Assert.AreNearlyEqual(
@@ -1133,7 +1133,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempSalesLine.FindSet;
         repeat
             SalesInvoiceLine.Get(DocumentNo, TempSalesLine."Line No.");
@@ -1149,7 +1149,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempSalesLine.FindSet;
         repeat
             SalesCrMemoLine.Get(DocumentNo, TempSalesLine."Line No.");
@@ -1165,7 +1165,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempPurchaseLine.FindSet;
         repeat
             PurchInvLine.Get(DocumentNo, TempPurchaseLine."Line No.");
@@ -1181,7 +1181,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempPurchaseLine.FindSet;
         repeat
             PurchCrMemoLine.Get(DocumentNo, TempPurchaseLine."Line No.");
@@ -1197,7 +1197,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGLEntry(GLEntry, GLAccountNo, DocumentType, DocumentNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",

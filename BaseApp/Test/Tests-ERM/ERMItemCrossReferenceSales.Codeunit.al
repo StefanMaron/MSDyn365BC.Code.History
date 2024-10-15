@@ -1360,7 +1360,7 @@ codeunit 134460 "ERM Item Cross Reference Sales"
 
     local procedure MockSalesLineForICRLookupSalesItem(var SalesLine: Record "Sales Line"; CustNo: Code[20]; CrossRefNo: Code[20])
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Type := SalesLine.Type::Item;
         SalesLine."Sell-to Customer No." := CustNo;
         SalesLine."Cross-Reference No." := CrossRefNo;

@@ -124,7 +124,7 @@ codeunit 134342 "ERM Posting Outside Date"
         // [GIVEN] Current work date is 06.01.2017
         // [GIVEN] General Journal Line with "Posting Date" = 07.01.2017
         CreateGenJnlLine(GenJnlLine, WorkDate + 1);
-        Commit;
+        Commit();
 
         // [WHEN] Do not confirm dialog "The posting date of one or more General Journal Line is after the current date. Do you want to continue?" while posting Gen. Journal Line
         asserterror LibraryERM.PostGeneralJnlLine(GenJnlLine);
@@ -188,7 +188,7 @@ codeunit 134342 "ERM Posting Outside Date"
         LibraryERMCountryData.UpdateLocalData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Posting Outside Date");
     end;
 
@@ -207,7 +207,7 @@ codeunit 134342 "ERM Posting Outside Date"
         MyNotifications: Record "My Notifications";
     begin
         if MyNotifications.Get(UserId, InstructionMgt.GetPostingAfterCurrentCalendarDateNotificationId) then
-            MyNotifications.Delete;
+            MyNotifications.Delete();
     end;
 
     local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; PostingDate: Date)

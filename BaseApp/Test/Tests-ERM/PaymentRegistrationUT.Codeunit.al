@@ -62,10 +62,10 @@ codeunit 134700 "Payment Registration UT"
 
         SetAutoFillDate;
 
-        TempPaymentRegistrationBuffer.Init;
+        TempPaymentRegistrationBuffer.Init();
         TempPaymentRegistrationBuffer."Remaining Amount" := LibraryRandom.RandDec(100, 2);
         TempPaymentRegistrationBuffer."Original Remaining Amount" := TempPaymentRegistrationBuffer."Remaining Amount";
-        TempPaymentRegistrationBuffer.Insert;
+        TempPaymentRegistrationBuffer.Insert();
 
         TempPaymentRegistrationBuffer.TestField("Amount Received", 0);
         TempPaymentRegistrationBuffer.TestField("Date Received", 0D);
@@ -85,9 +85,9 @@ codeunit 134700 "Payment Registration UT"
     begin
         Initialize;
 
-        TempPaymentRegistrationBuffer.Init;
+        TempPaymentRegistrationBuffer.Init();
         TempPaymentRegistrationBuffer."Remaining Amount" := LibraryRandom.RandDec(100, 2);
-        TempPaymentRegistrationBuffer.Insert;
+        TempPaymentRegistrationBuffer.Insert();
 
         TempPaymentRegistrationBuffer.TestField("Amount Received", 0);
         TempPaymentRegistrationBuffer.TestField("Date Received", 0D);
@@ -144,7 +144,7 @@ codeunit 134700 "Payment Registration UT"
         until CustLedgerEntry.Next = 0;
 
         // Invalid Open Entries
-        CustLedgerEntry.Reset;
+        CustLedgerEntry.Reset();
         CustLedgerEntry.SetFilter("Entry No.", '%1..', FirstEntryNo);
         CustLedgerEntry.SetFilter("Document Type", '%1',
           CustLedgerEntry."Document Type"::Payment);
@@ -155,7 +155,7 @@ codeunit 134700 "Payment Registration UT"
         until CustLedgerEntry.Next = 0;
 
         // Invalid Closed Entries
-        CustLedgerEntry.Reset;
+        CustLedgerEntry.Reset();
         CustLedgerEntry.SetFilter("Entry No.", '%1..', FirstEntryNo);
         CustLedgerEntry.SetRange(Open, false);
         CustLedgerEntry.FindSet;
@@ -245,7 +245,7 @@ codeunit 134700 "Payment Registration UT"
 
         CustLedgEntry.SetRange(Open, true);
         CustLedgEntry.ModifyAll(Open, false);
-        Commit;
+        Commit();
 
         asserterror CustLedgEntry.FindFirst;
         asserterror TempPaymentRegistrationBuffer.FindFirst;
@@ -283,7 +283,7 @@ codeunit 134700 "Payment Registration UT"
         Initialize;
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Journal Template Name" := '';
-        PaymentRegistrationSetup.Modify;
+        PaymentRegistrationSetup.Modify();
         asserterror PaymentRegistrationSetup.ValidateMandatoryFields(true);
         Assert.ExpectedError(StrSubstNo(BlankFieldErr,
             PaymentRegistrationSetup.FieldName("Journal Template Name"), PaymentRegistrationSetup.TableName))
@@ -298,7 +298,7 @@ codeunit 134700 "Payment Registration UT"
         Initialize;
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Journal Batch Name" := '';
-        PaymentRegistrationSetup.Modify;
+        PaymentRegistrationSetup.Modify();
         asserterror PaymentRegistrationSetup.ValidateMandatoryFields(true);
         Assert.ExpectedError(StrSubstNo(BlankFieldErr,
             PaymentRegistrationSetup.FieldName("Journal Batch Name"), PaymentRegistrationSetup.TableName))
@@ -313,7 +313,7 @@ codeunit 134700 "Payment Registration UT"
         Initialize;
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Bal. Account Type" := PaymentRegistrationSetup."Bal. Account Type"::" ";
-        PaymentRegistrationSetup.Modify;
+        PaymentRegistrationSetup.Modify();
         asserterror PaymentRegistrationSetup.ValidateMandatoryFields(true);
         Assert.ExpectedError(StrSubstNo(BlankOptionErr,
             PaymentRegistrationSetup.FieldName("Bal. Account Type"), PaymentRegistrationSetup.TableName))
@@ -328,7 +328,7 @@ codeunit 134700 "Payment Registration UT"
         Initialize;
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Bal. Account No." := '';
-        PaymentRegistrationSetup.Modify;
+        PaymentRegistrationSetup.Modify();
         asserterror PaymentRegistrationSetup.ValidateMandatoryFields(true);
         Assert.ExpectedError(StrSubstNo(BlankFieldErr,
             PaymentRegistrationSetup.FieldName("Bal. Account No."), PaymentRegistrationSetup.TableName))
@@ -353,11 +353,11 @@ codeunit 134700 "Payment Registration UT"
         TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary;
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
     begin
-        TempPaymentRegistrationBuffer.Init;
+        TempPaymentRegistrationBuffer.Init();
         TempPaymentRegistrationBuffer."Ledger Entry No." := -1;
         TempPaymentRegistrationBuffer."Amount Received" := -1;
         TempPaymentRegistrationBuffer."Payment Made" := true;
-        TempPaymentRegistrationBuffer.Insert;
+        TempPaymentRegistrationBuffer.Insert();
 
         asserterror PaymentRegistrationMgt.ConfirmPost(TempPaymentRegistrationBuffer);
         Assert.ExpectedError(EmptyReceivedDateErr);
@@ -374,7 +374,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup.Get(UserId);
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
         GenJournalBatch."No. Series" := '';
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
         asserterror PaymentRegistrationSetup.ValidateMandatoryFields(true);
         Assert.ExpectedError(StrSubstNo(BlankFieldErr,
             GenJournalBatch.FieldName("No. Series"), GenJournalBatch.TableName))
@@ -389,7 +389,7 @@ codeunit 134700 "Payment Registration UT"
         Initialize;
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Journal Template Name" := '';
-        PaymentRegistrationSetup.Modify;
+        PaymentRegistrationSetup.Modify();
         Assert.IsFalse(PaymentRegistrationSetup.ValidateMandatoryFields(false), MandatoryFieldsNotSetErr)
     end;
 
@@ -402,7 +402,7 @@ codeunit 134700 "Payment Registration UT"
         Initialize;
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Journal Batch Name" := '';
-        PaymentRegistrationSetup.Modify;
+        PaymentRegistrationSetup.Modify();
         Assert.IsFalse(PaymentRegistrationSetup.ValidateMandatoryFields(false), MandatoryFieldsNotSetErr)
     end;
 
@@ -415,7 +415,7 @@ codeunit 134700 "Payment Registration UT"
         Initialize;
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Bal. Account Type" := PaymentRegistrationSetup."Bal. Account Type"::" ";
-        PaymentRegistrationSetup.Modify;
+        PaymentRegistrationSetup.Modify();
         Assert.IsFalse(PaymentRegistrationSetup.ValidateMandatoryFields(false), MandatoryFieldsNotSetErr)
     end;
 
@@ -428,7 +428,7 @@ codeunit 134700 "Payment Registration UT"
         Initialize;
         PaymentRegistrationSetup.Get(UserId);
         PaymentRegistrationSetup."Bal. Account No." := '';
-        PaymentRegistrationSetup.Modify;
+        PaymentRegistrationSetup.Modify();
         Assert.IsFalse(PaymentRegistrationSetup.ValidateMandatoryFields(false), MandatoryFieldsNotSetErr)
     end;
 
@@ -443,7 +443,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup.Get(UserId);
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
         GenJournalBatch."No. Series" := '';
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
         Assert.IsFalse(PaymentRegistrationSetup.ValidateMandatoryFields(false), MandatoryFieldsNotSetErr)
     end;
 
@@ -459,7 +459,7 @@ codeunit 134700 "Payment Registration UT"
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
         GenJournalBatch."Bal. Account No." := LibraryERM.CreateGLAccountNo;
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
 
         PaymentRegistrationSetup.Validate("Journal Batch Name", GenJournalBatch.Name);
         PaymentRegistrationSetup.TestField("Bal. Account Type", PaymentRegistrationSetup."Bal. Account Type"::"G/L Account");
@@ -478,7 +478,7 @@ codeunit 134700 "Payment Registration UT"
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
         GenJournalBatch."Bal. Account No." := CreateBankAccount;
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
 
         PaymentRegistrationSetup.Validate("Journal Batch Name", GenJournalBatch.Name);
         PaymentRegistrationSetup.TestField("Bal. Account Type", PaymentRegistrationSetup."Bal. Account Type"::"Bank Account");
@@ -496,7 +496,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup.Get(UserId);
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::Customer;
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
 
         PaymentRegistrationSetup.Validate("Journal Batch Name", GenJournalBatch.Name);
         PaymentRegistrationSetup.TestField("Bal. Account Type", PaymentRegistrationSetup."Bal. Account Type"::" ");
@@ -1012,7 +1012,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
         PmtReg: TestPage "Payment Registration";
     begin
-        PaymentRegistrationSetup.DeleteAll;
+        PaymentRegistrationSetup.DeleteAll();
 
         // Expect transaction to stop because cancel is pressed
         asserterror PmtReg.OpenEdit;
@@ -1074,7 +1074,7 @@ codeunit 134700 "Payment Registration UT"
     begin
         TempPaymentRegistrationBuffer."Ledger Entry No." := 1;
         TempPaymentRegistrationBuffer."Payment Made" := false;
-        TempPaymentRegistrationBuffer.Insert;
+        TempPaymentRegistrationBuffer.Insert();
         Assert.IsTrue(PaymentRegistrationMgt.ConfirmClose(TempPaymentRegistrationBuffer), ConfirmCloseExpectedTrueErr);
     end;
 
@@ -1088,7 +1088,7 @@ codeunit 134700 "Payment Registration UT"
     begin
         TempPaymentRegistrationBuffer."Ledger Entry No." := 1;
         TempPaymentRegistrationBuffer."Payment Made" := true;
-        TempPaymentRegistrationBuffer.Insert;
+        TempPaymentRegistrationBuffer.Insert();
         Assert.IsTrue(PaymentRegistrationMgt.ConfirmClose(TempPaymentRegistrationBuffer), ConfirmCloseExpectedTrueErr);
     end;
 
@@ -1102,7 +1102,7 @@ codeunit 134700 "Payment Registration UT"
     begin
         TempPaymentRegistrationBuffer."Ledger Entry No." := 1;
         TempPaymentRegistrationBuffer."Payment Made" := true;
-        TempPaymentRegistrationBuffer.Insert;
+        TempPaymentRegistrationBuffer.Insert();
         Assert.IsFalse(PaymentRegistrationMgt.ConfirmClose(TempPaymentRegistrationBuffer), ConfirmCloseExpectedTrueErr);
     end;
 
@@ -1995,9 +1995,9 @@ codeunit 134700 "Payment Registration UT"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount.Init;
+        BankAccount.Init();
         BankAccount."No." := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("No."), DATABASE::"Bank Account");
-        BankAccount.Insert;
+        BankAccount.Insert();
         exit(BankAccount."No.")
     end;
 
@@ -2030,10 +2030,10 @@ codeunit 134700 "Payment Registration UT"
     var
         Customer: Record Customer;
     begin
-        Customer.Init;
+        Customer.Init();
         Customer."No." := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
         Customer.Name := LibraryUtility.GenerateRandomCode(Customer.FieldNo(Name), DATABASE::Customer);
-        Customer.Insert;
+        Customer.Insert();
         exit(Customer."No.")
     end;
 
@@ -2041,22 +2041,22 @@ codeunit 134700 "Payment Registration UT"
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        DetailedCustLedgEntry.Init;
+        DetailedCustLedgEntry.Init();
         DetailedCustLedgEntry."Cust. Ledger Entry No." := EntryNo;
         DetailedCustLedgEntry.Amount := LibraryRandom.RandDecInRange(MaxPaymentDiscountAmount, 100, 2);
-        DetailedCustLedgEntry.Insert;
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure CreateGenJournalBatch(TemplateName: Code[10]): Code[10]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        GenJournalBatch.Init;
+        GenJournalBatch.Init();
         GenJournalBatch."Journal Template Name" := TemplateName;
         GenJournalBatch.Name := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
         GenJournalBatch."No. Series" :=
           LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo("No. Series"), DATABASE::"Gen. Journal Batch");
-        GenJournalBatch.Insert;
+        GenJournalBatch.Insert();
         exit(GenJournalBatch.Name);
     end;
 
@@ -2064,9 +2064,9 @@ codeunit 134700 "Payment Registration UT"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Init;
+        GenJournalTemplate.Init();
         GenJournalTemplate.Name := LibraryUtility.GenerateRandomCode(GenJournalTemplate.FieldNo(Name), DATABASE::"Gen. Journal Template");
-        GenJournalTemplate.Insert;
+        GenJournalTemplate.Insert();
         exit(GenJournalTemplate.Name);
     end;
 
@@ -2083,7 +2083,7 @@ codeunit 134700 "Payment Registration UT"
         end;
         GenJnlLine."Bal. Account No." := PaymentRegistrationSetup."Bal. Account No.";
         GenJnlLine.Amount := Amount;
-        GenJnlLine.Insert;
+        GenJnlLine.Insert();
     end;
 
     local procedure CreateGLEntry(var GLEntry: Record "G/L Entry"; BalAccNo: Code[20]; Amount: Decimal)
@@ -2092,11 +2092,11 @@ codeunit 134700 "Payment Registration UT"
     begin
         GLEntry.FindLast;
         EntryNo := GLEntry."Entry No.";
-        GLEntry.Init;
+        GLEntry.Init();
         GLEntry."Entry No." := EntryNo + 1;
         GLEntry."G/L Account No." := BalAccNo;
         GLEntry.Amount := Amount;
-        GLEntry.Insert;
+        GLEntry.Insert();
     end;
 
     local procedure CreateBankAccLedgerEntry(var BankAccLedgerEntry: Record "Bank Account Ledger Entry"; BalAccNo: Code[20]; Amount: Decimal)
@@ -2105,11 +2105,11 @@ codeunit 134700 "Payment Registration UT"
     begin
         BankAccLedgerEntry.FindLast;
         EntryNo := BankAccLedgerEntry."Entry No.";
-        BankAccLedgerEntry.Init;
+        BankAccLedgerEntry.Init();
         BankAccLedgerEntry."Entry No." := EntryNo + 1;
         BankAccLedgerEntry."Bank Account No." := BalAccNo;
         BankAccLedgerEntry.Amount := Amount;
-        BankAccLedgerEntry.Insert;
+        BankAccLedgerEntry.Insert();
     end;
 
     [Test]
@@ -2119,7 +2119,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
         if PaymentRegistrationSetup.Get then
-            PaymentRegistrationSetup.Delete;
+            PaymentRegistrationSetup.Delete();
     end;
 
     local procedure SetPaymentRegistrationSetup(AccountType: Option)
@@ -2127,7 +2127,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
         with PaymentRegistrationSetup do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             "User ID" := UserId;
             case AccountType of

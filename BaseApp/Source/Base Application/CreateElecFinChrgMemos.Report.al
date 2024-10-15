@@ -17,13 +17,13 @@ report 10643 "Create Elec. Fin. Chrg. Memos"
                 EInvoiceExpIssFinChrg.Run("Issued Fin. Charge Memo Header");
                 EInvoiceExpIssFinChrg.GetExportedFileInfo(TempEInvoiceTransferFile);
                 TempEInvoiceTransferFile."Line No." := Counter + 1;
-                TempEInvoiceTransferFile.Insert;
+                TempEInvoiceTransferFile.Insert();
 
                 if LogInteraction then
                     SegManagement.LogDocument(
                       19, "No.", 0, 0, DATABASE::Customer, "Customer No.", '', '', "Posting Description", '');
 
-                Commit;
+                Commit();
                 Counter := Counter + 1;
             end;
 

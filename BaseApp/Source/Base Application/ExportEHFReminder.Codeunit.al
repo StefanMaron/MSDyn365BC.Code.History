@@ -14,39 +14,39 @@ codeunit 10630 "Export EHF Reminder"
     begin
         RecRef.GetTable(DocumentVariant);
         RecRef.SetView(DocumentView);
-        if not RecRef.FindSet then
+        if not RecRef.FindSet() then
             exit;
 
         repeat
-            TempRecordExportBuffer.Init;
+            TempRecordExportBuffer.Init();
             TempRecordExportBuffer.ID += 1;
-            TempRecordExportBuffer.RecordID := RecRef.RecordId;
-            TempRecordExportBuffer.Insert;
-        until RecRef.Next = 0;
+            TempRecordExportBuffer.RecordID := RecRef.RecordId();
+            TempRecordExportBuffer.Insert();
+        until RecRef.Next() = 0;
 
         with TempRecordExportBuffer do begin
-            FindSet;
+            FindSet();
             repeat
                 RecRef.Get(RecordID);
-                case RecRef.Number of
+                case RecRef.Number() of
                     DATABASE::"Issued Reminder Header":
                         begin
                             RecRef.SetTable(IssuedReminderHeader);
                             ServerFilePath := GenerateXMLFile(IssuedReminderHeader);
-                            ClientFileName := GetClientFileName(IssuedReminderHeader.TableCaption, IssuedReminderHeader."No.");
-                            ZipFileName := GetZipFileName(IssuedReminderHeader.TableCaption, IssuedReminderHeader."No.");
-                            Modify;
+                            ClientFileName := GetClientFileName(IssuedReminderHeader.TableCaption(), IssuedReminderHeader."No.");
+                            ZipFileName := GetZipFileName(IssuedReminderHeader.TableCaption(), IssuedReminderHeader."No.");
+                            Modify();
                         end;
                     DATABASE::"Issued Fin. Charge Memo Header":
                         begin
                             RecRef.SetTable(IssuedFinChargeMemoHeader);
                             ServerFilePath := GenerateXMLFile(IssuedFinChargeMemoHeader);
-                            ClientFileName := GetClientFileName(IssuedFinChargeMemoHeader.TableCaption, IssuedFinChargeMemoHeader."No.");
-                            ZipFileName := GetZipFileName(IssuedFinChargeMemoHeader.TableCaption, IssuedFinChargeMemoHeader."No.");
-                            Modify;
+                            ClientFileName := GetClientFileName(IssuedFinChargeMemoHeader.TableCaption(), IssuedFinChargeMemoHeader."No.");
+                            ZipFileName := GetZipFileName(IssuedFinChargeMemoHeader.TableCaption(), IssuedFinChargeMemoHeader."No.");
+                            Modify();
                         end;
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
 
         SendElectronically(TempRecordExportBuffer);
@@ -65,8 +65,8 @@ codeunit 10630 "Export EHF Reminder"
         OutFile.CreateOutStream(OutStream);
         EHFReminder30.Initialize(VariantRec);
         EHFReminder30.SetDestination(OutStream);
-        EHFReminder30.Export;
-        OutFile.Close;
+        EHFReminder30.Export();
+        OutFile.Close();
 
         exit(CopyStr(XmlServerPath, 1, 250));
     end;
@@ -95,23 +95,23 @@ codeunit 10630 "Export EHF Reminder"
         ServFile: Text;
         ClientFile: Text;
     begin
-        if not RecordExportBuffer.FindSet then 
+        if not RecordExportBuffer.FindSet() then
             exit;
 
-        if RecordExportBuffer.Count > 1 then begin
+        if RecordExportBuffer.Count() > 1 then begin
             ServFile := FileManagement.ServerTempFileName('zip');
             ZipFile.Create(ServFile);
             ZipFile.CreateOutStream(ZipFileOutStream);
-            DataCompression.CreateZipArchive;
+            DataCompression.CreateZipArchive();
             ClientFile := RecordExportBuffer.ZipFileName;
             repeat
                 FileManagement.BLOBImportFromServerFile(EntryTempBlob, RecordExportBuffer.ServerFilePath);
                 EntryTempBlob.CreateInStream(EntryFileInStream);
                 DataCompression.AddEntry(EntryFileInStream, RecordExportBuffer.ClientFileName);
-            until RecordExportBuffer.Next = 0;
+            until RecordExportBuffer.Next() = 0;
             DataCompression.SaveZipArchive(ZipFileOutStream);
-            DataCompression.CloseZipArchive;
-            ZipFile.Close;
+            DataCompression.CloseZipArchive();
+            ZipFile.Close();
         end else begin
             ServFile := RecordExportBuffer.ServerFilePath;
             ClientFile := RecordExportBuffer.ClientFileName;

@@ -73,7 +73,7 @@ codeunit 10620 "E-Invoice Exp. Sales Cr. Memo"
             SetEInvoiceCommonTables(TempEInvoiceExportHeader, TempEInvoiceExportLine);
 
             // Save file
-            SalesReceivablesSetup.Get;
+            SalesReceivablesSetup.Get();
             SaveToXML(TempEInvoiceTransferFile, SalesReceivablesSetup."E-Invoice Sales Cr. Memo Path", TempEInvoiceExportHeader."No.");
         end;
     end;
@@ -91,7 +91,7 @@ codeunit 10620 "E-Invoice Exp. Sales Cr. Memo"
 
             // calculated fields
             if "Currency Code" = '' then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 "Currency Code" := GLSetup."LCY Code";
             end;
 
@@ -151,7 +151,7 @@ codeunit 10620 "E-Invoice Exp. Sales Cr. Memo"
         if TempEInvoiceExportLine.FindLast then
             Id := TempEInvoiceExportLine.ID + 1;
 
-        TempEInvoiceExportLine.Init;
+        TempEInvoiceExportLine.Init();
         TempEInvoiceExportLine.ID := Id;
 
         TempEInvoiceExportLine.TransferFields(SalesCrMemoLine, true);
@@ -159,7 +159,7 @@ codeunit 10620 "E-Invoice Exp. Sales Cr. Memo"
              SalesCommentLine."Document Type"::"Posted Credit Memo", SalesCrMemoLine."Document No.", SalesCrMemoLine."Line No.", 10000)
         then
             TempEInvoiceExportLine.Comment := SalesCommentLine.Comment;
-        TempEInvoiceExportLine.Insert;
+        TempEInvoiceExportLine.Insert();
     end;
 
     local procedure IsRoundingLine(SalesCrMemoLine: Record "Sales Cr.Memo Line"): Boolean
@@ -184,7 +184,7 @@ codeunit 10620 "E-Invoice Exp. Sales Cr. Memo"
     begin
         SalesCrMemoHeader.Get(DocumentNo);
         SalesCrMemoHeader."E-Invoice Created" := true;
-        SalesCrMemoHeader.Modify;
+        SalesCrMemoHeader.Modify();
     end;
 
     [Scope('OnPrem')]

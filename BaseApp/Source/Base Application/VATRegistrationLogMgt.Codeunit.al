@@ -1,4 +1,4 @@
-﻿codeunit 249 "VAT Registration Log Mgt."
+codeunit 249 "VAT Registration Log Mgt."
 {
     Permissions = TableData "VAT Registration Log" = rimd;
 
@@ -142,7 +142,7 @@
                     LogContact(Contact);
             until Contact.Next = 0;
 
-        Commit;
+        Commit();
     end;
 
     local procedure InsertVATRegistrationLog(VATRegNo: Text[20]; CountryCode: Code[10]; AccountType: Option; AccountNo: Code[20])
@@ -170,7 +170,7 @@
             SetRange("Account Type", "Account Type"::Customer);
             SetRange("Account No.", Customer."No.");
             if not IsEmpty then
-                DeleteAll;
+                DeleteAll();
         end;
     end;
 
@@ -182,7 +182,7 @@
             SetRange("Account Type", "Account Type"::Vendor);
             SetRange("Account No.", Vendor."No.");
             if not IsEmpty then
-                DeleteAll;
+                DeleteAll();
         end;
     end;
 
@@ -194,7 +194,7 @@
             SetRange("Account Type", "Account Type"::Contact);
             SetRange("Account No.", Contact."No.");
             if not IsEmpty then
-                DeleteAll;
+                DeleteAll();
         end;
     end;
 
@@ -259,7 +259,7 @@
         if CountryCode <> '' then
             exit(CountryCode);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         exit(CompanyInformation."Country/Region Code");
     end;
 
@@ -298,6 +298,7 @@
 
     procedure UpdateRecordFromVATRegLog(var RecordRef: RecordRef; RecordVariant: Variant; VATRegistrationLog: Record "VAT Registration Log")
     var
+        ConfirmManagement: Codeunit "Confirm Management";
         ConfirmQst: Text;
     begin
         RecordRef.GetTable(RecordVariant);
@@ -309,7 +310,7 @@
                     else
                         ConfirmQst := ValidVATNoNoAddressQst;
 
-                    if Confirm(ConfirmQst) then
+                    if ConfirmManagement.GetResponseOrDefault(ConfirmQst, true) then
                         PopulateFieldsFromVATRegLog(RecordRef, RecordVariant, VATRegistrationLog);
                 end;
             VATRegistrationLog.Status::Invalid:
@@ -348,10 +349,10 @@
         VATLookupExtDataHndl: Codeunit "VAT Lookup Ext. Data Hndl";
     begin
         if not VATRegNoSrvConfig.FindFirst then begin
-            VATRegNoSrvConfig.Init;
+            VATRegNoSrvConfig.Init();
             VATRegNoSrvConfig."Service Endpoint" := VATLookupExtDataHndl.GetVATRegNrValidationWebServiceURL;
             VATRegNoSrvConfig.Enabled := false;
-            VATRegNoSrvConfig.Insert;
+            VATRegNoSrvConfig.Insert();
         end;
     end;
 
@@ -374,7 +375,7 @@
         end;
 
         VATRegNoSrvConfig.Enabled := true;
-        VATRegNoSrvConfig.Modify;
+        VATRegNoSrvConfig.Modify();
     end;
 
     procedure ValidateVATRegNoWithVIES(var RecordRef: RecordRef; RecordVariant: Variant; EntryNo: Code[20]; AccountType: Option; CountryCode: Code[10])

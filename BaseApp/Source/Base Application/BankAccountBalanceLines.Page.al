@@ -3,7 +3,8 @@ page 378 "Bank Account Balance Lines"
     Caption = 'Lines';
     LinksAllowed = false;
     PageType = ListPart;
-    SourceTable = Date;
+    SourceTable = "Bank Account Balance Buffer";
+    SourceTableTemporary = true;
 
     layout
     {
@@ -25,7 +26,7 @@ page 378 "Bank Account Balance Lines"
                     Caption = 'Period Name';
                     ToolTip = 'Specifies the name of the period shown in the line.';
                 }
-                field(NetChange; BankAcc."Net Change")
+                field(NetChange; "Net Change")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = BankAcc."Currency Code";
@@ -36,10 +37,10 @@ page 378 "Bank Account Balance Lines"
 
                     trigger OnDrillDown()
                     begin
-                        ShowBankAccEntries;
+                        ShowBankAccEntries();
                     end;
                 }
-                field("BankAcc.""Net Change (LCY)"""; BankAcc."Net Change (LCY)")
+                field("BankAcc.""Net Change (LCY)"""; "Net Change (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -49,7 +50,7 @@ page 378 "Bank Account Balance Lines"
 
                     trigger OnDrillDown()
                     begin
-                        ShowBankAccEntries;
+                        ShowBankAccEntries();
                     end;
                 }
             }
@@ -62,18 +63,26 @@ page 378 "Bank Account Balance Lines"
 
     trigger OnAfterGetRecord()
     begin
-        SetDateFilter;
-        BankAcc.CalcFields("Net Change", "Net Change (LCY)");
+        if DateRec.Get("Period Type", "Period Start") then;
+        CalcLine();
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
+    trigger OnFindRecord(Which: Text) FoundDate: Boolean
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, PeriodType));
+        VariantRec := Rec;
+        FoundDate := PeriodFormLinesMgt.FindDate(VariantRec, DateRec, Which, PeriodType);
+        Rec := VariantRec;
     end;
 
-    trigger OnNextRecord(Steps: Integer): Integer
+    trigger OnNextRecord(Steps: Integer) ResultSteps: Integer
+    var
+        VariantRec: Variant;
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, PeriodType));
+        VariantRec := Rec;
+        ResultSteps := PeriodFormLinesMgt.NextDate(VariantRec, DateRec, Steps, PeriodType);
+        Rec := VariantRec;
     end;
 
     trigger OnOpenPage()
@@ -84,13 +93,15 @@ page 378 "Bank Account Balance Lines"
     var
         BankAcc: Record "Bank Account";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        DateRec: Record Date;
+        PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
 
     procedure Set(var NewBankAcc: Record "Bank Account"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         BankAcc.Copy(NewBankAcc);
+        DeleteAll();
         PeriodType := NewPeriodType;
         AmountType := NewAmountType;
         CurrPage.Update(false);
@@ -99,7 +110,7 @@ page 378 "Bank Account Balance Lines"
     local procedure ShowBankAccEntries()
     begin
         SetDateFilter;
-        BankAccLedgEntry.Reset;
+        BankAccLedgEntry.Reset();
         BankAccLedgEntry.SetCurrentKey("Bank Account No.", "Posting Date");
         BankAccLedgEntry.SetRange("Bank Account No.", BankAcc."No.");
         BankAccLedgEntry.SetFilter("Posting Date", BankAcc.GetFilter("Date Filter"));
@@ -114,6 +125,21 @@ page 378 "Bank Account Balance Lines"
             BankAcc.SetRange("Date Filter", "Period Start", "Period End")
         else
             BankAcc.SetRange("Date Filter", 0D, "Period End");
+    end;
+
+    local procedure CalcLine()
+    begin
+        SetDateFilter();
+        BankAcc.CalcFields("Net Change", "Net Change (LCY)");
+        "Net Change" := BankAcc."Net Change";
+        "Net Change (LCY)" := BankAcc."Net Change (LCY)";
+
+        OnAfterCalcLine(BankAcc, Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcLine(var BankAccount: Record "Bank Account"; var BankAccountBalanceBuffer: Record "Bank Account Balance Buffer")
+    begin
     end;
 }
 

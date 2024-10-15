@@ -121,13 +121,13 @@ report 5636 "Fixed Asset Document Nos."
             begin
                 if "FA No." <> FA."No." then
                     if not FA.Get("FA No.") then
-                        FA.Init;
+                        FA.Init();
                 if "Source Code" <> SourceCode.Code then
                     if not SourceCode.Get("Source Code") then
-                        SourceCode.Init;
+                        SourceCode.Init();
                 if "No. Series" <> NoSeries.Code then
                     if not NoSeries.Get("No. Series") then
-                        NoSeries.Init;
+                        NoSeries.Init();
 
                 if ("No. Series" <> LastNoSeriesCode) or ("Document Type" <> LastDocType) or FirstRecord then begin
                     if "No. Series" = '' then

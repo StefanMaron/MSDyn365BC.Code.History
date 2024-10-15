@@ -50,6 +50,15 @@ table 5339 "Integration Synch. Job Errors"
         key(Key3; "Date/Time", "Integration Synch. Job ID")
         {
         }
+        key(Key4; "Integration Synch. Job ID")
+        {
+        }
+        key(Key5; "Destination Record ID")
+        {
+        }
+        key(Key6; "Source Record ID")
+        {
+        }
     }
 
     fieldgroups
@@ -65,7 +74,7 @@ table 5339 "Integration Synch. Job Errors"
             exit;
 
         SetFilter("Date/Time", '<=%1', CreateDateTime(Today - DaysOld, Time));
-        DeleteAll;
+        DeleteAll();
         SetRange("Date/Time");
     end;
 
@@ -85,6 +94,7 @@ table 5339 "Integration Synch. Job Errors"
             StackTraceOutStream.Write(GetLastErrorCallstack);
             Insert(true);
         end;
+        OnAfterLogSynchError(Rec);
     end;
 
     procedure SetDataIntegrationUIElementsVisible(var DataIntegrationCuesVisible: Boolean)
@@ -104,6 +114,11 @@ table 5339 "Integration Synch. Job Errors"
 
     [IntegrationEvent(false, false)]
     local procedure OnForceSynchronizeDataIntegration(LocalRecordID: RecordID; var SynchronizeHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLogSynchError(IntegrationSynchJobErrors: Record "Integration Synch. Job Errors")
     begin
     end;
 }

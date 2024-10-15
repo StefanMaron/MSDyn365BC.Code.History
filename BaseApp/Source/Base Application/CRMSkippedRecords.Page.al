@@ -70,6 +70,7 @@ page 5333 "CRM Skipped Records"
                 }
                 field("Deleted On"; "Deleted On")
                 {
+                    Visible = false;
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies when the record was deleted.';
                 }
@@ -123,7 +124,7 @@ page 5333 "CRM Skipped Records"
                 begin
                     SetCurrentSelectionFilter(CRMIntegrationRecord);
                     CRMIntegrationRecord.Skipped := false;
-                    CRMIntegrationRecord.Modify;
+                    CRMIntegrationRecord.Modify();
                     Refresh(CRMIntegrationRecord);
                     CRMIntegrationManagement.UpdateMultipleNow(CRMIntegrationRecord);
                     Refresh(CRMIntegrationRecord);
@@ -142,11 +143,14 @@ page 5333 "CRM Skipped Records"
 
                 trigger OnAction()
                 var
-                    IntegrationRecord: Record "Integration Record";
+                    CRMIntegrationRecord: Record "CRM Integration Record";
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    RecId: RecordId;
                 begin
-                    IntegrationRecord.FindByIntegrationId("Integration ID");
-                    CRMIntegrationManagement.ShowLog(IntegrationRecord."Record ID");
+                    CRMIntegrationRecord."Table ID" := "Table ID";
+                    CRMIntegrationRecord."Integration ID" := "Integration ID";
+                    CRMIntegrationRecord.FindRecordId(RecId);
+                    CRMIntegrationManagement.ShowLog(RecId);
                 end;
             }
             action(ManageCRMCoupling)
@@ -163,12 +167,14 @@ page 5333 "CRM Skipped Records"
                 trigger OnAction()
                 var
                     CRMIntegrationRecord: Record "CRM Integration Record";
-                    IntegrationRecord: Record "Integration Record";
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    RecId: RecordId;
                 begin
-                    IntegrationRecord.Get("Integration ID");
-                    if CRMIntegrationRecord.FindByRecordID(IntegrationRecord."Record ID") then
-                        if CRMIntegrationManagement.DefineCoupling(IntegrationRecord."Record ID") then begin
+                    CRMIntegrationRecord."Table ID" := "Table ID";
+                    CRMIntegrationRecord."Integration ID" := "Integration ID";
+                    CRMIntegrationRecord.FindRecordId(RecId);
+                    if CRMIntegrationRecord.FindByRecordID(RecId) then
+                        if CRMIntegrationManagement.DefineCoupling(RecId) then begin
                             CRMIntegrationRecord.SetRecFilter;
                             Refresh(CRMIntegrationRecord);
                         end;
@@ -234,6 +240,25 @@ page 5333 "CRM Skipped Records"
                     TempCRMSynchConflictBuffer.DeleteCoupledRecords;
                 end;
             }
+            action(LoadMoreErrors)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Load More Errors';
+                Image = RefreshLines;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Reload the error list.';
+
+                trigger OnAction()
+                begin
+                    if TooManyErrorsNotification.Recall() then;
+                    SetOutside := False;
+                    LoadData();
+                    CurrPage.Update();
+                end;
+            }
         }
     }
 
@@ -246,20 +271,29 @@ page 5333 "CRM Skipped Records"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        if not SetOutside and CRMIntegrationEnabled then
-            CollectSkippedCRMIntegrationRecords;
+        LoadData();
     end;
 
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
+        TooManyErrorsNotification: Notification;
         CRMIntegrationEnabled: Boolean;
+        CDSIntegrationEnabled: Boolean;
         AreRecordsExist: Boolean;
         IsOneOfRecordsDeleted: Boolean;
         DoBothOfRecordsExist: Boolean;
         SetOutside: Boolean;
+        TooManyErrorsNotificationTxt: Label 'Only 100 coupled record synchronization errors are loaded. When you have resolved them, choose the Load More Errors action to load more.';
+
+    local procedure LoadData();
+    begin
+        Reset;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
+        if not SetOutside and (CRMIntegrationEnabled or CDSIntegrationEnabled) then
+            CollectSkippedCRMIntegrationRecords;
+    end;
 
     local procedure CollectSkippedCRMIntegrationRecords()
     var
@@ -279,9 +313,21 @@ page 5333 "CRM Skipped Records"
     end;
 
     procedure SetRecords(var CRMIntegrationRecord: Record "CRM Integration Record")
+    var
+        cnt: Integer;
     begin
-        Fill(CRMIntegrationRecord);
+        cnt := Fill(CRMIntegrationRecord);
         SetOutside := true;
+        if cnt >= 100 then begin
+            TooManyErrorsNotification.Id(GetTooManyErrorsNotificationId());
+            TooManyErrorsNotification.Message(TooManyErrorsNotificationTxt);
+            TooManyErrorsNotification.Send();
+        end;
+    end;
+
+    local procedure GetTooManyErrorsNotificationId(): Guid;
+    begin
+        exit('2d60b73e-8879-40b8-a16d-1edffad711cd');
     end;
 
     local procedure Refresh(var CRMIntegrationRecord: Record "CRM Integration Record")

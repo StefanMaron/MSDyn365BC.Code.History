@@ -16,11 +16,11 @@ codeunit 15000000 "Reset Remittance Payment Order"
 
         // PaymOrder is marked as reseted:
         CurrentRemPaymOrder.Canceled := true;
-        CurrentRemPaymOrder.Modify;
+        CurrentRemPaymOrder.Modify();
 
         // Delete marks for vendor entries and check if the status is Sent for Waiting journal lines:
         // Go through all Waiting journal lines:
-        WaitingJournal.Init;
+        WaitingJournal.Init();
         WaitingJournal.SetRange("Payment Order ID - Sent", CurrentRemPaymOrder.ID);
         WaitingJournal.FindSet;
         repeat
@@ -52,14 +52,14 @@ codeunit 15000000 "Reset Remittance Payment Order"
             WaitingJournal.FieldError("Remittance Status");
 
         // For each Waiting journal line: delete marks on corresponding entries:
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine.TransferFields(WaitingJournal); // Create parameter.
         RemTools.MarkEntry(GenJnlLine, '', 0); // Delete marks on entries.
 
         // Reset Waiting journal:
         WaitingJournal.Validate("Remittance Status", WaitingJournal."Remittance Status"::Reseted);
 
-        WaitingJournal.Modify;
+        WaitingJournal.Modify();
     end;
 
     [Scope('OnPrem')]

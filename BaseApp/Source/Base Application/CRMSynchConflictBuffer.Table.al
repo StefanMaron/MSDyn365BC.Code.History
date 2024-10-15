@@ -16,13 +16,15 @@ table 5374 "CRM Synch. Conflict Buffer"
 
             trigger OnValidate()
             var
-                IntegrationRecord: Record "Integration Record";
+                CRMIntegrationRecord: Record "CRM Integration Record";
                 RecRef: RecordRef;
+                RecId: RecordId;
             begin
-                if IntegrationRecord.Get("Integration ID") then begin
-                    "Record ID" := IntegrationRecord."Record ID";
+                CRMIntegrationRecord."Integration ID" := "Integration ID";
+                CRMIntegrationRecord."Table ID" := "Table ID";
+                if CRMIntegrationRecord.FindRecordId(RecId) then begin
+                    "Record ID" := RecId;
                     Description := CopyStr(GetRecDescription, 1, MaxStrLen(Description));
-                    "Deleted On" := IntegrationRecord."Deleted On";
                     "Record Exists" := RecRef.Get("Record ID");
                 end;
             end;
@@ -128,7 +130,10 @@ table 5374 "CRM Synch. Conflict Buffer"
         field(15; "Deleted On"; DateTime)
         {
             Caption = 'Deleted On';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is obsolete and should not be used after Integration Record is deprecated.';
             DataClassification = SystemMetadata;
+            ObsoleteTag = '16.0';
         }
         field(16; "Record Exists"; Boolean)
         {
@@ -208,12 +213,14 @@ table 5374 "CRM Synch. Conflict Buffer"
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
         TempCRMIntegrationRecord: Record "CRM Integration Record" temporary;
-        IntegrationRecord: Record "Integration Record";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
+        RecId: RecordId;
     begin
         if "Record Exists" then begin
-            IntegrationRecord.Get("Integration ID");
-            CRMCouplingManagement.RemoveCouplingWithTracking(IntegrationRecord."Record ID", TempCRMIntegrationRecord);
+            CRMIntegrationRecord."Integration ID" := "Integration ID";
+            CRMIntegrationRecord."Table ID" := "Table ID";
+            CRMIntegrationRecord.FindRecordId(RecId);
+            CRMCouplingManagement.RemoveCouplingWithTracking(RecId, TempCRMIntegrationRecord);
             TempCRMIntegrationRecord.SetRecFilter;
             UpdateSourceTable(TempCRMIntegrationRecord);
         end else
@@ -222,19 +229,22 @@ table 5374 "CRM Synch. Conflict Buffer"
     end;
 
     procedure Fill(var CRMIntegrationRecord: Record "CRM Integration Record"): Integer
+    var
+        cnt: Integer;
     begin
-        DeleteAll;
+        DeleteAll();
         CRMIntegrationRecord.SetCurrentKey(Skipped, "Table ID");
         if CRMIntegrationRecord.FindSet then
             repeat
+                cnt += 1;
                 "Entry No." += 1;
                 InitFromCRMIntegrationRecord(CRMIntegrationRecord);
                 if DoesOneRecordExist then
                     Insert
                 else
-                    CRMIntegrationRecord.Delete;
-            until CRMIntegrationRecord.Next = 0;
-        exit(Count);
+                    CRMIntegrationRecord.Delete();
+            until ((CRMIntegrationRecord.Next = 0) or (cnt = 100));
+        exit(cnt);
     end;
 
     procedure GetRecDescription() Result: Text
@@ -281,18 +291,101 @@ table 5374 "CRM Synch. Conflict Buffer"
 
     local procedure FindTableID(CRMIntegrationRecord: Record "CRM Integration Record"): Integer
     var
-        IntegrationRecord: Record "Integration Record";
+        SalesPersonPurchaser: Record "Salesperson/Purchaser";
+        Customer: Record Customer;
+        Contact: Record Contact;
+        Currency: Record Currency;
+        UnitOfMeasure: Record "Unit of Measure";
+        Item: Record Item;
+        Resource: Record Resource;
+        CustomerPriceGroup: Record "Customer Price Group";
+        SalesPrice: Record "Sales Price";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        ShipmentMethod: Record "Shipment Method";
+        ShippingAgent: Record "Shipping Agent";
+        PaymentTerms: Record "Payment Terms";
+        Opportunity: Record Opportunity;
+        TableId: Integer;
     begin
         if CRMIntegrationRecord."Table ID" <> 0 then
             exit(CRMIntegrationRecord."Table ID");
 
-        if IntegrationRecord.Get(CRMIntegrationRecord."Integration ID") then begin
-            CRMIntegrationRecord."Table ID" := IntegrationRecord."Table ID";
+        if SalesPersonPurchaser.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+            TableId := Database::"Salesperson/Purchaser";
+
+        if TableId = 0 then
+            if PaymentTerms.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::"Payment Terms";
+
+        if TableId = 0 then
+            if Currency.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::Currency;
+
+        if TableId = 0 then
+            if UnitOfMeasure.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::"Unit of Measure";
+
+        if TableId = 0 then
+            if CustomerPriceGroup.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::"Customer Price Group";
+
+        if TableId = 0 then
+            if SalesPrice.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::"Sales Price";
+
+        if TableId = 0 then
+            if ShipmentMethod.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::"Shipment Method";
+
+        if TableId = 0 then
+            if ShippingAgent.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::"Shipping Agent";
+
+        if TableId = 0 then
+            if Customer.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::Customer;
+
+        if TableId = 0 then
+            if Item.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::Item;
+
+        if TableId = 0 then
+            if Resource.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::Resource;
+
+        if TableId = 0 then
+            if Contact.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::Contact;
+
+        if TableId = 0 then
+            if Opportunity.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::Opportunity;
+
+        if TableId = 0 then
+            if SalesHeader.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::"Sales Header";
+
+        if TableId = 0 then
+            if SalesInvoiceHeader.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::"Sales Invoice Header";
+
+        if TableId = 0 then
+            if SalesInvoiceLine.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::"Sales Invoice Line";
+
+        if TableId = 0 then
+            if SalesLine.GetBySystemId(CRMIntegrationRecord."Integration ID") then
+                TableId := Database::"Sales Line";
+
+        if TableId <> 0 then begin
+            CRMIntegrationRecord."Table ID" := TableId;
             CRMIntegrationRecord.Modify();
-            exit(IntegrationRecord."Table ID");
         end;
 
-        exit(0);
+        exit(TableId);
     end;
 
     procedure IsOneRecordDeleted(): Boolean
@@ -337,7 +430,7 @@ table 5374 "CRM Synch. Conflict Buffer"
         RecRef: RecordRef;
     begin
         if CRMIntegrationRecord.FindByRecordID("Record ID") then
-            CRMIntegrationRecord.Delete;
+            CRMIntegrationRecord.Delete();
         RecRef.Get("Record ID");
         RecRef.SetRecFilter;
         CRMIntegrationManagement.CreateNewRecordsInCRM(RecRef);
@@ -353,7 +446,7 @@ table 5374 "CRM Synch. Conflict Buffer"
         if CRMIntegrationRecord.FindByCRMID("CRM ID") and
            CRMIntegrationRecord.GetCRMRecordRef("Int. Table ID", RecRef)
         then begin
-            CRMIntegrationRecord.Delete;
+            CRMIntegrationRecord.Delete();
             RecRef.SetRecFilter;
             CRMIntegrationManagement.CreateNewRecordsFromCRM(RecRef);
             Delete;
@@ -390,7 +483,7 @@ table 5374 "CRM Synch. Conflict Buffer"
             repeat
                 TempCRMSynchConflictBuffer.SetRange("CRM ID", CRMIntegrationRecord."CRM ID");
                 TempCRMSynchConflictBuffer.SetRange("Integration ID", CRMIntegrationRecord."Integration ID");
-                TempCRMSynchConflictBuffer.DeleteAll;
+                TempCRMSynchConflictBuffer.DeleteAll();
             until CRMIntegrationRecord.Next = 0;
         exit(Count);
     end;

@@ -12,7 +12,7 @@ table 7316 "Warehouse Receipt Header"
 
             trigger OnValidate()
             begin
-                WhseSetup.Get;
+                WhseSetup.Get();
                 if "No." <> xRec."No." then begin
                     NoSeriesMgt.TestManual(WhseSetup."Whse. Receipt Nos.");
                     "No. Series" := '';
@@ -84,11 +84,9 @@ table 7316 "Warehouse Receipt Header"
             Caption = 'Assignment Time';
             Editable = false;
         }
-        field(6; "Sorting Method"; Option)
+        field(6; "Sorting Method"; Enum "Warehouse Receipt Sorting Method")
         {
             Caption = 'Sorting Method';
-            OptionCaption = ' ,Item,Document,Shelf or Bin,Due Date,Ship-To';
-            OptionMembers = " ",Item,Document,"Shelf or Bin","Due Date","Ship-To";
 
             trigger OnValidate()
             begin
@@ -245,7 +243,7 @@ table 7316 "Warehouse Receipt Header"
             begin
                 with WhseRcptHeader do begin
                     WhseRcptHeader := Rec;
-                    WhseSetup.Get;
+                    WhseSetup.Get();
                     WhseSetup.TestField("Posted Whse. Receipt Nos.");
                     if NoSeriesMgt.LookupSeries(WhseSetup."Posted Whse. Receipt Nos.", "Receiving No. Series") then
                         Validate("Receiving No. Series");
@@ -256,7 +254,7 @@ table 7316 "Warehouse Receipt Header"
             trigger OnValidate()
             begin
                 if "Receiving No. Series" <> '' then begin
-                    WhseSetup.Get;
+                    WhseSetup.Get();
                     WhseSetup.TestField("Posted Whse. Receipt Nos.");
                     NoSeriesMgt.TestSeries(WhseSetup."Posted Whse. Receipt Nos.", "Receiving No. Series");
                 end;
@@ -287,7 +285,7 @@ table 7316 "Warehouse Receipt Header"
 
     trigger OnInsert()
     begin
-        WhseSetup.Get;
+        WhseSetup.Get();
         if "No." = '' then begin
             WhseSetup.TestField("Whse. Receipt Nos.");
             NoSeriesMgt.InitSeries(WhseSetup."Whse. Receipt Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series");
@@ -326,7 +324,7 @@ table 7316 "Warehouse Receipt Header"
 
     procedure AssistEdit(OldWhseRcptHeader: Record "Warehouse Receipt Header"): Boolean
     begin
-        WhseSetup.Get;
+        WhseSetup.Get();
         with WhseRcptHeader do begin
             WhseRcptHeader := Rec;
             WhseSetup.TestField("Whse. Receipt Nos.");
@@ -363,13 +361,15 @@ table 7316 "Warehouse Receipt Header"
                 end;
             "Sorting Method"::"Due Date":
                 WhseRcptLine.SetCurrentKey("No.", "Due Date");
+            else
+                OnSortWhseDocOnCaseSortingMethodElse(Rec);
         end;
 
         if WhseRcptLine.Find('-') then begin
             SequenceNo := 10000;
             repeat
                 WhseRcptLine."Sorting Sequence No." := SequenceNo;
-                WhseRcptLine.Modify;
+                WhseRcptLine.Modify();
                 SequenceNo := SequenceNo + 10000;
             until WhseRcptLine.Next = 0;
         end;
@@ -407,19 +407,19 @@ table 7316 "Warehouse Receipt Header"
                         else
                             Confirmed := true;
                 until (WhseRcptLine.Next = 0) or Confirmed;
-                WhseRcptLine.DeleteAll;
+                WhseRcptLine.DeleteAll();
             end;
         end else
             WhseRcptLine.DeleteAll(UseTableTrigger);
 
         CrossDockOpp.SetRange("Source Template Name", '');
         CrossDockOpp.SetRange("Source Name/No.", "No.");
-        CrossDockOpp.DeleteAll;
+        CrossDockOpp.DeleteAll();
 
         WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Whse. Receipt");
         WhseCommentLine.SetRange(Type, WhseCommentLine.Type::" ");
         WhseCommentLine.SetRange("No.", "No.");
-        WhseCommentLine.DeleteAll;
+        WhseCommentLine.DeleteAll();
     end;
 
     procedure GetHeaderStatus(LineNo: Integer): Integer
@@ -447,7 +447,7 @@ table 7316 "Warehouse Receipt Header"
 
     procedure LookupWhseRcptHeader(var WhseRcptHeader: Record "Warehouse Receipt Header")
     begin
-        Commit;
+        Commit();
         if UserId <> '' then begin
             WhseRcptHeader.FilterGroup := 2;
             WhseRcptHeader.SetRange("Location Code");
@@ -464,7 +464,7 @@ table 7316 "Warehouse Receipt Header"
     var
         Location: Record Location;
     begin
-        Commit;
+        Commit();
         Location.FilterGroup := 2;
         Location.SetRange(Code);
         if PAGE.RunModal(PAGE::"Locations with Warehouse List", Location) = ACTION::LookupOK then
@@ -565,6 +565,11 @@ table 7316 "Warehouse Receipt Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeErrorIfUserIsNotWhseEmployee(LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSortWhseDocOnCaseSortingMethodElse(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 }

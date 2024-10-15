@@ -93,7 +93,7 @@ codeunit 10635 "Import SEPA Common"
                         CheckBeforeSettle(WaitingJournal, RemittanceAgreement, IsPain002Format);
 
                         // Prepare and insert the journal:
-                        GenJournalLine.Init;
+                        GenJournalLine.Init();
                         GenJournalLine.TransferFields(WaitingJournal);
                         InitJournalLine(GenJournalLine, RemittanceAccount, CurrentGenJournalLine, MoreReturnJournals);
 
@@ -133,7 +133,7 @@ codeunit 10635 "Import SEPA Common"
                 TransactionStatusOption::Pending:
                     ; // do nothing
             end;
-            WaitingJournal.Modify;
+            WaitingJournal.Modify();
         until WaitingJournal.Next = 0;
     end;
 
@@ -144,14 +144,14 @@ codeunit 10635 "Import SEPA Common"
     begin
         // Create import PaymOrder.
         // Select ID. Find the next one:
-        RemittancePaymentOrder.LockTable;
+        RemittancePaymentOrder.LockTable();
         if RemittancePaymentOrder.FindLast then
             NextPaymOrderId := RemittancePaymentOrder.ID + 1
         else
             NextPaymOrderId := 1;
 
         // Insert new PaymOrder. Remaining data are set later:
-        RemittancePaymentOrder.Init;
+        RemittancePaymentOrder.Init();
         RemittancePaymentOrder.Validate(ID, NextPaymOrderId);
         RemittancePaymentOrder.Validate(Date, Today);
         RemittancePaymentOrder.Validate(Time, Time);
@@ -318,7 +318,7 @@ codeunit 10635 "Import SEPA Common"
             exit;
 
         // Create balance entry:
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         InitJournalLine(GenJournalLine, LatestRemittanceAccount, CurrentGenJournalLine, MoreReturnJournals);
         GenJournalLine.Validate("Posting Date", LatestDate);
         GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Payment);
@@ -344,7 +344,7 @@ codeunit 10635 "Import SEPA Common"
         DivergenceLCY := -(GenJournalLine."Amount (LCY)" + BalanceEntryAmountLCY);
         if DivergenceLCY <> 0 then begin
             LatestRemittanceAccount.TestField("Round off/Divergence Acc. No.");
-            GenJournalLine.Init;
+            GenJournalLine.Init();
             InitJournalLine(GenJournalLine, LatestRemittanceAccount, CurrentGenJournalLine, MoreReturnJournals);
             GenJournalLine.Validate("Posting Date", LatestDate);
             GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");

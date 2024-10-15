@@ -32,7 +32,7 @@ codeunit 135500 "Item Entity E2E Test"
             exit;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -100,7 +100,7 @@ codeunit 135500 "Item Entity E2E Test"
         ItemJSON := CreateMinimalItemJSON(ItemID);
         ItemJSON := LibraryGraphMgt.AddPropertytoJSON(ItemJSON, 'itemCategoryId', ItemCategory.Id);
 
-        Commit;
+        Commit();
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Item Entity", '');
         LibraryGraphMgt.PostToWebService(TargetURL, ItemJSON, ResponseText);
@@ -131,7 +131,7 @@ codeunit 135500 "Item Entity E2E Test"
         ItemJSON := CreateMinimalItemJSON(ItemID);
         ItemJSON := LibraryGraphMgt.AddPropertytoJSON(ItemJSON, 'itemCategoryCode', ItemCategory.Code);
 
-        Commit;
+        Commit();
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Item Entity", '');
         LibraryGraphMgt.PostToWebService(TargetURL, ItemJSON, ResponseText);
@@ -162,7 +162,7 @@ codeunit 135500 "Item Entity E2E Test"
         Initialize;
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
-        Commit;
+        Commit();
 
         // [GIVEN] a JSON text with an Item that has the Unit of Measure as a property
         ComplexTypeJSON := GetUoMJSON(UnitOfMeasure);
@@ -208,7 +208,7 @@ codeunit 135500 "Item Entity E2E Test"
         CreateTemplateSelectionRulewithUoM(
           DummyItem.FieldNo("Unit Cost"), Format(UnitCost), UnitOfMeasure.Code, ConfigTmplSelectionRules);
 
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Item Entity", '');
@@ -258,7 +258,7 @@ codeunit 135500 "Item Entity E2E Test"
 
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Item Entity", '');
 
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         LibraryGraphMgt.PostToWebService(TargetURL, ItemJSON, ResponseText);
@@ -291,7 +291,7 @@ codeunit 135500 "Item Entity E2E Test"
         Initialize;
         ItemID1 := CreateSimpleItem;
         ItemID2 := CreateSimpleItem;
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the items from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Item Entity", ServiceNameTxt);
@@ -344,7 +344,7 @@ codeunit 135500 "Item Entity E2E Test"
         if ConfigTmplSelectionRules.FindFirst then begin
             ConfigTmplSelectionRules."Selection Criteria".CreateOutStream(OutStream);
             OutStream.WriteText(ConditionTxt);
-            ConfigTmplSelectionRules.Modify;
+            ConfigTmplSelectionRules.Modify();
         end;
 
         APITemplateApplication.Trap;
@@ -402,7 +402,7 @@ codeunit 135500 "Item Entity E2E Test"
         LibraryInventory.CreateItemCategory(ItemCategory);
         Item.Validate("Item Category Code", ItemCategory.Code);
         Item.Modify(true);
-        Commit;
+        Commit();
 
         // [WHEN] we GET the item from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(ItemID, PAGE::"Item Entity", ServiceNameTxt);
@@ -437,7 +437,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] 2 items with the Unit of Measure as property
         ItemID1 := CreateItemwithUoM(UnitOfMeasure.Code);
         ItemID2 := CreateItemwithUoM(UnitOfMeasure.Code);
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the items from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Item Entity", ServiceNameTxt);
@@ -468,7 +468,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] an item in the Item Table
         Initialize;
         ItemID := CreateSimpleItem;
-        Commit;
+        Commit();
 
         // [GIVEN] a JSON text with a SellingUnitPrice property and random value
         PropertyName := 'unitPrice';
@@ -476,7 +476,7 @@ codeunit 135500 "Item Entity E2E Test"
         ItemJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', PropertyName, Format(PropertyValue, 0, 9));
 
         // [GIVEN] the item's unique GUID
-        Item.Reset;
+        Item.Reset();
         Item.SetFilter("No.", ItemID);
         Item.FindFirst;
         ItemGUID := Item.Id;
@@ -513,10 +513,10 @@ codeunit 135500 "Item Entity E2E Test"
 
         // [GIVEN] an item in the Item Table with the Unit of Measure
         ItemID := CreateItemwithUoM(UnitOfMeasure.Code);
-        Commit;
+        Commit();
 
         // [GIVEN] the item's unique GUID
-        Item.Reset;
+        Item.Reset();
         Item.SetFilter("No.", ItemID);
         Item.FindFirst;
         ItemGUID := Item.Id;
@@ -553,16 +553,16 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] an Item in the table with a ItemCategory
         Initialize;
         ItemID := CreateMinimalItem;
-        Item.Reset;
+        Item.Reset();
         Item.SetFilter("No.", ItemID);
         Item.FindFirst;
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
         Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
         Item.Modify(true);
-        Commit;
+        Commit();
 
         // [GIVEN] the item's unique GUID
-        Item.Reset;
+        Item.Reset();
         Item.SetFilter("No.", ItemID);
         Item.FindFirst;
         ItemGUID := Item.Id;
@@ -601,7 +601,7 @@ codeunit 135500 "Item Entity E2E Test"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
 
         ItemID := CreateMinimalItem;
-        Item.Reset;
+        Item.Reset();
         Item.SetFilter("No.", ItemID);
         Item.FindFirst;
         Item.Validate("Base Unit of Measure", UnitOfMeasure.Code);
@@ -609,7 +609,7 @@ codeunit 135500 "Item Entity E2E Test"
         ItemGUID := Item.Id;
         Assert.AreNotEqual('', ItemGUID, 'ItemGUID should not be empty');
 
-        Commit;
+        Commit();
 
         // [GIVEN] a JSON text with an empty value
         ItemJSON := LibraryGraphMgt.AddComplexTypetoJSON(ItemJSON, 'baseUnitOfMeasure', '{}');
@@ -638,10 +638,10 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] an item in the table
         Initialize;
         ItemID := CreateSimpleItem;
-        Commit;
+        Commit();
 
         // [GIVEN] the item's unique GUID
-        Item.Reset;
+        Item.Reset();
         Item.SetFilter("No.", ItemID);
         Item.FindFirst;
         ItemGUID := Item.Id;
@@ -676,7 +676,7 @@ codeunit 135500 "Item Entity E2E Test"
         ItemJSON := CreateMinimalItemJSON(ItemNo);
         ItemJSON := LibraryGraphMgt.AddPropertytoJSON(ItemJSON, UoMIdTxt, UnitOfMeasure.Id);
 
-        Commit;
+        Commit();
 
         // [WHEN] the JSON is posted to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Item Entity", ServiceNameTxt);
@@ -713,7 +713,7 @@ codeunit 135500 "Item Entity E2E Test"
         // [GIVEN] a JSON text with the UoM id
         ItemJSON := LibraryGraphMgt.AddPropertytoJSON('', UoMIdTxt, UnitOfMeasure.Id);
 
-        Commit;
+        Commit();
 
         // [WHEN] the JSON is posted to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(ItemId, PAGE::"Item Entity", ServiceNameTxt);
@@ -746,7 +746,7 @@ codeunit 135500 "Item Entity E2E Test"
 
         ItemJSON := LibraryGraphMgt.AddPropertytoJSON('', 'itemCategoryCode', ItemCategory.Code);
 
-        Commit;
+        Commit();
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(ItemID, PAGE::"Item Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, ItemJSON, ResponseText);
@@ -778,7 +778,7 @@ codeunit 135500 "Item Entity E2E Test"
 
         ItemJSON := LibraryGraphMgt.AddPropertytoJSON('', 'itemCategoryId', ItemCategory.Id);
 
-        Commit;
+        Commit();
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(ItemID, PAGE::"Item Entity", ServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, ItemJSON, ResponseText);
@@ -810,7 +810,7 @@ codeunit 135500 "Item Entity E2E Test"
         ItemJSON := CreateMinimalItemJSON(ItemNo);
         ItemJSON := LibraryGraphMgt.AddComplexTypetoJSON(ItemJSON, 'baseUnitOfMeasure', UoMJSON);
 
-        Commit;
+        Commit();
 
         // [WHEN] the JSON is posted to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Item Entity", ServiceNameTxt);
@@ -849,7 +849,7 @@ codeunit 135500 "Item Entity E2E Test"
         UoMJSON := GetUoMJSON(UnitOfMeasure);
         ItemJSON := LibraryGraphMgt.AddComplexTypetoJSON(ItemJSON, 'baseUnitOfMeasure', UoMJSON);
 
-        Commit;
+        Commit();
 
         // [WHEN] the JSON is posted to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(ItemId, PAGE::"Item Entity", ServiceNameTxt);
@@ -876,7 +876,7 @@ codeunit 135500 "Item Entity E2E Test"
         Initialize;
 
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
-        Commit;
+        Commit();
 
         // [GIVEN] a JSON text with an Item that has the Unit of Measure as a property and the Id
         UoMJSON := GetUoMJSON(UnitOfMeasure);
@@ -886,7 +886,7 @@ codeunit 135500 "Item Entity E2E Test"
         ItemJSON[1] := LibraryGraphMgt.AddComplexTypetoJSON(ItemJSON[1], 'baseUnitOfMeasure', UoMJSON);
         ItemJSON[1] := LibraryGraphMgt.AddPropertytoJSON(ItemJSON[1], UoMIdTxt, UnitOfMeasure.Id);
 
-        Commit;
+        Commit();
 
         // [GIVEN] the first JSON is posted to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Item Entity", '');
@@ -927,8 +927,8 @@ codeunit 135500 "Item Entity E2E Test"
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[2]);
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure[3]);
         UnitOfMeasureGUID := UnitOfMeasure[3].Id;
-        UnitOfMeasure[3].Delete;
-        Commit;
+        UnitOfMeasure[3].Delete();
+        Commit();
 
         // [GIVEN] a JSON text with an Item that has the Unit of Measure as a property and the Id
         UoMJSON := GetUoMJSON(UnitOfMeasure[1]);
@@ -938,7 +938,7 @@ codeunit 135500 "Item Entity E2E Test"
         ItemJSON[1] := LibraryGraphMgt.AddComplexTypetoJSON(ItemJSON[1], 'baseUnitOfMeasure', UoMJSON);
         ItemJSON[1] := LibraryGraphMgt.AddPropertytoJSON(ItemJSON[1], UoMIdTxt, UnitOfMeasure[2].Id);
 
-        Commit;
+        Commit();
 
         // [GIVEN] the first JSON is posted to the web service with an error
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Item Entity", '');
@@ -957,7 +957,7 @@ codeunit 135500 "Item Entity E2E Test"
     var
         Item: Record Item;
     begin
-        Item.Init;
+        Item.Init();
         Item."No." := GetNextItemID;
         Item.Insert(true);
         exit(Item."No.");
@@ -971,31 +971,31 @@ codeunit 135500 "Item Entity E2E Test"
     begin
         ConfigTemplateHeader.SetRange(Code, SampleTempCodeTxt);
         if ConfigTemplateHeader.FindFirst then
-            ConfigTemplateHeader.Delete;
+            ConfigTemplateHeader.Delete();
 
-        ConfigTemplateHeader.Init;
+        ConfigTemplateHeader.Init();
         ConfigTemplateHeader.Code := SampleTempCodeTxt;
         ConfigTemplateHeader."Table ID" := TableID;
         ConfigTemplateHeader.Enabled := true;
         ConfigTemplateHeader.Insert(true);
 
         ConfigTmplSelectionRules.SetRange("Template Code", SampleTempCodeTxt);
-        ConfigTmplSelectionRules.DeleteAll;
+        ConfigTmplSelectionRules.DeleteAll();
 
-        ConfigTmplSelectionRules.Init;
+        ConfigTmplSelectionRules.Init();
         ConfigTmplSelectionRules."Table ID" := ConfigTemplateHeader."Table ID";
         ConfigTmplSelectionRules."Page ID" := PageID;
         ConfigTmplSelectionRules."Template Code" := ConfigTemplateHeader.Code;
         ConfigTmplSelectionRules.Insert(true);
 
-        Commit;
+        Commit();
     end;
 
     local procedure CreateItemwithUoM(UnitOfMeasureCode: Code[10]): Code[20]
     var
         Item: Record Item;
     begin
-        Item.Init;
+        Item.Init();
         Item."No." := GetNextItemID;
         Item.Insert(true);
         Item.Validate("Base Unit of Measure", UnitOfMeasureCode);
@@ -1007,7 +1007,7 @@ codeunit 135500 "Item Entity E2E Test"
     var
         Item: Record Item;
     begin
-        Item.Init;
+        Item.Init();
         Item."No." := GetNextItemID;
         Item.Insert(true);
 
@@ -1022,7 +1022,7 @@ codeunit 135500 "Item Entity E2E Test"
     begin
         LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
         ConfigTemplateHeader."Table ID" := DATABASE::Item;
-        ConfigTemplateHeader.Modify;
+        ConfigTemplateHeader.Modify();
 
         LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
         ConfigTemplateLine."Field ID" := ItemCategoryCodeFieldNo;
@@ -1035,8 +1035,8 @@ codeunit 135500 "Item Entity E2E Test"
         ConfigTemplateLine.Modify(true);
 
         ConfigTmplSelectionRules.SetRange("Table ID", DATABASE::Item);
-        ConfigTmplSelectionRules.DeleteAll;
-        ConfigTmplSelectionRules.Reset;
+        ConfigTmplSelectionRules.DeleteAll();
+        ConfigTmplSelectionRules.Reset();
 
         LibraryRapidStart.CreateTemplateSelectionRule(
           ConfigTmplSelectionRules, ItemCategoryCodeFieldNo, ItemCategoryCodeValue, 1, PAGE::"Item Entity", ConfigTemplateHeader);

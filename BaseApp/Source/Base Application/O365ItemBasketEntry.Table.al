@@ -84,7 +84,7 @@ table 2101 "O365 Item Basket Entry"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader."Document Type" := DocumentType;
         SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
         SalesHeader.Insert(true);
@@ -92,7 +92,7 @@ table 2101 "O365 Item Basket Entry"
         if not FindSet then
             exit;
         repeat
-            SalesLine.Init;
+            SalesLine.Init();
             SalesLine."Document Type" := SalesHeader."Document Type";
             SalesLine."Document No." := SalesHeader."No.";
             SalesLine."Line No." += 10000;
@@ -100,7 +100,7 @@ table 2101 "O365 Item Basket Entry"
             SalesLine."Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
             SalesLine.Validate("No.", "Item No.");
             SalesLine.Validate(Quantity, Quantity);
-            SalesLine.Insert;
+            SalesLine.Insert();
         until Next = 0;
         DeleteAll(true);
     end;

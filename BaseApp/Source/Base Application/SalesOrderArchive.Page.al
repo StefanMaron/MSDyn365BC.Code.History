@@ -1,4 +1,4 @@
-﻿page 5159 "Sales Order Archive"
+page 5159 "Sales Order Archive"
 {
     Caption = 'Sales Order Archive';
     DeleteAllowed = false;

@@ -17,7 +17,7 @@ codeunit 10617 "E-Invoice Check Iss. Fin.Chrg."
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         CompanyInfo.TestField(Name);
         CompanyInfo.TestField(Address);
@@ -33,7 +33,7 @@ codeunit 10617 "E-Invoice Check Iss. Fin.Chrg."
         SalesSetup: Record "Sales & Receivables Setup";
         FileMgt: Codeunit "File Management";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.TestField("E-Invoice Fin. Charge Path");
         if not FileMgt.DirectoryExistsOnDotNetClient(SalesSetup."E-Invoice Fin. Charge Path") then
             SalesSetup.FieldError("E-Invoice Fin. Charge Path", InvalidPathErr);

@@ -76,19 +76,19 @@ page 5353 "CRM Sales Order List"
                     Caption = 'Date Fulfilled';
                     ToolTip = 'Specifies when the sales order was delivered.';
                 }
-                field(ShippingMethodCode; ShippingMethodCode)
+                field(ShippingMethodCode; ShippingMethodCodeEnum)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Shipping Method';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(PaymentTermsCode; PaymentTermsCode)
+                field(PaymentTermsCode; PaymentTermsCodeEnum)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Payment Terms';
                     ToolTip = 'Specifies the payment terms that you select from on customer cards to define when the customer must pay, such as within 14 days.';
                 }
-                field(FreightTermsCode; FreightTermsCode)
+                field(FreightTermsCode; FreightTermsCodeEnum)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Freight Terms';
@@ -183,7 +183,7 @@ page 5353 "CRM Sales Order List"
                             exit;
 
                         if CRMSalesOrderToSalesOrder.CreateInNAV(Rec, SalesHeader) then begin
-                            Commit;
+                            Commit();
                             PAGE.RunModal(PAGE::"Sales Order", SalesHeader);
                         end;
                     end;

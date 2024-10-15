@@ -26,12 +26,13 @@ report 15000050 "Remittance - export (Bank)"
                 FirstTransaction: Boolean;
                 UnstructuredPaym: Boolean;
                 CountUnstPaym: Integer;
+                UndefinedValue: Integer;
             begin
                 OnBeforeOnPreDataItemGenJournalLine(CurrentGenJournalLine, "Gen. Journal Line");
 
                 RemAgreement.LockTable(); // To ensure the update of sequence numbers
 
-                PurchSetup.Get;
+                PurchSetup.Get();
 
                 DateNow := Today; // Present time and date.
                 TimeNow := Time;
@@ -69,7 +70,8 @@ report 15000050 "Remittance - export (Bank)"
 
                 GenJournalLineRec.FindFirst;  // Start with the first one, with new key
                 StoreGenJournalLine.Init();
-                StoreGenJournalLine."Remittance Type" := -1;
+                UndefinedValue := -1;
+                StoreGenJournalLine."Remittance Type" := UndefinedValue;
                 FirstTransaction := true;
                 repeat
                     if NextSelection then begin  // Continue with next selection:
@@ -351,7 +353,7 @@ report 15000050 "Remittance - export (Bank)"
 
     trigger OnPreReport()
     begin
-        FindSetup.Get;
+        FindSetup.Get();
         FindSetup.TestField("LCY Code");
     end;
 
@@ -1247,13 +1249,13 @@ report 15000050 "Remittance - export (Bank)"
     var
         WaitingJournal2: Record "Waiting Journal";
     begin
-        WaitingJournal.Init;
+        WaitingJournal.Init();
         WaitingJournal.TransferFields(JournalLine);
         WaitingJournal."Payment Order ID - Sent" := RemittancePaymentOrder.ID;
         WaitingJournal."Remittance Status" := WaitingJournal."Remittance Status"::Sent;
         // Own reference, sent to bank:
-        WaitingJournal2.LockTable;
-        WaitingJournal2.Init;
+        WaitingJournal2.LockTable();
+        WaitingJournal2.Init();
         if WaitingJournal2.FindLast then
             WaitingJournal.Reference := WaitingJournal2.Reference + 1
         else

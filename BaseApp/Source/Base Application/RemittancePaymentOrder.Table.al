@@ -91,9 +91,9 @@ table 15000001 "Remittance Payment Order"
         WaitingJournal: Record "Waiting Journal";
     begin
         PaymentOrderData.SetRange("Payment Order No.", ID);
-        PaymentOrderData.DeleteAll;
+        PaymentOrderData.DeleteAll();
         WaitingJournal.SetRange(Reference, ID);
-        WaitingJournal.DeleteAll;
+        WaitingJournal.DeleteAll();
     end;
 }
 

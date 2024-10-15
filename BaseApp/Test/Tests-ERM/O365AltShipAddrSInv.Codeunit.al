@@ -271,7 +271,7 @@ codeunit 138040 "O365 Alt. Ship Addr. S. Inv."
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Alt. Ship Addr. S. Inv.");
     end;
 

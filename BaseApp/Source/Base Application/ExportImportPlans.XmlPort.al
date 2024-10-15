@@ -127,7 +127,7 @@ xmlport 9010 "Export/Import Plans"
         if PlanPermissionSet.Get(PlanId, PermissionSetID) then
             exit;
 
-        PlanPermissionSet.Init;
+        PlanPermissionSet.Init();
         PlanPermissionSet."Permission Set ID" := PermissionSetID;
         PlanPermissionSet."Plan ID" := UpperCase(PlanId);
         PlanPermissionSet.Insert(true);

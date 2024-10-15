@@ -19,7 +19,7 @@ codeunit 10625 "E-Invoice Check Serv. Cr. Memo"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField(Name);
         CompanyInfo.TestField(Address);
         CompanyInfo.TestField(City);
@@ -39,7 +39,7 @@ codeunit 10625 "E-Invoice Check Serv. Cr. Memo"
         ServiceMgtSetup: Record "Service Mgt. Setup";
         FileMgt: Codeunit "File Management";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
 
         ServiceMgtSetup."E-Invoice Serv. Cr. Memo Path" := DelChr(ServiceMgtSetup."E-Invoice Serv. Cr. Memo Path", '>', '\');
         ServiceMgtSetup.TestField("E-Invoice Serv. Cr. Memo Path");

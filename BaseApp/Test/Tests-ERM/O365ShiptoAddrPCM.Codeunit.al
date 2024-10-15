@@ -247,7 +247,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure VerifyShipToEditableState(PurchaseCreditMemo: TestPage "Purchase Credit Memo"; ExpectedState: Boolean)

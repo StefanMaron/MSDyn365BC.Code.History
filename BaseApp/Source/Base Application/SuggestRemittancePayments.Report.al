@@ -13,7 +13,7 @@ report 15000001 "Suggest Remittance Payments"
             trigger OnAfterGetRecord()
             begin
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 Window.Update(1, "No.");
                 RemAccount.Get("Remittance Account Code");
                 GetVendLedgEntries(false, false);
@@ -50,26 +50,26 @@ report 15000001 "Suggest Remittance Payments"
                         until (Next = 0) or StopPayments;
                 end;
 
-                GenJnlLine.LockTable;
+                GenJnlLine.LockTable();
                 GenJnlTemplate.Get(GenJnlLine."Journal Template Name");
                 GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
                 GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                 GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
                 if GenJnlLine.FindLast then begin
                     LastLineNo := GenJnlLine."Line No.";
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                 end;
 
                 Window.Open(Text008);
 
-                PayableVendLedgEntry.Reset;
+                PayableVendLedgEntry.Reset();
                 PayableVendLedgEntry.SetRange(Priority, 1, 2147483647);
                 MakeGenJnlLines;
-                PayableVendLedgEntry.Reset;
+                PayableVendLedgEntry.Reset();
                 PayableVendLedgEntry.SetRange(Priority, 0);
                 MakeGenJnlLines;
-                PayableVendLedgEntry.Reset;
-                PayableVendLedgEntry.DeleteAll;
+                PayableVendLedgEntry.Reset();
+                PayableVendLedgEntry.DeleteAll();
 
                 Window.Close;
                 ShowMessage(MessageText);
@@ -279,7 +279,7 @@ report 15000001 "Suggest Remittance Payments"
     [Scope('OnPrem')]
     procedure GetVendLedgEntries(Positive: Boolean; Future: Boolean)
     begin
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange(Open, true);
@@ -338,7 +338,7 @@ report 15000001 "Suggest Remittance Payments"
         PayableVendLedgEntry.Positive := (PayableVendLedgEntry.Amount > 0);
         PayableVendLedgEntry.Future := (VendLedgEntry."Due Date" > LastDueDateToPayReq);
         PayableVendLedgEntry."Currency Code" := VendLedgEntry."Currency Code";
-        PayableVendLedgEntry.Insert;
+        PayableVendLedgEntry.Insert();
         NextEntryNo := NextEntryNo + 1;
     end;
 
@@ -357,7 +357,7 @@ report 15000001 "Suggest Remittance Payments"
                 if PayableVendLedgEntry."Currency Code" <> PrevCurrency then begin
                     if CurrencyBalance < 0 then begin
                         PayableVendLedgEntry.SetRange("Currency Code", PrevCurrency);
-                        PayableVendLedgEntry.DeleteAll;
+                        PayableVendLedgEntry.DeleteAll();
                         PayableVendLedgEntry.SetRange("Currency Code");
                     end else
                         AmountAvailable := AmountAvailable - CurrencyBalance;
@@ -369,14 +369,14 @@ report 15000001 "Suggest Remittance Payments"
                 then
                     CurrencyBalance := CurrencyBalance + PayableVendLedgEntry."Amount (LCY)"
                 else
-                    PayableVendLedgEntry.Delete;
+                    PayableVendLedgEntry.Delete();
             until PayableVendLedgEntry.Next = 0;
 
             if (CurrencyBalance < 0) and
                ((not UsePaymentDisc) or (UsePaymentDisc and Future))
             then begin
                 PayableVendLedgEntry.SetRange("Currency Code", PrevCurrency);
-                PayableVendLedgEntry.DeleteAll;
+                PayableVendLedgEntry.DeleteAll();
                 PayableVendLedgEntry.SetRange("Currency Code");
             end else
                 if OriginalAmtAvailable > 0 then
@@ -384,15 +384,15 @@ report 15000001 "Suggest Remittance Payments"
             if (OriginalAmtAvailable > 0) and (AmountAvailable <= 0) then
                 StopPayments := true;
         end;
-        PayableVendLedgEntry.Reset;
+        PayableVendLedgEntry.Reset();
     end;
 
     local procedure MakeGenJnlLines()
     var
         GenJnlLine3: Record "Gen. Journal Line";
     begin
-        TempPaymentBuffer.Reset;
-        TempPaymentBuffer.DeleteAll;
+        TempPaymentBuffer.Reset();
+        TempPaymentBuffer.DeleteAll();
 
         if BalAccType = BalAccType::"Bank Account" then begin
             CheckCurrencies(BalAccType, BalAccNo, PayableVendLedgEntry);
@@ -411,7 +411,7 @@ report 15000001 "Suggest Remittance Payments"
                     TempPaymentBuffer."Global Dimension 1 Code" := '';
                     TempPaymentBuffer."Global Dimension 2 Code" := '';
 
-                    GenJnlLine3.Reset;
+                    GenJnlLine3.Reset();
                     GenJnlLine3.SetCurrentKey(
                       "Account Type", "Account No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
                     GenJnlLine3.SetRange("Account Type", GenJnlLine3."Account Type"::Vendor);
@@ -434,9 +434,9 @@ report 15000001 "Suggest Remittance Payments"
                     TempPaymentBuffer."Vendor Ledg. Entry No." := VendLedgEntry."Entry No.";
                     TempPaymentBuffer.Amount := PayableVendLedgEntry.Amount;
                     Window.Update(1, VendLedgEntry."Vendor No.");
-                    TempPaymentBuffer.Insert;
+                    TempPaymentBuffer.Insert();
                 until PayableVendLedgEntry.Next = 0;
-                PayableVendLedgEntry.DeleteAll;
+                PayableVendLedgEntry.DeleteAll();
                 PayableVendLedgEntry.SetRange("Vendor No.");
             until not PayableVendLedgEntry.Find('-');
 
@@ -540,12 +540,12 @@ report 15000001 "Suggest Remittance Payments"
             if BalAccNo <> '' then begin
                 BankAcc.Get(BalAccNo);
                 if BankAcc."Currency Code" <> '' then begin
-                    TmpPayableVendLedgEntry2.Reset;
-                    TmpPayableVendLedgEntry2.DeleteAll;
+                    TmpPayableVendLedgEntry2.Reset();
+                    TmpPayableVendLedgEntry2.DeleteAll();
                     if TmpPayableVendLedgEntry.Find('-') then
                         repeat
                             TmpPayableVendLedgEntry2 := TmpPayableVendLedgEntry;
-                            TmpPayableVendLedgEntry2.Insert;
+                            TmpPayableVendLedgEntry2.Insert();
                         until TmpPayableVendLedgEntry.Next = 0;
 
                     TmpPayableVendLedgEntry2.SetFilter("Currency Code", '<>%1', BankAcc."Currency Code");

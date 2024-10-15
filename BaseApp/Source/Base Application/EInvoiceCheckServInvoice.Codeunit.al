@@ -36,7 +36,7 @@ codeunit 10624 "E-Invoice Check Serv. Invoice"
     local procedure ReadGLSetup()
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
     end;
@@ -44,7 +44,7 @@ codeunit 10624 "E-Invoice Check Serv. Invoice"
     local procedure ReadCompanyInfo()
     begin
         if not CompanyInfoRead then begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             CompanyInfoRead := true;
         end;
     end;

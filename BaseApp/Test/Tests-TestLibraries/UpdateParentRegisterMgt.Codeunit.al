@@ -20,8 +20,8 @@ codeunit 139141 "Update Parent Register Mgt"
     var
         UpdateParentRegisterLineClear: Record "Update Parent Register Line";
     begin
-        UpdateParentRegisterLineClear.DeleteAll;
-        TempUpdateParentRegisterLine.DeleteAll;
+        UpdateParentRegisterLineClear.DeleteAll();
+        TempUpdateParentRegisterLine.DeleteAll();
 
         RunSequence := 1;
     end;
@@ -83,7 +83,7 @@ codeunit 139141 "Update Parent Register Mgt"
     [Scope('OnPrem')]
     procedure EnumeratorReset()
     begin
-        TempUpdateParentRegisterLine.Reset;
+        TempUpdateParentRegisterLine.Reset();
         TempUpdateParentRegisterLine.FindSet;
         CurrentLineNo := 0;
         CurrEnumeratorDone := false;

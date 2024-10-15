@@ -17,14 +17,14 @@ report 10641 "Create Electronic Credit Memos"
                 EInvoiceExpSalesCrMemo.Run("Sales Cr.Memo Header");
                 EInvoiceExpSalesCrMemo.GetExportedFileInfo(TempEInvoiceTransferFile);
                 TempEInvoiceTransferFile."Line No." := Counter + 1;
-                TempEInvoiceTransferFile.Insert;
+                TempEInvoiceTransferFile.Insert();
 
                 if LogInteraction then
                     SegManagement.LogDocument(
                       6, "No.", 0, 0, DATABASE::Customer, "Sell-to Customer No.", "Salesperson Code",
                       "Campaign No.", "Posting Description", '');
 
-                Commit;
+                Commit();
                 Counter := Counter + 1;
             end;
 

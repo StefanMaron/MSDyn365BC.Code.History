@@ -5,6 +5,24 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Table 3766207032 - Field 2333076789 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[PrimaryKey]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Upgrade Status - Field PrimaryKey - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3766207032 - Field 2719556299 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[UpgradeTriggered]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Upgrade Status - Field UpgradeTriggered - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 3681231878 - Field 1663593181 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Primary Key]]></Val>
@@ -59,24 +77,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table UPG - Upgrade Tag - Field Skipped Upgrade - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Table 3766207032 - Field 2333076789 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PrimaryKey]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Upgrade Status - Field PrimaryKey - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Table 3766207032 - Field 2719556299 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[UpgradeTriggered]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Upgrade Status - Field UpgradeTriggered - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1883571627 - NamedType 2799216258" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[D365 BACKUP/RESTORE]]></Val>
@@ -93,6 +93,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Backup/Restore Permissions - NamedType BackupRestoreDataDescription)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 70954770 - NamedType 3817903663" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[EXCEL EXPORT ACTION]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Excel Export Action Permission - NamedType ExcelExportActionTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 70954770 - NamedType 2752046917" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[D365 Excel Export Action]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Excel Export Action Permission - NamedType ExcelExportActionDescriptionTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 591030345 - NamedType 3418313289" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

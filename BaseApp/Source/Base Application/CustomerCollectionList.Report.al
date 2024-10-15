@@ -101,15 +101,15 @@ report 10610 "Customer - Collection List"
                 begin
                     if ("No. of Reminders" >= ReminderTerms."Max. No. of Reminders") and ("No. of Reminders" > 0) then begin
                         CollectionLines := true;
-                        CurrReport.Break; // A line is found. Stop the test
+                        CurrReport.Break(); // A line is found. Stop the test
                     end;
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not ShowCollection then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     CollectionLines := false;
                 end;
             }
@@ -163,12 +163,12 @@ report 10610 "Customer - Collection List"
                 trigger OnAfterGetRecord()
                 begin
                     if ("Remaining Amount" = 0) and (Amount = 0) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if CustLedgerEntry.Get("Entry No.") then begin
                         if ShowCollection and ("Issued Reminder Line"."No. of Reminders" < ReminderTerms."Max. No. of Reminders") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         if ShowOpen and (not CustLedgerEntry.Open) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if CustLedgerEntry.Open then
                             OpenText := 'Yes'
@@ -176,7 +176,7 @@ report 10610 "Customer - Collection List"
                             OpenText := 'No';
                     end else begin
                         if ShowCollection or ShowOpen then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         OpenText := '';
                     end;
                     ReminderTotal := ReminderTotal + "Remaining Amount" + Amount;
@@ -186,7 +186,7 @@ report 10610 "Customer - Collection List"
                 trigger OnPreDataItem()
                 begin
                     if ShowCollection and (not CollectionLines) then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     CopyFilters(TestReminderLine);
                 end;
             }

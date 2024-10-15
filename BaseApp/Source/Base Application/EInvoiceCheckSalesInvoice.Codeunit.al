@@ -19,7 +19,7 @@ codeunit 10615 "E-Invoice Check Sales Invoice"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField(Name);
         CompanyInfo.TestField(Address);
         CompanyInfo.TestField(City);
@@ -38,7 +38,7 @@ codeunit 10615 "E-Invoice Check Sales Invoice"
         FileManagement: Codeunit "File Management";
     begin
         // If it's RTC, is there a location for storing the file? If not, don't create the e-invoice
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.TestField("E-Invoice Sales Invoice Path");
         if not FileManagement.DirectoryExistsOnDotNetClient(SalesSetup."E-Invoice Sales Invoice Path") then
             SalesSetup.FieldError("E-Invoice Sales Invoice Path", InvalidPathErr);

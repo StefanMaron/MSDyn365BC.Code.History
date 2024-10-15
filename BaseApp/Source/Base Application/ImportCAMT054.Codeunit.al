@@ -97,7 +97,7 @@ codeunit 10637 "Import CAMT054"
     begin
         GetTransactionInfo(
           XmlNodeTransactionEntry, OriginalMsgId, OriginalPmtInfId, OriginalEndToEndId, TransactionStatus);
-        WaitingJournal.Reset;
+        WaitingJournal.Reset();
         WaitingJournal.SetFilter("SEPA Msg. ID", OriginalMsgId);
         WaitingJournal.SetFilter("SEPA Payment Inf ID", OriginalPmtInfId);
         WaitingJournal.SetFilter("SEPA End To End ID", OriginalEndToEndId);

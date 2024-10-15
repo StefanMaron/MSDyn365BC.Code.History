@@ -17,22 +17,21 @@ codeunit 1230 "SEPA DD-Export File"
         GeneralLedgerSetup.Get();
         if not GeneralLedgerSetup."SEPA Export w/o Bank Acc. Data" then
             BankAccount.TestField(IBAN)
-        else begin
+        else
             if (BankAccount."Bank Account No." = '') or (BankAccount."Bank Branch No." = '') then
                 if BankAccount.IBAN = '' then
-                    Error(ExportWithoutIBANErr, BankAccount.TableCaption, BankAccount."No.")
-        end;
+                    Error(ExportWithoutIBANErr, BankAccount.TableCaption(), BankAccount."No.");
 
-        DirectDebitCollection.LockTable;
+        DirectDebitCollection.LockTable();
         DirectDebitCollection.DeletePaymentFileErrors;
-        Commit;
+        Commit();
         if not Export(Rec, BankAccount.GetDDExportXMLPortID, DirectDebitCollection.Identifier) then
             Error('');
 
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
         DirectDebitCollectionEntry.ModifyAll(Status, DirectDebitCollectionEntry.Status::"File Created");
         DirectDebitCollection.Status := DirectDebitCollection.Status::"File Created";
-        DirectDebitCollection.Modify;
+        DirectDebitCollection.Modify();
     end;
 
     var

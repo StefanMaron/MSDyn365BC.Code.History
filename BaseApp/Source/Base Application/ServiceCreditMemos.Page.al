@@ -1,4 +1,4 @@
-﻿page 9320 "Service Credit Memos"
+page 9320 "Service Credit Memos"
 {
     ApplicationArea = Service;
     Caption = 'Service Credit Memos';
@@ -155,7 +155,7 @@
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Service Statistics", Rec);
                     end;
                 }
@@ -197,11 +197,11 @@
                     var
                         TempServDocLog: Record "Service Document Log" temporary;
                     begin
-                        TempServDocLog.Reset;
-                        TempServDocLog.DeleteAll;
+                        TempServDocLog.Reset();
+                        TempServDocLog.DeleteAll();
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo", "No.");
 
-                        TempServDocLog.Reset;
+                        TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
                         TempServDocLog.Ascending(false);
 

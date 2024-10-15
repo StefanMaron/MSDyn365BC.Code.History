@@ -596,7 +596,7 @@ report 1306 "Standard Sales - Invoice"
                     begin
                         Clear(AssemblyLine);
                         if not DisplayAssemblyInformation then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         GetAssemblyLinesForDocument(
                           AssemblyLine, ValueEntry."Document Type"::"Sales Invoice", Line."Document No.", Line."Line No.");
                     end;
@@ -617,7 +617,7 @@ report 1306 "Standard Sales - Invoice"
                     else
                         LineDiscountPctText := StrSubstNo('%1%', -Round("Line Discount %", 0.1));
 
-                    VATAmountLine.Init;
+                    VATAmountLine.Init();
                     VATAmountLine."VAT Identifier" := "VAT Identifier";
                     VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                     VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -672,15 +672,15 @@ report 1306 "Standard Sales - Invoice"
 
                 trigger OnPreDataItem()
                 begin
-                    VATAmountLine.DeleteAll;
-                    VATClauseLine.DeleteAll;
-                    ShipmentLine.Reset;
-                    ShipmentLine.DeleteAll;
+                    VATAmountLine.DeleteAll();
+                    VATClauseLine.DeleteAll();
+                    ShipmentLine.Reset();
+                    ShipmentLine.DeleteAll();
                     MoreLines := Find('+');
                     while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
                         MoreLines := Next(-1) <> 0;
                     if not MoreLines then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     SetRange("Line No.", 0, "Line No.");
                     TransHeaderAmount := 0;
                     PrevLineAmount := 0;
@@ -703,7 +703,7 @@ report 1306 "Standard Sales - Invoice"
                 trigger OnAfterGetRecord()
                 begin
                     if WorkDescriptionInstream.EOS then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     WorkDescriptionInstream.ReadText(WorkDescriptionLine);
                 end;
 
@@ -715,7 +715,7 @@ report 1306 "Standard Sales - Invoice"
                 trigger OnPreDataItem()
                 begin
                     if not ShowWorkDescription then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     Header."Work Description".CreateInStream(WorkDescriptionInstream, TEXTENCODING::UTF8);
                 end;
             }
@@ -808,7 +808,7 @@ report 1306 "Standard Sales - Invoice"
 
                     if ShowVATClause("VAT Clause Code") then begin
                         VATClauseLine := VATAmountLine;
-                        if VATClauseLine.Insert then;
+                        if VATClauseLine.Insert() then;
                     end;
                 end;
 
@@ -854,9 +854,9 @@ report 1306 "Standard Sales - Invoice"
                 trigger OnAfterGetRecord()
                 begin
                     if "VAT Clause Code" = '' then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if not VATClause.Get("VAT Clause Code") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     VATClause.GetDescription(Header);
                 end;
 
@@ -903,14 +903,14 @@ report 1306 "Standard Sales - Invoice"
                 trigger OnAfterGetRecord()
                 begin
                     if not DisplayAdditionalFeeNote then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if Number = 1 then begin
                         if not TempLineFeeNoteOnReportHist.FindSet then
                             CurrReport.Break
                     end else
                         if TempLineFeeNoteOnReportHist.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                 end;
             }
             dataitem(PaymentReportingArgument; "Payment Reporting Argument")
@@ -1188,10 +1188,10 @@ report 1306 "Standard Sales - Invoice"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         CompanyInfo.SetAutoCalcFields(Picture);
-        CompanyInfo.Get;
-        SalesSetup.Get;
+        CompanyInfo.Get();
+        SalesSetup.Get();
         CompanyInfo.VerifyAndSetPaymentInfo;
     end;
 
@@ -1366,19 +1366,19 @@ report 1306 "Standard Sales - Invoice"
 
         ShipmentLine.GetLinesForSalesInvoiceLine(Line, Header);
 
-        ShipmentLine.Reset;
+        ShipmentLine.Reset();
         ShipmentLine.SetRange("Line No.", Line."Line No.");
         if ShipmentLine.FindFirst then begin
             SalesShipmentBuffer2 := ShipmentLine;
             if not DisplayShipmentInformation then
                 if ShipmentLine.Next = 0 then begin
                     ShipmentLine.Get(SalesShipmentBuffer2."Document No.", SalesShipmentBuffer2."Line No.", SalesShipmentBuffer2."Entry No.");
-                    ShipmentLine.Delete;
+                    ShipmentLine.Delete();
                     exit;
                 end;
             ShipmentLine.CalcSums(Quantity);
             if ShipmentLine.Quantity <> Line.Quantity then begin
-                ShipmentLine.DeleteAll;
+                ShipmentLine.DeleteAll();
                 exit;
             end;
         end;
@@ -1418,7 +1418,7 @@ report 1306 "Standard Sales - Invoice"
 
     local procedure CreateReportTotalLines()
     begin
-        ReportTotalsLine.DeleteAll;
+        ReportTotalsLine.DeleteAll();
         if (TotalInvDiscAmount <> 0) or (TotalAmountVAT <> 0) then
             ReportTotalsLine.Add(SubtotalLbl, TotalSubTotal, true, false, false);
         if TotalInvDiscAmount <> 0 then begin
@@ -1439,7 +1439,7 @@ report 1306 "Standard Sales - Invoice"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Customer: Record Customer;
     begin
-        TempLineFeeNoteOnReportHist.DeleteAll;
+        TempLineFeeNoteOnReportHist.DeleteAll();
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
         if not CustLedgerEntry.FindFirst then
@@ -1452,24 +1452,24 @@ report 1306 "Standard Sales - Invoice"
         LineFeeNoteOnReportHist.SetRange("Language Code", Customer."Language Code");
         if LineFeeNoteOnReportHist.FindSet then begin
             repeat
-                TempLineFeeNoteOnReportHist.Init;
+                TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
-                TempLineFeeNoteOnReportHist.Insert;
+                TempLineFeeNoteOnReportHist.Insert();
             until LineFeeNoteOnReportHist.Next = 0;
         end else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
             if LineFeeNoteOnReportHist.FindSet then
                 repeat
-                    TempLineFeeNoteOnReportHist.Init;
+                    TempLineFeeNoteOnReportHist.Init();
                     TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
-                    TempLineFeeNoteOnReportHist.Insert;
+                    TempLineFeeNoteOnReportHist.Insert();
                 until LineFeeNoteOnReportHist.Next = 0;
         end;
     end;
 
     local procedure FillLeftHeader()
     begin
-        LeftHeader.DeleteAll;
+        LeftHeader.DeleteAll();
 
         FillNameValueTable(LeftHeader, Header.FieldCaption("External Document No."), Header."External Document No.");
         FillNameValueTable(LeftHeader, Header.FieldCaption("Bill-to Customer No."), Header."Bill-to Customer No.");
@@ -1487,7 +1487,7 @@ report 1306 "Standard Sales - Invoice"
 
     local procedure FillRightHeader()
     begin
-        RightHeader.DeleteAll;
+        RightHeader.DeleteAll();
 
         FillNameValueTable(RightHeader, EMailLbl, CompanyInfo."E-Mail");
         FillNameValueTable(RightHeader, HomePageLbl, CompanyInfo."Home Page");
@@ -1509,11 +1509,11 @@ report 1306 "Standard Sales - Invoice"
             if NameValueBuffer.FindLast then
                 KeyIndex := NameValueBuffer.ID + 1;
 
-            NameValueBuffer.Init;
+            NameValueBuffer.Init();
             NameValueBuffer.ID := KeyIndex;
             NameValueBuffer.Name := CopyStr(Name, 1, MaxStrLen(NameValueBuffer.Name));
             NameValueBuffer.Value := CopyStr(Value, 1, MaxStrLen(NameValueBuffer.Value));
-            NameValueBuffer.Insert;
+            NameValueBuffer.Insert();
         end;
     end;
 

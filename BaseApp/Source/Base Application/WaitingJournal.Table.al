@@ -15,11 +15,9 @@ table 15000004 "Waiting Journal"
         {
             Caption = 'Line No.';
         }
-        field(3; "Account Type"; Option)
+        field(3; "Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(4; "Account No."; Code[20])
         {
@@ -349,12 +347,10 @@ table 15000004 "Waiting Journal"
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(60; "VAT Calculation Type"; Option)
+        field(60; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(61; "EU 3-Party Trade"; Boolean)
         {
@@ -366,11 +362,9 @@ table 15000004 "Waiting Journal"
             Caption = 'Allow Application';
             InitValue = true;
         }
-        field(63; "Bal. Account Type"; Option)
+        field(63; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset";
         }
         field(64; "Bal. Gen. Posting Type"; Option)
         {
@@ -388,12 +382,10 @@ table 15000004 "Waiting Journal"
             Caption = 'Bal. Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
         }
-        field(67; "Bal. VAT Calculation Type"; Option)
+        field(67; "Bal. VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'Bal. VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(68; "Bal. VAT %"; Decimal)
         {
@@ -1014,7 +1006,7 @@ table 15000004 "Waiting Journal"
     begin
         // Move Waiting Journal Dimensions back to the Journal Line
         GenJnlLine."Dimension Set ID" := "Dimension Set ID";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
     end;
 
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])

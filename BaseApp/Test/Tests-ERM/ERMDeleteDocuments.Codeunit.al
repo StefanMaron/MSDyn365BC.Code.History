@@ -599,7 +599,7 @@ codeunit 134417 "ERM Delete Documents"
         LibrarySales.SetAllowDocumentDeletionBeforeDate(0D);
         // [GIVEN] Posted Sales Invoice.
         MockPostedSalesInvoice(SalesInvoiceHeader, WorkDate);
-        Commit;
+        Commit();
         // [WHEN] Delete posted Sales Invoice.
         asserterror SalesInvoiceHeader.Delete(true);
         // [THEN] Error "Allow Document Deletion Before must have a value in Sales & Receivables Setup"
@@ -621,10 +621,10 @@ codeunit 134417 "ERM Delete Documents"
         Initialize;
         // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
         LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate);
-        SalesSetup.Get;
+        SalesSetup.Get();
         // [GIVEN] Posted Sales Invoice with "Posting Date" = WORKDATE.
         MockPostedSalesInvoice(SalesInvoiceHeader, WorkDate);
-        Commit;
+        Commit();
         // [WHEN] Delete posted Sales Invoice.
         asserterror SalesInvoiceHeader.Delete(true);
         // [THEN] Posted Sales Invoice is not deleted. Error message.
@@ -645,7 +645,7 @@ codeunit 134417 "ERM Delete Documents"
         LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate);
         // [GIVEN] Posted Sales Invoice with "Posting Date" = WORKDATE - 1.
         MockPostedSalesInvoice(SalesInvoiceHeader, WorkDate - 1);
-        Commit;
+        Commit();
         // [WHEN] Delete posted Sales Invoice.
         SalesInvoiceHeader.Delete(true);
         // [THEN] Posted Sales Invoice is deleted.
@@ -666,7 +666,7 @@ codeunit 134417 "ERM Delete Documents"
         LibrarySales.SetAllowDocumentDeletionBeforeDate(0D);
         // [GIVEN] Posted Sales Credit Memo.
         MockPostedSalesCrMemo(SalesCrMemoHeader, WorkDate);
-        Commit;
+        Commit();
         // [WHEN] Delete posted Sales Credit Memo.
         asserterror SalesCrMemoHeader.Delete(true);
         // [THEN] Error "Allow Document Deletion Before must have a value in Sales & Receivables Setup"
@@ -688,10 +688,10 @@ codeunit 134417 "ERM Delete Documents"
         Initialize;
         // [GIVEN] "Sales Setup"."Allow Document Deletion Before" = WORKDATE.
         LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate);
-        SalesSetup.Get;
+        SalesSetup.Get();
         // [GIVEN] Posted Sales Credit Memo with "Posting Date" = WORKDATE.
         MockPostedSalesCrMemo(SalesCrMemoHeader, WorkDate);
-        Commit;
+        Commit();
         // [WHEN] Delete posted Sales Credit Memo.
         asserterror SalesCrMemoHeader.Delete(true);
         // [THEN] Posted Sales Credit Memo is not deleted. Error message.
@@ -712,7 +712,7 @@ codeunit 134417 "ERM Delete Documents"
         LibrarySales.SetAllowDocumentDeletionBeforeDate(WorkDate);
         // [GIVEN] Posted Sales Credit Memo with "Posting Date" = WORKDATE - 1.
         MockPostedSalesCrMemo(SalesCrMemoHeader, WorkDate - 1);
-        Commit;
+        Commit();
         // [WHEN] Delete posted Sales Credit Memo.
         SalesCrMemoHeader.Delete(true);
         // [THEN] Posted Sales Credit Memo is deleted.
@@ -733,7 +733,7 @@ codeunit 134417 "ERM Delete Documents"
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(0D);
         // [GIVEN] Posted Purchase Invoice.
         MockPostedPurchaseInvoice(PurchInvHeader, WorkDate);
-        Commit;
+        Commit();
         // [WHEN] Delete posted Purchase Invoice.
         asserterror PurchInvHeader.Delete(true);
         // [THEN] Error "Allow Document Deletion Before must have a value in Purchases & Payables Setup"
@@ -755,10 +755,10 @@ codeunit 134417 "ERM Delete Documents"
         Initialize;
         // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate);
-        PurchSetup.Get;
+        PurchSetup.Get();
         // [GIVEN] Posted Purchase Invoice with "Posting Date" = WORKDATE.
         MockPostedPurchaseInvoice(PurchInvHeader, WorkDate);
-        Commit;
+        Commit();
         // [WHEN] Delete posted Purchase Invoice.
         asserterror PurchInvHeader.Delete(true);
         // [THEN] Posted Purchase Invoice is not deleted. Error message.
@@ -779,7 +779,7 @@ codeunit 134417 "ERM Delete Documents"
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate);
         // [GIVEN] Posted Purchase Invoice with "Posting Date" = WORKDATE - 1.
         MockPostedPurchaseInvoice(PurchInvHeader, WorkDate - 1);
-        Commit;
+        Commit();
         // [WHEN] Delete posted Purchase Invoice.
         PurchInvHeader.Delete(true);
         // [THEN] Posted Purchase Invoice is deleted.
@@ -800,7 +800,7 @@ codeunit 134417 "ERM Delete Documents"
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(0D);
         // [GIVEN] Posted Purchase Credit Memo.
         MockPostedPurchaseCrMemo(PurchCrMemoHdr, WorkDate);
-        Commit;
+        Commit();
         // [WHEN] Delete posted Purchase Credit Memo.
         asserterror PurchCrMemoHdr.Delete(true);
         // [THEN] Error "Allow Document Deletion Before must have a value in Purchases & Payables Setup"
@@ -822,10 +822,10 @@ codeunit 134417 "ERM Delete Documents"
         Initialize;
         // [GIVEN] "Purchase Setup"."Allow Document Deletion Before" = WORKDATE.
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate);
-        PurchSetup.Get;
+        PurchSetup.Get();
         // [GIVEN] Posted Purchase Credit Memo with "Posting Date" = WORKDATE.
         MockPostedPurchaseCrMemo(PurchCrMemoHdr, WorkDate);
-        Commit;
+        Commit();
         // [WHEN] Delete posted Purchase Credit Memo.
         asserterror PurchCrMemoHdr.Delete(true);
         // [THEN] Posted Purchase Credit Memo is not deleted. Error message.
@@ -846,7 +846,7 @@ codeunit 134417 "ERM Delete Documents"
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(WorkDate);
         // [GIVEN] Posted Purchase Credit Memo with "Posting Date" = WORKDATE - 1.
         MockPostedPurchaseCrMemo(PurchCrMemoHdr, WorkDate - 1);
-        Commit;
+        Commit();
         // [WHEN] Delete posted Purchase Credit Memo.
         PurchCrMemoHdr.Delete(true);
         // [THEN] Posted Purchase Credit Memo is deleted.
@@ -1559,7 +1559,7 @@ codeunit 134417 "ERM Delete Documents"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -1575,7 +1575,7 @@ codeunit 134417 "ERM Delete Documents"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', LibraryRandom.RandInt(10));
 
         PurchaseHeader.Status := PurchaseHeader.Status::Released;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         PurchaseLine."Quantity Invoiced" := PurchaseLine.Quantity;
         PurchaseLine."Qty. to Invoice" := 0;
@@ -1584,7 +1584,7 @@ codeunit 134417 "ERM Delete Documents"
         PurchaseLine."Outstanding Quantity" := 0;
         PurchaseLine."Qty. Rcd. Not Invoiced" := 0;
         PurchaseLine."Qty. Assigned" := PurchaseLine.Quantity;
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
 
         // Exercise
         MockApprovalEntry(PurchaseHeader.RecordId);
@@ -1609,7 +1609,7 @@ codeunit 134417 "ERM Delete Documents"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, '');
 
         ServiceHeader.Status := ServiceHeader.Status::Finished;
-        ServiceHeader.Modify;
+        ServiceHeader.Modify();
 
         ServiceLine.Quantity := LibraryRandom.RandInt(10);
         ServiceLine."Quantity Invoiced" := ServiceLine.Quantity;
@@ -1619,7 +1619,7 @@ codeunit 134417 "ERM Delete Documents"
         ServiceLine."Outstanding Quantity" := 0;
         ServiceLine."Qty. Shipped Not Invoiced" := 0;
 
-        ServiceLine.Modify;
+        ServiceLine.Modify();
 
         // Exercise
         MockApprovalEntry(ServiceHeader.RecordId);
@@ -1837,7 +1837,7 @@ codeunit 134417 "ERM Delete Documents"
           SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
 
         SalesHeader.Status := SalesHeader.Status::Released;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         with SalesLine do begin
             "Quantity Invoiced" := Quantity;
@@ -1996,7 +1996,7 @@ codeunit 134417 "ERM Delete Documents"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldStockOutWarning := SalesReceivablesSetup."Stockout Warning";
         SalesReceivablesSetup.Validate("Stockout Warning", NewStockOutWarning);
         SalesReceivablesSetup.Modify(true);
@@ -2028,7 +2028,7 @@ codeunit 134417 "ERM Delete Documents"
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry.SetRange("Record ID to Approve", SourceRecordID);
         Assert.RecordIsNotEmpty(ApprovalEntry);
     end;
@@ -2037,7 +2037,7 @@ codeunit 134417 "ERM Delete Documents"
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry.SetRange("Record ID to Approve", SourceRecordID);
         Assert.RecordIsEmpty(ApprovalEntry)
     end;

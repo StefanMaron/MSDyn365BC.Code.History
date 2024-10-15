@@ -19,6 +19,13 @@ page 8900 "Administrator Main Role Center"
                         RunObject = page "Latest Error";
                         Tooltip = 'Open the System Information page.';
                     }
+                    action("Table Information")
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Table Information';
+                        RunObject = page "Table Information";
+                        Tooltip = 'Open the Table Information page.';
+                    }
                     action("Extension Management")
                     {
                         ApplicationArea = Basic, Suite;
@@ -53,6 +60,13 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Mobile device activation and app';
                         RunObject = page "O365 Device Setup";
                         Tooltip = 'Open the Mobile device activation and app page.';
+                    }
+                    action("Printer Management")
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Printer Management';
+                        RunObject = page "Printer Management";
+                        Tooltip = 'Open the Printer Management page.';
                     }
                 }
                 group("Group2")
@@ -337,6 +351,13 @@ page 8900 "Administrator Main Role Center"
                     //	 Caption = 'Sessions';
                     //	 RunObject = codeunit 9500;
                     // }
+                }
+                action("Feature Management")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Feature Management';
+                    RunObject = page "Feature Management";
+                    Tooltip = 'Open the Feature Management page.';
                 }
             }
             group("Group8")

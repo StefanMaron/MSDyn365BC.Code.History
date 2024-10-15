@@ -32,7 +32,7 @@ page 2102 "O365 Sales Month Summary"
                     TempNameValueBuffer: Record "Name/Value Buffer" temporary;
                     O365SalesStatistics: Codeunit "O365 Sales Statistics";
                 begin
-                    GLSetup.Get;
+                    GLSetup.Get();
 
                     O365SalesStatistics.GenerateWeeklyOverview(TempNameValueBuffer, SelectedMonth);
                     O365SalesStatistics.GenerateChart(CurrPage.Chart, TempNameValueBuffer, WeekTxt, StrSubstNo(AmountTxt, GLSetup.GetCurrencySymbol));
@@ -44,7 +44,7 @@ page 2102 "O365 Sales Month Summary"
                     TempNameValueBuffer: Record "Name/Value Buffer" temporary;
                     O365SalesStatistics: Codeunit "O365 Sales Statistics";
                 begin
-                    GLSetup.Get;
+                    GLSetup.Get();
 
                     O365SalesStatistics.GenerateWeeklyOverview(TempNameValueBuffer, SelectedMonth);
                     O365SalesStatistics.GenerateChart(CurrPage.Chart, TempNameValueBuffer, WeekTxt, StrSubstNo(AmountTxt, GLSetup.GetCurrencySymbol));
@@ -72,7 +72,7 @@ page 2102 "O365 Sales Month Summary"
 
         ShowCustomers;
 
-        if Insert then;
+        if Insert() then;
     end;
 
     var

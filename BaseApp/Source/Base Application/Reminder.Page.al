@@ -1,4 +1,4 @@
-﻿page 434 Reminder
+page 434 Reminder
 {
     Caption = 'Reminder';
     PageType = Document;

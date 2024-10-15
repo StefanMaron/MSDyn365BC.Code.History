@@ -43,7 +43,7 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
 
         ErrorLogXMLWriter := XMLTextWriterIn;
 
-        OSynchUserSetup.Reset;
+        OSynchUserSetup.Reset();
         OSynchUserSetup.SetRange("User ID", UserID);
         if not OSynchUserSetup.FindFirst then
             exit;
@@ -87,7 +87,7 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
                     then begin
                         EntryIDHash := GetEntryIDHash(Container, XMLTextReader, RootIterator);
                         if EntryIDHash <> '' then begin
-                            OSynchLink.Reset;
+                            OSynchLink.Reset();
                             OSynchLink.SetRange("User ID", UserID);
                             OSynchLink.SetRange("Outlook Entry ID Hash", EntryIDHash);
                             if OSynchLink.FindFirst then begin
@@ -128,7 +128,7 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
                                   StartDateTime,
                                   SkipCheckForConflicts);
 
-                                Commit;
+                                Commit();
                                 if not OSynchProcessLine.Run then begin
                                     if GetLastErrorText <> '' then
                                         WriteErrorLog(
@@ -140,12 +140,12 @@ codeunit 5304 "Outlook Synch. Outlook Mgt."
                                           ErrorLogXMLWriter,
                                           Container);
                                     ClearLastError;
-                                    ErrorConflictBuffer.Reset;
-                                    ErrorConflictBuffer.Init;
+                                    ErrorConflictBuffer.Reset();
+                                    ErrorConflictBuffer.Init();
                                     ErrorConflictBuffer."User ID" := UserID;
                                     ErrorConflictBuffer."Record ID" := EntityRecID;
                                     ErrorConflictBuffer."Search Record ID" := Format(EntityRecID);
-                                    if ErrorConflictBuffer.Insert then;
+                                    if ErrorConflictBuffer.Insert() then;
                                 end;
                             end;
                         end else

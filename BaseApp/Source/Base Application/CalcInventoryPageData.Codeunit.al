@@ -27,8 +27,8 @@ codeunit 5531 "Calc. Inventory Page Data"
 
     procedure Initialize(var Item: Record Item; ForecastName: Code[10]; IncludeBlanketOrders: Boolean; ExcludeForecastBefore: Date; IncludePlan: Boolean)
     begin
-        TempInvtEventBuf.Reset;
-        TempInvtEventBuf.DeleteAll;
+        TempInvtEventBuf.Reset();
+        TempInvtEventBuf.DeleteAll();
 
         CalcItemAvailability.CalcNewInvtEventBuf(Item, ForecastName, IncludeBlanketOrders, ExcludeForecastBefore, IncludePlan);
         CalcItemAvailability.GetInvEventBuffer(TempInvtEventBuf);
@@ -39,25 +39,25 @@ codeunit 5531 "Calc. Inventory Page Data"
         Date: Record Date;
         LastDateInPeriod: Date;
     begin
-        TempInvtEventBuf.Reset;
+        TempInvtEventBuf.Reset();
         TempInvtEventBuf.SetCurrentKey("Availability Date", Type);
         if TempInvtEventBuf.Find('-') then
             repeat
                 if TempInvtEventBuf.Type = TempInvtEventBuf.Type::Inventory then begin
-                    InvtPageData.Init;
+                    InvtPageData.Init();
                     InvtPageData.Code := '';
                     InvtPageData."Line No." := NextPageLineNo;
                     InvtPageData."Period Type" := Date."Period Type";
                     InvtPageData."Period Start" := TempInvtEventBuf."Availability Date";
                     InvtPageData.Description := Format(TempInvtEventBuf.Type);
                     InvtPageData.Level := 0;
-                    InvtPageData.Insert;
+                    InvtPageData.Insert();
                     LastDateInPeriod := TempInvtEventBuf."Availability Date";
                 end else begin
                     Date.SetRange("Period Type", PeriodType);
                     Date.SetFilter("Period Start", '<=%1', TempInvtEventBuf."Availability Date");
                     if Date.FindLast then begin
-                        InvtPageData.Init;
+                        InvtPageData.Init();
                         InvtPageData.Code := Format(Date."Period Start");
                         InvtPageData."Line No." := NextPageLineNo;
                         InvtPageData."Period Type" := Date."Period Type";
@@ -65,7 +65,7 @@ codeunit 5531 "Calc. Inventory Page Data"
                         InvtPageData."Period End" := Date."Period End";
                         InvtPageData.Description := FormatPeriodDescription(Date);
                         InvtPageData.Level := 0;
-                        InvtPageData.Insert;
+                        InvtPageData.Insert();
                         LastDateInPeriod := Date."Period End";
                     end;
                 end;
@@ -73,7 +73,7 @@ codeunit 5531 "Calc. Inventory Page Data"
                 TempInvtEventBuf.Find('+');
                 TempInvtEventBuf.SetRange("Availability Date");
             until TempInvtEventBuf.Next = 0;
-        TempInvtEventBuf.Reset;
+        TempInvtEventBuf.Reset();
     end;
 
     procedure DetailsForPeriodEntry(var InvtPageData: Record "Inventory Page Data"; Positive: Boolean)
@@ -82,7 +82,7 @@ codeunit 5531 "Calc. Inventory Page Data"
         IsHandled: Boolean;
     begin
         PeriodInvtPageData.Copy(InvtPageData);
-        TempInvtEventBuf.Reset;
+        TempInvtEventBuf.Reset();
         TempInvtEventBuf.SetCurrentKey("Availability Date", Type);
         TempInvtEventBuf.SetRange("Availability Date", InvtPageData."Period Start", InvtPageData."Period End");
         TempInvtEventBuf.SetRange(Positive, Positive);
@@ -94,14 +94,14 @@ codeunit 5531 "Calc. Inventory Page Data"
                 IsHandled := false;
                 OnDetailsForPeriodEntryOnBeforeInvtPageDataInsert(InvtPageData, IsHandled);
                 if not IsHandled then
-                    InvtPageData.Insert;
+                    InvtPageData.Insert();
                 UpdatePeriodTotals(PeriodInvtPageData, InvtPageData);
                 UpdateInventory(PeriodInvtPageData, TempInvtEventBuf);
             until TempInvtEventBuf.Next = 0;
         InvtPageData.Copy(PeriodInvtPageData);
 
         OnDetailsForPeriodEntryOnBeforeInvtPageDataModify(InvtPageData);
-        InvtPageData.Modify;
+        InvtPageData.Modify();
     end;
 
     local procedure TransferToPeriodDetails(var InventoryPageData: Record "Inventory Page Data"; var FromInvtEventBuf: Record "Inventory Event Buffer")
@@ -114,7 +114,7 @@ codeunit 5531 "Calc. Inventory Page Data"
         SourceRefNo: Integer;
         IsHandled: Boolean;
     begin
-        InventoryPageData.Init;
+        InventoryPageData.Init();
 
         with FromInvtEventBuf do begin
             InventoryPageData.Code := Format("Availability Date");

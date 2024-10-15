@@ -1,6 +1,9 @@
 table 1315 "Purch. Price Line Disc. Buff."
 {
     Caption = 'Purch. Price Line Disc. Buff.';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     fields
     {
@@ -93,7 +96,7 @@ table 1315 "Purch. Price Line Disc. Buff."
         PurchaseLineDiscount: Record "Purchase Line Discount";
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
 
         "Item No." := Item."No.";
 

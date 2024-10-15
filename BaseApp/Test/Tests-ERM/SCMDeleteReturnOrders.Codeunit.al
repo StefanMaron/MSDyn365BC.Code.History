@@ -103,7 +103,7 @@ codeunit 137040 "SCM Delete Return Orders"
         // reopen the doc and delete the second line, which has not been shipped neither invoiced:
         LibraryPurchase.ReopenPurchaseDocument(PurchHeader);
         PurchLine.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
-        PurchLine.Delete;
+        PurchLine.Delete();
 
         // Now the RPO can be released because it only contains one line that has been shipped and invoiced.
         LibraryPurchase.ReleasePurchaseDocument(PurchHeader);
@@ -132,7 +132,7 @@ codeunit 137040 "SCM Delete Return Orders"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Delete Return Orders");
     end;
 

@@ -143,7 +143,7 @@ table 5717 "Item Cross Reference"
         if ("Cross-Reference Type" = "Cross-Reference Type"::Vendor) and
            ItemVend.WritePermission
         then begin
-            ItemVend.Reset;
+            ItemVend.Reset();
             ItemVend.SetRange("Item No.", "Item No.");
             ItemVend.SetRange("Vendor No.", "Cross-Reference Type No.");
             ItemVend.SetRange("Variant Code", "Variant Code");
@@ -153,7 +153,7 @@ table 5717 "Item Cross Reference"
                 ItemVend.Validate("Vendor No.");
                 ItemVend."Variant Code" := "Variant Code";
                 ItemVend."Vendor Item No." := "Cross-Reference No.";
-                ItemVend.Insert;
+                ItemVend.Insert();
                 OnAfterCreateItemVendor(Rec, ItemVend);
             end;
         end;
@@ -165,7 +165,7 @@ table 5717 "Item Cross Reference"
             if ItemVend.Get(ItemCrossReference."Cross-Reference Type No.", ItemCrossReference."Item No.", ItemCrossReference."Variant Code") then
                 if UpperCase(DelChr(ItemVend."Vendor Item No.", '<', ' ')) = ItemCrossReference."Cross-Reference No." then begin
                     OnBeforeItemVendorDelete(ItemVend, ItemCrossReference);
-                    ItemVend.Delete;
+                    ItemVend.Delete();
                 end;
     end;
 
@@ -174,7 +174,7 @@ table 5717 "Item Cross Reference"
         if not MultipleCrossReferencesExist(ItemCrossReference) then
             if ItemVend.Get(ItemCrossReference."Cross-Reference Type No.", ItemCrossReference."Item No.", ItemCrossReference."Variant Code") then begin
                 ItemVend.Validate("Vendor Item No.", NewCrossRefNo);
-                ItemVend.Modify;
+                ItemVend.Modify();
             end;
     end;
 

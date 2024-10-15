@@ -77,7 +77,7 @@ codeunit 10627 "E-Invoice Exp. Serv. Cr. Memo"
             until TempEInvoiceExportLine.Next = 0;
 
             // Save file
-            ServiceMgtSetup.Get;
+            ServiceMgtSetup.Get();
             SaveToXML(TempEInvoiceTransferFile, ServiceMgtSetup."E-Invoice Serv. Cr. Memo Path", TempEInvoiceExportHeader."No.");
         end;
     end;
@@ -95,7 +95,7 @@ codeunit 10627 "E-Invoice Exp. Serv. Cr. Memo"
 
             // calculated fields
             if "Currency Code" = '' then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 "Currency Code" := GLSetup."LCY Code";
             end;
 
@@ -159,15 +159,15 @@ codeunit 10627 "E-Invoice Exp. Serv. Cr. Memo"
         if TempEInvoiceExportLine.FindLast then
             Id := TempEInvoiceExportLine.ID + 1;
 
-        TempEInvoiceExportLine.Init;
+        TempEInvoiceExportLine.Init();
         TempEInvoiceExportLine.ID := Id;
-        TempEInvoiceExportLine.Init;
+        TempEInvoiceExportLine.Init();
         TempEInvoiceExportLine.TransferFields(ServiceCrMemoLine, true);
         if SalesCommentLine.Get(
              SalesCommentLine."Document Type"::"Posted Credit Memo", ServiceCrMemoLine."Document No.", ServiceCrMemoLine."Line No.", 10000)
         then
             TempEInvoiceExportLine.Comment := SalesCommentLine.Comment;
-        TempEInvoiceExportLine.Insert;
+        TempEInvoiceExportLine.Insert();
     end;
 
     local procedure GetCustomizationID(ServiceCrMemoHeader: Record "Service Cr.Memo Header"): Text[250]
@@ -186,7 +186,7 @@ codeunit 10627 "E-Invoice Exp. Serv. Cr. Memo"
             if ResponsibilityCenter.Get(ServiceCrMemoHeader."Responsibility Center") then
                 CountryCode := ResponsibilityCenter."Country/Region Code"
             else begin
-                CompanyInformation.Get;
+                CompanyInformation.Get();
                 CountryCode := CompanyInformation."Country/Region Code";
             end;
 
@@ -219,7 +219,7 @@ codeunit 10627 "E-Invoice Exp. Serv. Cr. Memo"
     begin
         ServiceCrMemoHeader.Get(DocumentNo);
         ServiceCrMemoHeader."E-Invoice Created" := true;
-        ServiceCrMemoHeader.Modify;
+        ServiceCrMemoHeader.Modify();
     end;
 }
 

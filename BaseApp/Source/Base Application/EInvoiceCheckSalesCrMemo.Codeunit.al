@@ -19,7 +19,7 @@ codeunit 10616 "E-Invoice Check Sales Cr. Memo"
     var
         CompanyInfo: Record "Company Information";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField(Name);
         CompanyInfo.TestField(Address);
         CompanyInfo.TestField(City);
@@ -39,7 +39,7 @@ codeunit 10616 "E-Invoice Check Sales Cr. Memo"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         FileMgt: Codeunit "File Management";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."E-Invoice Sales Cr. Memo Path" := DelChr(SalesReceivablesSetup."E-Invoice Sales Cr. Memo Path", '>', '\');
         SalesReceivablesSetup.TestField("E-Invoice Sales Cr. Memo Path");
         if not FileMgt.DirectoryExistsOnDotNetClient(SalesReceivablesSetup."E-Invoice Sales Cr. Memo Path") then

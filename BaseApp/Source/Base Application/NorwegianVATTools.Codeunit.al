@@ -26,7 +26,7 @@ codeunit 10600 "Norwegian VAT Tools"
             // Calculate Amount adjustments
             PropDeductionVAT :=
               GLEntry."VAT Amount" - AdjustForPropDeduction(GLEntry."VAT Amount", GenJnlLine, VATPostingSetup);
-            GLSetup.Get;
+            GLSetup.Get();
             if GenJnlLine."Source Currency Code" = GLSetup."Additional Reporting Currency" then
                 PropDeductionVATACY :=
                   AddCurrGLEntryVATAmt - AdjustForPropDeduction(AddCurrGLEntryVATAmt, GenJnlLine, VATPostingSetup)
@@ -229,7 +229,7 @@ codeunit 10600 "Norwegian VAT Tools"
         if AskUser then
             if not Confirm(Text003) then
                 exit;
-        VATPeriod.DeleteAll;
+        VATPeriod.DeleteAll();
         for PeriodNo := 1 to 6 do begin
             VATPeriod.Validate("Period No.", PeriodNo);
             VATPeriod.Validate("Start Day", 1);
@@ -321,7 +321,7 @@ codeunit 10600 "Norwegian VAT Tools"
             end;
 
             // VAT other than Reverse Charge is not possible if the company is Not VAT xxx
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Non-Taxable" then begin
                 if ("VAT Amount" <> 0) and ("VAT Calculation Type" <> "VAT Calculation Type"::"Reverse Charge VAT") then
                     FieldError("VAT Amount", StrSubstNo(Text009, GLSetup.FieldCaption("Non-Taxable"), GLSetup.TableCaption));

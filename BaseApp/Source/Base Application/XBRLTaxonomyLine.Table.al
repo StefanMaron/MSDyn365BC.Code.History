@@ -194,25 +194,25 @@ table 395 "XBRL Taxonomy Line"
             Reset;
             SetRange("XBRL Taxonomy Name", Rec."XBRL Taxonomy Name");
             SetRange("XBRL Taxonomy Line No.", Rec."Line No.");
-            DeleteAll;
+            DeleteAll();
         end;
         with XBRLGLMapLine do begin
             Reset;
             SetRange("XBRL Taxonomy Name", Rec."XBRL Taxonomy Name");
             SetRange("XBRL Taxonomy Line No.", Rec."Line No.");
-            DeleteAll;
+            DeleteAll();
         end;
         with XBRLRollupLine do begin
             Reset;
             SetRange("XBRL Taxonomy Name", Rec."XBRL Taxonomy Name");
             SetRange("XBRL Taxonomy Line No.", Rec."Line No.");
-            DeleteAll;
+            DeleteAll();
         end;
         with XBRLTaxonomyLabel do begin
             Reset;
             SetRange("XBRL Taxonomy Name", Rec."XBRL Taxonomy Name");
             SetRange("XBRL Taxonomy Line No.", Rec."Line No.");
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 

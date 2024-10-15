@@ -947,8 +947,8 @@ codeunit 137272 "SCM Reservation V"
         // [SCENARIO 314165] UpdateStatistics function run for blank entry summary returns does not initialize any fields.
         Initialize;
 
-        ProdOrderComponent.Init;
-        ProdOrderComponent.Insert;
+        ProdOrderComponent.Init();
+        ProdOrderComponent.Insert();
 
         ReservMgt.SetProdOrderComponent(ProdOrderComponent);
         ReservMgt.UpdateStatistics(EntrySummary, WorkDate, false);
@@ -1028,7 +1028,7 @@ codeunit 137272 "SCM Reservation V"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Reservation V");
     end;
@@ -1302,7 +1302,7 @@ codeunit 137272 "SCM Reservation V"
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         SalesHeader.Validate("Shipment Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", SalesHeader."Shipment Date"));
         SalesHeader.Modify(true);
 
@@ -1504,7 +1504,7 @@ codeunit 137272 "SCM Reservation V"
     var
         CreateRetRelatedDocuments: Report "Create Ret.-Related Documents";
     begin
-        Commit;  // Commit required before running this Report.
+        Commit();  // Commit required before running this Report.
         Clear(CreateRetRelatedDocuments);
         CreateRetRelatedDocuments.SetSalesHeader(SalesHeader);
         CreateRetRelatedDocuments.UseRequestPage(true);

@@ -1,4 +1,4 @@
-﻿page 522 "View Applied Entries"
+page 522 "View Applied Entries"
 {
     Caption = 'View Applied Entries';
     DataCaptionExpression = CaptionExpr;
@@ -364,9 +364,9 @@
 
     local procedure InitView()
     begin
-        DeleteAll;
-        TempItemLedgEntry.Reset;
-        TempItemLedgEntry.DeleteAll;
+        DeleteAll();
+        TempItemLedgEntry.Reset();
+        TempItemLedgEntry.DeleteAll();
     end;
 
     local procedure ShowQuantityApplied(ItemLedgEntry: Record "Item Ledger Entry")
@@ -376,7 +376,7 @@
         InitApplied;
         with ItemLedgEntry do
             if Positive then begin
-                ItemApplnEntry.Reset;
+                ItemApplnEntry.Reset();
                 ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application");
                 ItemApplnEntry.SetRange("Inbound Item Entry No.", "Entry No.");
                 ItemApplnEntry.SetFilter("Outbound Item Entry No.", '<>%1&<>%2', "Entry No.", 0);
@@ -385,7 +385,7 @@
                         InsertTempEntry(ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity, true);
                     until ItemApplnEntry.Next = 0;
             end else begin
-                ItemApplnEntry.Reset;
+                ItemApplnEntry.Reset();
                 ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
                 ItemApplnEntry.SetRange("Outbound Item Entry No.", "Entry No.");
                 ItemApplnEntry.SetRange("Item Ledger Entry No.", "Entry No.");
@@ -425,7 +425,7 @@
         InitApplied;
         with ItemLedgEntry do
             if Positive then begin
-                ItemApplnEntry.Reset;
+                ItemApplnEntry.Reset();
                 ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.", "Cost Application");
                 ItemApplnEntry.SetRange("Inbound Item Entry No.", "Entry No.");
                 ItemApplnEntry.SetFilter("Item Ledger Entry No.", '<>%1', "Entry No.");
@@ -436,7 +436,7 @@
                         InsertTempEntry(ItemApplnEntry."Outbound Item Entry No.", ItemApplnEntry.Quantity, false);
                     until ItemApplnEntry.Next = 0;
             end else begin
-                ItemApplnEntry.Reset;
+                ItemApplnEntry.Reset();
                 ItemApplnEntry.SetCurrentKey("Outbound Item Entry No.", "Item Ledger Entry No.", "Cost Application");
                 ItemApplnEntry.SetRange("Outbound Item Entry No.", "Entry No.");
                 ItemApplnEntry.SetFilter("Item Ledger Entry No.", '<>%1', "Entry No.");
@@ -482,14 +482,14 @@
                 exit;
 
         if not TempItemLedgEntry.Get(EntryNo) then begin
-            TempItemLedgEntry.Reset;
+            TempItemLedgEntry.Reset();
             TempItemLedgEntry := ItemLedgEntry;
             TempItemLedgEntry.CalcFields("Reserved Quantity");
             TempItemLedgEntry.Quantity := AppliedQty;
-            TempItemLedgEntry.Insert;
+            TempItemLedgEntry.Insert();
         end else begin
             TempItemLedgEntry.Quantity := TempItemLedgEntry.Quantity + AppliedQty;
-            TempItemLedgEntry.Modify;
+            TempItemLedgEntry.Modify();
         end;
 
         TotalApplied := TotalApplied + AppliedQty;
@@ -570,7 +570,7 @@
             SetFilter("Outbound Item Entry No.", '<>0');
             if not IsEmpty then begin
                 SetRange("Outbound Item Entry No.", 0);
-                DeleteAll;
+                DeleteAll();
             end
         end;
     end;

@@ -51,7 +51,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostAllocationTarget.SetFilter(Base, '<>%1', CostAllocationTarget.Base::Static);
         if CostAllocationTarget.IsEmpty then
             Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption, CostAllocationTarget.GetFilters));
-        Expected := CostAllocationTarget.Count;
+        Expected := CostAllocationTarget.Count();
 
         // Exercise:
         Actual := CostAccountAllocation.CalcAllocationKeys;
@@ -855,7 +855,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
             TotalShare -= CurrentShare;
         end;
         CreateAllocTargetWithCCenter(CostAllocationSource, CostAllocationTarget, TotalShare);
-        Commit;
+        Commit();
         MaxLevel := CostAllocationSource.Level;
         REPORT.Run(REPORT::"Cost Allocation");
 
@@ -863,41 +863,12 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         VerifyCostCenterBalance(CostAllocationSource."Cost Center Code", 0);
     end;
 
-    [Test]
-    [HandlerFunctions('AllocateCostsForVariant,ConfirmHandlerYes,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure TestAllocationWithTargetBlockedCostCenter()
-    var
-        CostAllocationSource: Record "Cost Allocation Source";
-        CostAllocationTarget: Record "Cost Allocation Target";
-        CostCenter: Record "Cost Center";
-        TotalShare: Decimal;
-    begin
-        // [SCENARIO 344609] Stan can call "Cost Allocation" report with blocked Cost Center as target. System does not generate entries for such Cost Center.
-        Initialize();
-
-        CreateAllocSourceWithCCenter(CostAllocationSource, TypeOfID::Custom);
-
-        TotalShare := LibraryRandom.RandIntInRange(50, 100);
-        CreateAllocTargetWithCCenter(CostAllocationSource, CostAllocationTarget, TotalShare);
-        CostCenter.Get(CostAllocationTarget."Target Cost Center");
-        CostCenter.Blocked := true;
-        CostCenter.Modify();
-
-        Commit();
-
-        MaxLevel := CostAllocationSource.Level;
-        REPORT.Run(REPORT::"Cost Allocation");
-
-        VerifyCostCenterBalance(CostAllocationTarget."Target Cost Center", 0);
-    end;
-
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cost Acc. Allocations");
-        LibraryVariableStorage.Clear();
-        ResetGlobalVariables();
-        LibraryCostAccounting.InitializeCASetup();
+        LibraryVariableStorage.Clear;
+        ResetGlobalVariables;
+        LibraryCostAccounting.InitializeCASetup;
     end;
 
     local procedure CreateAllocSourceWithCCenter(var CostAllocationSource: Record "Cost Allocation Source"; TypeOfID: Option "Auto Generated",Custom)
@@ -1110,7 +1081,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
     local procedure CreateCostBudgetEntry(var CostBudgetEntry: Record "Cost Budget Entry"; CostBudgetName: Code[10]; CostTypeNo: Code[20]; CostCenterCode: Code[20])
     begin
-        CostBudgetEntry.Init;
+        CostBudgetEntry.Init();
         CostBudgetEntry.Validate(Date, WorkDate);
         CostBudgetEntry.Validate("Budget Name", CostBudgetName);
         CostBudgetEntry.Validate("Cost Type No.", CostTypeNo);
@@ -1123,7 +1094,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     var
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        CostBudgetName.Init;
+        CostBudgetName.Init();
         CostBudgetName.Validate(
           Name, LibraryUtility.GenerateRandomCode(CostBudgetName.FieldNo(Description), DATABASE::"Cost Budget Name"));
         CostBudgetName.Validate(Description, CostBudgetName.Name);
@@ -1327,10 +1298,10 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         CostRegister: Record "Cost Register";
         CostBudgetRegister: Record "Cost Budget Register";
     begin
-        CostEntry.DeleteAll;
-        CostRegister.DeleteAll;
-        CostBudgetEntry.DeleteAll;
-        CostBudgetRegister.DeleteAll;
+        CostEntry.DeleteAll();
+        CostRegister.DeleteAll();
+        CostBudgetEntry.DeleteAll();
+        CostBudgetRegister.DeleteAll();
     end;
 
     local procedure FindCostTypeWithCostCenter(var CostType: Record "Cost Type"; CostCenterCode: Code[20])
@@ -1353,7 +1324,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
     local procedure GetAllocTargets(var CostAllocationTarget: Record "Cost Allocation Target"; ID: Code[10])
     begin
-        CostAllocationTarget.Init;
+        CostAllocationTarget.Init();
         CostAllocationTarget.SetFilter(ID, '%1', ID);
         if not CostAllocationTarget.FindSet then
             Error(StrSubstNo(NoRecordsInFilterErr, CostAllocationTarget.TableCaption, CostAllocationTarget.GetFilters));
@@ -1444,7 +1415,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
 
     local procedure RunCostAllocationReport()
     begin
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Cost Allocation");
     end;
 

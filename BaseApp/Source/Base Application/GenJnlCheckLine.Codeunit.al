@@ -44,7 +44,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
     begin
         OnBeforeRunCheck(GenJnlLine);
 
-        GLSetup.Get;
+        GLSetup.Get();
         with GenJnlLine do begin
             if EmptyLine then
                 exit;
@@ -234,7 +234,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                 if DateNotAllowed("Posting Date") then
                     FieldError("Posting Date", Text001);
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             if SourceCodeSetup."Close Income Statement" = "Source Code" then
                 CheckPostingPeriod(false);
             VATTools.RunCheckNorwegianVAT(GenJnlLine, AllowPostingInClosedVATPeriod);
@@ -472,7 +472,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
             AllowPostingInClosedVATPeriod := false
         else begin
             AllowPosting := false;
-            GLSetup.Get;
+            GLSetup.Get();
             AllowPosting := GLSetup."Application always Allowed";
             if not AllowPosting then
                 if UserSetup.Get(UserId) then

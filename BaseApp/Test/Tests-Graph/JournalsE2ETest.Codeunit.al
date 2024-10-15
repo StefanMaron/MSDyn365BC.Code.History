@@ -29,7 +29,7 @@ codeunit 135535 "Journals E2E Test"
             exit;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -49,7 +49,7 @@ codeunit 135535 "Journals E2E Test"
         Initialize;
 
         JournalJSON := CreateJournalJSON(JournalName, JournalDescription, JournalBalAccountNo);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Journal Entity", ServiceNameTxt);
@@ -84,7 +84,7 @@ codeunit 135535 "Journals E2E Test"
         LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalNames[1]);
         LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalNames[2]);
 
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         ResponseText := '';
@@ -123,7 +123,7 @@ codeunit 135535 "Journals E2E Test"
 
         // [GIVEN] a journal json
         JournalJSON := CreateJournalJSON(JournalNames[2], JournalDescription, JournalBalAccountNo);
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(JournalGUID, PAGE::"Journal Entity", ServiceNameTxt);

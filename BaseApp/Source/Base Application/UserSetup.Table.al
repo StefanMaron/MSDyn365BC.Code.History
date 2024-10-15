@@ -59,7 +59,7 @@ table 91 "User Setup"
                     UserSetup.SetRange("Salespers./Purch. Code", "Salespers./Purch. Code");
                     if UserSetup.FindFirst then
                         Error(Text001, "Salespers./Purch. Code", UserSetup."User ID");
-                    UpdateSalesPerson;
+                    UpdateSalesPerson(FieldNo("Salespers./Purch. Code"));
                 end;
             end;
         }
@@ -160,7 +160,7 @@ table 91 "User Setup"
             var
                 MailManagement: Codeunit "Mail Management";
             begin
-                UpdateSalesPerson;
+                UpdateSalesPerson(FieldNo("E-Mail"));
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
@@ -169,6 +169,18 @@ table 91 "User Setup"
             Caption = 'Phone No.';
             DataClassification = CustomerContent;
             ExtendedDatatype = PhoneNo;
+
+            trigger OnValidate()
+            var
+                Char: DotNet Char;
+                i: Integer;
+            begin
+                for i := 1 to StrLen("Phone No.") do
+                    if Char.IsLetter("Phone No."[i]) then
+                        FieldError("Phone No.", PhoneNoCannotContainLettersErr);
+
+                UpdateSalesPerson(FieldNo("Phone No."));
+            end;
         }
         field(19; "Request Amount Approval Limit"; Integer)
         {
@@ -298,13 +310,14 @@ table 91 "User Setup"
         SalesPersonPurchaser: Record "Salesperson/Purchaser";
         PrivacyBlockedGenericErr: Label 'Privacy Blocked must not be true for Salesperson / Purchaser %1.', Comment = '%1 = salesperson / purchaser code.';
         UserSetupManagement: Codeunit "User Setup Management";
+        PhoneNoCannotContainLettersErr: Label 'must not contain letters';
 
     procedure CreateApprovalUserSetup(User: Record User)
     var
         UserSetup: Record "User Setup";
         ApprovalUserSetup: Record "User Setup";
     begin
-        ApprovalUserSetup.Init;
+        ApprovalUserSetup.Init();
         ApprovalUserSetup.Validate("User ID", User."User Name");
         ApprovalUserSetup.Validate("Sales Amount Approval Limit", GetDefaultSalesAmountApprovalLimit);
         ApprovalUserSetup.Validate("Purchase Amount Approval Limit", GetDefaultPurchaseAmountApprovalLimit);
@@ -312,7 +325,7 @@ table 91 "User Setup"
         UserSetup.SetRange("Sales Amount Approval Limit", UserSetup.GetDefaultSalesAmountApprovalLimit);
         if UserSetup.FindFirst then
             ApprovalUserSetup.Validate("Approver ID", UserSetup."Approver ID");
-        if ApprovalUserSetup.Insert then;
+        if ApprovalUserSetup.Insert() then;
     end;
 
     procedure GetDefaultSalesAmountApprovalLimit(): Integer
@@ -325,7 +338,7 @@ table 91 "User Setup"
 
         if UserSetup.FindFirst then begin
             DefaultApprovalLimit := UserSetup."Sales Amount Approval Limit";
-            LimitedApprovers := UserSetup.Count;
+            LimitedApprovers := UserSetup.Count();
             UserSetup.SetRange("Sales Amount Approval Limit", DefaultApprovalLimit);
             if LimitedApprovers = UserSetup.Count then
                 exit(DefaultApprovalLimit);
@@ -345,7 +358,7 @@ table 91 "User Setup"
 
         if UserSetup.FindFirst then begin
             DefaultApprovalLimit := UserSetup."Purchase Amount Approval Limit";
-            LimitedApprovers := UserSetup.Count;
+            LimitedApprovers := UserSetup.Count();
             UserSetup.SetRange("Purchase Amount Approval Limit", DefaultApprovalLimit);
             if LimitedApprovers = UserSetup.Count then
                 exit(DefaultApprovalLimit);
@@ -370,13 +383,24 @@ table 91 "User Setup"
         FilterGroup := OriginalFilterGroup;
     end;
 
-    local procedure UpdateSalesPerson()
+    local procedure UpdateSalesPerson(FieldNumber: Integer)
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
+        xSalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        if ("E-Mail" <> '') and SalespersonPurchaser.Get("Salespers./Purch. Code") then begin
-            SalespersonPurchaser."E-Mail" := CopyStr("E-Mail", 1, MaxStrLen(SalespersonPurchaser."E-Mail"));
-            SalespersonPurchaser.Modify;
+        if "Salespers./Purch. Code" = '' then
+            exit;
+        if SalespersonPurchaser.Get("Salespers./Purch. Code") then begin
+            xSalespersonPurchaser := SalespersonPurchaser;
+            if FieldNumber in [fieldno("E-Mail"), FieldNo("Salespers./Purch. Code")] then
+                SalespersonPurchaser."E-Mail" := CopyStr("E-Mail", 1, MaxStrLen(SalespersonPurchaser."E-Mail"));
+            if FieldNumber in [fieldno("Phone No."), FieldNo("Salespers./Purch. Code")] then
+                SalespersonPurchaser."Phone No." := "Phone No.";
+
+            if (SalespersonPurchaser."E-Mail" <> xSalespersonPurchaser."E-Mail") or
+                (SalespersonPurchaser."Phone No." <> xSalespersonPurchaser."Phone No.")
+            then
+                SalespersonPurchaser.Modify();
         end;
     end;
 

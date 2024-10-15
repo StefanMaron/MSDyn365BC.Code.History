@@ -55,7 +55,7 @@ codeunit 10601 DocumentTools
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         case true of
             (SalesSetup."KID Setup" = SalesSetup."KID Setup"::"Do not use"):
                 GiroKID := '';
@@ -187,7 +187,7 @@ codeunit 10601 DocumentTools
         GenJnlLineRegRepCode.SetRange("Journal Template Name", Rec."Journal Template Name");
         GenJnlLineRegRepCode.SetRange("Journal Batch Name", Rec."Journal Batch Name");
         GenJnlLineRegRepCode.SetRange("Line No.", Rec."Line No.");
-        GenJnlLineRegRepCode.DeleteAll;
+        GenJnlLineRegRepCode.DeleteAll();
     end;
 
     procedure IsNorgeSEPACT(GenJournalLine: Record "Gen. Journal Line"): Boolean
