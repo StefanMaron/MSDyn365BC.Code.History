@@ -606,30 +606,6 @@
         exit(false);
     end;
 
-    trigger OnFindRecord(Which: Text) Found: Boolean
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeOnFindRecord(Rec, Which, Found, IsHandled);
-        if IsHandled then
-            exit(Found);
-
-        exit(Rec.Find(Which));
-    end;
-
-    trigger OnNextRecord(Steps: Integer) ActualSteps: Integer
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeOnNextRecord(Rec, Steps, ActualSteps, IsHandled);
-        if IsHandled then
-            exit(ActualSteps);
-
-        exit(Rec.Next(Steps));
-    end;
-
     trigger OnOpenPage()
     var
         OfficeMgt: Codeunit "Office Management";
@@ -1552,16 +1528,6 @@
     begin
     end;
 
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeOnFindRecord(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Which: Text; var Found: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeOnNextRecord(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Steps: Integer; var ActualSteps: Integer; var IsHandled: Boolean)
-    begin
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostDirectApplication(var VendorLedgerEntry: Record "Vendor Ledger Entry"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
@@ -1607,4 +1573,3 @@
     begin
     end;
 }
-

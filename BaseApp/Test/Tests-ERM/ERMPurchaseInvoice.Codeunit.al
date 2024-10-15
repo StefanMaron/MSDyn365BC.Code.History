@@ -2885,6 +2885,33 @@ codeunit 134328 "ERM Purchase Invoice"
         VerifyGLEntryForGLAccount(GenJournalDocumentType::Invoice, DocumentNo, VATPostingSetup.GetPurchAccount(false), false, -ExpectedAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('VendorLookupSelectVendorPageHandler')]
+    [Scope('OnPrem')]
+    procedure EnsureInsertingSearchVendorNameInPurchaseInvoice()
+    var
+        Vendor: Record Vendor;
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 447956] Inserting the vendor name in a Purchase Invoice without any error
+        Initialize();
+
+        // [GIVEN] Create vendor
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+
+        // [WHEN] Create new Purchase Invoice and click on lookup at "Buy-from Vendor Name" field
+        PurchaseInvoice.OpenNew();
+        PurchaseInvoice."Buy-from Vendor Name".Lookup();
+
+        // [THEN] Verify vendor name inserted to "Buy-from Vendor Name" without any error
+        PurchaseInvoice."Buy-from Vendor Name".AssertEquals(Vendor.Name);
+        PurchaseInvoice.Close();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -4178,6 +4205,14 @@ codeunit 134328 "ERM Purchase Invoice"
         Assert.AreEqual(LibraryVariableStorage.DequeueText(),
             VendorLookup.Filter.GetFilter("Date Filter"), 'Wrong Date Filter.');
         VendorLookup.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VendorLookupSelectVendorPageHandler(var VendorLookup: TestPage "Vendor Lookup")
+    begin
+        VendorLookup.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        VendorLookup.OK.Invoke();
     end;
 
     [SendNotificationHandler]
