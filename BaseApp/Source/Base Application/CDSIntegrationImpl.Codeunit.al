@@ -2255,6 +2255,7 @@ codeunit 7201 "CDS Integration Impl."
         if CDSConnectionSetup."Authentication Type" = CDSConnectionSetup."Authentication Type"::Office365 then begin
             if CDSConnectionSetup."Connection String".Contains(ClientSecretTok) then begin
                 ConnectionStringWithClientSecret := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", GetCDSConnectionClientId(), GetCDSConnectionClientSecret(), CDSConnectionSetup."Proxy Version");
+                Session.LogMessage('0000GRU', GetCDSConnectionClientId(), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 exit(ConnectionStringWithClientSecret);
             end;
 

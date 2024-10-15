@@ -48,7 +48,9 @@
                     if "Supplementary Units" then begin
                         Item.Get("Item No.");
                         Item.TestField("Base Unit of Measure");
-                        SpecialUnit := Quantity;
+                        SpecialUnit := Round(Quantity);
+                        if Abs(SpecialUnit) < 1 then
+                            SpecialUnit := Round(Quantity, 1, '>');
                     end;
 
                     case Type of
@@ -294,6 +296,7 @@
 
     trigger OnPreReport()
     begin
+        ExportFormat := ExportFormat::"2022";
         IntrastatFileWriter.Initialize(false, false, 0);
 
 #if not CLEAN19

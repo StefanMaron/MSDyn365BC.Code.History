@@ -1552,8 +1552,7 @@ codeunit 144049 "UT REP EVAT"
     begin
         with CompanyInformation do begin
             Get;
-            Validate(
-              "Fiscal Entity No.", StrSubstNo(CopyStr("VAT Registration No.", 3, 10) + Format(LibraryRandom.RandIntInRange(10, 100)))); // Follow the format of "VAT Registration No.".
+            Validate("Fiscal Entity No.", '777777770B77');
             Modify(true);
             exit("Fiscal Entity No.");
         end;
