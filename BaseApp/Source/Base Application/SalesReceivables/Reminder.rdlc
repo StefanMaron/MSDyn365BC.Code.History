@@ -4369,8 +4369,8 @@ Cstr(Fields!GiroNoCaption.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoGiroNo.Value) + Chr(177) + 
 Cstr(Fields!BankNameCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoBankName.Value) + Chr(177) + 
-Cstr(Fields!BankAccountNoCaption.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoAccountNo.Value) + Chr(177) + 
+Cstr(Fields!IBANCaption.Value) + Chr(177) + 
+Cstr(Fields!CompanyInfoIBAN.Value) + Chr(177) + 
 Cstr(Fields!CustomerNo_IssuedRemHrdCaption.Value) + Chr(177) + 
 Cstr(Fields!ReminderNoCaption.Value) + Chr(177) + 
 Cstr(Fields!PostingDateCaption.Value) + Chr(177) + 
@@ -4462,7 +4462,7 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
       <Width>18cm</Width>
       <Page>
         <PageHeader>
-          <Height>9.00471cm</Height>
+          <Height>9.2cm</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -4568,7 +4568,7 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox673</rd:DefaultName>
-              <Top>1.02639in</Top>
+              <Top>1.27639in</Top>
               <Height>11pt</Height>
               <Width>4.73003in</Width>
               <ZIndex>3</ZIndex>
@@ -4620,7 +4620,7 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox634</rd:DefaultName>
-              <Top>1.16528in</Top>
+              <Top>1.41528in</Top>
               <Height>11pt</Height>
               <Width>4.73003in</Width>
               <ZIndex>5</ZIndex>
@@ -4672,7 +4672,7 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox591</rd:DefaultName>
-              <Top>1.31251in</Top>
+              <Top>1.56251in</Top>
               <Height>11pt</Height>
               <Width>4.73003in</Width>
               <ZIndex>7</ZIndex>
@@ -4724,7 +4724,7 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox548</rd:DefaultName>
-              <Top>1.4514in</Top>
+              <Top>1.7014in</Top>
               <Height>11pt</Height>
               <Width>4.73003in</Width>
               <ZIndex>9</ZIndex>
@@ -4776,7 +4776,7 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox496</rd:DefaultName>
-              <Top>1.61529in</Top>
+              <Top>1.86529in</Top>
               <Height>11pt</Height>
               <Width>4.73003in</Width>
               <ZIndex>11</ZIndex>
@@ -4828,7 +4828,7 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox453</rd:DefaultName>
-              <Top>1.75418in</Top>
+              <Top>2.00418in</Top>
               <Height>11pt</Height>
               <Width>4.73003in</Width>
               <ZIndex>13</ZIndex>
@@ -4907,7 +4907,7 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox401</rd:DefaultName>
-              <Top>1.90557in</Top>
+              <Top>2.15557in</Top>
               <Height>11pt</Height>
               <Width>4.73003in</Width>
               <ZIndex>16</ZIndex>
@@ -5087,59 +5087,6 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
               <ZIndex>22</ZIndex>
               <Style />
             </Textbox>
-            <Textbox Name="CompanyInfoGiroNoCaption2">
-              <CanGrow>true</CanGrow>
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(40,1)</Value>
-                      <Style>
-                        <FontStyle>Normal</FontStyle>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Left</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>2.81114in</Top>
-              <Left>4.72441in</Left>
-              <Height>11pt</Height>
-              <Width>1.03523in</Width>
-              <ZIndex>23</ZIndex>
-              <Style />
-            </Textbox>
-            <Textbox Name="CompanyInfoGiroNo2">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(41,1)</Value>
-                      <Style>
-                        <FontStyle>Normal</FontStyle>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>2.82364in</Top>
-              <Left>5.75964in</Left>
-              <Height>11pt</Height>
-              <Width>1.30879in</Width>
-              <ZIndex>24</ZIndex>
-              <Style />
-            </Textbox>
             <Textbox Name="CompanyInfoBankNameCaption2">
               <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
@@ -5160,11 +5107,11 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.97642in</Top>
+              <Top>2.8389in</Top>
               <Left>4.72441in</Left>
               <Height>11pt</Height>
               <Width>1.03523in</Width>
-              <ZIndex>25</ZIndex>
+              <ZIndex>23</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="CompanyInfoBankName2">
@@ -5186,14 +5133,14 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.97642in</Top>
+              <Top>2.8389in</Top>
               <Left>5.75964in</Left>
               <Height>11pt</Height>
               <Width>1.30879in</Width>
-              <ZIndex>26</ZIndex>
+              <ZIndex>24</ZIndex>
               <Style />
             </Textbox>
-            <Textbox Name="CompanyInfoBankAccountNoCaption2">
+            <Textbox Name="CompanyInfoIBANCaption2">
               <CanGrow>true</CanGrow>
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
@@ -5213,14 +5160,14 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>3.14032in</Top>
+              <Top>3.0028in</Top>
               <Left>4.72441in</Left>
               <Height>11pt</Height>
-              <Width>1.03523in</Width>
-              <ZIndex>27</ZIndex>
+              <Width>0.77134in</Width>
+              <ZIndex>25</ZIndex>
               <Style />
             </Textbox>
-            <Textbox Name="CompanyInfoBankAccountNo2">
+            <Textbox Name="CompanyInfoIBAN2">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -5239,11 +5186,11 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>3.1278in</Top>
-              <Left>5.75964in</Left>
+              <Top>2.99028in</Top>
+              <Left>5.49575in</Left>
               <Height>11pt</Height>
-              <Width>1.30879in</Width>
-              <ZIndex>28</ZIndex>
+              <Width>1.57268in</Width>
+              <ZIndex>26</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="IssuedReminderHeaderCustomerNoCaption2">
@@ -5266,10 +5213,10 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.06392in</Top>
+              <Top>2.31392in</Top>
               <Height>11pt</Height>
               <Width>1.1952in</Width>
-              <ZIndex>29</ZIndex>
+              <ZIndex>27</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="IssuedReminderHeaderCustomerNo2">
@@ -5291,11 +5238,11 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.06392in</Top>
+              <Top>2.31392in</Top>
               <Left>1.1952in</Left>
               <Height>11pt</Height>
               <Width>3.53483in</Width>
-              <ZIndex>30</ZIndex>
+              <ZIndex>28</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="ExecutionTimeTextBox2">
@@ -5319,11 +5266,11 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.66809in</Top>
+              <Top>2.91809in</Top>
               <Left>1.19381in</Left>
               <Height>11pt</Height>
               <Width>3.5306in</Width>
-              <ZIndex>31</ZIndex>
+              <ZIndex>29</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="VATNoText2">
@@ -5345,10 +5292,10 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.37781in</Top>
+              <Top>2.62781in</Top>
               <Height>11pt</Height>
               <Width>1.1952in</Width>
-              <ZIndex>32</ZIndex>
+              <ZIndex>30</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="IssuedReminderHeaderVATRegistrationNo2">
@@ -5370,11 +5317,11 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.37781in</Top>
+              <Top>2.62781in</Top>
               <Left>1.1952in</Left>
               <Height>11pt</Height>
               <Width>3.52921in</Width>
-              <ZIndex>33</ZIndex>
+              <ZIndex>31</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="ReferenceText2">
@@ -5396,10 +5343,10 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.5167in</Top>
+              <Top>2.7667in</Top>
               <Height>11pt</Height>
               <Width>1.1952in</Width>
-              <ZIndex>34</ZIndex>
+              <ZIndex>32</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="IssuedReminderHeaderYourReference2">
@@ -5421,11 +5368,11 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.5167in</Top>
+              <Top>2.7667in</Top>
               <Left>1.1952in</Left>
               <Height>11pt</Height>
               <Width>3.52921in</Width>
-              <ZIndex>35</ZIndex>
+              <ZIndex>33</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="IssuedReminderHeaderNoCaption2">
@@ -5448,11 +5395,11 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.2167in</Top>
+              <Top>2.4667in</Top>
               <Left>0.00482in</Left>
               <Height>11pt</Height>
               <Width>1.18767in</Width>
-              <ZIndex>36</ZIndex>
+              <ZIndex>34</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="IssuedReminderHeaderNo2">
@@ -5474,11 +5421,11 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.22225in</Top>
+              <Top>2.47225in</Top>
               <Left>1.20359in</Left>
               <Height>11pt</Height>
               <Width>3.52082in</Width>
-              <ZIndex>37</ZIndex>
+              <ZIndex>35</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="IssuedReminderHeaderPostingDateCaption2">
@@ -5501,10 +5448,10 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.80698in</Top>
+              <Top>3.05698in</Top>
               <Height>11pt</Height>
               <Width>1.1952in</Width>
-              <ZIndex>38</ZIndex>
+              <ZIndex>36</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="IssuedReminderHeaderPostingDate2">
@@ -5528,11 +5475,11 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.80698in</Top>
+              <Top>3.05698in</Top>
               <Left>1.19381in</Left>
               <Height>11pt</Height>
               <Width>3.53622in</Width>
-              <ZIndex>39</ZIndex>
+              <ZIndex>37</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="IssuedReminderHeaderDueDateCaption2">
@@ -5555,10 +5502,10 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.95837in</Top>
+              <Top>3.20837in</Top>
               <Height>11pt</Height>
               <Width>1.1952in</Width>
-              <ZIndex>40</ZIndex>
+              <ZIndex>38</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="IssuedReminderHeaderDueDate2">
@@ -5582,11 +5529,11 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.95976in</Top>
+              <Top>3.20976in</Top>
               <Left>1.19797in</Left>
               <Height>11pt</Height>
               <Width>3.52644in</Width>
-              <ZIndex>41</ZIndex>
+              <ZIndex>39</ZIndex>
               <Style />
             </Textbox>
             <Textbox Name="Textbox137">
@@ -5610,10 +5557,10 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox137</rd:DefaultName>
-              <Top>2.66948in</Top>
+              <Top>2.91948in</Top>
               <Height>11pt</Height>
               <Width>1.1952in</Width>
-              <ZIndex>42</ZIndex>
+              <ZIndex>40</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5628,7 +5575,7 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
               <Left>12cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>43</ZIndex>
+              <ZIndex>41</ZIndex>
               <Visibility>
                 <Hidden>=iif(IsNothing(Fields!CompanyInfo2Picture.Value)= true,true,false)</Hidden>
               </Visibility>
@@ -5645,7 +5592,7 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
               <Left>6cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>44</ZIndex>
+              <ZIndex>42</ZIndex>
               <Visibility>
                 <Hidden>=iif(IsNothing(Fields!CompanyInfo1Picture.Value) = true,true,false)</Hidden>
               </Visibility>
@@ -5659,7 +5606,7 @@ Cstr(Fields!RemLineDocumentDateCaption.Value)
               <Sizing>FitProportional</Sizing>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>45</ZIndex>
+              <ZIndex>43</ZIndex>
               <Visibility>
                 <Hidden>=iif(IsNothing(Fields!CompanyInfo3Picture.Value) = true,true,false)</Hidden>
               </Visibility>
@@ -5846,6 +5793,9 @@ End Function
         <Field Name="CompanyInfoAccountNo">
           <DataField>CompanyInfoAccountNo</DataField>
         </Field>
+        <Field Name="CompanyInfoIBAN">
+          <DataField>CompanyInfoIBAN</DataField>
+        </Field>
         <Field Name="CompanyInfoBankName">
           <DataField>CompanyInfoBankName</DataField>
         </Field>
@@ -5932,6 +5882,9 @@ End Function
         </Field>
         <Field Name="BankAccountNoCaption">
           <DataField>BankAccountNoCaption</DataField>
+        </Field>
+        <Field Name="IBANCaption">
+          <DataField>IBANCaption</DataField>
         </Field>
         <Field Name="BankNameCaption">
           <DataField>BankNameCaption</DataField>

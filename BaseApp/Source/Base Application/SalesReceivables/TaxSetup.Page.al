@@ -68,5 +68,13 @@ page 485 "Tax Setup"
     actions
     {
     }
+
+    trigger OnOpenPage()
+    begin
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
+        end;
+    end;
 }
 

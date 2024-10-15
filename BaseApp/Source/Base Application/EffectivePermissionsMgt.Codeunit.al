@@ -354,7 +354,7 @@ codeunit 9852 "Effective Permissions Mgt."
             then begin
             PermissionBuffer.Init();
             PermissionBuffer.Source := PermissionBuffer.Source::Inherent;
-            PermissionBuffer."Permission Set" := '';
+            PermissionBuffer."Permission Set" := '_';
             PermissionBuffer.Type := PermissionBuffer.Type::System;
             PermissionBuffer.Order := PermissionBuffer.Source;
 

@@ -258,6 +258,7 @@
                     TempVendorPaymentBuffer.Reset();
                     TempVendorPaymentBuffer.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
                     TempVendorPaymentBuffer.SetRange("Vendor Ledg. Entry Doc. Type", TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type");
+                    OnMakeGenJnlLinesOnAfterSetFilterTempVendorPymBuffer(TempVendorPaymentBuffer, VendorLedgerEntry, Vendor);
                     if TempVendorPaymentBuffer.Find('-') then begin
                         TempVendorPaymentBuffer.Amount += PaymentAmt;
                         TempVendorPaymentBuffer."Payment Reference" := '';
@@ -460,7 +461,15 @@
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         CompanyInformation: Record "Company Information";
+        IsHandled: Boolean;
+        MessageToRecipient: Text[140];
     begin
+        MessageToRecipient := '';
+        IsHandled := false;
+        OnBeforeGetMessageToRecipient(TempVendorPaymentBuffer, DocumentsToApply, IsHandled, MessageToRecipient);
+        if IsHandled then
+            exit(MessageToRecipient);
+
         if DocumentsToApply.Contains(StrSubstNo(DocToApplyLbl, TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type", TempVendorPaymentBuffer."Vendor No.")) then begin
             CompanyInformation.Get();
             exit(CompanyInformation.Name);
@@ -519,6 +528,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignCombinedDimensionSetID(var GenJournalLine: Record "Gen. Journal Line"; DimSetIDArr: array[10] of Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetMessageToRecipient(TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; DocumentsToApply: List of [Text]; var IsHandled: Boolean; MessageToRecipient: Text[140])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeGenJnlLinesOnAfterSetFilterTempVendorPymBuffer(var TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor)
     begin
     end;
 }

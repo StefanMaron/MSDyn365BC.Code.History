@@ -81,8 +81,11 @@ codeunit 79 "Sales-Post and Send"
         if OfficeMgt.IsAvailable() then
             DocumentSendingProfile.GetOfficeAddinDefault(TempDocumentSendingProfile, OfficeMgt.AttachAvailable())
         else begin
-            if not DocumentSendingProfile.Get(Customer."Document Sending Profile") then
-                DocumentSendingProfile.GetDefault(DocumentSendingProfile);
+            IsHandled := false;
+            OnConfirmPostAndSendOnBeforeGetDocumentSendingProfile(SalesHeader, Customer, DocumentSendingProfile, IsHandled);
+            if not IsHandled then
+                if not DocumentSendingProfile.Get(Customer."Document Sending Profile") then
+                    DocumentSendingProfile.GetDefault(DocumentSendingProfile);
 
             Commit();
             TempDocumentSendingProfile.Copy(DocumentSendingProfile);
@@ -166,6 +169,11 @@ codeunit 79 "Sales-Post and Send"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforePostSalesHeader(var SalesHeader: Record "Sales Header"; var TempDocumentSendingProfile: Record "Document Sending Profile" temporary; HideDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConfirmPostAndSendOnBeforeGetDocumentSendingProfile(SalesHeader: Record "Sales Header"; Customer: Record Customer; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
     begin
     end;
 }

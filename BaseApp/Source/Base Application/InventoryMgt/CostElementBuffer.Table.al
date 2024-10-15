@@ -141,6 +141,8 @@ table 5820 "Cost Element Buffer"
     begin
         "Actual Cost" := Round("Actual Cost" * ShareOfTotalCost, AmtRndgPrec);
         "Actual Cost (ACY)" := Round("Actual Cost (ACY)" * ShareOfTotalCost, AmtRndgPrecACY);
+
+        OnAfterRoundActualCost(Rec, ShareOfTotalCost, AmtRndgPrec, AmtRndgPrecACY);
     end;
 
     procedure ExcludeEntryFromAvgCostCalc(ValueEntry: Record "Value Entry")
@@ -149,6 +151,8 @@ table 5820 "Cost Element Buffer"
         "Actual Cost" := "Actual Cost" - ValueEntry."Cost Amount (Actual)" - ValueEntry."Cost Amount (Expected)";
         "Actual Cost (ACY)" :=
           "Actual Cost (ACY)" - ValueEntry."Cost Amount (Actual) (ACY)" - ValueEntry."Cost Amount (Expected) (ACY)";
+
+        OnAfterExcludeEntryFromAvgCostCalc(Rec, ValueEntry);
     end;
 
     procedure ExcludeBufFromAvgCostCalc(InvtAdjmtBuffer: Record "Inventory Adjustment Buffer")
@@ -157,6 +161,8 @@ table 5820 "Cost Element Buffer"
         "Actual Cost" := "Actual Cost" - InvtAdjmtBuffer."Cost Amount (Actual)" - InvtAdjmtBuffer."Cost Amount (Expected)";
         "Actual Cost (ACY)" :=
           "Actual Cost (ACY)" - InvtAdjmtBuffer."Cost Amount (Actual) (ACY)" - InvtAdjmtBuffer."Cost Amount (Expected) (ACY)";
+
+        OnAfterExcludeBufFromAvgCostCalc(Rec, InvtAdjmtBuffer);
     end;
 
     procedure GetElement(NewEntryType: Enum "Cost Entry Type"; NewVarianceType: Enum "Cost Variance Type"): Boolean
@@ -191,6 +197,8 @@ table 5820 "Cost Element Buffer"
         "Actual Cost (ACY)" += CostElementBuf."Actual Cost (ACY)";
         "Rounding Residual" := 0;
         "Rounding Residual (ACY)" := 0;
+
+        OnAfterDeductOutbndValueEntryFromBuf(Rec, OutbndValueEntry, CostElementBuf, IsAvgCostCalcTypeItem);
     end;
 
     procedure UpdateAvgCostBuffer(CostElementBuf: Record "Cost Element Buffer"; LastValidEntryNo: Integer)
@@ -199,6 +207,8 @@ table 5820 "Cost Element Buffer"
         "Actual Cost (ACY)" := CostElementBuf."Actual Cost (ACY)";
         "Last Valid Value Entry No" := LastValidEntryNo;
         "Remaining Quantity" := CostElementBuf."Remaining Quantity";
+
+        OnAfterUpdateAvgCostBuffer(Rec, CostElementBuf, LastValidEntryNo);
     end;
 
     procedure UpdateCostElementBuffer(AvgCostBuf: Record "Cost Element Buffer")
@@ -208,6 +218,38 @@ table 5820 "Cost Element Buffer"
         "Actual Cost (ACY)" := AvgCostBuf."Actual Cost (ACY)";
         "Rounding Residual" := AvgCostBuf."Rounding Residual";
         "Rounding Residual (ACY)" := AvgCostBuf."Rounding Residual (ACY)";
+
+        OnAfterUpdateCostElementBuffer(Rec, AvgCostBuf);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateAvgCostBuffer(var CostElementBuffer: Record "Cost Element Buffer"; CostElementBuf: Record "Cost Element Buffer"; LastValidEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateCostElementBuffer(var CostElementBuffer: Record "Cost Element Buffer"; AvgCostBuf: Record "Cost Element Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterExcludeBufFromAvgCostCalc(var CostElementBuffer: Record "Cost Element Buffer"; InvtAdjmtBuffer: Record "Inventory Adjustment Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRoundActualCost(var CostElementBuffer: Record "Cost Element Buffer"; ShareOfTotalCost: Decimal; AmtRndgPrec: Decimal; AmtRndgPrecACY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeductOutbndValueEntryFromBuf(var CostElementBuffer: Record "Cost Element Buffer"; OutbndValueEntry: Record "Value Entry"; CostElementBuf: Record "Cost Element Buffer"; IsAvgCostCalcTypeItem: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterExcludeEntryFromAvgCostCalc(var CostElementBuffer: Record "Cost Element Buffer"; ValueEntry: Record "Value Entry")
+    begin
     end;
 }
 

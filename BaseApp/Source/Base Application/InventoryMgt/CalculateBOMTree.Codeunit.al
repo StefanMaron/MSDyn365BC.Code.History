@@ -383,7 +383,10 @@ codeunit 5870 "Calculate BOM Tree"
                             if TreeType = TreeType::Cost then begin
                                 LotSize := ParentBOMBuffer."Lot Size";
                                 if LotSize = 0 then
-                                    LotSize := 1;
+                                    if ParentBOMBuffer."Qty. per Top Item" <> 0 then
+                                        LotSize := ParentBOMBuffer."Qty. per Top Item"
+                                    else
+                                        LotSize := 1;
                                 CalcRoutingLineCosts(RoutingLine, LotSize, ParentBOMBuffer."Scrap %", BOMBuffer, ParentItem);
                                 BOMBuffer.RoundCosts(
                                   ParentBOMBuffer."Qty. per Top Item" *

@@ -281,11 +281,17 @@ page 9871 "Security Groups"
     end;
 
     local procedure RefreshData(ShouldRefreshMembers: Boolean)
+    var
+        NumberOfGroupsBeforeRefresh: Integer;
     begin
+        NumberOfGroupsBeforeRefresh := Rec.Count();
+
         SecurityGroup.GetGroups(Rec);
-        if ShouldRefreshMembers then
-            CurrPage."Security Group Members Part".Page.Refresh();
         AreRecordsPresent := not Rec.IsEmpty();
+
+        if ShouldRefreshMembers then
+            if Rec.Count() > NumberOfGroupsBeforeRefresh then
+                CurrPage."Security Group Members Part".Page.Refresh();
     end;
 
     local procedure GetSelectedGroupCodes(): List of [Code[20]];

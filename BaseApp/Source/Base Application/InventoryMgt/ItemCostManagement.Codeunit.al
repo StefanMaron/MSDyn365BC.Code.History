@@ -93,6 +93,12 @@
             exit;
         end;
 
+#if not CLEAN21
+        if UpdateOldCostPlusPrices(ItemNo) then begin
+            ItemUnitCostUpdated := false;
+            exit;
+        end;
+#endif
         PriceListLine.Reset();
         SalesReceivablesSetup.Get();
         if SalesReceivablesSetup."Allow Editing Active Price" then
@@ -112,6 +118,34 @@
             until PriceListLine.Next() = 0;
         ItemUnitCostUpdated := false;
     end;
+
+#if not CLEAN21
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '21.0')]
+    local procedure UpdateOldCostPlusPrices(ItemNo: Code[20]): Boolean;
+    var
+        SalesPrice: Record "Sales Price";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        xUnitPrice: Decimal;
+    begin
+        if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
+            exit(false);
+
+        SalesPrice.Reset();
+        with SalesPrice do begin
+            if ItemNo <> '' then
+                SetRange("Item No.", ItemNo);
+            SetFilter("Cost-plus %", '>%1', 0);
+            if FindSet() then
+                repeat
+                    xUnitPrice := "Unit Price";
+                    Validate("Cost-plus %");
+                    if xUnitPrice <> "Unit Price" then
+                        Modify();
+                until Next() = 0;
+        end;
+        exit(true);
+    end;
+#endif
 
     local procedure CalcUnitCostFromAverageCost(var Item: Record Item)
     var
