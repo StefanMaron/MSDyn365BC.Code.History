@@ -2410,6 +2410,7 @@ codeunit 134900 "ERM Batch Job"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Batch Job");
 
+        SetGLSetupInvoiceRounding();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
@@ -3770,6 +3771,15 @@ codeunit 134900 "ERM Batch Job"
         Workflow.Validate(Enabled, false);
         Workflow.Modify(true);
         Workflow.Delete(true);
+    end;
+
+    local procedure SetGLSetupInvoiceRounding()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := GeneralLedgerSetup."Amount Rounding Precision";
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure VerifyCurrencyOnIssuedReminder(CurrencyCode: Code[10]; AmountRoundingPrecision: Decimal)
