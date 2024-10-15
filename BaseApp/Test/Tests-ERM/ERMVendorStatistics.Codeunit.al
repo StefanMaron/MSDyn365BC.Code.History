@@ -34,7 +34,7 @@ codeunit 134334 "ERM Vendor Statistics"
         BalanceDueLCY: Decimal;
     begin
         // [SCENARIO] Create Purchase Order and Verify Vendor Statistics before Release and Post.
-        Initialize;
+        Initialize();
 
         // [WHEN] Create Purchase Header and Line.
         CreatePurchaseHeader(PurchaseHeader);
@@ -63,7 +63,7 @@ codeunit 134334 "ERM Vendor Statistics"
         BalanceDueLCY: Decimal;
     begin
         // [SCENARIO] Create Purchase Order and Verify Vendor Statistics after Release.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Header and Line.
         CreatePurchaseHeader(PurchaseHeader);
@@ -95,7 +95,7 @@ codeunit 134334 "ERM Vendor Statistics"
         BalanceDueLCY: Decimal;
     begin
         // [SCENARIO] Create Purchase Order and Verify Vendor Statistics after only Receive.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Header and Line.
         CreatePurchaseHeader(PurchaseHeader);
@@ -131,7 +131,7 @@ codeunit 134334 "ERM Vendor Statistics"
         OldWorkDate: Date;
     begin
         // [SCENARIO] Create Purchase Order and Verify Vendor Statistics after Post.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Purchase Header and Line.
         CreatePurchaseHeader(PurchaseHeader);
@@ -169,7 +169,7 @@ codeunit 134334 "ERM Vendor Statistics"
         BalanceFCY: Decimal;
     begin
         // [SCENARIO] Test that while opening the page VendStatsByCurrLines from the Vendor list, proper filter can be applied on that page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Vendor and Purchase Document with or without currency and post it.
         LibraryPurchase.CreateVendor(Vendor);
@@ -196,7 +196,7 @@ codeunit 134334 "ERM Vendor Statistics"
         BalanceFCY: Decimal;
     begin
         // [SCENARIO] Test that while opening the page VendStatsByCurrLines from the Vendor card, proper filter can be applied on that page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Vendor and Purchase Document with or without currency and post it.
         LibraryPurchase.CreateVendor(Vendor);
@@ -223,7 +223,7 @@ codeunit 134334 "ERM Vendor Statistics"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 210533] Check Over Due Balance on Customer after changing Work date greater than Payment Date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Post Sales Invoice and make partial payment.
         LibraryPurchase.CreateVendor(Vendor);
@@ -250,7 +250,7 @@ codeunit 134334 "ERM Vendor Statistics"
         PurchaseOrderCard: TestPage "Purchase Order";
     begin
         // [SCENARIO 122259] Vendor Statistics Fact Box shows "Vendor.No." data in Purchase Order Card if Pay-to Vendor No. is blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "X" with blank "Pay-to Vendor No."
         LibraryPurchase.CreateVendor(Vendor);
@@ -277,7 +277,7 @@ codeunit 134334 "ERM Vendor Statistics"
         PurchaseOrderCard: TestPage "Purchase Order";
     begin
         // [SCENARIO 122259] Vendor Statistics Fact Box shows "Pay-to Vendor No." data in Purchase Order Card if Pay-to Vendor No. is not blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "X" with "Pay-to Vendor No." = Y
         LibraryPurchase.CreateVendor(Vendor);
@@ -304,7 +304,7 @@ codeunit 134334 "ERM Vendor Statistics"
         VendorList: TestPage "Vendor List";
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup new Vendor with a vendor ledger entry
         LibraryPurchase.CreateVendor(Vendor);
@@ -333,7 +333,7 @@ codeunit 134334 "ERM Vendor Statistics"
         VendorCard: TestPage "Vendor Card";
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup new Customer with a customer ledger entry
         LibraryPurchase.CreateVendor(Vendor);
@@ -363,7 +363,7 @@ codeunit 134334 "ERM Vendor Statistics"
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
         // [SCENARIO 258948] When Drill Down on Balance Due (LCY) is called from Vendor List, Due Date filter on opened Vendor Ledger Entries Page = Date Filter.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup new Vendor with a vendor ledger entry
         LibraryPurchase.CreateVendor(Vendor);
@@ -401,7 +401,7 @@ codeunit 134334 "ERM Vendor Statistics"
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
         // [SCENARIO 258948] When Drill Down on Balance Due (LCY) is called from Vendor Card, Due Date filter on opened Vendor Ledger Entries Page = Date Filter.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup new Customer with a customer ledger entry
         LibraryPurchase.CreateVendor(Vendor);
@@ -441,7 +441,7 @@ codeunit 134334 "ERM Vendor Statistics"
         // [FEATURE] [UT]
         // [SCENARIO 217425] Flow field "Balance" of Vendor does not depend on flow filter "Date Filter"
 
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate, WorkDate);
         TotalAmount += DetailedVendorLedgEntry.Amount;
@@ -467,7 +467,7 @@ codeunit 134334 "ERM Vendor Statistics"
         // [FEATURE] [UT]
         // [SCENARIO 217425] Flow field "Balance (LCY)" of Vendor does not depend on flow filter "Date Filter"
 
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate, WorkDate);
         TotalAmount += DetailedVendorLedgEntry."Amount (LCY)";
@@ -493,7 +493,7 @@ codeunit 134334 "ERM Vendor Statistics"
     begin
         // [SCENARIO 210354] Flow field "Balance Due" calculates given maximum limit of flow filter "Date Filter"
 
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         DueDate := CalcDate('<1M>', WorkDate);
         MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate, DueDate);
@@ -519,7 +519,7 @@ codeunit 134334 "ERM Vendor Statistics"
     begin
         // [SCENARIO 210354] Flow field "Balance Due (LCY)" calculates given maximum limit of flow filter "Date Filter"
 
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         DueDate := CalcDate('<1M>', WorkDate);
         MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate, DueDate);
@@ -542,7 +542,7 @@ codeunit 134334 "ERM Vendor Statistics"
         VendorNo: Code[20];
     begin
         // [SCENARIO 223267] Page Vendor Statistic must be not editable
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor
         VendorNo := LibraryPurchase.CreateVendorNo;
@@ -570,7 +570,7 @@ codeunit 134334 "ERM Vendor Statistics"
     begin
         // [SCENARIO 253431] The fields on page "Vendor Statistics Factbox" which are not affected by "Date Filter" must show their values
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with "Outstanding Amount (LCY)" = 100, "Amt. Rcd. Not Invoiced" = 40
         LibraryPurchase.CreateVendor(Vendor);
@@ -607,7 +607,7 @@ codeunit 134334 "ERM Vendor Statistics"
         DetailedVendorLedgEntry: array[2] of Record "Detailed Vendor Ledg. Entry";
     begin
         // [SCENARIO 258948] Vendor "Balance Due" is calculated based on Detailed Vendor Ledger Entries with Initial Entries Due Date < Date Filter.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor.
         LibraryPurchase.CreateVendor(Vendor);
@@ -637,7 +637,7 @@ codeunit 134334 "ERM Vendor Statistics"
         DetailedVendorLedgEntry: array[2] of Record "Detailed Vendor Ledg. Entry";
     begin
         // [SCENARIO 258948] Vendor "Balance Due" is calculated based on Detailed Vendor Ledger Entries with any posting date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor.
         LibraryPurchase.CreateVendor(Vendor);
@@ -667,7 +667,7 @@ codeunit 134334 "ERM Vendor Statistics"
         PaymentDate: array[3] of Date;
     begin
         // [SCENARIO 264555] Vendor statistics factbox shows last payment date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new Vendor "VEND"
         LibraryPurchase.CreateVendor(Vendor);
@@ -703,7 +703,7 @@ codeunit 134334 "ERM Vendor Statistics"
         PaymentDate: array[3] of Date;
     begin
         // [SCENARIO 264555] DrillDown of Last Payment Date of customer statistics factbox opens vendor payments with cursor on last payment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new Vendor "VEND"
         LibraryPurchase.CreateVendor(Vendor);
@@ -774,6 +774,41 @@ codeunit 134334 "ERM Vendor Statistics"
         Assert.KnownFailure('PurchasePrices', 341999);
         asserterror PurchaseOrder.Control3.PurchaseLineDiscounts.AssertEquals(1);
         Assert.KnownFailure('PurchaseLineDiscounts', 341999);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorStatisticsNoPlaceholderText()
+    var
+        Vendor: Record Vendor;
+        VendorCard: TestPage "Vendor Card";
+        VendorStatistics: TestPage "Vendor Statistics";
+        VisibleValue: Boolean;
+    begin
+        // [SCENARIO 369640] Vendor Statistics card does not contain 'Placeholder' texts
+        Initialize();
+
+        // [GIVEN] Create new Vendor "VEND"
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Open vendor card page for "VEND"
+        VendorCard.OpenEdit();
+        VendorCard.FILTER.SetFilter("No.", Vendor."No.");
+
+        // [WHEN] Open Vendor Statistics
+        VendorStatistics.Trap();
+        VendorCard.Statistics.Invoke();
+
+        // [THEN] 'Placeholder' text is not present under 'This Year', 'Last Year', 'To Date' fields
+        ClearLastError();
+        AssertError VisibleValue := VendorStatistics.Text001.Visible();
+        Assert.ExpectedError('is not found on the page');
+        ClearLastError();
+        AssertError VisibleValue := VendorStatistics.Control81.Visible();
+        Assert.ExpectedError('is not found on the page');
+        ClearLastError();
+        AssertError VisibleValue := VendorStatistics.Control82.Visible();
+        Assert.ExpectedError('is not found on the page');
     end;
 
     local procedure Initialize()

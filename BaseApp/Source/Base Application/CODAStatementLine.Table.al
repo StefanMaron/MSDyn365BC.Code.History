@@ -206,7 +206,7 @@ table 2000041 "CODA Statement Line"
                 CustLedgEntry: Record "Cust. Ledger Entry";
                 VendLedgEntry: Record "Vendor Ledger Entry";
             begin
-                if "Account No." = '' then begin
+                if "Account No." <> xRec."Account No." then begin
                     Validate("Account Name", '');
                     UpdateStatus;
                     // clear Applies-to ID on ledger entries
@@ -239,7 +239,8 @@ table 2000041 "CODA Statement Line"
                             end;
                     end;
                     "Applies-to ID" := '';
-                    exit;
+                    if "Account No." = '' then
+                        exit;
                 end;
 
                 if ("System-Created Entry" and
@@ -422,7 +423,7 @@ table 2000041 "CODA Statement Line"
         CODAStmtLine2: Record "CODA Statement Line";
         StatusCount: array[4] of Integer;
     begin
-        if "Account No." = '' then begin
+        if (xRec."Account No." <> "Account No.") and (xRec."Account No." <> '') then begin
             "Application Status" := "Application Status"::" ";
             Validate(Amount, 0);
             "Unapplied Amount" := "Statement Amount"

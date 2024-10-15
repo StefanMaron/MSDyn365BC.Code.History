@@ -118,6 +118,11 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     begin
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
             exit;
+
+        // if the CDS entity already has a correct company id, do nothing
+        if CDSIntegrationImpl.CheckCompanyIdNoTelemetry(SourceRecordRef) then
+            exit;
+
         SourceRecordRef.SetTable(CRMContact);
         // it is required to calculate these fields, otherwise CDS fails to modify the entity
         if (CRMContact.CreatedByName = '') or (CRMContact.ModifiedByName = '') or (CRMContact.TransactionCurrencyIdName = '') then begin
@@ -137,6 +142,10 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         RecRef: RecordRef;
     begin
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
+            exit;
+
+        // if the CDS entity already has a correct company id, do nothing
+        if CDSIntegrationImpl.CheckCompanyIdNoTelemetry(SourceRecordRef) then
             exit;
 
         SourceRecordRef.SetTable(CRMAccount);

@@ -111,7 +111,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                 then
                     Error(Text005, "Document No.");
 
-                if Amount <> 0 then begin
+                if "Statement Amount" <> 0 then begin
                     OnTransferCodBankStmtLinesOnBeforeInitGenJnlLine(CodBankStmtLine);
                     LineCounter := LineCounter + 1;
                     GenJnlLine.Init();
@@ -128,7 +128,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                     if Description <> '' then
                         GenJnlLine.Description := CopyStr(Description, 1, MaxStrLen(GenJnlLine.Description));
 
-                    // Bank account is Balancing Account, hence Amount takes the opposite sign
+                    // Bank account is Balancing Account, hence Statement Amount takes the opposite sign
                     BankAcc.Get("Bank Account No.");
                     if BankAcc."Currency Code" = '' then begin
                         GenJnlLine."Currency Factor" := "Currency Factor";
@@ -136,7 +136,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                     end;
                     GenJnlLine.Validate("Account No.", "Account No.");
                     GenJnlLine."Applies-to ID" := "Applies-to ID";
-                    GenJnlLine.Validate(Amount, -Amount);
+                    GenJnlLine.Validate(Amount, -"Statement Amount");
                     GenJnlLine."System-Created Entry" := true;
                     OnTransferCodBankStmtLinesOnBeforeGenJnlLineInsert(GenJnlLine, CodBankStmtLine);
                     GenJnlLine.Insert();
@@ -258,7 +258,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                     CodedTrans."Account Type"::"G/L Account", CodedTrans."Account Type"::"Bank Account":
                         begin
                             CodedTrans.TestField("Account No.");
-                            InitCodBankStmtLine(CodedTrans."Account Type" - 1);
+                            InitCodBankStmtLine(CodedTrans."Account Type" - 1, false);
                             if ("Message Type" = "Message Type"::"Non standard format") and ("Statement Message" = '') then
                                 Description := CodedTrans.Description;
                         end;
@@ -266,13 +266,13 @@ codeunit 2000042 "Post Coded Bank Statement"
                         begin
                             SearchCustLedgEntry;
                             if CodedTrans."Account No." <> '' then
-                                InitCodBankStmtLine(CodedTrans."Account Type" - 1);
+                                InitCodBankStmtLine(CodedTrans."Account Type" - 1, true);
                         end;
                     CodedTrans."Account Type"::Vendor:
                         begin
                             SearchVendLedgEntry;
                             if CodedTrans."Account No." <> '' then
-                                InitCodBankStmtLine(CodedTrans."Account Type" - 1);
+                                InitCodBankStmtLine(CodedTrans."Account Type" - 1, true);
                         end;
                 end;
             end;
@@ -657,10 +657,10 @@ codeunit 2000042 "Post Coded Bank Statement"
                 "Document Type" := "Document Type"::Refund;
             "Account Type" := "Account Type"::Vendor;
             "Account No." := VendLedgEntry."Vendor No.";
-            Amount := "Statement Amount";
-            "Unapplied Amount" := "Unapplied Amount" - Amount;
             Validate("Account Name", Vend.Name);
             if VendLedgEntry."Entry No." > 0 then begin
+                Amount := "Statement Amount";
+                "Unapplied Amount" := "Unapplied Amount" - Amount;
                 if "Unapplied Amount" <> 0 then begin
                     "Application Information" := StrSubstNo(Text014, VendLedgEntry.TableCaption);
                     "Application Status" := "Application Status"::"Partly applied"
@@ -732,8 +732,7 @@ codeunit 2000042 "Post Coded Bank Statement"
         // Not implemented
     end;
 
-    [Scope('OnPrem')]
-    procedure InitCodBankStmtLine(AccountType: Integer)
+    local procedure InitCodBankStmtLine(AccountType: Integer; UpdateApplicationAmounts: Boolean)
     begin
         with CodBankStmtLine do begin
             "Application Status" := "Application Status"::"Partly applied";
@@ -759,12 +758,14 @@ codeunit 2000042 "Post Coded Bank Statement"
                             Description := GLAcc.Name;
                     end;
             end;
-            Amount := "Statement Amount";
-            if "Currency Code" = '' then
-                "Amount (LCY)" := "Statement Amount"
-            else
-                "Amount (LCY)" := Round(Amount * "Currency Factor" / 100);
-            "Unapplied Amount" := "Unapplied Amount" - Amount;
+            if UpdateApplicationAmounts then begin
+                Amount := "Statement Amount";
+                if "Currency Code" = '' then
+                    "Amount (LCY)" := "Statement Amount"
+                else
+                    "Amount (LCY)" := Round(Amount * "Currency Factor" / 100);
+                "Unapplied Amount" := "Unapplied Amount" - Amount;
+            end;
         end;
     end;
 

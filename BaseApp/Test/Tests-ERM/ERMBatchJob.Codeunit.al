@@ -1598,7 +1598,7 @@ codeunit 134900 "ERM Batch Job"
         PurchaseLine: Record "Purchase Line";
     begin
         // [FEATURE] [Purchase] [Archive]
-        // [SCENARIO 378218] The archive copy should be created after posting of Purchase Order.
+        // [SCENARIO 378218] One archive copy should be created after posting of Purchase Order.
         Initialize;
 
         // [GIVEN] Set an archiving of Orders as True.
@@ -1612,7 +1612,7 @@ codeunit 134900 "ERM Batch Job"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] The archive copy of Purchase Order is created.
-        VerifyArchiveOfPurchOrder(PurchaseHeader, 2);
+        VerifyArchiveOfPurchOrder(PurchaseHeader, 1); // [BUG 369983]
     end;
 
     [Test]
@@ -1656,7 +1656,7 @@ codeunit 134900 "ERM Batch Job"
         SalesLine: Record "Sales Line";
     begin
         // [FEATURE] [Sales] [Archive]
-        // [SCENARIO 378218] The archive copy should be created after posting of Sales Order.
+        // [SCENARIO 378218] One archive copy should be created after posting of Sales Order.
         Initialize;
 
         // [GIVEN] Set an archiving of Orders as True.
@@ -1670,7 +1670,7 @@ codeunit 134900 "ERM Batch Job"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The archive copy of Sales Order is created.
-        VerifyArchiveOfSalesOrder(SalesHeader, 2);
+        VerifyArchiveOfSalesOrder(SalesHeader, 1); // [BUG 369983]
     end;
 
     [Test]

@@ -63,6 +63,7 @@ codeunit 144015 "CODA Import Tests"
         CODAStatementPage.Close;
 
         // Validation
+        // BUG 367180: Amount must be zero and Unapplied Amount must be equal Statement Amount if a CODA statement lines applied to G/L account
         LibraryCODADataProvider.ValidateSampleCODAStatement(CODAStatement);
     end;
 
@@ -78,25 +79,15 @@ codeunit 144015 "CODA Import Tests"
         CODAStatementPage: TestPage "CODA Statement";
         FinancialJournalPage: TestPage "Financial Journal";
     begin
-        // Implementation of manual test case: CODA - Transfer of CODA Statements to General Ledger (Import CODA file)
-        // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60126
+        // [SCENARIO 369875] Transfer statement amount from CODA statement to General Ledger
 
-        // Initialize Company
         UpdateCompanyInformation('0430018420');
-
-        // Create a bank account for KBC
         CreateBankAccount(BankAccount, 'KBC', '725', '737010689443');
-
-        // Create a new Journal Template
         CreateGeneralJournalTemplate(BankAccount."No.", 'Financial', 'Bank Account');
-
-        // Update Vendor
         UpdateVendorBankAccount('50000', 'Test', '467538877123', true);
-
-        // Electronic Banking Setup
         UpdateElectronicBanking(true);
 
-        // Import CODA file
+        // [GIVEN] CODA Statement with single line where Statement Amount = "X", Unapplied Amount = "X" and Amount = 0
         DeleteAllCODALines;
         ImportCODAStatement.SetBankAcc(BankAccount);
         ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.ImportMultipleStatementsToCODAstatementDataFiles(1));
@@ -115,12 +106,14 @@ codeunit 144015 "CODA Import Tests"
         CODAStatementPage.Trap;
         CODAStatementListPage.View.Invoke;
 
-        // validate the processed CODA Statement content
+        // [GIVEN] Processed CODA Statement content
         CODAStatementPage."Process CODA Statement Lines".Invoke; // Process CODA Statement lines
+
+        // [WHEN] Transfer amounts to general ledger
         CODAStatementPage."Transfer to General Ledger".Invoke; // Transfer to general ledger
         CODAStatementPage.Close;
 
-        // the Journal is selected in the modal page handler for page id 250.
+        // [THEN] General journal line created with Amount = "X"
         FinancialJournalPage.OpenEdit;
         Assert.AreEqual('KBC', FinancialJournalPage."Bal. Account No.".Value, 'Balance Account No');
         Assert.AreEqual('Vendor', FinancialJournalPage."Account Type".Value, 'Account Type');
@@ -405,6 +398,7 @@ codeunit 144015 "CODA Import Tests"
         CODAStatementListPage: TestPage "CODA Statement List";
         CODAStatementPage: TestPage "CODA Statement";
         PostingDate: Date;
+        Amount: Decimal;
     begin
         // CODA -Verify CODA statement line when Account Type is G/L Account in a transaction coding line
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60260
@@ -446,7 +440,9 @@ codeunit 144015 "CODA Import Tests"
         Assert.AreEqual('499999', CODAStatementPage.StmtLines."Account No.".Value, 'Account No.');
         GLAccount.Get('499999');
         Assert.AreEqual(GLAccount.Name, CODAStatementPage.StmtLines.Description.Value, 'Description');
-        Assert.AreEqual(Format(-59.7, 0, '<Precision,2:3><Standard Format,0>'),
+        // BUG 367180: Amount must be zero if a CODA statement line applied to G/L account
+        Amount := 0;
+        Assert.AreEqual(Format(Amount, 0, '<Precision,2:3><Standard Format,0>'),
           CODAStatementPage.StmtLines.Amount.Value, 'Amount');
     end;
 

@@ -88,6 +88,7 @@ page 2000040 "CODA Statement"
                 Image = Apply;
                 Promoted = true;
                 PromotedCategory = Process;
+                ShortCutKey = 'Shift+F11';
                 ToolTip = 'Apply the selected entries to a sales or purchase document that was already posted for a customer or vendor. This updates the amount on the posted document, and the document can either be partially paid, or closed as paid or refunded.';
 
                 trigger OnAction()
