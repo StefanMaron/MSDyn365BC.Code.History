@@ -1231,6 +1231,8 @@ page 51 "Purchase Invoice"
                     begin
                         CopyDocument();
                         if Get("Document Type", "No.") then;
+                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
+                        CurrPage.Update();
                     end;
                 }
                 action(CalculateInvoiceDiscount)
