@@ -40,6 +40,7 @@ report 302 "Get Demand To Reserve"
                 SetFilter("Variant Code", FilterItem.GetFilter("Variant Filter"));
                 SetFilter("Location Code", FilterItem.GetFilter("Location Filter"));
                 SetFilter("Shipment Date", FilterItem.GetFilter("Date Filter"));
+                SetFilter(Reserve, '<>%1', SalesOrderLine.Reserve::Never);
 
                 FilterGroup(2);
                 if DateFilter <> '' then
@@ -140,6 +141,7 @@ report 302 "Get Demand To Reserve"
                 SetFilter("Variant Code", FilterItem.GetFilter("Variant Filter"));
                 SetFilter("Location Code", FilterItem.GetFilter("Location Filter"));
                 SetFilter("Needed by Date", FilterItem.GetFilter("Date Filter"));
+                SetFilter(Reserve, '<>%1', ServiceOrderLine.Reserve::Never);
 
                 FilterGroup(2);
                 if DateFilter <> '' then
@@ -190,6 +192,7 @@ report 302 "Get Demand To Reserve"
                 SetFilter("Variant Code", FilterItem.GetFilter("Variant Filter"));
                 SetFilter("Location Code", FilterItem.GetFilter("Location Filter"));
                 SetFilter("Planning Date", FilterItem.GetFilter("Date Filter"));
+                SetFilter(Reserve, '<>%1', JobPlanningLine.Reserve::Never);
 
                 FilterGroup(2);
                 if DateFilter <> '' then
@@ -241,6 +244,7 @@ report 302 "Get Demand To Reserve"
                 SetFilter("Variant Code", FilterItem.GetFilter("Variant Filter"));
                 SetFilter("Location Code", FilterItem.GetFilter("Location Filter"));
                 SetFilter("Due Date", FilterItem.GetFilter("Date Filter"));
+                SetFilter(Reserve, '<>%1', AssemblyLine.Reserve::Never);
 
                 FilterGroup(2);
                 if DateFilter <> '' then

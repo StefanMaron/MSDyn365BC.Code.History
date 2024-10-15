@@ -1,7 +1,6 @@
 report 139300 TestReport
 {
-    DefaultLayout = RDLC;
-    RDLCLayout = './TestReport.rdlc';
+    DefaultRenderingLayout = "./TestReport.rdlc";
 
     dataset
     {
@@ -38,6 +37,15 @@ report 139300 TestReport
 
         actions
         {
+        }
+    }
+
+    rendering
+    {
+        layout("./TestReport.rdlc")
+        {
+            Type = RDLC;
+            LayoutFile = './TestReport.rdlc';
         }
     }
 

@@ -74,6 +74,9 @@ codeunit 1535 "Approvals Mgmt."
         PreventDeleteRecordWithOpenApprovalEntryMsg: Label 'You can''t delete a record that has open approval entries. Do you want to cancel the approval request first?';
         PreventDeleteRecordWithOpenApprovalEntryForCurrUserMsg: Label 'You can''t delete a record that has open approval entries. To delete a record, you can Reject approval and document requested changes in approval comment lines.';
         PreventDeleteRecordWithOpenApprovalEntryForSenderMsg: Label 'You can''t delete a record that has open approval entries. To delete a record, you need to Cancel approval request first.';
+        ImposedRestrictionLbl: Label 'Imposed restriction';
+        PendingApprovalLbl: Label 'Pending Approval';
+        RestrictBatchUsageDetailsLbl: Label 'The restriction was imposed because the journal batch requires approval.';
 
     [IntegrationEvent(false, false)]
     procedure OnSendPurchaseDocForApproval(var PurchaseHeader: Record "Purchase Header")
@@ -2473,48 +2476,75 @@ codeunit 1535 "Approvals Mgmt."
     procedure GetGenJnlBatchApprovalStatus(GenJournalLine: Record "Gen. Journal Line"; var GenJnlBatchApprovalStatus: Text[20]; EnabledGenJnlBatchWorkflowsExist: Boolean)
     var
         ApprovalEntry: Record "Approval Entry";
-        RestrictedRecord: Record "Restricted Record";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         Clear(GenJnlBatchApprovalStatus);
-        if EnabledGenJnlBatchWorkflowsExist and GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then
-            if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalBatch.RecordId) then begin
-                GenJnlBatchApprovalStatus := GetApprovalStatusFromApprovalEntry(ApprovalEntry);
-                if GetApprovalEntryStatusValueName(ApprovalEntry) <> 'Approved' then
-                    exit;
-                RestrictedRecord.SetRange("Record ID", GenJournalBatch.RecordId);
-                if not RestrictedRecord.IsEmpty() then
-                    Clear(GenJnlBatchApprovalStatus);
-            end;
+        if not EnabledGenJnlBatchWorkflowsExist then
+            exit;
+        if not GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then
+            exit;
+
+        if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalBatch.RecordId) then
+            GenJnlBatchApprovalStatus := GetApprovalStatusFromApprovalEntry(ApprovalEntry, GenJournalBatch);
     end;
 
     procedure GetGenJnlLineApprovalStatus(GenJournalLine: Record "Gen. Journal Line"; var GenJnlLineApprovalStatus: Text[20]; EnabledGenJnlLineWorkflowsExist: Boolean)
     var
         ApprovalEntry: Record "Approval Entry";
-        RestrictedRecord: Record "Restricted Record";
     begin
         Clear(GenJnlLineApprovalStatus);
-        if EnabledGenJnlLineWorkflowsExist then
-            if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalLine.RecordId) then begin
-                GenJnlLineApprovalStatus := GetApprovalStatusFromApprovalEntry(ApprovalEntry);
-                if GetApprovalEntryStatusValueName(ApprovalEntry) <> 'Approved' then
-                    exit;
-                RestrictedRecord.SetRange("Record ID", GenJournalLine.RecordId);
-                if not RestrictedRecord.IsEmpty() then
-                    Clear(GenJnlLineApprovalStatus);
-            end;
+        if not EnabledGenJnlLineWorkflowsExist then
+            exit;
+
+        if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalLine.RecordId) then
+            GenJnlLineApprovalStatus := GetApprovalStatusFromApprovalEntry(ApprovalEntry, GenJournalLine);
     end;
 
-    local procedure GetApprovalStatusFromApprovalEntry(var ApprovalEntry: Record "Approval Entry"): Text[20]
+    local procedure GetApprovalStatusFromApprovalEntry(var ApprovalEntry: Record "Approval Entry"; GenJournalBatch: Record "Gen. Journal Batch"): Text[20]
     var
+        RestrictedRecord: Record "Restricted Record";
+        GenJournalLine: Record "Gen. Journal Line";
         FieldRef: FieldRef;
         ApprovalStatusName: Text;
-        PendingApprovalLbl: Label 'Pending Approval';
     begin
         GetApprovalEntryStatusFieldRef(FieldRef, ApprovalEntry);
         ApprovalStatusName := GetApprovalEntryStatusValueName(FieldRef, ApprovalEntry);
         if ApprovalStatusName = 'Open' then
             exit(CopyStr(PendingApprovalLbl, 1, 20));
+        if ApprovalStatusName = 'Approved' then begin
+            RestrictedRecord.SetRange(Details, RestrictBatchUsageDetailsLbl);
+            if not RestrictedRecord.IsEmpty() then begin
+                RestrictedRecord.Reset();
+                GenJournalLine.ReadIsolation(IsolationLevel::ReadUncommitted);
+                GenJournalLine.SetLoadFields("Journal Template Name", "Journal Batch Name", "Line No.");
+                GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+                GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+                if GenJournalLine.FindSet() then
+                    repeat
+                        RestrictedRecord.SetRange("Record ID", GenJournalLine.RecordId);
+                        if not RestrictedRecord.IsEmpty() then
+                            exit(CopyStr(ImposedRestrictionLbl, 1, 20));
+                    until GenJournalLine.Next() = 0;
+            end;
+        end;
+        exit(CopyStr(GetApprovalEntryStatusValueCaption(FieldRef, ApprovalEntry), 1, 20));
+    end;
+
+    local procedure GetApprovalStatusFromApprovalEntry(var ApprovalEntry: Record "Approval Entry"; GenJournalLine: Record "Gen. Journal Line"): Text[20]
+    var
+        RestrictedRecord: Record "Restricted Record";
+        FieldRef: FieldRef;
+        ApprovalStatusName: Text;
+    begin
+        GetApprovalEntryStatusFieldRef(FieldRef, ApprovalEntry);
+        ApprovalStatusName := GetApprovalEntryStatusValueName(FieldRef, ApprovalEntry);
+        if ApprovalStatusName = 'Open' then
+            exit(CopyStr(PendingApprovalLbl, 1, 20));
+        if ApprovalStatusName = 'Approved' then begin
+            RestrictedRecord.SetRange("Record ID", GenJournalLine.RecordId);
+            if not RestrictedRecord.IsEmpty() then
+                exit(CopyStr(ImposedRestrictionLbl, 1, 20));
+        end;
         exit(CopyStr(GetApprovalEntryStatusValueCaption(FieldRef, ApprovalEntry), 1, 20));
     end;
 
@@ -2524,14 +2554,6 @@ codeunit 1535 "Approvals Mgmt."
     begin
         RecordRef.GetTable(ApprovalEntry);
         FieldRef := RecordRef.Field(ApprovalEntry.FieldNo(Status));
-    end;
-
-    local procedure GetApprovalEntryStatusValueName(var ApprovalEntry: Record "Approval Entry"): Text
-    var
-        FieldRef: FieldRef;
-    begin
-        GetApprovalEntryStatusFieldRef(FieldRef, ApprovalEntry);
-        exit(GetApprovalEntryStatusValueName(FieldRef, ApprovalEntry));
     end;
 
     local procedure GetApprovalEntryStatusValueName(var FieldRef: FieldRef; ApprovalEntry: Record "Approval Entry"): Text
@@ -2552,11 +2574,11 @@ codeunit 1535 "Approvals Mgmt."
         if GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then
             if IsGeneralJournalBatchApprovalsWorkflowEnabled(GenJournalBatch) then
                 if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalBatch.RecordId) and (ApprovalEntry.Status = ApprovalEntry.Status::Approved) then
-                    Clear(GenJnlBatchApprovalStatus);
+                    GenJnlBatchApprovalStatus := CopyStr(ImposedRestrictionLbl, 1, 20);
 
         if IsGeneralJournalLineApprovalsWorkflowEnabled(GenJournalLine) then
             if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalLine.RecordId) and (ApprovalEntry.Status = ApprovalEntry.Status::Approved) then
-                Clear(GenJnlLineApprovalStatus);
+                GenJnlLineApprovalStatus := CopyStr(ImposedRestrictionLbl, 1, 20);
     end;
 
     local procedure FindOpenApprovalEntryForSequenceNo(RecRef: RecordRef; WorkflowStepInstance: Record "Workflow Step Instance"; SequenceNo: Integer): Boolean

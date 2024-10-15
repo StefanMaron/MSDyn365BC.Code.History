@@ -430,6 +430,17 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         exit(ByVolumeTok)
     end;
 
+    procedure ReverseItemChargeAssgnt(ItemChargeAssgnt: Record "Item Charge Assignment (Purch)"; CancelledQuantity: Decimal)
+    begin
+        if ItemChargeAssgnt."Qty. Assigned" = 0 then
+            exit;
+
+        ItemChargeAssgnt."Qty. Assigned" -= CancelledQuantity;
+        ItemChargeAssgnt."Qty. to Assign" += CancelledQuantity;
+        ItemChargeAssgnt.Validate("Qty. to Handle", ItemChargeAssgnt."Qty. to Assign");
+        ItemChargeAssgnt.Modify();
+    end;
+
     local procedure AssignEqually(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; TotalQtyToHandle: Decimal; TotalAmtToHandle: Decimal)
     var
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
