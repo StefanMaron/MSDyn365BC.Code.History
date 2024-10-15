@@ -62,5 +62,13 @@ codeunit 11501 GeneralMgt
 
         exit(TempFileName);
     end;
+
+#if CLEAN22
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Templ. Mgt.", 'OnApplyTemplateOnBeforeVendorModify', '', false, false)]
+    local procedure ApplyLocalTemplateFields(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
+    begin 
+        Vendor."Registration Number" := VendorTempl."Registration No.";
+    end;
+#endif
 }
 
