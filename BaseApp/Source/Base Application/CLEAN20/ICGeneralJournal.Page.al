@@ -636,7 +636,13 @@ page 610 "IC General Journal"
                     ToolTip = 'View the balances on bank accounts that are marked for reconciliation, usually liquid accounts.';
 
                     trigger OnAction()
+                    var
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        ICMapping: Codeunit "IC Mapping";
                     begin
+                        FeatureTelemetry.LogUptake('0000ILG', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+                        FeatureTelemetry.LogUsage('0000ILL', ICMapping.GetFeatureTelemetryName(), 'Reconcile General IC Journal');
+
                         GLReconcile.SetGenJnlLine(Rec);
                         GLReconcile.Run();
                     end;
@@ -650,7 +656,12 @@ page 610 "IC General Journal"
                     ToolTip = 'View a test report so that you can find and correct any errors before you perform the actual posting of the journal or document.';
 
                     trigger OnAction()
+                    var
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        ICMapping: Codeunit "IC Mapping";
                     begin
+                        FeatureTelemetry.LogUptake('0000ILH', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+                        FeatureTelemetry.LogUsage('0000ILM', ICMapping.GetFeatureTelemetryName(), 'Test Report for General IC Journal');
                         ReportPrint.PrintGenJnlLine(Rec);
                     end;
                 }
@@ -663,7 +674,13 @@ page 610 "IC General Journal"
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
                     trigger OnAction()
+                    var
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        ICMapping: Codeunit "IC Mapping";
                     begin
+                        FeatureTelemetry.LogUptake('0000ILI', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+                        FeatureTelemetry.LogUsage('0000ILN', ICMapping.GetFeatureTelemetryName(), 'Posting General IC journal');
+
                         SendToPosting(Codeunit::"Gen. Jnl.-Post");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
@@ -681,7 +698,11 @@ page 610 "IC General Journal"
                     trigger OnAction()
                     var
                         GenJnlPost: Codeunit "Gen. Jnl.-Post";
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        ICMapping: Codeunit "IC Mapping";
                     begin
+                        FeatureTelemetry.LogUptake('0000ILJ', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+                        FeatureTelemetry.LogUsage('0000ILO', ICMapping.GetFeatureTelemetryName(), 'Preview Posting General IC journal');
                         GenJnlPost.Preview(Rec);
                     end;
                 }
@@ -694,7 +715,12 @@ page 610 "IC General Journal"
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
                     trigger OnAction()
+                    var
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        ICMapping: Codeunit "IC Mapping";
                     begin
+                        FeatureTelemetry.LogUptake('0000ILK', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+                        FeatureTelemetry.LogUsage('0000ILP', ICMapping.GetFeatureTelemetryName(), 'Post and Print on General IC journal');
                         SendToPosting(Codeunit::"Gen. Jnl.-Post+Print");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();

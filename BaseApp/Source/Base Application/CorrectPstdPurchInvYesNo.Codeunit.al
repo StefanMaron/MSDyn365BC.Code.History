@@ -46,10 +46,14 @@ codeunit 1324 "Correct PstdPurchInv (Yes/No)"
         PurchaseHeader: Record "Purchase Header";
         ConfirmManagement: Codeunit "Confirm Management";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        IsHandled: Boolean;
     begin
         if ConfirmManagement.GetResponse(CorrectPostedInvoiceQst, false) then begin
             CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeader);
-            PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
+            IsHandled := false;
+            OnCancelPostedInvoiceOnBeforeShowPurchaseInvoice(PurchaseHeader, IsHandled);
+            if not IsHandled then
+                PAGE.Run(PAGE::"Purchase Invoice", PurchaseHeader);
             exit(true);
         end;
 
@@ -98,6 +102,11 @@ codeunit 1324 "Correct PstdPurchInv (Yes/No)"
             PurchInvLine.SetFilter("Order No.", '<>''''&<>%1', PurchInvLine."Order No.");
             MultipleOrderRelated := not PurchInvLine.IsEmpty();
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCancelPostedInvoiceOnBeforeShowPurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

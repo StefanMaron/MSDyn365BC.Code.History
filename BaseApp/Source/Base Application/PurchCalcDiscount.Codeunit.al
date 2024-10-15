@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 codeunit 70 "Purch.-Calc.Discount"
 {
     Permissions = tabledata "Purchase Header" = rm,
@@ -70,6 +70,7 @@ codeunit 70 "Purch.-Calc.Discount"
             PurchLine2.SetRange("Document Type", "Document Type");
             PurchLine2.SetRange("Document No.", "Document No.");
             PurchLine2.SetFilter(Type, '<>0');
+            OnCalculateInvoiceDiscountOnBeforeFindForCalcVATAmountLines(PurchHeader, PurchLine2, UpdateHeader);
             if PurchLine2.Find('-') then;
             PurchLine2.CalcVATAmountLines(0, PurchHeader, PurchLine2, TempVATAmountLine);
             InvDiscBase :=
@@ -193,22 +194,25 @@ codeunit 70 "Purch.-Calc.Discount"
         VendInvDisc: Record "Vendor Invoice Disc.";
     begin
         VendInvDisc.SetRange(Code, InvDiscCode);
-        exit(VendInvDisc.FindFirst())
+        exit(VendInvDisc.FindFirst());
     end;
 
     procedure CalculateIncDiscForHeader(var PurchHeader: Record "Purchase Header")
     var
         PurchSetup: Record "Purchases & Payables Setup";
+        IsHandled: Boolean;
     begin
         PurchSetup.Get();
         if not PurchSetup."Calc. Inv. Discount" then
             exit;
-        with PurchHeader do begin
-            PurchLine."Document Type" := "Document Type";
-            PurchLine."Document No." := "No.";
-            UpdateHeader := true;
+
+        PurchLine."Document Type" := PurchHeader."Document Type";
+        PurchLine."Document No." := PurchHeader."No.";
+        UpdateHeader := true;
+        IsHandled := false;
+        OnCalculateIncDiscForHeaderOnBeforeCalculateInvoiceDiscount(PurchHeader, PurchLine, UpdateHeader, IsHandled);
+        if not IsHandled then
             CalculateInvoiceDiscount(PurchHeader, PurchLine);
-        end;
     end;
 
     procedure CalculateInvoiceDiscountOnLine(var PurchLineToUpdate: Record "Purchase Line")
@@ -281,6 +285,16 @@ codeunit 70 "Purch.-Calc.Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnbeforePurchLineInsert(var PurchaseLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateIncDiscForHeaderOnBeforeCalculateInvoiceDiscount(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; UpdateHeader: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeFindForCalcVATAmountLines(var PurchHeader: Record "Purchase Header"; var PurchLine2: Record "Purchase Line"; UpdateHeader: Boolean)
     begin
     end;
 }

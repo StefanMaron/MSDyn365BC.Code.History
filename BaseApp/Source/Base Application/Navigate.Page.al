@@ -820,6 +820,7 @@ page 344 Navigate
         PostingDate: Date;
         IsSourceUpdated: Boolean;
         HideDialog: Boolean;
+        IsHandled: Boolean;
     begin
         if (DocNoFilter = '') and (ExtDocNo = '') and (PostingDateFilter = '') then
             exit;
@@ -842,7 +843,7 @@ page 344 Navigate
         FindUnpostedSalesDocs(SCMSalesHeader."Document Type"::"Credit Memo", SalesCreditMemoTxt, SCMSalesHeader);
         FindUnpostedGenJnlLines(CopyStr(GenJnlLine.TableCaption(), 1, 100), GenJnlLine);
 
-        OnAfterNavigateFindRecords(Rec, DocNoFilter, PostingDateFilter, NewSourceRecVar);
+        OnAfterNavigateFindRecords(Rec, DocNoFilter, PostingDateFilter, NewSourceRecVar, ExtDocNo, HideDialog);
         DocExists := Rec.FindFirst();
 
         SetSource(0D, '', '', 0, '');
@@ -859,11 +860,14 @@ page 344 Navigate
             OnFindRecordsOnAfterSetSource(Rec, PostingDate, DocType2, DocNo2, SourceType2, SourceNo2, DocNoFilter, PostingDateFilter, IsSourceUpdated);
             if IsSourceUpdated then
                 SetSource(PostingDate, DocType2, DocNo2, SourceType2, SourceNo2);
-        end else
+        end else begin
+            IsHandled := false;
+            OnFindRecordsOnBeforeMessagePostingDateFilter(Rec, PostingDateFilter, IsHandled);
             if PostingDateFilter = '' then
                 Message(Text013)
             else
                 Message(Text014);
+        end;
 
         OnAfterFindRecords(Rec, DocNoFilter, PostingDateFilter);
 
@@ -2509,7 +2513,7 @@ page 344 Navigate
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterNavigateFindRecords(var DocumentEntry: Record "Document Entry"; DocNoFilter: Text; PostingDateFilter: Text; var NewSourceRecVar: Variant)
+    local procedure OnAfterNavigateFindRecords(var DocumentEntry: Record "Document Entry"; DocNoFilter: Text; PostingDateFilter: Text; var NewSourceRecVar: Variant; ExtDocNo: Code[250]; HideDialog: Boolean)
     begin
     end;
 
@@ -2640,6 +2644,11 @@ page 344 Navigate
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeFindRecordsSetSources(DocumentEntry: Record "Document Entry"; DocNoFilter: Text; PostingDateFilter: Text; ExtDocNo: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecordsOnBeforeMessagePostingDateFilter(DocumentEntry: Record "Document Entry"; PostingDateFilter: Text; IsHandled: Boolean)
     begin
     end;
 

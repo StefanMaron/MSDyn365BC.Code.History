@@ -12,5 +12,6 @@ enum 9657 "Custom Report Selection Sales"
     value(5; "Job Quote") { Caption = 'Job Quote'; }
     value(6; "Reminder") { Caption = 'Reminder'; }
     value(7; "Shipment") { Caption = 'Shipment'; }
+    value(8; "Pro Forma Invoice") { Caption = 'Pro Forma Invoice'; }
 }
 #endif

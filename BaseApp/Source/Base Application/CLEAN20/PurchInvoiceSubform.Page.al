@@ -1163,7 +1163,7 @@ page 55 "Purch. Invoice Subform"
         UpdateTypeText();
         SetItemChargeFieldsStyle();
         if "Variant Code" = '' then
-                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1352,7 +1352,7 @@ page 55 "Purch. Invoice Subform"
             CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount" and
             (TotalPurchaseHeader.Status = TotalPurchaseHeader.Status::Open);
 
-        OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
+        OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber, InvDiscAmountEditable, CurrPageIsEditable, TotalPurchaseHeader);
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -1392,6 +1392,7 @@ page 55 "Purch. Invoice Subform"
         if SuppressTotals then
             exit;
 
+        OnBeforeDeltaUpdateTotals(Rec, xRec);
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         CheckSendLineInvoiceDiscountResetNotification();
     end;
@@ -1478,7 +1479,7 @@ page 55 "Purch. Invoice Subform"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateEditableOnRow(PurchaseLine: Record "Purchase Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean);
+    local procedure OnAfterUpdateEditableOnRow(PurchaseLine: Record "Purchase Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean; var InvDiscAmountEditable: Boolean; CurrPageIsEditable: Boolean; TotalPurchaseHeader: Record "Purchase Header");
     begin
     end;
 
@@ -1532,6 +1533,11 @@ page 55 "Purch. Invoice Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetDimensionsVisibility()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDeltaUpdateTotals(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 }

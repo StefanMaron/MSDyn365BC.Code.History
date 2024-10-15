@@ -1231,7 +1231,7 @@
   </Item>
   <Item ItemId=";Codeunit 2478735241 - NamedType 3254359832" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot set the status to %1 because the job has reservations on the job planning lines.]]></Val>
+      <Val><![CDATA[You cannot set the status to %1 because the job has reservations]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

@@ -102,6 +102,14 @@ page 1156 "Company Detail"
             group("Power BI")
             {
                 Caption = 'Power BI';
+                part(PowerBIEmbeddedReportPart1; "Power BI Embedded Report Part")
+                {
+                    ApplicationArea = All;
+                }
+                part(PowerBIEmbeddedReportPart2; "Power BI Embedded Report Part")
+                {
+                    ApplicationArea = All;
+                }
 #if not CLEAN21
                 part(PowerBIPartOne; "Power BI Report Spinner Part")
                 {
@@ -120,14 +128,6 @@ page 1156 "Company Detail"
                     ObsoleteTag = '21.0';
                 }
 #endif
-                part(PowerBIEmbeddedReportPart1; "Power BI Embedded Report Part")
-                {
-                    ApplicationArea = All;
-                }
-                part(PowerBIEmbeddedReportPart2; "Power BI Embedded Report Part")
-                {
-                    ApplicationArea = All;
-                }
             }
             group(Purchase)
             {

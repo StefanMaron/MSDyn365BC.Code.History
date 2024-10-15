@@ -441,6 +441,7 @@ page 461 "Inventory Setup"
         Rec.Reset();
         if not Rec.Get() then begin
             Rec.Init();
+            OnOpenPageOnBeforeRecInsert(Rec);
             Rec.Insert();
         end;
 
@@ -471,6 +472,11 @@ page 461 "Inventory Setup"
         if (Rec."Automatic Cost Posting" = False) and (not SchedulingManager.PostInvCostToGLJobQueueExists()) or
            (Rec."Automatic Cost Adjustment" = Rec."Automatic Cost Adjustment"::Never) and (not SchedulingManager.AdjCostJobQueueExists()) then
             AdjustCostWizardVisible := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnBeforeRecInsert(var InventorySetup: Record "Inventory Setup")
+    begin
     end;
 }
 

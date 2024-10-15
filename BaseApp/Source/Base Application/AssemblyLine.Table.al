@@ -168,8 +168,6 @@ table 901 "Assembly Line"
             begin
                 TestField(Type, Type::Item);
 
-                Item.Get("No.");
-
                 WhseValidateSourceLine.AssemblyLineVerifyChange(Rec, xRec);
                 CheckItemAvailable(FieldNo("Location Code"));
                 VerifyReservationChange(Rec, xRec);
@@ -1503,7 +1501,7 @@ table 901 "Assembly Line"
         ExpectedInventory :=
           CalcExpectedInventory(AvailableInventory, ScheduledReceipt - ReservedReceipt, GrossRequirement - ReservedRequirement);
 
-        OnAfterCalcExpectedInventory(Rec, Item, ExpectedInventory);
+        OnAfterCalcExpectedInventory(Rec, Item, ExpectedInventory, AvailableInventory, ScheduledReceipt, ReservedReceipt, GrossRequirement, ReservedRequirement);
 
         AvailableInventory := CalcQtyFromBase(AvailableInventory);
         GrossRequirement := CalcQtyFromBase(GrossRequirement);
@@ -1646,17 +1644,15 @@ table 901 "Assembly Line"
 
     procedure GetDefaultBin()
     begin
-        TestField(Type, Type::Item);
+        if (Type <> Type::Item) or not IsInventoriableItem() then
+            exit;
         if (Quantity * xRec.Quantity > 0) and
            ("No." = xRec."No.") and
            ("Location Code" = xRec."Location Code") and
            ("Variant Code" = xRec."Variant Code")
         then
             exit;
-        if Item."No." <> "No." then
-            Item.Get("No.");
-        if Item.IsInventoriableType() then
-            Validate("Bin Code", FindBin());
+        Validate("Bin Code", FindBin());
     end;
 
     procedure FindBin() NewBinCode: Code[20]
@@ -1980,7 +1976,7 @@ table 901 "Assembly Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcExpectedInventory(var AssemblyLine: Record "Assembly Line"; var Item: Record Item; var ExpectedInventory: Decimal)
+    local procedure OnAfterCalcExpectedInventory(var AssemblyLine: Record "Assembly Line"; var Item: Record Item; var ExpectedInventory: Decimal; AvailableInventory: Decimal; ScheduledReceipt: Decimal; ReservedReceipt: Decimal; GrossRequirement: Decimal; ReservedRequirement: Decimal)
     begin
     end;
 

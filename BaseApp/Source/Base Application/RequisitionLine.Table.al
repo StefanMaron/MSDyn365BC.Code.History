@@ -115,13 +115,14 @@ table 246 "Requisition Line"
             begin
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
 
-                "Quantity (Base)" := UOMMgt.CalcBaseQty(
-                    "No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure",
-                    "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FieldCaption(Quantity),
-                    FieldCaption("Quantity (Base)")
-                );
+                "Quantity (Base)" :=
+                    UOMMgt.CalcBaseQty(
+                        "No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure",
+                        "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FieldCaption(Quantity),
+                        FieldCaption("Quantity (Base)"));
 
                 if Type = Type::Item then begin
+                    OnValidateQuantityOnBeforeGetDirectCost(Rec, xRec, CurrFieldNo);
                     GetDirectCost(FieldNo(Quantity));
                     SetRemaningQuantity();
 
@@ -173,6 +174,7 @@ table 246 "Requisition Line"
                 Vend: Record Vendor;
                 ItemVend: Record "Item Vendor";
                 TempSKU: Record "Stockkeeping Unit" temporary;
+                IsHandled: Boolean;
             begin
                 CheckActionMessageNew();
                 "Order Address Code" := '';
@@ -211,7 +213,10 @@ table 246 "Requisition Line"
 
                 if (Type = Type::Item) and ("No." <> '') and ("Prod. Order No." = '') then begin
                     if ItemVend.Get("Vendor No.", "No.", "Variant Code") then begin
-                        "Vendor Item No." := ItemVend."Vendor Item No.";
+                        IsHandled := false;
+                        OnValidateVendorNoOnBeforeSetVendorItemNoFromItemVend(Rec, IsHandled);
+                        if not IsHandled then
+                            "Vendor Item No." := ItemVend."Vendor Item No.";
                         UpdateOrderReceiptDate(ItemVend."Lead Time Calculation");
                     end else begin
                         GetPlanningParameters.AtSKU(TempSKU, "No.", "Variant Code", "Location Code");
@@ -220,6 +225,7 @@ table 246 "Requisition Line"
                         else
                             "Vendor Item No." := '';
                     end;
+                    OnValidateVendorNoOnBeforeGetDirectCost(Rec, xRec, CurrFieldNo);
                     GetDirectCost(FieldNo("Vendor No."))
                 end;
                 "Supply From" := "Vendor No.";
@@ -238,11 +244,15 @@ table 246 "Requisition Line"
             Caption = 'Due Date';
 
             trigger OnValidate()
+            var
+                ShouldExitDueDate: Boolean;
             begin
                 if (CurrFieldNo = FieldNo("Due Date")) or (CurrentFieldNo = FieldNo("Due Date")) then
                     SetActionMessage();
 
-                if "Due Date" = 0D then
+                ShouldExitDueDate := "Due Date" = 0D;
+                OnValidateDueDateOnAfterCalcShouldExitDueDate(Rec, xRec, CurrFieldNo, ShouldExitDueDate);
+                if ShouldExitDueDate then
                     exit;
 
                 if (CurrFieldNo = FieldNo("Due Date")) or (CurrentFieldNo = FieldNo("Due Date")) then
@@ -413,7 +423,13 @@ table 246 "Requisition Line"
             var
                 Cust: Record Customer;
                 ShipToAddr: Record "Ship-to Address";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeOnValidateShipToCode(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Ship-to Code" <> '' then begin
                     ShipToAddr.Get("Sell-to Customer No.", "Ship-to Code");
                     "Location Code" := ShipToAddr."Location Code";
@@ -443,8 +459,8 @@ table 246 "Requisition Line"
                     TestField("Order Date");
                     if PlanningResiliency then
                         CheckExchRate(Currency);
-                    Validate(
-                      "Currency Factor", CurrExchRate.ExchangeRate("Order Date", "Currency Code"));
+                    OnValidateCurrencyCodeOnBeforeUpdateCurrencyFactor(Rec, CurrExchRate);
+                    Validate("Currency Factor", CurrExchRate.ExchangeRate("Order Date", "Currency Code"));
                 end else
                     Validate("Currency Factor", 0);
 
@@ -627,27 +643,14 @@ table 246 "Requisition Line"
             trigger OnValidate()
             begin
                 CheckActionMessageNew();
-                if (Type = Type::Item) and
-                   ("No." <> '') and
-                   ("Prod. Order No." = '')
-                then begin
-                    GetItem();
-                    "Unit Cost" := Item."Unit Cost";
-                    "Overhead Rate" := Item."Overhead Rate";
-                    "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
-                    "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
-                    "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
-
-                    if "Unit of Measure Code" <> '' then begin
-                        "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
-                        "Unit Cost" := Round(Item."Unit Cost" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-                    end else
-                        "Qty. per Unit of Measure" := 1;
-                end else
+                if (Type = Type::Item) and ("No." <> '') and ("Prod. Order No." = '') then
+                    AssignItemUnitCostAndQuantitiesForUOM()
+                else
                     if "Prod. Order No." = '' then
                         "Qty. per Unit of Measure" := 1
                     else
                         "Qty. per Unit of Measure" := 0;
+
                 OnValidateUnitofMeasureCodeOnBeforeGetDirectCost(Rec, Item);
                 GetDirectCost(FieldNo("Unit of Measure Code"));
 
@@ -1375,7 +1378,13 @@ table 246 "Requisition Line"
                 ProdOrder: Record "Production Order";
                 TransHeader: Record "Transfer Header";
                 AsmHeader: Record "Assembly Header";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnLookupRefOrderNoOnBeforeOpenPage(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 case "Ref. Order Type" of
                     "Ref. Order Type"::Purchase:
                         if PurchHeader.Get(PurchHeader."Document Type"::Order, "Ref. Order No.") then
@@ -1724,6 +1733,29 @@ table 246 "Requisition Line"
     protected var
         CurrentFieldNo: Integer;
 
+    local procedure AssignItemUnitCostAndQuantitiesForUOM()
+    var
+        IsHandled: Boolean;
+    begin
+        GetItem();
+        IsHandled := false;
+        OnBeforeAssignItemUnitCostAndQuantitiesForUOM(Rec, xRec, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Unit Cost" := Item."Unit Cost";
+        "Overhead Rate" := Item."Overhead Rate";
+        "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+        "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+        "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
+        if "Unit of Measure Code" <> '' then begin
+            "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+            "Unit Cost" := Round(Item."Unit Cost" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+        end else
+            "Qty. per Unit of Measure" := 1;
+
+    end;
+
     local procedure CopyFromGLAcc()
     var
         GLAcc: Record "G/L Account";
@@ -1774,7 +1806,7 @@ table 246 "Requisition Line"
         GetDirectCost(FieldNo("No."));
         SetFromBinCode();
 
-        OnAfterCopyFromItem(Rec, Item);
+        OnAfterCopyFromItem(Rec, Item, CurrFieldNo);
     end;
 
     local procedure GetItem()
@@ -2169,6 +2201,7 @@ table 246 "Requisition Line"
         ReqLine2.SetRange("Journal Batch Name", "Journal Batch Name");
         ReqLine2.SetFilter("Line No.", '<>%1', "Line No.");
         ReqLine2.SetFilter("Planning Level", '>0');
+        OnDeleteMultiLevelOnAfterSetFilterReqLine2(Rec, ReqLine2);
         if ReqLine2.Find('-') then
             repeat
                 ReserveReqLine.DeleteLine(ReqLine2);
@@ -2393,6 +2426,8 @@ table 246 "Requisition Line"
         ReservEntry."Expected Receipt Date" := "Due Date";
         ReservEntry."Shipment Date" := "Due Date";
         ReservEntry."Planning Flexibility" := "Planning Flexibility";
+
+        OnAfterSetReservationEntry(ReservEntry, Rec);
     end;
 
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
@@ -2627,6 +2662,7 @@ table 246 "Requisition Line"
         AsmHeader: Record "Assembly Header";
         DimSetIDArr: array[10] of Integer;
         i: Integer;
+        IsHandled: Boolean;
     begin
         if AddToExisting then begin
             i := 1;
@@ -2636,25 +2672,22 @@ table 246 "Requisition Line"
 
         case "Ref. Order Type" of
             "Ref. Order Type"::Purchase:
-                begin
-                    if PurchLine.Get(PurchLine."Document Type"::Order, "Ref. Order No.", "Ref. Line No.") then
-                        DimSetIDArr[i] := PurchLine."Dimension Set ID"
-                end;
+                if PurchLine.Get(PurchLine."Document Type"::Order, "Ref. Order No.", "Ref. Line No.") then
+                    DimSetIDArr[i] := PurchLine."Dimension Set ID";
             "Ref. Order Type"::"Prod. Order":
-                begin
-                    if ProdOrderLine.Get("Ref. Order Status", "Ref. Order No.", "Ref. Line No.") then
-                        DimSetIDArr[i] := ProdOrderLine."Dimension Set ID"
-                end;
+                if ProdOrderLine.Get("Ref. Order Status", "Ref. Order No.", "Ref. Line No.") then
+                    DimSetIDArr[i] := ProdOrderLine."Dimension Set ID";
             "Ref. Order Type"::Transfer:
                 begin
-                    if TransferLine.Get("Ref. Order No.", "Ref. Line No.") then
-                        DimSetIDArr[i] := TransferLine."Dimension Set ID"
+                    IsHandled := false;
+                    OnGetDimFromRefOrderLineOnBeforeSetDimSetIDTypeTransfer(Rec, DimSetIDArr, i, IsHandled);
+                    If not IsHandled then
+                        if TransferLine.Get("Ref. Order No.", "Ref. Line No.") then
+                            DimSetIDArr[i] := TransferLine."Dimension Set ID";
                 end;
             "Ref. Order Type"::Assembly:
-                begin
-                    if AsmHeader.Get(AsmHeader."Document Type"::Order, "Ref. Order No.") then
-                        DimSetIDArr[i] := AsmHeader."Dimension Set ID"
-                end;
+                if AsmHeader.Get(AsmHeader."Document Type"::Order, "Ref. Order No.") then
+                    DimSetIDArr[i] := AsmHeader."Dimension Set ID";
         end;
         "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
@@ -3461,8 +3494,13 @@ table 246 "Requisition Line"
     end;
 
     local procedure ValidateVendorNoWithStockkeepingUnit(StockkeepingUnit: Record "Stockkeeping Unit")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeValidateVendorNoWithStockkeepingUnit(Rec, StockkeepingUnit);
+        IsHandled := false;
+        OnBeforeValidateVendorNoWithStockkeepingUnit(Rec, StockkeepingUnit, IsHandled);
+        if IsHandled then
+            exit;
 
         if StockkeepingUnit."Vendor No." = '' then
             Validate("Vendor No.")
@@ -3683,7 +3721,7 @@ table 246 "Requisition Line"
         DimMgt.AddDimSource(DefaultDimSource, Database::Vendor, Rec."Vendor No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, CurrFieldNo);
     end;
 
 #if not CLEAN20
@@ -3729,12 +3767,12 @@ table 246 "Requisition Line"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var RequisitionLine: Record "Requisition Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var RequisitionLine: Record "Requisition Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CurrFieldNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyFromItem(var RequisitionLine: Record "Requisition Line"; Item: Record Item)
+    local procedure OnAfterCopyFromItem(var RequisitionLine: Record "Requisition Line"; Item: Record Item; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -3841,6 +3879,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetReplenishmentSystemFromTransfer(var RequisitionLine: Record "Requisition Line"; Item: Record Item; StockkeepingUnit: Record "Stockkeeping Unit"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationEntry(var ReservEntry: Record "Reservation Entry"; RequisitionLine: Record "Requisition Line")
     begin
     end;
 
@@ -3960,7 +4003,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateVendorNoWithStockkeepingUnit(var RequisitionLine: Record "Requisition Line"; StockkeepingUnit: Record "Stockkeeping Unit")
+    local procedure OnBeforeValidateVendorNoWithStockkeepingUnit(var RequisitionLine: Record "Requisition Line"; StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
     begin
     end;
 
@@ -4213,6 +4256,55 @@ table 246 "Requisition Line"
     local procedure OnBeforeCalcTransferShipmentDate(var Rec: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteMultiLevelOnAfterSetFilterReqLine2(ReqLine: Record "Requisition Line"; var ReqLine2: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupRefOrderNoOnBeforeOpenPage(var ReqLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDimFromRefOrderLineOnBeforeSetDimSetIDTypeTransfer(ReqLine: Record "Requisition Line"; var DimSetIDArr: array[10] of Integer; i: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCurrencyCodeOnBeforeUpdateCurrencyFactor(var ReqLine: Record "Requisition Line"; CurrExchRate: Record "Currency Exchange Rate")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnValidateShipToCode(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignItemUnitCostAndQuantitiesForUOM(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line"; Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforeGetDirectCost(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDueDateOnAfterCalcShouldExitDueDate(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line"; CurrentFieldNo: Integer; var ShouldExitDueDate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVendorNoOnBeforeSetVendorItemNoFromItemVend(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVendorNoOnBeforeGetDirectCost(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+}
 #endif

@@ -55,11 +55,15 @@ page 621 "IC Setup"
     trigger OnInit()
     var
         ICAutoAcceptFeatureMgt: Codeunit "IC Auto Accept Feature Mgt.";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
         if ICAutoAcceptFeatureMgt.IsICAutoAcceptTransactionEnabled() then begin
             Page.Run(Page::"Intercompany Setup");
             Error('');
         end;
+
+        FeatureTelemetry.LogUptake('0000IIZ', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Discovered);
     end;
 
     var

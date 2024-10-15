@@ -1055,6 +1055,7 @@ page 490 "Acc. Schedule Overview"
         SetFinancialReportTxt();
 
         IsHandled := false;
+        Rec.SetLoadFields("Row No.", "Description", "Totaling", "Totaling Type", "Dimension 1 Totaling", "Dimension 2 Totaling", "Dimension 3 Totaling", "Dimension 4 Totaling", Bold, "Show Opposite Sign", "Row Type", "Amount Type");
         OnLoadPageStateOnBeforeCopyColumnsToTemp(CurrentColumnName, TempColumnLayout, TempFinancialReport."Financial Report Row Group", Rec, IsHandled);
         if not IsHandled then begin
             AccSchedManagement.CopyColumnsToTemp(TempFinancialReport."Financial Report Column Group", TempColumnLayout);
@@ -1557,7 +1558,7 @@ page 490 "Acc. Schedule Overview"
         PrevAnalysisView: Record "Analysis View";
     begin
         AccSchedManagement.SetName(TempFinancialReport."Financial Report Row Group", Rec);
-
+        AccSchedManagement.SetAnalysisViewRead(false);
         AccSchedManagement.CheckAnalysisView(TempFinancialReport."Financial Report Row Group", TempFinancialReport."Financial Report Column Group", true);
 
         if AccSchedName2."Analysis View Name" <> AnalysisView.Code then begin
@@ -1597,6 +1598,7 @@ page 490 "Acc. Schedule Overview"
 
         AccSchedManagement.CopyColumnsToTemp(TempFinancialReport."Financial Report Column Group", TempColumnLayout);
         AccSchedManagement.SetColumnName(TempFinancialReport."Financial Report Column Group", TempColumnLayout);
+        AccSchedManagement.SetAnalysisViewRead(false);
         AccSchedManagement.CheckAnalysisView(TempFinancialReport."Financial Report Row Group", TempFinancialReport."Financial Report Column Group", true);
         ColumnOffset := 0;
         UpdateColumnCaptions();
@@ -1650,7 +1652,7 @@ page 490 "Acc. Schedule Overview"
             else
                 ColumnStyle := 'Standard';
 
-        OnGetStyleOnBeforeAssignColumnStyle(Rec, ColumnNo, RowLineNo, ColumnLineNo, ColumnStyle);
+        OnGetStyleOnBeforeAssignColumnStyle(Rec, ColumnNo, RowLineNo, ColumnLineNo, ColumnStyle, ColumnValues);
 
         case ColumnNo of
             1:
@@ -1740,8 +1742,8 @@ page 490 "Acc. Schedule Overview"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnGetStyleOnBeforeAssignColumnStyle(AccScheduleLine: Record "Acc. Schedule Line"; ColumnNo: Integer; RowLineNo: Integer; ColumnLineNo: Integer; var ColumnStyle: Text);
+    [IntegrationEvent(true, false)]
+    local procedure OnGetStyleOnBeforeAssignColumnStyle(AccScheduleLine: Record "Acc. Schedule Line"; ColumnNo: Integer; RowLineNo: Integer; ColumnLineNo: Integer; var ColumnStyle: Text; ColumnValues: array[15] of Decimal);
     begin
     end;
 

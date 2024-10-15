@@ -2,13 +2,15 @@ table 372 "Payment Buffer"
 {
     Caption = 'Payment Buffer';
     ReplicateData = false;
-#if CLEAN21
+#pragma warning disable AS0074
+#if CLEAN22
     TableType = Temporary;
 #else
     ObsoleteReason = 'This table will be marked as temporary. Make sure you are not using this table to store records.';
     ObsoleteState = Pending;
-    ObsoleteTag = '21.0';
+    ObsoleteTag = '22.0';
 #endif
+#pragma warning restore AS0074
 
     fields
     {

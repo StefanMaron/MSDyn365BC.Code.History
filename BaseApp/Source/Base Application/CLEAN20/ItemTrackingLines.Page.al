@@ -183,7 +183,7 @@ page 6510 "Item Tracking Lines"
                         IsHandled: Boolean;
                     begin
                         IsHandled := false;
-                        OnBeforeSerialNoAssistEdit(Rec, xRec, CurrentSignFactor, IsHandled, MaxQuantity, UndefinedQtyArray);
+                        OnBeforeSerialNoAssistEdit(Rec, xRec, CurrentSignFactor, IsHandled, MaxQuantity, UndefinedQtyArray, ForBinCode, Inbound, CurrentRunMode, ItemTrackingDataCollection, CurrentSourceType, SourceQuantityArray, InsertIsBlocked);
                         if IsHandled then
                             exit;
 
@@ -3502,7 +3502,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSerialNoAssistEdit(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; var IsHandled: Boolean; var MaxQuantity: Decimal; UndefinedQtyArray: array[3] of Decimal)
+    local procedure OnBeforeSerialNoAssistEdit(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; var IsHandled: Boolean; var MaxQuantity: Decimal; UndefinedQtyArray: array[3] of Decimal; ForBinCode: Code[20]; Inbound: Boolean; CurrentRunMode: Enum "Item Tracking Run Mode"; ItemTrackingDataCollection: Codeunit "Item Tracking Data Collection"; CurrentSourceType: Integer; SourceQuantityArray: array[5] of Decimal; InsertIsBlocked: Boolean)
     begin
     end;
 

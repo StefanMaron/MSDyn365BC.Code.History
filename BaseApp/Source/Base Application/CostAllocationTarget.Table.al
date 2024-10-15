@@ -297,40 +297,44 @@ table 1107 "Cost Allocation Target"
         CostAllocationTarget: Record "Cost Allocation Target";
         PctTotal: Decimal;
         TotalShare: Decimal;
+        IsHandled: Boolean;
     begin
-        with CostAllocationTarget do begin
-            SetRange(ID, Rec.ID);
-            SetFilter("Line No.", '<>%1', Rec."Line No.");
-            CalcSums(Share);
-            TotalShare := Share + Rec.Share;
+        CostAllocationTarget.SetRange(ID, Rec.ID);
+        CostAllocationTarget.SetFilter("Line No.", '<>%1', Rec."Line No.");
+        OnCalcPercentOnAfterSetFilters(CostAllocationTarget, Rec);
+        CostAllocationTarget.CalcSums(Share);
+        TotalShare := CostAllocationTarget.Share + Rec.Share;
 
-            if TotalShare = 0 then begin
-                ModifyAll(Percent, 0);
-                ModifyAll("Share Updated on", Today);
-                Rec.Percent := 0;
-                Rec."Share Updated on" := Today;
-                exit;
-            end;
-
-            if FindSet() then
-                repeat
-                    Percent := Round(100 * Share / TotalShare, 0.00001);
-                    "Share Updated on" := Today;
-                    Modify();
-                until Next() = 0;
-            Rec.Percent := Round(100 * Rec.Share / TotalShare, 0.00001);
+        if TotalShare = 0 then begin
+            CostAllocationTarget.ModifyAll(Percent, 0);
+            CostAllocationTarget.ModifyAll("Share Updated on", Today);
+            Rec.Percent := 0;
             Rec."Share Updated on" := Today;
-            Rec.Modify();
-            // distribute rounding error:
-            CalcSums(Percent);
-            PctTotal := Percent + Rec.Percent;
+            exit;
+        end;
+
+        if CostAllocationTarget.FindSet() then
+            repeat
+                CostAllocationTarget.Percent := Round(100 * CostAllocationTarget.Share / TotalShare, 0.00001);
+                CostAllocationTarget."Share Updated on" := Today;
+                CostAllocationTarget.Modify();
+            until CostAllocationTarget.Next() = 0;
+        Rec.Percent := Round(100 * Rec.Share / TotalShare, 0.00001);
+        Rec."Share Updated on" := Today;
+        Rec.Modify();
+
+        // distribute rounding error:
+        CostAllocationTarget.CalcSums(Percent);
+        PctTotal := CostAllocationTarget.Percent + Rec.Percent;
+        IsHandled := false;
+        OnCalcPercentOnBeforeDistributeRoundingError(Rec, PctTotal, IsHandled);
+        if not IsHandled then
             if PctTotal <> 100 then
-                if (Rec."Line No." <> 0) and FindLast() and ("Line No." > Rec."Line No.") then begin
-                    Percent := Percent + (100 - PctTotal);
-                    Modify();
+                if (Rec."Line No." <> 0) and CostAllocationTarget.FindLast() and (CostAllocationTarget."Line No." > Rec."Line No.") then begin
+                    CostAllocationTarget.Percent := CostAllocationTarget.Percent + (100 - PctTotal);
+                    CostAllocationTarget.Modify();
                 end else
                     Rec.Percent := Rec.Percent + (100 - PctTotal);
-        end;
     end;
 
     local procedure LookupNoFilter(var SelectionFilter: Text): Boolean
@@ -424,6 +428,16 @@ table 1107 "Cost Allocation Target"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupGroupFilter(SourceBase: Integer; var SelectionFilter: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcPercentOnBeforeDistributeRoundingError(var CostAllocationTarget: Record "Cost Allocation Target"; PctTotal: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcPercentOnAfterSetFilters(var CostAllocationTarget: Record "Cost Allocation Target"; var Rec: Record "Cost Allocation Target")
     begin
     end;
 }

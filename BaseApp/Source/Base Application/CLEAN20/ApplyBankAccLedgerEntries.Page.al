@@ -215,6 +215,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
     trigger OnInit()
     begin
         AmountVisible := true;
+        SetUserInteractions();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -229,6 +230,8 @@ page 381 "Apply Bank Acc. Ledger Entries"
 
     var
         BankAccount: Record "Bank Account";
+        OpenedBankAccReconBankAccountNo: Code[20];
+        OpenedBankAccReconStatementNo: Code[20];
         StyleTxt: Text;
         LineApplied: Boolean;
         Balance: Decimal;
@@ -253,7 +256,10 @@ page 381 "Apply Bank Acc. Ledger Entries"
     begin
         StyleTxt := '';
         if LineApplied then
-            StyleTxt := 'Favorable';
+            if (OpenedBankAccReconBankAccountNo = Rec."Bank Account No.") and (OpenedBankAccReconStatementNo = Rec."Statement No.") then
+                StyleTxt := 'Favorable'
+            else
+                StyleTxt := 'Ambiguous';
     end;
 
     local procedure CalcBalance()
@@ -293,6 +299,12 @@ page 381 "Apply Bank Acc. Ledger Entries"
         GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
+    end;
+
+    procedure AssignBankAccReconciliation(BankAccReconciliacion: Record "Bank Acc. Reconciliation")
+    begin
+        OpenedBankAccReconBankAccountNo := BankAccReconciliacion."Bank Account No.";
+        OpenedBankAccReconStatementNo := BankAccReconciliacion."Statement No.";
     end;
 }
 

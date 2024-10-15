@@ -3,6 +3,8 @@
     TableNo = "Sales Line";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
         SalesHeader.Get("Document Type", "Document No.");
         SalesHeader.TestField("Document Type", SalesHeader."Document Type"::"Credit Memo");
@@ -14,10 +16,14 @@
         ReturnRcptLine.SetRange("Currency Code", SalesHeader."Currency Code");
         OnRunOnAfterSetReturnRcptLineFilters(ReturnRcptLine, SalesHeader);
 
-        GetReturnRcptLines.SetTableView(ReturnRcptLine);
-        GetReturnRcptLines.LookupMode := true;
-        GetReturnRcptLines.SetSalesHeader(SalesHeader);
-        GetReturnRcptLines.RunModal();
+        IsHandled := false;
+        OnRunOnBeforeGetReturnRcptLines(ReturnRcptLine, SalesHeader, IsHandled);
+        if not IsHandled then begin
+            GetReturnRcptLines.SetTableView(ReturnRcptLine);
+            GetReturnRcptLines.LookupMode := true;
+            GetReturnRcptLines.SetSalesHeader(SalesHeader);
+            GetReturnRcptLines.RunModal();
+        end;
     end;
 
     var
@@ -219,6 +225,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestReturnReceiptLineVATBusPostingGroup(ReturnReceiptLine: Record "Return Receipt Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeGetReturnRcptLines(var ReturnReceiptLine: Record "Return Receipt Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

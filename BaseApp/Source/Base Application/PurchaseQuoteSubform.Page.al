@@ -476,14 +476,16 @@ page 97 "Purchase Quote Subform"
                 }
                 field("Gross Weight"; Rec."Gross Weight")
                 {
+                    Caption = 'Unit Gross Weight';
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the net weight of one unit of the item. In the purchase statistics window, the net weight on the line is included in the total net weight of all the lines for the particular purchase document.';
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the purchase statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular purchase document.';
                     Visible = false;
                 }
                 field("Net Weight"; Rec."Net Weight")
                 {
+                    Caption = 'Unit Net Weight';
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the net weight of the item.';
+                    ToolTip = 'Specifies the net weight of one unit of the item. In the purchase statistics window, the net weight on the line is included in the total net weight of all the lines for the particular purchase document.';
                     Visible = false;
                 }
                 field("Unit Volume"; Rec."Unit Volume")
@@ -1165,6 +1167,7 @@ page 97 "Purchase Quote Subform"
         if SuppressTotals then
             exit;
 
+        OnBeforeDeltaUpdateTotals(Rec, xRec);
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         CheckSendLineInvoiceDiscountResetNotification();
     end;
@@ -1317,6 +1320,11 @@ page 97 "Purchase Quote Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetDimensionsVisibility()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDeltaUpdateTotals(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 }

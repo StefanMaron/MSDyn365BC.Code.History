@@ -1,8 +1,10 @@
-#if CLEAN19
+﻿#if CLEAN19
 codeunit 442 "Sales-Post Prepayments"
 {
     Permissions = TableData "Sales Line" = imd,
+#if not CLEAN20
                   TableData "Invoice Post. Buffer" = imd,
+#endif
                   TableData "Sales Invoice Header" = imd,
                   TableData "Sales Invoice Line" = imd,
                   TableData "Sales Cr.Memo Header" = imd,
@@ -404,7 +406,7 @@ codeunit 442 "Sales-Post Prepayments"
                     end;
             end;
 
-        if PreviewMode and GLSetup."Journal Templ. Name Mandatory" then
+        if GLSetup."Journal Templ. Name Mandatory" then
             GenJournalTemplate.Get(SalesHeader."Journal Templ. Name");
     end;
 
@@ -1145,7 +1147,13 @@ codeunit 442 "Sales-Post Prepayments"
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TotalAmt: Decimal;
         NextLineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSalesLines(SalesHeader, DocumentType, ToSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ApplyFilter(SalesHeader, DocumentType, FromSalesLine);
         if FromSalesLine.Find('-') then begin
             repeat
@@ -1545,6 +1553,7 @@ codeunit 442 "Sales-Post Prepayments"
     local procedure InsertSalesInvLine(SalesInvHeader: Record "Sales Invoice Header"; LineNo: Integer; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesHeader: Record "Sales Header")
     var
         SalesInvLine: Record "Sales Invoice Line";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         with PrepmtInvLineBuffer do begin
             SalesInvLine.Init();
@@ -1572,6 +1581,8 @@ codeunit 442 "Sales-Post Prepayments"
             SalesInvLine."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
             SalesInvLine."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
             SalesInvLine."VAT %" := "VAT %";
+            IF VATPostingSetup.GET("VAT Bus. Posting Group", "VAT Prod. Posting Group") THEN
+                SalesInvLine."VAT Clause Code" := VATPostingSetup."VAT Clause Code";
             SalesInvLine.Amount := Amount;
             SalesInvLine."VAT Difference" := "VAT Difference";
             SalesInvLine."Amount Including VAT" := "Amount Incl. VAT";
@@ -1621,6 +1632,7 @@ codeunit 442 "Sales-Post Prepayments"
     local procedure InsertSalesCrMemoLine(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; LineNo: Integer; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesHeader: Record "Sales Header")
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         with PrepmtInvLineBuffer do begin
             SalesCrMemoLine.Init();
@@ -1648,6 +1660,8 @@ codeunit 442 "Sales-Post Prepayments"
             SalesCrMemoLine."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
             SalesCrMemoLine."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
             SalesCrMemoLine."VAT %" := "VAT %";
+            IF VATPostingSetup.GET("VAT Bus. Posting Group", "VAT Prod. Posting Group") THEN
+                SalesCrMemoLine."VAT Clause Code" := VATPostingSetup."VAT Clause Code";
             SalesCrMemoLine.Amount := Amount;
             SalesCrMemoLine."VAT Difference" := "VAT Difference";
             SalesCrMemoLine."Amount Including VAT" := "Amount Incl. VAT";
@@ -1994,6 +2008,11 @@ codeunit 442 "Sales-Post Prepayments"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSalesLineIsNegative(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSalesLines(SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo",Statistic; var ToSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

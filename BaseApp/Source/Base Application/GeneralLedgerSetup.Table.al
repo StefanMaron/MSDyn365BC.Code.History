@@ -589,12 +589,13 @@ table 98 "General Ledger Setup"
             Caption = 'Account Schedule for Balance Sheet';
             TableRelation = "Acc. Schedule Name";
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
-#if CLEAN21
+#pragma warning disable AS0074
+#if CLEAN22
             ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
+            ObsoleteTag = '25.0';
 #else
             ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
+            ObsoleteTag = '22.0';
 #endif
             trigger OnValidate()
             begin
@@ -606,12 +607,12 @@ table 98 "General Ledger Setup"
             Caption = 'Account Schedule for Income Stmt.';
             TableRelation = "Acc. Schedule Name";
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
-#if CLEAN21
+#if CLEAN22
             ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
+            ObsoleteTag = '25.0';
 #else
             ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
+            ObsoleteTag = '22.0';
 #endif
             trigger OnValidate()
             begin
@@ -623,12 +624,12 @@ table 98 "General Ledger Setup"
             Caption = 'Account Schedule for Cash Flow Stmt';
             TableRelation = "Acc. Schedule Name";
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
-#if CLEAN21
+#if CLEAN22
             ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
+            ObsoleteTag = '25.0';
 #else
             ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
+            ObsoleteTag = '22.0';
 #endif
             trigger OnValidate()
             begin
@@ -640,13 +641,14 @@ table 98 "General Ledger Setup"
             Caption = 'Account Schedule for Retained Earn.';
             TableRelation = "Acc. Schedule Name";
             ObsoleteReason = 'Financial Reporting is replacing Account Schedules for financial statements';
-#if CLEAN21
+#if CLEAN22
             ObsoleteState = Removed;
-            ObsoleteTag = '24.0';
+            ObsoleteTag = '25.0';
 #else
             ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
+            ObsoleteTag = '22.0';
 #endif
+#pragma warning restore AS0074
             trigger OnValidate()
             begin
                 Error(AccSchedObsoleteErr);

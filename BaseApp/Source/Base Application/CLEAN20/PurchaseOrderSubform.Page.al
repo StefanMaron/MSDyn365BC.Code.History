@@ -66,7 +66,7 @@ page 54 "Purchase Order Subform"
                         UpdateTypeText();
                         DeltaUpdateTotals();
 
-                        CurrPage.Update(); 
+                        CurrPage.Update();
                     end;
                 }
                 field("Item Reference No."; Rec."Item Reference No.")
@@ -1384,7 +1384,7 @@ page 54 "Purchase Order Subform"
         UpdateTypeText();
         SetItemChargeFieldsStyle();
         if "Variant Code" = '' then
-                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1662,6 +1662,7 @@ page 54 "Purchase Order Subform"
         if SuppressTotals then
             exit;
 
+        OnBeforeDeltaUpdateTotals(Rec, xRec);
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         CheckSendLineInvoiceDiscountResetNotification();
     end;
@@ -1840,6 +1841,11 @@ page 54 "Purchase Order Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetDimensionsVisibility()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDeltaUpdateTotals(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 }

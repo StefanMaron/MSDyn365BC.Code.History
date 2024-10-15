@@ -204,6 +204,7 @@ codeunit 1330 "Instruction Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
+        OnBeforeInsertDefaultUnpostedDoucumentNotification(MyNotifications);
         MyNotifications.InsertDefaultWithTableNumAndFilter(GetClosingUnpostedDocumentNotificationId(),
           WarnUnpostedDocumentsTxt,
           WarnUnpostedDocumentsDescriptionTxt,
@@ -321,6 +322,11 @@ codeunit 1330 "Instruction Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(InstructionType: Code[50]; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeInsertDefaultUnpostedDoucumentNotification(var MyNotifications: Record "My Notifications")
     begin
     end;
 

@@ -24,7 +24,7 @@ page 9802 "Permission Sets"
                 field(PermissionSet; "Role ID")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Permission Set Name';
+                    Caption = 'Permission Set';
                     Editable = IsPermissionSetEditable;
                     ToolTip = 'Specifies the name of the permission set.';
 
@@ -46,7 +46,7 @@ page 9802 "Permission Sets"
                 }
                 field(Name; Name)
                 {
-                    Caption = 'Description';
+                    Caption = 'Name';
                     ApplicationArea = Basic, Suite;
                     Editable = IsPermissionSetEditable;
                     ToolTip = 'Specifies the description of the record.';
@@ -78,17 +78,33 @@ page 9802 "Permission Sets"
         }
         area(factboxes)
         {
+#if not CLEAN22
             part("System Permissions"; "Permissions FactBox")
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with Expanded Permissions factbox';
+                ObsoleteTag = '22.0';
                 ApplicationArea = Basic, Suite;
                 Caption = 'System Permissions';
                 Editable = false;
                 SubPageLink = "Role ID" = FIELD("Role ID");
+                Visible = false;
             }
             part("Tenant Permissions"; "Tenant Permissions FactBox")
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with Expanded Permissions factbox';
+                ObsoleteTag = '22.0';
                 ApplicationArea = Basic, Suite;
                 Caption = 'Custom Permissions';
+                Editable = false;
+                Visible = false;
+            }
+#endif
+            part(ExpandedPermissions; "Expanded Permissions FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Permissions';
                 Editable = false;
                 SubPageLink = "Role ID" = FIELD("Role ID"),
                               "App ID" = FIELD("App ID");

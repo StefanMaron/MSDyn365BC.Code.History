@@ -182,6 +182,8 @@ codeunit 980 "Payment Registration Mgt."
         FindServiceHeaderRecords(TempDocumentSearchResult, DocNoFilter, AmountFilter, AmountTolerancePerc);
         FindReminderHeaderRecords(TempDocumentSearchResult, DocNoFilter, AmountFilter, AmountTolerancePerc);
         FindFinChargeMemoHeaderRecords(TempDocumentSearchResult, DocNoFilter, AmountFilter, AmountTolerancePerc);
+
+        OnAfterFindRecords(TempDocumentSearchResult, DocNoFilter, AmountFilter, AmountTolerancePerc);
     end;
 
     local procedure FindSalesHeaderRecords(var TempDocumentSearchResult: Record "Document Search Result" temporary; DocNoFilter: Code[20]; AmountFilter: Decimal; AmountTolerancePerc: Decimal)
@@ -288,10 +290,15 @@ codeunit 980 "Payment Registration Mgt."
     local procedure ShowSalesHeaderRecords(var TempDocumentSearchResult: Record "Document Search Result" temporary)
     var
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
         TempDocumentSearchResult.TestField("Table ID", DATABASE::"Sales Header");
         SalesHeader.SetRange("Document Type", TempDocumentSearchResult."Doc. Type");
         SalesHeader.SetRange("No.", TempDocumentSearchResult."Doc. No.");
+
+        OnShowSalesHeaderRecordsOnBeforeOpenPage(TempDocumentSearchResult, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
 
         case TempDocumentSearchResult."Doc. Type" of
             SalesHeader."Document Type"::Quote.AsInteger():
@@ -663,6 +670,11 @@ codeunit 980 "Payment Registration Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterFindRecords(var TempDocumentSearchResult: Record "Document Search Result" temporary; DocNoFilter: Code[20]; AmountFilter: Decimal; AmountTolerancePerc: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineInsert(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary)
     begin
     end;
@@ -674,6 +686,11 @@ codeunit 980 "Payment Registration Mgt."
 
     [IntegrationEvent(false, false)]
     procedure OnFindSalesHeaderRecordsOnBeforeToleranceCheck(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowSalesHeaderRecordsOnBeforeOpenPage(var TempDocumentSearchResult: Record "Document Search Result" temporary; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

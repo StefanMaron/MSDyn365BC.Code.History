@@ -1,4 +1,4 @@
-#if CLEAN19
+﻿#if CLEAN19
 codeunit 11 "Gen. Jnl.-Check Line"
 {
     Permissions = TableData "General Posting Setup" = rimd;
@@ -410,7 +410,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                             FieldError("Sales/Purch. (LCY)", ErrorInfo.Create(StrSubstNo(Text003, FieldCaption(Amount)), true));
                         CheckJobNoIsEmpty(GenJnlLine);
 
-                        CheckICPartner("Account Type", "Account No.", "Document Type");
+                        CheckICPartner("Account Type", "Account No.", "Document Type", GenJnlLine);
                     end;
                 "Account Type"::"Bank Account":
                     begin
@@ -500,7 +500,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                             FieldError("Sales/Purch. (LCY)", ErrorInfo.Create(StrSubstNo(Text009, FieldCaption(Amount)), true));
                         CheckJobNoIsEmpty(GenJnlLine);
 
-                        CheckICPartner("Bal. Account Type", "Bal. Account No.", "Document Type");
+                        CheckICPartner("Bal. Account Type", "Bal. Account No.", "Document Type", GenJnlLine);
                     end;
                 "Bal. Account Type"::"Bank Account":
                     begin
@@ -645,7 +645,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
             end;
     end;
 
-    local procedure CheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
+    local procedure CheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; GenJnlLine: Record "Gen. Journal Line")
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -653,7 +653,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         Employee: Record Employee;
         CheckDone: Boolean;
     begin
-        OnBeforeCheckICPartner(AccountType, AccountNo, DocumentType.AsInteger(), CheckDone);
+        OnBeforeCheckICPartner(AccountType, AccountNo, DocumentType.AsInteger(), CheckDone, GenJnlLine);
         if CheckDone then
             exit;
 
@@ -1010,7 +1010,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Option; var CheckDone: Boolean)
+    local procedure OnBeforeCheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Option; var CheckDone: Boolean; GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 

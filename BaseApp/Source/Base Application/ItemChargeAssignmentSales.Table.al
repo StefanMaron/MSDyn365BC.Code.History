@@ -206,12 +206,13 @@ table 5809 "Item Charge Assignment (Sales)"
             Currency.InitRoundingPrecision;
     end;
 
-    procedure SalesLineInvoiced(): Boolean
+    procedure SalesLineInvoiced() Result: Boolean
     begin
         if "Applies-to Doc. Type" <> "Document Type" then
             exit(false);
         SalesLine.Get("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
-        exit(SalesLine.Quantity = SalesLine."Quantity Invoiced");
+        Result := SalesLine.Quantity = SalesLine."Quantity Invoiced";
+        OnAfterSalesLineInvoiced(Rec, SalesLine, Result);
     end;
 
     procedure CheckAssignment(AppliesToDocumentType: Enum "Sales Applies-to Document Type"; AppliesToDocumentNo: Code[20]; AppliesToDocumentLineNo: Integer)
@@ -223,6 +224,11 @@ table 5809 "Item Charge Assignment (Sales)"
         SetRange("Applies-to Doc. Line No.", AppliesToDocumentLineNo);
         if FindFirst() then
             error(ItemChargeDeletionErr, "Document Type", "Document No.", "Item No.");
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSalesLineInvoiced(ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; var SalesLine: Record "Sales Line"; var Result: Boolean)
+    begin
     end;
 
 #if not CLEAN19

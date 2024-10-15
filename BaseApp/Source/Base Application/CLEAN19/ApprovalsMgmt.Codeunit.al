@@ -2061,7 +2061,13 @@ codeunit 1535 "Approvals Mgmt."
         Approvals: Page Approvals;
         WorkflowWebhookEntries: Page "Workflow Webhook Entries";
         ApprovalEntries: Page "Approval Entries";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunWorkflowEntriesPage(RecordIDInput, TableId, DocumentType, DocumentNo, IsHandled);
+        if IsHandled then
+            exit;
+
         // if we are looking at a particular record, we want to see only record related workflow entries
         if DocumentNo <> '' then begin
             ApprovalEntry.SetRange("Record ID to Approve", RecordIDInput);
@@ -2319,6 +2325,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrePostApprovalCheckSales(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunWorkflowEntriesPage(RecordIDInput: RecordID; TableId: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

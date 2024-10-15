@@ -317,6 +317,8 @@ table 133 "Incoming Document Attachment"
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
     begin
+        OnBeforeExport(Rec);
+
         if "Incoming Document Entry No." = 0 then
             exit;
         CalcFields(Content);
@@ -665,6 +667,11 @@ table 133 "Incoming Document Attachment"
     [IntegrationEvent(false, false)]
     [Scope('OnPrem')]
     procedure OnBeforeExtractHeaderFields(var TempFieldBuffer: Record "Field Buffer" temporary; var IncomingDocument: Record "Incoming Document")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExport(var IncomingDocumentAttachment: Record "Incoming Document Attachment")
     begin
     end;
 

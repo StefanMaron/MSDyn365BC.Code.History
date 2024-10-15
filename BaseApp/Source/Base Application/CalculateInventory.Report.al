@@ -452,7 +452,7 @@ report 790 "Calculate Inventory"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFunctionInsertItemJnlLine(ItemNo, VariantCode2, DimEntryNo2, BinCode2, Quantity2, PhysInvQuantity, ItemJnlLine, IsHandled);
+        OnBeforeFunctionInsertItemJnlLine(ItemNo, VariantCode2, DimEntryNo2, BinCode2, Quantity2, PhysInvQuantity, ItemJnlLine, IsHandled, Location);
         if not IsHandled then
             with ItemJnlLine do begin
                 if NextLineNo = 0 then begin
@@ -466,7 +466,7 @@ report 790 "Calculate Inventory"
                 end;
                 NextLineNo := NextLineNo + 10000;
                 ShouldInsertItemJnlLine := (Quantity2 <> 0) or ZeroQty;
-                OnInsertItemJnlLineOnAfterCalcShouldInsertItemJnlLine(ItemNo, VariantCode2, DimEntryNo2, BinCode2, Quantity2, PhysInvQuantity, ZeroQty, ShouldInsertItemJnlLine);
+                OnInsertItemJnlLineOnAfterCalcShouldInsertItemJnlLine(ItemNo, VariantCode2, DimEntryNo2, BinCode2, Quantity2, PhysInvQuantity, ZeroQty, ShouldInsertItemJnlLine, Location);
                 if ShouldInsertItemJnlLine then begin
                     if (Quantity2 = 0) and Location."Bin Mandatory" and not Location."Directed Put-away and Pick"
                     then
@@ -1044,7 +1044,7 @@ report 790 "Calculate Inventory"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnInsertItemJnlLineOnAfterCalcShouldInsertItemJnlLine(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal; ZeroQty: Boolean; var ShouldInsertItemJnlLine: Boolean)
+    local procedure OnInsertItemJnlLineOnAfterCalcShouldInsertItemJnlLine(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal; ZeroQty: Boolean; var ShouldInsertItemJnlLine: Boolean; Location: Record Location)
     begin
     end;
 
@@ -1064,7 +1064,7 @@ report 790 "Calculate Inventory"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFunctionInsertItemJnlLine(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeFunctionInsertItemJnlLine(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal; var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean; Location: Record Location)
     begin
     end;
 
@@ -1128,7 +1128,7 @@ report 790 "Calculate Inventory"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnRetrieveBufferOnBeforeFind(var InventoryBuffer: Record "Inventory Buffer"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -1164,7 +1164,7 @@ report 790 "Calculate Inventory"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAddZeroQtySKUOnBeforeInsertZeroQtySKU(Item: Record Item; SKU: Record "Stockkeeping Unit"; var TempInventoryBuffer: Record "Inventory Buffer" temporary; var IsHandled: Boolean)
+    local procedure OnAddZeroQtySKUOnBeforeInsertZeroQtySKU(Item: Record Item; var SKU: Record "Stockkeeping Unit"; var TempInventoryBuffer: Record "Inventory Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
 

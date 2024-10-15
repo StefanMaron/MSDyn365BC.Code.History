@@ -1057,7 +1057,14 @@ table 5870 "BOM Buffer"
         Item: Record Item;
         CopyOfBOMBuffer: Record "BOM Buffer";
         ProdBOMHeader: Record "Production BOM Header";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsQtyPerOk(Rec, BOMWarningLog, LogWarning, Result, IsHandled);
+        If IsHandled then
+            exit(Result);
+
         if "Qty. per Parent" <> 0 then
             exit(true);
         if "No." = '' then
@@ -1118,7 +1125,14 @@ table 5870 "BOM Buffer"
     local procedure IsReplenishmentOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log"): Boolean
     var
         Item: Record Item;
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsReplenishmentOk(Rec, BOMWarningLog, LogWarning, Result, IsHandled);
+        If IsHandled then
+            exit(Result);
+
         if Type <> Type::Item then
             exit(true);
         if "No." = '' then
@@ -1316,6 +1330,16 @@ table 5870 "BOM Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferFromProdRoutingCopyFields(var BOMBuffer: Record "BOM Buffer"; RoutingLine: Record "Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsQtyPerOk(var BOMBuffer: Record "BOM Buffer"; var BOMWarningLog: Record "BOM Warning Log"; LogWarning: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsReplenishmentOk(var BOMBuffer: Record "BOM Buffer"; var BOMWarningLog: Record "BOM Warning Log"; LogWarning: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

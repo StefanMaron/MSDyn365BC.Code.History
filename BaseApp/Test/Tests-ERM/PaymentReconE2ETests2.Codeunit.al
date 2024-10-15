@@ -2,6 +2,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -1655,6 +1656,60 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         Assert.IsTrue(PmtReconJnl.StatementEndingBalanceFixedLayout.Visible(), 'Statement Ending Balance must be visible');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('VerifyTestReportRequestPage')]
+    procedure OutstandingPaymentsControlShouldShowOnTestReport()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccount: Record "Bank Account";
+        PaymentReconE2ETests2: Codeunit "Payment Recon. E2E Tests 2";
+        BankAccReconciliationList: TestPage "Bank Acc. Reconciliation List";
+        BankAccReconciliationTestPage: TestPage "Bank Acc. Reconciliation";
+    begin
+        // [SCENARIO] When the test report is printed from the Bank Account Reconciliation page, it should show the "Print Outstanding Payments" option
+        BindSubscription(PaymentReconE2ETests2);
+        ClearBankAccReconciliations();
+        // [GIVEN] A Bank Acc. Reconciliation
+        BankAccReconciliation.Init();
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        // [WHEN] Invoking TestReport from Bank Acc. Reconciliation
+        LibraryVariableStorage.Enqueue(true); // Expected value of PrintOutstdTransac
+        BankAccReconciliationList.OpenView();
+        BankAccReconciliationList.GoToRecord(BankAccReconciliation);
+        BankAccReconciliationTestPage.Trap();
+        BankAccReconciliationList.Edit.Invoke();
+        BankAccReconciliationTestPage."&Test Report".Invoke();
+        // [THEN] The control PrintOutstdTransac should not be visible (in VerifyTestReportRequestPage)
+        ClearBankAccReconciliations();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('VerifyTestReportRequestPage')]
+    procedure OutstandingPaymentsControlShouldNotShowOnTestReport()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccount: Record "Bank Account";
+        PaymentReconE2ETests2: Codeunit "Payment Recon. E2E Tests 2";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+    begin
+        // [SCENARIO] When the test report is printed from the Payment Reconciliation Journal page, it should NOT show the "Print Outstanding Payments" option
+        BindSubscription(PaymentReconE2ETests2);
+        ClearBankAccReconciliations();
+        // [GIVEN] A Bank Acc. Reconciliation
+        BankAccReconciliation.Init();
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Payment Application");
+        // [WHEN] Invoking TestReport from Payment Reconciliation Journal
+        LibraryVariableStorage.Enqueue(false); // Expected value of PrintOutstdTransac
+        OpenPmtReconJnl(BankAccReconciliation, PaymentReconciliationJournal);
+        PaymentReconciliationJournal.TestReport.Invoke();
+        // [THEN] The control PrintOutstdTransac should not be visible (in VerifyTestReportRequestPage)
+        ClearBankAccReconciliations();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -1685,6 +1740,17 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Payment Recon. E2E Tests 2");
+    end;
+
+    local procedure ClearBankAccReconciliations()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccount: Record "Bank Account";
+    begin
+        BankAccount.Reset();
+        BankAccount.DeleteAll();
+        BankAccReconciliation.Reset();
+        BankAccReconciliation.DeleteAll();
     end;
 
     local procedure CreateBankAcc(BankStmtFormat: Code[20]; var BankAcc: Record "Bank Account"; CurrencyCode: Code[10])
@@ -2831,6 +2897,12 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         BankAccRecon.Modify();
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnBeforePrintDocument', '', false, false)]
+    procedure OnBeforePrintDocument(TempReportSelections: Record "Report Selections" temporary; IsGUI: Boolean; RecVarToPrint: Variant; var IsHandled: Boolean)
+    begin
+        Commit();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
@@ -2850,5 +2922,13 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), SentNotification.Message);
     end;
+
+    [RequestPageHandler]
+    procedure VerifyTestReportRequestPage(var RequestPage: TestRequestPage "Bank Acc. Recon. - Test")
+    begin
+        if (LibraryVariableStorage.DequeueBoolean()) <> (RequestPage.PrintOutstdTransac.Visible()) then
+            Error('PrintOutstdTransac does not have the expected visibility');
+    end;
+
 }
 

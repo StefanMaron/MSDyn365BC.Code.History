@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 codeunit 5601 "FA Insert G/L Account"
 {
     TableNo = "FA Ledger Entry";
@@ -18,8 +18,9 @@ codeunit 5601 "FA Insert G/L Account"
               ("FA Posting Type" = "FA Posting Type"::"Book Value on Disposal");
 
         IsHandled := false;
-        OnBeforeFAInsertGLAccount(Rec, TempFAGLPostBuf, FAGLPostBuf, DisposalEntry, BookValueEntry, NextEntryNo, GLEntryNo, OrgGenJnlLine,
-                                  NetDisp, NumberOfEntries, DisposalEntryNo, DisposalAmount, GainLossAmount, FAPostingGr2, IsHandled);
+        OnBeforeFAInsertGLAccount(
+            Rec, TempFAGLPostBuf, FAGLPostBuf, DisposalEntry, BookValueEntry, NextEntryNo, GLEntryNo, OrgGenJnlLine,
+            NetDisp, NumberOfEntries, DisposalEntryNo, DisposalAmount, GainLossAmount, FAPostingGr2, IsHandled);
         if IsHandled then
             exit;
 
@@ -429,6 +430,8 @@ codeunit 5601 "FA Insert G/L Account"
     var
         GenJnlLine2: Record "Gen. Journal Line";
     begin
+        OnBeforeCalculateNoOfEmptyLines(GenJnlLine, TempFAGLPostBuf);
+
         GenJnlLine2."Journal Template Name" := GenJnlLine."Journal Template Name";
         GenJnlLine2."Journal Batch Name" := GenJnlLine."Journal Batch Name";
         GenJnlLine2."Line No." := GenJnlLine."Line No.";
@@ -803,6 +806,11 @@ codeunit 5601 "FA Insert G/L Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertMaintenanceAccNo(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry"; var FAGLPostBuf: Record "FA G/L Posting Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateNoOfEmptyLines(var GenJnlLine: Record "Gen. Journal Line"; var TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary)
     begin
     end;
 }

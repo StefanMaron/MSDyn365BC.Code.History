@@ -66,7 +66,7 @@ page 54 "Purchase Order Subform"
                         UpdateTypeText();
                         DeltaUpdateTotals();
 
-                        CurrPage.Update(); // This triggers OnAfterGetRecord() which performs ShowMandatory check for "Variant Code"
+                        CurrPage.Update();
                     end;
                 }
                 field("Item Reference No."; Rec."Item Reference No.")
@@ -399,11 +399,6 @@ page 54 "Purchase Order Subform"
                     begin
                         DeltaUpdateTotals();
                     end;
-                }
-                field("Net Weight"; Rec."Net Weight")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the net weight of the item.';
                 }
                 field("Inv. Disc. Amount to Invoice"; Rec."Inv. Disc. Amount to Invoice")
                 {
@@ -856,9 +851,16 @@ page 54 "Purchase Order Subform"
                 }
                 field("Gross Weight"; Rec."Gross Weight")
                 {
+                    Caption = 'Unit Gross Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the purchase statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Net Weight"; Rec."Net Weight")
+                {
+                    Caption = 'Unit Net Weight';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net weight of one unit of the item. In the purchase statistics window, the net weight on the line is included in the total net weight of all the lines for the particular purchase document.';
-                    Visible = false;
                 }
                 field("Unit Volume"; Rec."Unit Volume")
                 {
@@ -1686,6 +1688,7 @@ page 54 "Purchase Order Subform"
         if SuppressTotals then
             exit;
 
+        OnBeforeDeltaUpdateTotals(Rec, xRec);
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         CheckSendLineInvoiceDiscountResetNotification();
     end;
@@ -1825,10 +1828,7 @@ page 54 "Purchase Order Subform"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenSpecOrderSalesOrderForm(var PurchaseLine: Record "Purchase Line"; var SalesHeader: Record "Sales Header"; var SalesOrder: Page "Sales Order";
-
-    var
-        IsHandled: Boolean)
+    local procedure OnBeforeOpenSpecOrderSalesOrderForm(var PurchaseLine: Record "Purchase Line"; var SalesHeader: Record "Sales Header"; var SalesOrder: Page "Sales Order"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1856,10 +1856,7 @@ page 54 "Purchase Order Subform"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenSalesOrderForm(var PurchaseLine: Record "Purchase Line"; var SalesHeader: Record "Sales Header"; var SalesOrder: Page "Sales Order";
-
-    var
-        IsHandled: Boolean)
+    local procedure OnBeforeOpenSalesOrderForm(var PurchaseLine: Record "Purchase Line"; var SalesHeader: Record "Sales Header"; var SalesOrder: Page "Sales Order"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1870,6 +1867,11 @@ page 54 "Purchase Order Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetDimensionsVisibility()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDeltaUpdateTotals(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 }

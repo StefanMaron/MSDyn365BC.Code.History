@@ -458,7 +458,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 until EndLoop or (RemQtyToPost = 0);
             end;
 
-            OnPostConsumptionOnRemQtyToPostOnBeforeInsertConsumpEntry(ItemJnlLine);
+            OnPostConsumptionOnRemQtyToPostOnBeforeInsertConsumpEntry(ItemJnlLine, ProdOrderComp);
             if RemQtyToPost <> 0 then
                 InsertConsumpEntry(ProdOrderComp, ItemJnlLine."Prod. Order Comp. Line No.", RemQtyToPost, false);
         end;
@@ -531,30 +531,34 @@ codeunit 22 "Item Jnl.-Post Line"
                     ItemLedgerEntry.Get("Applies-to Entry");
                     CheckTrackingEqualItemLedgEntry(ItemLedgerEntry);
                 end;
-                MfgItem.Get(ProdOrderLine."Item No.");
-                MfgItem.TestField("Gen. Prod. Posting Group");
 
-                if Subcontracting then
-                    MfgUnitCost := ProdOrderLine."Unit Cost" / ProdOrderLine."Qty. per Unit of Measure"
-                else
-                    if MfgSKU.Get(ProdOrderLine."Location Code", ProdOrderLine."Item No.", ProdOrderLine."Variant Code") then
-                        MfgUnitCost := MfgSKU."Unit Cost"
+                IsHandled := false;
+                OnPostOutputOnBeforeGetMfgAmounts(ItemJnlLine, ProdOrder, IsHandled);
+                If not IsHandled THEN BEGIN
+                    MfgItem.Get(ProdOrderLine."Item No.");
+                    MfgItem.TestField("Gen. Prod. Posting Group");
+                    if Subcontracting then
+                        MfgUnitCost := ProdOrderLine."Unit Cost" / ProdOrderLine."Qty. per Unit of Measure"
                     else
-                        MfgUnitCost := MfgItem."Unit Cost";
-                OnPostOutputOnAfterSetMfgUnitCost(ItemJnlLine, MfgUnitCost);
+                        if MfgSKU.Get(ProdOrderLine."Location Code", ProdOrderLine."Item No.", ProdOrderLine."Variant Code") then
+                            MfgUnitCost := MfgSKU."Unit Cost"
+                        else
+                            MfgUnitCost := MfgItem."Unit Cost";
+                    OnPostOutputOnAfterSetMfgUnitCost(ItemJnlLine, MfgUnitCost);
 
-                Amount := "Output Quantity" * MfgUnitCost;
-                "Amount (ACY)" := ACYMgt.CalcACYAmt(Amount, "Posting Date", false);
-                OnPostOutputOnAfterUpdateAmounts(ItemJnlLine);
+                    Amount := "Output Quantity" * MfgUnitCost;
+                    "Amount (ACY)" := ACYMgt.CalcACYAmt(Amount, "Posting Date", false);
+                    OnPostOutputOnAfterUpdateAmounts(ItemJnlLine);
 
-                "Gen. Bus. Posting Group" := ProdOrder."Gen. Bus. Posting Group";
-                "Gen. Prod. Posting Group" := MfgItem."Gen. Prod. Posting Group";
-                if "Output Quantity (Base)" * ProdOrderLine."Remaining Qty. (Base)" <= 0 then
-                    ReTrack := true
-                else
-                    if not CalledFromInvtPutawayPick then
-                        ProdOrderLineReserve.TransferPOLineToItemJnlLine(
-                          ProdOrderLine, ItemJnlLine, "Output Quantity (Base)");
+                    "Gen. Bus. Posting Group" := ProdOrder."Gen. Bus. Posting Group";
+                    "Gen. Prod. Posting Group" := MfgItem."Gen. Prod. Posting Group";
+                    if "Output Quantity (Base)" * ProdOrderLine."Remaining Qty. (Base)" <= 0 then
+                        ReTrack := true
+                    else
+                        if not CalledFromInvtPutawayPick then
+                            ProdOrderLineReserve.TransferPOLineToItemJnlLine(
+                            ProdOrderLine, ItemJnlLine, "Output Quantity (Base)");
+                end;
 
                 PostWhseJnlLine := true;
                 OnPostOutputOnBeforeCreateWhseJnlLine(ItemJnlLine, PostWhseJnlLine);
@@ -3339,6 +3343,7 @@ codeunit 22 "Item Jnl.-Post Line"
         ValueEntry."Valuation Date" := ValuationDate;
         ValueEntry."Location Code" := OldItemLedgEntry."Location Code";
         ValueEntry."Variant Code" := OldItemLedgEntry."Variant Code";
+        OnUpdateAvgCostAdjmtBufferOnAfterSetValueEntry(ValueEntry, OldItemLedgEntry);
 
         AvgCostEntryPointHandler.LockBuffer();
         AvgCostEntryPointHandler.UpdateValuationDate(ValueEntry);
@@ -6220,7 +6225,7 @@ codeunit 22 "Item Jnl.-Post Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeInitValueEntry(var ValueEntry: Record "Value Entry"; var ValueEntryNo: Integer; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -7358,7 +7363,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostConsumptionOnRemQtyToPostOnBeforeInsertConsumpEntry(var ItemJnlLine: Record "Item Journal Line")
+    local procedure OnPostConsumptionOnRemQtyToPostOnBeforeInsertConsumpEntry(var ItemJnlLine: Record "Item Journal Line"; var ProdOrderComponent: Record "Prod. Order Component")
     begin
     end;
 
@@ -7539,6 +7544,16 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUndoQuantityPostingOnAfterCalcShouldInsertCorrValueEntry(OldItemLedgEntry: Record "Item Ledger Entry"; var ShouldInsertCorrValueEntries: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostOutputOnBeforeGetMfgAmounts(var ItemJnlLine: Record "Item Journal Line"; ProdOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAvgCostAdjmtBufferOnAfterSetValueEntry(var ValueEntry: Record "Value Entry"; OldItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
 }

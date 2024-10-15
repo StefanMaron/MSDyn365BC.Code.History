@@ -661,6 +661,7 @@ codeunit 7110 "Analysis Report Management"
                       AccountingPeriodMgt.FindEndOfFiscalYear(FiscalStartDate2));
             end;
         end;
+        OnAfterSetItemColumnFilters(ItemStatisticsBuf, AnalysisColumn);
     end;
 
     local procedure EvaluateExpression(IsAnalysisLineExpression: Boolean; Expression: Text[250]; AnalysisLine: Record "Analysis Line"; AnalysisColumn: Record "Analysis Column"): Decimal
@@ -1627,6 +1628,7 @@ codeunit 7110 "Analysis Report Management"
         AnalysisType: Record "Analysis Type";
         ItemStatisticsBuffer: Record "Item Statistics Buffer";
     begin
+        OnBeforeValidateFilter(Filter, RecNo, FieldNumber);
         case RecNo of
             DATABASE::"Analysis Column":
                 case FieldNumber of
@@ -1784,7 +1786,17 @@ codeunit 7110 "Analysis Report Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetItemColumnFilters(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var AnalysisColumn: Record "Analysis Column")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetItemRowFilters(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var AnalysisLine: Record "Analysis Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateFilter(var FilterText: Text; RecNo: Integer; FieldNumber: Integer)
     begin
     end;
 

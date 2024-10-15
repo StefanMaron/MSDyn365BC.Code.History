@@ -299,6 +299,7 @@ codeunit 86 "Sales-Quote to Order"
                     SalesOrderLine."Shortcut Dimension 2 Code" := SalesQuoteLine."Shortcut Dimension 2 Code";
                     SalesOrderLine."Dimension Set ID" := SalesQuoteLine."Dimension Set ID";
                     SalesOrderLine."Transaction Type" := SalesOrderHeader."Transaction Type";
+                    OnTransferQuoteToOrderLinesOnBeforeUpdatePrepaymentPct(SalesQuoteLine, SalesQuoteHeader, SalesOrderLine, SalesOrderHeader, Customer);
                     if Customer."Prepayment %" <> 0 then
                         SalesOrderLine."Prepayment %" := Customer."Prepayment %";
                     PrepmtMgt.SetSalesPrepaymentPct(SalesOrderLine, SalesOrderHeader."Posting Date");
@@ -426,6 +427,11 @@ codeunit 86 "Sales-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesHeader(var SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferQuoteToOrderLinesOnBeforeUpdatePrepaymentPct(var SalesQuoteLine: Record "Sales Line"; var SalesQuoteHeader: Record "Sales Header"; var SalesOrderLine: Record "Sales Line"; var SalesOrderHeader: Record "Sales Header"; Customer: Record Customer)
     begin
     end;
 }
