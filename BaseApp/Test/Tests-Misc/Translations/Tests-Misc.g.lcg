@@ -3794,6 +3794,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Mandatory Fields Tests - NamedType UnexpectedShowMandatoryValueTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3866027901 - NamedType 355089284" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected value of Visible property.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Mandatory Fields Tests - NamedType UnexpectedVisibleValueTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 591093988 - NamedType 566374801" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There is no Purchase Header within the filter.]]></Val>

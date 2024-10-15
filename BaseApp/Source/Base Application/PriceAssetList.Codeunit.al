@@ -146,7 +146,7 @@ codeunit 7007 "Price Asset List"
     begin
         if ToTempPriceAsset.IsTemporary then
             ToTempPriceAsset.Copy(TempPriceAsset, true);
-        exit(not ToTempPriceAsset.IsEmpty())
+        exit(ToTempPriceAsset.FindSet())
     end;
 
     procedure First(var PriceAsset: Record "Price Asset"; AtLevel: Integer): Boolean;

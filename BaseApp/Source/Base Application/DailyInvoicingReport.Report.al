@@ -348,14 +348,20 @@ report 10050 "Daily Invoicing Report"
 
         trigger OnOpenPage()
         begin
-            IncludeInvoices := true;
-            IncludeCreditMemos := false;
+            IncludeInvoices := IncludeInvoices;
+            IncludeCreditMemos := IncludeCreditMemos;
         end;
     }
 
     labels
     {
     }
+
+    trigger OnInitReport()
+    begin
+        IncludeInvoices := true;
+        IncludeCreditMemos := false;
+    end;
 
     trigger OnPreReport()
     begin
@@ -372,7 +378,9 @@ report 10050 "Daily Invoicing Report"
         TempCurrency: Record Currency temporary;
         FilterString: Text;
         SalesTax: Decimal;
+        [InDataSet]
         IncludeInvoices: Boolean;
+        [InDataSet]
         IncludeCreditMemos: Boolean;
         UseCurrency: Boolean;
         TotalAmtExclTax: Decimal;

@@ -403,6 +403,9 @@ report 6631 "Return Order Confirmation"
                         column(NoSalesLineCaption; NoSalesLineCaptionLbl)
                         {
                         }
+                        column(Desc_SalesLineCaption; "Sales Line".FieldCaption(Description))
+                        {
+                        }
                         column(Quantity_SalesLineCaption; "Sales Line".FieldCaption(Quantity))
                         {
                         }
@@ -803,6 +806,7 @@ report 6631 "Return Order Confirmation"
     trigger OnInitReport()
     begin
         GLSetup.Get();
+        CompanyInfo.Get();
         SalesSetup.Get();
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":

@@ -424,6 +424,14 @@
         OnAfterCheckTrackingIfRequired(Rec, WhseItemTrackingSetup);
     end;
 
+    procedure SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if ItemTrackingSetup."Serial No." <> '' then
+            SetRange("Serial No.", ItemTrackingSetup."Serial No.");
+        if ItemTrackingSetup."Lot No." <> '' then
+            SetRange("Lot No.", ItemTrackingSetup."Lot No.");
+    end;
+
     procedure ClearTrackingFilter()
     begin
         SetRange("Serial No.");

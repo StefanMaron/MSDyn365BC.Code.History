@@ -16,11 +16,10 @@ codeunit 10085 "A/P Magnetic Media Management"
         Codes[1, 8] := 'MISC-08';
         Codes[1, 9] := 'MISC-09';
         Codes[1, 10] := 'MISC-10';
+        Codes[1, 12] := 'MISC-12';
         Codes[1, 13] := 'MISC-13';
         Codes[1, 14] := 'MISC-14';
-        Codes[1, 15] := 'MISC-15-A';
-        Codes[1, 16] := 'MISC-15-B';
-        Codes[1, 17] := 'MISC-16';
+        Codes[1, 15] := 'MISC-15';
 
         Codes[2, 1] := 'DIV-01-A';
         Codes[2, 2] := 'DIV-01-B';
@@ -50,14 +49,15 @@ codeunit 10085 "A/P Magnetic Media Management"
         Codes[3, 11] := 'INT-11';
         Codes[3, 12] := 'INT-12';
         Codes[3, 13] := 'INT-13';
+
+        Codes[4, 1] := 'NEC-01';
     end;
 
     var
-        Codes: array[3, 30] of Code[10];
-        Amounts: array[3, 30] of Decimal;
+        Codes: array[4, 30] of Code[10];
+        Amounts: array[4, 30] of Decimal;
         FormatAddress: Codeunit "Format Address";
-        IRS1099Management: Codeunit "IRS 1099 Management";
-        Totals: array[3, 30] of Decimal;
+        Totals: array[4, 30] of Decimal;
         FormBox: Record "IRS 1099 Form-Box";
         CodeNotSetupErr: Label 'The 1099 code %1 has not been setup in the initialization.', Comment = '%1 = 1099 Code';
         Unknown1099CodeErr: Label 'Invoice %1 on vendor %2 has unknown 1099 code  %3.', Comment = '%1 = Invoice Entry No., %2 = Vendor No., %3 = 1099 Code';
@@ -79,16 +79,14 @@ codeunit 10085 "A/P Magnetic Media Management"
     procedure UpdateLines(InvoiceEntry: Record "Vendor Ledger Entry"; i: Integer; EndLine: Integer; "Code": Code[10]; Amount: Decimal): Integer
     var
         j: Integer;
-        AdjmtAmount: Decimal;
     begin
         j := 1;
         while (Codes[i, j] <> Code) and (j <= EndLine) do
             j := j + 1;
 
         if (Codes[i, j] = Code) and (j <= EndLine) then begin
-            AdjmtAmount := IRS1099Management.GetAdjustmentAmount(InvoiceEntry);
-            Amounts[i, j] += Amount + AdjmtAmount;
-            Totals[i, j] += Amount + AdjmtAmount;
+            Amounts[i, j] += Amount;
+            Totals[i, j] += Amount;
         end else
             Error(Unknown1099CodeErr, InvoiceEntry."Entry No.", InvoiceEntry."Vendor No.", Code);
         exit(j); // returns code index found
@@ -193,6 +191,7 @@ codeunit 10085 "A/P Magnetic Media Management"
 
     procedure AmtCodes(var CodeNos: Text[12]; i: Integer; EndLine: Integer)
     var
+        ActualCodePos: array[30] of Integer;
         j: Integer;
     begin
         Clear(CodeNos);
@@ -202,18 +201,18 @@ codeunit 10085 "A/P Magnetic Media Management"
                 for j := 1 to EndLine do
                     if Amounts[i, j] <> 0.0 then
                         case j of
+                            9:
+                                IncrCodeNos(CodeNos, ActualCodePos, 'A', 10); // Crop Insurance Proceeds
                             10:
-                                CodeNos := InsStr(CodeNos, 'A', 10); // Crop Insurance Proceeds
+                                IncrCodeNos(CodeNos, ActualCodePos, 'C', 12); // gross legal proceeds
+                            12:
+                                IncrCodeNos(CodeNos, ActualCodePos, 'D', 13); // 409A deferral
                             13:
-                                CodeNos := InsStr(CodeNos, 'B', 11); // excess golden parachutes
-                            14:
-                                CodeNos := InsStr(CodeNos, 'C', 12); // gross legal proceeds
+                                IncrCodeNos(CodeNos, ActualCodePos, 'B', 11); // excess golden parachutes
                             15:
-                                CodeNos := InsStr(CodeNos, 'D', 13); // 409A deferral
-                            16:
-                                CodeNos := InsStr(CodeNos, 'E', 14); // 409A Income
+                                IncrCodeNos(CodeNos, ActualCodePos, 'E', 14); // 409A Income
                             else
-                                CodeNos := InsStr(CodeNos, Format(j), j);
+                                IncrCodeNos(CodeNos, ActualCodePos, Format(j), j);
                         end;
             2: // DIV
                 begin
@@ -226,6 +225,8 @@ codeunit 10085 "A/P Magnetic Media Management"
                 end;
             3: // INT
                 AmtCodesINT(CodeNos, i, 1, EndLine);
+            4: // NEC
+                CodeNos := '1';
         end;
     end;
 
@@ -306,6 +307,28 @@ codeunit 10085 "A/P Magnetic Media Management"
     local procedure GetTotalOrdinaryDividendsAmt(): Decimal
     begin
         exit(Amounts[2, 1] + Amounts[2, 2] + Amounts[2, 11] + Amounts[2, 5]);
+    end;
+
+    local procedure IncrCodeNos(var CodeNos: Text[12]; var ActualCodePosArray: array[30] of Integer; AmountCode: Text[1]; ExpectedCodePos: Integer)
+    var
+        i: Integer;
+        ActualCodePos: Integer;
+    begin
+        if ExpectedCodePos > 2 then begin
+            i := ExpectedCodePos;
+            while (i > 2) and (ActualCodePos = 0) do begin
+                ActualCodePos := ActualCodePosArray[i - 1];
+                i -= 1;
+            end;
+            if ActualCodePos <> 0 then
+                for i := (ExpectedCodePos + 1) to ArrayLen(ActualCodePosArray) do
+                    if ActualCodePosArray[i] <> 0 then
+                        ActualCodePosArray[i] += 1;
+        end;
+        if ActualCodePos = 0 then
+            ActualCodePos := StrLen(CodeNos) + 1;
+        CodeNos := InsStr(CodeNos, AmountCode, ActualCodePos);
+        ActualCodePosArray[ExpectedCodePos] := ActualCodePos + 1;
     end;
 }
 

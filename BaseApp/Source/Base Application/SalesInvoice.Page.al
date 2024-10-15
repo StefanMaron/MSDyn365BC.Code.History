@@ -308,6 +308,7 @@ page 43 "Sales Invoice"
                 Editable = "Sell-to Customer No." <> '';
                 Enabled = "Sell-to Customer No." <> '';
                 SubPageLink = "Document No." = FIELD("No.");
+                UpdatePropagation = Both;
             }
             group("Invoice Details")
             {

@@ -932,7 +932,7 @@ codeunit 144001 "MX CFDI"
           SelectStr(30, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MetodoDePagoDR', OriginalStr));
         Assert.AreEqual(
           SATUtilities.GetSATPaymentMethod(CustLedgerEntry."Payment Method Code"),
-          SelectStr(24, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'FormaDePagoP', OriginalStr));
+          SelectStr(25, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'FormaDePagoP', OriginalStr));
 
         // [THEN] "Date/Time First Req. Sent" is created in current time zone (TFS 323341)
         VerifyIsNearlyEqualDateTime(
@@ -3218,6 +3218,8 @@ codeunit 144001 "MX CFDI"
     end;
 
     local procedure Initialize()
+    var
+        PostCode: Record "Post Code";
     begin
         LibrarySetupStorage.Restore;
         SetupPACService;
@@ -3225,11 +3227,12 @@ codeunit 144001 "MX CFDI"
 
         NameValueBuffer.SetRange(Name, Format(CODEUNIT::"MX CFDI"));
         NameValueBuffer.DeleteAll();
+        PostCode.ModifyAll("Time Zone", '');
+        SetupCompanyInformation;
 
         if isInitialized then
             exit;
 
-        SetupCompanyInformation;
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");

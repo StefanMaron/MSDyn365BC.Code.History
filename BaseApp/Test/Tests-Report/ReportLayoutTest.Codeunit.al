@@ -24,6 +24,7 @@ codeunit 134600 "Report Layout Test"
         LibrarySales: Codeunit "Library - Sales";
         LibraryTablesUT: Codeunit "Library - Tables UT";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
         FileManagement: Codeunit "File Management";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Usage: Option "Order Confirmation","Work Order","Pick Instruction";
@@ -1165,6 +1166,66 @@ codeunit 134600 "Report Layout Test"
             SalesCrMemoHeader."Applies-to Doc. No."));
     end;
 
+    [Test]
+    [HandlerFunctions('ReportHandlerReturnOrderConfirmation')]
+    [Scope('OnPrem')]
+    procedure ReturnOrderConfirmation_PrintCompanyInfoFields()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        ReportSelections: Record "Report Selections";
+        CompanyInfo: Record "Company Information";
+        DocumentPrint: Codeunit "Document-Print";
+        ReportSelectionUsage: Enum "Report Selection Usage";
+        CustomerNo: Code[20];
+    begin
+        Initialize;
+        // [FEATURE] [Sales] [Return Order] [Print]
+        // [SCENARIO 382365] REP 6631 "Return Order Confirmation" should print company information and correct description field caption
+
+        // [GIVEN] Company Information has Email = "Email1" and other bank related fields filled
+        CompanyInfo.Get();
+        CompanyInfo.Validate("E-Mail", RandomEmail);
+        CompanyInfo.Validate("Home Page", CopyStr(LibraryRandom.RandText(10),
+            1, MaxStrLen(CompanyInfo."Home Page")));
+        CompanyInfo.Validate(
+            "VAT Registration No.", CopyStr(LibraryRandom.RandText(10),
+            1, MaxStrLen(CompanyInfo."VAT Registration No.")));
+        CompanyInfo.Validate("Giro No.", CopyStr(LibraryRandom.RandText(10),
+            1, MaxStrLen(CompanyInfo."Giro No.")));
+        CompanyInfo.Validate("Bank Name", CopyStr(LibraryRandom.RandText(10),
+            1, MaxStrLen(CompanyInfo."Bank Name")));
+        CompanyInfo.Validate("Bank Account No.", CopyStr(LibraryRandom.RandText(10),
+            1, MaxStrLen(CompanyInfo."Bank Account No.")));
+        CompanyInfo.Modify(True);
+
+        // [GIVEN] Report 6631 "Return Order Confirmation" selected as primary in Report Selection for Sales Return Order
+        ReportSelections.DeleteAll();
+        ReportSelections.Init();
+        ReportSelections.InsertRecord(ReportSelectionUsage::"S.Return", '1', 6631);
+
+        // [GIVEN] Sales Return Order for the given customer
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
+        SalesLine.Validate("No.", LibraryInventory.CreateItemNo());
+        SalesLine.Modify(True);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+
+        // [WHEN] Run "Return Order Confirmation"
+        RunReturnOrderConfirmation(SalesHeader, false, false);
+
+        // [THEN] Report contains info about Company email, bank related data and Correct 'Description' column name
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('CompanyInfoEMail', CompanyInfo."E-Mail");
+        LibraryReportDataset.AssertElementWithValueExists('CompanyInfoHomePage', CompanyInfo."Home Page");
+        LibraryReportDataset.AssertElementWithValueExists('CompanyInfoVATRegNo', CompanyInfo."VAT Registration No.");
+        LibraryReportDataset.AssertElementWithValueExists('CompanyInfoGiroNo', CompanyInfo."Giro No.");
+        LibraryReportDataset.AssertElementWithValueExists('CompanyInfoBankName', CompanyInfo."Bank Name");
+        LibraryReportDataset.AssertElementWithValueExists('CompanyInfoBankAccNo', CompanyInfo."Bank Account No.");
+        LibraryReportDataset.AssertElementWithValueExists('Desc_SalesLineCaption', SalesLine.FieldCaption(Description));
+    end;
+
     local procedure InitCustomReportLayout(var CustomReportLayout: Record "Custom Report Layout"; LayoutType: Enum "Custom Report Layout Type"; WithCompanyName: Boolean)
     var
         LayoutCode: Code[20];
@@ -1448,6 +1509,24 @@ codeunit 134600 "Report Layout Test"
         // REPORT.RUN(ReportID,false,true);
     end;
 
+    local procedure RunReturnOrderConfirmation(SalesHeader: Record "Sales Header"; ShowInternalInformation: Boolean; LogInteraction: Boolean)
+    var
+        ReturnOrderConfirmation: Report "Return Order Confirmation";
+    begin
+        Commit(); // Required to run report with request page.
+        Clear(ReturnOrderConfirmation);
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
+        SalesHeader.SetRange("No.", SalesHeader."No.");
+        ReturnOrderConfirmation.SetTableView(SalesHeader);
+        ReturnOrderConfirmation.InitializeRequest(ShowInternalInformation, LogInteraction);
+        ReturnOrderConfirmation.Run;
+    end;
+
+    local procedure RandomEmail(): Text[80]
+    begin
+        exit(StrSubstNo('%1@example.com', CreateGuid));
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerFalse(Question: Text; var Answer: Boolean)
@@ -1527,6 +1606,13 @@ codeunit 134600 "Report Layout Test"
     begin
         SalesCreditMemo."Sales Cr.Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
         SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ReportHandlerReturnOrderConfirmation(var ReturnOrderConfirmation: TestRequestPage "Return Order Confirmation")
+    begin
+        ReturnOrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

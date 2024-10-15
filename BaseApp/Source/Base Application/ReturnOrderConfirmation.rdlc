@@ -1277,7 +1277,7 @@ Cstr(Fields!DocumentDateCaption.Value)
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Fields!Desc_SalesLine.Value</Value>
+                                                    <Value>=Fields!Desc_SalesLineCaption.Value</Value>
                                                     <Style>
                                                       <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>
@@ -10447,6 +10447,9 @@ End Function
         </Field>
         <Field Name="NoSalesLineCaption">
           <DataField>NoSalesLineCaption</DataField>
+        </Field>
+        <Field Name="Desc_SalesLineCaption">
+          <DataField>Desc_SalesLineCaption</DataField>
         </Field>
         <Field Name="Quantity_SalesLineCaption">
           <DataField>Quantity_SalesLineCaption</DataField>

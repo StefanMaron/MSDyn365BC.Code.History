@@ -19,6 +19,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         TemplateFeatureEnabled: Boolean;
         GlobalDimCodeTemplateErr: Label 'Value of template Global Dimension Code is wrong';
@@ -28,6 +30,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         InsertedCustomerErr: Label 'Customer inserted with wrong data';
         InsertedItemErr: Label 'Item inserted with wrong data';
         InsertedEmployeeErr: Label 'Employee inserted with wrong data';
+        InsertedTemplateErr: Label 'Template inserted with wrong data';
 
     [Test]
     [Scope('OnPrem')]
@@ -1176,6 +1179,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         // [GIVEN] Sales setup "VAT Bus. Posting Gr. (Price)" filled with data in order "Price Includes VAT" can be enabled
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."VAT Bus. Posting Gr. (Price)" := VATBusinessPostingGroup.Code;
         SalesReceivablesSetup.Modify();
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, ItemTempl."VAT Prod. Posting Group");
@@ -1215,6 +1219,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         // [GIVEN] Sales setup "VAT Bus. Posting Gr. (Price)" filled with data in order "Price Includes VAT" cannot be enabled
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."VAT Bus. Posting Gr. (Price)" := VATBusinessPostingGroup.Code;
         SalesReceivablesSetup.Modify();
 
@@ -1225,12 +1230,264 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Assert.ExpectedError('VAT Posting Setup does not exist');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerTemplCreateCustomerWithAdditionalFields()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 353440] Create new customer with additional fields ("Customer Discount Group", "Customer Price Group" and others)
+        Initialize();
+        CustomerTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template "T" with additional data and dimensions
+        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+        UpdateCustomerTemplateAdditionalFields(CustomerTempl);
+
+        // [WHEN] Create new customer
+        CustomerTemplMgt.InsertCustomerFromTemplate(Customer);
+
+        // [THEN] Customer inserted with data from "T"
+        VerifyCustomer(Customer, CustomerTempl);
+        // [THEN] Customer dimensions inserted from "T" dimensions
+        VerifyDimensions(Database::Customer, Customer."No.", Database::"Customer Templ.", CustomerTempl.Code);
+        // [THEN] Customer contains data from "T" additional fields
+        VerifyCustomerAdditionalFields(Customer, CustomerTempl);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('CreateItemOptionStrMenuHandler,SelectItemTemplListHandler,ItemCardHandler')]
+    procedure ItemTemplCreateItemFromSalesLine()
+    var
+        Item: Record Item;
+        ItemTempl1: Record "Item Templ.";
+        ItemTempl2: Record "Item Templ.";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 353440] Create new item using template when validate "No." in the sales line
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
+
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Create Item from Item No." := true;
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Template "T1" with data and dimensions
+        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl1);
+
+        // [GIVEN] Template "T2" with data and dimensions
+        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl2);
+        UpdateItemTemplateGenAndVatGroups(ItemTempl2);
+        LibraryVariableStorage.Enqueue(ItemTempl2.Code);
+        LibraryVariableStorage.Enqueue(ItemTempl2.Code);
+
+        // [GIVEN] Sales Invoice with line Type = Item
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesLine.Init();
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        SalesLine.Validate("Line No.", 10000);
+        SalesLine.Insert(true);
+
+        // [WHEN] Validate "No." field in the sales line with non-existing value
+        SalesLine.Validate(Type, SalesLine.Type::Item);
+        SalesLine.Validate("No.", LibraryUtility.GenerateGUID());
+
+        // [THEN] Item inserted with data from "T2" and item card is shown (verified in ItemCardHandler)
+
+        Item.Get(SalesLine."No.");
+        Item.Delete(false);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('CreateItemOptionStrMenuHandler,SelectItemTemplListHandler,ItemCardHandler')]
+    procedure ItemTemplCreateItemFromPurchaseLine()
+    var
+        Item: Record Item;
+        ItemTempl1: Record "Item Templ.";
+        ItemTempl2: Record "Item Templ.";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 353440] Create new item using template when validate "No." in the purchase line
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Create Item from Item No." := true;
+        PurchasesPayablesSetup.Modify(true);
+
+        // [GIVEN] Template "T1" with data and dimensions
+        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl1);
+
+        // [GIVEN] Template "T2" with data and dimensions
+        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl2);
+        UpdateItemTemplateGenAndVatGroups(ItemTempl2);
+        LibraryVariableStorage.Enqueue(ItemTempl2.Code);
+        LibraryVariableStorage.Enqueue(ItemTempl2.Code);
+
+        // [GIVEN] Purchase Invoice with line Type = Item
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        PurchaseLine.Init();
+        PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
+        PurchaseLine.Validate("Line No.", 10000);
+        PurchaseLine.Insert(true);
+
+        // [WHEN] Validate "No." field in the purchase line with non-existing value
+        PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
+        PurchaseLine.Validate("No.", LibraryUtility.GenerateGUID());
+
+        // [THEN] Item inserted with data from "T2" and item card is shown (verified in ItemCardHandler)
+
+        Item.Get(PurchaseLine."No.");
+        Item.Delete(false);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerTemplCardHandler')]
+    [Scope('OnPrem')]
+    procedure CustomerTemplSaveCustomerAsTemplate()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        DimensionValue: Record "Dimension Value";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 384191] Save customer as a template
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
+
+        // [GIVEN] Customer with dimensions
+        LibrarySales.CreateCustomer(Customer);
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        Customer.Validate("Global Dimension 1 Code", DimensionValue.Code);
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
+        Customer.Validate("Global Dimension 2 Code", DimensionValue.Code);
+        Customer.Modify(true);
+        LibraryVariableStorage.Enqueue(Customer."No.");
+
+        // [WHEN] Save customer as template
+        CustomerTemplMgt.SaveAsTemplate(Customer);
+
+        // [THEN] New customer template with dimensions is created (UI part verified in CustomerTemplCardHandler)
+        CustomerTempl.Get(LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(Customer."Customer Posting Group", CustomerTempl."Customer Posting Group", InsertedTemplateErr);
+        Assert.AreEqual(Customer."Gen. Bus. Posting Group", CustomerTempl."Gen. Bus. Posting Group", InsertedTemplateErr);
+        Assert.AreEqual(Customer."VAT Bus. Posting Group", CustomerTempl."VAT Bus. Posting Group", InsertedTemplateErr);
+        Assert.AreEqual(Customer."Global Dimension 1 Code", CustomerTempl."Global Dimension 1 Code", InsertedTemplateErr);
+        Assert.AreEqual(Customer."Global Dimension 2 Code", CustomerTempl."Global Dimension 2 Code", InsertedTemplateErr);
+        VerifyDimensions(Database::"Customer Templ.", CustomerTempl.Code, Database::Customer, Customer."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorTemplCardHandler')]
+    [Scope('OnPrem')]
+    procedure VendorTemplSaveVendorAsTemplate()
+    var
+        Vendor: Record Vendor;
+        VendorTempl: Record "Vendor Templ.";
+        DimensionValue: Record "Dimension Value";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 384191] Save vendor as a template
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
+
+        // [GIVEN] Vendor with dimensions
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        Vendor.Validate("Global Dimension 1 Code", DimensionValue.Code);
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
+        Vendor.Validate("Global Dimension 2 Code", DimensionValue.Code);
+        Vendor.Modify(true);
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+
+        // [WHEN] Save vendor as template
+        VendorTemplMgt.SaveAsTemplate(Vendor);
+
+        // [THEN] New vendor template with dimensions is created (UI part verified in VendorTemplCardHandler)
+        VendorTempl.Get(LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(Vendor."Vendor Posting Group", VendorTempl."Vendor Posting Group", InsertedTemplateErr);
+        Assert.AreEqual(Vendor."Gen. Bus. Posting Group", VendorTempl."Gen. Bus. Posting Group", InsertedTemplateErr);
+        Assert.AreEqual(Vendor."VAT Bus. Posting Group", VendorTempl."VAT Bus. Posting Group", InsertedTemplateErr);
+        Assert.AreEqual(Vendor."Global Dimension 1 Code", VendorTempl."Global Dimension 1 Code", InsertedTemplateErr);
+        Assert.AreEqual(Vendor."Global Dimension 2 Code", VendorTempl."Global Dimension 2 Code", InsertedTemplateErr);
+        VerifyDimensions(Database::"Vendor Templ.", VendorTempl.Code, Database::Vendor, Vendor."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTemplCardHandler')]
+    [Scope('OnPrem')]
+    procedure ItemTemplSaveItemAsTemplate()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        DimensionValue: Record "Dimension Value";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 384191] Save item as a template
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
+
+        // [GIVEN] Item with dimensions
+        LibraryInventory.CreateItem(Item);
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        Item.Validate("Global Dimension 1 Code", DimensionValue.Code);
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
+        Item.Validate("Global Dimension 2 Code", DimensionValue.Code);
+        Item.Modify(true);
+        LibraryVariableStorage.Enqueue(Item."No.");
+
+        // [WHEN] Save item as template
+        ItemTemplMgt.SaveAsTemplate(Item);
+
+        // [THEN] New item template with dimensions is created (UI part verified in ItemTemplCardHandler)
+        ItemTempl.Get(LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(Item."Inventory Posting Group", ItemTempl."Inventory Posting Group", InsertedTemplateErr);
+        Assert.AreEqual(Item."Gen. Prod. Posting Group", ItemTempl."Gen. Prod. Posting Group", InsertedTemplateErr);
+        Assert.AreEqual(Item."VAT Prod. Posting Group", ItemTempl."VAT Prod. Posting Group", InsertedTemplateErr);
+        Assert.AreEqual(Item."Global Dimension 1 Code", ItemTempl."Global Dimension 1 Code", InsertedTemplateErr);
+        Assert.AreEqual(Item."Global Dimension 2 Code", ItemTempl."Global Dimension 2 Code", InsertedTemplateErr);
+        VerifyDimensions(Database::"Item Templ.", ItemTempl.Code, Database::Item, Item."No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
+
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
 
         IsInitialized := true;
         Commit();
@@ -1254,6 +1511,38 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     procedure SetEmplTemplateFeatureEnabled(NewTemplateFeatureEnabled: Boolean)
     begin
         TemplateFeatureEnabled := NewTemplateFeatureEnabled;
+    end;
+
+    local procedure UpdateCustomerTemplateAdditionalFields(var CustomerTempl: Record "Customer Templ.")
+    var
+        ShipmentMethod: Record "Shipment Method";
+        ReminderTerms: Record "Reminder Terms";
+        CustomerPriceGroup: Record "Customer Price Group";
+        CustomerDiscountGroup: Record "Customer Discount Group";
+    begin
+        CustomerTempl."Shipment Method Code" := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), Database::"Shipment Method");
+        LibraryERM.CreateReminderTerms(ReminderTerms);
+        CustomerTempl."Reminder Terms Code" := ReminderTerms.Code;
+        CustomerTempl."Print Statements" := true;
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        CustomerTempl."Customer Price Group" := CustomerPriceGroup.Code;
+        LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
+        CustomerTempl."Customer Disc. Group" := CustomerDiscountGroup.Code;
+
+        CustomerTempl.Modify(true);
+    end;
+
+    local procedure UpdateItemTemplateGenAndVatGroups(var ItemTempl: Record "Item Templ.")
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.FindGeneralPostingSetupInvtBase(GeneralPostingSetup);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+
+        ItemTempl."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
+        ItemTempl."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        ItemTempl.Modify(true);
     end;
 
     local procedure VerifyTemplateGlobalDimensionIsDefaultDimension(TemplateTableId: Integer; TemplateCode: Code[20]; GlobalDim1CodeValue: Code[20]; GlobalDim2CodeValue: Code[20])
@@ -1387,6 +1676,15 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         until SourceDefaultDimension.Next() = 0;
     end;
 
+    local procedure VerifyCustomerAdditionalFields(Customer: Record Customer; CustomerTempl: Record "Customer Templ.")
+    begin
+        Assert.IsTrue(Customer."Shipment Method Code" = CustomerTempl."Shipment Method Code", InsertedCustomerErr);
+        Assert.IsTrue(Customer."Reminder Terms Code" = CustomerTempl."Reminder Terms Code", InsertedCustomerErr);
+        Assert.IsTrue(Customer."Print Statements" = CustomerTempl."Print Statements", InsertedCustomerErr);
+        Assert.IsTrue(Customer."Customer Price Group" = CustomerTempl."Customer Price Group", CopyTemplateDataErr);
+        Assert.IsTrue(Customer."Customer Disc. Group" = CustomerTempl."Customer Disc. Group", CopyTemplateDataErr);
+    end;
+
     [ModalPageHandler]
     procedure SelectVendorTemplListHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
     var
@@ -1443,6 +1741,72 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     procedure SelectCustomerTemplListInvokeCancelHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
         SelectCustomerTemplList.Cancel().Invoke();
+    end;
+
+    [StrMenuHandler]
+    procedure CreateItemOptionStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 1;
+    end;
+
+    [ModalPageHandler]
+    procedure ItemCardHandler(var ItemCard: TestPage "Item Card")
+    var
+        ItemTempl: Record "Item Templ.";
+    begin
+        ItemTempl.Get(LibraryVariableStorage.DequeueText());
+
+        Assert.IsTrue(ItemCard."Inventory Posting Group".Value = ItemTempl."Inventory Posting Group", InsertedItemErr);
+        Assert.IsTrue(ItemCard."Gen. Prod. Posting Group".Value = ItemTempl."Gen. Prod. Posting Group", InsertedItemErr);
+        Assert.IsTrue(ItemCard."VAT Prod. Posting Group".Value = ItemTempl."VAT Prod. Posting Group", InsertedItemErr);
+    end;
+
+    [ModalPageHandler]
+    procedure CustomerTemplCardHandler(var CustomerTemplCard: TestPage "Customer Templ. Card")
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(LibraryVariableStorage.DequeueText());
+
+        CustomerTemplCard."Customer Posting Group".AssertEquals(Customer."Customer Posting Group");
+        CustomerTemplCard."Gen. Bus. Posting Group".AssertEquals(Customer."Gen. Bus. Posting Group");
+        CustomerTemplCard."VAT Bus. Posting Group".AssertEquals(Customer."VAT Bus. Posting Group");
+
+        LibraryVariableStorage.Enqueue(CustomerTemplCard.Code.Value);
+
+        CustomerTemplCard.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure VendorTemplCardHandler(var VendorTemplCard: TestPage "Vendor Templ. Card")
+    var
+        Vendor: Record Vendor;
+    begin
+        Vendor.Get(LibraryVariableStorage.DequeueText());
+
+        VendorTemplCard."Vendor Posting Group".AssertEquals(Vendor."Vendor Posting Group");
+        VendorTemplCard."Gen. Bus. Posting Group".AssertEquals(Vendor."Gen. Bus. Posting Group");
+        VendorTemplCard."VAT Bus. Posting Group".AssertEquals(Vendor."VAT Bus. Posting Group");
+
+        LibraryVariableStorage.Enqueue(VendorTemplCard.Code.Value);
+
+        VendorTemplCard.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTemplCardHandler(var ItemTemplCard: TestPage "Item Templ. Card")
+    var
+        Item: Record Item;
+    begin
+        Item.Get(LibraryVariableStorage.DequeueText());
+
+        ItemTemplCard."Inventory Posting Group".AssertEquals(Item."Inventory Posting Group");
+        ItemTemplCard."Gen. Prod. Posting Group".AssertEquals(Item."Gen. Prod. Posting Group");
+        ItemTemplCard."VAT Prod. Posting Group".AssertEquals(Item."VAT Prod. Posting Group");
+
+        LibraryVariableStorage.Enqueue(ItemTemplCard.Code.Value);
+
+        ItemTemplCard.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnAfterIsEnabled', '', false, false)]

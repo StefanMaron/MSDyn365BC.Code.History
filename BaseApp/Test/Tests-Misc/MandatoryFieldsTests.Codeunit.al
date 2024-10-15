@@ -16,6 +16,7 @@ codeunit 134590 "Mandatory Fields Tests"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryTemplates: Codeunit "Library - Templates";
         UnexpectedShowMandatoryValueTxt: Label 'Unexpected value of ShowMandatory property.';
+        UnexpectedVisibleValueTxt: Label 'Unexpected value of Visible property.';
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         IsInitialized: Boolean;
@@ -228,6 +229,151 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsFalse(CompanyInformation."Bank Branch No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(CompanyInformation."Bank Account No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         CompanyInformation.Close;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MandatorySalesTaxFieldOnItem()
+    var
+        ItemCard: TestPage "Item Card";
+    begin
+        // [FEATURE] [Sales Tax] [Item]
+        // [SCENARIO 161104] "VAT Prod. Posting Group" on Item Card should be invisible while Sales Tax is enabled
+        DeleteAllTemplates();
+        // [GIVEN] Sales Tax enabled
+        LibraryApplicationArea.EnableSalesTaxSetup();
+        // [GIVEN] "VAT in Use" is 'No'
+        SetVATInUse(false);
+
+        with ItemCard do begin
+            // [WHEN] Open Item Card
+            OpenNew();
+            // [THEN] "VAT Prod. Posting Group" is invisible
+            Assert.IsFalse("VAT Prod. Posting Group".Visible(), UnexpectedVisibleValueTxt);
+            // [THEN] "Tax Group Code" is not marked as mandatory
+            Assert.IsFalse("Tax Group Code".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
+            Close();
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MandatoryVATFieldOnItem()
+    var
+        ItemCard: TestPage "Item Card";
+    begin
+        // [FEATURE] [VAT In Use] [Item]
+        // [SCENARIO 161104] "VAT Prod. Posting Group" is visible and marked as mandatory on Item Card while "VAT in Use" is 'Yes'
+        DeleteAllTemplates();
+        // [GIVEN] "VAT in Use" is 'Yes'
+        SetVATInUse(true);
+
+        with ItemCard do begin
+            // [WHEN] Open Item Card
+            OpenNew();
+            // [THEN] "VAT Prod. Posting Group" is visible and marked as mandatory
+            Assert.IsTrue("VAT Prod. Posting Group".Visible(), UnexpectedVisibleValueTxt);
+            Assert.IsTrue("VAT Prod. Posting Group".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
+            Close();
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MandatorySalesTaxFieldOnCustomer()
+    var
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [FEATURE] [Sales Tax] [Customer]
+        // [SCENARIO 161104] "VAT Bus. Posting Group" on Customer Card should be invisible while Sales Tax is enabled
+        DeleteAllTemplates();
+        // [GIVEN] Sales Tax is enabled
+        LibraryApplicationArea.EnableSalesTaxSetup();
+        // [GIVEN] "VAT in Use" is 'No'
+        SetVATInUse(false);
+
+        with CustomerCard do begin
+            // [WHEN] Open Customer Card
+            OpenNew();
+            // [THEN] "VAT Bus. Posting Group" is invisible
+            Assert.IsFalse("VAT Bus. Posting Group".Visible, UnexpectedVisibleValueTxt);
+            // [THEN] "Tax Area Code" is marked as mandatory
+            Assert.IsTrue("Tax Area Code".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
+            // [THEN] "Tax Liable" is visible
+            Assert.IsTrue("Tax Liable".Visible(), UnexpectedVisibleValueTxt);
+            Close();
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MandatoryVATFieldOnCustomer()
+    var
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [FEATURE] [VAT In Use] [Customer]
+        // [SCENARIO 161104] "VAT Bus. Posting Group" is visible and not marked as mandatory on Customer Card while "VAT in Use" is 'Yes'
+        DeleteAllTemplates();
+        // [GIVEN] "VAT in Use" is 'Yes'
+        SetVATInUse(true);
+
+        with CustomerCard do begin
+            // [WHEN] Open Customer Card
+            OpenNew();
+            // [THEN] "VAT Bus. Posting Group" is visible and not marked as mandatory
+            Assert.IsTrue("VAT Bus. Posting Group".Visible(), UnexpectedVisibleValueTxt);
+            Assert.IsFalse("VAT Bus. Posting Group".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
+            Close();
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MandatorySalesTaxFieldOnVendor()
+    var
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [FEATURE] [Sales Tax] [Vendor]
+        // [SCENARIO 161104] "VAT Bus. Posting Group" on Vendor Card should be invisible while Sales Tax is enabled
+        DeleteAllTemplates();
+        // [GIVEN] Sales Tax is enabled
+        LibraryApplicationArea.EnableSalesTaxSetup();
+        // [GIVEN] "VAT in Use" is 'No'
+        SetVATInUse(false);
+
+        with VendorCard do begin
+            // [WHEN] Open Vendor Card
+            OpenNew();
+            // [THEN] "VAT Bus. Posting Group" is invisible
+            Assert.IsFalse("VAT Bus. Posting Group".Visible(), UnexpectedVisibleValueTxt);
+            // [THEN] "Tax Area Code" is marked as mandatory
+            Assert.IsTrue("Tax Area Code".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
+            // [THEN] "Tax Liable" is visible
+            Assert.IsTrue("Tax Liable".Visible(), UnexpectedVisibleValueTxt);
+            Close();
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MandatoryVATFieldOnVendor()
+    var
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [FEATURE] [VAT In Use] [Vendor]
+        // [SCENARIO 161104] "VAT Bus. Posting Group" is visible and not marked as mandatory on Vendor Card while  while "VAT in Use" is 'Yes'
+        DeleteAllTemplates();
+        // [GIVEN] "VAT in Use" is 'Yes'
+        SetVATInUse(true);
+
+        with VendorCard do begin
+            // [WHEN] Open Vendor Card
+            OpenNew();
+            // [THEN] "VAT Bus. Posting Group" is visible and not marked as mandatory
+            Assert.IsTrue("VAT Bus. Posting Group".Visible(), UnexpectedVisibleValueTxt);
+            Assert.IsFalse("VAT Bus. Posting Group".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
+            Close();
+        end;
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesInvoice(Customer: Record Customer)
@@ -508,6 +654,15 @@ codeunit 134590 "Mandatory Fields Tests"
         ConfigTemplateHeader: Record "Config. Template Header";
     begin
         ConfigTemplateHeader.DeleteAll(true);
+    end;
+
+    local procedure SetVATInUse(VATInUse: Boolean)
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        GLSetup.Get();
+        GLSetup."VAT in Use" := VATinUse;
+        GLSetup.Modify();
     end;
 }
 

@@ -425,6 +425,7 @@
                         Importance = Additional;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
+                        Visible = UseVAT;
                     }
                     field("Tax Group Code"; "Tax Group Code")
                     {
@@ -1578,9 +1579,14 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Templates';
                     Image = Template;
-                    RunObject = Page "Config Templates";
-                    RunPageLink = "Table ID" = CONST(27);
                     ToolTip = 'View or edit item templates.';
+
+                    trigger OnAction()
+                    var
+                        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+                    begin
+                        ItemTemplMgt.ShowTemplates();
+                    end;
                 }
                 action(CopyItem)
                 {
@@ -1626,9 +1632,9 @@
 
                     trigger OnAction()
                     var
-                        TempItemTemplate: Record "Item Template" temporary;
+                        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
                     begin
-                        TempItemTemplate.SaveAsTemplate(Rec);
+                        ItemTemplMgt.SaveAsTemplate(Rec);
                     end;
                 }
             }
@@ -2602,6 +2608,7 @@
     trigger OnOpenPage()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        GLSetup: Record "General Ledger Setup";
         EnvironmentInfo: Codeunit "Environment Information";
         ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
@@ -2609,6 +2616,8 @@
         SetNoFieldVisible();
         IsSaaS := EnvironmentInfo.IsSaaS();
         DescriptionFieldVisible := true;
+        GLSetup.Get();
+        UseVAT := GLSetup."VAT in Use";
         SetOverReceiptControlsVisibility();
         ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
@@ -2620,6 +2629,9 @@
         EnableShowStockOutWarning;
 
         EnableShowShowEnforcePositivInventory;
+
+        if CurrentClientType = ClientType::ODataV4 then
+            EnableControls();
 
         OnAfterOnOpenPage();
     end;
@@ -2645,6 +2657,7 @@
         ShowWorkflowStatus: Boolean;
         ProfitEditable: Boolean;
         PriceEditable: Boolean;
+        UseVAT: Boolean;
         SalesPriceListsText: Text;
         PurchPriceListsText: Text;
         SpecialPricesAndDiscountsTxt: Text;
@@ -2716,7 +2729,7 @@
         IsService := IsServiceType;
         IsNonInventoriable := IsNonInventoriableType;
         IsInventoriable := IsInventoriableType;
-
+        
         if IsNonInventoriable then
             "Stockout Warning" := "Stockout Warning"::No;
 

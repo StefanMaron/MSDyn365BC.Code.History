@@ -141,7 +141,7 @@ report 10109 "Vendor 1099 Div"
                 end else begin
                     PrintThis := false;
                     // Check through all payments during calendar year
-                    ProcessVendorInvoices("No.", PeriodDate);
+                    IRS1099Management.ProcessVendorInvoices(Amounts, "No.", PeriodDate, Codes, LastLineNo, 'DIV*');
 
                     // Any printable amounts on this form?
                     for i := 1 to LastLineNo do
