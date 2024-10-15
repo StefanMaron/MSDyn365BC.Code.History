@@ -827,10 +827,11 @@ codeunit 134252 "Match Bank Reconciliation - UT"
     begin
         // [SCENARIO 198751] "Applies-to ID" must be unique for each Bank Account Reconciliation Line
         with DummyBankAccReconciliationLine do begin
+            "Bank Account No." := 'BANK';
             "Statement No." := 'STATEMENT_0000012345';
             "Statement Line No." := 1234567890;
             Assert.AreEqual(
-              'STATEMENT_0000012345-1234567890',
+              'BANK-STATEMENT_0000012345-1234567890',
               GetAppliesToID,
               'Wrong BankAccReconciliationLine.GenerateAppliesToID() return result');
         end;

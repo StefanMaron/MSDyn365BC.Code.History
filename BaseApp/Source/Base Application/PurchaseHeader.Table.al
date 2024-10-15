@@ -2912,10 +2912,11 @@
                             PurchLine.FindLast();
                             ExtendedTextAdded := true;
                         end;
+                    RestorePurchCommentLine(TempPurchCommentLine, TempPurchLine."Line No.", PurchLine."Line No.");
                     OnRecreatePurchLineOnAfterProcessAttachedToLineNo(TempPurchLine, PurchLine);
                 until TempPurchLine.Next() = 0;
 
-                RestorePurchCommentLineFromTemp(TempPurchCommentLine);
+                RestorePurchCommentLine(TempPurchCommentLine, 0, 0);
 
                 RecreateItemChargeAssgntPurch(TempItemChargeAssgntPurch, TempPurchLine, TempInteger);
 
@@ -2946,15 +2947,17 @@
             until PurchCommentLine.Next() = 0;
     end;
 
-    local procedure RestorePurchCommentLineFromTemp(var TempPurchCommentLine: Record "Purch. Comment Line" temporary)
+    local procedure RestorePurchCommentLine(var TempPurchCommentLine: Record "Purch. Comment Line" temporary; OldDocumentLineNo: Integer; NewDocumentLineNo: Integer)
     var
         PurchCommentLine: Record "Purch. Comment Line";
     begin
         TempPurchCommentLine.SetRange("Document Type", "Document Type");
         TempPurchCommentLine.SetRange("No.", "No.");
+        TempPurchCommentLine.SetRange("Document Line No.", OldDocumentLineNo);
         if TempPurchCommentLine.FindSet() then
             repeat
                 PurchCommentLine := TempPurchCommentLine;
+                PurchCommentLine."Document Line No." := NewDocumentLineNo;
                 PurchCommentLine.Insert();
             until TempPurchCommentLine.Next() = 0;
     end;

@@ -257,7 +257,7 @@
         "VAT Bus. Posting Group" := PurchLine."VAT Bus. Posting Group";
         "VAT Calculation Type" := PurchLine."Prepmt. VAT Calc. Type";
         "VAT Identifier" := PurchLine."Prepayment VAT Identifier";
-        "VAT %" := PurchLine."VAT %";
+        "VAT %" := PurchLine."Prepayment VAT %";
         "Global Dimension 1 Code" := PurchLine."Shortcut Dimension 1 Code";
         "Global Dimension 2 Code" := PurchLine."Shortcut Dimension 2 Code";
         "Dimension Set ID" := PurchLine."Dimension Set ID";
@@ -277,7 +277,7 @@
         "VAT Bus. Posting Group" := SalesLine."VAT Bus. Posting Group";
         "VAT Calculation Type" := SalesLine."Prepmt. VAT Calc. Type";
         "VAT Identifier" := SalesLine."Prepayment VAT Identifier";
-        "VAT %" := SalesLine."VAT %";
+        "VAT %" := SalesLine."Prepayment VAT %";
         "Global Dimension 1 Code" := SalesLine."Shortcut Dimension 1 Code";
         "Global Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
         "Dimension Set ID" := SalesLine."Dimension Set ID";

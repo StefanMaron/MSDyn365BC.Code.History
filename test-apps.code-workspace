@@ -160,6 +160,9 @@
       "path": "./APIV1/Test/_Exclude_APIV1_ Tests"
     },
     {
+      "path": "./ElectronicVATSubmission/Test/Electronic VAT submission for Norway Tests"
+    },
+    {
       "path": "./LatePaymentPredictor/Test/Late Payment Prediction Tests"
     },
     {

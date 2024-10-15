@@ -2780,6 +2780,36 @@ codeunit 136302 "Job Consumption Purchase"
         VerifyItemLedgEntriesInvoiced(Item."No.", PurchaseLine.Amount);
     end;
 
+    [Test]
+    procedure PurchaseInvoiceWithTwoGLAccLinesWithDiffDimAndSameJobTask()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        GLAccountNo: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Dimension] [G/L Account]
+        // [SCENARIO 417215] Post purchase invoice with two lines having the same G/L Account linked to the same job but different dimensions
+        Initialize();
+
+        // [GIVEN] Purchase invoice with two lines having the same G/L Account and job but different dimensions
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        CreatePurchaseLineWithGLAccDimAndJob(PurchaseHeader, JobTask, GLAccountNo);
+        CreatePurchaseLineWithGLAccDimAndJob(PurchaseHeader, JobTask, GLAccountNo);
+
+        // [THEN] Post the invoice
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] There are two job ledger entries, each is linked to the correspondent G/L Entry by dim
+        VerifyTwoJobLedgerEntriesLinkedToDiffGLEntriesByDims(JobTask, DocumentNo, GLAccountNo);
+    end;
+
     local procedure Initialize()
     var
         PurchasePrice: Record "Purchase Price";
@@ -3004,7 +3034,9 @@ codeunit 136302 "Job Consumption Purchase"
         CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine.Type::Item, ItemNo, Quantity, true);
     end;
 
-    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; ConsumableType: Enum "Job Planning Line Type"; ItemNo: Code[20]; Quantity: Decimal; UsageLink: Boolean)
+    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; ConsumableType: Enum "Job Planning Line Type"; ItemNo: Code[20];
+                                                                                                                                           Quantity: Decimal;
+                                                                                                                                           UsageLink: Boolean)
     begin
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, ConsumableType, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", ItemNo);
@@ -3171,7 +3203,9 @@ codeunit 136302 "Job Consumption Purchase"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeaderWithGLAccountLineAttachedToJobTask(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; JobTask: Record "Job Task"; CurrencyCode: Code[10]; Factor: Decimal; var TotalCostLCY: Decimal; var TotalCost: Decimal)
+    local procedure CreatePurchaseHeaderWithGLAccountLineAttachedToJobTask(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; JobTask: Record "Job Task";
+                                                                                                                                      CurrencyCode: Code[10];
+                                                                                                                                      Factor: Decimal; var TotalCostLCY: Decimal; var TotalCost: Decimal)
     var
         Vendor: Record Vendor;
         VATPostingSetup: Record "VAT Posting Setup";
@@ -3224,7 +3258,8 @@ codeunit 136302 "Job Consumption Purchase"
         AttachJobToPurchaseDocument(JobTask, PurchaseHeader, 0);
     end;
 
-    local procedure CreatePurchaseDocumentWithLocationAndJob(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; LocationCode: Code[10]; SignFactor: Integer)
+    local procedure CreatePurchaseDocumentWithLocationAndJob(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; LocationCode: Code[10];
+                                                                                                                                                                       SignFactor: Integer)
     var
         JobTask: Record "Job Task";
     begin
@@ -3275,6 +3310,22 @@ codeunit 136302 "Job Consumption Purchase"
         PurchaseLine.Modify(true);
         AttachJobToPurchaseDocument(JobTask, PurchHeader, 0);
         PurchaseLine.Find; // return line with "Job No." attached
+    end;
+
+    local procedure CreatePurchaseLineWithGLAccDimAndJob(PurchaseHeader: Record "Purchase Header"; JobTask: Record "Job Task"; GLAccountNo: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        PurchaseLine.Validate(
+            "Dimension Set ID",
+            LibraryDimension.CreateDimSet(PurchaseLine."Dimension Set ID", DimensionValue."Dimension Code", DimensionValue.Code));
+        PurchaseLine.Modify(true);
     end;
 
     local procedure PostPurchOrderWithItemPreventNegativeInventory(var PurchHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
@@ -3569,7 +3620,9 @@ codeunit 136302 "Job Consumption Purchase"
           PurchaseHeader, JobTask, PurchaseLine.Type::"G/L Account", GLAccountNo, VATBusPostingGroupCode, VATProdPostingGroupArray[6].Code);
     end;
 
-    local procedure CreatePurchLineWithJobsAndVATPostingGroups(PurchaseHeader: Record "Purchase Header"; JobTask: Record "Job Task"; LineType: enum "Purchase Line Type"; CodeNo: Code[20]; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20])
+    local procedure CreatePurchLineWithJobsAndVATPostingGroups(PurchaseHeader: Record "Purchase Header"; JobTask: Record "Job Task"; LineType: enum "Purchase Line Type"; CodeNo: Code[20];
+                                                                                                                                                   VATBusPostingGroupCode: Code[20];
+                                                                                                                                                   VATProdPostingGroupCode: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
         LineAmount: Decimal;
@@ -3838,7 +3891,8 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
     end;
 
-    local procedure FindItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; DocType: Enum "Item Ledger Document Type"; DocNo: Code[20])
+    local procedure FindItemLedgEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; DocType: Enum "Item Ledger Document Type";
+                                                                                                                        DocNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
@@ -4444,7 +4498,14 @@ codeunit 136302 "Job Consumption Purchase"
         PurchaseLine.SetRange(Type);
     end;
 
-    local procedure VerifyItemLedgerEntry(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; JobNo: Code[20]; Quantity: Decimal; InvoicedQuantity: Decimal; CostAmountActual: Decimal; CostAmountExpected: Decimal)
+    local procedure VerifyItemLedgerEntry(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20];
+                                                         DocumentType: Enum "Item Ledger Document Type";
+                                                         DocumentNo: Code[20];
+                                                         JobNo: Code[20];
+                                                         Quantity: Decimal;
+                                                         InvoicedQuantity: Decimal;
+                                                         CostAmountActual: Decimal;
+                                                         CostAmountExpected: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -4554,7 +4615,12 @@ codeunit 136302 "Job Consumption Purchase"
         PurchaseLine.SetRange(Type);
     end;
 
-    local procedure VerifyValueEntry(ItemLedgerEntryType: Enum "Item Ledger Entry Type"; DocumentType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; DocumentNo: Code[20]; JobNo: Code[20]; CostAmountExpected: Decimal; CostAmountActual: Decimal)
+    local procedure VerifyValueEntry(ItemLedgerEntryType: Enum "Item Ledger Entry Type"; DocumentType: Enum "Item Ledger Document Type";
+                                                              ItemNo: Code[20];
+                                                              DocumentNo: Code[20];
+                                                              JobNo: Code[20];
+                                                              CostAmountExpected: Decimal;
+                                                              CostAmountActual: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -4638,7 +4704,8 @@ codeunit 136302 "Job Consumption Purchase"
         JobLedgerEntry.TestField("Document Date", DocumentDate);
     end;
 
-    local procedure VerifyJobNoInGLEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; GLAccountNo: Code[20]; JobNo: Code[20])
+    local procedure VerifyJobNoInGLEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; GLAccountNo: Code[20];
+                                                                                 JobNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -4665,7 +4732,10 @@ codeunit 136302 "Job Consumption Purchase"
         GLEntry.TestField(Amount, Amount);
     end;
 
-    local procedure VerifyUndoLedgerEntrySource(DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; DocumentLineNo: Integer; EntryType: Enum "Item Ledger Entry Type"; SourceNo: Code[20])
+    local procedure VerifyUndoLedgerEntrySource(DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20];
+                                                                  DocumentLineNo: Integer;
+                                                                  EntryType: Enum "Item Ledger Entry Type";
+                                                                  SourceNo: Code[20])
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
@@ -4809,6 +4879,30 @@ codeunit 136302 "Job Consumption Purchase"
             ItemLedgerEntry."Cost Amount (Actual)" := Round(ItemLedgerEntry."Cost Amount (Actual)");
             ItemLedgerEntry.TestField("Cost Amount (Actual)", -JobLedgerEntry."Line Amount (LCY)");
         until JobLedgerEntry.Next = 0;
+    end;
+
+    local procedure VerifyTwoJobLedgerEntriesLinkedToDiffGLEntriesByDims(JobTask: Record "Job Task"; DocumentNo: Code[20]; GLAccountNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+        JobLedgerEntry: Record "Job Ledger Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        Assert.RecordCount(GLEntry, 2);
+
+        JobLedgerEntry.SetRange("Job No.", JobTask."Job No.");
+        JobLedgerEntry.SetRange("Job Task No.", JobTask."Job Task No.");
+        Assert.RecordCount(JobLedgerEntry, 2);
+
+        JobLedgerEntry.FindFirst();
+        GLEntry.FindFirst();
+        JobLedgerEntry.TestField("Ledger Entry No.", GLEntry."Entry No.");
+        JobLedgerEntry.TestField("Dimension Set ID", GLEntry."Dimension Set ID");
+
+        JobLedgerEntry.Next();
+        GLEntry.Next();
+        JobLedgerEntry.TestField("Ledger Entry No.", GLEntry."Entry No.");
+        JobLedgerEntry.TestField("Dimension Set ID", GLEntry."Dimension Set ID");
     end;
 
     [ConfirmHandler]

@@ -4944,9 +4944,31 @@ codeunit 134387 "ERM Sales Documents III"
         // [SCENARIO 360476] No duplicate Comment Lines inserted
         Commit();
 
-        SalesCommentLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesCommentLine.SetRange("No.", SalesHeader."No.");
-        Assert.RecordCount(SalesCommentLine, 1);
+        VerifyCountSalesCommentLine(SalesHeader."Document Type", SalesHeader."No.", 10000);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure RecreateSalesCommentLineForSalesOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCommentLine: Record "Sales Comment Line";
+    begin
+        // [FEATURE] [Sales Comment Line] [UT]
+        // [SCENARIO 399071] The Sales Comment Lines must be copied after Sales Lines have been recreated if Sales Line No. < 10000
+        Initialize();
+        LibrarySales.CreateSalesHeader(SalesHeader, "Sales Document Type"::Order, LibrarySales.CreateCustomerNo());
+        CreateSalesLineSimple(SalesLine, SalesHeader, 5000);
+        LibrarySales.CreateSalesCommentLine(SalesCommentLine, "Sales Document Type"::Order, SalesHeader."No.", SalesLine."Line No.");
+        LibrarySales.CreateSalesCommentLine(SalesCommentLine, "Sales Document Type"::Order, SalesHeader."No.", 0);
+
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+        Commit();
+
+        VerifyCountSalesCommentLine(SalesHeader."Document Type", SalesHeader."No.", 10000);
+        VerifyCountSalesCommentLine(SalesHeader."Document Type", SalesHeader."No.", 0);
     end;
 
     [Test]
@@ -5888,6 +5910,15 @@ codeunit 134387 "ERM Sales Documents III"
         VATPostingSetup.Insert(true);
     end;
 
+    local procedure CreateSalesLineSimple(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineNo: Integer)
+    begin
+        SalesLine.Init();
+        SalesLine.Validate("Document Type", SalesHeader."Document Type");
+        SalesLine.Validate("Document No.", SalesHeader."No.");
+        SalesLine.Validate("Line No.", LineNo);
+        SalesLine.Insert(true);
+    end;
+
     local procedure CreateSalesLineAndItem(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     var
         Item: Record Item;
@@ -6647,6 +6678,16 @@ codeunit 134387 "ERM Sales Documents III"
                     SalesCreditMemo.SalesLines.Quantity.SetValue(100);
                 end;
         end;
+    end;
+
+    local procedure VerifyCountSalesCommentLine(DocumentType: Enum "Sales Comment Document Type"; No: Code[20]; DocumentLineNo: Integer)
+    var
+        SalesCommentLine: Record "Sales Comment Line";
+    begin
+        SalesCommentLine.SetRange("Document Type", DocumentType);
+        SalesCommentLine.SetRange("No.", No);
+        SalesCommentLine.SetRange("Document Line No.", DocumentLineNo);
+        Assert.RecordCount(SalesCommentLine, 1);
     end;
 
     local procedure MockSalesLineWithGLAccount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup")

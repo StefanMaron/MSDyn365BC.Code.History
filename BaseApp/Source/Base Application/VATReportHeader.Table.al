@@ -228,6 +228,13 @@
             Caption = 'Amounts in Add. Rep. Currency';
             Editable = false;
         }
+        field(10600; "KID Number"; Code[25])
+        {
+            Caption = 'KID';
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+            ObsoleteReason = 'Moved to extension';
+        }
         field(4800; "VATGroup Return"; Boolean)
         {
             ObsoleteState = Removed;
