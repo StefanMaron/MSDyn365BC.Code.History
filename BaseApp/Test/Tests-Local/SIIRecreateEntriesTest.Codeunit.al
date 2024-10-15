@@ -508,6 +508,7 @@ codeunit 147558 "SII Recreate Entries Test"
         VATEntry.Init();
         VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
         VATEntry."Posting Date" := PostingDate;
+        VATEntry."VAT Reporting Date" := PostingDate;
         VATEntry."Document No." := DocNo;
         VATEntry."Transaction No." := TransactionNo;
         VATEntry."Unrealized Base" := LibraryRandom.RandDec(100, 2);

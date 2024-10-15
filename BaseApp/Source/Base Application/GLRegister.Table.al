@@ -107,6 +107,10 @@
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+        key(key6; "From Entry No.", "To Entry No.")
+        {
+            IncludedFields = "Creation Date";
+        }
     }
 
     fieldgroups

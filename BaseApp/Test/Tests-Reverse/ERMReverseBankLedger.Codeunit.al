@@ -668,6 +668,8 @@
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
     begin
+        BankAccReconciliation.Reset();
+        BankAccReconciliation.DeleteAll();
         // [SCENARIO 227412] Reversed Bank Account Ledger Entries are not visible on Bank Reconciliation
         Initialize();
 

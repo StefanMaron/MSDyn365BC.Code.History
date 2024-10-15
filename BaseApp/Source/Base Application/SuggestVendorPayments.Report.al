@@ -1229,6 +1229,7 @@
             SetRange("Account No.", VendorLedgerEntry."Vendor No.");
             SetRange("Applies-to Doc. Type", VendorLedgerEntry."Document Type");
             SetRange("Applies-to Doc. No.", VendorLedgerEntry."Document No.");
+            SetRange("Applies-to Bill No.", VendorLedgerEntry."Bill No.");
             exit(IsEmpty);
         end;
     end;
@@ -1246,6 +1247,7 @@
             SetRange("Account No.", VendorLedgerEntry."Vendor No.");
             SetRange("Applies-to Doc. Type", VendorLedgerEntry."Document Type");
             SetRange("Applies-to Doc. No.", VendorLedgerEntry."Document No.");
+            SetRange("Applies-to Bill No.", VendorLedgerEntry."Bill No.");
             if IsEmpty() then
                 exit(true);
 

@@ -1912,6 +1912,7 @@ codeunit 147315 "Test 340 Declaration"
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
             "Posting Date" := PostingDate;
             "Document Type" := DocumentType;
+            "VAT Reporting Date" := PostingDate;
             Type := Type::Sale;
             "Bill-to/Pay-to No." := LibrarySales.CreateCustomerNo();
             "Document No." := LibraryUtility.GenerateGUID();

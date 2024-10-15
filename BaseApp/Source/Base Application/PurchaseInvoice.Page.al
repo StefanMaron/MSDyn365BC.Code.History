@@ -1,4 +1,4 @@
-page 51 "Purchase Invoice"
+﻿page 51 "Purchase Invoice"
 {
     Caption = 'Purchase Invoice';
     PageType = Document;
@@ -217,7 +217,8 @@ page 51 "Purchase Invoice"
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
-                    Editable = true;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
                 }
                 field("Due Date"; Rec."Due Date")
@@ -982,7 +983,7 @@ page 51 "Purchase Invoice"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(38),
+                SubPageLink = "Table ID" = CONST(Database::"Purchase Header"),
                               "Document Type" = FIELD("Document Type"),
                               "No." = FIELD("No.");
             }
@@ -1848,6 +1849,7 @@ page 51 "Purchase Invoice"
     var
         EnvironmentInfo: Codeunit "Environment Information";
         SIIManagement: Codeunit "SII Management";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         SetDocNoVisible();
         IsOfficeAddin := OfficeMgt.IsAvailable();
@@ -1869,6 +1871,7 @@ page 51 "Purchase Invoice"
         SetPostingGroupEditable();
         CheckShowBackgrValidationNotification();
         FillRemitToFields();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1932,6 +1935,8 @@ page 51 "Purchase Invoice"
         IsPostingGroupEditable: Boolean;
         [InDataSet]
         IsPurchaseLinesEditable: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";

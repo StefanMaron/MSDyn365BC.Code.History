@@ -442,6 +442,53 @@ codeunit 144049 "ERM ES Check PMPE"
         LibraryReportDataset.AssertElementWithValueExists(VendRatioOutsideTok, GetZeroPctTxt);
     end;
 
+    [Test]
+    [HandlerFunctions('VendorOverduePaymentsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestVendorOverduePaymentReportOnDueDatesAfterApplyInvoiceWithPayments()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PostedDocumentNo: Code[20];
+        DaysOverdue: Integer;
+        InvoiceAmount: Decimal;
+    begin
+        // [SCENARIO 453127] Error "An item with the same key has already been added." when running Vendor - Overdue Payments in Spanish version
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice where Amount = 100, Payment Method has 30D, Due Date = 01-02-16
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        PostedDocumentNo :=
+          CreateAndPostPurchaseInvoice(
+            PurchaseHeader, VATPostingSetup."VAT Prod. Posting Group", CreateVendor(VATPostingSetup."VAT Bus. Posting Group"),
+            CalcDate('<-' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'M>', WorkDate()));  // Posting Date before WorkDate.
+        InvoiceAmount := FindVendorLedgerEntryAmount(GenJournalLine."Document Type"::Invoice, PostedDocumentNo);
+
+        // [GIVEN] Create two different payments and applied to Posted Invoice
+        CreateGeneralJornalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
+          PurchaseHeader."Buy-from Vendor No.", -(InvoiceAmount / 2));
+        UpdateAndPostGenJournalLineWithAppliesToDoc(
+          GenJournalLine, GenJournalLine."Applies-to Doc. Type"::Invoice, PostedDocumentNo,
+          PurchaseHeader."Due Date");
+
+        CreateGeneralJornalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
+          PurchaseHeader."Buy-from Vendor No.", -(InvoiceAmount / 2));
+        UpdateAndPostGenJournalLineWithAppliesToDoc(
+          GenJournalLine, GenJournalLine."Applies-to Doc. Type"::Invoice, PostedDocumentNo,
+          PurchaseHeader."Due Date");
+
+        // [WHEN] Run Vendor - Overdue Payments report
+        RunVendorOverduePaymentsReport(GenJournalLine."Account No.", PurchaseHeader."Posting Date", ShowPaymentsRef::All);
+
+        // [THEN] Vendor Overdue Payment report has CalcVendorRatioOfPaidTransactions = 30, VendPaymentWithinDueDate = 100
+        DaysOverdue := PurchaseHeader."Due Date" - PurchaseHeader."Posting Date";
+        VerifyNumberDocNoAndWeightedAmtsOnVendorReport(
+          GenJournalLine."Account No.", GenJournalLine."Document No.", DaysOverdue, 0, -InvoiceAmount, 0);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();

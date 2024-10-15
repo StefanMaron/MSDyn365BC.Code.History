@@ -754,6 +754,7 @@
                     GenJnlLine2.Init();
                     GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::"G/L Account";
                     GenJnlLine2."Posting Date" := "Posting Date";
+                    GenJnlLine2."VAT Reporting Date" := "VAT Reporting Date";
                     GenJnlLine2."Document Type" := "Document Type";
                     GenJnlLine2."Document No." := "Document No.";
                     GenJnlLine2.Description := Description;
@@ -1593,6 +1594,7 @@
             if not IsPosted then begin
                 GenJnlPostLine.RunWithoutCheck(GenJnlLine5);
                 InsertPostedGenJnlLine(GenJournalLine);
+                RemoveRecordLink(GenJournalLine);
             end;
             OnAfterPostGenJnlLine(GenJnlLine5, SuppressCommit, GenJnlPostLine, IsPosted, GenJournalLine);
             if (GenJnlTemplate.Type = GenJnlTemplate.Type::Intercompany) and (CurrentICPartner <> '') and
@@ -1602,6 +1604,7 @@
             if ("Recurring Method".AsInteger() >= "Recurring Method"::"RF Reversing Fixed".AsInteger()) and ("Posting Date" <> 0D) and ("Recurring Method".AsInteger() <> "Recurring Method"::"BD Balance by Dimension".AsInteger()) then begin
                 SavedPostingDate := "Posting Date";
                 "Posting Date" := CalcReversePostingDate(GenJournalLine);
+                "VAT Reporting Date" := "Posting Date";
                 "Document Date" := "Posting Date";
                 "Due Date" := "Posting Date";
                 MultiplyAmounts(GenJournalLine, -1);
@@ -1610,6 +1613,7 @@
                 TempGenJnlLine4.Insert();
                 NoOfReversingRecords := NoOfReversingRecords + 1;
                 "Posting Date" := SavedPostingDate;
+                "VAT Reporting Date" := SavedPostingDate;
                 "Document Date" := "Posting Date";
                 "Due Date" := "Posting Date";
             end;
@@ -1941,6 +1945,19 @@
         Dimensions.Add('PostingDuration', Format(PostingDuration));
         Dimensions.Add('NumberOfLines', Format(NumberOfRecords));
         Session.LogMessage('0000F9I', StrSubstNo(GenJournalPostedTxt, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+    end;
+
+    local procedure RemoveRecordLink(GenJournalLine: Record "Gen. Journal Line")
+    var
+        RecordLink: Record "Record Link";
+        RecordRef: RecordRef;
+        RecVariant: Variant;
+    begin
+        RecVariant := GenJournalLine;
+        RecordRef.GetTable(RecVariant);
+        RecordLink.SetRange("Record ID", RecordRef.RecordId());
+        if RecordLink.FindSet() then
+            RecordLink.DeleteAll;
     end;
 
     [IntegrationEvent(false, false)]

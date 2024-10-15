@@ -13,6 +13,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     var
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryCarteraPayables: Codeunit "Library - Cartera Payables";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
@@ -2454,6 +2455,57 @@ codeunit 134076 "ERM Suggest Vendor Payment"
 
         // [THEN] Second Payment journal line created with amount from "RA 2"
         VerifySuggestedLineWithAmount(GenJournalBatch."Journal Template Name", GenJournalBatch.Name, Amount[2]);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentHandlesBillsCorrectly()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 458368] Running Suggest Vendor Payment for documents with several bills per document produces all the lines, even after some are deleted manually
+        Initialize();
+
+        // [GIVEN] Prepare Vendor with Payment Method with Create Bills = Yes and Payment Terms with 3 installments
+        LibraryCarteraPayables.CreateCarteraVendorUseBillToCarteraPayment(Vendor, '');
+        LibraryCarteraPayables.CreateVendorBankAccount(Vendor, '');
+        LibraryCarteraPayables.CreateMultipleInstallments(Vendor."Payment Terms Code", 3);
+
+        // [GIVEN] Post Purchase Invoice, 3 bills for this invoice are posted
+        LibraryCarteraPayables.CreatePurchaseInvoice(PurchaseHeader, Vendor."No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Prepare payment journal batch
+        PreparePaymentJournalBatch(GenJournalBatch, LibraryERM.CreateBankAccountNo());
+
+        // [GIVEN] Suggest Vendor Payment for Vendor creates 3 payment journal lines
+        SuggestVendorPayment(
+          GenJournalBatch, Vendor."No.", WorkDate() + 65, false,
+          GenJournalLine."Bal. Account Type"::"Bank Account",
+          GenJournalBatch."Bal. Account No.", "Bank Payment Type"::" ", false);
+
+        // [GIVEN] Delete the line for Bill No = 2
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Applies-to Bill No.", '2');
+        GenJournalLine.FindFirst();
+        GenJournalLine.Delete(true);
+
+        // [WHEN] Run Suggest Vendor Payment report again
+        SuggestVendorPayment(
+          GenJournalBatch, Vendor."No.", WorkDate() + 65, false,
+          GenJournalLine."Bal. Account Type"::"Bank Account",
+          GenJournalBatch."Bal. Account No.", "Bank Payment Type"::" ", false);
+
+        // [THEN] Line for Bill No = 2 was created again and there is a total of 3 lines suggested
+        GenJournalLine.Reset();
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        Assert.RecordCount(GenJournalLine, 3);
     end;
 
     local procedure Initialize()

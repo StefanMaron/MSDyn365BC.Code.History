@@ -480,14 +480,14 @@ codeunit 144117 "ERM Make 349 Declaration"
         CorrectionAmount: Integer;
     begin
         // Read Header line
-        Line := LibraryTextFileValidation.ReadLine(FileName, 1);
+        Line := CopyStr(LibraryTextFileValidation.ReadLineWithEncoding(FileName, TextEncoding::Windows, 1), 1, MaxStrLen(Line));
 
         // Setup expected data
         CompanyInfo.Get();
         FiscalYear := Format(Date2DMY(PostingDate, 3));
         VatRegNo := PadStr(CompanyInfo."VAT Registration No.", 9, ' ');
-        CompanyName := PadStr(ConvertStr(UpperCase(CompanyInfo.Name), 'µ·ÔÖÞàãéë¥š€()"&ï', 'AAEEIIOOUUÑUÇ     '), 40, ' ');
-        ContactName := PadStr(ConvertStr(UpperCase(ContactName), 'µ·ÔÖÞàãéë¥š€()"&ï', 'AAEEIIOOUUÑUÇ     '), 40, ' ');
+        CompanyName := PadStr(UpperCase(CompanyInfo.Name), 40, ' ');
+        ContactName := PadStr(UpperCase(ContactName), 40, ' ');
 
         // Validate header data
         Assert.AreEqual(StrLen(Line), 500, 'Header record has wrong length');
@@ -533,7 +533,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         Assert.AreEqual(ReadFiscalYear(Line), FiscalYear, 'Header record has wrong fiscal year');
         Assert.AreEqual(ReadVATRegNo(Line), VatRegNo, 'Header record has wrong VatRegNo');
         Assert.AreEqual(ReadRecordPadding2(Line), PadStr('', 58, ' '), 'expected 58 blanks');
-        ExpectedName := PadStr(ConvertStr(UpperCase(ExpectedName), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ');
+        ExpectedName := CopyStr(PadStr(UpperCase(ExpectedName), 40, ' '), 1, MaxStrLen(ExpectedName));
         Assert.AreEqual(ReadEntryName(Line), ExpectedName, 'Wrong customer/vendor name');
         Assert.AreEqual(ReadOperationsCode(Line), OperationsCode, 'Wrong operations code');
         EntryAmount := ReadEntryAmount(Line);
@@ -560,7 +560,7 @@ codeunit 144117 "ERM Make 349 Declaration"
 
     local procedure PadCustVendNo(CustOrVendNo: Code[1024]): Text[1024]
     begin
-        exit(PadStr(ConvertStr(UpperCase(CustOrVendNo), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' '));
+        exit(PadStr(UpperCase(CustOrVendNo), 40, ' '));
     end;
 
     local procedure ReadRecordFormat(Line: Text[1024]): Text
@@ -1317,10 +1317,20 @@ codeunit 144117 "ERM Make 349 Declaration"
     [Test]
     [HandlerFunctions('Make349DeclarationReportHandler,GenericMessageHandler')]
     [Scope('OnPrem')]
-    procedure TestMACustomerShippingAddressIsESLocationCodeES()
+    procedure TestFRCustomerShippingAddressIsESLocationCodeES()
     begin
         // TFS ID 403106: Foreign customer with shipping address in Spain must be reported in the 349 Declaration for Spain
-        RunReportForCustomerAndWithDifferentAddresses('MA', 'ES', 'ES', true);
+        // TFS ID 454631: Only european union countries must be reported in the 349 Declaration for Spain
+        RunReportForCustomerAndWithDifferentAddresses('FR', 'ES', 'ES', true);
+    end;
+
+    [Test]
+    [HandlerFunctions('Make349DeclarationReportHandler,GenericMessageHandler')]
+    [Scope('OnPrem')]
+    procedure TestMACustomerShippingAddressIsESLocationCodeES()
+    begin
+        // TFS ID 454631: Only european union countries must be reported in the 349 Declaration for Spain
+        RunReportForCustomerAndWithDifferentAddresses('MA', 'ES', 'ES', false);
     end;
 
     [Test]
@@ -2042,7 +2052,7 @@ codeunit 144117 "ERM Make 349 Declaration"
             PurchaseHeader."Document Type"::Invoice, VendorNo, ItemNo, PostingDate);
 
         // [GIVEN] Purchase Credit Memo "C" with "No Taxable VAT", "Posting Date" = 01.02.16 and Amount = 30
-        CrMemoAmount := Round(InvAmount / LibraryRandom.RandIntInRange(3, 10));
+        CrMemoAmount := Round(PrevInvAmount / LibraryRandom.RandIntInRange(3, 10));
         CreateAndPostPurchaseCrMemoWithCustomAmount(
           VendorNo, ItemNo, FindLastPurchInvNo(VendorNo), PostingDate, CrMemoAmount);
 
@@ -2109,7 +2119,7 @@ codeunit 144117 "ERM Make 349 Declaration"
             PurchaseHeader."Document Type"::Invoice, VendorNo, ItemNo, PostingDate);
 
         // [GIVEN] Purchase Credit Memo "C" with "No Taxable VAT", "Posting Date" = 01.02.16 and Amount = 30
-        CrMemoAmount := Round(InvAmount / LibraryRandom.RandIntInRange(3, 10));
+        CrMemoAmount := Round(PrevInvAmount / LibraryRandom.RandIntInRange(3, 10));
         CreateAndPostPurchaseCrMemoWithCustomAmount(
           VendorNo, ItemNo, FindLastPurchInvNo(VendorNo), PostingDate, CrMemoAmount);
 
@@ -2328,7 +2338,7 @@ codeunit 144117 "ERM Make 349 Declaration"
             SalesHeader."Document Type"::Invoice, CustomerNo, ItemNo, PostingDate, false);
 
         // [GIVEN] Sales Credit Memo "C" with "No Taxable VAT", "Posting Date" = 01.02.16 and Amount = 30
-        CrMemoAmount := Round(InvAmount / LibraryRandom.RandIntInRange(3, 10));
+        CrMemoAmount := Round(PrevInvAmount / LibraryRandom.RandIntInRange(3, 10));
         CreateAndPostSalesCrMemoWithCustomAmount(
           CustomerNo, ItemNo, FindLastSalesInvNo(CustomerNo), PostingDate, false, CrMemoAmount);
 
@@ -2394,7 +2404,7 @@ codeunit 144117 "ERM Make 349 Declaration"
             SalesHeader."Document Type"::Invoice, CustomerNo, ItemNo, PostingDate, false);
 
         // [GIVEN] Sales Credit Memo "C" with "No Taxable VAT", "Posting Date" = 01.02.16 and Amount = 30
-        CrMemoAmount := Round(InvAmount / LibraryRandom.RandIntInRange(3, 10));
+        CrMemoAmount := Round(PrevInvAmount / LibraryRandom.RandIntInRange(3, 10));
         CreateAndPostSalesCrMemoWithCustomAmount(
           CustomerNo, ItemNo, FindLastSalesInvNo(CustomerNo), PostingDate, false, CrMemoAmount);
 
@@ -2460,7 +2470,7 @@ codeunit 144117 "ERM Make 349 Declaration"
             SalesHeader."Document Type"::Invoice, CustomerNo, ItemNo, PostingDate, true);
 
         // [GIVEN] Sales Credit Memo "C" with "No Taxable VAT", "Posting Date" = 01.02.16 and Amount = 30
-        CrMemoAmount := Round(InvAmount / LibraryRandom.RandIntInRange(3, 10));
+        CrMemoAmount := Round(PrevInvAmount / LibraryRandom.RandIntInRange(3, 10));
         CreateAndPostSalesCrMemoWithCustomAmount(
           CustomerNo, ItemNo, FindLastSalesInvNo(CustomerNo), PostingDate, true, CrMemoAmount);
 
@@ -3726,7 +3736,7 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // [THEN] File has Amount exported to position 134 as formatted value of 700.00 = 1000.0 - 300.0 with separator symbol removed, extended to length 13 and prefixed by zeroes ('0000000070000')
         VerifyValuesOnGeneratedTextFile(
-          FileName, 134, CopyStr(Make349Declaration.FormatTextAmt(PurchaseHeader.Amount - PurchaseHeader.Amount / 4), 3, 13));
+          FileName, 134, CopyStr(Make349Declaration.FormatTextAmt(PurchaseHeader.Amount - Round(PurchaseHeader.Amount / 4)), 3, 13));
     end;
 
     [Test]
@@ -3842,7 +3852,7 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // [THEN] File has Amount exported to position 134 as formatted value of 700.00 = 1000.0 - 300.0 with separator symbol removed, extended to length 13 and prefixed by zeroes ('0000000070000')
         VerifyValuesOnGeneratedTextFile(
-          FileName, 134, CopyStr(Make349Declaration.FormatTextAmt(SalesHeader.Amount - SalesHeader.Amount / 4), 3, 13));
+          FileName, 134, CopyStr(Make349Declaration.FormatTextAmt(SalesHeader.Amount - Round(SalesHeader.Amount / 4)), 3, 13));
     end;
 
     [Test]
@@ -4711,7 +4721,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         LineText: Text;
         CustLinesCount: Integer;
     begin
-        // [SCEARIO 439176] Run Make 349 report on Sales Credit Memo with blank Corrected Invoice No. when EU Service is set.
+        // [SCENARIO 439176] Run Make 349 report on Sales Credit Memo with blank Corrected Invoice No. when EU Service is set.
+        // [SCENARIO 455095] Previous Declared Amount is not zero for Sales Credit Memo with blank Corrected Invoice No.
         Initialize();
         PostingDate := LibraryRandom.RandDateFrom(GetEmptyPeriodDate(), 10);
 
@@ -4731,11 +4742,11 @@ codeunit 144117 "ERM Make 349 Declaration"
         RunMake349DeclarationReportSimple(FileName, 0D);
 
         // [THEN] One line for Customer is exported.
-        // [THEN] Format is "S" + 13 spaces + year(2024) + month(02) + Original Declared Amount(0) + Previous Declared Amount(0).
+        // [THEN] Format is "S" + 13 spaces + year(2024) + month(02) + Original Declared Amount(0) + Previous Declared Amount(0 - 200 = -200).
         CustLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Customer.Name), 93, 40);
         Assert.AreEqual(1, CustLinesCount, '');
         LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Customer.Name));
-        VerifyRectificationLine(LineText, 'S', PostingDate, 0, 0);
+        VerifyRectificationLine(LineText, 'S', PostingDate, 0, SalesCrMemoHeader.Amount);
 
         LibraryVariableStorage.DequeueDate();       // Posting Date
         LibraryVariableStorage.DequeueDecimal();    // Previous Declared Amount
@@ -4755,7 +4766,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         CustLinesCount: Integer;
         OriginalDeclaredAmount: Decimal;
     begin
-        // [SCEARIO 439176] Run Make 349 report on Sales Credit Memo with blank Corrected Invoice No. when EU Service is set.
+        // [SCENARIO 439176] Run Make 349 report on Sales Credit Memo with blank Corrected Invoice No. when EU Service is set.
+        // [SCENARIO 455095] Previous Declared Amount is not zero for Sales Credit Memo with blank Corrected Invoice No.
         Initialize();
         PostingDate := LibraryRandom.RandDateFrom(GetEmptyPeriodDate(), 10);
         OriginalDeclaredAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
@@ -4778,11 +4790,11 @@ codeunit 144117 "ERM Make 349 Declaration"
         RunMake349DeclarationReportSimple(FileName, 0D);
 
         // [THEN] One line for Customer is exported.
-        // [THEN] Format is "S" + 13 spaces + year(2024) + month(02) + Original Declared Amount(1000) + Previous Declared Amount(0).
+        // [THEN] Format is "S" + 13 spaces + year(2024) + month(02) + Original Declared Amount(1000) + Previous Declared Amount(0 - 200 = -200).
         CustLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Customer.Name), 93, 40);
         Assert.AreEqual(1, CustLinesCount, '');
         LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Customer.Name));
-        VerifyRectificationLine(LineText, 'S', PostingDate, OriginalDeclaredAmount, 0);
+        VerifyRectificationLine(LineText, 'S', PostingDate, OriginalDeclaredAmount, SalesCrMemoHeader.Amount);
 
         LibraryVariableStorage.DequeueDate();       // Posting Date
         LibraryVariableStorage.AssertEmpty();
@@ -4800,7 +4812,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         LineText: Text;
         CustLinesCount: Integer;
     begin
-        // [SCEARIO 439176] Run Make 349 report on Sales Credit Memo with blank Corrected Invoice No. when EU 3-Party Trade is set.
+        // [SCENARIO 439176] Run Make 349 report on Sales Credit Memo with blank Corrected Invoice No. when EU 3-Party Trade is set.
+        // [SCENARIO 455095] Previous Declared Amount is not zero for Sales Credit Memo with blank Corrected Invoice No.
         Initialize();
         PostingDate := LibraryRandom.RandDateFrom(GetEmptyPeriodDate(), 10);
 
@@ -4820,11 +4833,11 @@ codeunit 144117 "ERM Make 349 Declaration"
         RunMake349DeclarationReportSimple(FileName, 0D);
 
         // [THEN] One line for Customer is exported.
-        // [THEN] Format is "T" + 13 spaces + year(2024) + month(02) + Original Declared Amount(0) + Previous Declared Amount(0).
+        // [THEN] Format is "T" + 13 spaces + year(2024) + month(02) + Original Declared Amount(0) + Previous Declared Amount(0 - 200 = -200).
         CustLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Customer.Name), 93, 40);
         Assert.AreEqual(1, CustLinesCount, '');
         LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Customer.Name));
-        VerifyRectificationLine(LineText, 'T', PostingDate, 0, 0);
+        VerifyRectificationLine(LineText, 'T', PostingDate, 0, SalesCrMemoHeader.Amount);
 
         LibraryVariableStorage.DequeueDate();       // Posting Date
         LibraryVariableStorage.DequeueDecimal();    // Previous Declared Amount
@@ -4844,7 +4857,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         CustLinesCount: Integer;
         OriginalDeclaredAmount: Decimal;
     begin
-        // [SCEARIO 439176] Run Make 349 report on Sales Credit Memo with blank Corrected Invoice No. when EU 3-Party Trade is set.
+        // [SCENARIO 439176] Run Make 349 report on Sales Credit Memo with blank Corrected Invoice No. when EU 3-Party Trade is set.
+        // [SCENARIO 455095] Previous Declared Amount is not zero for Sales Credit Memo with blank Corrected Invoice No.
         Initialize();
         PostingDate := LibraryRandom.RandDateFrom(GetEmptyPeriodDate(), 10);
         OriginalDeclaredAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
@@ -4867,11 +4881,11 @@ codeunit 144117 "ERM Make 349 Declaration"
         RunMake349DeclarationReportSimple(FileName, 0D);
 
         // [THEN] One line for Customer is exported.
-        // [THEN] Format is "T" + 13 spaces + year(2024) + month(02) + Original Declared Amount(1000) + Previous Declared Amount(0).
+        // [THEN] Format is "T" + 13 spaces + year(2024) + month(02) + Original Declared Amount(1000) + Previous Declared Amount(0 - 200 = -200).
         CustLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Customer.Name), 93, 40);
         Assert.AreEqual(1, CustLinesCount, '');
         LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Customer.Name));
-        VerifyRectificationLine(LineText, 'T', PostingDate, OriginalDeclaredAmount, 0);
+        VerifyRectificationLine(LineText, 'T', PostingDate, OriginalDeclaredAmount, SalesCrMemoHeader.Amount);
 
         LibraryVariableStorage.DequeueDate();       // Posting Date
         LibraryVariableStorage.AssertEmpty();
@@ -4892,7 +4906,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         CustLinesCount: Integer;
         OriginalDeclaredAmount: Decimal;
     begin
-        // [SCEARIO 439176] Run Make 349 report on Sales Credit Memo when it corrects invoice from different period and when Delivery Operation Code is "H".
+        // [SCENARIO 439176] Run Make 349 report on Sales Credit Memo when it corrects invoice from different period and when Delivery Operation Code is "H".
         Initialize();
         PostingDateInvoice := LibraryRandom.RandDateFrom(GetFirstDateInEmptyFY(), 10);
         PostingDateCrMemo := CalcDate('<+1M>', PostingDateInvoice);
@@ -4942,7 +4956,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         CustLinesCount: Integer;
         OriginalDeclaredAmount: Decimal;
     begin
-        // [SCEARIO 439176] Run Make 349 report on Sales Credit Memo when it corrects invoice from different period and when EU Service is set.
+        // [SCENARIO 439176] Run Make 349 report on Sales Credit Memo when it corrects invoice from different period and when EU Service is set.
         Initialize();
         PostingDateInvoice := LibraryRandom.RandDateFrom(GetFirstDateInEmptyFY(), 10);
         PostingDateCrMemo := CalcDate('<+1M>', PostingDateInvoice);
@@ -4992,7 +5006,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         CustLinesCount: Integer;
         OriginalDeclaredAmount: Decimal;
     begin
-        // [SCEARIO 439176] Run Make 349 report on Sales Credit Memo when it corrects invoice from different period and when EU 3-Party Trade is set.
+        // [SCENARIO 439176] Run Make 349 report on Sales Credit Memo when it corrects invoice from different period and when EU 3-Party Trade is set.
         Initialize();
         PostingDateInvoice := LibraryRandom.RandDateFrom(GetFirstDateInEmptyFY(), 10);
         PostingDateCrMemo := CalcDate('<+1M>', PostingDateInvoice);
@@ -5039,7 +5053,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         LineText: Text;
         VendLinesCount: Integer;
     begin
-        // [SCEARIO 439176] Run Make 349 report on Purchase Credit Memo with blank Corrected Invoice No. when Delivery Operation Code is blank.
+        // [SCENARIO 439176] Run Make 349 report on Purchase Credit Memo with blank Corrected Invoice No. when Delivery Operation Code is blank.
+        // [SCENARIO 455095] Previous Declared Amount is not zero for Purchase Credit Memo with blank Corrected Invoice No.
         Initialize();
         PostingDate := LibraryRandom.RandDateFrom(GetEmptyPeriodDate(), 10);
 
@@ -5059,11 +5074,11 @@ codeunit 144117 "ERM Make 349 Declaration"
         RunMake349DeclarationReportSimple(FileName, 0D);
 
         // [THEN] One line for Vendor is exported.
-        // [THEN] Format is "A" + 13 spaces + year(2024) + month(02) + Original Declared Amount(0) + Previous Declared Amount(0).
+        // [THEN] Format is "A" + 13 spaces + year(2024) + month(02) + Original Declared Amount(0) + Previous Declared Amount(0 - 200 = -200).
         VendLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Vendor.Name), 93, 40);
         Assert.AreEqual(1, VendLinesCount, '');
         LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Vendor.Name));
-        VerifyRectificationLine(LineText, 'A', PostingDate, 0, 0);      // Previous Declared Amount differs from those from Sales side
+        VerifyRectificationLine(LineText, 'A', PostingDate, 0, PurchCrMemoHdr.Amount);
 
         LibraryVariableStorage.DequeueDate();       // Posting Date
         LibraryVariableStorage.DequeueDecimal();    // Previous Declared Amount
@@ -5082,7 +5097,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         LineText: Text;
         VendLinesCount: Integer;
     begin
-        // [SCEARIO 439176] Run Make 349 report on Purchase Credit Memo with blank Corrected Invoice No. when Delivery Operation Code is "H".
+        // [SCENARIO 439176] Run Make 349 report on Purchase Credit Memo with blank Corrected Invoice No. when Delivery Operation Code is "H".
+        // [SCENARIO 455095] Previous Declared Amount is not zero for Purchase Credit Memo with blank Corrected Invoice No.
         Initialize();
         PostingDate := LibraryRandom.RandDateFrom(GetEmptyPeriodDate(), 10);
 
@@ -5102,11 +5118,11 @@ codeunit 144117 "ERM Make 349 Declaration"
         RunMake349DeclarationReportSimple(FileName, 0D);
 
         // [THEN] One line for Vendor is exported.
-        // [THEN] Format is "A" + 13 spaces + year(2024) + month(02) + Original Declared Amount(0) + Previous Declared Amount(0).
+        // [THEN] Format is "A" + 13 spaces + year(2024) + month(02) + Original Declared Amount(0) + Previous Declared Amount(0 - 200 = -200).
         VendLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Vendor.Name), 93, 40);
         Assert.AreEqual(1, VendLinesCount, '');
         LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Vendor.Name));
-        VerifyRectificationLine(LineText, 'A', PostingDate, 0, 0);      // Previous Declared Amount differs from those from Sales side
+        VerifyRectificationLine(LineText, 'A', PostingDate, 0, PurchCrMemoHdr.Amount);
 
         LibraryVariableStorage.DequeueDate();       // Posting Date
         LibraryVariableStorage.DequeueDecimal();    // Previous Declared Amount
@@ -5125,7 +5141,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         LineText: Text;
         VendLinesCount: Integer;
     begin
-        // [SCEARIO 439176] Run Make 349 report on Purchase Credit Memo with blank Corrected Invoice No. when EU Service is set.
+        // [SCENARIO 439176] Run Make 349 report on Purchase Credit Memo with blank Corrected Invoice No. when EU Service is set.
+        // [SCENARIO 455095] Previous Declared Amount is not zero for Purchase Credit Memo with blank Corrected Invoice No.
         Initialize();
         PostingDate := LibraryRandom.RandDateFrom(GetEmptyPeriodDate(), 10);
 
@@ -5145,11 +5162,11 @@ codeunit 144117 "ERM Make 349 Declaration"
         RunMake349DeclarationReportSimple(FileName, 0D);
 
         // [THEN] One line for Vendor is exported.
-        // [THEN] Format is "I" + 13 spaces + year(2024) + month(02) + Original Declared Amount(0) + Previous Declared Amount(0).
+        // [THEN] Format is "I" + 13 spaces + year(2024) + month(02) + Original Declared Amount(0) + Previous Declared Amount(0 - 200 = -200).
         VendLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Vendor.Name), 93, 40);
         Assert.AreEqual(1, VendLinesCount, '');
         LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Vendor.Name));
-        VerifyRectificationLine(LineText, 'I', PostingDate, 0, 0);
+        VerifyRectificationLine(LineText, 'I', PostingDate, 0, PurchCrMemoHdr.Amount);
 
         LibraryVariableStorage.DequeueDate();       // Posting Date
         LibraryVariableStorage.DequeueDecimal();    // Previous Declared Amount
@@ -5169,7 +5186,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         VendLinesCount: Integer;
         OriginalDeclaredAmount: Decimal;
     begin
-        // [SCEARIO 439176] Run Make 349 report on Purchase Credit Memo with blank Corrected Invoice No. when EU Service is set.
+        // [SCENARIO 439176] Run Make 349 report on Purchase Credit Memo with blank Corrected Invoice No. when EU Service is set.
+        // [SCENARIO 455095] Previous Declared Amount is not zero for Purchase Credit Memo with blank Corrected Invoice No.
         Initialize();
         PostingDate := LibraryRandom.RandDateFrom(GetEmptyPeriodDate(), 10);
         OriginalDeclaredAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
@@ -5192,11 +5210,11 @@ codeunit 144117 "ERM Make 349 Declaration"
         RunMake349DeclarationReportSimple(FileName, 0D);
 
         // [THEN] One line for Vendor is exported.
-        // [THEN] Format is "I" + 13 spaces + year(2024) + month(02) + Original Declared Amount(1000) + Previous Declared Amount(0).
+        // [THEN] Format is "I" + 13 spaces + year(2024) + month(02) + Original Declared Amount(1000) + Previous Declared Amount(0 - 200 = -200).
         VendLinesCount := LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, PadCustVendNo(Vendor.Name), 93, 40);
         Assert.AreEqual(1, VendLinesCount, '');
         LineText := LibraryTextFileValidation.FindLineWithValue(FileName, 93, 40, PadCustVendNo(Vendor.Name));
-        VerifyRectificationLine(LineText, 'I', PostingDate, OriginalDeclaredAmount, 0);
+        VerifyRectificationLine(LineText, 'I', PostingDate, OriginalDeclaredAmount, PurchCrMemoHdr.Amount);
 
         LibraryVariableStorage.DequeueDate();       // Posting Date
         LibraryVariableStorage.AssertEmpty();
@@ -5217,7 +5235,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         VendLinesCount: Integer;
         OriginalDeclaredAmount: Decimal;
     begin
-        // [SCEARIO 439176] Run Make 349 report on Purchase Credit Memo when it corrects invoice from different period and when Delivery Operation Code is "H".
+        // [SCENARIO 439176] Run Make 349 report on Purchase Credit Memo when it corrects invoice from different period and when Delivery Operation Code is "H".
         Initialize();
         PostingDateInvoice := LibraryRandom.RandDateFrom(GetFirstDateInEmptyFY(), 10);
         PostingDateCrMemo := CalcDate('<+1M>', PostingDateInvoice);
@@ -5268,7 +5286,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         VendLinesCount: Integer;
         OriginalDeclaredAmount: Decimal;
     begin
-        // [SCEARIO 439176] Run Make 349 report on Purchase Credit Memo when it corrects invoice from different period and when EU Service is set.
+        // [SCENARIO 439176] Run Make 349 report on Purchase Credit Memo when it corrects invoice from different period and when EU Service is set.
         Initialize();
         PostingDateInvoice := LibraryRandom.RandDateFrom(GetFirstDateInEmptyFY(), 10);
         PostingDateCrMemo := CalcDate('<+1M>', PostingDateInvoice);
@@ -5301,6 +5319,39 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         LibraryVariableStorage.DequeueDate();       // Posting Date
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerVendorWarnings349ModalPageHandler,ConfirmHandler,Make349DeclarationRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SpecialSymbolsInCustName()
+    var
+        Customer: Record Customer;
+        ExportFileName: Text[1024];
+        RandomGUID: Code[10];
+        ExpectedName: Text;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 378817] Make Declaration 349 changes special Spanish letter characters to basic latin counterparts when exporting
+        Initialize();
+
+        // [GIVEN] Foreign customer
+        Customer.Get(CreateForeignCustomerWithVATRegNo(CreateCountryWithSpecificVATRegNoFormat(true)));
+
+        // [GIVEN] Customer's name contains special character
+        RandomGUID := LibraryUtility.GenerateGUID();
+        Customer.Validate(Name, RandomGUID + 'É');
+        Customer.Modify(true);
+
+        // [GIVEN] Sales invoice posted
+        CreateAndPostSalesInvoice(Customer."No.");
+
+        // [WHEN] Run Make 349 Declaration
+        ExportFileName := RunMake349DeclarationWithDate(WorkDate());
+
+        // [THEN] Customer Name was exported with special character changed to basic latin character
+        ExpectedName := RandomGUID + 'E';
+        Assert.AreNotEqual('', LibraryTextFileValidation.FindLineContainingValue(ExportFileName, 1, 1024, ExpectedName), 'Line was not found');
     end;
 
     local procedure Initialize()
@@ -5937,8 +5988,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         Item.Validate("Inventory Posting Group", InventoryPostingGroupCode);
         Item.Modify(true);
 
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));  // Take random Quantity.
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDecInDecimalRange(20, 30, 2));  // Take random Quantity.
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInDecimalRange(200, 300, 2));
         SalesLine.Modify(true);
 
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));  // Post as Ship and Invoice.

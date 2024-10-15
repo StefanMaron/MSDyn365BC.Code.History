@@ -590,7 +590,7 @@
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(38),
+                SubPageLink = "Table ID" = CONST(Database::"Purchase Header"),
                               "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
             }

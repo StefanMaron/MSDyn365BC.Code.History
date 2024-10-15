@@ -140,7 +140,8 @@
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
-                    Editable = true;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
                 }
                 field("Document Date"; Rec."Document Date")
@@ -1047,6 +1048,7 @@
     trigger OnOpenPage()
     var
         SIIManagement: Codeunit "SII Management";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         Rec.SetSecurityFilterOnRespCenter();
         if (Rec."No." <> '') and (Rec."Customer No." = '') then
@@ -1056,6 +1058,7 @@
         UpdateDocHasRegimeCode();
         ActivateFields();
         CheckShowBackgrValidationNotification();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     trigger OnAfterGetRecord()
@@ -1099,6 +1102,8 @@
         SIILastSummaryDocNo: Text[35];
         [InDataSet]
         IsServiceLinesEditable: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     local procedure ActivateFields()
     begin

@@ -139,6 +139,8 @@ page 140 "Posted Purchase Credit Memo"
                 {
                     ApplicationArea = VAT;
                     Importance = Promoted;
+                    Editable = false;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the VAT date on the invoice.';
                 }
                 field("Document Date"; Rec."Document Date")
@@ -569,7 +571,7 @@ page 140 "Posted Purchase Credit Memo"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(124),
+                SubPageLink = "Table ID" = CONST(Database::"Purch. Cr. Memo Hdr."),
                               "No." = FIELD("No.");
             }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
@@ -952,6 +954,7 @@ page 140 "Posted Purchase Credit Memo"
     trigger OnOpenPage()
     var
         OfficeMgt: Codeunit "Office Management";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         SIIManagement: Codeunit "SII Management";
     begin
         SetSecurityFilterOnRespCenter();
@@ -960,6 +963,7 @@ page 140 "Posted Purchase Credit Memo"
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
         ActivateFields();
+		VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var
@@ -973,6 +977,8 @@ page 140 "Posted Purchase Credit Memo"
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
         OperationDescription: Text[500];
         DocHasMultipleRegimeCode: Boolean;
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';

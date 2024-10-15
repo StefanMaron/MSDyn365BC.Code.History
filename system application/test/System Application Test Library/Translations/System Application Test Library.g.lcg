@@ -1672,7 +1672,7 @@
   </Item>
   <Item ItemId=";Page 2027548647 - Control 4150257315 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Test decimal field]]></Val>
+      <Val><![CDATA[Field with spaces]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1686,6 +1686,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Page Views Page Action Test - Control TestBoolean - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2027548647 - Control 786433927 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test decimal field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Views Page Action Test - Control TestDecimal - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2027548647 - View 347148646 - Property 2879900210" ItemType=";Page - View" PsrId="63" InstFlg="true" Leaf="true">

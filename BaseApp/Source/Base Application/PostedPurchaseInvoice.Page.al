@@ -137,6 +137,8 @@ page 138 "Posted Purchase Invoice"
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
+                    Editable = false;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the VAT date on the invoice.';
                 }
                 field("Document Date"; Rec."Document Date")
@@ -751,7 +753,7 @@ page 138 "Posted Purchase Invoice"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(122),
+                SubPageLink = "Table ID" = CONST(Database::"Purch. Inv. Header"),
                               "No." = FIELD("No.");
             }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
@@ -1235,6 +1237,7 @@ page 138 "Posted Purchase Invoice"
     trigger OnOpenPage()
     var
         OfficeMgt: Codeunit "Office Management";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         SIIManagement: Codeunit "SII Management";
     begin
         SetSecurityFilterOnRespCenter();
@@ -1244,6 +1247,7 @@ page 138 "Posted Purchase Invoice"
 	SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
 	UpdateDocHasRegimeCode();
         ActivateFields();
+		VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var
@@ -1261,6 +1265,8 @@ page 138 "Posted Purchase Invoice"
         DocHasMultipleRegimeCode: Boolean;
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
         IsRemitToCountyVisible: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     local procedure ActivateFields()
     begin

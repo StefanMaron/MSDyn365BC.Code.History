@@ -1401,6 +1401,48 @@ codeunit 147305 "Cartera Posting"
         Assert.AreEqual(ExpectedAmount, MyCustomer."Balance (LCY)", '');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,SettleDocsInPostedPaymentOrderRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyDimensionAfterSettlePaymentOrderWithPurchaseOrder()
+    var
+        Vendor: Record Vendor;
+        BankAccount: Record "Bank Account";
+        PaymentOrder: Record "Payment Order";
+        PurchHeader: Record "Purchase Header";
+        POPostAndPrint: Codeunit "BG/PO-Post and Print";
+        GLEntry: Record "G/L Entry";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        InvNo: Code[20];
+        DimSetId: Integer;
+    begin
+        // [SCENARIO 454719] Dimensions in the G/L Entries and Bank Ledger Entries are not correctly shown in the lines when settling Payment Orders in the Spanish version
+        Initialize();
+
+        // [GIVEN] Create Vendor "X" 
+        CreateVendor(Vendor);
+
+        // [GIVEN] Invoice "A" and Invoice "B" with Vendor "X"
+        InvNo := CreateAndPostPurchOrderWithDimension(Vendor, DimSetId);
+
+        // [GIVEN] Posted Payment Order applied to Bill "A"
+        LibraryERM.CreateBankAccount(BankAccount);
+        CreatePaymentOrderWithSpecificBankAccount(PaymentOrder, BankAccount."No.");
+        AddDocToBillGroup(PaymentOrder."No.", InvNo);
+        POPostAndPrint.PayablePostOnly(PaymentOrder);
+
+        // [WHEN] Run report 7000082 "Settle Docs. in Posted PO"
+        SettlePurchDocument(BankAccount."No.");
+
+        // [THEN] Get Last Posted G/L Entry and Bank Account Ledger Entry record
+        GLEntry.FindLast();
+        BankAccountLedgerEntry.FindLast();
+
+        // [VERIFY] Verify Dimension on G/L Entry and Bank Account Ledger Entry
+        Assert.AreEqual(GLEntry."Dimension Set ID", DimSetId, GLEntry.FieldCaption("Dimension Set ID"));
+        Assert.AreEqual(BankAccountLedgerEntry."Dimension Set ID", DimSetId, BankAccountLedgerEntry.FieldCaption("Dimension Set ID"));
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -3055,6 +3097,35 @@ codeunit 147305 "Cartera Posting"
         FindCarteraGenJnlBatch(GenJournalBatch);
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
         LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostPurchOrderWithDimension(Vendor: Record Vendor; var DimSetId: Integer): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        DimValue: Record "Dimension Value";
+        DefaultDim: Record "Default Dimension";
+    begin
+        CreateDimValue(DimValue);
+        LibraryDimension.CreateDefaultDimension(
+            DefaultDim, DATABASE::Vendor, Vendor."No.", DimValue."Dimension Code", DimValue.Code);
+        DefaultDim.Validate("Value Posting", DefaultDim."Value Posting"::"Same Code");
+        DefaultDim.Modify(true);
+
+        CreatePurchHeaderWithDimension(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        DimSetId := PurchaseHeader."Dimension Set ID";
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreatePurchHeaderWithDimension(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; VendNo: Code[20])
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, VendNo);
+        LibrarySales.FindItem(Item);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", Item."Unit Price");
+        PurchaseLine.Modify();
     end;
 
     [RequestPageHandler]

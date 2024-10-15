@@ -2,8 +2,8 @@ codeunit 1222 "SEPA CT-Prepare Source"
 {
     TableNo = "Gen. Journal Line";
 
-    var 
-        DescriptionTxt: Label '%1; %2', Comment = '%1=Vendor Invoice No., %2=Bill No.'; 
+    var
+        DescriptionTxt: Label '%1; %2', Comment = '%1=Vendor Invoice No., %2=Bill No.';
 
     trigger OnRun()
     var
@@ -65,8 +65,8 @@ codeunit 1222 "SEPA CT-Prepare Source"
                     "Bal. Account No." := PaymentOrder."Bank Account No.";
                     "Bill No." := CarteraDoc."Document No.";
                     "Document No." := PaymentOrder."No.";
-                    PurchInvHeader.Get(CarteraDoc."Document No.");
-                    Description := StrSubstNo(DescriptionTxt, PurchInvHeader."Vendor Invoice No.", CarteraDoc.Description);
+                    if PurchInvHeader.Get(CarteraDoc."Document No.") then
+                        Description := StrSubstNo(DescriptionTxt, PurchInvHeader."Vendor Invoice No.", CarteraDoc.Description);
                     "External Document No." := CarteraDoc."Original Document No.";
                     "Currency Code" := CarteraDoc."Currency Code";
                     Amount := CarteraDoc."Remaining Amount";

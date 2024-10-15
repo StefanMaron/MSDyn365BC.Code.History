@@ -516,7 +516,8 @@ report 10748 "Vendor - Overdue Payments"
                             AppldVendLedgEntryTmp."Amount (LCY)" := -AppldVendLedgEntryTmp."Amount (LCY)";
                             if AppldVendLedgEntryTmp.Insert() then;
                             InsertDtldVLEDocumentDateBuffer(AppldVendLedgEntryTmp."Entry No.", InvVendLedgEntry."Document Date");
-                            DtldEntryNoToLegalDueDateMap.Add(AppldVendLedgEntryTmp."Entry No.", CalcMaxDueDate(InvVendLedgEntry));
+                            if not DtldEntryNoToLegalDueDateMap.ContainsKey(AppldVendLedgEntryTmp."Entry No.") then
+                                DtldEntryNoToLegalDueDateMap.Add(AppldVendLedgEntryTmp."Entry No.", CalcMaxDueDate(InvVendLedgEntry));
                         end;
                     end;
                 until Next() = 0;

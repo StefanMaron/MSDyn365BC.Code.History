@@ -5370,12 +5370,6 @@ End Function
         <Field Name="TotalCaption">
           <DataField>TotalCaption</DataField>
         </Field>
-        <Field Name="G_L_Account_Balance">
-          <DataField>G_L_Account_Balance</DataField>
-        </Field>
-        <Field Name="G_L_Account_BalanceFormat">
-          <DataField>G_L_Account_BalanceFormat</DataField>
-        </Field>
         <Field Name="G_L_Account___No__">
           <DataField>G_L_Account___No__</DataField>
         </Field>

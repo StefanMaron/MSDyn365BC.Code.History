@@ -286,6 +286,55 @@ codeunit 147508 "Payment Order Elec. Export"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure UT_CreateSEPACTSourceForGenJnlLineWithNonExistingFilterWithCarteraDocWithoutPurchInv()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        PaymentOrder: Record "Payment Order";
+        CarteraDoc: Record "Cartera Doc.";
+    begin
+        // [SCENARIO 458358] It is possible to call a "SEPA CT-Prepare Source" codeunit to create a new general journal line for the existing general journal line with non-existing filter and linked cartera document without connection to purchase invoices
+
+        Initialize();
+        // [GIVEN] Payment Order "X"
+        PaymentOrder."No." := LibraryUtility.GenerateGUID();
+        PaymentOrder.Insert();
+        // [GIVEN] Cartera Doc with "Entry No." = 1000, "Document No." = "CARTERA001" "Bill Gr./Pmt. Order No." = "X"
+        CarteraDoc."Entry No." := LibraryUtility.GetNewRecNo(CarteraDoc, CarteraDoc.FieldNo("Entry No."));
+        CarteraDoc.Type := CarteraDoc.Type::Payable;
+        CarteraDoc."Document No." := LibraryUtility.GenerateGUID();
+        CarteraDoc."Collection Agent" := CarteraDoc."Collection Agent"::Bank;
+        CarteraDoc."Bill Gr./Pmt. Order No." := PaymentOrder."No.";
+        CarteraDoc.Insert();
+
+        // [GIVEN] General journal line with "Document No." = "X"
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJournalTemplate.Name);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Invoice, GenJnlLine."Account Type"::Customer, '', 0);
+        GenJnlLine.Validate("Document No.", PaymentOrder."No.");
+        GenJnlLine.Modify(true);
+
+        // [GIVEN] The following filters set on the general journal line: "Document No." = X; "Account No." = "Y" (non-existing account)
+        GenJnlLine.SetRange("Document No.", GenJnlLine."Document No.");
+        GenJnlLine.SetRange("Account No.", LibraryUtility.GenerateGUID());
+
+        // [WHEN] Call the "SEPA CT-Prepare Source" codeunit passing GenJnlLine
+        Codeunit.Run(Codeunit::"SEPA CT-Prepare Source", GenJnlLine);
+
+        // [THEN] A new general journal line of type Payment has been created with "Line No." = CarteraDoc."Entry No."
+        GenJnlLine.Reset();
+        GenJnlLine.SetRange("Journal Template Name", '');
+        GenJnlLine.SetRange("Journal Batch Name", '');
+        GenJnlLine.SetRange("Line No.", CarteraDoc."Entry No.");
+        Assert.RecordCount(GenJnlLine, 1);
+        GenJnlLine.FindFirst();
+        // [THEN] "Bill No." is "CARTERA001" in general journal line
+        GenJnlLine.TestField("Bill No.", CarteraDoc."Document No.");
+    end;
+
     local procedure CreateBankAccount(PaymentExportFormat: Code[20]): Code[20]
     var
         BankAccount: Record "Bank Account";

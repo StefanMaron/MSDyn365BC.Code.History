@@ -139,6 +139,8 @@ page 134 "Posted Sales Credit Memo"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT date on the invoice.';
+                    Editable = false;
+                    Visible = VATDateEnabled;
                     Importance = Promoted;
                 }
                 field("Your Reference"; Rec."Your Reference")
@@ -681,7 +683,7 @@ page 134 "Posted Sales Credit Memo"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(114),
+                SubPageLink = "Table ID" = CONST(Database::"Sales Cr.Memo Header"),
                               "No." = FIELD("No.");
             }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
@@ -1142,6 +1144,7 @@ page 134 "Posted Sales Credit Memo"
     var
         OfficeMgt: Codeunit "Office Management";
         SIIManagement: Codeunit "SII Management";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         SetSecurityFilterOnRespCenter();
         IsOfficeAddin := OfficeMgt.IsAvailable();
@@ -1149,6 +1152,7 @@ page 134 "Posted Sales Credit Memo"
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
         ActivateFields();
+		VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var
@@ -1167,6 +1171,8 @@ page 134 "Posted Sales Credit Memo"
         DocHasMultipleRegimeCode: Boolean;
         OperationDescription: Text[500];
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     local procedure ActivateFields()
     begin

@@ -1565,6 +1565,20 @@
               AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
     end;
 
+    procedure JobBillTo(var AddrArray: array[8] of Text[100]; var Job: Record Job)
+    var
+        Handled: Boolean;
+    begin
+        OnBeforeJobBillTo(AddrArray, Job, Handled);
+        if Handled then
+            exit;
+
+        with Job do
+            FormatAddr(
+              AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
+              "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
+    end;
+
 #if not CLEAN22
     [Obsolete('Replaced by VendorRemitToAddress.', '22.0')]
     procedure VendorRemitToAddress(var AddrArray: array[8] of Text[100]; var RemitAddress: Record "Remit Address")
@@ -2115,6 +2129,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetCompanyAddrOnAfterFillCompanyInfoFromRespCenter(ResponsibilityCenter: Record "Responsibility Center"; var CompanyInformation: Record "Company Information")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeJobBillTo(var AddrArray: array[8] of Text[100]; var Job: Record Job; var Handled: Boolean)
     begin
     end;
 }

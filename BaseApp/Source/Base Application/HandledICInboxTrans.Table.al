@@ -132,7 +132,7 @@ table 420 "Handled IC Inbox Trans."
                     HandledICInboxSalesDoc.SetTableView(HandledICInboxSalesHeader);
                     HandledICInboxSalesDoc.RunModal();
                 end;
-            "Source Type":
+            "Source Type"::"Purchase Document":
                 begin
                     HandledICInboxPurchHeader.SetRange("IC Partner Code", "IC Partner Code");
                     HandledICInboxPurchHeader.SetRange("IC Transaction No.", "Transaction No.");

@@ -153,6 +153,8 @@ page 132 "Posted Sales Invoice"
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
+                    Editable = false;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the VAT date on the invoice.';
                 }
                 field("Due Date"; Rec."Due Date")
@@ -785,7 +787,7 @@ page 132 "Posted Sales Invoice"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(112),
+                SubPageLink = "Table ID" = CONST(Database::"Sales Invoice Header"),
                               "No." = FIELD("No.");
             }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
@@ -1415,6 +1417,7 @@ page 132 "Posted Sales Invoice"
         PaymentServiceSetup: Record "Payment Service Setup";
         OfficeMgt: Codeunit "Office Management";
         SIIManagement: Codeunit "SII Management";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         SetSecurityFilterOnRespCenter();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
@@ -1425,6 +1428,7 @@ page 132 "Posted Sales Invoice"
         UpdateDocHasRegimeCode();
         ActivateFields();
         PaymentServiceVisible := PaymentServiceSetup.IsPaymentServiceVisible();
+		VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var
@@ -1446,6 +1450,8 @@ page 132 "Posted Sales Invoice"
         DocHasMultipleRegimeCode: Boolean;
         OperationDescription: Text[500];
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     protected var
         SalesInvHeader: Record "Sales Invoice Header";

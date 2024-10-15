@@ -67,11 +67,8 @@ report 7000082 "Settle Docs. in Posted PO"
                                 "Applies-to Doc. No." := VendLedgEntry."Document No.";
                                 "Applies-to Bill No." := VendLedgEntry."Bill No.";
                                 "Source Code" := SourceCode;
-                                "Global Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
                                 "System-Created Entry" := true;
-                                "Shortcut Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
-                                "Shortcut Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
-                                "Dimension Set ID" := VendLedgEntry."Dimension Set ID";
+                                Validate("Dimension Set ID", VendLedgEntry."Dimension Set ID");
                                 OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, PostedPmtOrd, BankAcc);
                                 Insert();
                                 SumLCYAmt := SumLCYAmt + "Amount (LCY)";
@@ -117,9 +114,7 @@ report 7000082 "Settle Docs. in Posted PO"
                                 "Applies-to Bill No." := VendLedgEntry."Bill No.";
                                 "Source Code" := SourceCode;
                                 "System-Created Entry" := true;
-                                "Shortcut Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
-                                "Shortcut Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
-                                "Dimension Set ID" := VendLedgEntry."Dimension Set ID";
+                                Validate("Dimension Set ID", VendLedgEntry."Dimension Set ID");
                                 OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, PostedPmtOrd, BankAcc);
                                 Insert();
                                 SumLCYAmt := SumLCYAmt + "Amount (LCY)";
@@ -149,15 +144,11 @@ report 7000082 "Settle Docs. in Posted PO"
                                           GenJnlLine."Account Type"::"G/L Account",
                                           NoRealVATBuffer.Account,
                                           NoRealVATBuffer.Amount,
-                                          "Global Dimension 1 Code",
-                                          "Global Dimension 2 Code",
                                           "Dimension Set ID");
                                         InsertGenJournalLine(
                                           GenJnlLine."Account Type"::"G/L Account",
                                           NoRealVATBuffer."Balance Account",
                                           -NoRealVATBuffer.Amount,
-                                          "Global Dimension 1 Code",
-                                          "Global Dimension 2 Code",
                                           "Dimension Set ID");
                                     end;
                                     until NoRealVATBuffer.Next() = 0;
@@ -214,8 +205,7 @@ report 7000082 "Settle Docs. in Posted PO"
                                 Validate("Currency Code", PostedPmtOrd."Currency Code");
                                 Validate(Amount, -BankAccPostBuffer.Amount);
                                 "Source Code" := SourceCode;
-                                "Dimension Set ID" :=
-                                CarteraManagement.GetCombinedDimSetID(GenJnlLine, BankAccPostBuffer."Dimension Set ID");
+                                Validate("Dimension Set ID", CarteraManagement.GetCombinedDimSetID(GenJnlLine, BankAccPostBuffer."Dimension Set ID"));
                                 "System-Created Entry" := true;
                                 OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, PostedPmtOrd, BankAcc);
                                 Insert();
@@ -409,7 +399,7 @@ report 7000082 "Settle Docs. in Posted PO"
         ExistsNoRealVAT: Boolean;
         HidePrintDialog: Boolean;
 
-    local procedure InsertGenJournalLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Amount2: Decimal; Dep: Code[20]; Proj: Code[20]; DimSetID: Integer)
+    local procedure InsertGenJournalLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Amount2: Decimal; DimSetID: Integer)
     begin
         GenJnlLineNextNo := GenJnlLineNextNo + 10000;
 
@@ -434,9 +424,7 @@ report 7000082 "Settle Docs. in Posted PO"
             "Applies-to Bill No." := VendLedgEntry."Bill No.";
             "Source Code" := SourceCode;
             "System-Created Entry" := true;
-            "Shortcut Dimension 1 Code" := Dep;
-            "Shortcut Dimension 2 Code" := Proj;
-            "Dimension Set ID" := DimSetID;
+            Validate("Dimension Set ID", DimSetID);
             SumLCYAmt := SumLCYAmt + "Amount (LCY)";
             OnBeforeGenJournalLineInsert(PostedDoc, GenJnlLine, VATPostingSetup, VendLedgEntry, PostedPmtOrd, BankAcc);
             Insert();
@@ -502,7 +490,7 @@ report 7000082 "Settle Docs. in Posted PO"
     local procedure OnBeforeCalcBankAccount(BankAcc2: Code[20]; Amount2: Decimal; EntryNo: Integer; var BgPoPostBuffer: Record "BG/PO Post. Buffer"; var IsHandled: Boolean)
     begin
     end;
-	
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJournalLineInsert(var PostedCarteraDoc: Record "Posted Cartera Doc."; var GenJournalLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PostedPaymentOrder: Record "Posted Payment Order"; var BankAccount: Record "Bank Account")
     begin

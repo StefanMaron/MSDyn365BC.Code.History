@@ -1977,6 +1977,7 @@ codeunit 147529 "SII Payments"
         VATEntry.Init();
         VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
         VATEntry."Posting Date" := WorkDate();
+        VATEntry."VAT Reporting Date" := WorkDate();
         VATEntry."Document No." := DocumentNo;
         VATEntry."Transaction No." := TransactionNo;
         VATEntry."Unrealized Base" := UnrealizedBase;
