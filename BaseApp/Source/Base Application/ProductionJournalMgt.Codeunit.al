@@ -23,10 +23,12 @@ codeunit 5510 "Production Journal Mgt"
         Text003: Label 'DEFAULT';
         Text004: Label 'Production Journal';
         Text005: Label '%1 %2 for operation %3 is blocked and therefore, no journal line is created for this operation.';
+        GeneratingJnlLinesMsg: Label 'Generating journal lines.';
 
     procedure Handling(ProdOrder: Record "Production Order"; ActualLineNo: Integer)
     var
         ProductionJnl: Page "Production Journal";
+        ProgressBar: Dialog;
         LeaveForm: Boolean;
         IsHandled: Boolean;
     begin
@@ -38,9 +40,10 @@ codeunit 5510 "Production Journal Mgt"
 
         InitSetupValues;
 
+        ProgressBar.Open(GeneratingJnlLinesMsg);
         DeleteJnlLines(ToTemplateName, ToBatchName, ProdOrder."No.", ActualLineNo);
-
         CreateJnlLines(ProdOrder, ActualLineNo);
+        ProgressBar.Close();
 
         IsHandled := false;
         OnBeforeRunProductionJnl(ToTemplateName, ToBatchName, ProdOrder, ActualLineNo, PostingDate, IsHandled);
@@ -168,6 +171,7 @@ codeunit 5510 "Production Journal Mgt"
         Location: Record Location;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         NeededQty: Decimal;
+        OriginalNeededQty: Decimal;
         IsHandled: Boolean;
     begin
         with ProdOrderComp do begin
@@ -184,8 +188,12 @@ codeunit 5510 "Production Journal Mgt"
 
             if "Flushing Method" <> "Flushing Method"::Manual then
                 NeededQty := 0
-            else begin
+            else
                 NeededQty := GetNeededQty(CalcBasedOn, true);
+
+            OriginalNeededQty := NeededQty;
+
+            if "Flushing Method" = "Flushing Method"::Manual then begin
                 if "Location Code" <> Location.Code then
                     if not Location.Get("Location Code") then
                         Clear(Location);
@@ -206,7 +214,7 @@ codeunit 5510 "Production Journal Mgt"
             ItemJnlLine.Validate("Item No.", "Item No.");
             ItemJnlLine.Validate("Unit of Measure Code", "Unit of Measure Code");
             ItemJnlLine.Description := Description;
-            ConsumptionItemJnlLineValidateQuantity(ProdOrderComp, NeededQty, Item);
+            ConsumptionItemJnlLineValidateQuantity(ProdOrderComp, NeededQty, Item, NeededQty < OriginalNeededQty);
 
             ItemJnlLine.Validate("Location Code", "Location Code");
             if "Bin Code" <> '' then
@@ -235,7 +243,7 @@ codeunit 5510 "Production Journal Mgt"
         OnAfterInsertConsumptionJnlLine(ItemJnlLine);
     end;
 
-    local procedure ConsumptionItemJnlLineValidateQuantity(ProdOrderComp: Record "Prod. Order Component"; NeededQty: Decimal; Item: Record Item)
+    local procedure ConsumptionItemJnlLineValidateQuantity(ProdOrderComp: Record "Prod. Order Component"; NeededQty: Decimal; Item: Record Item; IgnoreRoundingPrecision: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -245,7 +253,7 @@ codeunit 5510 "Production Journal Mgt"
             exit;
 
         if NeededQty <> 0 then
-            if Item."Rounding Precision" > 0 then
+            if (Item."Rounding Precision" > 0) and not IgnoreRoundingPrecision then
                 ItemJnlLine.Validate(Quantity, UOMMgt.RoundToItemRndPrecision(NeededQty, Item."Rounding Precision"))
             else
                 ItemJnlLine.Validate(Quantity, Round(NeededQty, UOMMgt.QtyRndPrecision));

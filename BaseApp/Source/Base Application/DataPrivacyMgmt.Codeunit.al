@@ -369,7 +369,7 @@ codeunit 1180 "Data Privacy Mgmt"
         ConfigPackageField.Init();
         ConfigPackageField."Package Code" := PackageCode;
         ConfigPackageField."Table ID" := TableId;
-        ConfigPackageField."Field Name" := Field.FieldName;
+        ConfigPackageField.Validate("Field Name", Field.FieldName);
         ConfigPackageField."Field Caption" := Field."Field Caption";
         ConfigPackageField."Field ID" := FieldId;
         ConfigPackageField."Processing Order" := ProcessingOrder;

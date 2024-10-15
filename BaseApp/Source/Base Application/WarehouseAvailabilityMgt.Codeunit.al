@@ -189,7 +189,11 @@ codeunit 7314 "Warehouse Availability Mgt."
             if Location.RequireShipment(Location.Code) then
                 QtyShipped := CalcQtyShipped(Location, "No.", VariantCode);
             QtyReservedOnPickShip := CalcReservQtyOnPicksShips(Location.Code, "No.", VariantCode, WarehouseActivityLine);
+
+            // exclude quantity on dedicated bins
             QtyOnDedicatedBins := CalcQtyOnDedicatedBins(Location.Code, "No.", VariantCode);
+            if (QtyOnDedicatedBins > 0) and Location."Require Receive" and Location."Require Put-away" then
+                QtyReceivedNotAvail -= CalcQtyAssignedToPutAway(Location.Code, "No.", VariantCode, true);
 
             ReservedQtyOnInventory := "Reserved Qty. on Inventory";
             OnAfterCalcReservedQtyOnInventory(Item, ReservedQtyOnInventory, Location);
@@ -310,6 +314,24 @@ codeunit 7314 "Warehouse Availability Mgt."
             CalcSums("Qty. Outstanding (Base)");
             exit("Qty. Outstanding (Base)");
         end;
+    end;
+
+    local procedure CalcQtyAssignedToPutAway(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; DedicatedOnly: Boolean): Decimal
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetCurrentKey("Item No.", "Location Code");
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.SetRange("Location Code", LocationCode);
+        WarehouseActivityLine.SetRange("Variant Code", VariantCode);
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Put-away");
+        WarehouseActivityLine.SetRange("Whse. Document Type", WarehouseActivityLine."Whse. Document Type"::Receipt);
+        WarehouseActivityLine.SetFilter(
+          "Action Type", '%1|%2', WarehouseActivityLine."Action Type"::Take, WarehouseActivityLine."Action Type"::" ");
+        if DedicatedOnly then
+            WarehouseActivityLine.SetRange(Dedicated, true);
+        WarehouseActivityLine.CalcSums("Qty. Outstanding (Base)");
+        exit(WarehouseActivityLine."Qty. Outstanding (Base)");
     end;
 
     procedure CalcQtyAssgndOnWksh(DefWhseWkshLine: Record "Whse. Worksheet Line"; RespectUOMCode: Boolean; ExcludeLine: Boolean): Decimal
@@ -619,6 +641,33 @@ codeunit 7314 "Warehouse Availability Mgt."
         end;
     end;
 
+    local procedure CalcQtyPickedNotShipped(SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer): Decimal
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+        QtyPickedBase: Decimal;
+        QtyShippedBase: Decimal;
+    begin
+        WarehouseEntry.Reset();
+        WarehouseEntry.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceRefNo, true);
+        WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::Movement);
+        WarehouseEntry.SetRange("Reference Document", WarehouseEntry."Reference Document"::Pick);
+        WarehouseEntry.SetFilter(Quantity, '>%1', 0);
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        QtyPickedBase := WarehouseEntry."Qty. (Base)";
+
+        WarehouseEntry.Reset();
+        WarehouseEntry.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceRefNo, true);
+        WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::"Negative Adjmt.");
+        WarehouseEntry.SetRange("Whse. Document Type", WarehouseEntry."Whse. Document Type"::Shipment);
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        QtyShippedBase := -WarehouseEntry."Qty. (Base)";
+
+        if QtyPickedBase > QtyShippedBase then
+            exit(QtyPickedBase - QtyShippedBase);
+
+        exit(0);
+    end;
+
     procedure CalcRegisteredAndOutstandingPickQty(ReservationEntry: Record "Reservation Entry"; var WarehouseActivityLine: Record "Warehouse Activity Line"): Decimal
     begin
         with ReservationEntry do
@@ -639,8 +688,11 @@ codeunit 7314 "Warehouse Availability Mgt."
         if SourceType = DATABASE::"Assembly Line" then
             exit(CalcQtyPickedOnAssemblyLine(SourceSubType, SourceID, SourceRefNo));
 
-        if Location.RequireShipment(LocationCode) then
+        if Location.RequireShipment(LocationCode) then begin
+            if Location.Get(LocationCode) and Location."Bin Mandatory" then
+                exit(CalcQtyPickedNotShipped(SourceType, SourceSubType, SourceID, SourceRefNo));
             exit(CalcQtyPickedOnWhseShipmentLine(SourceType, SourceSubType, SourceID, SourceRefNo));
+        end;
 
         exit(0);
     end;

@@ -1120,6 +1120,147 @@ codeunit 137034 "SCM Production Journal"
         RecurringConsumptionJournal.Description.AssertEquals(ProductionOrder.Description);
     end;
 
+    [Test]
+    procedure ItemNoIsUpdatedOnValidateProdOrderCompLineNo()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ConsumpItemJournalTemplate: Record "Item Journal Template";
+        ConsumpItemJournalBatch: Record "Item Journal Batch";
+        ConsumpItemJournalLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Consumption] [Prod. Order Component] [UT]
+        // [SCENARIO 390313] Item No. is updated on consumption journal line when Stan validates "Prod. Order Comp Line No." field.
+        Initialize();
+
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Production Order with component "C"
+        CreateProductionItem(ProdItem, CompItem);
+        CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, ProdItem."No.");
+        ProdOrderComponent.SetRange("Item No.", CompItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Open consumption journal and select the Production Order No.
+        LibraryInventory.SelectItemJournalTemplateName(
+          ConsumpItemJournalTemplate, ConsumpItemJournalTemplate.Type::Consumption);
+        LibraryInventory.SelectItemJournalBatchName(
+          ConsumpItemJournalBatch, ConsumpItemJournalTemplate.Type, ConsumpItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJnlLineWithNoItem(
+          ConsumpItemJournalLine, ConsumpItemJournalBatch, ConsumpItemJournalTemplate.Name, ConsumpItemJournalBatch.Name,
+          ConsumpItemJournalLine."Entry Type"::Consumption);
+        ConsumpItemJournalLine.Validate("Order No.", ProductionOrder."No.");
+
+        // [WHEN] Select the prod. order component line no. in "Prod. Order Comp. Line No." field.
+        ConsumpItemJournalLine.Validate("Prod. Order Comp. Line No.", ProdOrderComponent."Line No.");
+
+        // [THEN] Item No. on the consumption journal line is now "C".
+        ConsumpItemJournalLine.TestField("Item No.", CompItem."No.");
+    end;
+
+    [Test]
+    procedure ProdOrderCompLineNotResetOnValidateItemNo()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ConsumpItemJournalTemplate: Record "Item Journal Template";
+        ConsumpItemJournalBatch: Record "Item Journal Batch";
+        ConsumpItemJournalLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Consumption] [Prod. Order Component] [UT]
+        // [SCENARIO 390313] "Prod. Order Comp Line No." field is not reset when validating Item No. which several prod. order components have.
+        Initialize();
+
+        LibraryInventory.CreateItem(CompItem);
+
+        // [GIVEN] Production Order with component "C"
+        CreateProductionItem(ProdItem, CompItem);
+        CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, ProdItem."No.");
+        ProdOrderComponent.SetRange("Item No.", CompItem."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Add one more Prod. Order Component, item no. = "C".
+        LibraryManufacturing.CreateProductionOrderComponent(
+          ProdOrderComponent, ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.");
+        ProdOrderComponent.Validate("Item No.", CompItem."No.");
+        ProdOrderComponent.Modify(true);
+
+        // [GIVEN] Open consumption journal and select the Production Order No.
+        LibraryInventory.SelectItemJournalTemplateName(
+          ConsumpItemJournalTemplate, ConsumpItemJournalTemplate.Type::Consumption);
+        LibraryInventory.SelectItemJournalBatchName(
+          ConsumpItemJournalBatch, ConsumpItemJournalTemplate.Type, ConsumpItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJnlLineWithNoItem(
+          ConsumpItemJournalLine, ConsumpItemJournalBatch, ConsumpItemJournalTemplate.Name, ConsumpItemJournalBatch.Name,
+          ConsumpItemJournalLine."Entry Type"::Consumption);
+        ConsumpItemJournalLine.Validate("Order No.", ProductionOrder."No.");
+
+        // [GIVEN] Select the second prod. order component line no. in "Prod. Order Comp. Line No." field.
+        ConsumpItemJournalLine.Validate("Prod. Order Comp. Line No.", ProdOrderComponent."Line No.");
+
+        // [WHEN] Validate Item No. = "C" on the consumption journal line.
+        ConsumpItemJournalLine.Validate("Item No.", CompItem."No.");
+
+        // [THEN] "Prod. Order Comp Line No." remains unchanged.
+        ConsumpItemJournalLine.TestField("Prod. Order Comp. Line No.", ProdOrderComponent."Line No.");
+    end;
+
+    [Test]
+    procedure ProdOrderCompLineNoChangesOnValidateDifferentItemNo()
+    var
+        ProdItem: Record Item;
+        CompItem: array[2] of Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ConsumpItemJournalTemplate: Record "Item Journal Template";
+        ConsumpItemJournalBatch: Record "Item Journal Batch";
+        ConsumpItemJournalLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Consumption] [Prod. Order Component] [UT]
+        // [SCENARIO 390313] "Prod. Order Comp Line No." field is changed when validating Item No. related to another prod. order component.
+        Initialize();
+
+        LibraryInventory.CreateItem(CompItem[1]);
+        LibraryInventory.CreateItem(CompItem[2]);
+
+        // [GIVEN] Production Order with component "C"
+        CreateProductionItem(ProdItem, CompItem[1]);
+        CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, ProdItem."No.");
+        ProdOrderComponent.SetRange("Item No.", CompItem[1]."No.");
+        ProdOrderComponent.FindFirst();
+
+        // [GIVEN] Add one more Prod. Order Component, item no. = "D".
+        LibraryManufacturing.CreateProductionOrderComponent(
+          ProdOrderComponent, ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.");
+        ProdOrderComponent.Validate("Item No.", CompItem[2]."No.");
+        ProdOrderComponent.Modify(true);
+
+        // [GIVEN] Open consumption journal and select the Production Order No.
+        LibraryInventory.SelectItemJournalTemplateName(
+          ConsumpItemJournalTemplate, ConsumpItemJournalTemplate.Type::Consumption);
+        LibraryInventory.SelectItemJournalBatchName(
+          ConsumpItemJournalBatch, ConsumpItemJournalTemplate.Type, ConsumpItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJnlLineWithNoItem(
+          ConsumpItemJournalLine, ConsumpItemJournalBatch, ConsumpItemJournalTemplate.Name, ConsumpItemJournalBatch.Name,
+          ConsumpItemJournalLine."Entry Type"::Consumption);
+        ConsumpItemJournalLine.Validate("Order No.", ProductionOrder."No.");
+
+        // [GIVEN] Select the prod. order component line no. for item "D" in "Prod. Order Comp. Line No." field.
+        ConsumpItemJournalLine.Validate("Prod. Order Comp. Line No.", ProdOrderComponent."Line No.");
+
+        // [WHEN] Validate Item No. = "C" on the consumption journal line.
+        ConsumpItemJournalLine.Validate("Item No.", CompItem[1]."No.");
+
+        // [THEN] "Prod. Order Comp Line No." is changed to the one for "C".
+        ProdOrderComponent.SetRange("Item No.", CompItem[1]."No.");
+        ProdOrderComponent.FindFirst();
+        ConsumpItemJournalLine.TestField("Prod. Order Comp. Line No.", ProdOrderComponent."Line No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1314,7 +1455,7 @@ codeunit 137034 "SCM Production Journal"
             exit(RoutingLine."Operation No.");
     end;
 
-    local procedure CreateProductionItem(var ParentItem: Record Item; var ChildItem: Record Item)
+    local procedure CreateProductionItem(var ParentItem: Record Item; ChildItem: Record Item)
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin

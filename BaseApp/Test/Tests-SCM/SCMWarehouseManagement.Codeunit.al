@@ -244,8 +244,8 @@ codeunit 137064 "SCM Warehouse Management"
     var
         Location: Record Location;
     begin
-        // Verify Bin Code on Sales Lines: Default Bin Selection - Fixed Bin.
-        // Setup.
+        // [FEATURE] [Sales Order] [Location] [Require Shipment]
+        // [SCENARIO 387693] Bin Code is blank on Sales Lines when Location has "Require Shipment" and "Shipment Bin Code" set. Default Bin Selection = Fixed Bin.
         Initialize;
         SalesOrderWithBin(Location."Default Bin Selection"::"Fixed Bin");
     end;
@@ -257,8 +257,8 @@ codeunit 137064 "SCM Warehouse Management"
     var
         Location: Record Location;
     begin
-        // Verify Bin Code on Sales Lines: Default Bin Selection - Last-Used Bin.
-        // Setup.
+        // [FEATURE] [Sales Order] [Location] [Require Shipment]
+        // [SCENARIO 387693] Bin Code is blank on Sales Lines when Location has "Require Shipment" and "Shipment Bin Code" set. Default Bin Selection = Last-Used Bin.
         Initialize;
         SalesOrderWithBin(Location."Default Bin Selection"::"Last-Used Bin");
     end;
@@ -288,18 +288,18 @@ codeunit 137064 "SCM Warehouse Management"
           LibraryRandom.RandInt(10), Item."Base Unit of Measure");
         CreateAndPostWhseReceipt(PurchaseHeader, BinRecv.Code, LocationOrange.Code);
 
-        // Change Bin Code in Warehouse Activity Lines and Register Warehouse Activity.
+        // [GIVEN] Change Bin Code in Warehouse Activity Lines and Register Warehouse Activity.
         UpdateAndRegisterWarehouseActivityLine(LocationOrange.Code, Item."No.", Item2."No.", Bin.Code, Bin2.Code);
 
-        // Exercise: Create Sales Order.
+        // [WHEN] Create Sales Order.
         CreateSalesOrder(
           SalesHeader, Item."No.", Item2."No.", LocationOrange.Code, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
 
-        // Verify: Verify Sales line with the Bin Code.
+        // [THEN] Sales Line has blank Bin Code.
         FindSalesLine(SalesLine, SalesHeader."No.", Item."No.");
-        VerifyBinCodeOnSalesLine(SalesLine, BinRecv.Code, Bin.Code, DefaultBinSelection);
+        VerifyBinCodeOnSalesLine(SalesLine, '', '', DefaultBinSelection);
         FindSalesLine(SalesLine, SalesHeader."No.", Item2."No.");
-        VerifyBinCodeOnSalesLine(SalesLine, LocationOrange."Receipt Bin Code", Bin2.Code, DefaultBinSelection);
+        VerifyBinCodeOnSalesLine(SalesLine, '', '', DefaultBinSelection);
     end;
 
     [Test]

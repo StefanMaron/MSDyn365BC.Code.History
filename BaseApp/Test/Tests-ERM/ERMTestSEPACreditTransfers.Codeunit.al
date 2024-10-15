@@ -1471,6 +1471,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         // [FEATURE] [UT] [Vendor]
         // [SCENARIO 351202] Table 82 "Gen. Journal Line".VoidPaymentFile() method
         // [SCENARIO 351202] clears "Exported to Payment File" on journal line and applied vendor entries
+        // [SCENARIO 390972] clears "Applies-to ID" in vendor ledger entries
         Init();
 
         // [GIVEN] Journal line with applied vendor invoice
@@ -1487,6 +1488,9 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
         // [THEN] Journal and vendor ledger entry have "Exported to Payment File" = False
         VerifyExportedToPaymentFileFlagVendor(GenJournalLine, VendorLedgerEntry, false);
+
+        // [THEN] "Vendor Ledger Entry"."Applies-to ID" = ''
+        VendorLedgerEntry.TestField("Applies-to ID", '');
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -1501,7 +1505,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     begin
         // [FEATURE] [UT] [Customer]
         // [SCENARIO 351202] Table 82 "Gen. Journal Line".VoidPaymentFile() method
-        // [SCENARIO 351202] clears "Exported to Payment File" on journal line and applied customer entries
+        // [SCENARIO 351202] clears "Exported to Payment File" on journal line and applied customer entries        
+        // [SCENARIO 390972] clears "Applies-to ID" in customer ledger entries
         Init();
 
         // [GIVEN] Journal line with applied customer invoice
@@ -1518,6 +1523,45 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
         // [THEN] Journal and customer ledger entry have "Exported to Payment File" = False
         VerifyExportedToPaymentFileFlagCustomer(GenJournalLine, CustLedgerEntry, false);
+
+        // [THEN] "Cust Ledger Entry"."Applies-to ID" = ''
+        CustLedgerEntry.TestField("Applies-to ID", '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('VoidElecPmtRequestPageHandler,ConfirmHandler')]
+    procedure VoidPaymentFile_Employee()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
+    begin
+        // [FEATURE] [UT] [Employee]
+        // [SCENARIO 351202] Table 82 "Gen. Journal Line".VoidPaymentFile() method
+        // [SCENARIO 351202] clears "Exported to Payment File" on journal line and applied employee entries        
+        // [SCENARIO 390972] clears "Applies-to ID" in employee ledger entries
+        Init();
+
+        // [GIVEN] Journal line with applied employee invoice
+        CreateEmployeePmtJournalLineWithAppliedEntry(GenJournalLine, EmployeeLedgerEntry);
+        ExpUserFeedbackGenJnl.SetGivenExportFlagOnGenJnlLine(GenJournalLine, true);
+
+        // [GIVEN] Journal has "Exported to Payment File" = True
+        VerifyExportedToPaymentFileFlagEmployee(GenJournalLine, EmployeeLedgerEntry, true);
+
+        // [WHEN] Run codeunit 1278 "Exp. User Feedback Gen. Jnl.".SetGivenExportFlagOnGenJnlLine() using True(False) flag
+        Commit();
+        LibraryVariableStorage.Enqueue(true); // confirm "void"
+        GenJournalLine.VoidPaymentFile();
+
+        // [THEN] Journal has "Exported to Payment File" = False
+        VerifyExportedToPaymentFileFlagEmployee(GenJournalLine, EmployeeLedgerEntry, false);
+
+        // [THEN] "Cust Ledger Entry"."Applies-to ID" = ''
+        EmployeeLedgerEntry.FindFirst();
+        EmployeeLedgerEntry.TestField("Applies-to ID", '');
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -1732,6 +1776,17 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         MockAppliedCustLedgerEntry(GenJournalLine, CustLedgerEntry);
     end;
 
+    local procedure CreateEmployeePmtJournalLineWithAppliedEntry(var GenJournalLine: Record "Gen. Journal Line"; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    var
+        CustomerBankAccount: Record "Customer Bank Account";
+        EmployeeNo: Code[20];
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Employee, Employee."No.", 1);
+        MockAppliedEmployeeLedgerEntry(GenJournalLine, EmployeeLedgerEntry);
+    end;
+
     local procedure MockAppliedVendorLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         VendorLedgerEntry.Init();
@@ -1741,6 +1796,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
         VendorLedgerEntry."Applies-to Doc. Type" := GenJournalLine."Document Type";
         VendorLedgerEntry."Applies-to Doc. No." := GenJournalLine."Document No.";
+        VendorLedgerEntry."Applies-to ID" := GenJournalLine."Document No.";
+        VendorLedgerEntry.Open := true;
         VendorLedgerEntry.Insert();
 
         UpdateGenJournalLine(GenJournalLine, VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
@@ -1755,9 +1812,27 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
         CustLedgerEntry."Applies-to Doc. Type" := GenJournalLine."Document Type";
         CustLedgerEntry."Applies-to Doc. No." := GenJournalLine."Document No.";
+        CustLedgerEntry."Applies-to ID" := GenJournalLine."Document No.";
+        CustLedgerEntry.Open := true;
         CustLedgerEntry.Insert();
 
         UpdateGenJournalLine(GenJournalLine, CustLedgerEntry."Document Type", CustLedgerEntry."Document No.");
+    end;
+
+    local procedure MockAppliedEmployeeLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+        EmployeeLedgerEntry.Init();
+        EmployeeLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(EmployeeLedgerEntry, EmployeeLedgerEntry.FieldNo("Entry No."));
+        EmployeeLedgerEntry."Employee No." := GenJournalLine."Account No.";
+        EmployeeLedgerEntry."Document Type" := EmployeeLedgerEntry."Document Type"::Invoice;
+        EmployeeLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
+        EmployeeLedgerEntry."Applies-to Doc. Type" := GenJournalLine."Document Type";
+        EmployeeLedgerEntry."Applies-to Doc. No." := GenJournalLine."Document No.";
+        EmployeeLedgerEntry."Applies-to ID" := GenJournalLine."Document No.";
+        EmployeeLedgerEntry.Open := true;
+        EmployeeLedgerEntry.Insert();
+
+        UpdateGenJournalLine(GenJournalLine, EmployeeLedgerEntry."Document Type", EmployeeLedgerEntry."Document No.");
     end;
 
     local procedure UpdateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AppliesDocType: Enum "Gen. Journal Document Type"; AppliesDocNo: Code[20])
@@ -1973,6 +2048,13 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJournalLine.TestField("Check Exported", ExpectedFlag);
         GenJournalLine.TestField("Exported to Payment File", ExpectedFlag);
         CustLedgerEntry.TestField("Exported to Payment File", ExpectedFlag);
+    end;
+
+    local procedure VerifyExportedToPaymentFileFlagEmployee(var GenJournalLine: Record "Gen. Journal Line"; var EmployeeLedgerEntry: Record "Employee Ledger Entry"; ExpectedFlag: Boolean)
+    begin
+        GenJournalLine.Find();
+        GenJournalLine.TestField("Check Exported", ExpectedFlag);
+        GenJournalLine.TestField("Exported to Payment File", ExpectedFlag);
     end;
 
     [RequestPageHandler]

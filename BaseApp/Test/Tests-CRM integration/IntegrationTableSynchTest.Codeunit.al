@@ -385,7 +385,77 @@ codeunit 139165 "Integration Table Synch. Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure AutoResolveDeletedRecordRemoveCoupling()
+    procedure AutoResolveDeletedRecordRemoveCouplingBidirectionalOnlyCoupled()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRemoveCoupling(true, TempIntegrationTableMapping.Direction::Bidirectional);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRemoveCouplingBidirectionalAll()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRemoveCoupling(false, TempIntegrationTableMapping.Direction::Bidirectional);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRemoveCouplingUnidirectionalOnlyCoupled()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRemoveCoupling(true, TempIntegrationTableMapping.Direction::FromIntegrationTable);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRemoveCouplingUnidirectionalAll()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRemoveCoupling(false, TempIntegrationTableMapping.Direction::FromIntegrationTable);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRestoreRecordsBidirectionalOnlyCoupled()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRestoreRecords(true, TempIntegrationTableMapping.Direction::Bidirectional);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRestoreRecordsBidirectionalAll()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRestoreRecords(false, TempIntegrationTableMapping.Direction::Bidirectional);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRestoreRecordsUnidirectionalOnlyCoupled()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRestoreRecords(true, TempIntegrationTableMapping.Direction::FromIntegrationTable);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordRestoreRecordsUnidirectionalAll()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordRestoreRecords(false, TempIntegrationTableMapping.Direction::FromIntegrationTable);
+    end;
+
+    local procedure AutoResolveDeletedRecordRemoveCoupling(OnlyCoupled: Boolean; Direction: Option)
     var
         CRMAccount: Record "CRM Account";
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -419,6 +489,8 @@ codeunit 139165 "Integration Table Synch. Test"
 
         // [WHEN] Remove Coupling startegy is set for deleted coupled records
         IntegrationTableMapping."Deletion-Conflict Resolution" := IntegrationTableMapping."Deletion-Conflict Resolution"::"Remove Coupling";
+        IntegrationTableMapping."Synch. Only Coupled Records" := OnlyCoupled;
+        IntegrationTableMapping.Direction := Direction;
         IntegrationTableMapping.Modify();
 
         // [WHEN] Running the Table Sync
@@ -434,9 +506,7 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.IsFalse(CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId), 'The coupling should be deleted by the deletion-conflict resolution strategy.')
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure AutoResolveDeletedRecordRestoreRecords()
+    local procedure AutoResolveDeletedRecordRestoreRecords(OnlyCoupled: Boolean; Direction: Option)
     var
         CRMAccount: Record "CRM Account";
         CRMIntegrationRecord: Record "CRM Integration Record";
@@ -469,6 +539,8 @@ codeunit 139165 "Integration Table Synch. Test"
 
         // [WHEN] Remove Coupling startegy is set for deleted coupled records
         IntegrationTableMapping."Deletion-Conflict Resolution" := IntegrationTableMapping."Deletion-Conflict Resolution"::"Restore Records";
+        IntegrationTableMapping."Synch. Only Coupled Records" := OnlyCoupled;
+        IntegrationTableMapping.Direction := Direction;
         IntegrationTableMapping.Modify();
 
         // [WHEN] Running the Table Sync

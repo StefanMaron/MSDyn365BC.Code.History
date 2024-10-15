@@ -914,7 +914,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
           true);  // Using Random value for Quantity.
         CreateAndPostSalesOrder(SalesHeader, PurchaseLine."No.", PurchaseLine.Quantity / 2);  // Sale Partial Quantity.
         CreatePostSalesReturnOrderShipOnly(SalesLine, SalesHeader."Sell-to Customer No.");
-        PostPartialSalesReturn(SalesLine);
+        PostPartialSales(SalesLine);
 
         // Exercise:
         LibraryCosting.AdjustCostItemEntries(SalesLine."No.", '');
@@ -1340,6 +1340,60 @@ codeunit 137292 "SCM Inventory Costing Orders"
           CustomerPriceGroup2."Price Includes VAT", CustomerPriceGroup2."VAT Bus. Posting Gr. (Price)");
     end;
 
+    [Test]
+    procedure CostAdjustmentCompletelyCorrectsSalesPostedInTwoIterations()
+    var
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ValueEntry: Record "Value Entry";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Adjust Cost] [Purchase] [Sales] [Item Charge] [Invoice]
+        // [SCENARIO 391553] Cost adjustment takes into consideration all value entries for a sales order posted in two iterations.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] FIFO item.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::FIFO);
+        Item.Modify(true);
+
+        // [GIVEN] Receive and invoice purchase order for 10 pcs. Posted purchase receipt = "R".
+        CreateAndPostPurchaseDocument(PurchaseLine, Item."No.", Qty, true);
+        FindPurchRcptLine(PurchRcptLine, PurchaseLine);
+
+        // [GIVEN] Create sales order for 10 pcs.
+        // [GIVEN] Post the shipment.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Post the invoice in two iterations, 5 pcs each.
+        PostPartialSales(SalesLine);
+        PostPartialSales(SalesLine);
+
+        // [GIVEN] Create and post purchase invoice with item charge assigned to the receipt "R".
+        CreateAndPostPurchInvoiceWithItemCharge(PurchRcptLine);
+
+        // [GIVEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Create and post one more purchase invoice with item charge assigned to the receipt "R".
+        CreateAndPostPurchInvoiceWithItemCharge(PurchRcptLine);
+
+        // [WHEN] Run the cost adjustment again.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] The item is fully adjusted - the sum of actual and expected cost amount = 0.
+        ValueEntry.SetRange("Item No.", Item."No.");
+        ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Expected)");
+        ValueEntry.TestField("Cost Amount (Actual)", 0);
+        ValueEntry.TestField("Cost Amount (Expected)", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1662,6 +1716,24 @@ codeunit 137292 "SCM Inventory Costing Orders"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, Invoice);
     end;
 
+    local procedure CreateAndPostPurchInvoiceWithItemCharge(PurchRcptLine: Record "Purch. Rcpt. Line")
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLine, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt,
+          PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
     local procedure CreateAndPostSalesOrder(var SalesHeader: Record "Sales Header"; No: Code[20]; Quantity: Decimal)
     var
         SalesLine: Record "Sales Line";
@@ -1760,6 +1832,13 @@ codeunit 137292 "SCM Inventory Costing Orders"
         PurchaseLine.FindFirst;
     end;
 
+    local procedure FindPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLine: Record "Purchase Line")
+    begin
+        PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
+        PurchRcptLine.SetRange("Order Line No.", PurchaseLine."Line No.");
+        PurchRcptLine.FindFirst();
+    end;
+
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
@@ -1841,9 +1920,10 @@ codeunit 137292 "SCM Inventory Costing Orders"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
-    local procedure PostPartialSalesReturn(var SalesLine: Record "Sales Line")
+    local procedure PostPartialSales(var SalesLine: Record "Sales Line")
     begin
-        SalesLine.Validate("Qty. to Invoice", SalesLine."Qty. to Invoice" / 2);
+        SalesLine.Find();
+        SalesLine.Validate("Qty. to Invoice", SalesLine.Quantity / 2);
         SalesLine.Modify(true);
         PostSalesDocument(SalesLine, false, true);  // Invoice partial Quantity.
     end;

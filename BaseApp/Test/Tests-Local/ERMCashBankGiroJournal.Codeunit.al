@@ -116,6 +116,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         DifferentCurrencyQst: Label 'One of the applied document currency codes is different from the bank account''s currency code. This will lead to different currencies in the detailed ledger entries between the document and the applied payment. Document details:\Account Type: %1-%2\Ledger Entry No.: %3\Document Currency: %4\Bank Currency: %5\\Do you want to continue?', Comment = '%1 - account type (vendor\customer), %2 - account number, %3 - ledger entry no., %4 - document currency code, %5 - bank currency code';
         ProcessProposalLinesQst: Label 'Process proposal lines?';
         AmountToApplyIsChangedQst: Label 'The amount has been adjusted in one or more applied entries. All CBG statement lines will be created using the adjusted amounts.\\Do you want to apply the corrected amounts to all lines in this CBG statement?';
+        SelectDimensionCodeErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2604,19 +2605,22 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryVariableStorage.AssertEmpty();
 
         // [WHEN] Post CBG Statement
+        LibraryVariableStorage.Enqueue(2);
         BankGiroJournal.Post.Invoke();
+        LibraryVariableStorage.AssertEmpty();
 
         // [THEN] Bank Account Ledger entry created with Amount = "-990"
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         BankAccountLedgerEntry.FindFirst();
         BankAccountLedgerEntry.TestField(Amount, PaymentAmount);
 
-        // [THEN] Invoice's customer ledger applied to payment fully, "Remaining Amount" = 0. Entry has been closed
+        // [THEN] Invoice's customer ledger applied to payment with "Remaining Amount" = 10. Entry remains open.
         VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
-          CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Invoice, InvoiceAmount, 0, false);
-        // [THEN] Payment's customer ledger applied to invoice fully, "Remaining Amount" = 0. Entry has been closed.
+          CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Invoice, InvoiceAmount, InvoiceAmount - PaymentAmount, true);
+
+        // [THEN] Payment's customer ledger applied to invoice fully, "Remaining Amount" = 10. Entry has been closed.
         VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
-          CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Payment, -InvoiceAmount, 0, false);
+          CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Payment, -PaymentAmount, 0, false);
 
         Customer.Get(CustomerBankAccount."Customer No.");
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
@@ -2627,10 +2631,10 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         GLEntry.SetRange("G/L Account No.", CustomerPostingGroup."Payment Tolerance Credit Acc.");
         Assert.RecordIsEmpty(GLEntry);
 
-        // [THEN] Invoice's amount posted on "Receivables Account" of the customer
+        // [THEN] Payment's amount posted on "Receivables Account" of the customer
         GLEntry.SetRange("G/L Account No.", CustomerPostingGroup."Receivables Account");
         GLEntry.FindLast();
-        GLEntry.TestField(Amount, -InvoiceAmount);
+        GLEntry.TestField(Amount, -PaymentAmount);
 
         // [THEN] Stan able to unapply payment entry
         CustLedgerEntry.SetRange("Customer No.", Customer."No.");
@@ -3394,69 +3398,73 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     end;
 
     [Test]
-    [HandlerFunctions('ApplyToIDModalPageHandler,PaymentToleranceWarningModalPageHandler,YesConfirmHandler')]
+    [HandlerFunctions('ApplyToParticularIDModalPageHandler')]
     [Scope('OnPrem')]
-    procedure AcceptPmtToleranceInCBGStatement()
+    procedure NoPostingDoneIfSecondGiroJnlLineHasErrors()
     var
-        CustomerBankAccount: Record "Customer Bank Account";
-        GenJournalLine: Record "Gen. Journal Line";
-        CustLedgerEntry: Record "Cust. Ledger Entry";
         CBGStatementLine: Record "CBG Statement Line";
-        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-        BankGiroJournal: TestPage "Bank/Giro Journal";
-        ExportProtocolCode: Code[20];
-        BankAccountNo: Code[20];
-        InvoiceAmount: Decimal;
-        PaymentAmount: Decimal;
-        PaymentTolerancePct: Decimal;
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        CBGStatement: Record "CBG Statement";
+        DefaultDimension: Record "Default Dimension";
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustNo: Code[20];
+        Amount: Decimal;
+        i: Integer;
     begin
-        // [FEATURE] [Apply] [Unapply] [Payment] [Invoice] [Payment Tolerance] [UI]
-        // [SCENARIO 381322] Stan can make an application through the Bank/Giro Journal page with Payment Tolerance
+        // [FEATURE] [Dimension]
+        // [SCENARIO 381322] No posting makes if second Bank/Giro Journal Line failes on error
 
         Initialize();
+        Amount := LibraryRandom.RandDecInRange(100, 1000, 2);
 
-        // [GIVEN] "Payment Tolerance Warning" = TRUE and "Payment Tolerance %" = 5 in General Ledger Setup
-        PaymentTolerancePct := LibraryRandom.RandIntInRange(3, 7);
-        InvoiceAmount := LibraryRandom.RandDecInRange(1000, 1100, 2);
+        // [GIVEN] CBG Statement with two lines applied to invoices of the same customer "C"
+        CustNo := CreateCustomer();
+        CreateCBGStatement(CBGStatement);
 
-        LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
-        UpdatePaymentToleranceSettingsInGLSetup(PaymentTolerancePct);
+        for i := 1 to ArrayLen(GenJournalLine) do begin
+            CreateGeneralJournal(GenJournalLine[i], CustNo, GenJournalLine[i]."Account Type"::Customer, Amount);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine[i]);
+            CBGStatementLine.Get(
+              CBGStatement."Journal Template Name", CBGStatement."No.",
+              CreateCBGStatementLineWithApplyToDoc(
+                CBGStatement, CBGStatementLine."Account Type"::Customer, CustNo,
+                CBGStatementLine."Applies-to Doc. Type"::Invoice, '', 0));
+            LibraryVariableStorage.Enqueue(GenJournalLine[i]."Document No.");
+            ApplyEntriesOfExistingCBGStatementLine(CBGStatementLine, CustNo, GenJournalLine[i]."Document No.");
+            CBGStatementLine.Modify(true);
+            CBGStatement.Validate("Closing Balance", CBGStatement."Closing Balance" + GenJournalLine[i].Amount);
+            CBGStatement.Modify(true);
+        end;
 
-        InitCustomerForExport(CustomerBankAccount, ExportProtocolCode, BankAccountNo);
+        // [GIVEN] Assign mandatory dimension "X" for customer
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+        LibraryDimension.CreateDefaultDimensionCustomer(
+          DefaultDimension, CustNo, DimensionValue."Dimension Code", '');
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Modify(true);
 
-        // [GIVEN] Invoice with Amount = 1000
-        CreateGeneralJournal(GenJournalLine, CustomerBankAccount."Customer No.", GenJournalLine."Account Type"::Customer, InvoiceAmount);
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        // [GIVEN] First journal line has dimension value code
+        // [GIVEN] Second journal line has no dimension value code
+        CBGStatementLine.FindFirst();
+        CBGStatementLine.Validate(
+          "Dimension Set ID", LibraryDimension.CreateDimSet(0, DimensionValue."Dimension Code", DimensionValue.Code));
+        CBGStatementLine.Modify(true);
+        Commit();
 
-        // [GIVEN] Payment with Amount = -990 applied to the invoice in Bank/Giro Journal
-        // [GIVEN] Selected "Accept" on Payment Tolerance Warning dialog
-        BankAccountNo := OpenBankGiroJournalListPage(CreateBankAccount);
-        BankGiroJournal.OpenEdit();
-        BankGiroJournal.Subform."Account Type".SetValue(CBGStatementLine."Account Type"::Customer);
-        BankGiroJournal.Subform."Account No.".SetValue(CustomerBankAccount."Customer No.");
+        // [WHEN] Post CBG statement
+        asserterror CBGStatement.ProcessStatementASGenJournal();
 
-        // [GIVEN] Selected "Accept on Payment Tolerance Warning dialog
-        BankGiroJournal.Subform.ApplyEntries.Invoke();
-        PaymentAmount := Round(BankGiroJournal.Subform.Credit.AsDEcimal * (100 - PaymentTolerancePct / 2) / 100);
-        LibraryVariableStorage.Enqueue(1);
-        BankGiroJournal.Subform.Credit.SetValue(PaymentAmount);
+        // [THEN] An error message 'Select a Dimension Value Code for the Dimension Code "X" for Customer "C"' thrown
+        Assert.ExpectedError(StrSubstNo(SelectDimensionCodeErr, DimensionValue."Dimension Code", CustNo));
+
+        // [THEN] No application posted for the first invoice
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine[1]."Document No.");
+        CustLedgerEntry.TestField(Open, true);
+
         LibraryVariableStorage.AssertEmpty();
-
-        // [WHEN] Post CBG Statement
-        BankGiroJournal.Post.Invoke();
-
-        // [THEN] Bank Account Ledger entry created with Amount = "-990"
-        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
-        BankAccountLedgerEntry.FindFirst();
-        BankAccountLedgerEntry.TestField(Amount, PaymentAmount);
-
-        // [THEN] Invoice's customer ledger applied to payment fully, "Remaining Amount" = 0. Entry has been closed
-        VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
-          CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Invoice, InvoiceAmount, 0, false);
-
-        // [THEN] Payment's customer ledger applied to invoice fully, "Remaining Amount" = 0. Entry has been closed.
-        VerifyCustomerLedgerEntryAmountRemainingAmountOpen(
-          CustomerBankAccount."Customer No.", CustLedgerEntry."Document Type"::Payment, -InvoiceAmount, 0, false);
     end;
 
     local procedure Initialize()
@@ -3617,6 +3625,16 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         CreateGenJournalLine(CBGStatementLine, GenJournalLine, AccountNo);
+        GenJournalLine."Applies-to ID" := DocNo;
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJournalLine);
+        CBGStatementLine.ReadGenJournalLine(GenJournalLine);
+    end;
+
+    local procedure ApplyEntriesOfExistingCBGStatementLine(var CBGStatementLine: Record "CBG Statement Line"; AccountNo: Code[20]; DocNo: Code[20])
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CBGStatementLine.CreateGenJournalLine(GenJournalLine);
         GenJournalLine."Applies-to ID" := DocNo;
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJournalLine);
         CBGStatementLine.ReadGenJournalLine(GenJournalLine);
@@ -3832,7 +3850,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatementLineAddInfo.Insert();
     end;
 
-    local procedure CreateCBGStatementLineWithApplyToDoc(CBGStatement: Record "CBG Statement"; AccountType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; ApplyToDocType: Option; ApplyToDocNo: Code[20]; PayAmount: Decimal)
+    local procedure CreateCBGStatementLineWithApplyToDoc(CBGStatement: Record "CBG Statement"; AccountType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; ApplyToDocType: Option; ApplyToDocNo: Code[20]; PayAmount: Decimal) : Integer
     var
         CBGStatementLine: Record "CBG Statement Line";
         RecRef: RecordRef;
@@ -3851,6 +3869,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             "Applies-to Doc. No." := ApplyToDocNo;
             Validate(Amount, PayAmount);
             Insert;
+            exit("Line No.");
         end;
     end;
 
@@ -5245,6 +5264,15 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         ApplyCustomerEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyToParticularIDModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    begin
+        ApplyCustomerEntries.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK.Invoke();
     end;
 
     [ModalPageHandler]
