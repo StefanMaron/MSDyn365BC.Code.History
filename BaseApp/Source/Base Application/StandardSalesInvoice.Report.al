@@ -925,6 +925,8 @@ report 1306 "Standard Sales - Invoice"
                 }
                 column(Amount_ReportTotalsLine; Amount)
                 {
+                    AutoFormatExpression = Header."Currency Code";
+                    AutoFormatType = 1;
                 }
                 column(AmountFormatted_ReportTotalsLine; "Amount Formatted")
                 {
@@ -1078,8 +1080,10 @@ report 1306 "Standard Sales - Invoice"
                 column(TotalText; TotalText)
                 {
                 }
-                column(TotalAmountExclInclVAT; TotalAmountExclInclVATValue)
+                column(TotalAmountExclInclVAT; Format(TotalAmountExclInclVATValue))
                 {
+                    AutoFormatExpression = Header."Currency Code";
+                    AutoFormatType = 1;
                 }
                 column(TotalAmountExclInclVATText; TotalAmountExclInclVATTextValue)
                 {
@@ -1382,7 +1386,7 @@ report 1306 "Standard Sales - Invoice"
         DisplayAdditionalFeeNote: Boolean;
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
-        PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a 2% payment discount.', Comment = '%1 Discount Due Date %2 = value of Payment Discount % ';
+        PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a %2% payment discount.', Comment = '%1 Discount Due Date %2 = value of Payment Discount % ';
         BodyLbl: Label 'Thank you for your business. Your invoice is attached to this message.';
         AlreadyPaidLbl: Label 'The invoice has been paid.';
         PartiallyPaidLbl: Label 'The invoice has been partially paid. The remaining amount is %1', Comment = '%1=an amount';

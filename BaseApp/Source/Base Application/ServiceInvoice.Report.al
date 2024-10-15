@@ -839,15 +839,10 @@ report 5911 "Service - Invoice"
         if "Service Invoice Header"."Order No." = '' then
             exit("Service Invoice Header"."Posting Date");
 
-        case "Service Invoice Line".Type of
-            "Service Invoice Line".Type::Item:
-                GenerateBufferFromValueEntry("Service Invoice Line");
-            "Service Invoice Line".Type::"G/L Account", "Service Invoice Line".Type::Resource,
-          "Service Invoice Line".Type::Cost:
-                GenerateBufferFromShipment("Service Invoice Line");
-            "Service Invoice Line".Type::" ":
-                exit(0D);
-        end;
+        if "Service Invoice Line".Type = "Service Invoice Line".Type::" " then
+            exit(0D);
+
+        GenerateBufferFromShipment("Service Invoice Line");
 
         ServiceShipmentBuffer.Reset();
         ServiceShipmentBuffer.SetRange("Document No.", "Service Invoice Line"."Document No.");
