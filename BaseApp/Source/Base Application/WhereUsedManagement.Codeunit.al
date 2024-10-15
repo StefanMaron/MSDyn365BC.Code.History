@@ -40,23 +40,34 @@ codeunit 99000770 "Where-Used Management"
 
     procedure WhereUsedFromItem(Item: Record Item; CalcDate: Date; NewMultiLevel: Boolean)
     begin
-        TempWhereUsedList.DeleteAll();
-        NextWhereUsedEntryNo := 1;
-        MultiLevel := NewMultiLevel;
-
-        BuildWhereUsedList(1, Item."No.", CalcDate, 1, 1);
+        BuildWhereUsedListWithCheck(Enum::"Production BOM Line Type"::Item, Item."No.", CalcDate, NewMultiLevel);
     end;
 
     procedure WhereUsedFromProdBOM(ProdBOM: Record "Production BOM Header"; CalcDate: Date; NewMultiLevel: Boolean)
     begin
-        TempWhereUsedList.DeleteAll();
-        NextWhereUsedEntryNo := 1;
-        MultiLevel := NewMultiLevel;
-
-        BuildWhereUsedList(2, ProdBOM."No.", CalcDate, 1, 1);
+        BuildWhereUsedListWithCheck(Enum::"Production BOM Line Type"::"Production BOM", ProdBOM."No.", CalcDate, NewMultiLevel);
     end;
 
-    local procedure BuildWhereUsedList(Type: Option " ",Item,"Production BOM"; No: Code[20]; CalcDate: Date; Level: Integer; Quantity: Decimal)
+    local procedure BuildWhereUsedListWithCheck(BOMLineType: Enum "Production BOM Line Type"; No: Code[20]; CalcDate: Date; IsMultiLevel: Boolean)
+    var
+        ProdBOMCheck: Codeunit "Production BOM-Check";
+        ProdBOMToCheck: Code[20];
+    begin
+        if BOMLineType = BOMLineType::Item then
+            ProdBOMToCheck := GetItemBOMNo(No)
+        else
+            ProdBOMToCheck := No;
+
+        ProdBOMCheck.CheckBOM(ProdBOMToCheck, VersionMgt.GetBOMVersion(ProdBOMToCheck, CalcDate, false));
+
+        TempWhereUsedList.DeleteAll();
+        NextWhereUsedEntryNo := 1;
+        MultiLevel := IsMultiLevel;
+
+        BuildWhereUsedList(BOMLineType, No, CalcDate, 1, 1);
+    end;
+
+    local procedure BuildWhereUsedList(Type: Enum "Production BOM Line Type"; No: Code[20]; CalcDate: Date; Level: Integer; Quantity: Decimal)
     var
         ItemAssembly: Record Item;
         ProdBOMComponent: Record "Production BOM Line";
@@ -91,7 +102,7 @@ codeunit 99000770 "Where-Used Management"
                     NextWhereUsedEntryNo := NextWhereUsedEntryNo + 1;
                     if MultiLevel then
                         BuildWhereUsedList(
-                          1,
+                          Enum::"Production BOM Line Type"::Item,
                           ItemAssembly."No.",
                           CalcDate,
                           Level + 1,
@@ -116,10 +127,10 @@ codeunit 99000770 "Where-Used Management"
                     OnBuildWhereUsedListOnLoopProdBomComponent(ProdBOMComponent, TempWhereUsedList, NextWhereUsedEntryNo, No, CalcDate, Level);
                     if IsActiveProductionBOM(ProdBOMComponent) then
                         BuildWhereUsedList(
-                          2,
+                          Enum::"Production BOM Line Type"::"Production BOM",
                           ProdBOMComponent."Production BOM No.",
                           CalcDate,
-                          Level,
+                          Level + 1,
                           CostCalcMgt.CalcCompItemQtyBase(ProdBOMComponent, CalcDate, Quantity, '', false));
                 end;
             until ProdBOMComponent.Next() = 0;
@@ -156,6 +167,15 @@ codeunit 99000770 "Where-Used Management"
     begin
         ProductionBOMVersion.Get(ProductionBOMLine."Production BOM No.", ProductionBOMLine."Version Code");
         exit(ProductionBOMVersion.Status = ProductionBOMVersion.Status::Closed);
+    end;
+
+    local procedure GetItemBOMNo(ItemNo: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        Item.SetLoadFields("Production BOM No.");
+        Item.Get(ItemNo);
+        exit(Item."Production BOM No.");
     end;
 
     [IntegrationEvent(false, false)]

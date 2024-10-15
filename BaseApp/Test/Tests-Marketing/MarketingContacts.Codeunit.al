@@ -5585,6 +5585,32 @@ codeunit 136201 "Marketing Contacts"
         JobCard.SellToEmail.AssertEquals(PersonContact[2]."E-Mail");
     end;
 
+    [Test]
+    [HandlerFunctions('ModalPageHandlerForTask')]
+    procedure VerifyOneRecordIsCreatedForNonMeetingTaskCreatedFromTaskListForContact()
+    var
+        Contact: Record Contact;
+        Task: Record "To-do";
+        TempTask: Record "To-do" temporary;
+        Tasks: TestPage Tasks;
+        TableOption: Option Salesperson,Team,Campaign,Contact;
+    begin
+        // [SCENARIO 455599] Verify one record is created for Non Meeting Task created from Task List for Contact
+        Initialize();
+
+        // [GIVEN] Create Contact
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [WHEN] Create Task for Contact
+        Task.SetRange("Contact No.", Contact."No.");
+        TempTask.CreateTaskFromTask(Task);
+
+        // [THEN] Verify Organize To Do values
+        Task.Reset();
+        Task.SetRange("Contact No.", Contact."No.");
+        Assert.RecordCount(Task, 1);
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -6702,6 +6728,27 @@ codeunit 136201 "Marketing Contacts"
         MyNotifications.Enabled.SetValue(LibraryVariableStorage.DequeueBoolean);
         MyNotifications.FILTER.SetFilter("Notification Id", VendorContNotifTok);
         MyNotifications.Enabled.SetValue(LibraryVariableStorage.DequeueBoolean);
+    end;
+
+    [ModalPageHandler]
+    procedure ModalPageHandlerForTask(var CreateTask: Page "Create Task"; var Response: Action)
+    var
+        TempTask: Record "To-do" temporary;
+    begin
+        TempTask.Init();
+        CreateTask.GetRecord(TempTask);
+        TempTask.Insert();
+        TempTask.Validate(Type, TempTask.Type::"Phone Call");
+        TempTask.Validate(
+          Description,
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(TempTask.FieldNo(Description), DATABASE::"To-do"),
+            1, LibraryUtility.GetFieldLength(DATABASE::"To-do", TempTask.FieldNo(Description))));
+        TempTask.Validate(Date, WorkDate());
+
+        TempTask.Modify();
+        TempTask.CheckStatus;
+        TempTask.FinishWizard(false);
     end;
 
     [ModalPageHandler]

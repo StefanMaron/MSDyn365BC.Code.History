@@ -268,6 +268,47 @@ codeunit 18196 "GST Sales Tests"
 
     [Test]
     [HandlerFunctions('TaxRatePageHandler')]
+    procedure PostFromSalesInvWithRegCustInterStateWithOfflineApplicationAdvPayment()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        GSTCustomeType: Enum "GST Customer Type";
+        GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        TemplateType: Enum "Gen. Journal Template Type";
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
+        PostedDocumentNo1: Code[20];
+        PostedDocumentNo2: Code[20];
+        PostedDocumentNo3: Code[20];
+    begin
+        // [SCENARIO] Partial payment when applied to invoice is not taking right amount during offline application
+        // [FEATURE] [Services- Sales invoice] [Inter-State GST,Registered Customer]
+
+        // [GIVEN] Create GST Setup and Tax rates for registered customer where GST group type is Service and Jurisdiction type is Inter-state
+        CreateGSTSetup(GSTCustomeType::Registered, GSTGroupType::Service, false);
+        InitializeShareStep(false, false);
+        Storage.Set(NoOfLineLbl, '1');
+
+        // [WHEN] Create and Post Bank Receipt Voucher with Advance Payment
+        CreateGenJnlLineForVoucherWithAdvancePayment(GenJournalLine, TemplateType::"Bank Receipt Voucher");
+        Storage.Set(PaymentDocNoLbl, GenJournalLine."Document No.");
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Create and Post Sales Invoice with GST and Line Type as G/L Account and Interstate Juridisction without application
+        PostedDocumentNo1 := CreateAndPostSalesDocument(SalesHeader, SalesLine, LineType::"G/L Account", DocumentType::Invoice);
+        PostedDocumentNo2 := CreateAndPostSalesDocument(SalesHeader, SalesLine, LineType::"G/L Account", DocumentType::Invoice);
+        PostedDocumentNo3 := CreateAndPostSalesDocument(SalesHeader, SalesLine, LineType::"G/L Account", DocumentType::Invoice);
+
+        // [THEN] Apply and verify Customer Ledger Entry
+        LibraryERM.ApplyCustomerLedgerEntries(GenJournalDocumentType::Invoice, GenJournalDocumentType::Payment, PostedDocumentNo1, (Storage.Get(PaymentDocNoLbl)));
+        VerifyAdvPaymentApplied();
+    end;
+
+
+    [Test]
+    [HandlerFunctions('TaxRatePageHandler')]
     procedure PostFromSalesInvWithRegCustServiceIntraStateWithOfflineApplication()
     var
         SalesHeader: Record "Sales Header";

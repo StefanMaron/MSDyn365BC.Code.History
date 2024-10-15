@@ -210,7 +210,8 @@ page 50 "Purchase Order"
                 {
                     ApplicationArea = VAT;
                     Importance = Additional;
-                    Editable = true;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
                 }
                 field("Due Date"; Rec."Due Date")
@@ -500,17 +501,6 @@ page 50 "Purchase Order"
                         group(Control99)
                         {
                             ShowCaption = false;
-                            group(Control98)
-                            {
-                                ShowCaption = false;
-                                Visible = ShipToOptions = ShipToOptions::Location;
-                                field("Location Code"; Rec."Location Code")
-                                {
-                                    ApplicationArea = Location;
-                                    Importance = Promoted;
-                                    ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
-                                }
-                            }
                             group(Control101)
                             {
                                 ShowCaption = false;
@@ -526,6 +516,18 @@ page 50 "Purchase Order"
                                     ApplicationArea = Suite;
                                     Editable = "Sell-to Customer No." <> '';
                                     ToolTip = 'Specifies the code for another delivery address than the vendor''s own address, which is entered by default.';
+                                }
+                            }
+                            group(Control98)
+                            {
+                                ShowCaption = false;
+                                Visible = (ShipToOptions = ShipToOptions::Location) or (ShipToOptions = ShipToOptions::"Customer Address");
+                                field("Location Code"; Rec."Location Code")
+                                {
+                                    ApplicationArea = Location;
+                                    Importance = Promoted;
+                                    Editable = ShipToOptions = ShipToOptions::Location;
+                                    ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
                                 }
                             }
                             field("Ship-to Name"; Rec."Ship-to Name")
@@ -956,7 +958,7 @@ page 50 "Purchase Order"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(38),
+                SubPageLink = "Table ID" = CONST(Database::"Purchase Header"),
                               "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
             }
@@ -2189,6 +2191,8 @@ page 50 "Purchase Order"
     end;
 
     trigger OnOpenPage()
+    var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         SetOpenPage();
 
@@ -2196,6 +2200,7 @@ page 50 "Purchase Order"
 
         SetPostingGroupEditable();
         CheckShowBackgrValidationNotification();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -2258,6 +2263,8 @@ page 50 "Purchase Order"
         IsPurchaseLinesEditable: Boolean;
         ShouldSearchForVendByName: Boolean;
         IsRemitToCountyVisible: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
@@ -2484,8 +2491,7 @@ page 50 "Purchase Order"
                 begin
                     if xRec."Sell-to Customer No." <> '' then
                         Rec.Validate("Sell-to Customer No.", '');
-                    if xRec."Location Code" <> '' then
-                        Rec.Validate("Location Code", '');
+                    Rec.Validate("Location Code", '');
                 end;
             ShipToOptions::Location:
                 if xRec."Sell-to Customer No." <> '' then

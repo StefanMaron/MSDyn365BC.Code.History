@@ -150,9 +150,9 @@ report 99001026 "Replan Production Order"
                             ProdOrder."Ending Date" := "Due Date";
                             ProdOrder."Low-Level Code" := MainProdOrder."Low-Level Code" + 1;
                             ProdOrder."Source Type" := ProdOrder."Source Type"::Item;
+                            ProdOrder."Location Code" := "Location Code";
                             ProdOrder.Validate("Source No.", "Item No.");
                             ProdOrder.Validate(Quantity, ReqQty);
-                            ProdOrder."Location Code" := "Location Code";
                             OnProdOrderCompOnAfterGetRecordOnBeforeProdOrderModify(ProdOrder, MainProdOrder, "Prod. Order Component");
                             ProdOrder.Modify();
 

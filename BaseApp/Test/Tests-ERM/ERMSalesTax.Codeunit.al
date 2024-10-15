@@ -310,6 +310,7 @@ codeunit 134388 "ERM Sales Tax"
         VATEntry.Init();
         VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
         VATEntry."Posting Date" := WorkDate();
+        VATEntry."VAT Reporting Date" := WorkDate();
         VATEntry."Tax Type" := VATEntry."Tax Type"::"Sales Tax";
         VATEntry.Type := VATEntry.Type::Sale;
         VATEntry."Tax Group Code" := TaxDetail."Tax Group Code";

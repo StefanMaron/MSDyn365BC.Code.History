@@ -54,7 +54,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         VatPostingSetup.FindLast();
         CalcandPostVATSettlement.SetTableView(VatPostingSetup);
         CalcandPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate, GenJournalLine."Document No.", GenJournalLine."Bal. Account No.", false, false);
+          WorkDate, WorkDate(), WorkDate, GenJournalLine."Document No.", GenJournalLine."Bal. Account No.", false, false);
         CalcandPostVATSettlement.UseRequestPage(false);
 
         FilePath := TemporaryPath + Format(VatPostingSetup.TableName) + '.xlsx';
@@ -375,7 +375,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
 
         // [WHEN] Run Calc. and Post VAT Settlement report
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate, LibraryUtility.GenerateGUID, LibraryERM.CreateGLAccountNo, false, true);
+          WorkDate, WorkDate(), WorkDate, LibraryUtility.GenerateGUID, LibraryERM.CreateGLAccountNo, false, true);
         CalcAndPostVATSettlement.UseRequestPage(false);
         CalcAndPostVATSettlement.SaveAsXml('');
 
@@ -425,7 +425,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         // [WHEN] Run Calculate And Post VAT Settlement report for VAT Posting Setup "X","Y" for dates starting with "20-01-2019" until "27-01-2019"
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, CalcDate('<+7D>', WorkDate()), Enum::"VAT Date Type"::"Posting Date", WorkDate(),
+          WorkDate, CalcDate('<+7D>', WorkDate()), WorkDate(),
           LibraryUtility.GenerateGUID, LibraryERM.CreateGLAccountNo, false, false);
         CalcAndPostVATSettlement.SetInitialized(false);
         Commit();
@@ -477,7 +477,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         VATPostingSetup.SetRecFilter();
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate, DocNo, LibraryERM.CreateGLAccountNo, false, true);
+          WorkDate, WorkDate(), WorkDate, DocNo, LibraryERM.CreateGLAccountNo, false, true);
         CalcAndPostVATSettlement.UseRequestPage(false);
         CalcAndPostVATSettlement.SaveAsXml('');
 
@@ -721,6 +721,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         VATEntry.Init();
         VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
         VATEntry."Posting Date" := PostingDate;
+        VATEntry."VAT Reporting Date" := PostingDate;
         VATEntry."Tax Type" := VATEntry."Tax Type"::"Sales Tax";
         VATEntry.Type := VATEntry.Type::Sale;
         VATEntry."Tax Group Code" := TaxDetail."Tax Group Code";
@@ -792,7 +793,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         Clear(CalcAndPostVATSettlement);
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate, GenJournalLine."Document No.", GenJournalLine."Bal. Account No.", false, true);
+          WorkDate, WorkDate(), WorkDate, GenJournalLine."Document No.", GenJournalLine."Bal. Account No.", false, true);
         CalcAndPostVATSettlement.UseRequestPage(false);
         FilePath := TemporaryPath + Format(VATPostingSetup.TableName) + '.xlsx';
         CalcAndPostVATSettlement.SaveAsExcel(FilePath)

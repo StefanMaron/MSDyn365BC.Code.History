@@ -58,10 +58,11 @@ codeunit 134378 "ERM Sales Order"
         QuoteNoMustBeVisibleErr: Label 'Quote No. must be visible.';
         QuoteNoMustNotBeVisibleErr: Label 'Quote No. must not be visible.';
         ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?';
-        YouMustDeleteExistingLinesErr: Label 'You must delete the existing sales lines before you can change %1.';
+        RecreateSalesLinesCancelErr: Label 'Change in the existing sales lines for the field %1 is cancelled by user.';
         RecreateSalesLinesMsg: Label 'the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.';
         RoundingTo0Err: Label 'Rounding of the field';
         CompletelyShippedErr: Label 'Completely Shipped should be yes';
+        AdjustedCostChangedMsg: Label 'Adjusted Cost (LCY) has changed.';
 
     [Test]
     [Scope('OnPrem')]
@@ -397,7 +398,7 @@ codeunit 134378 "ERM Sales Order"
 
         // Exercise: Batch post sales order.
         SalesHeader.SetRange("No.", SalesHeader."No.");
-        BatchPostSalesOrders.InitializeRequest(true, true, WorkDate(), false, false, false);
+        BatchPostSalesOrders.InitializeRequest(true, true, WorkDate(), WorkDate(), false, false, false, false);
         BatchPostSalesOrders.SetTableView(SalesHeader);
         BatchPostSalesOrders.UseRequestPage := false;
         BatchPostSalesOrders.Run();
@@ -440,7 +441,7 @@ codeunit 134378 "ERM Sales Order"
 
         // Exercise: Batch post sales order.
         SalesHeader.SetRange("No.", SalesHeader."No.");
-        BatchPostSalesOrders.InitializeRequest(true, true, WorkDate(), false, false, false);
+        BatchPostSalesOrders.InitializeRequest(true, true, WorkDate(), WorkDate(), false, false, false, false);
         BatchPostSalesOrders.SetTableView(SalesHeader);
         BatchPostSalesOrders.UseRequestPage := false;
         BatchPostSalesOrders.Run();
@@ -2915,7 +2916,7 @@ codeunit 134378 "ERM Sales Order"
         asserterror SalesHeader.Validate("Gen. Bus. Posting Group", GenBusPostingGroup.Code);
 
         // [THEN] field "Gen. Bus. Posting Group" in Sales Order line is not changed because of error message
-        Assert.ExpectedError(StrSubstNo(YouMustDeleteExistingLinesErr, SalesLine.FieldCaption("Gen. Bus. Posting Group")));
+        Assert.ExpectedError(StrSubstNo(RecreateSalesLinesCancelErr, SalesLine.FieldCaption("Gen. Bus. Posting Group")));
         SalesLine.Find();
         SalesLine.TestField("Gen. Bus. Posting Group", OldGenBusPostingGroup);
     end;
@@ -4541,7 +4542,7 @@ codeunit 134378 "ERM Sales Order"
         LibraryVariableStorage.Enqueue(false);
         asserterror SalesOrder."Currency Code".SetValue(LibraryERM.CreateCurrencyWithRandomExchRates());
 
-        Assert.ExpectedError(StrSubstNo(YouMustDeleteExistingLinesErr, SalesHeader.FieldCaption("Currency Code")));
+        Assert.ExpectedError(StrSubstNo(RecreateSalesLinesCancelErr, SalesHeader.FieldCaption("Currency Code")));
 
         SalesOrder."Currency Code".AssertEquals('');
         SalesOrder.Close();
@@ -4834,6 +4835,98 @@ codeunit 134378 "ERM Sales Order"
 
         // [THEN] Verify completely shipped as yes
         Assert.AreEqual(SalesOrder."Completely Shipped".Value, 'Yes', CompletelyShippedErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetShipmentLinesModalPageHandler')]
+    procedure VerifyPostSalesOrderWithChargeItemPostedFromSalesInvoiceRelatedToShipmentCreatedFromSalesOrder()
+    var
+        SalesHeaderOrder: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        ItemCharge: Record "Item Charge";
+        Items: array[2] of Record Item;
+    begin
+        // [SCENARIO 457731] Verify Post Sales Order, for partially Shipped lines, with Charge (Item), and than that lines posted through Sales Invoice
+        Initialize();
+
+        // [GIVEN] Create Item Charge and two Items
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        LibraryInventory.CreateItem(Items[1]);
+        LibraryInventory.CreateItem(Items[2]);
+
+        // [GIVEN] Set to Queue Item No. and Item Charge No. for filtering Shipment Lines
+        LibraryVariableStorage.Enqueue(ItemCharge."No.");
+        LibraryVariableStorage.Enqueue(Items[2]."No.");
+
+        // [GIVEN] Create Sales Order with three lines (two Item and one Charge (Item))
+        CreateSalesOrderWithItemCharge(SalesHeaderOrder, ItemCharge."No.", Items);
+
+        // [GIVEN] Set First Sales Order Line not to Ship
+        SetFirstSalesLineNotToShip(SalesHeaderOrder, Items[1]."No.");
+
+        // [GIVEN] Post Ship for one Item and Charge (Item) line
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        // [GIVEN] Create Sales Invoice for Posted Shipment Lines from Sales Order
+        CreateSalesInvoice(SalesHeaderInvoice, SalesHeaderOrder, ItemCharge);
+
+        // [WHEN] Post Invoice
+        LibrarySales.PostSalesDocument(SalesHeaderInvoice, false, true);
+
+        // [THEN] Post Sales Order
+        SalesHeaderOrder.Get(SalesHeaderOrder."Document Type", SalesHeaderOrder."No.");
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesOrderStatisticsHandler')]
+    procedure VerifyAdjustedCostLCYOnSalesOrderStatusticAfterCorrectSalesInvoiceAndPostShipmentLine()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvHeader: Record "Sales Invoice Header";
+        Items: array[2] of Record Item;
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        AdjustedCostLCY: Decimal;
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 455409] Verify Adjusted Cost (LCY) is correct, after Sales Order is posted, corrected, and one line post again
+        Initialize();
+
+        // [GIVEN] Create two Items with Unit Price and Unit Cost
+        CreateItemsWithUnitPriceAndUnitCost(Items);
+
+        // [GIVEN] Create Sales Order
+        CreateSalesOrder(SalesHeader, SalesLine, Items);
+
+        // [GIVEN] Open Sales Order Statistics page
+        OpenSalesOrderStatistics(SalesHeader."No.");
+
+        // [GIVEN] Return Adjusted Cost (LCY) from Sales Order Statistics
+        AdjustedCostLCY := LibraryVariableStorage.DequeueDecimal();
+
+        // [GIVEN] Update Qty. to Ship and Invocie on both Lines
+        UpdateQtyToShipAndInvoiceOnSalesLine(SalesHeader, SalesLine);
+
+        // [GIVEN] Post Sales Order
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Correct Posted Sales Invoice        
+        SalesInvHeader.Get(DocumentNo);
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvHeader);
+
+        // [GIVEN] Update Qty. to Ship and Invocie on first Line
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", 10000);
+        UpdateQtyToShipAndInvoiceOnSalesLine(SalesLine, 10, 10);
+
+        // [GIVEN] Post Sales Order
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Open Sales Order Statistics page
+        OpenSalesOrderStatistics(SalesHeader."No.");
+
+        // [THEN] Verify Adjusted Cost is not changed
+        Assert.IsTrue(AdjustedCostLCY = LibraryVariableStorage.DequeueDecimal(), AdjustedCostChangedMsg);
     end;
 
     local procedure Initialize()
@@ -6632,6 +6725,15 @@ codeunit 134378 "ERM Sales Order"
         CopySalesDocument.OK.Invoke;
     end;
 
+    [ModalPageHandler]
+    procedure SalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    var
+        AdjustedCostLCY: Decimal;
+    begin
+        Evaluate(AdjustedCostLCY, SalesOrderStatistics."TotalAdjCostLCY[1]".Value);
+        LibraryVariableStorage.Enqueue(AdjustedCostLCY);
+    end;
+
     local procedure CreatePostSalesOrder(): Code[20]
     var
         Customer: Record Customer;
@@ -6683,6 +6785,104 @@ codeunit 134378 "ERM Sales Order"
         Commit();
         CopySalesDocument.SetSalesHeader(SalesHeader);
         CopySalesDocument.RunModal();
+    end;
+
+    local procedure SetFirstSalesLineNotToShip(var SalesHeaderOrder: Record "Sales Header"; ItemNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", SalesHeaderOrder."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeaderOrder."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.SetRange("No.", ItemNo);
+        SalesLine.FindFirst();
+        SalesLine.Validate("Qty. to Ship", 0);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateSalesInvoice(var SalesHeaderInvoice: Record "Sales Header"; var SalesHeaderOrder: Record "Sales Header"; var ItemCharge: Record "Item Charge")
+    var
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        SalesLineInvoice: Record "Sales Line";
+        ItemChargeSalesLine: Record "Sales Line";
+        SalesLine: Record "Sales Line";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        LibrarySales.CreateSalesHeader(
+          SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, SalesHeaderOrder."Sell-to Customer No.");
+        SalesLineInvoice.Validate("Document Type", SalesHeaderInvoice."Document Type");
+        SalesLineInvoice.Validate("Document No.", SalesHeaderInvoice."No.");
+        LibrarySales.GetShipmentLines(SalesLineInvoice);
+        LibrarySales.GetShipmentLines(SalesLineInvoice);
+
+        FindSalesLines(SalesLine, SalesHeaderInvoice, SalesLineType::Item);
+        FindSalesLines(ItemChargeSalesLine, SalesHeaderInvoice, SalesLineType::"Charge (Item)");
+        LibrarySales.CreateItemChargeAssignment(
+            ItemChargeAssignmentSales, ItemChargeSalesLine, ItemCharge,
+            SalesHeaderInvoice."Document Type"::Invoice, SalesHeaderInvoice."No.", SalesLine."Line No.",
+            SalesLine."No.", ItemChargeSalesLine.Quantity, LibraryRandom.RandIntInRange(10, 20));
+        ItemChargeAssignmentSales.Insert(true);
+    end;
+
+    local procedure FindSalesLines(var SalesLines: Record "Sales Line"; var SalesHeader: Record "Sales Header"; SalesLineType: Enum "Sales Line Type")
+    begin
+        SalesLines.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLines.SetRange("Document No.", SalesHeader."No.");
+        SalesLines.SetRange(Type, SalesLineType);
+        SalesLines.FindFirst();
+    end;
+
+    local procedure CreateSalesOrderWithItemCharge(var SalesHeader: Record "Sales Header"; ItemChargeNo: Code[20]; var Items: array[2] of Record Item)
+    var
+        SalesLineItemCharge: Record "Sales Line";
+        SalesLineItem: Record "Sales Line";
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLineItem, SalesHeader, SalesLineItem.Type::Item, Items[1]."No.", 1);
+        LibrarySales.CreateSalesLine(
+          SalesLineItem, SalesHeader, SalesLineItem.Type::Item, Items[2]."No.", 1);
+        LibrarySales.CreateSalesLine(
+          SalesLineItemCharge, SalesHeader, SalesLineItemCharge.Type::"Charge (Item)", ItemChargeNo, 1);
+        SalesLineItemCharge.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLineItemCharge.Modify(true);
+    end;
+
+    local procedure OpenSalesOrderStatistics(No: Code[20])
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenView;
+        SalesOrder.FILTER.SetFilter("No.", No);
+        SalesOrder.Statistics.Invoke;
+    end;
+
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Items: array[2] of Record Item)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Items[1]."No.", 10);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Items[2]."No.", 7);
+    end;
+
+    local procedure CreateItemsWithUnitPriceAndUnitCost(var Items: array[2] of Record Item)
+    begin
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
+            Items[1], LibraryRandom.RandDecInRange(1, 100, 2), LibraryRandom.RandDecInRange(1, 100, 2));
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
+            Items[2], LibraryRandom.RandDecInRange(1, 100, 2), LibraryRandom.RandDecInRange(1, 100, 2));
+    end;
+
+    local procedure UpdateQtyToShipAndInvoiceOnSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        SalesLine.Reset();
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
+        repeat
+            UpdateQtyToShipAndInvoiceOnSalesLine(SalesLine, 3, 3);
+        until SalesLine.Next() = 0;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]
@@ -6786,6 +6986,13 @@ codeunit 134378 "ERM Sales Order"
         LibraryVariableStorage.Enqueue(VATAmount);
         VATAmountLine."VAT Amount".SetValue(VATAmount);
         VATAmountLine.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure GetShipmentLinesModalPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
+    begin
+        GetShipmentLines.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        GetShipmentLines.OK.Invoke;
     end;
 }
 
