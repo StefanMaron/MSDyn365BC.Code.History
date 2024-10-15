@@ -308,8 +308,11 @@ codeunit 10151 "E-Invoice Cancel Request Batch"
     end;
 
     local procedure GetDateTime72HoursAgo(): DateTime
+    var
+        TypeHelper: Codeunit "Type Helper";
     begin
-        exit(CurrentDateTime - 3 * 24 * 3600 * 1000);
+        exit(
+            TypeHelper.GetCurrentDateTimeInUserTimeZone() - 3 * 24 * 3600 * 1000);
     end;
 }
 

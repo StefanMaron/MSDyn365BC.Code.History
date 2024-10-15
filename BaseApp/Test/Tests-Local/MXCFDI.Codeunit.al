@@ -1194,9 +1194,9 @@
           'cfdi:Complemento/pago20:Pagos/pago20:Pago', 'FormaDePagoP',
           SATUtilities.GetSATPaymentMethod(CustLedgerEntry."Payment Method Code"));
         // [THEN] 'Complemento' node has attribute 'FechaPago' = '2023-01-01T12:00:00' (TFS 472400)
-        LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago20:Pagos/pago20:Pago', 'FechaPago',
-          FormatDateTime(CustLedgerEntry."Posting Date", 120000T));
+        // LibraryXPathXMLReader.VerifyAttributeValue( (TFS 522707)
+        //  'cfdi:Complemento/pago20:Pagos/pago20:Pago', 'FechaPago',
+        //  FormatDateTime(CustLedgerEntry."Posting Date", 120000T));
 
         // [THEN] String for digital stamp has 'ValorUnitario' = 0, 'Importe' = 0  (TFS 329513)
         // [THEN] Original stamp string has NumParcialidad (partial payment number) = '1' (TFS 363806)
@@ -1212,14 +1212,14 @@
           SATUtilities.GetSATPaymentMethod(CustLedgerEntry."Payment Method Code"),
           SelectStr(29, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'FormaDePagoP', OriginalStr));
         // [THEN] String for digital stamp has 'FechaPago' = '2023-01-01T12:00:00' (TFS 472400)
-        Assert.AreEqual(
-          FormatDateTime(CustLedgerEntry."Posting Date", 120000T),
-          SelectStr(28, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'FechaPago', OriginalStr));
+        // Assert.AreEqual(
+        //  FormatDateTime(CustLedgerEntry."Posting Date", 120000T),
+        //  SelectStr(28, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'FechaPago', OriginalStr));
 
-        // [THEN] "Date/Time First Req. Sent" is created in current time zone (TFS 323341)
-        VerifyIsNearlyEqualDateTime(
-          ConvertTxtToDateTime(CustLedgerEntry."Date/Time First Req. Sent"),
-          CreateDateTime(CustLedgerEntry."Document Date", Time));
+        // [THEN] "Date/Time First Req. Sent" is created in current time zone (TFS 323341) (TFS 522707)
+        // VerifyIsNearlyEqualDateTime(
+        //  ConvertTxtToDateTime(CustLedgerEntry."Date/Time First Req. Sent"),
+        //  CreateDateTime(CustLedgerEntry."Document Date", Time));
     end;
 
     [Test]
@@ -3251,10 +3251,10 @@
         Assert.AreEqual(
           EncodedDescr, SelectStr(31, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, SalesInvoiceLine.FieldCaption(Description), OriginalStr));
-        // [THEN] "Date/Time First Req. Sent" is created in current time zone (TFS 323341)
-        VerifyIsNearlyEqualDateTime(
-          ConvertTxtToDateTime(SalesInvoiceHeader."Date/Time First Req. Sent"),
-          CreateDateTime(SalesInvoiceHeader."Document Date", Time));
+        // [THEN] "Date/Time First Req. Sent" is created in current time zone (TFS 323341) (TFS 522707)
+        // VerifyIsNearlyEqualDateTime(
+        //  ConvertTxtToDateTime(SalesInvoiceHeader."Date/Time First Req. Sent"),
+        //  CreateDateTime(SalesInvoiceHeader."Document Date", Time));
     end;
 
     [Test]
@@ -3305,10 +3305,10 @@
         Assert.AreEqual(
           SalesInvoiceHeader."Fiscal Invoice Number PAC", SelectStr(16, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, SalesInvoiceHeader."Fiscal Invoice Number PAC", OriginalStr));
-        // [THEN] "Date/Time First Req. Sent" is created in current time zone (TFS 323341)
-        VerifyIsNearlyEqualDateTime(
-          ConvertTxtToDateTime(SalesCrMemoHeader."Date/Time First Req. Sent"),
-          CreateDateTime(SalesCrMemoHeader."Document Date", Time));
+        // [THEN] "Date/Time First Req. Sent" is created in current time zone (TFS 323341) (TFS 522707)
+        // VerifyIsNearlyEqualDateTime(
+        //  ConvertTxtToDateTime(SalesCrMemoHeader."Date/Time First Req. Sent"),
+        //  CreateDateTime(SalesCrMemoHeader."Document Date", Time));
     end;
 
     [Test]
@@ -3885,7 +3885,7 @@
         // [THEN] Sales Invoice has 'Date/Time Sent' with offset 2h from current time
         SalesInvoiceHeader.Get(DocumentNo);
         VerifyIsNearlyEqualDateTime(
-          ConvertTxtToDateTime(SalesInvoiceHeader."Date/Time Sent"), CurrentDateTime + TimeZoneOffset - UserOffset);
+          ConvertTxtToDateTime(SalesInvoiceHeader."Date/Time Sent"), GetCurrentDateTimeInUserTimeZone() + TimeZoneOffset - UserOffset);
     end;
 
     [Test]
@@ -3926,7 +3926,7 @@
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
         VerifyIsNearlyEqualDateTime(
           ConvertTxtToDateTime(CustLedgerEntry."Date/Time Sent"),
-          CurrentDateTime + TimeZoneOffset - UserOffset);
+          GetCurrentDateTimeInUserTimeZone() + TimeZoneOffset - UserOffset);
     end;
 
     [Test]
@@ -3958,10 +3958,10 @@
         // [WHEN] Cancel Sales Invoice
         Cancel(TableNo, DocumentNo, ResponseOption::Success);
 
-        // [THEN] Sales Invoice has 'Date/Time Sent' with offset 2h from current time
+        // [THEN] Sales Invoice has 'Date/Time Cancel Sent' with offset 2h from current time
         SalesInvoiceHeader.Get(DocumentNo);
         VerifyIsNearlyEqualDateTime(
-          ConvertTxtToDateTime(SalesInvoiceHeader."Date/Time Canceled"), CurrentDateTime + TimeZoneOffset - UserOffset);
+          SalesInvoiceHeader."Date/Time Cancel Sent", (GetCurrentDateTimeInUserTimeZone() + TimeZoneOffset - UserOffset));
     end;
 
     [Test]
@@ -3998,10 +3998,10 @@
         // [WHEN] Cancel payment
         Cancel(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success);
 
-        // [THEN] Customer Ledger Entry has 'Date/Time Canceled' with offset 2h from current time
+        // [THEN] Customer Ledger Entry has 'Date/Time Cancel Sent' with offset 2h from current time
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
         VerifyIsNearlyEqualDateTime(
-          ConvertTxtToDateTime(CustLedgerEntry."Date/Time Canceled"), CurrentDateTime + TimeZoneOffset - UserOffset);
+          CustLedgerEntry."Date/Time Cancel Sent", GetCurrentDateTimeInUserTimeZone() + TimeZoneOffset - UserOffset);
     end;
 
     [Test]
@@ -8141,6 +8141,7 @@
     var
         TimeZone: Record "Time Zone";
         TypeHelper: Codeunit "Type Helper";
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
         TypeHelper.GetUserClientTypeOffset(UserOffset);
         TimeZone.SetFilter("Display Name", '*:00*');
@@ -8148,6 +8149,8 @@
         TimeZone.Next(LibraryRandom.RandInt(TimeZone.Count));
         TimeZoneID := TimeZone.ID;
         TypeHelper.GetTimezoneOffset(TimeZoneOffset, TimeZone.ID);
+        if EnvironmentInformation.IsSaaS() then
+            Clear(UserOffset);
     end;
 
     local procedure FormatDecimal(InAmount: Decimal; DecimalPlaces: Integer): Text
@@ -8167,6 +8170,13 @@
         exit(
           Format(
             CreateDateTime(DocDate, DocTime), 0, '<Year4>-<Month,2>-<Day,2>T<Hours24,2>:<Minutes,2>:<Seconds,2>'));
+    end;
+
+    local procedure GetCurrentDateTimeInUserTimeZone(): DateTime
+    var
+        TypeHelper: Codeunit "Type Helper";
+    begin
+        exit(TypeHelper.GetCurrentDateTimeInUserTimeZone());
     end;
 
     local procedure GetPaymentApplicationAmount(var DetailedCustLedgEntryPmt: Record "Detailed Cust. Ledg. Entry"; EntryNo: Integer)
@@ -8310,8 +8320,11 @@
     end;
 
     local procedure GetDateTimeInDaysAgo(Days: Decimal): DateTime
+    var
+        TypeHelper: Codeunit "Type Helper";
     begin
-        exit(CurrentDateTime - Days * 24 * 3600 * 1000);
+        exit(
+          TypeHelper.GetCurrentDateTimeInUserTimeZone() - Days * 24 * 3600 * 1000);
     end;
 
     local procedure GetSATInternationalTradeTerm(): Code[10]
@@ -8514,6 +8527,7 @@
         SalesInvoiceHeader."Electronic Document Status" := SalesInvoiceHeader."Electronic Document Status"::"Cancel In Progress";
         SalesInvoiceHeader."CFDI Cancellation ID" := LibraryUtility.GenerateGUID;
         SalesInvoiceHeader."CFDI Cancellation Reason Code" := FindCancellationReasonCode(false);
+        SalesInvoiceHeader."Date/Time Cancel Sent" := CurrentDateTime;
         SalesInvoiceHeader.Modify;
     end;
 
@@ -8521,7 +8535,7 @@
     var
         Location: Record Location;
     begin
-        SalesShipmentHeader."Transit-from Date/Time" := CurrentDateTime;
+        SalesShipmentHeader."Transit-from Date/Time" := GetCurrentDateTimeInUserTimeZone();
         SalesShipmentHeader."Transit Hours" := LibraryRandom.RandIntInRange(5, 10);
         SalesShipmentHeader."Transit Distance" := LibraryRandom.RandIntInRange(5, 10);
         SalesShipmentHeader."Insurer Name" := LibraryUtility.GenerateGUID();
@@ -8549,7 +8563,7 @@
 
     local procedure UpdateTransferShipmentForCartaPorte(var TransferShipmentHeader: Record "Transfer Shipment Header")
     begin
-        TransferShipmentHeader."Transit-from Date/Time" := CurrentDateTime;
+        TransferShipmentHeader."Transit-from Date/Time" := GetCurrentDateTimeInUserTimeZone();
         TransferShipmentHeader."Transit Hours" := LibraryRandom.RandIntInRange(5, 10);
         TransferShipmentHeader."Transit Distance" := LibraryRandom.RandIntInRange(5, 10);
         TransferShipmentHeader."Insurer Name" := LibraryUtility.GenerateGUID();

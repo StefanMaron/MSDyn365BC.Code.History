@@ -4065,14 +4065,17 @@
     end;
 
     local procedure GetDateTime24HoursAgo(): DateTime
+    var
+        TypeHelper: Codeunit "Type Helper";
     begin
-        exit(CurrentDateTime - 24 * 3600 * 1000);
+        exit(TypeHelper.GetCurrentDateTimeInUserTimeZone() - 24 * 3600 * 1000);
     end;
 
     local procedure ConvertDateTimeToTimeZone(InputDateTime: DateTime; TimeZone: Text): DateTime
     var
         TypeHelper: Codeunit "Type Helper";
     begin
+        InputDateTime := TypeHelper.GetInputDateTimeInUserTimeZone(InputDateTime);
         exit(TypeHelper.ConvertDateTimeFromUTCToTimeZone(InputDateTime, TimeZone));
     end;
 
@@ -4080,7 +4083,9 @@
     var
         TypeHelper: Codeunit "Type Helper";
     begin
-        exit(TypeHelper.ConvertDateTimeFromUTCToTimeZone(CurrentDateTime, TimeZone));
+        exit(
+            TypeHelper.ConvertDateTimeFromUTCToTimeZone(
+                TypeHelper.GetCurrentDateTimeInUserTimeZone(), TimeZone));
     end;
 
     local procedure ConvertStingToDateTime(InputDateTime: Text) OutDateTime: DateTime
@@ -6195,9 +6200,9 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
             AddElementCCE(XMLCurrNode, 'Mercancia', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'NoIdentificacion', TempDocumentLineCCE."No.");
-            Item.Get(TempDocumentLineCCE."No.");
-            if Item."Tariff No." <> '' then
-            AddAttribute(XMLDoc, XMLCurrNode, 'FraccionArancelaria', DelChr(Item."Tariff No."));
+            if not IsTransferDocument(DocumentHeader."Document Table ID") then
+                if Item.Get(TempDocumentLineCCE."No.") and (Item."Tariff No." <> '') then
+                    AddAttribute(XMLDoc, XMLCurrNode, 'FraccionArancelaria', DelChr(Item."Tariff No."));
             AddAttribute(XMLDoc, XMLCurrNode, 'CantidadAduana', Format(TempDocumentLineCCE.Quantity, 0, 9));
             UnitOfMeasure.Get(TempDocumentLineCCE."Unit of Measure Code");
             AddAttribute(XMLDoc, XMLCurrNode, 'UnidadAduana', UnitOfMeasure."SAT Customs Unit");
@@ -6266,9 +6271,9 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
         repeat
             LineNo += 1;
             WriteOutStr(OutStr, TempDocumentLineCCE."No." + '|'); // NoIdentificacion
-            Item.Get(TempDocumentLineCCE."No.");
-            if Item."Tariff No." <> '' then
-            WriteOutStr(OutStr, DelChr(Item."Tariff No.") + '|'); // FraccionArancelaria
+            if not IsTransferDocument(DocumentHeader."Document Table ID") then
+                if Item.Get(TempDocumentLineCCE."No.") and (Item."Tariff No." <> '') then
+                    WriteOutStr(OutStr, DelChr(Item."Tariff No.") + '|'); // FraccionArancelaria
             WriteOutStr(OutStr, Format(TempDocumentLineCCE.Quantity, 0, 9) + '|'); // CantidadAduana
             UnitOfMeasure.Get(TempDocumentLineCCE."Unit of Measure Code");
             WriteOutStr(OutStr, UnitOfMeasure."SAT Customs Unit" + '|'); // UnidadAduana
