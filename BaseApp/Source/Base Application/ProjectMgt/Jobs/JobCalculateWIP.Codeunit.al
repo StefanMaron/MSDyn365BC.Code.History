@@ -879,6 +879,17 @@ codeunit 1000 "Job Calculate WIP"
             until JobWIPGLEntry.Next() = 0;
         JobWIPGLEntry.ModifyAll("Reverse Date", PostingDate);
         JobWIPGLEntry.ModifyAll(Reversed, true);
+
+        with JobTask do begin
+            SetRange("Job No.", Job."No.");
+            if FindSet() then
+                repeat
+                    "Recognized Sales G/L Amount" := "Recognized Sales Amount";
+                    "Recognized Costs G/L Amount" := "Recognized Costs Amount";
+                    Modify();
+                until Next() = 0;
+        end;
+
         if JustReverse then
             exit;
 
@@ -932,16 +943,6 @@ codeunit 1000 "Job Calculate WIP"
                 JobWIPTotal."Posted to G/L" := true;
                 JobWIPTotal.Modify();
             until JobWIPEntry.Next() = 0;
-
-        with JobTask do begin
-            SetRange("Job No.", Job."No.");
-            if FindSet() then
-                repeat
-                    "Recognized Sales G/L Amount" := "Recognized Sales Amount";
-                    "Recognized Costs G/L Amount" := "Recognized Costs Amount";
-                    Modify();
-                until Next() = 0;
-        end;
 
         with JobLedgerEntry do begin
             SetRange("Job No.", Job."No.");

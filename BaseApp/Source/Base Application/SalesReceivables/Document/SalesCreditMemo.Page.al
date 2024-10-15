@@ -1526,7 +1526,15 @@ page 44 "Sales Credit Memo"
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnQueryClosePage(Rec, DocumentIsPosted, CloseAction, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not DocumentIsPosted then
             exit(ConfirmCloseUnposted());
     end;
@@ -1816,6 +1824,11 @@ page 44 "Sales Credit Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDocumentOnBeforeOpenPage(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnQueryClosePage(var SalesHeader: Record "Sales Header"; DocumentIsPosted: Boolean; CloseAction: Action; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

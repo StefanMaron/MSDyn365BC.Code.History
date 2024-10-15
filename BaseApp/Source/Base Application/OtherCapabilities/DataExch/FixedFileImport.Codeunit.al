@@ -39,6 +39,7 @@ codeunit 1241 "Fixed File Import"
         DataExchColumnDef: Record "Data Exch. Column Def";
         DataExchField: Record "Data Exch. Field";
         StartPosition: Integer;
+        IsHandled: Boolean;
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         DataExchLineDef.FindFirst();
@@ -55,12 +56,20 @@ codeunit 1241 "Fixed File Import"
         DataExchColumnDef.FindSet();
 
         StartPosition := 1;
-        repeat
-            DataExchField.InsertRecXMLField(DataExch."Entry No.", LineNo, DataExchColumnDef."Column No.", '',
-              CopyStr(Line, StartPosition, DataExchColumnDef.Length), DataExchLineDef.Code);
-            StartPosition += DataExchColumnDef.Length;
-        until DataExchColumnDef.Next() = 0;
+        IsHandled := false;
+        OnParseLineOnBeforeDataExchColumnDefLoop(DataExch, DataExchDef, DataExchColumnDef, DataExchField, Line, LineNo, StartPosition, IsHandled);
+        if not IsHandled then
+            repeat
+                DataExchField.InsertRecXMLField(DataExch."Entry No.", LineNo, DataExchColumnDef."Column No.", '',
+                  CopyStr(Line, StartPosition, DataExchColumnDef.Length), DataExchLineDef.Code);
+                StartPosition += DataExchColumnDef.Length;
+            until DataExchColumnDef.Next() = 0;
         LineNo += 1;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnParseLineOnBeforeDataExchColumnDefLoop(DataExch: Record "Data Exch."; var DataExchDef: Record "Data Exch. Def"; var DataExchColumnDef: Record "Data Exch. Column Def"; var DataExchField: Record "Data Exch. Field"; var Line: Text; LineNo: Integer; var StartPosition: Integer; var IsHandled: Boolean);
+    begin
     end;
 }
 

@@ -168,6 +168,8 @@ report 1320 "Notification Email"
 
         SettingsURL := GetUrl(CLIENTTYPE::Web, CompanyName, OBJECTTYPE::Page, Page::"Notification Setup");
         SettingsURL += StrSubstNo(NotificationSetupFilterStringTxt, ReceipientUser."User Name");
+
+        OnAfterCreateSettingsLink(SettingsURL);
     end;
 
     local procedure SetDocumentTypeAndNumber(SourceRecRef: RecordRef)
@@ -506,6 +508,11 @@ report 1320 "Notification Email"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetReportFieldPlaceholdersOnBeforeGetWebUrl(RecRef: RecordRef; var Field1Label: Text; var Field1Value: Text; var Field2Label: Text; var Field2Value: Text; var Field3Label: Text; var Field3Value: Text; var SourceRecRef: RecordRef; var DetailsLabel: Text; var DetailsValue: Text; NotificationEntry: Record "Notification Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateSettingsLink(var SettingsURL: Text)
     begin
     end;
 }

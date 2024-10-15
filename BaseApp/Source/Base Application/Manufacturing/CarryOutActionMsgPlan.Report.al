@@ -19,7 +19,6 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
                 if not "Accept Action Message" then
                     CurrReport.Skip();
-                LockTable();
 
                 Commit();
                 RunCarryOutActionsByRefOrderType("Requisition Line");
@@ -593,13 +592,15 @@ report 99001020 "Carry Out Action Msg. - Plan."
                     end;
             end;
 
+            ReqLine2.ReadIsolation := ReqLine2.ReadIsolation::ReadUncommitted;
             ReqLine2.SetFilter("User ID", '<>%1', UserId);
             ReqLine2.SetRange("Demand Type", "Demand Type");
             ReqLine2.SetRange("Demand Subtype", "Demand Subtype");
             ReqLine2.SetRange("Demand Order No.", "Demand Order No.");
             ReqLine2.SetRange("Demand Line No.", "Demand Line No.");
             ReqLine2.SetRange("Demand Ref. No.", "Demand Ref. No.");
-            ReqLine2.DeleteAll(true);
+            if not ReqLine2.IsEmpty then
+                ReqLine2.DeleteAll(true);
         end;
     end;
 

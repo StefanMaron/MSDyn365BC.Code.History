@@ -2975,4 +2975,3 @@ page 21 "Customer Card"
     begin
     end;
 }
-

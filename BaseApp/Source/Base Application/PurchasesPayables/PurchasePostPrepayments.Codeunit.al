@@ -1016,6 +1016,7 @@
 #if not CLEAN20
             "Original Pmt. Disc. Possible" := PurchLine."Prepmt. Pmt. Disc. Amount";
 #endif            
+            "Location Code" := PurchLine."Location Code";
         end;
 
         OnAfterFillInvLineBuffer(PrepmtInvLineBuf, PurchLine, SuppressCommit, PurchHeader);
@@ -1426,10 +1427,11 @@
         ApplyFilter(PurchHeader, 1, PurchLine);
         if PurchLine.FindSet() then
             repeat
-                if (PrepmtAmount(PurchLine, 0) <> 0) and (PrepmtAmount(PurchLine, 1) <> 0) then begin
-                    PurchLines := PurchLine;
-                    PurchLines.Insert();
-                end;
+                if (PrepmtAmount(PurchLine, 0) <> 0) and (PrepmtAmount(PurchLine, 1) <> 0) then
+                    if not PurchLines.Get(PurchLine.RecordId) then begin
+                        PurchLines := PurchLine;
+                        PurchLines.Insert();
+                    end;
             until PurchLine.Next() = 0;
     end;
 
@@ -1638,6 +1640,7 @@
 #if not CLEAN20
             PurchInvLine."Pmt. Discount Amount" := "Original Pmt. Disc. Possible";
 #endif
+            PurchInvLine."Location Code" := "Location Code";
             OnBeforePurchInvLineInsert(PurchInvLine, PurchInvHeader, PrepmtInvLineBuffer, SuppressCommit);
             PurchInvLine.Insert();
             if not PurchaseHeader."Compress Prepayment" then

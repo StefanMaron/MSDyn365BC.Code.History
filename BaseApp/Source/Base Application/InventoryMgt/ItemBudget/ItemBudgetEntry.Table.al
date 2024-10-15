@@ -215,6 +215,7 @@ table 7134 "Item Budget Entry"
     trigger OnInsert()
     var
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
+        IsHandled: Boolean;
     begin
         CheckIfBlocked();
         TestField(Date);
@@ -224,11 +225,14 @@ table 7134 "Item Budget Entry"
             GetSalesSetup();
             GetInventorySetup();
 
-            if not (CheckGroupDimFilled(SalesSetup."Customer Group Dimension Code") or
-                    CheckGroupDimFilled(SalesSetup."Salesperson Dimension Code") or
-                    CheckGroupDimFilled(InventorySetup."Item Group Dimension Code"))
-            then
-                TestField("Item No.");
+            IsHandled := false;
+            OnInsertOnBeforeCheckGroupDimFilled(Rec, IsHandled);
+            if not IsHandled then
+                if not (CheckGroupDimFilled(SalesSetup."Customer Group Dimension Code") or
+                        CheckGroupDimFilled(SalesSetup."Salesperson Dimension Code") or
+                        CheckGroupDimFilled(InventorySetup."Item Group Dimension Code"))
+                then
+                    TestField("Item No.");
         end;
 
         TestField("Budget Name");
@@ -564,6 +568,11 @@ table 7134 "Item Budget Entry"
         ItemAnalysisViewBudgEntry.SetRange("Analysis Area", "Analysis Area");
         ItemAnalysisViewBudgEntry.SetRange("Budget Name", "Budget Name");
         ItemAnalysisViewBudgEntry.DeleteAll();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeCheckGroupDimFilled(var ItemBudgetEntry: Record "Item Budget Entry"; var IsHandled: Boolean)
+    begin
     end;
 }
 

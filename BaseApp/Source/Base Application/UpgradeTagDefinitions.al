@@ -155,6 +155,7 @@
         PerCompanyUpgradeTags.Add(GetProductionSourceCodeUpdateTag());
         PerCompanyUpgradeTags.Add(GetPurchaseCreditMemoUpgradeTag());
         PerCompanyUpgradeTags.Add(GetWorkflowDelegatedAdminSetupTemplateUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetVATSetupUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -187,6 +188,7 @@
         PerDatabaseUpgradeTags.Add(GetTeamsUsersUserGroupUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetUserGroupsMigrationUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetCustLedgerEntryYourReferenceUpdateTag());
+        PerDatabaseUpgradeTags.Add(GetEssentialAttachUserGroupUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Data Upgrade", 'OnGetAPIUpgradeTags', '', false, false)]
@@ -1030,6 +1032,11 @@
     internal procedure GetTeamsUsersUserGroupUpgradeTag(): Code[250];
     begin
         exit('MS-427396-GetTeamsUsersUserGroupUpgradeTag-20220825');
+    end;
+
+    internal procedure GetEssentialAttachUserGroupUpgradeTag(): Code[250];
+    begin
+        exit('MS-483944-GetD365EssentialAttachUserGroupUpgradeTag-20230911');
     end;
 
     internal procedure GetItemChargeHandleQtyUpgradeTag(): Code[250]

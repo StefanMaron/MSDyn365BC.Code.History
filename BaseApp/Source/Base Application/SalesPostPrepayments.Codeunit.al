@@ -1599,6 +1599,7 @@
     var
         SalesInvLine: Record "Sales Invoice Line";
         VATPostingSetup: Record "VAT Posting Setup";
+        SalesLine: Record "Sales Line";
     begin
         with PrepmtInvLineBuffer do begin
             SalesInvLine.Init();
@@ -1614,6 +1615,10 @@
             SalesInvLine."Shortcut Dimension 2 Code" := "Global Dimension 2 Code";
             SalesInvLine."Dimension Set ID" := "Dimension Set ID";
             SalesInvLine.Description := Description;
+            if not SalesHeader."Compress Prepayment" then
+                if SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", "Line No.") then
+                    SalesInvLine."Description 2" := SalesLine."Description 2";
+
             SalesInvLine.Quantity := 1;
             SalesInvLine."Responsibility Center" := SalesInvHeader."Responsibility Center";
             if SalesInvHeader."Prices Including VAT" then begin
