@@ -466,7 +466,7 @@ page 343 "Check Credit Limit"
         end;
 
         IsHandled := false;
-        OnShowWarningOnBeforeExitValue(Rec, ExitValue, Result, IsHandled);
+        OnShowWarningOnBeforeExitValue(Rec, ExitValue, Result, IsHandled, Heading, SecondHeading, NotificationId);
         if IsHandled then
             exit(Result);
 
@@ -673,7 +673,7 @@ page 343 "Check Credit Limit"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnShowWarningOnBeforeExitValue(var Customer: Record Customer; ExitValue: Integer; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnShowWarningOnBeforeExitValue(var Customer: Record Customer; ExitValue: Integer; var Result: Boolean; var IsHandled: Boolean; var Heading: Text[250]; var SecondHeading: Text[250]; var NotificationID: Guid)
     begin
     end;
 }

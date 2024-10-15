@@ -44,7 +44,7 @@ codeunit 86 "Sales-Quote to Order"
         CreateSalesHeader(Rec, Cust."Prepayment %");
 
         TransferQuoteToOrderLines(SalesQuoteLine, Rec, SalesOrderLine, SalesOrderHeader, Cust);
-        OnAfterInsertAllSalesOrderLines(SalesOrderLine, Rec);
+        OnAfterInsertAllSalesOrderLines(SalesOrderLine, Rec, SalesOrderHeader);
 
         SalesSetup.Get();
         ArchiveSalesQuote(Rec);
@@ -362,7 +362,7 @@ codeunit 86 "Sales-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertAllSalesOrderLines(var SalesOrderLine: Record "Sales Line"; SalesQuoteHeader: Record "Sales Header")
+    local procedure OnAfterInsertAllSalesOrderLines(var SalesOrderLine: Record "Sales Line"; SalesQuoteHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header")
     begin
     end;
 

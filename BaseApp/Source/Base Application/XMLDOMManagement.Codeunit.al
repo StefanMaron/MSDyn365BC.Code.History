@@ -446,7 +446,6 @@ codeunit 6224 "XML DOM Management"
         exit(CharCode in [1 .. 8, 11 .. 12, 14 .. 31, 127 .. 132, 134 .. 159]);
     end;
 
-    [Scope('OnPrem')]
     procedure XMLEscape(Text: Text): Text
     var
         XMLDocument: DotNet XmlDocument;

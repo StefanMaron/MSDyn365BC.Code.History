@@ -55,6 +55,11 @@ page 5737 "Item Reference Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that you want the program to discontinue a bar code item reference. This field is reserved for extensions and not used in base app.';
                     Visible = false;
+                    ObsoleteReason = 'Not used in base application.';
+                    ObsoleteState = Pending;
+#pragma warning disable AS0072
+                    ObsoleteTag = '18.0';
+#pragma warning restore AS0072
                 }
 #endif
             }
