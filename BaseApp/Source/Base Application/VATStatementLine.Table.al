@@ -134,6 +134,9 @@ table 256 "VAT Statement Line"
         {
             Caption = 'VAT Code';
             TableRelation = "VAT Code";
+            ObsoleteReason = 'Use VAT Business and VAT Product posting groups for filtering.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
 
             trigger OnValidate()
             begin
