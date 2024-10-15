@@ -1,4 +1,4 @@
-﻿table 39 "Purchase Line"
+table 39 "Purchase Line"
 {
     Caption = 'Purchase Line';
     DrillDownPageID = "Purchase Lines";
@@ -7763,6 +7763,10 @@
             exit;
 
         if "Prepayment %" <> 0 then begin
+            if "System-Created Entry" then
+                if Type = Type::"G/L Account" then
+                    if not IsServiceCharge() then
+                        exit;
             if Quantity < 0 then
                 FieldError(Quantity, StrSubstNo(Text043, FieldCaption("Prepayment %")));
             if "Direct Unit Cost" < 0 then

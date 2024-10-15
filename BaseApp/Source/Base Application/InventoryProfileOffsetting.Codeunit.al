@@ -649,7 +649,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
         for ComponentForecast := ComponentForecastFrom to true do begin
             if ComponentForecast then begin
-                if not ReplenishmentLocationFound then
+                if not FindReplishmentLocation(ReplenishmentLocation, Item) then
                     ReplenishmentLocation := ManufacturingSetup."Components at Location";
                 if InvtSetup."Location Mandatory" and (ReplenishmentLocation = '') then
                     exit;
@@ -2666,6 +2666,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if NewPhase = NewPhase::Obsolete then begin
             if SupplyInvtProfile."Planning Line No." <> ReqLine."Line No." then
                 ReqLine.Get(CurrTemplateName, CurrWorksheetName, SupplyInvtProfile."Planning Line No.");
+            DeletePlanningCompList(ReqLine);
             ReqLine.Delete(true);
             SupplyInvtProfile."Planning Line No." := 0;
             SupplyInvtProfile."Planning Line Phase" := SupplyInvtProfile."Planning Line Phase"::" ";
@@ -4372,6 +4373,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     procedure GetPlanningCompList(var PlanningCompList: Record "Planning Component" temporary)
     begin
+        TempPlanningCompList.Reset();
         if TempPlanningCompList.Find('-') then
             repeat
                 PlanningCompList := TempPlanningCompList;
@@ -4379,6 +4381,14 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     PlanningCompList.Modify();
                 TempPlanningCompList.Delete();
             until TempPlanningCompList.Next() = 0;
+    end;
+
+    local procedure DeletePlanningCompList(RequisitionLine: Record "Requisition Line")
+    begin
+        TempPlanningCompList.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        TempPlanningCompList.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
+        TempPlanningCompList.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        TempPlanningCompList.DeleteAll();
     end;
 
     procedure SetParm(Forecast: Code[10]; ExclBefore: Date; WorksheetType: Option Requisition,Planning; PriceCalcMethod: Enum "Price Calculation Method")
