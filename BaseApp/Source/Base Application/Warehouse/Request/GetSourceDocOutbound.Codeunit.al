@@ -38,6 +38,7 @@ codeunit 5752 "Get Source Doc. Outbound"
             exit(false);
 
         Clear(GetSourceDocuments);
+        OnCreateWhseShipmentHeaderFromWhseRequestOnAfterClearGetSourceDocuments(WarehouseRequest, GetSourceDocuments);
         GetSourceDocuments.UseRequestPage(false);
         GetSourceDocuments.SetTableView(WarehouseRequest);
         GetSourceDocuments.SetHideDialog(true);
@@ -649,6 +650,11 @@ codeunit 5752 "Get Source Doc. Outbound"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var Rusult: Boolean; var IsHandled: Boolean; var GetSourceDocuments: Report "Get Source Documents")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseShipmentHeaderFromWhseRequestOnAfterClearGetSourceDocuments(var WarehouseRequest: Record "Warehouse Request"; var GetSourceDocuments: Report "Get Source Documents")
     begin
     end;
 

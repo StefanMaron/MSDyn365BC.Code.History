@@ -992,7 +992,7 @@ codeunit 5063 ArchiveManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRestoreSalesDocumentOnAfterSalesHeaderInsert(var SalesHeader: Record "Sales Header"; SalesHeaderArchive: Record "Sales Header Archive");
+    local procedure OnRestoreSalesDocumentOnAfterSalesHeaderInsert(var SalesHeader: Record "Sales Header"; var SalesHeaderArchive: Record "Sales Header Archive");
     begin
     end;
 

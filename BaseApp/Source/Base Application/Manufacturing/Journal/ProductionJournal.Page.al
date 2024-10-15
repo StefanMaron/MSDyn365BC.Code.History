@@ -1045,7 +1045,8 @@ page 5510 "Production Journal"
                             ItemJournalLine.Mark(true);
                 end;
             until ItemJournalLine.Next() = 0;
-            ItemJournalLine.MarkedOnly(true);
+            if ItemJournalLine.MarkedOnly(true) then
+                ItemJournalLine.FindSet();
         end;
     end;
 

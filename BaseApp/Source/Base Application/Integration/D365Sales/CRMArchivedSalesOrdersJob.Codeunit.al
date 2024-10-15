@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Integration.D365Sales;
 
-using Microsoft.Finance.Currency;
 using Microsoft.Foundation.UOM;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
@@ -193,7 +192,6 @@ codeunit 5366 "CRM Archived Sales Orders Job"
         CRMUom: Record "CRM Uom";
         Item: Record Item;
         Resource: Record Resource;
-        Currency: Record Currency;
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         ResourceUnitOfMeasure: Record "Resource Unit of Measure";
@@ -230,12 +228,6 @@ codeunit 5366 "CRM Archived Sales Orders Job"
         CRMSalesorderdetail.ManualDiscountAmount := SalesLineArchive."Line Discount Amount";
         CRMSalesorderdetail.IsPriceOverridden := true;
         CRMSalesorderdetail.PricePerUnit := SalesLineArchive."Unit Price";
-
-        Currency.Get(SalesLineArchive."Currency Code");
-        if not CRMIntegrationRecord.FindIDFromRecordID(Currency.RecordId, CRMId) then
-            exit;
-
-        CRMSalesorderdetail.TransactionCurrencyId := CRMId;
         CRMSalesorderdetail.BaseAmount := SalesLineArchive.Amount;
         CRMSalesorderdetail.ExtendedAmount := SalesLineArchive."Amount Including VAT";
 
@@ -266,5 +258,7 @@ codeunit 5366 "CRM Archived Sales Orders Job"
                 exit;
             CRMSalesorderdetail.UoMId := CRMId;
         end;
+
+        CRMSalesorderdetail.Insert();
     end;
 }
