@@ -46,6 +46,7 @@ codeunit 134385 "ERM Sales Document"
         TestFieldTok: Label 'TestField';
         VATBusPostingGroupErr: Label 'VAT Bus. Posting Group must be equal to';
         HandlingTimeErr: Label 'Wrong Outbound Whse. Handling Time';
+        GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         DateFilterErr: Label 'Date Filter does not match expected value';
 
     [Test]
@@ -3106,6 +3107,50 @@ codeunit 134385 "ERM Sales Document"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
     end;
 
+    [Test]
+    //[HandlerFunctions('ConfirmHandler')]
+    procedure ErrorGLAccountMustHaveAValueIsShownForPurchaseOrderWithMissingGenBusPostingGroupInGLAccount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        GLAccount: Record "G/L Account";
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        // [FEATURE] [Invoice Rounding] [Posting Group]
+        // [SCENARIO 391619] Create Purchase Order with missing "Invoice Rounding Account" in "Vendor Posting Group"
+        Initialize();
+
+        // [GIVEN] "Inv. Rounding Precision (LCY)" = 1 in General Ledger Setup
+        LibraryERM.SetInvRoundingPrecisionLCY(1);
+
+        // [GIVEN] Created Vendor with new Vendor Posting Group
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+        Customer.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Delete "Gen. Prod. Posting Group" code from  "Invoice Rounding Account"
+        GLAccount.Get(CustomerPostingGroup."Invoice Rounding Account");
+        GLAccount."Gen. Prod. Posting Group" := '';
+        GLAccount.Modify();
+
+        // [GIVEN] Created Purchase Order
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Modify(true);
+
+        // [WHEN] Post Purchase Order with Invoice Rounding Line
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Error has been thrown: "Gen. Prod. Posting Group  is not set for the Prepayment G/L account with no. XXXXX."
+        Assert.ExpectedError(
+          StrSubstNo(GenProdPostingGroupErr, SalesLine.FieldCaption("Gen. Prod. Posting Group"), GLAccount.Name, GLAccount."No."));
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -3130,12 +3175,13 @@ codeunit 134385 "ERM Sales Document"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateLocalData;
-
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
         isInitialized := true;
         Commit();
 
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Document");
     end;
 

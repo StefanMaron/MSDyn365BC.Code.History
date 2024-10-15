@@ -2809,7 +2809,7 @@
                     "Line No." := BiggestLineNo;
                     Validate(Type, Type::"G/L Account");
                 end;
-                Validate("No.", VendPostingGr."Invoice Rounding Account");
+                Validate("No.", VendPostingGr.GetInvRoundingAccount());
                 Validate(Quantity, 1);
                 if IsCreditDocType then
                     Validate("Return Qty. to Ship", Quantity)

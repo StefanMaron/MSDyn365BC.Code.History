@@ -55,6 +55,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 ReportingDate := ConvertPeriodToDate("Statistics Period");
 
                 TempIntrastatJnlLine.DeleteAll();
+                IntraJnlManagement.ChecklistClearBatchErrors(IntrastatJnlBatch);
             end;
         }
     }
@@ -107,8 +108,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
         }
 
         trigger OnOpenPage()
-        var
-            IntrastatSetup: Record "Intrastat Setup";
         begin
             if not IntrastatSetup.Get then
                 exit;
@@ -163,6 +162,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
         GreaterThanZeroErr: Label 'must be more than 0';
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
         GLSetup: Record "General Ledger Setup";
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         XMLDOMManagement: Codeunit "XML DOM Management";
         FileManagement: Codeunit "File Management";
         XMLDoc: DotNet XmlDocument;
@@ -357,11 +358,15 @@ report 593 "Intrastat - Make Disk Tax Auth"
     var
         TariffNumber: Record "Tariff Number";
     begin
+        if IntrastatSetup."Use Advanced Checklist" then
+            IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Make Disk Tax Auth", true)
+        else begin
+            IntrastatJnlLine.TestField("Country/Region Code");
+            IntrastatJnlLine.TestField("Transaction Type");
+            IntrastatJnlLine.TestField(Area);
+            IntrastatJnlLine.TestField("Tariff No.");
+        end;
         with IntrastatJnlLine do begin
-            TestField("Country/Region Code");
-            TestField("Transaction Type");
-            TestField(Area);
-            TestField("Tariff No.");
             if not GLSetup."Simplified Intrastat Decl." then begin
                 TestField("Transport Method");
                 TestField("Transaction Specification");

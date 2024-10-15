@@ -23,6 +23,7 @@ codeunit 136201 "Marketing Contacts"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
+        LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         IsInitialized: Boolean;
         RelationErrorServiceTier: Label '%1 must have a value in %2: Primary Key=. It cannot be zero or empty.';
         ValidationError: Label '%1: %2 must exist.';
@@ -4480,6 +4481,36 @@ codeunit 136201 "Marketing Contacts"
         Assert.AreNotEqual(BankAccount."Last Date Modified", LastModifiedDate, '');
     end;
 
+    [Test]
+    [HandlerFunctions('CreateInteractModalPageHandler,ConfirmHandlerFalse')]
+    [Scope('OnPrem')]
+    procedure CreateInterationDefaultSPFromUserSetup()
+    var
+        Contact: Record Contact;
+        UserSetup: Record "User Setup";
+        SalespersonPurchaser: array[2] of Record "Salesperson/Purchaser";
+    begin
+        // [SCENARIO 395676] Interaction created from Contact should take SalesPerson from User setup first
+        Initialize;
+
+        // [GIVEN] Current user setup with SalesPerson1 defined in "Salespers./Purch. Code" field
+        LibrarySales.CreateSalesperson(SalespersonPurchaser[1]);
+        LibraryDocumentApprovals.CreateOrFindUserSetup(UserSetup, UserId);
+        UserSetup.Validate("Salespers./Purch. Code", SalespersonPurchaser[1].Code);
+        UserSetup.Modify(true);
+        LibraryVariableStorage.Enqueue(SalespersonPurchaser[1].Code);
+
+        // [GIVEN] Contact "C" with "Salesperson Code" = SalesPerson2.
+        LibrarySales.CreateSalesperson(SalespersonPurchaser[2]);
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact.VALIDATE("Salesperson Code", SalespersonPurchaser[2].Code);
+        Contact.Modify(true);
+
+        // [WHEN] Create Interaction for Contact "C"
+        // [THEN] "Create Interaction" page is opened with "Salesperson Code" = SalesPerson1
+        Contact.CreateInteraction;
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -5342,6 +5373,13 @@ codeunit 136201 "Marketing Contacts"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure CreateInteractModalPageHandler(var CreateInteraction: TestPage "Create Interaction")
+    begin
+        CreateInteraction."Salesperson Code".AssertEquals(LibraryVariableStorage.DequeueText());
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure CreateOpportModalFormHandler(var CreateOpportunity: Page "Create Opportunity"; var Reply: Action)
     var
         TempOpportunity: Record Opportunity temporary;
@@ -5419,6 +5457,12 @@ codeunit 136201 "Marketing Contacts"
             Reply := false
         else
             Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 
     [ConfirmHandler]

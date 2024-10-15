@@ -156,7 +156,12 @@ page 474 "VAT Statement Preview"
 
     trigger OnOpenPage()
     begin
-        DateFilter := '';
+        if ValuesPassed then begin
+            Selection := PassedSelection;
+            PeriodSelection := PassedPeriodSelection;
+            DateFilter := PassedDateFilter;
+        end else
+            DateFilter := '';
         UpdateSubForm;
     end;
 
@@ -165,10 +170,22 @@ page 474 "VAT Statement Preview"
         PeriodSelection: Option "Before and Within Period","Within Period";
         UseAmtsInAddCurr: Boolean;
         DateFilter: Text[30];
+        PassedSelection: Option;
+        PassedPeriodSelection: Option;
+        PassedDateFilter: Text[30];
+        ValuesPassed: Boolean;
 
     procedure UpdateSubForm()
     begin
         CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr);
+    end;
+
+    procedure SetParameters(NewSelection: Option; NewPeriodSelection: Option; NewDateFilter: Text[30])
+    begin
+        PassedSelection := NewSelection;
+        PassedPeriodSelection := NewPeriodSelection;
+        PassedDateFilter := NewDateFilter;
+        ValuesPassed := true;
     end;
 
     local procedure OpenandClosedSelectionOnPush()

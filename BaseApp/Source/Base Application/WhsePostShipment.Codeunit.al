@@ -54,7 +54,6 @@ codeunit 5763 "Whse.-Post Shipment"
         InvoiceService: Boolean;
         FullATONotPostedErr: Label 'Warehouse shipment %1, Line No. %2 cannot be posted, because the full assemble-to-order quantity on the source document line must be shipped first.';
         GenJnlTemplate: Code[10];
-        WrongQuantityValueErr: Label 'This document cannot be shipped completely. Change the value in the Shipping Advice field to Partial.';
         SuppressCommit: Boolean;
 
     local procedure "Code"()
@@ -67,10 +66,6 @@ codeunit 5763 "Whse.-Post Shipment"
             if Find('-') then
                 repeat
                     TestField("Unit of Measure Code");
-                    if ("Shipping Advice" = "Shipping Advice"::Complete) and
-                       ("Qty. (Base)" <> "Qty. to Ship (Base)" + "Qty. Shipped (Base)")
-                    then
-                        Error(WrongQuantityValueErr);
                     WhseRqst.Get(
                       WhseRqst.Type::Outbound, "Location Code", "Source Type", "Source Subtype", "Source No.");
                     if WhseRqst."Document Status" <> WhseRqst."Document Status"::Released then

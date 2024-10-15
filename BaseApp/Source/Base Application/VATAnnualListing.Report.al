@@ -120,10 +120,31 @@ report 11308 "VAT Annual Listing"
                         DataItemTableView = SORTING("Entry No.");
 
                         trigger OnAfterGetRecord()
+                        var
+                            CrMemoCustLedgerEntry: Record "Cust. Ledger Entry";
+                            TempAppliedCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
+                            CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+                            IsCreditMemo: Boolean;
                         begin
                             WBase := WBase + Base;
                             WAmount := WAmount + Amount;
-                            IsCreditMemo := IsCreditMemo or (Base > 0);
+                            IsCreditMemo := (Base > 0);
+
+                            if IsCreditMemoWithAppliedInvoice then
+                                CurrReport.Skip();
+
+                            if IsCreditMemo then begin
+                                CrMemoCustLedgerEntry.SetRange("Document Type", "Document Type");
+                                CrMemoCustLedgerEntry.SetRange("Document No.", "Document No.");
+                                CrMemoCustLedgerEntry.SetRange("Posting Date", "Posting Date");
+                                CrMemoCustLedgerEntry.SetRange("Customer No.", "Bill-to/Pay-to No.");
+                                if CrMemoCustLedgerEntry.FindFirst() then begin
+                                    CustEntryApplyPostedEntries.GetAppliedCustLedgerEntries(TempAppliedCustLedgerEntry, CrMemoCustLedgerEntry."Entry No.");
+                                    TempAppliedCustLedgerEntry.SetRange("Posting Date", 0D, DMY2Date(31, 12, PreviousYear));
+                                    if not TempAppliedCustLedgerEntry.IsEmpty() then
+                                        IsCreditMemoWithAppliedInvoice := true;
+                                end;
+                            end;
                         end;
 
                         trigger OnPreDataItem()
@@ -148,7 +169,7 @@ report 11308 "VAT Annual Listing"
 
                     trigger OnPostDataItem()
                     begin
-                        if not SkipMinimumAmount or IsCreditMemo then begin
+                        if IsCustBalanceGreaterThanMinimum or IsCreditMemoWithAppliedInvoice then begin
                             No := No + 1;
                             WTotBase := -WBase;
                             WTotAmount := -WAmount;
@@ -177,7 +198,7 @@ report 11308 "VAT Annual Listing"
                     trigger OnAfterGetRecord()
                     begin
                         // Filling up buffer for printing in printloop
-                        if not SkipMinimumAmount or IsCreditMemo then begin
+                        if IsCustBalanceGreaterThanMinimum or IsCreditMemoWithAppliedInvoice then begin
                             Buffer.Reset();
                             Buffer.SetRange("VAT Registration No.", VAT1 + ' ' + VAT2);
                             if Buffer.FindFirst then begin
@@ -205,7 +226,7 @@ report 11308 "VAT Annual Listing"
                     Clear(WAmount);
                     Clear(VAT1);
                     Clear(VAT2);
-                    IsCreditMemo := false;
+                    IsCreditMemoWithAppliedInvoice := false;
                     VAT1 := 'BE';
                     VAT2 := DelChr("Enterprise No.", '=', DelChr("Enterprise No.", '=', '0123456789'));
                 end;
@@ -350,6 +371,7 @@ report 11308 "VAT Annual Listing"
     begin
         if intYear < 1900 then
             Error(Text002);
+        PreviousYear := intYear - 1;
     end;
 
     var
@@ -385,11 +407,12 @@ report 11308 "VAT Annual Listing"
         BuffVATRegNoCaptionLbl: Label 'VAT Number';
         BuffEntryNoCaptionLbl: Label 'Row';
         TotalCaptionLbl: Label 'Total';
-        IsCreditMemo: Boolean;
+        IsCreditMemoWithAppliedInvoice: Boolean;
+        PreviousYear: Integer;
 
-    local procedure SkipMinimumAmount(): Boolean
+    local procedure IsCustBalanceGreaterThanMinimum(): Boolean
     begin
-        exit((Abs(WBase) < Minimum) and (WBase <= 0));
+        exit(-WBase >= Minimum);
     end;
 }
 

@@ -1,7 +1,7 @@
 report 502 "Intrastat - Checklist"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './IntrastatChecklist.rdlc';
+    RDLCLayout = './Intrastat/IntrastatChecklist.rdlc';
     ApplicationArea = BasicEU;
     Caption = 'Intrastat - Checklist';
     UsageCategory = ReportsAndAnalysis;
@@ -226,6 +226,8 @@ report 502 "Intrastat - Checklist"
 
                 trigger OnAfterGetRecord()
                 begin
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Checklist", false);
                     if "Tariff No." = '' then
                         AddError("Intrastat Jnl. Line", FieldNo("Tariff No."), StrSubstNo(Text11300, FieldCaption("Tariff No.")))
                     else
@@ -417,6 +419,7 @@ report 502 "Intrastat - Checklist"
     begin
         GLSetup.Get();
         CompanyInfo.Get();
+        if IntrastatSetup.Get() then;
     end;
 
     var
@@ -437,7 +440,9 @@ report 502 "Intrastat - Checklist"
         PrevIntrastatJnlLine: Record "Intrastat Jnl. Line";
         Tariffnumber: Record "Tariff Number";
         ErrorMessage: Record "Error Message";
+        IntrastatSetup: Record "Intrastat Setup";
         ApplicationSystemConstants: Codeunit "Application System Constants";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         NoOfRecords: Integer;
         NoOfRecordsRTC: Integer;
         PrintJnlLines: Boolean;
