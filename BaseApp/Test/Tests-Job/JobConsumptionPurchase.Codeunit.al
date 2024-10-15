@@ -3236,6 +3236,37 @@ codeunit 136302 "Job Consumption Purchase"
             StrSubstNo(ValueMustMatchErr, JobLedgerEntry.FieldCaption("Total Cost (LCY)"), TotalCost));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePurchaseOrderPostWhenPurchaseLineItemIsWithJobLineTypeAndWhenJobPlanningLineNoIsBlank()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        JobPlanningLine: Record "Job Planning Line";
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 464044] Purchase with Job, Job Task, and Job Line Type specified generates "Usage will not be linked to the job planning line because the Job Planning Line No. field is empty". Also, it nets qty against & links to existing Planning Line
+        Initialize();
+
+        // [GIVEN] Job with Planning Line - "Usage Link" and Item "X"
+        CreateJobAndJobPlanningLine(JobPlanningLine, CreateItem(), LibraryRandom.RandIntInRange(10, 20));
+
+
+        // [GIVEN] Purchase Order with Item "X", Job ("Job Planning Line No." is not defined to make strict link to Job)
+        CreatePurchaseDocument(PurchLine, PurchHeader."Document Type"::Order, JobPlanningLine."No.");
+        PurchLine.Validate("Job No.", JobPlanningLine."Job No.");
+        PurchLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchLine.Validate("Job Line Type", PurchLine."Job Line Type"::Budget);
+        PurchLine.Modify(true);
+
+        // [WHEN] Post Purchase Order 
+        PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+
+        // [VERIFY] Verify: Job Ledger Entry created after posting Purchase Order 
+        VerifyJobLedgerEntry(PurchLine, DocumentNo, PurchLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
 #if not CLEAN21

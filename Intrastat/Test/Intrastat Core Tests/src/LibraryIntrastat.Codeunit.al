@@ -28,6 +28,10 @@ codeunit 139554 "Library - Intrastat"
         IntrastatReportSetup.Init();
         IntrastatReportSetup.Validate("Intrastat Nos.", NoSeriesCode);
         IntrastatReportSetup.Insert();
+
+        IntrastatReportSetup.Validate("Report Receipts", true);
+        IntrastatReportSetup.Validate("Report Shipments", true);
+        IntrastatReportSetup.Modify(true);
     end;
 
     procedure CreateIntrastatReport(ReportDate: Date; var IntrastatReportNo: Code[20])
@@ -612,6 +616,14 @@ codeunit 139554 "Library - Intrastat"
         exit(CountryRegion.Code);
     end;
 
+    procedure GetCompanyInfoCountryRegionCode(): Code[10]
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        exit(CompanyInformation."Country/Region Code");
+    end;
+
     procedure GetIntrastatNo() NoSeriesCode: Code[20]
     var
         IntrastatReportSetup: Record "Intrastat Report Setup";
@@ -766,6 +778,15 @@ codeunit 139554 "Library - Intrastat"
         PurchasesPayablesSetup.Modify(true);
     end;
 
+    procedure UpdateReturnReceiptOnCreditMemoSalesSetup(ReturnReceiptOnCreditMemo: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Return Receipt on Credit Memo", ReturnReceiptOnCreditMemo);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
     procedure UpdateIntrastatCodeInCountryRegion()
     var
         CompanyInformation: Record "Company Information";
@@ -799,6 +820,23 @@ codeunit 139554 "Library - Intrastat"
         IntrastatReportLine.Validate(Quantity, LibraryRandom.RandDecInRange(10, 20, 2));
         IntrastatReportLine.Modify(true);
         exit(Item."Net Weight");
+    end;
+
+    procedure CreateAndPostSalesOrderWithCountryAndLocation(CountryRegionCode: Code[10]; LocationCode: Code[10]; ItemNo: Code[20]; NewShipReceive: Boolean; NewInvoice: Boolean): Code[20]
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateCustomerWithLocationCode(Customer, LocationCode);
+        Customer.Validate("Country/Region Code", CountryRegionCode);
+        Customer.Modify(true);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Validate("VAT Country/Region Code", CountryRegionCode);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, 1);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, NewShipReceive, NewInvoice));
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::IntrastatReportManagement, 'OnAfterCheckFeatureEnabled', '', true, true)]

@@ -3,6 +3,7 @@ page 5875 "Physical Inventory Order"
     Caption = 'Physical Inventory Order';
     PageType = Document;
     SourceTable = "Phys. Invt. Order Header";
+    RefreshOnActivate = true;
 
     layout
     {

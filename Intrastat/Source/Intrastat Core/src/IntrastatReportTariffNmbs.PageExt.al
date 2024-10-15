@@ -6,14 +6,14 @@ pageextension 4823 "Intrastat Report Tariff Nmbs." extends "Tariff Numbers"
         {
             field("Suppl. Conversion Factor"; Rec."Suppl. Conversion Factor")
             {
-                ApplicationArea = BasicEU, BasicNO, BasicCH;
+                ApplicationArea = BasicEU, BasicCH, BasicNO;
                 ToolTip = 'Specifies the conversion factor for the tariff number.';
                 Editable = NewFieldsEnabled;
                 Visible = NewFieldsEnabled;
             }
             field("Suppl. Unit of Measure"; Rec."Suppl. Unit of Measure")
             {
-                ApplicationArea = BasicEU, BasicNO, BasicCH;
+                ApplicationArea = BasicEU, BasicCH, BasicNO;
                 ToolTip = 'Specifies the unit of measure for the tariff number.';
                 Editable = NewFieldsEnabled;
                 Visible = NewFieldsEnabled;
