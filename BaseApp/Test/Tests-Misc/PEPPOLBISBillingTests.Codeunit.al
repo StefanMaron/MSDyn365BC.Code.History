@@ -1,0 +1,1254 @@
+codeunit 139145 "PEPPOL BIS BillingTests"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [PEPPOL] [BIS Billing]
+    end;
+
+    var
+        LibraryService: Codeunit "Library - Service";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryXMLRead: Codeunit "Library - XML Read";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        UsageRef: Option "Sales Invoice","Sales Credit Memo","Sales Validation","Service Invoice","Service Credit Memo","Service Validation","Job Quote";
+        IsInitialized: Boolean;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoiceVAT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Customer: Record Customer;
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with VAT Registration No. and "External Document No."
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with "VAT Registration No." = 'BE1234567890' and "External Document No." = "INV01"
+        Customer.Get(CreateCustomerWithAddressAndVATRegNo);
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDoc(Customer."No.", SalesHeader."Document Type"::Invoice));
+        SalesInvoiceHeader."External Document No." := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader.Modify;
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] PEPPOL BIS identifers are exported in <CustomizationID> and <ProfileID>
+        // [THEN] <AccountingCustomerParty> has <CompanyID> = 'BE1234567890'
+        // [THEN] <OrderReference> is "INV01"
+        LibraryXMLRead.Initialize(XMLFilePath);
+        VerifyPEPPOLBISIdentifiers('Invoice');
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:CompanyID', Customer."VAT Registration No.");
+        LibraryXMLRead.VerifyNodeValueInSubtree('Invoice', 'cac:OrderReference', SalesInvoiceHeader."External Document No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoiceGLN()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Customer: Record Customer;
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with GLN where "External Document No." is blank
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with "GLN" = '1234567890123' and "External Document No." = blank
+        Customer.Get(CreateCustomerWithAddressAndGLN);
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDoc(Customer."No.", SalesHeader."Document Type"::Invoice));
+        SalesInvoiceHeader."External Document No." := '';
+        SalesInvoiceHeader.Modify;
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] <AccountingCustomerParty> has <ID> = '1234567890123' with <SchemeID> = '0088'
+        // [THEN] <OrderReference> is taken from invoice's "Document No."
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', Customer.GLN);
+        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', 'schemeID', GetGLNSchemeID);
+        LibraryXMLRead.VerifyNodeValueInSubtree('Invoice', 'cac:OrderReference', SalesInvoiceHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoice_CompInfVAT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CompanyInformation: Record "Company Information";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice when Company Information has VAT Registration No.
+        Initialize;
+
+        // [GIVEN] Company has "VAT Registration No." = 'NO1234567890'
+        UpdateCompanyVATRegNo;
+
+        // [GIVEN] Posted Sales Invoice
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::Invoice));
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] <AccountingSupplierParty> has <CompanyID> = 'NO1234567890'
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'NO1234567890'
+        CompanyInformation.Get;
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:AccountingSupplierParty', 'cbc:CompanyID', DelChr(CompanyInformation."VAT Registration No."));
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:PartyTaxScheme', 'cbc:CompanyID', DelChr(CompanyInformation."VAT Registration No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoice_CompInfGLN()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CompanyInformation: Record "Company Information";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice when Company Information has GLN
+        Initialize;
+
+        // [GIVEN] Company has GLN = '1234567890123'
+        UpdateCompanyGLN;
+
+        // [GIVEN] Posted Sales Invoice
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::Invoice));
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] <PartyLegalEntity> of <AccountingCustomerParty> has <CompanyID> = '1234567890123' with <SchemeID> = '0088'
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'NO1234567890'
+        CompanyInformation.Get;
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyLegalEntity', 'cbc:CompanyID', CompanyInformation.GLN);
+        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:PartyLegalEntity', 'cbc:CompanyID', 'schemeID', GetGLNSchemeID);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:PartyTaxScheme', 'cbc:CompanyID', DelChr(CompanyInformation."VAT Registration No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoice_TaxCategoryS()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'S' - ordinary rate
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with Tax Category 'S', VAT Percent = 10
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDocWithTaxCategory(
+            CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryS, LibraryRandom.RandIntInRange(10, 20)));
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] <TaxCategory> has <ID> 'S', <Percent> = 10
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryS);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', GetVATPctPostedSalesInvoice(SalesInvoiceHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoice_TaxCategoryE()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'E' - VAT Exempt
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with Tax Category 'E'
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryE, 0));
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] <TaxCategory> has <ID> 'E', <Percent> = 0
+        // [THEN] <TaxCategory> has <TaxExemptionReason>
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryE);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', 0);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:TaxCategory', 'cbc:TaxExemptionReason', GetExemptReasonPostedSalesInvoice(SalesInvoiceHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoice_TaxCategoryO()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'O' - no VAT
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with Tax Category 'O', VAT Percent = 0
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryO, 0));
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] <TaxCategory> has <ID> 'O'
+        // [THEN] <TaxCategory> has <TaxExemptionReason>
+        // [THEN] <AccountingSupplierParty> does not contain <PartyTaxScheme>
+        // [THEN] <ClassifiedTaxCategory> does not contain <Percent>
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryO);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:TaxCategory', 'cbc:TaxExemptionReason', GetExemptReasonPostedSalesInvoice(SalesInvoiceHeader));
+        LibraryXMLRead.VerifyNodeAbsence('cbc:PartyTaxScheme');
+        LibraryXMLRead.VerifyNodeAbsenceInSubtree('cac:ClassifiedTaxCategory', 'cbc:Percent');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoice_TaxCategoryZ()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'Z' - VAT Exempt for goods not included in the VAT regulations
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with Tax Category 'Z'
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryZ, 0));
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] <TaxCategory> has <ID> 'Z', <Percent> = 0
+        // [THEN] <TaxExemptionReason> is not exported
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryZ);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', 0);
+        LibraryXMLRead.VerifyNodeAbsence('cbc:TaxExemptionReason');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoice_TaxCategoryAE()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'AE' - Reverse charge
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with Tax Category 'AE' and VAT% = 10
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDocWithTaxCategoryReverseVAT(
+            CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryAE, LibraryRandom.RandIntInRange(10, 20)));
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] <TaxCategory> has <ID> 'AE', <Percent> = 0
+        // [THEN] <TaxCategory> has <TaxExemptionReason>
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryAE);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', 0);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:TaxCategory', 'cbc:TaxExemptionReason', GetExemptReasonPostedSalesInvoice(SalesInvoiceHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoice_TaxCategoryG()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'G' - Export outside EU
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with Tax Category 'G'
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDocWithTaxCategory(
+            CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryG, 0));
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] <TaxCategory> has <ID> 'G', <Percent> = 0
+        // [THEN] <TaxCategory> has <TaxExemptionReason>
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryG);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', 0);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:TaxCategory', 'cbc:TaxExemptionReason', GetExemptReasonPostedSalesInvoice(SalesInvoiceHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoice_TaxCategoryL()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'L' // IGIC
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with Tax Category 'L', VAT Percent = 7
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDocWithTaxCategory(
+            CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryL, LibraryRandom.RandIntInRange(10, 20)));
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] <TaxCategory> has <ID> 'L', <Percent> = 7
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryL);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', GetVATPctPostedSalesInvoice(SalesInvoiceHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoice_TaxCategoryM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'M' // IPSI
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with Tax Category 'M', VAT Percent = 4
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDocWithTaxCategory(
+            CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::Invoice, GetTaxCategoryM, LibraryRandom.RandIntInRange(10, 20)));
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] <TaxCategory> has <ID> 'M', <Percent> = 4
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryM);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', GetVATPctPostedSalesInvoice(SalesInvoiceHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesInvoice_TaxCategoryK()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Invoice] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Invoice with Tax Category 'K' - intra-community supply
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice with Tax Category 'K', VAT Percent = 0
+        SalesInvoiceHeader.Get(
+          CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::Invoice, GetTaxCategoryK, 0));
+
+        // [WHEN] Export Sales Invoice with PEPPOL BIS3
+        SalesInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesInvoiceHeader, CreateBISElectronicDocumentFormatSalesInvoice);
+
+        // [THEN] <TaxCategory> has <ID> 'K'
+        // [THEN] <TaxCategory> has <TaxExemptionReason>
+        // [THEN] <AccountingSupplierParty> does not contain <PartyTaxScheme>
+        // [THEN] <ClassifiedTaxCategory> does not contain <Percent>
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryK);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:TaxCategory', 'cbc:TaxExemptionReason', GetExemptReasonPostedSalesInvoice(SalesInvoiceHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemoVAT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        Customer: Record Customer;
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with VAT Registration No. and "External Document No."
+        Initialize;
+
+        // [GIVEN] Posted Sales Credit Memo with "VAT Registration No." = 'BE1234567890' and "External Document No." = "INV01"
+        Customer.Get(CreateCustomerWithAddressAndVATRegNo);
+        SalesCrMemoHeader.Get(
+          CreatePostSalesDoc(Customer."No.", SalesHeader."Document Type"::"Credit Memo"));
+        SalesCrMemoHeader."External Document No." := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader.Modify;
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] PEPPOL BIS identifers are exported in <CustomizationID> and <ProfileID>
+        // [THEN] <AccountingCustomerParty> has <CompanyID> = 'BE1234567890'
+        // [THEN] <OrderReference> is "INV01"
+        LibraryXMLRead.Initialize(XMLFilePath);
+        VerifyPEPPOLBISIdentifiers('CreditNote');
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:CompanyID', Customer."VAT Registration No.");
+        LibraryXMLRead.VerifyNodeValueInSubtree('CreditNote', 'cac:OrderReference', SalesCrMemoHeader."External Document No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemoGLN()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        Customer: Record Customer;
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with GLN where "External Document No." is blank
+        Initialize;
+
+        // [GIVEN] Posted Sales Credit Memo with "GLN" = '1234567890123' and "External Document No." = blank
+        Customer.Get(CreateCustomerWithAddressAndGLN);
+        SalesCrMemoHeader.Get(
+          CreatePostSalesDoc(Customer."No.", SalesHeader."Document Type"::"Credit Memo"));
+        SalesCrMemoHeader."External Document No." := '';
+        SalesCrMemoHeader.Modify;
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] <AccountingCustomerParty> has <ID> = '1234567890123' with <SchemeID> = '0088'
+        // [THEN] <OrderReference> is taken from credit memo's "Document No."
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', Customer.GLN);
+        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', 'schemeID', GetGLNSchemeID);
+        LibraryXMLRead.VerifyNodeValueInSubtree('CreditNote', 'cac:OrderReference', SalesCrMemoHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemo_CompInfVAT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        CompanyInformation: Record "Company Information";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo when Company Information has VAT Registration No.
+        Initialize;
+
+        // [GIVEN] Company has "VAT Registration No." = 'NO1234567890'
+        UpdateCompanyVATRegNo;
+
+        // [GIVEN] Posted Sales Credit Memo
+        SalesCrMemoHeader.Get(
+          CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::"Credit Memo"));
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] <AccountingSupplierParty> has <CompanyID> = 'NO1234567890'
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'NO1234567890'
+        CompanyInformation.Get;
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:AccountingSupplierParty', 'cbc:CompanyID', DelChr(CompanyInformation."VAT Registration No."));
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:PartyTaxScheme', 'cbc:CompanyID', DelChr(CompanyInformation."VAT Registration No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemo_CompInfGLN()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        CompanyInformation: Record "Company Information";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo when Company Information has GLN
+        Initialize;
+
+        // [GIVEN] Company has GLN = '1234567890123'
+        UpdateCompanyGLN;
+
+        // [GIVEN] Posted Sales Credit Memo
+        SalesCrMemoHeader.Get(
+          CreatePostSalesDoc(CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::"Credit Memo"));
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] <PartyLegalEntity> of <AccountingCustomerParty> has <CompanyID> = '1234567890123' with <SchemeID> = '0088'
+        // [THEN] <PartyTaxScheme> has <CompanyID> = 'NO1234567890'
+        CompanyInformation.Get;
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:PartyLegalEntity', 'cbc:CompanyID', CompanyInformation.GLN);
+        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:PartyLegalEntity', 'cbc:CompanyID', 'schemeID', GetGLNSchemeID);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:PartyTaxScheme', 'cbc:CompanyID', DelChr(CompanyInformation."VAT Registration No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemo_TaxCategoryS()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'S' - ordinary rate
+        Initialize;
+
+        // [GIVEN] Posted Sales Credit Memo with Tax Category 'S', VAT Percent = 10
+        SalesCrMemoHeader.Get(
+          CreatePostSalesDocWithTaxCategory(
+            CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryS, LibraryRandom.RandIntInRange(10, 20)));
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] <TaxCategory> has <ID> 'S', <Percent> = 10
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryS);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', GetVATPctPostedSalesCrMemo(SalesCrMemoHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemo_TaxCategoryE()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'E' - VAT Exempt
+        Initialize;
+
+        // [GIVEN] Posted Sales Credit Memo with Tax Category 'E'
+        SalesCrMemoHeader.Get(
+          CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryE, 0));
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] <TaxCategory> has <ID> 'E', <Percent> = 0
+        // [THEN] <TaxCategory> has <TaxExemptionReason>
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryE);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', 0);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:TaxCategory', 'cbc:TaxExemptionReason', GetExemptReasonPostedSalesCrMemo(SalesCrMemoHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemo_TaxCategoryO()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'O' - no VAT
+        Initialize;
+
+        // [GIVEN] Posted Sales Credit Memo with Tax Category 'O', VAT Percent = 0
+        SalesCrMemoHeader.Get(
+          CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryO, 0));
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] <TaxCategory> has <ID> 'O'
+        // [THEN] <TaxCategory> has <TaxExemptionReason>
+        // [THEN] <AccountingSupplierParty> does not contain <PartyTaxScheme>
+        // [THEN] <ClassifiedTaxCategory> does not contain <Percent>
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryO);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:TaxCategory', 'cbc:TaxExemptionReason', GetExemptReasonPostedSalesCrMemo(SalesCrMemoHeader));
+        LibraryXMLRead.VerifyNodeAbsence('cbc:PartyTaxScheme');
+        LibraryXMLRead.VerifyNodeAbsenceInSubtree('cac:ClassifiedTaxCategory', 'cbc:Percent');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemo_TaxCategoryZ()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'Z' - VAT Exempt for goods not included in the VAT regulations
+        Initialize;
+
+        // [GIVEN] Posted Sales Credit Memo with Tax Category 'Z'
+        SalesCrMemoHeader.Get(
+          CreatePostSalesDocWithTaxCategory(CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryZ, 0));
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] <TaxCategory> has <ID> 'Z', <Percent> = 0
+        // [THEN] <TaxExemptionReason> is not exported
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryZ);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', 0);
+        LibraryXMLRead.VerifyNodeAbsence('cbc:TaxExemptionReason');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemo_TaxCategoryAE()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'AE' - Reverse charge
+        Initialize;
+
+        // [GIVEN] Posted Sales Credit Memo with Tax Category 'AE' and VAT% = 10
+        SalesCrMemoHeader.Get(
+          CreatePostSalesDocWithTaxCategoryReverseVAT(
+            CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryAE,
+            LibraryRandom.RandIntInRange(10, 20)));
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] <TaxCategory> has <ID> 'AE', <Percent> = 0
+        // [THEN] <TaxCategory> has <TaxExemptionReason>
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryAE);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', 0);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:TaxCategory', 'cbc:TaxExemptionReason', GetExemptReasonPostedSalesCrMemo(SalesCrMemoHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemo_TaxCategoryG()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'G' - Export outside EU
+        Initialize;
+
+        // [GIVEN] Posted Sales Credit Memo with Tax Category 'G'
+        SalesCrMemoHeader.Get(
+          CreatePostSalesDocWithTaxCategory(
+            CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryG, 0));
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] <TaxCategory> has <ID> 'G', <Percent> = 0
+        // [THEN] <TaxCategory> has <TaxExemptionReason>
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryG);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', 0);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:TaxCategory', 'cbc:TaxExemptionReason', GetExemptReasonPostedSalesCrMemo(SalesCrMemoHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemo_TaxCategoryL()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'L'
+        Initialize;
+
+        // [GIVEN] Posted Sales Credit Memo with Tax Category 'L', VAT Percent = 10
+        SalesCrMemoHeader.Get(
+          CreatePostSalesDocWithTaxCategory(
+            CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryL,
+            LibraryRandom.RandIntInRange(10, 20)));
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] <TaxCategory> has <ID> 'L', <Percent> = 10
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryL);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', GetVATPctPostedSalesCrMemo(SalesCrMemoHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemo_TaxCategoryM()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'M'
+        Initialize;
+
+        // [GIVEN] Posted Sales Credit Memo with Tax Category 'M', VAT Percent = 10
+        SalesCrMemoHeader.Get(
+          CreatePostSalesDocWithTaxCategory(
+            CreateCustomerWithAddressAndGLN, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryM, LibraryRandom.RandIntInRange(10, 20)));
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] <TaxCategory> has <ID> 'M', <Percent> = 10
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryM);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:Percent', GetVATPctPostedSalesCrMemo(SalesCrMemoHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_SalesCreditMemo_TaxCategoryK()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Credit Memo] [Tax Category]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Sales Credit Memo with Tax Category 'K' - intra-community supply
+        Initialize;
+
+        // [GIVEN] Posted Sales Credit Memo with Tax Category 'K', VAT Percent = 0
+        SalesCrMemoHeader.Get(
+          CreatePostSalesDocWithTaxCategory(
+            CreateCustomerWithAddressAndVATRegNo, SalesHeader."Document Type"::"Credit Memo", GetTaxCategoryK, 0));
+
+        // [WHEN] Export Sales Credit Memo with PEPPOL BIS3
+        SalesCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(SalesCrMemoHeader, CreateBISElectronicDocumentFormatSalesCrMemo);
+
+        // [THEN] <TaxCategory> has <ID> 'K'
+        // [THEN] <TaxCategory> has <TaxExemptionReason>
+        // [THEN] <AccountingSupplierParty> does not contain <PartyTaxScheme>
+        // [THEN] <ClassifiedTaxCategory> does not contain <Percent>
+        LibraryXMLRead.Initialize(XMLFilePath);
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:TaxCategory', 'cbc:ID', GetTaxCategoryK);
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          'cac:TaxCategory', 'cbc:TaxExemptionReason', GetExemptReasonPostedSalesCrMemo(SalesCrMemoHeader));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_ServiceInvoice()
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        Customer: Record Customer;
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Service] [Invoice]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Service Invoice
+        Initialize;
+
+        // [GIVEN] Posted Service Invoice for Customer with GLN = '1234567890123'
+        CreatePostServiceInvoice(ServiceInvoiceHeader);
+        Customer.Get(ServiceInvoiceHeader."Customer No.");
+
+        // [WHEN] Export Service Credit Memo with PEPPOL BIS3
+        ServiceInvoiceHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(ServiceInvoiceHeader, CreateBISElectronicDocumentFormatServiceInvoice);
+
+        // [THEN] <AccountingCustomerParty> has <ID> = '1234567890123' with <SchemeID> = '0088'
+        // [THEN] <OrderReference> is taken from invoice's "Document No."
+        LibraryXMLRead.Initialize(XMLFilePath);
+        VerifyPEPPOLBISIdentifiers('Invoice');
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', Customer.GLN);
+        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', 'schemeID', GetGLNSchemeID);
+        LibraryXMLRead.VerifyNodeValueInSubtree('Invoice', 'cac:OrderReference', ServiceInvoiceHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportXml_PEPPOL_BIS3_ServiceCrMemo()
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        Customer: Record Customer;
+        XMLFilePath: Text;
+    begin
+        // [FEATURE] [Service] [Credit Memo]
+        // [SCENARIO 281593] PEPPOL BIS3. Export Service Credit Memo
+        Initialize;
+
+        // [GIVEN] Posted Service Credit Memo for Customer with GLN = '1234567890123'
+        CreatePostServiceCrMemo(ServiceCrMemoHeader);
+        Customer.Get(ServiceCrMemoHeader."Customer No.");
+
+        // [WHEN] Export Service Credit Memo with PEPPOL BIS3
+        ServiceCrMemoHeader.SetRecFilter;
+        XMLFilePath := PEPPOLXMLExport(ServiceCrMemoHeader, CreateBISElectronicDocumentFormatServiceCrMemo);
+
+        // [THEN] <AccountingCustomerParty> has <ID> = '1234567890123' with <SchemeID> = '0088'
+        // [THEN] <OrderReference> is taken from credit memo's "Document No."
+        LibraryXMLRead.Initialize(XMLFilePath);
+        VerifyPEPPOLBISIdentifiers('CreditNote');
+        LibraryXMLRead.VerifyNodeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', Customer.GLN);
+        LibraryXMLRead.VerifyAttributeValueInSubtree('cac:AccountingCustomerParty', 'cbc:ID', 'schemeID', GetGLNSchemeID);
+        LibraryXMLRead.VerifyNodeValueInSubtree('CreditNote', 'cac:OrderReference', ServiceCrMemoHeader."No.");
+    end;
+
+    local procedure Initialize()
+    var
+        CompanyInfo: Record "Company Information";
+    begin
+        LibrarySetupStorage.Restore;
+
+        if not IsInitialized then begin
+            CompanyInfo.Get;
+            CompanyInfo.Validate(IBAN, 'GB29NWBK60161331926819');
+            CompanyInfo.Validate("SWIFT Code", 'MIDLGB22Z0K');
+            CompanyInfo.Validate("Bank Branch No.", '1234');
+
+            if CompanyInfo."VAT Registration No." = '' then
+                CompanyInfo."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInfo."Country/Region Code");
+
+            CompanyInfo.Modify(true);
+
+            ConfigureVATPostingSetup;
+
+            AddCompPEPPOLIdentifier;
+
+            LibraryERMCountryData.CreateVATData;
+            LibraryERMCountryData.UpdateGeneralLedgerSetup;
+            LibraryERMCountryData.UpdateGeneralPostingSetup;
+            LibraryERMCountryData.UpdateSalesReceivablesSetup;
+            LibraryERMCountryData.UpdateLocalData;
+            UpdateElectronicDocumentFormatSetup;
+            LibraryService.SetupServiceMgtNoSeries;
+            LibrarySetupStorage.Save(DATABASE::"Company Information");
+
+            IsInitialized := true;
+        end;
+    end;
+
+    local procedure AddCustPEPPOLIdentifier(CustNo: Code[20])
+    var
+        Cust: Record Customer;
+    begin
+        with Cust do begin
+            Get(CustNo);
+            Validate(GLN, '1234567891231');
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreateElectronicDocumentFormatSetup(NewCode: Code[20]; NewUsage: Option; NewCodeunitID: Integer): Code[20]
+    var
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+    begin
+        with ElectronicDocumentFormat do begin
+            Init;
+            Code := NewCode;
+            Usage := NewUsage;
+            "Codeunit ID" := NewCodeunitID;
+            if Insert then;
+            exit(Code);
+        end;
+    end;
+
+    local procedure CreateBISElectronicDocumentFormatSalesInvoice(): Code[20]
+    begin
+        exit(
+          CreateElectronicDocumentFormatSetup(
+            LibraryUtility.GenerateGUID, UsageRef::"Sales Invoice", CODEUNIT::"Exp. Sales Inv. PEPPOL BIS3.0"));
+    end;
+
+    local procedure CreateBISElectronicDocumentFormatSalesCrMemo(): Code[20]
+    begin
+        exit(
+          CreateElectronicDocumentFormatSetup(
+            LibraryUtility.GenerateGUID, UsageRef::"Sales Credit Memo", CODEUNIT::"Exp. Sales CrM. PEPPOL BIS3.0"));
+    end;
+
+    local procedure CreateBISElectronicDocumentFormatServiceInvoice(): Code[20]
+    begin
+        exit(
+          CreateElectronicDocumentFormatSetup(
+            LibraryUtility.GenerateGUID, UsageRef::"Service Invoice", CODEUNIT::"Exp. Serv.Inv. PEPPOL BIS3.0"));
+    end;
+
+    local procedure CreateBISElectronicDocumentFormatServiceCrMemo(): Code[20]
+    begin
+        exit(
+          CreateElectronicDocumentFormatSetup(
+            LibraryUtility.GenerateGUID, UsageRef::"Service Credit Memo", CODEUNIT::"Exp. Serv.CrM. PEPPOL BIS3.0"));
+    end;
+
+    local procedure ConfigureVATPostingSetup()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        VATPostingSetup.SetRange("Tax Category", '');
+        VATPostingSetup.ModifyAll("Tax Category", 'AA');
+    end;
+
+    local procedure AddCompPEPPOLIdentifier()
+    var
+        CompanyInfo: Record "Company Information";
+    begin
+        with CompanyInfo do begin
+            Get;
+            Validate(GLN, '1234567891231');
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreatePostSalesDoc(CustomerNo: Code[20]; DocumentType: Option): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesDoc(SalesHeader, SalesLine, CustomerNo, DocumentType);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; DocumentType: Option)
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Your Reference",
+          LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("Your Reference"), DATABASE::"Sales Header"));
+        SalesHeader.Validate("Shipment Date", LibraryRandom.RandDate(10));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreatePostSalesDocWithTaxCategory(CustomerNo: Code[20]; DocumentType: Option; TaxCategory: Code[10]; VATPct: Decimal): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesDoc(SalesHeader, SalesLine, CustomerNo, DocumentType);
+        SalesLine.Validate(
+          "VAT Prod. Posting Group", CreateVATPostingSetupWithTaxCategory(SalesHeader."VAT Bus. Posting Group", TaxCategory, VATPct));
+        SalesLine.Modify(true);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreatePostSalesDocWithTaxCategoryReverseVAT(CustomerNo: Code[20]; DocumentType: Option; TaxCategory: Code[10]; VATPct: Decimal): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesDoc(SalesHeader, SalesLine, CustomerNo, DocumentType);
+        SalesLine.Validate(
+          "VAT Prod. Posting Group",
+          CreateVATPostingSetupWithTaxCategoryReverseVAT(SalesHeader."VAT Bus. Posting Group", TaxCategory, VATPct));
+        SalesLine.Modify(true);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreatePostServiceInvoice(var ServiceInvoiceHeader: Record "Service Invoice Header")
+    var
+        DummyServiceHeader: Record "Service Header";
+    begin
+        ServiceInvoiceHeader.SetRange("Pre-Assigned No.", CreatePostServiceDoc(DummyServiceHeader."Document Type"::Invoice));
+        ServiceInvoiceHeader.FindFirst;
+    end;
+
+    local procedure CreatePostServiceCrMemo(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
+    var
+        DummyServiceHeader: Record "Service Header";
+    begin
+        ServiceCrMemoHeader.SetRange("Pre-Assigned No.", CreatePostServiceDoc(DummyServiceHeader."Document Type"::"Credit Memo"));
+        ServiceCrMemoHeader.FindFirst;
+    end;
+
+    local procedure CreatePostServiceDoc(DocumentType: Option): Code[20]
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomerWithAddress(Customer);
+        AddCustPEPPOLIdentifier(Customer."No.");
+        LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, Customer."No.");
+        ServiceHeader.Validate("Due Date", LibraryRandom.RandDate(10));
+        ServiceHeader.Modify(true);
+        LibraryService.CreateServiceLineWithQuantity(
+          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        ServiceLine.Modify(true);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+        exit(ServiceHeader."No.");
+    end;
+
+    local procedure CreateCustomerWithAddressAndGLN(): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomerWithAddress(Customer);
+        AddCustPEPPOLIdentifier(Customer."No.");
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateCustomerWithAddressAndVATRegNo(): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomerWithAddress(Customer);
+        Customer."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code");
+        Customer.Modify;
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateVATPostingSetupWithTaxCategory(VATBusPostGr: Code[20]; TaxCategory: Code[10]; VATPct: Decimal): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        CreateVATPostingSetupWithTATCalcType(
+          VATPostingSetup, VATBusPostGr, TaxCategory, VATPct, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        exit(VATPostingSetup."VAT Prod. Posting Group");
+    end;
+
+    local procedure CreateVATPostingSetupWithTaxCategoryReverseVAT(VATBusPostGr: Code[20]; TaxCategory: Code[10]; VATPct: Decimal): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        CreateVATPostingSetupWithTATCalcType(
+          VATPostingSetup, VATBusPostGr, TaxCategory, VATPct, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        exit(VATPostingSetup."VAT Prod. Posting Group");
+    end;
+
+    local procedure CreateVATPostingSetupWithTATCalcType(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostGr: Code[20]; TaxCategory: Code[10]; VATPct: Decimal; VATCalcType: Option): Code[20]
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostGr, VATProductPostingGroup.Code);
+        VATPostingSetup."VAT Identifier" := LibraryUtility.GenerateGUID; // skip check relation
+        VATPostingSetup.Validate("VAT Calculation Type", VATCalcType);
+        VATPostingSetup.Validate("Tax Category", TaxCategory);
+        VATPostingSetup.Validate("VAT %", VATPct);
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Modify(true);
+        exit(VATProductPostingGroup.Code);
+    end;
+
+    local procedure GetGLNSchemeID(): Text
+    begin
+        exit('0088');
+    end;
+
+    local procedure GetGNLID(): Code[13]
+    begin
+        exit('0399999000208');
+    end;
+
+    local procedure GetVATPctPostedSalesInvoice(SalesInvoiceHeader: Record "Sales Invoice Header"): Decimal
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.FindFirst;
+        exit(SalesInvoiceLine."VAT %");
+    end;
+
+    local procedure GetVATPctPostedSalesCrMemo(SalesCrMemoHeader: Record "Sales Cr.Memo Header"): Decimal
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+    begin
+        SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
+        SalesCrMemoLine.FindFirst;
+        exit(SalesCrMemoLine."VAT %");
+    end;
+
+    local procedure GetExemptReasonPostedSalesInvoice(SalesInvoiceHeader: Record "Sales Invoice Header"): Text
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.FindFirst;
+        VATProductPostingGroup.Get(SalesInvoiceLine."VAT Prod. Posting Group");
+        exit(VATProductPostingGroup.Description);
+    end;
+
+    local procedure GetExemptReasonPostedSalesCrMemo(SalesCrMemoHeader: Record "Sales Cr.Memo Header"): Text
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
+        SalesCrMemoLine.FindFirst;
+        VATProductPostingGroup.Get(SalesCrMemoLine."VAT Prod. Posting Group");
+        exit(VATProductPostingGroup.Description);
+    end;
+
+    local procedure GetTaxCategoryS(): Text[10]
+    begin
+        exit('S');
+    end;
+
+    local procedure GetTaxCategoryE(): Text[10]
+    begin
+        exit('E');
+    end;
+
+    local procedure GetTaxCategoryK(): Text[10]
+    begin
+        exit('K');
+    end;
+
+    local procedure GetTaxCategoryL(): Text[10]
+    begin
+        exit('L');
+    end;
+
+    local procedure GetTaxCategoryM(): Text[10]
+    begin
+        exit('M');
+    end;
+
+    local procedure GetTaxCategoryO(): Text[10]
+    begin
+        exit('O');
+    end;
+
+    local procedure GetTaxCategoryZ(): Text[10]
+    begin
+        exit('Z');
+    end;
+
+    local procedure GetTaxCategoryAE(): Text[10]
+    begin
+        exit('AE');
+    end;
+
+    local procedure GetTaxCategoryG(): Text[10]
+    begin
+        exit('G');
+    end;
+
+    local procedure PEPPOLXMLExport(DocumentVariant: Variant; FormatCode: Code[20]): Text
+    var
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        ServerFileName: Text[250];
+        ClientFileName: Text[250];
+    begin
+        ElectronicDocumentFormat.SendElectronically(ServerFileName, ClientFileName, DocumentVariant, FormatCode);
+        exit(ServerFileName);
+    end;
+
+    local procedure UpdateCompanyGLN()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get;
+        CompanyInformation."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
+        CompanyInformation.GLN := GetGNLID;
+        CompanyInformation.Modify;
+    end;
+
+    local procedure UpdateCompanyVATRegNo()
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get;
+        CompanyInformation."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
+        CompanyInformation.GLN := '';
+        CompanyInformation.Modify;
+    end;
+
+    local procedure UpdateElectronicDocumentFormatSetup()
+    var
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+    begin
+        CreateElectronicDocumentFormatSetup(
+          'PEPPOL 2.1', ElectronicDocumentFormat.Usage::"Sales Credit Memo", CODEUNIT::"Export Sales Cr.M. - PEPPOL2.1");
+        CreateElectronicDocumentFormatSetup(
+          'PEPPOL 2.1', ElectronicDocumentFormat.Usage::"Service Invoice", CODEUNIT::"Export Serv. Inv. - PEPPOL 2.1");
+        CreateElectronicDocumentFormatSetup(
+          'PEPPOL 2.1', ElectronicDocumentFormat.Usage::"Service Credit Memo", CODEUNIT::"Exp. Service Cr.M. - PEPPOL2.1");
+    end;
+
+    local procedure VerifyPEPPOLBISIdentifiers(RootNode: Text)
+    begin
+        LibraryXMLRead.VerifyNodeValueInSubtree(
+          RootNode, 'cbc:CustomizationID', 'urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0');
+        LibraryXMLRead.VerifyNodeValueInSubtree(RootNode, 'cbc:ProfileID', 'urn:fdc:peppol.eu:2017:poacc:billing:01:1.0');
+    end;
+}
+

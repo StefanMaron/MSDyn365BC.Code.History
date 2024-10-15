@@ -1,0 +1,5886 @@
+codeunit 137404 "SCM Manufacturing"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Manufacturing] [SCM]
+        isInitialized := false;
+    end;
+
+    var
+        Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        CalendarAbsenceManagement: Codeunit "Calendar Absence Management";
+        CalendarManagement: Codeunit "Shop Calendar Management";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryPlanning: Codeunit "Library - Planning";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryRandom: Codeunit "Library - Random";
+        ExchangeNo: Code[20];
+        ItemNo2: Code[20];
+        LocationCode2: Code[10];
+        ProductionForecastName2: Code[20];
+        WithNo: Code[20];
+        WorkCenterNo2: Code[20];
+        CreateNewVersion: Boolean;
+        isInitialized: Boolean;
+        ShowError: Boolean;
+        BlankDeleteBeforeDateError: Label 'You must enter the date to delete before.';
+        CopyDocumentError: Label 'Production Order was not copied successfully.';
+        MustNotExistError: Label '%1 must not exist.';
+        ProductionBOMStatusError: Label 'The maximum number of BOM levels, %1, was exceeded. The process stopped at item number %2, BOM header number %3, BOM level %4.', Comment = '%1 = Max. Level Value, %2 = Item No. Value, %3 = Bom Header No. Value, %4 = Level Value';
+        StartingDateError: Label 'The Starting Date field must not be blank.';
+        StartingDateError2: Label 'You must enter a Starting Date.';
+        StartingDateError3: Label 'You must fill in the starting date field.';
+        TimeError: Label 'Validation error for Field: EndingTime,  Message = ''The ending time must be later than the starting time.''';
+        UnknownError: Label 'Unknown Error.';
+        EndingTimeError: Boolean;
+        OverWrite: Boolean;
+        StartingTime: Time;
+        EndingTime: Time;
+        CapacityValue: Decimal;
+        Capacity2: Decimal;
+        DateChangeFormula: DateFormula;
+        GLB_ItemTrackingQty: Integer;
+        GLB_SerialNo: Code[20];
+        DocumentNoError: Label 'Document No. %1 does not exist.';
+        ExpectedQuantityError: Label 'Quantity must be %1.';
+        ModifyRtngErr: Label 'You cannot modify Routing No. %1 because there is at least one %2 associated with it.';
+        DeleteRtngErr: Label 'You cannot delete Prod. Order Line %1 because there is at least one %2 associated with it.';
+        CapLedgEntryCap: Label 'Capacity Ledger Entry';
+        ItemLedgEntryCap: Label 'Item Ledger Entry';
+        ReservationDateConflictTxt: Label 'The change causes a date conflict with an existing reservation';
+        ReservDateConflictErr: Label 'The change leads to a date conflict with existing reservations.';
+        ProdOrdRtngLnExistErr: Label 'Production Order Routing Lines exist, contrary to the expected result.';
+        ProdOrdRtngLnNotExistErr: Label 'Production Order Routing Lines do not exist, contrary to the expected result.';
+        WorkShiftShouldExistErr: Label 'The work shift start from %1 with allocated time %2 on %3 should exist';
+        WorkShiftShouldNotExistErr: Label 'The work shift for non-working day should not exist';
+        ProdOrderStartingDateErr: Label 'The Production Order''s Starting Date is wrong with Forward refreshing when setup time ends at Midnight ';
+        ItemShouldExistErr: Label 'Item %1 should exist in Production Forecast Matrix';
+        ProdOrderLineBinCodeErr: Label 'Wrong "Prod. Order Line" BinCode value';
+        IsNotOnInventoryErr: Label 'You have insufficient quantity of Item %1 on inventory.';
+        WrongDateTimeErr: Label 'Wrong %1 in Prod. Order Line.';
+        ProdBOMVersionMustExistErr: Label '''Exchange Production BOM Item'' batch job must create one Production BOM Version';
+        ProdBOMVersionMustNotExistErr: Label 'Production BOM Version must not have been created';
+        StartingDateTimeErr: Label 'Starting Date-Time is incorrect';
+        EndingDateTimeErr: Label 'Ending Date-Time is incorrect';
+        EntryOfTypeNotFoundErr: Label 'Not found Item Ledger Entry of type %1', Comment = '%1 = Item Ledger Entry Type';
+        InsufficientQuantityErr: Label 'You have insufficient quantity';
+        WrongNumberOfMessagesErr: Label 'Only one warning should be raised.';
+        CannotDeleteItemIfProdBOMVersionExistsErr: Label 'You cannot delete %1 %2 because there are one or more certified production BOM version that include this item.', Comment = '%1 - Tablecaption, %2 - No.';
+        WrongProdOrderLinesCountErr: Label 'Wrong number of production order lines created';
+        ItemNoProdOrderErr: Label '%1 must be equal to';
+        DueDateEmptyErr: Label 'Due Date must have a value in Production Order';
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,OutputJournalItemtrackingPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure OutputJournalApplyUnapply()
+    var
+        ProductionOrder: Record "Production Order";
+        ItemLedgerEntryPositive: Record "Item Ledger Entry";
+        ItemLedgerEntryNegative: Record "Item Ledger Entry";
+        OutputQuantity: Integer;
+    begin
+        // [FEATURE] [Item Tracking]
+        // [GIVEN] Production Order with serial tracked item
+
+        Initialize;
+        OutputQuantity := LibraryRandom.RandInt(6);
+        CreateReleasedProductionOrder(ProductionOrder);
+        SetQuantity(ProductionOrder, OutputQuantity);
+        SetItemTrackingCodeSerialSpecific(ProductionOrder."Source No.");
+
+        // [WHEN] Post- and reverse posting in Output Journal
+        PostOutputJournalWithIT(ProductionOrder, OutputQuantity);
+        PostOutputJournalWithIT(ProductionOrder, -OutputQuantity);
+        PostOutputJournalWithIT(ProductionOrder, OutputQuantity);
+        PostOutputJournalWithIT(ProductionOrder, -OutputQuantity);
+
+        // [THEN] Correct number of positive Item Ledger Entries from posting
+        VerifyILEs(ItemLedgerEntryPositive, ProductionOrder."Source No.", 1, '=0', OutputQuantity * 2);
+
+        // [THEN] Correct number of negative Item Ledger Entries from reverse posting
+        VerifyILEs(ItemLedgerEntryPositive, ProductionOrder."Source No.", -1, '<>0', OutputQuantity * 2);
+
+        repeat
+            // [THEN] Positive ILE has negative one applied to it
+            ItemLedgerEntryNegative.SetRange("Serial No.", ItemLedgerEntryPositive."Serial No.");
+            ItemLedgerEntryNegative.SetRange("Applies-to Entry", ItemLedgerEntryPositive."Entry No.");
+            Assert.IsTrue(ItemLedgerEntryNegative.IsEmpty,
+              StrSubstNo('Expected ILE within filter %1 after posting/reverse posting to output journal',
+                ItemLedgerEntryNegative.GetFilters));
+        until ItemLedgerEntryPositive.Next = 0;
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyProductionOrderDocumentHandler')]
+    [Scope('OnPrem')]
+    procedure CopyPlannedProductionOrder()
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Copy Production Order]
+        // [SCENARIO] Verify that a Planned Production Order can be copied into a Released Production Order.
+        Initialize;
+        CopyProductionOrder(ProductionOrder.Status::Planned);
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyProductionOrderDocumentHandler')]
+    [Scope('OnPrem')]
+    procedure CopyFirmPlannedProductionOrder()
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Copy Production Order]
+        // [SCENARIO] Verify that a Firm Planned Production Order can be copied into a Released Production Order.
+        Initialize;
+        CopyProductionOrder(ProductionOrder.Status::"Firm Planned");
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyProductionOrderDocumentHandler')]
+    [Scope('OnPrem')]
+    procedure CopyReleasedProductionOrder()
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Copy Production Order]
+        // [SCENARIO] Verify that a Released Production Order can be copied into a Released Production Order.
+        Initialize;
+        CopyProductionOrder(ProductionOrder.Status::Released);
+    end;
+
+    local procedure CopyProductionOrder(Status: Option)
+    var
+        ProductionOrder: Record "Production Order";
+        NewProductionOrder: Record "Production Order";
+        NoOfRowsBeforeCopy: Integer;
+    begin
+        // Setup: Create a Production Order and create a Released Production Order in which previous Production Order is to be copied.
+        CreateAndRefreshProductionOrder(ProductionOrder, Status);
+        NoOfRowsBeforeCopy := CreateReleasedProductionOrder(NewProductionOrder);
+
+        // Exercise: Run Copy Production Order and Copy previously created Production Order into Released Production Order.
+        RunCopyProductionDocument(ProductionOrder.Status, ProductionOrder."No.", NewProductionOrder);
+
+        // Verify: Verify that No. of rows in the Released Production Order Lines gets increased.
+        VerifyProdOrderLinesIncreaseAfterCopy(NewProductionOrder, NoOfRowsBeforeCopy);
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyProductionOrderDocumentHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure CopyFinishedProductionOrder()
+    var
+        ProductionOrder: Record "Production Order";
+        NewProductionOrder: Record "Production Order";
+        NoOfRowsBeforeCopy: Integer;
+    begin
+        // [FEATURE] [Copy Production Order]
+        // [SCENARIO] Verify that a Finished Production Order can be copied into a Released Production Order.
+
+        // [GIVEN] Create a Finished Production Order and create a Released Production Order in which Finished Production Order is to be copied.
+        Initialize;
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released);
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+        NoOfRowsBeforeCopy := CreateReleasedProductionOrder(NewProductionOrder);
+
+        // [WHEN] Run Copy Production Order and Copy Finished Production Order.
+        RunCopyProductionDocument(ProductionOrder.Status::Finished, ProductionOrder."No.", NewProductionOrder);
+
+        // [THEN] Verify that No. of rows in the Released Production Order Lines gets increased.
+        VerifyProdOrderLinesIncreaseAfterCopy(NewProductionOrder, NoOfRowsBeforeCopy);
+    end;
+
+    [Test]
+    [HandlerFunctions('ImplementRegisteredAbsenceHandler')]
+    [Scope('OnPrem')]
+    procedure ImplementRegisteredAbsenceReport()
+    var
+        RegisteredAbsence: Record "Registered Absence";
+        WorkCenter: Record "Work Center";
+    begin
+        // [FEATURE] [Capacity] [Absence]
+        // [SCENARIO] Check the functionality of Report Implement Registered Absence.
+
+        // [GIVEN] Create Work Center Group, Work Center and Registered Absence for the new Work Center.
+        Initialize;
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, '');
+        LibraryManufacturing.CreateRegisteredAbsence(
+          RegisteredAbsence, RegisteredAbsence."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate, GetRoundedTime(WorkDate),
+          GetRoundedTime(WorkDate));
+        RegisteredAbsence.Validate(Capacity, LibraryRandom.RandDec(10, 2));  // Taking Random value for Capacity.
+        RegisteredAbsence.Modify(true);
+
+        // [WHEN] Run the Report Implement Registered Absence using the Handler.
+        RunImplementRegisteredAbsenceReport(RegisteredAbsence);
+
+        // [THEN] Verify that the Calendar Absence entry gets created for the new Work Center.
+        VerifyCalendarAbsenceEntry(WorkCenter."No.", RegisteredAbsence);
+    end;
+
+    [Test]
+    [HandlerFunctions('OptionDialog')]
+    [Scope('OnPrem')]
+    procedure ItemReclassJournal()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemNo: Code[20];
+        ComponentNo: Code[20];
+        ItemQuantity: Decimal;
+        ComponentQuantity: Decimal;
+        OldStockoutWarning: Boolean;
+        OldCreditWarnings: Option;
+    begin
+        // [FEATURE] [Production BOM] [Item Reclassification]
+        // [SCENARIO] Test Explode BOM functionality on Item Reclass Journal.
+
+        // [GIVEN] Update Sales and Receivable Setup. Create Item and Component. Create BOM Component.
+        Initialize;
+        UpdateSalesReceivableSetup(OldCreditWarnings, OldStockoutWarning, SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
+        CreateItemAndItemComponent(ItemNo, ComponentNo);
+        SetItemAndComponentQuantity(ItemQuantity, ComponentQuantity);
+        CreateBOMComponent(ItemNo, ComponentNo, ComponentQuantity);
+
+        // [WHEN] Create Item Reclass Journal Line and perform Explode BOM functionality.
+        CreateItemReclassJournalLine(ItemJournalLine, ItemNo, ItemQuantity);
+        CODEUNIT.Run(CODEUNIT::"Item Jnl.-Explode BOM", ItemJournalLine);
+
+        // [THEN] Verify data on Item Reclass Journal.
+        VerifyComponentOnItemReclassJournal(ComponentNo, ItemQuantity * ComponentQuantity);
+
+        // Teardown: Rollback Sales and Receivable Setup.
+        UpdateSalesReceivableSetup(OldCreditWarnings, OldStockoutWarning, OldCreditWarnings, OldStockoutWarning);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WorkCenterAbsenceUpdate()
+    var
+        CalendarAbsenceEntry: Record "Calendar Absence Entry";
+        WorkCenter: Record "Work Center";
+    begin
+        // [FEATURE] [Capacity] [Absence]
+        // [SCENARIO] Updated field should become True when we perform Update action on Absence entry invoked by Work Center.
+
+        // [GIVEN] Create a Work Center with new Work Center Group and a Calendar Absence entry for the new Work Center taking Random value for Capacity.
+        Initialize;
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, '');
+
+        // Generating Random value for StartingTime and EndingTime as their value is not important for the test.Taking Random value for Capacity.
+        LibraryManufacturing.CreateCalendarAbsenceEntry(
+          CalendarAbsenceEntry, CalendarAbsenceEntry."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate, Time, Time,
+          LibraryRandom.RandDec(10, 2));
+
+        // [WHEN] Perform action Update for the Calendar Absence entry created.
+        CalendarAbsenceManagement.UpdateAbsence(CalendarAbsenceEntry);
+
+        // [THEN] Verify that the Updated field becomes True in the Calendar Absence entry.
+        CalendarAbsenceEntry.TestField(Updated, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('RecalculateCalendarReportHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateWorkCenterCalendarWithAbsence()
+    var
+        CalendarEntry: Record "Calendar Entry";
+        CalendarAbsenceEntry: Record "Calendar Absence Entry";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        WorkCenter: Record "Work Center";
+        ExpectedCapacityTotal: Decimal;
+    begin
+        // [FEATURE] [Capacity] [Absence]
+        // [SCENARIO] Verify Capacity(Total) field on Calendar entry after recalculating Work Center Calendar with Absence entry.
+
+        // [GIVEN] Create a Shop Calendar, a Work Center and an Absence entry for the Work Center.
+        Initialize;
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
+        LibraryManufacturing.CreateCalendarAbsenceEntry(
+          CalendarAbsenceEntry, CalendarAbsenceEntry."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate,
+          ShopCalendarWorkingDays."Starting Time",
+          ShopCalendarWorkingDays."Ending Time", LibraryRandom.RandDec(10, 2));  // Taking Random value for Capacity.
+        CalendarAbsenceManagement.UpdateAbsence(CalendarAbsenceEntry);
+
+        // [GIVEN] Update the new Work Center with important values and Calculate the Work Center Calendar.
+        ModifyWorkCenterAndCalculateCalendar(WorkCenter, CalendarAbsenceEntry.Capacity);
+
+        // [WHEN] Run Report Recalculate Calendar.
+        ExpectedCapacityTotal :=
+          ((ShopCalendarWorkingDays."Ending Time" - ShopCalendarWorkingDays."Starting Time") /
+           CalendarManagement.TimeFactor(WorkCenter."Unit of Measure Code")) * (WorkCenter.Capacity - CalendarAbsenceEntry.Capacity);
+        GetCalendarEntry(CalendarEntry, CalendarEntry."Capacity Type"::"Work Center", WorkCenter."No.");
+        RunRecalculateCalendarReport(CalendarEntry);
+
+        // [THEN] Verify the value of Capacity(Total) on Calendar entry.
+        VerifyCalendarEntry(WorkCenter."No.", ExpectedCapacityTotal);
+    end;
+
+    [Test]
+    [HandlerFunctions('RecalculateCalendarReportHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateWorkCenterCalendarWithNullStaringTimeInAbsence()
+    var
+        CalendarEntry: Record "Calendar Entry";
+        CalendarAbsenceEntry: Record "Calendar Absence Entry";
+        CalendarAbsenceEntry2: Record "Calendar Absence Entry";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        WorkCenter: Record "Work Center";
+        ExpectedCapacityTotal: Decimal;
+    begin
+        // [FEATURE] [Capacity] [Absence]
+        // [SCENARIO] Verify that Capacity(Total) on Calendar entry is calculated based on Absence entry having Starting and Ending Time and it ignores the Absence entry where Starting Time is null.
+
+        // [GIVEN] Create a Shop Calendar, a Work Center and two Absence entries for the Work Center.
+        Initialize;
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
+        LibraryManufacturing.CreateCalendarAbsenceEntry(
+          CalendarAbsenceEntry, CalendarAbsenceEntry."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate,
+          ShopCalendarWorkingDays."Starting Time", ShopCalendarWorkingDays."Ending Time",
+          LibraryRandom.RandDec(10, 2));  // Taking Random value for Capacity.
+        LibraryManufacturing.CreateCalendarAbsenceEntry(
+          CalendarAbsenceEntry2, CalendarAbsenceEntry."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate, 0T,
+          ShopCalendarWorkingDays."Ending Time",
+          LibraryRandom.RandDec(10, 2));  // Taking Random value for Capacity.
+
+        // [GIVEN] Calculate the Work Center Calendar.
+        ModifyWorkCenterAndCalculateCalendar(WorkCenter, CalendarAbsenceEntry.Capacity);
+        ExpectedCapacityTotal :=
+          ((ShopCalendarWorkingDays."Ending Time" - ShopCalendarWorkingDays."Starting Time") /
+           CalendarManagement.TimeFactor(WorkCenter."Unit of Measure Code")) * (WorkCenter.Capacity - CalendarAbsenceEntry.Capacity);
+
+        // [WHEN] Run Report Recalculate Calendar.
+        GetCalendarEntry(CalendarEntry, CalendarEntry."Capacity Type"::"Work Center", WorkCenter."No.");
+        RunRecalculateCalendarReport(CalendarEntry);
+
+        // [THEN] Verify the value of Capacity(Total) on Calendar entry.
+        VerifyCalendarEntry(WorkCenter."No.", ExpectedCapacityTotal);
+    end;
+
+    [Test]
+    [HandlerFunctions('RegAbsFromWorkCenterReportHandler')]
+    [Scope('OnPrem')]
+    procedure RegisteredAbsenceFromWorkCenterReportWithBlankData()
+    var
+        RegAbsFromWorkCenter: Report "Reg. Abs. (from Work Center)";
+    begin
+        // [FEATURE] [Capacity] [Absence]
+        // [SCENARIO] Error message should be generated when Registered Absence From Work Center Report is run with blank data.
+
+        // [GIVEN] Set ShowError as True so that it does not enters data in the Handler.
+        Initialize;
+        ShowError := true;  // This variable is made Global as it is used in the Handler.
+
+        // [WHEN] Run the Registered Absence From Work Center Report with blank data and catch the Error.
+        Clear(RegAbsFromWorkCenter);
+        asserterror RegAbsFromWorkCenter.Run;
+
+        // [THEN] Verify the error message.
+        Assert.AreEqual(StrSubstNo(StartingDateError), GetLastErrorText, UnknownError);
+    end;
+
+    [Test]
+    [HandlerFunctions('RegAbsFromWorkCenterReportHandler')]
+    [Scope('OnPrem')]
+    procedure RegisteredAbsenceFromWorkCenterReportWithOverwriteFalse()
+    var
+        RegisteredAbsence: Record "Registered Absence";
+        WorkCenter: Record "Work Center";
+        Capacity: Decimal;
+        Date: Date;
+    begin
+        // [FEATURE] [Capacity] [Absence]
+        // [SCENARIO] Registered Absence should not get overwritten when Registered Absence From Work Center Report is run with Overwrite = False.
+
+        // [GIVEN] Create a Work Center with Work Center Group and create a Registered Absence.
+        Initialize;
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, '');
+
+        // These variables are made Global as they are used in the Handler and CreateRegisteredAbsence helper method.
+        OverWrite := false;
+        StartingTime := CalculateRandomTime;
+        EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
+        CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
+        Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate);
+        Capacity := CreateRegisteredAbsence(RegisteredAbsence."Capacity Type"::"Work Center", WorkCenter."No.", Date);
+
+        // [WHEN] Run Registered Absence From Work Center Report with Overwrite as False.
+        RunRegAbsFromWorkCenterReport(WorkCenter."No.");
+
+        // [THEN] Verify that the previous Registered Absence does not gets Overwritten with the new Absence created by running the Report.
+        VerifyEntryInRegisteredAbsence(WorkCenter."No.", Date, Capacity);
+        VerifyEntryInRegisteredAbsence(WorkCenter."No.", WorkDate, CapacityValue);
+    end;
+
+    [Test]
+    [HandlerFunctions('RegAbsFromWorkCenterReportHandler')]
+    [Scope('OnPrem')]
+    procedure RegisteredAbsenceFromWorkCenterReportWithOverwriteTrue()
+    var
+        RegisteredAbsence: Record "Registered Absence";
+        WorkCenter: Record "Work Center";
+        Date: Date;
+    begin
+        // [FEATURE] [Capacity] [Absence]
+        // [SCENARIO] Registered Absence should get overwritten when Registered Absence From Work Center Report is run with Overwrite = True.
+
+        // [GIVEN] Create a Work Center with Work Center Group and create a Registered Absence.
+        Initialize;
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, '');
+
+        // These variables are made Global as they are used in the Handler and CreateRegisteredAbsence helper method.
+        OverWrite := true;
+        StartingTime := CalculateRandomTime;
+        EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
+        CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
+        Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate);
+        CreateRegisteredAbsence(RegisteredAbsence."Capacity Type"::"Work Center", WorkCenter."No.", Date);
+
+        // [WHEN] Run Registered Absence From Work Center Report with Overwrite as True.
+        RunRegAbsFromWorkCenterReport(WorkCenter."No.");
+
+        // [THEN] Verify that the previous Registered Absence gets Overwritten with the new Absence created by running the Report.
+        VerifyEntryInRegisteredAbsence(WorkCenter."No.", WorkDate, CapacityValue);
+    end;
+
+    [Test]
+    [HandlerFunctions('RegAbsFromMachineCenterReportHandler')]
+    [Scope('OnPrem')]
+    procedure RegisteredAbsenceFromMachineCenterReportWithStartingDateError()
+    var
+        RegAbsFromMachineCtr: Report "Reg. Abs. (from Machine Ctr.)";
+    begin
+        // [FEATURE] [Capacity] [Absence]
+        // [SCENARIO] Error message should be generated when Registered Absence From Machine Center Report is run with blank Starting Date.
+
+        // [GIVEN] Set ShowError as True so that it does not enters data in the Handler.
+        Initialize;
+        ShowError := true;  // This variable is made Global as it is used in the Handler.
+        EndingTimeError := true;  // This variable is made Global as it is used in the Handler.
+
+        // [WHEN] Run the Registered Absence From Machine Center report with blank data and catch the Error.
+        Clear(RegAbsFromMachineCtr);
+        asserterror RegAbsFromMachineCtr.Run;
+
+        // [THEN] Verify the error message.
+        Assert.AreEqual(StrSubstNo(StartingDateError), GetLastErrorText, UnknownError);
+    end;
+
+    [Test]
+    [HandlerFunctions('RegAbsFromMachineCenterReportHandler')]
+    [Scope('OnPrem')]
+    procedure RegisteredAbsenceFromMachineCenterReportWithTimeError()
+    var
+        WorkCenter: Record "Work Center";
+        RegAbsFromMachineCtr: Report "Reg. Abs. (from Machine Ctr.)";
+    begin
+        // [FEATURE] [Capacity] [Absence]
+        // [SCENARIO] Error message should be generated when Registered Absence From Machine Center Report is run with Starting Time later than the Ending Time.
+
+        // [GIVEN] Create a Work Center with Work Center Group. Set EndingTimeError as True so that it does not enters other values besides Times in the handler. Set Ending Time and Starting Time.
+        Initialize;
+        ShowError := false;  // This variable is made Global as it is used in the Handler.
+        EndingTimeError := true;  // This variable is made Global as it is used in the Handler.
+        WorkCenter.Init;  // Required to initialize the Variable.
+        EndingTime := CalculateRandomTime;
+        StartingTime := CalculateEndingTime(WorkCenter, EndingTime + 10000);  // StartingTime must be Greater than EndingTime to Generate the Error.
+
+        // [WHEN] Run the Registered Absence From Machine Center report and catch the Error.
+        Clear(RegAbsFromMachineCtr);
+        asserterror RegAbsFromMachineCtr.Run;
+
+        // [THEN] Verify the error message.
+        Assert.AreEqual(StrSubstNo(TimeError), GetLastErrorText, UnknownError);
+    end;
+
+    [Test]
+    [HandlerFunctions('RegAbsFromMachineCenterReportHandler')]
+    [Scope('OnPrem')]
+    procedure RegisteredAbsenceFromMachineCenterReportWithOverwriteFalse()
+    var
+        RegisteredAbsence: Record "Registered Absence";
+        WorkCenter: Record "Work Center";
+        MachineCenterNo: Code[20];
+        Capacity: Decimal;
+        Date: Date;
+    begin
+        // [FEATURE] [Capacity] [Absence]
+        // [SCENARIO] Registered Absence should not get overwritten when Registered Absence From Machine Center Report is run with Overwrite = False.
+
+        // [GIVEN] Create a Machine Center with Work Center Group and create a Registered Absence.
+        Initialize;
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, '');
+        MachineCenterNo := CreateMachineCenter(WorkCenter."No.");
+
+        // These variables are made Global as they are used in the Handler and CreateRegisteredAbsence helper method.
+        OverWrite := false;
+        StartingTime := CalculateRandomTime;
+        EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
+        CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
+        Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate);
+        Capacity := CreateRegisteredAbsence(RegisteredAbsence."Capacity Type"::"Machine Center", MachineCenterNo, Date);
+
+        // [WHEN] Run Registered Absence From Machine Center Report with Overwrite as False.
+        RunRegAbsFromMachineCenterReport(MachineCenterNo);
+
+        // [THEN] Verify that the previous Registered Absence does not gets Overwritten with the new Absence created by running the Report.
+        VerifyEntryInRegisteredAbsence(MachineCenterNo, Date, Capacity);
+        VerifyEntryInRegisteredAbsence(MachineCenterNo, WorkDate, CapacityValue);
+    end;
+
+    [Test]
+    [HandlerFunctions('RegAbsFromMachineCenterReportHandler')]
+    [Scope('OnPrem')]
+    procedure RegisteredAbsenceFromMachineCenterReportWithOverwriteTrue()
+    var
+        RegisteredAbsence: Record "Registered Absence";
+        WorkCenter: Record "Work Center";
+        MachineCenterNo: Code[20];
+        Date: Date;
+    begin
+        // [FEATURE] [Capacity] [Absence]
+        // [SCENARIO] Registered Absence should get overwritten when Registered Absence From Machine Center Report is run with Overwrite = True.
+
+        // [GIVEN] Create a Machine Center with Work Center Group and create a Registered Absence.
+        Initialize;
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, '');
+        MachineCenterNo := CreateMachineCenter(WorkCenter."No.");
+
+        // These variables are made Global as they are used in the Handler and CreateRegisteredAbsence helper method.
+        OverWrite := true;
+        StartingTime := CalculateRandomTime;
+        EndingTime := CalculateEndingTime(WorkCenter, StartingTime);
+        CapacityValue := LibraryRandom.RandDec(10, 2);  // Taking Random value for Capacity.
+        Date := CalcDate('<' + Format(LibraryRandom.RandInt(-10)) + 'D>', WorkDate);
+        CreateRegisteredAbsence(RegisteredAbsence."Capacity Type"::"Machine Center", MachineCenterNo, Date);
+
+        // [WHEN] Run Registered Absence From Machine Center Report with Overwrite as True.
+        RunRegAbsFromMachineCenterReport(MachineCenterNo);
+
+        // [THEN] Verify that the previous Registered Absence gets Overwritten with the new Absence created by running the Report.
+        VerifyEntryInRegisteredAbsence(MachineCenterNo, WorkDate, CapacityValue);
+    end;
+
+    [Test]
+    [HandlerFunctions('RecalculateCalendarReportHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateMachineCenterCalendarReport()
+    var
+        CalendarEntry: Record "Calendar Entry";
+        MachineCenter: Record "Machine Center";
+        ShopCalendar: Record "Shop Calendar";
+        WorkCenter: Record "Work Center";
+        Capacity: Decimal;
+        ExpectedCapacityTotal: Decimal;
+    begin
+        // [FEATURE] [Capacity] [Shop Calendar]
+        // [SCENARIO] Check the functionality of Recalculate Calendar for Machine Center.
+
+        // [GIVEN] Create a Work Center and Machine Center. Calculate Calendar for Machine Center and modify the Capacity value for it.
+        Initialize;
+        ShopCalendar.FindFirst;
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, ShopCalendar.Code);
+        MachineCenter.Get(CreateMachineCenter(WorkCenter."No."));
+        Capacity := ModifyCapacityOfMachineCenter(MachineCenter."No.");
+        LibraryManufacturing.CalculateMachCenterCalendar(
+          MachineCenter, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+
+        // [WHEN] Run Report Recalculate Calendar for the new Machine Center.
+        GetCalendarEntry(CalendarEntry, CalendarEntry."Capacity Type"::"Machine Center", MachineCenter."No.");
+
+        // Capacity(Total) is the multiplication of Capacity with the Shift Time.
+        ExpectedCapacityTotal :=
+          ((CalendarEntry."Ending Time" - CalendarEntry."Starting Time") /
+           CalendarManagement.TimeFactor(WorkCenter."Unit of Measure Code")) * Capacity;
+        RunRecalculateCalendarReport(CalendarEntry);
+
+        // [THEN] Verify that Recalculate Calendar report updates the Calandar Entry according to the modified Capacity value.
+        GetCalendarEntry(CalendarEntry, CalendarEntry."Capacity Type"::"Machine Center", MachineCenter."No.");
+        CalendarEntry.TestField("Capacity (Total)", ExpectedCapacityTotal);
+    end;
+
+    [Test]
+    [HandlerFunctions('WorkCenterCalendarMatrixHandler')]
+    [Scope('OnPrem')]
+    procedure CalculatedCapacityOnWorkCenterCalendarMatrix()
+    var
+        WorkCenter: Record "Work Center";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+    begin
+        // [FEATURE] [Capacity]
+        // [SCENARIO] Test and Verify Calculated Capacity on Work Center Calendar Matrix Page.
+
+        // [GIVEN] Create Work Center with Work Center Group.
+        Initialize;
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
+
+        // [WHEN] Calculate Work Center Calendar.
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate, WorkDate);
+        WorkCenterNo2 := WorkCenter."No.";  // Use WorkCenterNo2 as global for Handler.
+
+        // [THEN] Verify Calculated Capacity on WorkCenterCalendarMatrixHandler function and verification is done in Handler.
+        VerifyCalculatedCapacity;
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalHandler,ConfirmHandlerTrue,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ExpectedCapacityNeedOnProductionOrderStatistics()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+    begin
+        // [FEATURE] [Capacity]
+        // [SCENARIO] Test and Verify Expected Capacity Need on Production Order Statistics.
+
+        // [GIVEN] Create Initial Setup for Released Production Order.
+        Initialize;
+        CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
+
+        // [WHEN] Open and post Production Journal. Posting is done in ProductionJournalHandler function.
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderComponent."Prod. Order Line No.");
+
+        // [THEN] Verify Expected Capacity Need on Production Order Statistics.
+        VerifyProductionOrderStatistics(ProductionOrder."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalHandler,ConfirmHandlerTrue,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ConsumptionPostedByProductionJournal()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+    begin
+        // [FEATURE] [Production Journal]
+        // [SCENARIO] Test and Verify Consumption posted by Production Journal.
+
+        // [GIVEN] Create Initial Setup for Released Production Order.
+        Initialize;
+        CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
+
+        // [WHEN] Open and post Production Journal. Posting is done in ProductionJournalHandler function.
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderComponent."Prod. Order Line No.");
+
+        // [THEN] Verify Consumption Entry on Item Ledger.
+        VerifyItemLedgerEntry(
+          ProdOrderComponent."Item No.", ItemLedgerEntry."Entry Type"::Consumption, -ProdOrderComponent."Expected Quantity");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CapacityLedgerEntryAfterPostingCapacityJournal()
+    var
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        WorkCenter: Record "Work Center";
+        Quantity: Decimal;
+    begin
+        // [FEATURE] [Capacity] [Capacity Journal]
+        // [SCENARIO] Verify Capacity Ledger Entry after posting Capacity Journal Line.
+
+        // [GIVEN] Create Work Center with Work Center Group.
+        Initialize;
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
+        Quantity := LibraryRandom.RandInt(5); // Use random value for Quantity.
+
+        // [WHEN] Create and post Capacity Journal.
+        CreateAndPostCapacityJournal(Quantity, WorkCenter."No.");
+
+        // [THEN] Verify Capacity Ledger Entry.
+        VerifyCapacityLedgerEntry(WorkCenter."No.", Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyProductionForecastHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure CopyProductionForecastNameWithBlankDescription()
+    var
+        ProductionForecastEntry: Record "Production Forecast Entry";
+    begin
+        // [FEATURE] [Production Forecast]
+        // [SCENARIO] Test and verify functionality of Copy Production Forecast report with blank Production Forecast Name.
+
+        Initialize;
+
+        // [WHEN] Run Copy Production Forecast report with blank Production Forecast Name.
+        RunCopyProductionForecast(ProductionForecastEntry);
+
+        // [THEN] Verify that new lines comes with Blank Name and Description.
+        VerifyProductionForecastName;
+    end;
+
+    [Test]
+    [HandlerFunctions('CopyProductionForecastHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure CopyProductionForecastEntry()
+    var
+        ProductionForecastName: Record "Production Forecast Name";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+    begin
+        // [FEATURE] [Production Forecast]
+        // [SCENARIO] Test and verify functionality of Copy Production Forecast report with Production Forecast Entry.
+
+        // [GIVEN] Create Production Forecast Name and Production Forecast Entry.
+        Initialize;
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+        CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name);
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+        ProductionForecastName2 := ProductionForecastName.Name;  // Use ProductionForecastName2 as global for handler.
+        ItemNo2 := ProductionForecastEntry."Item No.";  // Use ItemNo2 as global for handler.
+        LocationCode2 := ProductionForecastEntry."Location Code";  // Use LocationCode2 as global for handler.
+        Evaluate(DateChangeFormula, '<' + Format(LibraryRandom.RandInt(5)) + 'D>');  // Use DateChangeFormula as global for handler and taking random value.
+
+        // [WHEN] Run Copy Production Forecast report.
+        ProductionForecastEntry.SetRange("Production Forecast Name", ProductionForecastEntry."Production Forecast Name");
+        RunCopyProductionForecast(ProductionForecastEntry);
+
+        // [THEN] Verify Production Forecast Entry must be copied.
+        VerifyProductionForecastEntry(ProductionForecastEntry);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    [Scope('OnPrem')]
+    procedure ExchangeProductionBOMItemError()
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO] Exchange Production BOM Item report throws an error when executed with the blank "Starting Date"
+
+        Initialize;
+
+        // [WHEN] Run Exchange Production BOM Item report with blank Starting Date.
+        ShowError := true;
+        asserterror RunExchangeProductionBOMItemReport;
+
+        // [THEN] Error message: "You must enter a Starting Date."
+        Assert.AreEqual(StrSubstNo(StartingDateError2), GetLastErrorText, UnknownError);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    [Scope('OnPrem')]
+    procedure ExchangeProductionBOMItemWithCreateNewVersion()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO] Item must be exchanged by Exchange Production BOM Item report, where "Create New Version" is Yes, "Delete Exchanged Component" is No
+
+        // [GIVEN] Create two Items with Routing and Production BOM.
+        Initialize;
+        Item.Get(CreateItemWithRoutingAndProductionBOM);
+        Item2.Get(CreateItemWithRoutingAndProductionBOM);
+        ExchangeNo := FindProductionBOMComponent(Item."Production BOM No.");  // Use ExchangeNo as global for handler.
+        WithNo := FindProductionBOMComponent(Item2."Production BOM No.");  // Use WithNo as global for handler.
+        CreateNewVersion := true;  // Use CreateNewVersion as global for handler.
+
+        // [WHEN] Run Exchange Production BOM Item report with Create New Version as true and Delete Exchanged Component as false.
+        RunExchangeProductionBOMItemReport;
+
+        // [THEN] Item has been exchanged.
+        VerifyProductionBOMLineNotExists(Item."Production BOM No.", FindLastBOMVersionCode(Item."Production BOM No."), ExchangeNo);
+        VerifyProductionBOMLineExists(Item."Production BOM No.", FindLastBOMVersionCode(Item."Production BOM No."), WithNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    [Scope('OnPrem')]
+    procedure ExchangeProductionBOMItemWithDeleteExchangedComponent()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO] Item must be removed from BOM by Exchange Production BOM Item report, where "Create New Version" is No, "Delete Exchanged Component" is Yes
+
+        // [GIVEN] Create two Items with Routing and Production BOM. Run Exchange Production BOM Item report with Create New Version as true and Delete Exchanged Component as false.
+        Initialize;
+        Item.Get(CreateItemWithRoutingAndProductionBOM);
+        Item2.Get(CreateItemWithRoutingAndProductionBOM);
+        ExchangeNo := FindProductionBOMComponent(Item."Production BOM No.");  // Use ExchangeNo as global for handler.
+        WithNo := FindProductionBOMComponent(Item2."Production BOM No.");  // Use WithNo as global for handler.
+        // BOM Comment is required for IN localization
+        CreateCommentLineForProductionBOM(Item."Production BOM No.");
+
+        // [WHEN] Run Exchange Production BOM Item report with Create New Version as false and Delete Exchanged Component as true.
+        CreateNewVersion := false;  // Use CreateNewVersion as global for handler.
+        RunExchangeProductionBOMItemReport;
+
+        // [THEN] Exchanged Item has been removed from the BOM.
+        VerifyProductionBOMLineNotExists(Item."Production BOM No.", '', ExchangeNo);
+        VerifyProductionBOMLineExists(Item."Production BOM No.", '', WithNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    [Scope('OnPrem')]
+    procedure ExchangeProductionBOMRollback()
+    var
+        ParentItemNoRouting: Record Item;
+        ParentItemWithRouting: Record Item;
+        ComponentItem: array[10] of Record Item;
+        ExchangeItem: Record Item;
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        ProductionBOMHeaderNoRouting: Record "Production BOM Header";
+        ProductionBOMHeaderWithRouting: Record "Production BOM Header";
+        RoutingLinkCode: array[10] of Code[10];
+        RoutingNo: Code[20];
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO] Changes are rolled back if the Exchange Production BOM Item report encounters an error
+
+        Initialize;
+
+        // [GIVEN] Create Routing
+        RoutingNo := CreateRoutingWithRoutingLinkCode;
+        RoutingLine.SetRange("Routing No.", RoutingNo);
+        RoutingLine.FindFirst;
+
+        // [GIVEN] Create Items and Production BOM
+        LibraryInventory.CreateItem(ParentItemNoRouting);
+        LibraryInventory.CreateItem(ParentItemWithRouting);
+        LibraryInventory.CreateItem(ComponentItem[1]);
+        LibraryInventory.CreateItem(ComponentItem[2]);
+        LibraryInventory.CreateItem(ExchangeItem);
+
+        // [GIVEN] Assign Production BOM and Routing to Parent
+        // [GIVEN] Create first Production BOM without Routing Link
+        RoutingLinkCode[1] := '';
+        CreateProdBOMMultipleLinesRoutingLink(
+          ProductionBOMHeaderNoRouting, ComponentItem, RoutingLinkCode, ParentItemNoRouting."Base Unit of Measure");
+        // [GIVEN] Create second Production BOM with Routing Link for first line only
+        RoutingLinkCode[1] := RoutingLine."Routing Link Code";
+        CreateProdBOMMultipleLinesRoutingLink(
+          ProductionBOMHeaderWithRouting, ComponentItem, RoutingLinkCode, ParentItemWithRouting."Base Unit of Measure");
+        ParentItemNoRouting.Validate("Production BOM No.", ProductionBOMHeaderNoRouting."No.");
+        ParentItemNoRouting.Modify(true);
+        ParentItemWithRouting.Validate("Routing No.", RoutingNo);
+        ParentItemWithRouting.Validate("Production BOM No.", ProductionBOMHeaderWithRouting."No.");
+        ParentItemWithRouting.Modify(true);
+
+        // [GIVEN] Remove Routing Link from Routing Line to enforce error in ProductionBOMHeaderWithRouting
+        RoutingHeader.Get(RoutingNo);
+        ModifyRoutingStatus(RoutingHeader, RoutingHeader.Status::"Under Development");
+        RoutingLine.Validate("Routing Link Code", '');
+        RoutingLine.Modify(true);
+        ModifyRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // Define Parameters for RequestPageHandler
+        // [GIVEN] Exchange second ComponentItem with ExchangeItem in Production BOM
+        ExchangeNo := ComponentItem[2]."No.";
+        WithNo := ExchangeItem."No.";
+        CreateNewVersion := false;
+
+        // [WHEN] Run Exchange Production BOM Item report
+        asserterror RunExchangeProductionBOMItemReport;
+
+        // [THEN] Production Order Status is Certified, the previous component lines have been restored and the lines for exchange item have been rolled back
+        ProductionBOMHeaderNoRouting.Find('=');
+        ProductionBOMHeaderNoRouting.TestField(Status, ProductionBOMHeaderNoRouting.Status::Certified);
+        VerifyProductionBOMLineExists(ProductionBOMHeaderNoRouting."No.", '', ComponentItem[1]."No.");
+        VerifyProductionBOMLineExists(ProductionBOMHeaderNoRouting."No.", '', ComponentItem[2]."No.");
+        VerifyProductionBOMLineNotExists(ProductionBOMHeaderNoRouting."No.", '', ExchangeItem."No.");
+        ProductionBOMHeaderWithRouting.Find('=');
+        ProductionBOMHeaderWithRouting.TestField(Status, ProductionBOMHeaderWithRouting.Status::Certified);
+        VerifyProductionBOMLineExists(ProductionBOMHeaderWithRouting."No.", '', ComponentItem[1]."No.");
+        VerifyProductionBOMLineExists(ProductionBOMHeaderWithRouting."No.", '', ComponentItem[2]."No.");
+        VerifyProductionBOMLineNotExists(ProductionBOMHeaderWithRouting."No.", '', ExchangeItem."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ParentItemInProductionBOMLineError()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        // [FEATURE] [Production BOM]
+        // [SCENARIO] Validate error message when Status is set to Certified in Production BOM on adding Parent Item in BOM Line.
+
+        // [GIVEN] Create Item and Production BOM. Add Parent Item as a Component in BOM.
+        Initialize;
+        Item.Get(CreateItemWithRoutingAndProductionBOM);
+        AddParentItemAsBOMComponent(ProductionBOMHeader, ProductionBOMLine, Item);
+
+        // [WHRN] Change the Status of Production BOM and catch the error.
+        asserterror ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+
+        // [THEN] Status error in Production BOM when Status is set to Certified.
+        Assert.AreEqual(StrSubstNo(ProductionBOMStatusError, 50, '', Item."No.", 1), GetLastErrorText, UnknownError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ParentItemInProductionBOMLineUnderDevelopment()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        // [FEATURE] [Production BOM]
+        // [SCENARIO] Status can be set to Under Development on adding Parent Item in BOM Line and Certified on deleting the Parent Item from BOM Line.
+
+        // [GIVEN] Create Item and Production BOM. Add Parent Item in Production BOM Line and set Status as Under Development.
+        Initialize;
+        Item.Get(CreateItemWithRoutingAndProductionBOM);
+        AddParentItemAsBOMComponent(ProductionBOMHeader, ProductionBOMLine, Item);
+        CreateCommentLineForItem(Item."No.");
+        // [WHEN] Delete Production BOM Line with Parent Item and set Production BOM status as Certified.
+        ProductionBOMLine.Delete(true);
+        ModifyStatusInProductionBOM(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [THEN] Verify that the Status in Production BOM is Certified.
+        ProductionBOMHeader.TestField(Status, ProductionBOMHeader.Status::Certified);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateWorkCenterCalendarReportWithBlankStartingDate()
+    var
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        WorkCenter: Record "Work Center";
+    begin
+        // [FEATURE] [Capacity] [Shop Calendar]
+        // [SCENARIO] Verify error message on running Calculate Work Center Calendar report with blank Starting date.
+
+        // [GIVEN] Create Work Center with Work Center Group.
+        Initialize;
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
+
+        // [WHEN] Run Calculate Work Center Calendar Report with blank Starting date.
+        asserterror LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, 0D, WorkDate);
+
+        // [THEN] Error message that Starting Date must have a value.
+        Assert.AreEqual(StrSubstNo(StartingDateError3), GetLastErrorText, UnknownError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateWorkCenterCalendarReport()
+    var
+        CalendarEntry: Record "Calendar Entry";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        WorkCenter: Record "Work Center";
+        ExpectedCapacityTotal: Decimal;
+    begin
+        // [FEATURE] [Capacity] [Shop Calendar]
+        // [SCENARIO] Verify the functionality of Calculate Work Center Calendar report.
+
+        // [GIVEN] Create Work Center with Work Center Group.
+        Initialize;
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
+        ModifyCapacityOfWorkCenter(WorkCenter);
+
+        // [WHEN] Calculate Work Center Calendar. Store the expected value for Capacity Total in a variable.
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate, WorkDate);
+        GetCalendarEntry(CalendarEntry, CalendarEntry."Capacity Type"::"Work Center", WorkCenter."No.");
+        ExpectedCapacityTotal :=
+          ((CalendarEntry."Ending Time" - CalendarEntry."Starting Time") /
+           CalendarManagement.TimeFactor(WorkCenter."Unit of Measure Code")) * WorkCenter.Capacity;
+
+        // [THEN] Capacity Total on Calendar entry.
+        VerifyCalendarEntry(WorkCenter."No.", ExpectedCapacityTotal);
+    end;
+
+    [Test]
+    [HandlerFunctions('DeleteExpiredComponentsHandler')]
+    [Scope('OnPrem')]
+    procedure DeleteExpiredComponentsReportWithError()
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        // [FEATURE] [Delete Expired Components]
+        // [SCENARIO] Test the functionality of Delete Expired Components report with blank Delete Before Date.
+
+        Initialize;
+
+        // [WHEN] Run Delete Expired Components report with blank Delete Before Date.
+        ShowError := true;  // This variable is made Global as it is used in the Handler.
+        asserterror RunDeleteExpiredComponentsReport(ProductionBOMHeader);
+
+        // [THEN] Verify blank Delete Before Date error message.
+        Assert.AreEqual(StrSubstNo(BlankDeleteBeforeDateError), GetLastErrorText, UnknownError);
+    end;
+
+    [Test]
+    [HandlerFunctions('DeleteExpiredComponentsHandler')]
+    [Scope('OnPrem')]
+    procedure DeleteExpiredComponentsReport()
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        // [FEATURE] [Delete Expired Components]
+        // [SCENARIO] Test the functionality of Delete Expired Components report.
+
+        // [GIVEN] Create and modify Production BOM.
+        Initialize;
+        CreateAndModifyProductionBOM(ProductionBOMHeader);
+
+        // [WHEN]  Run Delete Expired Components report.
+        ProductionBOMHeader.SetRange("No.", ProductionBOMHeader."No.");
+        RunDeleteExpiredComponentsReport(ProductionBOMHeader);
+
+        // [THEN] Verify expired component must not exist.
+        Assert.IsFalse(
+          FindProductionBOMLine(ProductionBOMLine, ProductionBOMHeader."No."), StrSubstNo(MustNotExistError, ProductionBOMLine.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RefreshPlanningLine()
+    var
+        RequisitionLine: Record "Requisition Line";
+        Direction: Option Forward,Backward;
+    begin
+        // [FEATURE] [Planning Worksheet]
+        // [SCENARIO] Test and verify Starting Date and Ending Date after refreshing Planning Line.
+
+        // [GIVEN] Create Requisition Line.
+        Initialize;
+        CreateRequisitionLine(RequisitionLine);
+
+        // [WHEN] Refresh Planning Line.
+        LibraryPlanning.RefreshPlanningLine(RequisitionLine, Direction::Backward, true, true);
+
+        // [THEN] Verify Starting Date and Ending Date after refreshing Planning Line.
+        RequisitionLine.Find;
+        RequisitionLine.TestField("Starting Date", WorkDate);
+        RequisitionLine.TestField("Ending Date", WorkDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeletePlanningWorksheetLines()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Planning Worksheet]
+        // [SCENARIO] Test and verify Delete Planning Worksheet Lines functionality after Calculate Regenerative Plan.
+
+        // [GIVEN] Create Item with Lot for Lot Reordering Policy and Safety Stock Quantity.
+        Initialize;
+        CreateItemWithLotForLotReorderingPolicyAndSafetyStockQuantity(Item);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst;
+
+        // [WHEN] Delete all Planning Worksheet Lines.
+        RequisitionLine.DeleteAll(true);
+
+        // [THEN] Verify all Planning Worksheet Lines must be deleted.
+        Assert.AreEqual(0, RequisitionLine.Count, StrSubstNo(MustNotExistError, RequisitionLine.TableCaption));
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure CalculateConsumptionAfterRefreshProductionOrder()
+    var
+        InventorySetup: Record "Inventory Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        // [FEATURE] [Consumption Journal]
+        // [SCENARIO] Validate Consumption Journal After release Production Order and calculate Consumption.
+
+        // [GIVEN] Create and Release Production Order.
+        InventorySetup.Get;
+        UpdateInventorySetup(true, true);
+        CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
+
+        // [WHEN] Run Calculate Consumption report.
+        CalculateConsumptionJournal(ItemJournalBatch, ProductionOrder."No.");
+
+        // [THEN] Verify consumption journal line
+        VerifyItemJournalLine(
+          ItemJournalBatch, ProductionOrder."No.", ProdOrderComponent."Item No.", ProdOrderComponent."Expected Quantity");
+
+        // Tear Down : Set Default value of Inventory Setup.
+        UpdateInventorySetup(InventorySetup."Expected Cost Posting to G/L", InventorySetup."Automatic Cost Posting");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure OutputJournalAfterCalculateConsumption()
+    var
+        InventorySetup: Record "Inventory Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        // [FEATURE] [Output Journal]
+        // [SCENARIO] Validate Output Journal after Posting Consumption Journal.
+
+        // [GIVEN] Create and Release Production Order and Calculate Consumption Journal.
+        InventorySetup.Get;
+        UpdateInventorySetup(true, true);
+        CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
+        CreateAndPostConsumptionJournal(ProductionOrder."No.");
+
+        // [WHEN] Create Output Journal with Explode Routing.
+        OutputJournalExplodeRouting(ItemJournalBatch, ProductionOrder);
+
+        // [THEN] Output Journal.
+        VerifyItemJournalLine(ItemJournalBatch, ProductionOrder."No.", ProductionOrder."Source No.", ProductionOrder.Quantity);
+
+        // Tear Down : Set Default value of Inventory Setup.
+        UpdateInventorySetup(InventorySetup."Expected Cost Posting to G/L", InventorySetup."Automatic Cost Posting");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure GLEntryAfterPostOutputJournal()
+    var
+        InventorySetup: Record "Inventory Setup";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        // [FEATURE] [Output Journal]
+        // [SCENARIO] Validate G/L Entry after posting output Journal.
+
+        // [GIVEN] Create and Release Production Order, Calculate Consumption Journal and create Output Journal.
+        InventorySetup.Get;
+        UpdateInventorySetup(true, true);
+        CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
+        CreateAndPostConsumptionJournal(ProductionOrder."No.");
+        OutputJournalExplodeRouting(ItemJournalBatch, ProductionOrder);
+
+        // [WHEN] Post Output Journal.
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [THEN] Verify G/L Entry.
+        VerifyGLEntry(ProductionOrder."Inventory Posting Group", ProductionOrder."No.");
+
+        // Tear Down : Set Default value of Inventory Setup.
+        UpdateInventorySetup(InventorySetup."Expected Cost Posting to G/L", InventorySetup."Automatic Cost Posting");
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalHandler,ConfirmHandlerTrue,MessageHandler,ViewAppliedEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure QuantityOnAppliedEntriesAfterApplicationWorkSheet()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        SalesHeader: Record "Sales Header";
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+        ApplicationWorksheet: TestPage "Application Worksheet";
+        Quantity: Decimal;
+    begin
+        // [FEATURE] [Application Worksheet]
+        // [SCENARIO] Check the Quantity on View Applied Item Entries After Application Worksheet.
+
+        // [GIVEN] Create and Release Production Order, Quantity = "Q1". Open and post Production Journal.
+        Initialize;
+        CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderComponent."Prod. Order Line No.");
+        // [GIVEN] Create and post sales order. Quantity = "Q2" < "Q1".
+        Quantity := LibraryRandom.RandDec(10, 2);
+        CreateAndPostSalesOrder(SalesHeader, ProductionOrder."Source No.", Quantity);
+        LibraryVariableStorage.Enqueue(ProductionOrder."Source No.");
+        LibraryVariableStorage.Enqueue(-1 * Quantity);
+        ApplicationWorksheet.OpenEdit;
+        ApplicationWorksheet.FILTER.SetFilter("Item No.", ProductionOrder."Source No.");
+
+        // [WHEN] Open View Applied Entries Page.
+        ApplicationWorksheet.AppliedEntries.Invoke;
+
+        // [THEN] "Applied Quantity" = "Q2"
+        // Verification done in ViewAppliedEntriesPageHandler.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DocumentNoOnItemLedgerEntry()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
+        DocumentNo: Code[20];
+        Quantity: Decimal;
+        OldDocNoIsProdOrderNo: Boolean;
+    begin
+        // [FEATURE] [Output Journal]
+        // [SCENARIO] Check Document No. on Item Ledger Entry when Field Doc. No. Is Prod. Order No. is False on Manufacturing Setup.
+
+        // [GIVEN] Create and Release Production Order, Update Manufacturing Setup and Production Order Component.
+        Initialize;
+        OldDocNoIsProdOrderNo := UpdateManufacturingSetup(false);
+        Quantity := LibraryRandom.RandDec(10, 2);
+        CreateMultipleItemsWithReorderingPolicy(Item, Item2, Quantity);
+        CreateAndPostItemJournalLine(
+          ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDec(1000, 2), WorkDate, '');
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item2."No.", Quantity);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        UpdateProductionOrderComponent(ProductionOrder."No.", Item."No.");
+
+        // [WHEN] Create and Post Output Journal.
+        DocumentNo := CreateAndPostOutputJournal(ProductionOrder."No.");
+
+        // [THEN] Document No. exist on Item ledger Entry.
+        VerifyDocumentNoExistOnItemLedgerEntry(DocumentNo);
+
+        // Tear Down.
+        RestoreManufacturingSetup(OldDocNoIsProdOrderNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QuantityOnProductionOrderLine()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Item3: Record Item;
+        Item4: Record Item;
+        ProductionOrder: Record "Production Order";
+        InvtPostingGroupCode: Code[20];
+    begin
+        // [FEATURE] [Production Order]
+        // [SCENARIO] Quantity on Prod. Order Line should be equal to Qty. on Component Lines.
+
+        // Setup.
+        Initialize;
+        InvtPostingGroupCode :=
+          CreateItemWithReorderingPolicyAndInventoryPostingGroup(
+            Item, Item."Replenishment System"::"Prod. Order", Item."Manufacturing Policy"::"Make-to-Order");
+        CreateItemWithReorderingPolicy(
+          Item2, Item2."Replenishment System"::"Prod. Order", Item2."Manufacturing Policy"::"Make-to-Order", InvtPostingGroupCode,
+          CreateProductionBOMForSingleItem(LibraryInventory.CreateItem(Item3), Item."Base Unit of Measure"), '');
+        CreateItemWithReorderingPolicy(
+          Item4, Item4."Replenishment System"::"Prod. Order", Item4."Manufacturing Policy"::"Make-to-Order", InvtPostingGroupCode,
+          CreateProductionBOMForSingleItem(Item2."No.", Item2."Base Unit of Measure"), '');
+        UpdateProductionBOMOnParentItem(Item, Item2."No.", Item4."No.");
+
+        // Exercise:  Create and refresh Production Order.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.",
+          LibraryRandom.RandDec(10, 2));
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // Verify: Verify Quantity on Prod. Order Line.
+        Item4.CalcFields("Qty. on Component Lines");
+        VerifyQuantityOnProdOrderLine(ProductionOrder.Status, ProductionOrder."No.", Item4."No.", Item4."Qty. on Component Lines");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExpectedQuantityOnProductionOrderComponenent()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Item3: Record Item;
+        Item4: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        InvtPostingGroupCode: Code[20];
+    begin
+        // [FEATURE] [Production Order]
+        // [SCENARIO] Check Expected Quantity and Remaining Quantity on Prod. Order Component.
+
+        // [GIVEN] Create and refresh Production Order.
+        Initialize;
+        InvtPostingGroupCode :=
+          CreateItemWithReorderingPolicyAndInventoryPostingGroup(
+            Item, Item."Replenishment System"::"Prod. Order", Item."Manufacturing Policy"::"Make-to-Order");
+        CreateItemWithReorderingPolicy(
+          Item2, Item2."Replenishment System"::"Prod. Order", Item2."Manufacturing Policy"::"Make-to-Order", InvtPostingGroupCode,
+          CreateProductionBOMForSingleItem(LibraryInventory.CreateItem(Item3), Item."Base Unit of Measure"), '');
+        CreateItemWithReorderingPolicy(
+          Item4, Item4."Replenishment System"::"Prod. Order", Item4."Manufacturing Policy"::"Make-to-Order", InvtPostingGroupCode,
+          CreateProductionBOMForSingleItem(Item2."No.", Item2."Base Unit of Measure"), '');
+        UpdateProductionBOMOnParentItem(Item, Item2."No.", Item4."No.");
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.",
+          LibraryRandom.RandDec(10, 2));
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [WHEN] Delete Component on Prod. Order Line.
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", Item4."No.");
+        ProdOrderLine.Delete(true);
+
+        // [THEN] Verify Quantity on Prod. Order Line.Expected Quantity and Remaining Quantity on Prod. Order Component.
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", Item2."No.");
+        VerifyExpectedQuantityOnProdOrderComponent(Item3, ProductionOrder."No.", ProdOrderLine.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalHandler,ConfirmHandlerTrue,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ChangeRtngOnProdOrdLnWithPostedOutput()
+    var
+        ProdOrdLn: Record "Prod. Order Line";
+    begin
+        // [FEATURE] [Production Order]
+        // [SCENARIO] Check error when modifying routing No. on posted Prod. Order line
+
+        // [GIVEN] Create 2 released prod. order lines, post output for the first line
+        Initialize;
+        SetupProdOrdLnWithPostedOutput(ProdOrdLn);
+
+        // Get the first Prod. order line
+        ProdOrdLn.Get(ProdOrdLn.Status, ProdOrdLn."Prod. Order No.", ProdOrdLn."Line No.");
+
+        // [WHEN] Change Routing No. on the first line
+        asserterror ProdOrdLn.Validate("Routing No.", CreateRouting);
+
+        // [THEN] Error message: "You cannot modify Routing No.".
+        Assert.AreEqual(StrSubstNo(ModifyRtngErr, ProdOrdLn."Routing No.", CapLedgEntryCap), GetLastErrorText, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalHandler,ConfirmHandlerTrue,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DeleteProdOrdLnWithPostedOutput()
+    var
+        ProdOrdLn: Record "Prod. Order Line";
+    begin
+        // [FEATURE] [Production Order]
+        // [SCENARIO] Check error when deleting posted Prod. Order line
+
+        // [GIVEN] Create 2 released prod. order lines, post output for the first line
+        Initialize;
+        SetupProdOrdLnWithPostedOutput(ProdOrdLn);
+
+        // Get the first Prod. order line
+        ProdOrdLn.Get(ProdOrdLn.Status, ProdOrdLn."Prod. Order No.", ProdOrdLn."Line No.");
+
+        // [WHEN] Delete the first production order line
+        asserterror ProdOrdLn.Delete(true);
+
+        // [THEN] Error message: "You cannot delete Prod. Order Line"
+        Assert.AreEqual(StrSubstNo(DeleteRtngErr, ProdOrdLn."Line No.", ItemLedgEntryCap), GetLastErrorText, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeRtngOnProdOrdLn()
+    var
+        Item: Record Item;
+        ProdOrdLn: Record "Prod. Order Line";
+        ProdOrd: Record "Production Order";
+        ProdOrdRtngLn: Record "Prod. Order Routing Line";
+    begin
+        // [FEATURE] [Production Order]
+        // [SCENARIO] Production Order Routing Lines should be be deleted for the specific production order line when the Routing No. is changed
+
+        Initialize;
+        Item.Get(CreateItemWithRoutingAndProductionBOM);
+
+        // [GIVEN] Create a released Prod. Order, create 2 Prod. Order lines, calculate routings
+        SetupProdOrdWithRtng(ProdOrd, Item."No.");
+
+        // Find the first Prod. Order Line
+        FindProductionOrderLine(ProdOrdLn, ProdOrd.Status, ProdOrd."No.", Item."No.");
+
+        // Check Table 5409 (Prod. Order Routing Line) has Routing Lines for the first Prod. Order Line
+        Assert.IsTrue(FindProductionOrderRoutingLine(ProdOrdRtngLn, ProdOrdLn), ProdOrdRtngLnNotExistErr);
+
+        // [WHEN] Change the Routing No. of the first Prod. Order line
+        ProdOrdLn.Validate("Routing No.", CreateRouting);
+
+        // [THEN] Table 5409 (Prod. Order Routing Line) has no Routing Lines for the first Prod. Order Line
+        Assert.IsFalse(FindProductionOrderRoutingLine(ProdOrdRtngLn, ProdOrdLn), ProdOrdRtngLnExistErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateWaitingTimeIncludingWeekendWithMultipleCalendars()
+    var
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        DueDate: Date;
+        WaitTime: Integer;
+    begin
+        // Check Starting Date Time is calculated correctly for the Prod. Order Routing Line in a backward calculated Scenario
+        // if the prior Prod. Order Routing Line is scheduled at non-Working Day for the calculated Prod. Order Routing Line with waiting time >= 5 Days
+        Initialize;
+
+        // Setup: Get the Waiting Days for routing line
+        WaitTime := LibraryRandom.RandIntInRange(5, 9);
+
+        // Create 2 Work Centers, one with all days working Calender, the other with Monday ~ Friday working Calender
+        // Create Routing with 2 routing Lines, using the 2 created work centers. Create Production Item, calculate Prod. Order Due Date
+        DueDate := SetupForCalculateWaitingTimeWithMultipleCalendars(Item, WorkCenter, WaitTime);
+
+        // Exercise: Create Released Production Order, set Due Date and Refresh Production Order
+        CreateAndRefreshProdOrderWithSpecificDueDate(ProductionOrder, Item."No.", DueDate);
+
+        // Verify: Find the routing line with Monday ~ Friday working days and check the start Date-Time and Ending Date-time,
+        // because WaitTime >= 5 DAYS, then duration between starting date and ending date will include weekend
+        VerifyDateTimeOnProdOrderRoutingLine(ProductionOrder, Item."Routing No.", WorkCenter."No.", WaitTime);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateWaitingTimeWithMultipleCalendars()
+    var
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        DueDate: Date;
+        WaitTime: Integer;
+    begin
+        // Check Starting Date Time is calculated correctly for the Prod. Order Routing Line in a backward calculated Scenario
+        // if the prior Prod. Order Routing Line is scheduled at non-Working Day for the calculated Prod. Order Routing Line with waiting time < 5 Days
+        Initialize;
+
+        // Setup: Get the Waiting Days for routing line
+        WaitTime := LibraryRandom.RandInt(4); // Get the Wait Days for routing line
+
+        // Create 2 Work Centers, one with all days working Calender, the other with Monday ~ Friday working Calender
+        // Create Routing with 2 routing Lines, using the 2 created work centers. Create Production Item, calculate Prod. Order Due Date
+        DueDate := SetupForCalculateWaitingTimeWithMultipleCalendars(Item, WorkCenter, WaitTime);
+
+        // Exercise: Create Released Production Order, set Due Date and Refresh Production Order
+        CreateAndRefreshProdOrderWithSpecificDueDate(ProductionOrder, Item."No.", DueDate);
+
+        // Verify: Find the routing line with Monday ~ Friday working days and check the start Date-Time and Ending Date-time,
+        VerifyDateTimeOnProdOrderRoutingLine(ProductionOrder, Item."Routing No.", WorkCenter."No.", WaitTime);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateProdOrderCapactiyNeedWithWorkShiftEndAtMidnight()
+    var
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        RoutingLine: Record "Routing Line";
+        FirstDate: Date;
+        StartingTime: Time;
+        ChangeShiftTime: Time;
+        EndingTime: Time;
+        MinutesFactor: Integer;
+        Precision: Decimal;
+    begin
+        // Check Prod. Order Capactiy Need is calculated correctly when there is work shift ending at midnight
+
+        // Setup: Define the starting time and ending time for work shift
+        Initialize;
+        StartingTime := 083000T; // 8:30 AM is not important, just define the starting time for the first work shift
+        ChangeShiftTime := 130000T; // 1:00 PM is not important, just define the ending time for the first work shift and the starting time for the second work shift
+        EndingTime := 235959T; // Define the ending time for the second work shift, it needs to be very close to midnight
+
+        // Create shop calendar, working days starts from Monday to Friday with 2 work shifts every day
+        // Create Work Center, use the shop calendar created above
+        // Update Calendar Rounding Precision for the work center to 0.1, otherwise the ending time in Prod. Order Capacity Need cannot reach 12:00:00,
+        // then the issue mentioned in NAVSE TFS342243 cannot be reproed
+        Precision := 0.1;
+        CreateWorkCenterWithCalendarCodeAndRoundingPrecision(
+          WorkCenter, CreateShopCalendarWithTwoWorkShifts(StartingTime, ChangeShiftTime, EndingTime), Precision);
+
+        // Create Production Item with Routing, use the work center created above in routing line and set run time
+        CreateProductionItemWithRouting(Item, RoutingLine, WorkCenter."No.");
+
+        MinutesFactor := 60000; // Converting milliseconds to minutes needs to divide milliseconds with this factor
+
+        // Exercise: Create Released Production Order, Refresh Production Order with Forward Direction
+        // Since Unit Of Measure for Run Time on routing line is Minutes, thus change the unit of time that can
+        // be allocated every day (EndingTime - StartingTime) to Minutes by dividing MinutesFactor.
+        // Set the item quantity to make it needs capacity allocated in work center for more than 1 week
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.",
+          Round((EndingTime - StartingTime) / MinutesFactor / RoutingLine."Run Time") * LibraryRandom.RandIntInRange(5, 15));
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, true, true, true, false);
+        FirstDate := GetProdOrderCapacityNeedDate(WorkCenter."No.");
+
+        // Verify: Verify Prod. Order Capactiy Need is correct
+        // Verify the 2nd work shift starting from 1:00:00 PM is allocated for the first working day
+        Assert.IsTrue(
+          ProdOrderCapacityNeedExist(
+            WorkCenter."No.", FirstDate, ChangeShiftTime, Round((EndingTime - ChangeShiftTime) / MinutesFactor, Precision)),
+          StrSubstNo(WorkShiftShouldExistErr, ChangeShiftTime, Round((EndingTime - ChangeShiftTime) / MinutesFactor, Precision), FirstDate));
+
+        // Verify no work time is allocated for next Saturday
+        FilteringOnProdOrderCapacityNeed(ProdOrderCapacityNeed, WorkCenter."No.", CalcDate('<WD6>', FirstDate));
+        Assert.IsTrue(ProdOrderCapacityNeed.IsEmpty, WorkShiftShouldNotExistErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateProdOrderCapactiyNeedWithWorkShiftEndAtMidnightInPlanningRoutingLine()
+    var
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        RoutingLine: Record "Routing Line";
+        RequisitionLine: Record "Requisition Line";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        FirstDate: Date;
+        StartingTime: Time;
+        ChangeShiftTime: Time;
+        EndingTime: Time;
+        MinutesFactor: Integer;
+        Precision: Decimal;
+    begin
+        // Check Prod. Order Capactiy Need is calculated correctly when modifying Starting time in Planning Routing Line with work shift ending at midnight
+
+        // Setup: Define the starting time and ending time for work shift
+        Initialize;
+        StartingTime := 083000T; // 8:30 AM is not important, just define the starting time for the first work shift
+        ChangeShiftTime := 130000T; // 1:00 PM is not important, just define the ending time for the first work shift and the starting time for the second work shift
+        EndingTime := 235959T; // Define the ending time for the second work shift, it needs to be very close to midnight
+
+        // Create shop calendar, working days starts from Monday to Friday with 2 work shifts every day
+        // Create Work Center, use the shop calendar created above
+        // Update Calendar Rounding Precision for the work center to 0.1, otherwise the ending time in Prod. Order Capacity Need cannot reach 12:00:00,
+        // then the issue mentioned in NAVSE TFS342243 cannot be reproed
+        Precision := 0.1;
+        CreateWorkCenterWithCalendarCodeAndRoundingPrecision(
+          WorkCenter, CreateShopCalendarWithTwoWorkShifts(StartingTime, ChangeShiftTime, EndingTime), Precision);
+
+        // Create Production Item with Routing, use the work center created above in routing line and set run time
+        CreateProductionItemWithRouting(Item, RoutingLine, WorkCenter."No.");
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order"); // Modify the replenishment system for calculating Order Planning
+        Item.Modify(true);
+
+        MinutesFactor := 60000; // Converting milliseconds to minutes needs to divide milliseconds with this factor
+
+        // Create a Sales Order for the item, set the item quantity to make it needs capacity allocated in work center for more than 1 week
+        CreateSalesOrder(
+          SalesHeader, Item."No.",
+          Round((EndingTime - StartingTime) / MinutesFactor / RoutingLine."Run Time", Precision) *
+          LibraryRandom.RandIntInRange(5, 15));
+
+        // Calculate Order Planning for Sales Demand, that will generate Planning Routing Line for the item
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+        FindPlanningRoutingLine(PlanningRoutingLine, WorkCenter."No.", RoutingLine."Operation No.");
+
+        // Exercise: Modify the starting time on Planning Routing Line to make it in the first work shift
+        PlanningRoutingLine.Validate("Starting Time", StartingTime + LibraryRandom.RandInt(ChangeShiftTime - StartingTime));
+        PlanningRoutingLine.Modify(true);
+
+        FirstDate := GetProdOrderCapacityNeedDate(WorkCenter."No.");
+
+        // Verify: Verify Prod. Order Capactiy Need is correct
+        // Verify the 2nd work shift starting from 1:00:00 PM is allocated for the first working day
+        Assert.IsTrue(
+          ProdOrderCapacityNeedExist(
+            WorkCenter."No.", FirstDate, ChangeShiftTime, Round((EndingTime - ChangeShiftTime) / MinutesFactor, Precision)),
+          StrSubstNo(WorkShiftShouldExistErr, ChangeShiftTime, Round((EndingTime - ChangeShiftTime) / MinutesFactor, Precision), FirstDate));
+
+        // Verify no work time is allocated for next Saturday
+        FilteringOnProdOrderCapacityNeed(ProdOrderCapacityNeed, WorkCenter."No.", CalcDate('<WD6>', FirstDate));
+        Assert.IsTrue(ProdOrderCapacityNeed.IsEmpty, WorkShiftShouldNotExistErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateProdOrderStartingDateWithRoutingSetupTimeEndAtMidnight()
+    var
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        RoutingLine: Record "Routing Line";
+        ProdOrderLine: Record "Prod. Order Line";
+        ManufacturingSetup: Record "Manufacturing Setup";
+        DueDate: Date;
+        StartingTime: Time;
+        EndingTime: Time;
+        Precision: Decimal;
+        ShopCalendarCode: Code[10];
+    begin
+        // Check the Starting Date on Prod. Order Line is calculated correctly when routing's setup time ends at midnight
+
+        // Setup: Define the starting time and ending time for work shift
+        Initialize;
+
+        StartingTime := 083000T; // 8:30 AM is not important, just define the starting time for the work shift
+        EndingTime := 235959T; // Define the ending time for work shift, it needs to be very close to midnight
+
+        // Create shop calendar, working days starts from Monday to Friday with 1 work shift every day
+        // Create Work Center, use the shop calendar created above
+        // Update Calendar Rounding Precision for the work center to 0.1, otherwise the setup ending time in Prod. Order Capacity Need cannot reach 12:00:00,
+        Precision := 0.1;
+        ShopCalendarCode := CreateShopCalendar(StartingTime, EndingTime);
+
+        // Create working days in weekend so that after Forward refreshing Prod. Order, the Starting Date on Prod. Orde Line plus
+        // ManufacturingSetup."Default Safety Lead Time" will equal the original Due Date of Prod. Order
+        CreateShopCalendarWeekendWorkingDays(ShopCalendarCode, StartingTime, EndingTime);
+        CreateWorkCenterWithCalendarCodeAndRoundingPrecision(WorkCenter, ShopCalendarCode, Precision);
+
+        // Create Production Item with Routing, use the work center created above in routing line and modify setup time
+        // The setup time equals the work time that can be allocated in a day with minuites unit of measure
+        CreateProductionItemWithRouting(Item, RoutingLine, WorkCenter."No.");
+        ModifySetupTimeOnRoutingLine(RoutingLine, Round((EndingTime - StartingTime) / (60 * 1000), Precision)); // Divisor 60 * 1000 is for converting millisecond to minute
+
+        // Create Released Production Order
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.",
+          LibraryRandom.RandInt(10));
+        DueDate := ProductionOrder."Due Date";
+
+        // Exercise: Refresh Production Order with Forward Direction
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, true, true, true, false);
+
+        // Find the Prod. Order Line calculated by refreshing the production order
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status::Released, ProductionOrder."No.", Item."No.");
+        ManufacturingSetup.Get;
+
+        // Verify: The Starting Date on Prod. Orde Line should be ahead of the original Due Date of Prod. Order by Default Safety Lead Time
+        Assert.AreEqual(
+          DueDate, CalcDate(ManufacturingSetup."Default Safety Lead Time", ProdOrderLine."Starting Date"),
+          ProdOrderStartingDateErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckWaitTimeOnProdOrderRoutingLineWithoutCapacityConstrained()
+    var
+        RoutingLine: Record "Routing Line";
+        RoutingLine2: Record "Routing Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderRoutingLine2: Record "Prod. Order Routing Line";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+    begin
+        // Check Wait Time on Prod. Order Routing Line is not Capacity constrained.
+
+        // Setup: Create Production item, 1 routing header with 2 routing lines, set the wait time of the
+        // first routing line to 1 ~ 2 days so that the second routing line will start on Monday if first routing line starts on Friday.
+        // Create and Refresh Released Production Order, 2 Prod. Order Routing Lines will be generated
+        Initialize;
+        SetupWaitTimeOnProdOrderRtngLnWithoutCapactityConstrained(RoutingLine, RoutingLine2);
+
+        // Exercise: Find the 1st Prod. Order Routing Line and modify the Starting Date to Friday
+        FindProdOrderRoutingLine(ProdOrderRoutingLine, RoutingLine."Work Center No.", RoutingLine."Operation No.");
+        ModifyStartingDateOnProdOrderRtngLn(ProdOrderRoutingLine, CalcDate('<WD5>', WorkDate));
+
+        // Verify: Verify Ending Date Time on the 1st Prod. Order Routing Line
+        ProdOrderRoutingLine.TestField(
+          "Ending Date-Time", ProdOrderRoutingLine."Starting Date-Time" + ProdOrderRoutingLine."Wait Time" * 60 * 1000); // Wait Time is not capacity contrained
+
+        FindProdOrderRoutingLine(ProdOrderRoutingLine2, RoutingLine2."Work Center No.", RoutingLine2."Operation No."); // Find the second Prod. Order Routing Line
+
+        // Find ShopCalendarWorkingDays of Monday for the work center on the 2nd routing line
+        FindShopCalendarWorkingDaysForWorkCenter(
+          ShopCalendarWorkingDays, ProdOrderRoutingLine2."Work Center No.", ShopCalendarWorkingDays.Day::Monday);
+
+        // Verify Starting Date Time on the 2nd Prod. Order Routing Line, it should be in the next working day (Monday) at its starting time
+        ProdOrderRoutingLine2.TestField(
+          "Starting Date-Time",
+          CreateDateTime(CalcDate('<WD1>', ProdOrderRoutingLine."Ending Date"), ShopCalendarWorkingDays."Starting Time"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckWaitTimeOnPlanningRoutingLineWithoutCapacityConstrained()
+    var
+        RoutingLine: Record "Routing Line";
+        RoutingLine2: Record "Routing Line";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        PlanningRoutingLine2: Record "Planning Routing Line";
+    begin
+        // Check Wait Time on Planning Routing Line is not Capacity constrained.
+
+        // Setup: Create Production item, 1 routing header with 2 routing lines, set the wait time of the
+        // first routing line to 1 ~ 2 days so that the second routing line will start on Monday if first routing line starts on Friday.
+        // Create a Sales Order for the item. Calculate Order Planning for Sales Demand, that will generate Planning Routing Line for the item
+        Initialize;
+        SetupWaitTimeOnPlanningRtngLnWithoutCapactityConstrained(RoutingLine, RoutingLine2);
+
+        // Exercise: Find the 1st Planning Routing Line and modify the starting Date to Friday
+        FindPlanningRoutingLine(PlanningRoutingLine, RoutingLine."Work Center No.", RoutingLine."Operation No.");
+        ModifyStartingDateOnPlanningRtngLn(PlanningRoutingLine, CalcDate('<WD5>', WorkDate));
+
+        // Verify: Verify Ending Date Time on the 1st Planning Routing Line
+        PlanningRoutingLine.TestField(
+          "Ending Date-Time", PlanningRoutingLine."Starting Date-Time" + PlanningRoutingLine."Wait Time" * 60 * 1000); // Wait Time is not capacity contrained
+
+        FindPlanningRoutingLine(PlanningRoutingLine2, RoutingLine2."Work Center No.", RoutingLine2."Operation No."); // Find the second Planning Routing Line
+
+        // Find ShopCalendarWorkingDays of Monday for the work center on the 2nd routing line
+        FindShopCalendarWorkingDaysForWorkCenter(
+          ShopCalendarWorkingDays, PlanningRoutingLine2."Work Center No.", ShopCalendarWorkingDays.Day::Monday);
+
+        // Verify Starting Date Time on the 2nd Planning Routing Line, it should be in the next working day (Monday) at its starting time
+        PlanningRoutingLine2.TestField(
+          "Starting Date-Time",
+          CreateDateTime(CalcDate('<WD1>', PlanningRoutingLine."Ending Date"), ShopCalendarWorkingDays."Starting Time"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckWaitTimeStartingOnWeekendOnProdOrdRtngLnWithoutCapConstrained()
+    var
+        RoutingLine: Record "Routing Line";
+        RoutingLine2: Record "Routing Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderRoutingLine2: Record "Prod. Order Routing Line";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+    begin
+        // Check Wait Time on Prod. Order Routing Line is not Capacity constrained with backward calculation when multiple routing lines exist.
+
+        // Setup: Create Production item, 1 routing header with 2 routing lines, set the wait time of the second
+        // routing line to 1 ~ 2 days so that the first routing line will end on Friday if second routing line starts on Monday.
+        // Create and Refresh Released Production Order, 2 Prod. Order Routing Lines will be generated.
+        Initialize;
+        SetupWaitTimeOnProdOrderRtngLnForBackwardCalculation(RoutingLine, RoutingLine2);
+        FindProdOrderRoutingLine(ProdOrderRoutingLine2, RoutingLine2."Work Center No.", RoutingLine2."Operation No."); // Find the 2nd Prod. Order Routing Line
+
+        // Exercise: Modify the Ending Date to Monday
+        ModifyEndingDateOnProdOrderRtngLn(ProdOrderRoutingLine2, CalcDate('<WD1>', WorkDate));
+
+        // Verify: Verify Starting Date Time on the 2nd Prod. Order Routing Line, the Starting Date is weekend since the Wait Time is 1 ~ 2 days
+        ProdOrderRoutingLine2.TestField(
+          "Starting Date-Time", ProdOrderRoutingLine2."Ending Date-Time" - ProdOrderRoutingLine2."Wait Time" * 60 * 1000); // Wait Time is not capacity contrained
+
+        FindProdOrderRoutingLine(ProdOrderRoutingLine, RoutingLine."Work Center No.", RoutingLine."Operation No."); // Find the 1st Prod. Order Routing Line
+
+        // Find ShopCalendarWorkingDays of Friday for the work center on the 1st routing line
+        FindShopCalendarWorkingDaysForWorkCenter(
+          ShopCalendarWorkingDays, ProdOrderRoutingLine."Work Center No.", ShopCalendarWorkingDays.Day::Friday);
+
+        // Verify Ending Date Time on the 1st Prod. Order Routing Line, it should be in the last working day (Friday) at its ending time
+        ProdOrderRoutingLine.TestField(
+          "Ending Date-Time",
+          CreateDateTime(CalcDate('<-WD5>', ProdOrderRoutingLine2."Starting Date"), ShopCalendarWorkingDays."Ending Time"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckWaitTimeStartingOnWeekendOnPlanningRtngLnWithoutCapConstrained()
+    var
+        RoutingLine: Record "Routing Line";
+        RoutingLine2: Record "Routing Line";
+        PlanningRoutingLine: Record "Planning Routing Line";
+        PlanningRoutingLine2: Record "Planning Routing Line";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+    begin
+        // Check Wait Time on Planning Routing Line is not Capacity constrained with backward calculation when multiple routing lines exist.
+
+        // Setup: Create Production item, 1 routing header with 2 routing lines, set the wait time of the second
+        // routing line to 1 ~ 2 days so that the first routing line will end on Friday if second routing line starts on Monday.
+        // Create a Sales Order for the item. Calculate Order Planning for Sales Demand, that will generate Planning Routing Line for the item.
+        Initialize;
+        SetupWaitTimeOnPlanningRtngLnForBackwardCalculation(RoutingLine, RoutingLine2);
+        FindPlanningRoutingLine(PlanningRoutingLine2, RoutingLine2."Work Center No.", RoutingLine2."Operation No."); // Find the 2nd Planning Routing Line
+
+        // Exercise: Modify the Ending Date to Monday
+        ModifyEndingDateOnPlanningRtngLn(PlanningRoutingLine2, CalcDate('<WD1>', WorkDate));
+
+        // Verify: Verify Starting Date on the 2nd Planning Routing Line, the Starting Date is weekend since the Wait Time is 1 ~ 2 days
+        PlanningRoutingLine2.TestField(
+          "Starting Date", DT2Date(PlanningRoutingLine2."Ending Date-Time" - PlanningRoutingLine2."Wait Time" * 60 * 1000)); // Wait Time is not capacity contrained
+        PlanningRoutingLine2.TestField("Starting Time", 000000T); // When routing starts in non-working day, the starting time is 12:00:00 AM
+
+        FindPlanningRoutingLine(PlanningRoutingLine, RoutingLine."Work Center No.", RoutingLine."Operation No."); // Find the 1st Planning Routing Line
+
+        // Find ShopCalendarWorkingDays of Friday for the work center on the 1st routing line
+        FindShopCalendarWorkingDaysForWorkCenter(
+          ShopCalendarWorkingDays, PlanningRoutingLine."Work Center No.", ShopCalendarWorkingDays.Day::Friday);
+
+        // Verify Ending Date Time on the 1st Planning Routing Line, it should be in the last working day (Friday) at its ending time
+        PlanningRoutingLine.TestField(
+          "Ending Date-Time",
+          CreateDateTime(CalcDate('<-WD5>', PlanningRoutingLine2."Starting Date"), ShopCalendarWorkingDays."Ending Time"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckBackwardCalculatedWaitTimeOnProdOrdRtngLnWithoutCapConstrained()
+    var
+        RoutingLine: Record "Routing Line";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        // Check Wait Time on Prod. Order Routing Line is not Capacity constrained with backward calculation when wait time exceeds 1 week.
+
+        // Setup: Create Work Center and Production item, set wait time on routing line to 1 ~ 2 weeks.
+        Initialize;
+        CreateWorkCenterAndProductionItem(Item, RoutingLine);
+
+        // Exercise: Create and Refresh Released Production Order.
+        CreateAndRefreshProdOrderWithSpecificItem(ProductionOrder, Item."No.", false);
+        FindProdOrderRoutingLine(ProdOrderRoutingLine, RoutingLine."Work Center No.", RoutingLine."Operation No."); // Find the Prod. Order Routing Line
+
+        // Verify: Verify Starting Date Time on the Prod. Order Routing Line
+        ProdOrderRoutingLine.TestField(
+          "Starting Date-Time", ProdOrderRoutingLine."Ending Date-Time" - ProdOrderRoutingLine."Wait Time" * 60 * 1000); // Wait Time is not capacity contrained
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckBackwardCalculatedWaitTimeOnPlanningRtngLnWithoutCapConstrained()
+    var
+        Item: Record Item;
+        RoutingLine: Record "Routing Line";
+        PlanningRoutingLine: Record "Planning Routing Line";
+    begin
+        // [FEATURE] [Order Planning] [Capacity]
+        // [SCENARIO] Check Wait Time on Planning Routing Line is not Capacity constrained with backward calculation when wait time exceeds 1 week.
+
+        // [GIVEN] Create Work Center and Production item, set wait time on routing line to 1 ~ 2 weeks.
+        Initialize;
+        CreateWorkCenterAndProductionItem(Item, RoutingLine);
+
+        // [WHEN] Create Sales Order and calculate order planning
+        CreateSalesOrderAndCalculateOrderPlan(Item, Item."Replenishment System"::"Prod. Order");
+        FindPlanningRoutingLine(PlanningRoutingLine, RoutingLine."Work Center No.", RoutingLine."Operation No."); // Find the Planning Routing Line
+
+        // [THEN] Verify Starting Date Time on the Prod. Order Routing Line
+        PlanningRoutingLine.TestField(
+          "Starting Date-Time", PlanningRoutingLine."Ending Date-Time" - PlanningRoutingLine."Wait Time" * 60 * 1000); // Wait Time is not capacity contrained
+    end;
+
+    [Test]
+    [HandlerFunctions('MachineCenterPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckProdOrderLineBinCodeFromMachineCenterThroughWorkCenter()
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+        ProdOrderRtngLine: Record "Prod. Order Routing Line";
+        CalculateProdOrder: Codeunit "Calculate Prod. Order";
+        RoutingRefNo: Integer;
+    begin
+        // [FEATURE] [Production Order] [Capacity] [Warehouse] [Bin]
+        // [SCENARIO 360750.2] Move Job from Work Center To Machine Center with different Bin Code
+        Initialize;
+
+        // [GIVEN] Create ProdOrderLine for White Location, Routing Line with Bin Code and Update Work Center With another Bin Code
+        CreateProdOrderLineWithWhiteLocationAndUpdateWorkCenterBinCode(ProdOrderLine, WorkCenter, RoutingRefNo);
+        // [GIVEN] Create Machine Center with Different Bin Code and update Prod ORder Routing Line
+        CreateMachineCenterAndUpdateProdOderRtngLine(MachineCenter, ProdOrderRtngLine, WorkCenter, ProdOrderLine, RoutingRefNo);
+
+        // [WHEN] Find and set ProdOrderLine Bin Code from Work Center through Routing Line
+        CalculateProdOrder.AssignProdOrderLineBinCodeFromProdRtngLineMachineCenter(ProdOrderRtngLine);
+
+        // [THEN] ProdOrderLine's BinCode is same as Machine Center's Bin Code
+        VerifyProdOrderLineBinCode(ProdOrderLine, MachineCenter."From-Production Bin Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckProdOrderLineBinCodeFromWorkCenterThroughRoutingLine()
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        WorkCenter: Record "Work Center";
+        CalculateProdOrder: Codeunit "Calculate Prod. Order";
+        RoutingRefNo: Integer;
+    begin
+        // [FEATURE] [Production Order] [Capacity] [Warehouse] [Bin]
+        // [SCENARIO 360750.3] ProdOrderLine gets BinCode from Work Center thorugh Routing Line with different Bin Code
+        Initialize;
+
+        // [GIVEN] Create ProdOrderLine for White Location, Routing Line with Bin Code and Update Work Center With another Bin Code
+        CreateProdOrderLineWithWhiteLocationAndUpdateWorkCenterBinCode(ProdOrderLine, WorkCenter, RoutingRefNo);
+
+        // [WHEN] Find and set ProdOrderLine Bin Code from Work Center through Routing Line
+        CalculateProdOrder.FindAndSetProdOrderLineBinCodeFromProdRtngLines(
+          ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", RoutingRefNo);
+
+        // [THEN] ProdOrderLine's BinCode is same as Work Center's Bin Code
+        VerifyProdOrderLineBinCode(ProdOrderLine, WorkCenter."From-Production Bin Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FilterOnProductionForecast()
+    var
+        ProductionForecastName: Record "Production Forecast Name";
+        ProductionForecastEntry: Record "Production Forecast Entry";
+        Item: Record Item;
+        ProductionForecast: TestPage "Demand Forecast";
+        ForecastType: Option "Sales Item",Component,Both;
+    begin
+        // [FEATURE] [Production Forecast]
+        // [SCENARIO] Check filtering on Production Forecast can provide expected results.
+
+        // [GIVEN] Create Production Forecast Name, create Production Forecast Entry.
+        // [GIVEN] Open Production Forecast Page, set filters related to the Production Forecast Entry.
+        Initialize;
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+        CreateProductionForecastEntry(ProductionForecastEntry, ProductionForecastName.Name);
+        OpenProductionForecast(
+          ProductionForecast, ProductionForecastName.Name, ProductionForecastEntry."Location Code", ForecastType::Component);
+
+        // [WHEN] Set filter on "Prod. Forecast Quantity (Base)"
+        ProductionForecast.Matrix.FILTER.SetFilter("Prod. Forecast Quantity (Base)", '>0');
+
+        // [THEN] Item with "Prod. Forecast Quantity (Base)" > 0 can be found in Production Forecast Matrix
+        Item.Get(ProductionForecastEntry."Item No.");
+        Assert.IsTrue(ProductionForecast.Matrix.GotoRecord(Item), StrSubstNo(ItemShouldExistErr, Item."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ProdOrderRoutingHandler')]
+    [Scope('OnPrem')]
+    procedure ChangeProdOrderRtngLineFromProdBinCode()
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        WorkCenter: Record "Work Center";
+        RoutingRefNo: Integer;
+    begin
+        // [FEATURE] [Production Order] [Warehouse] [Bin]
+        // [SCENARIO] Verify ProdOrderLine's BinCode changes after ProdOrderRtngLine update
+
+        Initialize;
+        CreateProdOrderLineWithWhiteLocationAndUpdateWorkCenterBinCode(ProdOrderLine, WorkCenter, RoutingRefNo);
+
+        LibraryVariableStorage.Enqueue(WorkCenter."No.");
+        ProdOrderLine.ShowRouting; // set WorkCenterNo in ProdOrderRoutingHandler
+
+        VerifyProdOrderLineBinCode(ProdOrderLine, WorkCenter."From-Production Bin Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('ReservationHandler')]
+    [Scope('OnPrem')]
+    procedure CircularReferenceConsumptionNotAllowedWithReservation()
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Cost Application] [Reservation]
+        // [SCENARIO 360892] It is not allowed to post consumption that leads to circular reference in cost application if component is reserved
+        Initialize;
+
+        // [GIVEN] Two production orders consuming each other's produced items
+        // [GIVEN] Consumption for the first order is posted
+        CreateProdOrdersWithCrossReference(ProductionOrder);
+
+        // [GIVEN] Component for the second order is reserved
+        ReserveComponentForProdOrder(ProductionOrder.Status, ProductionOrder."No.");
+
+        // [WHEN] Consumption of the reserved component is posted
+        asserterror CreateAndPostConsumptionJournal(ProductionOrder."No.");
+
+        // [THEN] Posting is not allowed
+        VerifyComponentNotOnInventoryError(ProductionOrder.Status, ProductionOrder."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CircularReferenceConsumptionNotAllowedWithoutReservation()
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Cost Application]
+        // [SCENARIO 360892] It is not allowed to post consumption that leads to circular reference in cost application if component is not reserved
+        Initialize;
+
+        // [GIVEN] Two production orders consuming each other's produced items
+        // [GIVEN] Consumption for the first order is posted
+        CreateProdOrdersWithCrossReference(ProductionOrder);
+
+        // [WHEN] Consumption of the reserved component is posted
+        asserterror CreateAndPostConsumptionJournal(ProductionOrder."No.");
+
+        // [THEN] Posting is not allowed
+        VerifyComponentNotOnInventoryError(ProductionOrder.Status, ProductionOrder."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckBackwardCalculatedTimeOnProdOrdCapConstrained()
+    var
+        WorkCenter1: Record "Work Center";
+        WorkCenter2: Record "Work Center";
+        RoutingLink: Record "Routing Link";
+        Item: Record Item;
+        UpperComponentItem: Record Item;
+        LowerComponentItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        Capacity: Integer;
+    begin
+        // [FEATURE] [Routing] [Refresh Production Order]
+        // [SCENARIO 361976] Check Date-Time calculation when refreshing back Production Order with concurrent capacity workcenters.
+
+        // [GIVEN] Create two workcenters with concurrent capacities > 1.
+        Initialize;
+        Capacity := 10; // Capacity 10 needed for test.
+        CreateWorkCenterWithCapacity(WorkCenter1, Capacity);
+        CreateWorkCenterWithCapacity(WorkCenter2, Capacity);
+
+        // [GIVEN] Create two production Items, one is a component for another.
+        // [GIVEN] Each Item with a route having different workcenters, and concurrent capacities > 1.
+        LibraryInventory.CreateItem(LowerComponentItem);
+        LibraryInventory.CreateItem(UpperComponentItem);
+        LibraryManufacturing.CreateRoutingLink(RoutingLink);
+        CreateRoutingAndBOM(UpperComponentItem."No.", LowerComponentItem."No.", WorkCenter1."No.", Capacity, RoutingLink.Code);
+        LibraryInventory.CreateItem(Item);
+        CreateRoutingAndBOM(Item."No.", UpperComponentItem."No.", WorkCenter2."No.", Capacity, RoutingLink.Code);
+
+        // [GIVEN] Create Production order for top Item.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item,
+          Item."No.", LibraryRandom.RandIntInRange(10, 20));
+
+        // [WHEN] Refresh Production Order (back)
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [THEN] Routing time calculated backwards line by line: [finish time] - [work time] = [start time]; [next line finish time] = [start time], so on.
+        VerifyProdOrderDateTimes(ProductionOrder, Capacity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckEndingDateTimeAfterRefreshingPOForwardWhenOperationDoesNotHaveAnyTimeDefined()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        WorkCenter: Record "Work Center";
+        WorkCenter2: Record "Work Center";
+        ItemNo: Code[20];
+        RoutingNo: Code[20];
+        PrevOperationEndingDateTime: DateTime;
+    begin
+        // [FEATURE] [Routing] [Refresh Production Order]
+        // [SCENARIO 362347] Operation starting date-time is set to ending date-time when operation does not have any time defined after refreshing Production Order Forward
+        Initialize;
+
+        // [GIVEN] Item with Routing of two Routing Lines with different Work Centers.
+        ItemNo := CreateItemWithRoutingAndTwoWorkCenters(WorkCenter, WorkCenter2, RoutingNo);
+        // [GIVEN] Calculate Calendar for Work Center in last Routing Line and Reset Time in first Routing Line
+        LibraryManufacturing.CalculateWorkCenterCalendar(
+          WorkCenter2, CalcDate('<-1D>', WorkDate), CalcDate('<1D>', WorkDate));
+        ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter."No.");
+
+        // [GIVEN] Released Production Order
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo,
+          LibraryRandom.RandDec(10, 2));
+
+        // [WHEN] Refresh Production Order. Calculate Forward
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, true, true, false, false);
+
+        // [THEN] Prod Order Routing Line has Starting Date-Time equal to Ending Date-Time
+        FindProdOrderRtngLn(ProdOrderRoutingLine, ProductionOrder.Status::Released, ProductionOrder."No.", RoutingNo, WorkCenter2."No.");
+        PrevOperationEndingDateTime := ProdOrderRoutingLine."Ending Date-Time";
+        FindProdOrderRtngLn(ProdOrderRoutingLine, ProductionOrder.Status::Released, ProductionOrder."No.", RoutingNo, WorkCenter."No.");
+        ProdOrderRoutingLine.TestField("Starting Date-Time", PrevOperationEndingDateTime);
+        ProdOrderRoutingLine.TestField("Ending Date-Time", ProdOrderRoutingLine."Starting Date-Time");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckEndingDateTimeAfterRefreshingPOBackwardWhenOperationDoesNotHaveAnyTimeDefined()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        WorkCenter: Record "Work Center";
+        WorkCenter2: Record "Work Center";
+        ItemNo: Code[20];
+        RoutingNo: Code[20];
+        NextOperationEndingDateTime: DateTime;
+    begin
+        // [FEATURE] [Routing] [Refresh Production Order]
+        // [SCENARIO 362347] Operation ending date-time is set to starting date-time when operation does not have any time defined after refreshing Production Order Backward
+        Initialize;
+
+        // [GIVEN] Item with Routing of two Routing Lines with different Work Centers.
+        ItemNo := CreateItemWithRoutingAndTwoWorkCenters(WorkCenter, WorkCenter2, RoutingNo);
+        // [GIVEN] Calculate Calendar for Work Center in First Routing Line and Reset Time in last Routing Line
+        LibraryManufacturing.CalculateWorkCenterCalendar(
+          WorkCenter, CalcDate('<-1D>', WorkDate), CalcDate('<1D>', WorkDate));
+        ResetRunTimeOnRoutingLine(RoutingNo, WorkCenter2."No.");
+
+        // [GIVEN] Released Production Order
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo,
+          LibraryRandom.RandDec(10, 2));
+
+        // [WHEN] Refresh Production Order. Calculate Backward
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, false, false);
+
+        // [THEN] Prod Order Routing Line has Ending Date-Time equal to Starting Date-Time
+        FindProdOrderRtngLn(ProdOrderRoutingLine, ProductionOrder.Status::Released, ProductionOrder."No.", RoutingNo, WorkCenter."No.");
+        NextOperationEndingDateTime := ProdOrderRoutingLine."Starting Date-Time";
+        FindProdOrderRtngLn(ProdOrderRoutingLine, ProductionOrder.Status::Released, ProductionOrder."No.", RoutingNo, WorkCenter2."No.");
+        ProdOrderRoutingLine.TestField("Ending Date-Time", NextOperationEndingDateTime);
+        ProdOrderRoutingLine.TestField("Starting Date-Time", ProdOrderRoutingLine."Ending Date-Time");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler2')]
+    [Scope('OnPrem')]
+    procedure ProdOrderEndingDateBeforeComponentReceiptDateAllowedWithWarning()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        MessageCount: Integer;
+    begin
+        // [FEATURE] [Manufacturing] [Production Order]
+        // [SCENARIO 361467] Warning is raised when Ending Date on prod. order line is set earlier than Expected Receipt Date of the component reserved for this line
+        Initialize;
+
+        // [GIVEN] Purchased Item.
+        // [GIVEN] Produced item and component item, both with manufacturing policy "Make to Order"
+        // [GIVEN] Multi-level production order is created. Component is reserved with Expected Receipt Date = WORKDATE
+        CreateAndRefreshProdOrderForMakeToOrderItem(ProductionOrder);
+
+        // [WHEN] Manufacturing Ending Date is set to WORKDATE - 1 day
+        LibraryVariableStorage.Enqueue(ReservationDateConflictTxt);
+        LibraryVariableStorage.Enqueue(MessageCount);
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", ProductionOrder."Source No.");
+        ProdOrderLine.Validate("Ending Date", CalcDate('<-1D>', ProdOrderLine."Ending Date"));
+
+        // [THEN] One warning message is raised.
+        MessageCount := LibraryVariableStorage.DequeueInteger;
+        Assert.AreEqual(1, MessageCount, WrongNumberOfMessagesErr);
+
+        // Text verification is done in MessageHandler2
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProdOrderCompDueDateBeforeComponentReceiptDateIsNotAllowed()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
+    begin
+        // [FEATURE] [Manufacturing] [Production Order]
+        // [SCENARIO 361467] Error is raised when Ending Date on Prod. Order Component is explicitly set earlier than the date on which it is reserved for a parent Prod. Order Line.
+        Initialize;
+
+        // [GIVEN] Purchased Item.
+        // [GIVEN] Produced item and component item, both with manufacturing policy "Make to Order"
+        // [GIVEN] Multi-level production order is created. Component is reserved with Expected Receipt Date = WORKDATE
+        CreateAndRefreshProdOrderForMakeToOrderItem(ProductionOrder);
+
+        // [WHEN] Due Date for the component item is shifted one day earlier.
+        FindProdOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.");
+        ProdOrderComponent."Due Date" := CalcDate('<-1D>', ProdOrderComponent."Due Date");
+        asserterror ReservationCheckDateConfl.ProdOrderComponentCheck(ProdOrderComponent, true, true);
+
+        // [THEN] Error message is raised.
+        Assert.ExpectedError(ReservDateConflictErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckDateTimeIsUpdatedOnProdOrderAfterCarryingOutPlanningWorksheet()
+    var
+        RequisitionLine: Record "Requisition Line";
+        ProdOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Production Order] [Planning Worksheet] [Date-time]
+        // [SCENARIO 364536] Starting- and Ending Date-time on Planned Production Prder should be updated after Carrying out message from Planning Worksheet
+        Initialize;
+
+        // [GIVEN] Requisition Line with Starting Date = "X1", Starting Time = "Y1", Ending Date = "X2", Ending Time = "Y2"
+        CreateRequisitionLineWithDates(RequisitionLine);
+
+        // [WHEN] Carry Out Action Message
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [THEN] Production Order is created with Starting Date-Time = "X1 Y1", Ending Date-time = "X2 Y2"
+        with ProdOrder do begin
+            SetRange("Source No.", RequisitionLine."No.");
+            FindFirst;
+            Assert.AreEqual(CreateDateTime("Starting Date", "Starting Time"), "Starting Date-Time", StartingDateTimeErr);
+            Assert.AreEqual(CreateDateTime("Ending Date", "Ending Time"), "Ending Date-Time", EndingDateTimeErr);
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    [Scope('OnPrem')]
+    procedure ExchangeBOMItemCreateNewVersionWithPhantomBOM()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        ProdBOMLine: Record "Production BOM Line";
+        ParentProdBOMVersion: Record "Production BOM Version";
+        ParentBOMNo: Code[20];
+        ChildItemNo: Code[20];
+        PhantomBOMNo: Code[20];
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO] Exchange Production BOM Item creates new version for phantom BOM, but not for its parent BOM if BOM's active version doesn't contain exchanged item
+
+        // [GIVEN] Production BOM with 1 component "I1"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        ParentBOMNo := CreateProductionBOM(UnitOfMeasure.Code);
+        ChildItemNo := FindProductionBOMComponent(ParentBOMNo);
+
+        // [GIVEN] Version of the BOM with a phantom BOM including the same component "I1" as a child
+        // [GIVEN] BOM version structiure: BOM -> Phantom BOM -> Component I1
+        PhantomBOMNo := CreateProductionBOMForSingleItem(ChildItemNo, UnitOfMeasure.Code);
+        CreateProductionBOMVersion(
+          ParentProdBOMVersion, ParentBOMNo, UnitOfMeasure.Code, WorkDate, ProdBOMLine.Type::"Production BOM", PhantomBOMNo, 1);
+        ModifyProductionBOMVersionStatus(ParentProdBOMVersion, ParentProdBOMVersion.Status::Certified);
+
+        // [GIVEN] Item "I2"
+        // [WHEN] Run "Exchange Production BOM Item" to replace item "I1" with "I2" and "Create New Version" option
+        RunExchangeProdBOMItemReportWithParameters(ChildItemNo, LibraryInventory.CreateItemNo, true);
+
+        // [THEN] Version for parent BOM has not been created
+        ParentProdBOMVersion.SetRange("Production BOM No.", ParentBOMNo);
+        ParentProdBOMVersion.SetFilter("Version Code", '<>%1', ParentProdBOMVersion."Version Code");
+        Assert.AreEqual(0, ParentProdBOMVersion.Count, ProdBOMVersionMustNotExistErr);
+
+        // [THEN] New version of the phantom BOM has been created
+        ParentProdBOMVersion.SetRange("Production BOM No.", PhantomBOMNo);
+        Assert.AreEqual(1, ParentProdBOMVersion.Count, ProdBOMVersionMustExistErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    [Scope('OnPrem')]
+    procedure ExchangeBOMItemCreateNewVersionCopiesActiveBOMVersion()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        ProdBomVersion: Record "Production BOM Version";
+        ProdBOMHeader: Record "Production BOM Header";
+        Components: array[3] of Code[20];
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO] Exchange Production BOM Item creates new version of production BOM based on the active BOM version
+
+        // [GIVEN] Production BOM with 1 component "I1"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        ProdBOMHeader.Get(CreateProductionBOM(UnitOfMeasure.Code));
+        Components[1] := FindProductionBOMComponent(ProdBOMHeader."No.");
+        Components[2] := LibraryInventory.CreateItemNo;
+
+        // Production BOM version with 2 components: "I1" and "I2", active on the WORKDATE
+        CreateProductionBOMVersionWithTwoComponents(
+          ProdBomVersion, ProdBOMHeader, ProdBOMHeader."Unit of Measure Code", WorkDate, Components[1], Components[2]);
+
+        // [GIVEN] Item "I3"
+        Components[3] := LibraryInventory.CreateItemNo;
+
+        // [WHEN] Run "Exchange Production BOM Item" to replace item "I1" with "I3" and "Create New Version" option
+        RunExchangeProdBOMItemReportWithParameters(Components[1], Components[3], true);
+
+        // [THEN] New version created containing two items: "I2" and "I3"
+        VerifyProductionBOMLineExists(
+          ProdBomVersion."Production BOM No.", FindLastBOMVersionCode(ProdBomVersion."Production BOM No."), Components[2]);
+        VerifyProductionBOMLineExists(
+          ProdBomVersion."Production BOM No.", FindLastBOMVersionCode(ProdBomVersion."Production BOM No."), Components[3]);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    [Scope('OnPrem')]
+    procedure ExchangeBOMItemCreateNewVersionCopiesBaseListIfVersionInactive()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        ProdBomVersion: Record "Production BOM Version";
+        ProdBOMHeader: Record "Production BOM Header";
+        Components: array[3] of Code[20];
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO] Exchange Production BOM Item creates new version of production BOM based on the BOM list if the BOM version is inactive
+
+        // [GIVEN] Production BOM with 1 component "I1"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        ProdBOMHeader.Get(CreateProductionBOM(UnitOfMeasure.Code));
+        Components[1] := FindProductionBOMComponent(ProdBOMHeader."No.");
+        Components[2] := LibraryInventory.CreateItemNo;
+
+        // Production BOM version with 2 components: "I1" and "I2", active on WORKDATE + 1 day
+        CreateProductionBOMVersionWithTwoComponents(
+          ProdBomVersion, ProdBOMHeader, ProdBOMHeader."Unit of Measure Code", CalcDate('<1D>', WorkDate), Components[1], Components[2]);
+
+        // [GIVEN] Item "I3"
+        Components[3] := LibraryInventory.CreateItemNo;
+
+        // [WHEN] Run "Exchange Production BOM Item" to replace item "I1" with "I3" and "Create New Version" option
+        RunExchangeProdBOMItemReportWithParameters(Components[1], Components[3], true);
+
+        // [THEN] New version created contains item "I3", but does no have "I2"
+        VerifyProductionBOMLineNotExists(
+          ProdBomVersion."Production BOM No.", FindLastBOMVersionCode(ProdBomVersion."Production BOM No."), Components[2]);
+        VerifyProductionBOMLineExists(
+          ProdBomVersion."Production BOM No.", FindLastBOMVersionCode(ProdBomVersion."Production BOM No."), Components[3]);
+    end;
+
+    [Test]
+    [HandlerFunctions('DummyProdOrderRoutingHandler')]
+    [Scope('OnPrem')]
+    procedure ProdOrderRoutingPageDoesNotUpdateBinCodeInMultilevelOrder()
+    var
+        ProdOrderLine: array[2] of Record "Prod. Order Line";
+        WorkCenter: Record "Work Center";
+        ProdOrderComponent: Record "Prod. Order Component";
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        RoutingRefNo: Integer;
+    begin
+        // [FEATURE] [Warehouse] [Bin] [Routing]
+        // [SCENARIO 360012] Bin Code is not updated in a prod. order line when opening prod. order routing page if "Planning Level Code" > 0
+
+        // [GIVEN] Create location "L" with 2 bins: "B1" and "B2". Set "From-Production Bin Code" = "B2"
+        // [GIVEN] Create multilevel production order on location "L"
+        CreateProdOrderLineWithWhiteLocationAndUpdateWorkCenterBinCode(ProdOrderLine[1], WorkCenter, RoutingRefNo);
+
+        Location.Get(ProdOrderLine[1]."Location Code");
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID, '', '');
+        Location."From-Production Bin Code" := Bin[2].Code;
+        Location.Modify;
+
+        ProdOrderLine[2] := ProdOrderLine[1];
+        ProdOrderLine[2]."Line No." := ProdOrderLine[1]."Line No." + 10000;
+        ProdOrderLine[2]."Planning Level Code" := ProdOrderLine[1]."Planning Level Code" + 1;
+        ProdOrderLine[2]."Bin Code" := Bin[1].Code;
+        ProdOrderLine[2].Insert;
+
+        // [GIVEN] Set bin code = "B1" on production order line
+        FindProductionOrderComponent(ProdOrderComponent, ProdOrderLine[1].Status, ProdOrderLine[1]."Prod. Order No.");
+        ProdOrderComponent."Bin Code" := Bin[1].Code;
+        ProdOrderComponent."Supplied-by Line No." := ProdOrderLine[2]."Line No.";
+        ProdOrderComponent.Modify;
+
+        // [WHEN] Open prod. order routing for the low-level line
+        ProdOrderLine[2].ShowRouting;
+        ProdOrderLine[2].Find;
+
+        // [THEN] Bin code in production order line is "B1"
+        ProdOrderLine[2].TestField("Bin Code", ProdOrderComponent."Bin Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GlobalDimensionsInOutputJournalLineAreUpdatedOnExplodingRouting()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        DimensionValue: array[2] of Record "Dimension Value";
+    begin
+        // [FEATURE] [Item Journal] [Dimension]
+        // [SCENARIO 380531] Shortcut Dimension 1 & 2 codes are populated from Prod. Order Line on exploding Routing in Output Journal.
+        Initialize;
+
+        // [GIVEN] Global Dimension Values "GV1" and "GV2".
+        // [GIVEN] Production Item "I" with Routing and BOM.
+        // [GIVEN] Prod. Order Line of Item "I" with Global Dimensions Values "GV1" and "GV2".
+        CreateProdOrderLineWithGlobalDims(ProductionOrder, ProdOrderLine, DimensionValue);
+
+        // [WHEN] Create Output Journal Line and explode Routing.
+        OutputJournalExplodeRouting(ItemJournalBatch, ProductionOrder);
+
+        // [THEN] All Output Journal Lines have Shortcut Dimension 1 & 2 codes populated with "GV1" and "GV2" values correspondingly.
+        VerifyGlobalDimensionCodesInItemJournalBatch(ItemJournalBatch, DimensionValue[1].Code, DimensionValue[2].Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GlobalDimensionsInOutputJournalLineAreUpdatedOnValidatingWorkCenterNo()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        DimensionValue: array[2] of Record "Dimension Value";
+    begin
+        // [FEATURE] [Item Journal] [Dimension]
+        // [SCENARIO 380531] Shortcut Dimension 1 & 2 codes are populated from Prod. Order Line on validating Work/Machine Center in Output Journal.
+        Initialize;
+
+        // [GIVEN] Global Dimension Values "GV1" and "GV2".
+        // [GIVEN] Production Item "I" with Routing and BOM.
+        // [GIVEN] Prod. Order Line of Item "I" with Global Dimensions Values "GV1" and "GV2".
+        CreateProdOrderLineWithGlobalDims(ProductionOrder, ProdOrderLine, DimensionValue);
+
+        // [GIVEN] Output Journal Line with Production Order No. and Routing fields populated.
+        CreateOutputJournal(ItemJournalBatch, ItemJournalLine, ProductionOrder."No.");
+        PopulateRoutingOnOutputJournalLine(ItemJournalLine, ProdOrderRoutingLine, ProdOrderLine);
+
+        // [WHEN] Validate production capacity No. on the Output Line.
+        ItemJournalLine.Validate("No.", ProdOrderRoutingLine."No.");
+
+        // [THEN] Output Journal Line has Shortcut Dimension 1 & 2 codes populated with "GV1" and "GV2" values correspondingly.
+        ItemJournalLine.TestField("Shortcut Dimension 1 Code", DimensionValue[1].Code);
+        ItemJournalLine.TestField("Shortcut Dimension 2 Code", DimensionValue[2].Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ProductionJournalHandler,ConfirmHandlerTrue,MessageHandler,ViewAppliedEntriesPageHandler2,ViewAppliedEntriesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplicationWorkSheetUndoManualChanges()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        SalesHeader: Record "Sales Header";
+        TempItemLedgEntry: Record "Item Ledger Entry" temporary;
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+        ApplicationWorksheet: TestPage "Application Worksheet";
+    begin
+        // [FEATURE] [Manufacturing] [Application Worksheet]
+        // [SCENARIO 375807] User actions in Application Worksheet cannot result in negative Item Ledger Entries of type Consumption.
+
+        // [GIVEN] Purchased Item, Consumption posted (applied to purchase) and Sales Order posted (negative).
+        Initialize;
+        CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderComponent."Prod. Order Line No.");
+        CreateAndPostSalesOrder(
+          SalesHeader, ProdOrderComponent."Item No.", ProdOrderComponent."Expected Quantity");
+
+        SaveExistingILEs(TempItemLedgEntry, ProdOrderComponent."Item No.");
+
+        // [GIVEN] In Application Worksheet Consumption unapplied, Sale applied to Purchase
+        ApplicationWorksheet.OpenEdit;
+        ApplicationWorksheet.FILTER.SetFilter("Item No.", ProdOrderComponent."Item No.");
+
+        ApplicationWorksheet.First;
+        while ApplicationWorksheet."Entry Type".AsInteger <> TempItemLedgEntry."Entry Type"::Consumption do
+            if not ApplicationWorksheet.Next then
+                Error(StrSubstNo(EntryOfTypeNotFoundErr, TempItemLedgEntry."Entry Type"::Consumption));
+        ApplicationWorksheet.AppliedEntries.Invoke;
+
+        ApplicationWorksheet.First;
+        while ApplicationWorksheet."Entry Type".AsInteger <> TempItemLedgEntry."Entry Type"::Sale do
+            if not ApplicationWorksheet.Next then
+                Error(StrSubstNo(EntryOfTypeNotFoundErr, TempItemLedgEntry."Entry Type"::Sale));
+        ApplicationWorksheet.UnappliedEntries.Invoke;
+
+        Commit;
+
+        // [GIVEN] 'Reapply All' gives an error, due to negative Consumption entry.
+        asserterror ApplicationWorksheet.Reapply.Invoke; // Reapply All
+        Assert.ExpectedError(InsufficientQuantityErr);
+
+        // [WHEN] 'Undo Manual Changes' invoked.
+        ApplicationWorksheet.UndoApplications.Invoke;
+
+        // [THEN] Item Ledger Entries are reverted to previous state.
+        VerifyExistingILEs(TempItemLedgEntry, ProdOrderComponent."Item No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemLedgEntryUndoApplicationPositive()
+    var
+        PositiveItemLedgEntry: Record "Item Ledger Entry";
+        NegativeItemLedgEntry: Record "Item Ledger Entry";
+        TempItemLedgEntry: Record "Item Ledger Entry" temporary;
+        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Manufacturing] [Application Worksheet]
+        // [SCENARIO 375807] Item Ledger Entries are reverted to previous state after ReApply negative entry to positive one with LogApply and UndoApplications.
+
+        // [GIVEN] Item with 2 Item Ledger Entries: positive "P" and negative "N", not applied.
+        Initialize;
+        ItemNo := PrepareUndoApplication;
+        FindILE(PositiveItemLedgEntry, ItemNo, PositiveItemLedgEntry."Entry Type"::Purchase);
+        FindILE(NegativeItemLedgEntry, ItemNo, NegativeItemLedgEntry."Entry Type"::Sale);
+        Unapply(PositiveItemLedgEntry."Entry No.", NegativeItemLedgEntry."Entry No.");
+
+        SaveExistingILEs(TempItemLedgEntry, ItemNo);
+
+        // [GIVEN] Reapply "N" to "P" and log.
+        ItemJnlPostLine.ReApply(PositiveItemLedgEntry, NegativeItemLedgEntry."Entry No.");
+        ItemJnlPostLine.LogApply(PositiveItemLedgEntry, NegativeItemLedgEntry);
+
+        // [WHEN] Undo applications.
+        ItemJnlPostLine.UndoApplications;
+
+        // [THEN] "P" and "N" are reverted to previous state.
+        VerifyExistingILEs(TempItemLedgEntry, ItemNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemLedgEntryUndoApplicationNegative()
+    var
+        PositiveItemLedgEntry: Record "Item Ledger Entry";
+        NegativeItemLedgEntry: Record "Item Ledger Entry";
+        TempItemLedgEntry: Record "Item Ledger Entry" temporary;
+        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Manufacturing] [Application Worksheet]
+        // [SCENARIO 375807] Item Ledger Entries are reverted to previous state after ReApply positive entry to negative one with LogApply and UndoApplications.
+
+        // [GIVEN] Item with 2 Item Ledger Entries: positive "P" and negative "N", not applied.
+        Initialize;
+        ItemNo := PrepareUndoApplication;
+        FindILE(PositiveItemLedgEntry, ItemNo, PositiveItemLedgEntry."Entry Type"::Purchase);
+        FindILE(NegativeItemLedgEntry, ItemNo, NegativeItemLedgEntry."Entry Type"::Sale);
+        Unapply(PositiveItemLedgEntry."Entry No.", NegativeItemLedgEntry."Entry No.");
+        FindILE(NegativeItemLedgEntry, ItemNo, NegativeItemLedgEntry."Entry Type"::Sale);
+
+        SaveExistingILEs(TempItemLedgEntry, ItemNo);
+
+        // [GIVEN] Reapply "P" to "N" and log.
+        ItemJnlPostLine.ReApply(NegativeItemLedgEntry, PositiveItemLedgEntry."Entry No.");
+        ItemJnlPostLine.LogApply(NegativeItemLedgEntry, PositiveItemLedgEntry);
+
+        // [WHEN] Undo applications.
+        ItemJnlPostLine.UndoApplications;
+
+        // [THEN] "P" and "N" are reverted to previous state.
+        VerifyExistingILEs(TempItemLedgEntry, ItemNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemLedgEntryUndoUnapplicationPositive()
+    var
+        PositiveItemLedgEntry: Record "Item Ledger Entry";
+        NegativeItemLedgEntry: Record "Item Ledger Entry";
+        TempItemLedgEntry: Record "Item Ledger Entry" temporary;
+        ItemApplnEntry: Record "Item Application Entry";
+        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Manufacturing] [Application Worksheet]
+        // [SCENARIO 375807] Item Ledger Entries are reverted to previous state after UnApply with LogUnapply and UndoApplications.
+
+        // [GIVEN] Item with 2 Item Ledger Entries: positive "P" and negative "N", fully applied.
+        Initialize;
+        ItemNo := PrepareUndoApplication;
+        FindILE(PositiveItemLedgEntry, ItemNo, PositiveItemLedgEntry."Entry Type"::Purchase);
+        FindILE(NegativeItemLedgEntry, ItemNo, NegativeItemLedgEntry."Entry Type"::Sale);
+
+        SaveExistingILEs(TempItemLedgEntry, ItemNo);
+
+        // [GIVEN] Unapply "N" and "P" and log.
+        with ItemApplnEntry do begin
+            SetRange("Inbound Item Entry No.", PositiveItemLedgEntry."Entry No.");
+            SetRange("Outbound Item Entry No.", NegativeItemLedgEntry."Entry No.");
+            FindFirst;
+        end;
+        ItemJnlPostLine.UnApply(ItemApplnEntry);
+        ItemJnlPostLine.LogUnapply(ItemApplnEntry);
+
+        // [WHEN] Undo unapplication.
+        ItemJnlPostLine.UndoApplications;
+
+        // [THEN] "P" and "N" are reverted to previous state.
+        VerifyExistingILEs(TempItemLedgEntry, ItemNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteItemExistingInCertifiedProdBOMVersionIsNotAllowed()
+    var
+        Item: Record Item;
+        ProductionBOMVersion: Record "Production BOM Version";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 381274] User should not be able to delete Item if it is added to Production BOM Version with Status = "Certified"
+        Initialize;
+
+        // [GIVEN] Certified Production BOM Version for Item "X"
+        LibraryInventory.CreateItem(Item);
+        MockProdBOMHeaderWithVersionForItem(ProductionBOMVersion, Item."No.", ProductionBOMVersion.Status::Certified);
+
+        // [WHEN] Delete Item "X"
+        asserterror Item.Delete(true);
+
+        // [THEN] Error raised that you cannot delete Item because it exists in certified Production BOM Version
+        Assert.ExpectedError(StrSubstNo(CannotDeleteItemIfProdBOMVersionExistsErr, Item.TableCaption, Item."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteItemExistingInNotCertifiedProdBOMVersionIsAllowed()
+    var
+        Item: Record Item;
+        ProductionBOMVersion: Record "Production BOM Version";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 381274] User should be able to delete Item if it is added to Production BOM Version with Status = "Under Development"
+        Initialize;
+
+        // [GIVEN] Production BOM Version with Status = "Under Development" for Item "X"
+        LibraryInventory.CreateItem(Item);
+        MockProdBOMHeaderWithVersionForItem(ProductionBOMVersion, Item."No.", ProductionBOMVersion.Status::"Under Development");
+
+        // [WHEN] Delete Item "X"
+        Item.Delete(true);
+
+        // [THEN] Item "X" successfully deleted
+        Assert.IsFalse(Item.Find, 'Item should be deleted');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RefreshProductionOrderWithSourceTypeSalesHeaderTwoLinesDifferentLocations()
+    var
+        SalesLine: array[2] of Record "Sales Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        Item: array[2] of Record Item;
+        BOMNo: Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Production Order] [Source Type]
+        // [SCENARIO 381335] Production Order can be refreshed when it has "Source Type" = "Sales Header", corresponding Sales Order contains two lines with different locations and one item is BOM component of another.
+        Initialize;
+        // [GIVEN] Two Items A and B with "Replenishment System" = "Prod. Order" and "Manufacturing Policy" = "Make-to-Order"
+        for i := 1 to 2 do
+            CreateItemWithReplenishmentSystemAndManufacturingPolicy(
+              Item[i], Item[i]."Replenishment System"::"Prod. Order", Item[i]."Manufacturing Policy"::"Make-to-Order");
+
+        // [GIVEN] Item A is the BOM component of Item B
+        BOMNo := CreateProductionBOMForSingleItem(Item[1]."No.", Item[1]."Base Unit of Measure");
+        Item[2].Validate("Production BOM No.", BOMNo);
+        Item[2].Modify(true);
+
+        // [GIVEN] Released Sales Order S with two lines for items A and B, locations in lines are different
+        CreateSalesOrderLinesAtLocations(SalesLine, Item, 2, true);
+
+        // [GIVEN] Released Production Order P with "Source Type" = "Sales Header", "Source No." = S."No."
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released,
+          ProductionOrder."Source Type"::"Sales Header", SalesLine[1]."Document No.", LibraryRandom.RandInt(5));
+
+        // [WHEN] Refresh Production Order P
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        for i := 1 to 2 do begin
+            // [THEN] Production Order Line L with corresponding Location Code for each Item A and B exists
+            FindProdOrderLineByItemNoLocationCodeAndPlanningLevelCode(ProdOrderLine, Item[i]."No.", SalesLine[i]."Location Code", 0);
+
+            // [THEN] Locations and Quantities in L are corresponding to the ones of Sales Order S lines
+            ProdOrderLine.TestField(Quantity, SalesLine[i].Quantity);
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RefreshProductionOrderMultiLevelStructureWithSourceTypeSalesHeaderMultipleLinesAtDifferentLocations()
+    var
+        SalesLine: array[4] of Record "Sales Line";
+        ProductionOrder: Record "Production Order";
+        Item: array[4] of Record Item;
+        i: Integer;
+    begin
+        // [FEATURE] [Production Order] [Source Type]
+        // [SCENARIO 382024] Multi-level structure is created according to the BOM and the locations for a Production Order where a Sales Order with different locations in lines is a Source.
+        Initialize;
+
+        // [GIVEN] 4 Items with "Replenishment System" = "Prod. Order", "Manufacturing Policy" = "Make-to-Order" : I1, I2, I3, I4.
+        for i := 1 to 4 do
+            CreateItemWithReplenishmentSystemAndManufacturingPolicy(
+              Item[i], Item[i]."Replenishment System"::"Prod. Order", Item[i]."Manufacturing Policy"::"Make-to-Order");
+
+        // [GIVEN] I2 has I3 and I4 as BOM components B-2-3, B-2-4.
+        SetNewProductionBOMToItemForArrayOfChildItems(Item[2], Item, 3, 4);
+
+        // [GIVEN] I1 has I2, I3 and I4 as BOM components B-1-2, B-1-3, B-1-4.
+        SetNewProductionBOMToItemForArrayOfChildItems(Item[1], Item, 2, 4);
+
+        // [GIVEN] Released Sales Order S with 4 lines SL_A_I1, SL_B_I2, SL_C_I3, SL_D_I4 for Items I1, I2, I3, I4 at 4 different locations A, B, C, D.
+        CreateSalesOrderLinesAtLocations(SalesLine, Item, 4, true);
+
+        // [GIVEN] Released Production Order P with "Source Type" = "Sales Header", "Source No." = S."No."
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released,
+          ProductionOrder."Source Type"::"Sales Header", SalesLine[1]."Document No.", LibraryRandom.RandInt(5));
+
+        // [WHEN] Refresh Production Order P
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [THEN] Production Order has 9 Lines at Location A - D for the component I1 - I4 with Planning Level Code 0 - 2 :
+
+        // [THEN] Planning Level Code 0 for Locations A - D for Items I1 - I4 : PL-A-0-I1, PL-B-0-I2, PL-C-0-I3, PL-D-0-I4
+        // [THEN] Planning Level Code 1 for Locations A - B for Items I2 - I4 :            PL-A-1-I2, PL-B-1-I3, PL-B-1-I4
+        // [THEN] Planning Level Code 2 for Location      A for Items I3 - I4 :                       PL-A-2-I3, PL-A-2-I4
+
+        // [THEN] PL-A-0-I1."Quantity (Base)" = SL_A_I1."Quantity (Base)"
+        // [THEN] PL-B-0-I2."Quantity (Base)" = SL_B_I2."Quantity (Base)"
+        // [THEN] PL-C-0-I3."Quantity (Base)" = SL_C_I3."Quantity (Base)"
+        // [THEN] PL-D-0-I4."Quantity (Base)" = SL_D_I4."Quantity (Base)"
+        // [THEN] PL-A-1-I2."Quantity (Base)" = SL_A_I1."Quantity (Base)" * B-1-2."Quantity per"
+        // [THEN] PL-B-1-I3."Quantity (Base)" = SL_B_I2."Quantity (Base)" * B-1-3."Quantity per"
+        // [THEN] PL-B-1-I4."Quantity (Base)" = SL_B_I2."Quantity (Base)" * B-1-4."Quantity per"
+        // [THEN] PL-A-2-I3."Quantity (Base)" = SL_A_I1."Quantity (Base)" * B-1-2."Quantity per" * B-2-3."Quantity per"
+        // [THEN] PL-A-2-I4."Quantity (Base)" = SL_A_I1."Quantity (Base)" * B-1-2."Quantity per" * B-2-4."Quantity per"
+
+        VerifyProductionOrderLineToSalesLineMultiLevelStructureWhenAllLocationsAreDifferent(Item, SalesLine, 0, 1, 0, 0);
+        VerifyProductionOrderLineToSalesLineMultiLevelStructureWhenAllLocationsAreDifferent(Item, SalesLine, 0, 2, 0, 0);
+        VerifyProductionOrderLineToSalesLineMultiLevelStructureWhenAllLocationsAreDifferent(Item, SalesLine, 0, 3, 0, 0);
+        VerifyProductionOrderLineToSalesLineMultiLevelStructureWhenAllLocationsAreDifferent(Item, SalesLine, 0, 4, 0, 0);
+        VerifyProductionOrderLineToSalesLineMultiLevelStructureWhenAllLocationsAreDifferent(Item, SalesLine, 1, 1, 2, 0);
+        VerifyProductionOrderLineToSalesLineMultiLevelStructureWhenAllLocationsAreDifferent(Item, SalesLine, 1, 2, 3, 0);
+        VerifyProductionOrderLineToSalesLineMultiLevelStructureWhenAllLocationsAreDifferent(Item, SalesLine, 1, 2, 4, 0);
+        VerifyProductionOrderLineToSalesLineMultiLevelStructureWhenAllLocationsAreDifferent(Item, SalesLine, 2, 1, 2, 3);
+        VerifyProductionOrderLineToSalesLineMultiLevelStructureWhenAllLocationsAreDifferent(Item, SalesLine, 2, 1, 2, 4);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RefreshProductionOrderMultiLevelStructureCollapsingWithSourceTypeSalesHeaderMultipleLinesAtOneLocation()
+    var
+        SalesLine: array[2] of Record "Sales Line";
+        ProductionBOMLine: array[2] of Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        Item: array[3] of Record Item;
+        i: Integer;
+    begin
+        // [FEATURE] [Production Order] [Source Type]
+        // [SCENARIO 382024] Multi-level structure is created according to the BOM where a Sales Order with lines at one location is a Source, component line of Production Order is collapsed.
+        Initialize;
+
+        // [GIVEN] 3 Items with "Replenishment System" = "Prod. Order", "Manufacturing Policy" = "Make-to-Order" : I1, I2, I3.
+        for i := 1 to 3 do
+            CreateItemWithReplenishmentSystemAndManufacturingPolicy(
+              Item[i], Item[i]."Replenishment System"::"Prod. Order", Item[i]."Manufacturing Policy"::"Make-to-Order");
+
+        // [GIVEN] I1 has I3 as a BOM component BL1.
+        SetNewProductionBOMToItemForArrayOfChildItems(Item[1], Item, 3, 3);
+
+        // [GIVEN] I2 also has I3 as a BOM component BL2.
+        SetNewProductionBOMToItemForArrayOfChildItems(Item[2], Item, 3, 3);
+
+        // [GIVEN] Released Sales Order S with 2 lines SL1 and SL2  for Items I1 and I2 at one location.
+        CreateSalesOrderLinesAtLocations(SalesLine, Item, 2, false);
+
+        // [GIVEN] Released Production Order P with "Source Type" = "Sales Header", "Source No." = S."No."
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released,
+          ProductionOrder."Source Type"::"Sales Header", SalesLine[1]."Document No.", LibraryRandom.RandInt(5));
+
+        // [WHEN] Refresh Production Order P
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [THEN] Production Order Line PL1 for I1 has "Planning Level Code" = 0 and PL1."Quantity (Base)" = SL1."Quantity (Base)".
+        FindProdOrderLineByItemNoLocationCodeAndPlanningLevelCode(ProdOrderLine, Item[1]."No.", SalesLine[1]."Location Code", 0);
+        Assert.RecordCount(ProdOrderLine, 1);
+        ProdOrderLine.TestField("Quantity (Base)", SalesLine[1]."Quantity (Base)");
+
+        // [THEN] Production Order Line PL2 for I2 has "Planning Level Code" = 0 and PL2."Quantity (Base)" = SL2."Quantity (Base)".
+        FindProdOrderLineByItemNoLocationCodeAndPlanningLevelCode(ProdOrderLine, Item[2]."No.", SalesLine[2]."Location Code", 0);
+        Assert.RecordCount(ProdOrderLine, 1);
+        ProdOrderLine.TestField("Quantity (Base)", SalesLine[2]."Quantity (Base)");
+
+        for i := 1 to 2 do
+            FindProductionBOMLine(ProductionBOMLine[i], Item[i]."Production BOM No.");
+
+        // [THEN] Production Order Line for PL3 the component I3 has Planning Level Code = 1 and PL3."Quantity (Base)" = [BL1."Quantity per" * SL1."Quantity (Base)"  + BL2."Quantity per" * SL2."Quantity (Base)"].
+        FindProdOrderLineByItemNoLocationCodeAndPlanningLevelCode(ProdOrderLine, Item[3]."No.", SalesLine[i]."Location Code", 1);
+        Assert.RecordCount(ProdOrderLine, 1);
+        ProdOrderLine.TestField(
+          "Quantity (Base)", SalesLine[1]."Quantity (Base)" * ProductionBOMLine[1]."Quantity per" +
+          SalesLine[2]."Quantity (Base)" * ProductionBOMLine[2]."Quantity per");
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    [Scope('OnPrem')]
+    procedure ExchangeBOMItemCreateNewVersionWhenVersionCodeIsIncompatibleWithINCSTRFunction()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        ProdBomVersion: Record "Production BOM Version";
+        ProdBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        Components: array[3] of Code[20];
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO 381449] Exchange Production BOM Item creates new version of production BOM based on the active BOM version when INCSTR function for "Version Code" returns the value which already exists for "Production BOM No."
+        // [GIVEN] Production BOM with component "I1"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        ProdBOMHeader.Get(CreateProductionBOM(UnitOfMeasure.Code));
+        Components[1] := FindProductionBOMComponent(ProdBOMHeader."No.");
+
+        // [GIVEN] Items "I2" and "I3"
+        Components[2] := LibraryInventory.CreateItemNo;
+        Components[3] := LibraryInventory.CreateItemNo;
+
+        // [GIVEN] Production BOM version with "Version Code" = '9'
+        CreateNamedProductionBOMVersion(
+          ProdBomVersion, ProdBOMHeader."No.", ProdBOMHeader."Unit of Measure Code",
+          WorkDate, ProductionBOMLine.Type::Item, Components[1], 1, '9');
+
+        // [WHEN] Run "Exchange Production BOM Item" twice with "Create New Version" option to replace item "I1" with "I2" first time and to replace item "I2" with "I3" second time
+        RunExchangeProdBOMItemReportWithParameters(Components[1], Components[2], true);
+        RunExchangeProdBOMItemReportWithParameters(Components[2], Components[3], true);
+
+        // [THEN] New version with "Version Code" = '11' created containing item "I3"
+        ProductionBOMLine.SetRange("Production BOM No.", ProdBOMHeader."No.");
+        ProductionBOMLine.SetRange("Version Code", '11');
+        ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
+        ProductionBOMLine.SetRange("No.", Components[3]);
+        Assert.RecordIsNotEmpty(ProductionBOMLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultDimensionsForWorkcenterInvokedFromListAreFiltered()
+    var
+        WorkCenter: Record "Work Center";
+        DefaultDimension: Record "Default Dimension";
+        WorkCenterList: TestPage "Work Center List";
+        DefaultDimensions: TestPage "Default Dimensions";
+    begin
+        // [FEATURE] [Work Center] [Default Dimension] [UI]
+        // [SCENARIO 204230] Set of default dimensions filtered by current Work Center No. should be invoked when clicking on Dimension-Single button on Work Center list page.
+        Initialize;
+
+        // [GIVEN] Work Center "X" with default dimension code "DCod" and value "DVal".
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryDimension.CreateDefaultDimensionWithNewDimValue(
+          DefaultDimension, DATABASE::"Work Center", WorkCenter."No.", DefaultDimension."Value Posting"::" ");
+
+        // [GIVEN] List of work centers is opened. Work Center "X" is selected on the list.
+        WorkCenterList.OpenView;
+        WorkCenterList.GotoRecord(WorkCenter);
+        DefaultDimensions.Trap;
+
+        // [WHEN] Click on "Dimensions-Single" button on the page's ribbon.
+        WorkCenterList."Dimensions-Single".Invoke;
+
+        // [THEN] Default Dimensions page is opened.
+        // [THEN] Dimension "DCod" with "DVal" value is shown.
+        DefaultDimensions.Last;
+        DefaultDimensions."Dimension Code".AssertEquals(DefaultDimension."Dimension Code");
+        DefaultDimensions."Dimension Value Code".AssertEquals(DefaultDimension."Dimension Value Code");
+
+        // [THEN] No other dimension codes and values are shown on the page.
+        Assert.IsFalse(DefaultDimensions.Previous, 'Wrong set of default dimensions is shown for the work center');
+
+        // [THEN] The page is filtered by Work Center table ID and the number of work center "X".
+        Assert.AreEqual(
+          Format(DATABASE::"Work Center"), DefaultDimensions.FILTER.GetFilter("Table ID"),
+          'Default dimensions are filtered by wrong table ID.');
+        Assert.AreEqual(
+          WorkCenter."No.", DefaultDimensions.FILTER.GetFilter("No."), 'Default dimensions are filtered by wrong work center no.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ConsumeCapacityOnCCRWorkCenterBetweenAllocatedTimeBackwardPlanning()
+    var
+        RoutingHeader: Record "Routing Header";
+        Item: Record Item;
+        ProductionOrder: array[3] of Record "Production Order";
+    begin
+        // [FEATURE] [Production Order] [Capacity Constrained Resource]
+        // [SCENARIO] When a capacity constrained resource has allocated capacity on the beginning and end of a day, new capacity should be allocated before the last allocated time on the same date on backward planning
+
+        Initialize;
+
+        // [GIVEN] Work center "CCR" configured as a capacity constrained resource with 8-hour working day from 08:00 to 16:00, 100% capacity
+        CreateRoutingOnCapacityConstrainedWorkCenter(RoutingHeader, LibraryRandom.RandIntInRange(10, 20));
+
+        // [GIVEN] Item produced on the capacity constrained work center, Run Time = 10 minutes
+        CreateItemWithRouting(Item, RoutingHeader."No.");
+
+        // [GIVEN] Create and refresh a production order that will consume 10 minutes on the "CCR" work center: from 23.01.2019 15:50 to 23.01.2019 16:00
+        CreateAndRefreshProductionOrderWithItem(ProductionOrder[1], ProductionOrder[1].Status::Released, Item."No.", 1);
+        // [GIVEN] Create and refresh a production order, set starting time to 08:00. New order will consume 10 minutes on the "CCR" work center: from 23.01.2019 08:00 to 23.01.2019 08:10
+        CreateReleasedProdOrderWithCustomStartingTime(ProductionOrder[2], Item."No.", 1, 080000T);
+
+        // [WHEN] Create and refresh backward the third prodution order.
+        CreateAndRefreshProductionOrderWithItem(ProductionOrder[3], ProductionOrder[3].Status::Released, Item."No.", 1);
+
+        // [THEN] The last order consumes available capacity between the first two orders. Starting time = 15:40, Ending time = 15:50
+        ProductionOrder[3].CalcFields("Allocated Capacity Need");
+        ProductionOrder[3].TestField("Starting Date", ProductionOrder[1]."Starting Date");
+        ProductionOrder[3].TestField("Ending Date", ProductionOrder[1]."Ending Date");
+        ProductionOrder[3].TestField(
+          "Starting Time", ProductionOrder[1]."Starting Time" - ProductionOrder[3]."Allocated Capacity Need" * 60000);
+        ProductionOrder[3].TestField("Ending Time", ProductionOrder[1]."Starting Time");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ConsumeCapacityOnCCRWorkCenterBetweenAllocatedTimeForwardPlanning()
+    var
+        RoutingHeader: Record "Routing Header";
+        Item: Record Item;
+        ProductionOrder: array[3] of Record "Production Order";
+    begin
+        // [FEATURE] [Production Order] [Capacity Constrained Resource]
+        // [SCENARIO] When a capacity constrained resource has allocated capacity on the beginning and end of a day, new capacity should be allocated after the first allocated time on the same date on forward planning
+
+        Initialize;
+
+        // [GIVEN] Work center "CCR" configured as a capacity constrained resource with 8-hour working day from 08:00 to 16:00, 100% capacity
+        CreateRoutingOnCapacityConstrainedWorkCenter(RoutingHeader, LibraryRandom.RandIntInRange(10, 20));
+
+        // [GIVEN] Item produced on the capacity constrained work center, Run Time = 10 minutes
+        CreateItemWithRouting(Item, RoutingHeader."No.");
+
+        // [GIVEN] Create and refresh a production order that will consume 10 minutes on the "CCR" work center: from 23.01.2019 15:50 to 23.01.2019 16:00
+        CreateAndRefreshProductionOrderWithItem(ProductionOrder[1], ProductionOrder[1].Status::Released, Item."No.", 1);
+        // [GIVEN] Create and refresh a production order, set starting time to 08:00. New order will consume 10 minutes on the "CCR" work center: from 23.01.2019 08:00 to 23.01.2019 08:10
+        CreateReleasedProdOrderWithCustomStartingTime(ProductionOrder[2], Item."No.", 1, 080000T);
+
+        // Create the third production order, set starting time = 08:00
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder[3], ProductionOrder[3].Status::Released, ProductionOrder[3]."Source Type"::Item, Item."No.", 1);
+
+        // [WHEN] Refresh the prodution order forward.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder[3], true, true, true, true, false);
+
+        // [THEN] The last order consumes available capacity between the first two orders. Starting time = 08:00, Ending time = 08:20
+        ProductionOrder[3].Find;
+        ProductionOrder[3].CalcFields("Allocated Capacity Need");
+        ProductionOrder[3].TestField("Starting Date", ProductionOrder[2]."Starting Date");
+        ProductionOrder[3].TestField("Ending Date", ProductionOrder[2]."Ending Date");
+        ProductionOrder[3].TestField("Starting Time", ProductionOrder[2]."Starting Time");
+        ProductionOrder[3].TestField(
+          "Ending Time", ProductionOrder[2]."Ending Time" + ProductionOrder[3]."Allocated Capacity Need" * 60000);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesOrderPlanningCreatesSeparateProdOrderLinesForLocations()
+    var
+        Item: array[4] of Record Item;
+        Location: array[2] of Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Location] [Sales Order Planning]
+        // [SCENARIO 216835] Sales order planning should create a separate production order line for a manufactured subcomponent when sold items are on different locations
+
+        // [GIVEN] Low-level component "C"
+        LibraryInventory.CreateItem(Item[1]);
+
+        // [GIVEN] Mid-level component "M" with "Make-to-Order" manufacturing policy. Component "M" includes the item "C" in its production BOM
+        CreateItemWithReorderingPolicy(
+          Item[2], Item[2]."Replenishment System"::"Prod. Order", Item[2]."Manufacturing Policy"::"Make-to-Order", '',
+          CreateProductionBOMForSingleItem(Item[1]."No.", Item[1]."Base Unit of Measure"), '');
+
+        // [GIVEN] High-level products "P1" and "P2", both having manufacturing policy "Make-to-Order" and including the component "M"
+        CreateItemWithReorderingPolicy(
+          Item[3], Item[3]."Replenishment System"::"Prod. Order", Item[3]."Manufacturing Policy"::"Make-to-Order", '',
+          CreateProductionBOMForSingleItem(Item[2]."No.", Item[2]."Base Unit of Measure"), '');
+
+        CreateItemWithReorderingPolicy(
+          Item[4], Item[4]."Replenishment System"::"Prod. Order", Item[4]."Manufacturing Policy"::"Make-to-Order", '',
+          CreateProductionBOMForSingleItem(Item[2]."No.", Item[2]."Base Unit of Measure"), '');
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
+
+        // [GIVEN] Sales order with two lines: the first line with item "P1" on location "BLUE", the second - item "P2" on location "RED"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[3]."No.", 10);
+        SalesLine.Validate("Location Code", Location[1].Code);
+        SalesLine.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[4]."No.", 10);
+        SalesLine.Validate("Location Code", Location[2].Code);
+        SalesLine.Modify(true);
+
+        // [WHEN] Run "Create Production Order" from the sales order
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, 1);
+
+        // [THEN] Production order with 4 lines is created:
+        // [THEN] 1 production order line for item "P1" on "BLUE" location
+        VerifyProdOrderLinesCount(Item[3]."No.", Location[1].Code, '', 1);
+        // [THEN] 1 production order line for item "P2" on "RED" location
+        VerifyProdOrderLinesCount(Item[4]."No.", Location[2].Code, '', 1);
+        // [THEN] 1 production order line for item "M" on "BLUE" location
+        VerifyProdOrderLinesCount(Item[2]."No.", Location[1].Code, '', 1);
+        // [THEN] 1 production order line for item "M" on "RED" location
+        VerifyProdOrderLinesCount(Item[2]."No.", Location[2].Code, '', 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesOrderPlanningCreatesSeparateProdOrderLinesForVariants()
+    var
+        Item: array[4] of Record Item;
+        ItemVariant: array[2] of Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Item Variant] [Sales Order Planning]
+        // [SCENARIO 216835] Sales order planning should create a separate production order line for a manufactured subcomponent when the sold item is presented in different variants in sales order lines
+
+        // [GIVEN] Low-level component "C"
+        LibraryInventory.CreateItem(Item[1]);
+
+        // [GIVEN] Mid-level component "M" with "Make-to-Order" manufacturing policy. Component "M" includes the item "C" in its production BOM
+        CreateItemWithReorderingPolicy(
+          Item[2], Item[2]."Replenishment System"::"Prod. Order", Item[2]."Manufacturing Policy"::"Make-to-Order", '',
+          CreateProductionBOMForSingleItem(Item[1]."No.", Item[1]."Base Unit of Measure"), '');
+
+        // [GIVEN] Item "M" has two variants "V1" and "V2"
+        LibraryInventory.CreateItemVariant(ItemVariant[1], Item[2]."No.");
+        LibraryInventory.CreateItemVariant(ItemVariant[2], Item[2]."No.");
+
+        // [GIVEN] High-level product "P1" has manufacturing policy "Make-to-Order" and includs the component "M" in variant "V1"
+        CreateProductionBOMForSingleItemWithVariant(
+          Item[3], Item[2]."Base Unit of Measure", Item[2]."No.", ItemVariant[1].Code, LibraryRandom.RandInt(20));
+
+        // [GIVEN] High-level product "P2" has manufacturing policy "Make-to-Order" and includs the component "M" in variant "V2"
+        CreateProductionBOMForSingleItemWithVariant(
+          Item[4], Item[2]."Base Unit of Measure", Item[2]."No.", ItemVariant[2].Code, LibraryRandom.RandInt(20));
+
+        // [GIVEN] Sales order with two lines: the first line with item "P1", the second - item "P2"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[3]."No.", 10);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item[4]."No.", 10);
+
+        // [WHEN] Run "Create Production Order" from the sales order
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, 1);
+
+        // [THEN] Production order with 4 lines is created:
+        // [THEN] 1 production order line for item "P1"
+        VerifyProdOrderLinesCount(Item[3]."No.", '', '', 1);
+        // [THEN] 1 production order line for item "P1"
+        VerifyProdOrderLinesCount(Item[3]."No.", '', '', 1);
+        // [THEN] 1 production order line for item "M", variant "V1"
+        VerifyProdOrderLinesCount(Item[2]."No.", '', ItemVariant[1].Code, 1);
+        // [THEN] 1 production order line for item "M", variant "V2"
+        VerifyProdOrderLinesCount(Item[2]."No.", '', ItemVariant[2].Code, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ModifyReleasedProdOrderConsumptionPosted()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        // [FEATURE] [Production Order] [Component]
+        // [SCENARIO 224311] Validate field "Item No." in table "Prod. Order Component" after consumption for the line has been posted; error must occur.
+
+        Initialize;
+
+        // [GIVEN] Create & Release "Prod. Order" for 10 pcs of single item.
+        CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
+        CalculateConsumptionJournal(ItemJournalBatch, ProductionOrder."No.");
+        ItemJournalLine.Reset;
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.SetRange("Order No.", ProductionOrder."No.");
+        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Consumption);
+        ItemJournalLine.FindFirst;
+
+        // [GIVEN] Change "Quantity" in production journal from 10 to 5 pcs and post it
+        ItemJournalLine.Validate(Quantity, ItemJournalLine.Quantity / 2);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Set "Quantity per" field into 0 in "Prod. Order Component" table in order to modify "Item No." field next
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.Validate("Quantity per", 0);
+        ProdOrderComponent.Modify(true);
+
+        // [WHEN] Trying to set "Item No." field into any other in "Prod. Order Component" table
+        asserterror ProdOrderComponent.Validate("Item No.", LibraryInventory.CreateItemNo);
+
+        // [THEN] Error message: "Act. Consumption (Qty)" must be equal to '0'...
+        Assert.ExpectedError(StrSubstNo(ItemNoProdOrderErr, ProdOrderComponent.FieldCaption("Act. Consumption (Qty)")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestInitManufacturingSetup()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 255348] Init value in "Doc No is Prod Order" field should be Yes in Manufacturing Setup
+
+        // [WHEN] Manufacturing Setup is being initialized
+        ManufacturingSetup.Init;
+
+        // [THEN] "Doc No is Prod Order" = Yes
+        ManufacturingSetup.TestField("Doc. No. Is Prod. Order No.", true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RefreshProdOrderWithDueDateEmpty()
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [Production Order] [Refresh Production Order]
+        // [SCENARIO 277108] Production Order Refresh trial must lead to an error if Due Date is empty.
+
+        Initialize;
+
+        // [GIVEN] Create a Production Order
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released,
+          ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+
+        // [GIVEN] Set Due Date field to void
+        ProductionOrder.Validate("Due Date", 0D);
+        ProductionOrder.Modify(true);
+
+        // [WHEN] Refresh the Production Order, direction - Forward
+        asserterror LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, true, true, true, false);
+
+        // [THEN] Expected error occurs
+        Assert.ExpectedError(DueDateEmptyErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    [Scope('OnPrem')]
+    procedure ExchangeBOMItemCopiesPositionFields()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProdBomVersion: Record "Production BOM Version";
+        ProdBOMHeader: Record "Production BOM Header";
+        Components: array[3] of Code[20];
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO 320350] When Exchange Production BOM item replaces a component with another one, Position fields are copied
+        Initialize;
+
+        // [GIVEN] Created Production BOM with 1 component
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        ProdBOMHeader.Get(CreateProductionBOM(UnitOfMeasure.Code));
+        Components[1] := FindProductionBOMComponent(ProdBOMHeader."No.");
+        Components[2] := LibraryInventory.CreateItemNo;
+
+        // [GIVEN] Created Production BOM version with 2 components
+        CreateProductionBOMVersionWithTwoComponents(
+          ProdBomVersion, ProdBOMHeader, ProdBOMHeader."Unit of Measure Code", WorkDate, Components[1], Components[2]);
+
+        // [GIVEN] Set Position fields on the initial Producion BOM Line
+        FindProductionBOMLineByNo(ProductionBOMLine, ProdBomVersion."Production BOM No.",
+          FindFirstBOMVersionCode(ProdBomVersion."Production BOM No."), Components[1]);
+        ModifyProductionBOMVersionStatus(ProdBomVersion, ProdBomVersion.Status::"Under Development");
+        SetProducionBOMLinePositionFields(ProductionBOMLine);
+        ModifyProductionBOMVersionStatus(ProdBomVersion, ProdBomVersion.Status::Certified);
+
+        // [WHEN] Run "Exchange Production BOM Item" to replace item "I1" with "I3" and "Create New Version" option
+        Components[3] := LibraryInventory.CreateItemNo;
+        RunExchangeProdBOMItemReportWithParameters(Components[1], Components[3], true);
+
+        // [THEN] Position fields are transferred to the new Producion BOM Line
+        VerifyProducionBOMLinePositionFields(
+          ProductionBOMLine, ProdBOMHeader."No.", FindLastBOMVersionCode(ProdBomVersion."Production BOM No."), Components[3]);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    [Scope('OnPrem')]
+    procedure ExchangeBOMItemCopiesPositionFieldsDeleteExchangedComponent()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO 320350] When Exchange Production BOM item replaces a component with another one, deleting previous line, Position fields are copied
+        Initialize;
+
+        // [GIVEN] Create two Items with Routing and Production BOM. Run Exchange Production BOM Item report with Create New Version as true and Delete Exchanged Component as false.
+        Item.Get(CreateItemWithRoutingAndProductionBOM);
+        Item2.Get(CreateItemWithRoutingAndProductionBOM);
+        ExchangeNo := FindProductionBOMComponent(Item."Production BOM No.");  // Use ExchangeNo as global for handler.
+        WithNo := FindProductionBOMComponent(Item2."Production BOM No.");  // Use WithNo as global for handler.
+
+        // [GIVEN] Set Position fields on the initial Producion BOM Line
+        FindProductionBOMLineByNo(ProductionBOMLine, Item."Production BOM No.", '', ExchangeNo);
+        SetProducionBOMLinePositionFields(ProductionBOMLine);
+
+        // [WHEN] Run "Exchange Production BOM Item" with Delete Exchanged Component option
+        CreateNewVersion := false;  // Use CreateNewVersion as global for handler.
+        RunExchangeProductionBOMItemReport;
+
+        // [THEN] Position fields are transferred to the new Producion BOM Line
+        VerifyProducionBOMLinePositionFields(ProductionBOMLine, Item."Production BOM No.", '', WithNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalendarEntryCaptionWhenFilterIsBlank()
+    var
+        CalendarEntry: Record "Calendar Entry";
+        CaptionText: Text;
+    begin
+        // [FEATURE] [UT] [Calendar Entry]
+        // [SCENARIO 320796] Call Caption from Calendar Entry when Work Center No contains '&'
+        Initialize;
+
+        // [GIVEN] Calendar Entry without Filter set to "No."
+        CalendarEntry.SetRange("No.");
+
+        // [WHEN] Call Caption from Calendar Entry
+        CaptionText := CalendarEntry.Caption;
+
+        // [THEN] Caption returns <blank> text
+        Assert.AreEqual('', CaptionText, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalendarEntryCaptionWhenWorkCenterHasComplexNo()
+    var
+        WorkCenter: Record "Work Center";
+        CalendarEntry: Record "Calendar Entry";
+        WorkCenterNo: Code[20];
+        WorkCenterName: Text;
+        CaptionText: Text;
+    begin
+        // [FEATURE] [UT] [Calendar Entry] [Work Center]
+        // [SCENARIO 320796] Call Caption from Calendar Entry when Work Center No contains '&'
+        Initialize;
+        WorkCenterNo := CopyStr(
+            LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(WorkCenter."No."), 0), 1, MaxStrLen(WorkCenter."No."));
+        WorkCenterNo[MaxStrLen(WorkCenter."No.") div 2] := '&';
+        WorkCenterName := LibraryUtility.GenerateGUID;
+
+        // [GIVEN] Work Center with No. = 'APG-LACK & PACKAGING' (20 symbols and one symbol is '&') and Name 'XXX'
+        WorkCenter.Init;
+        WorkCenter."No." := WorkCenterNo;
+        WorkCenter.Name := CopyStr(WorkCenterName, 1, MaxStrLen(WorkCenter.Name));
+        WorkCenter.Insert;
+
+        // [GIVEN] Calendar Entry with Filter on this No.
+        CalendarEntry.SetRange("No.", WorkCenterNo);
+
+        // [WHEN] Call Caption from Calendar Entry
+        CaptionText := CalendarEntry.Caption;
+
+        // [THEN] Caption returns 'APG-LACK & PACKAGING XXX'
+        Assert.AreEqual(StrSubstNo('%1 %2', WorkCenterNo, WorkCenterName), CaptionText, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalendarEntryCaptionWhenMachineCenterHasComplexNo()
+    var
+        MachineCenter: Record "Machine Center";
+        CalendarEntry: Record "Calendar Entry";
+        MachineCenterNo: Code[20];
+        MachineCenterName: Text;
+        CaptionText: Text;
+    begin
+        // [FEATURE] [UT] [Calendar Entry] [Machine Center]
+        // [SCENARIO 320796] Call Caption from Calendar Entry when Machine Center No contains '&'
+        Initialize;
+        MachineCenterNo := CopyStr(
+            LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(MachineCenter."No."), 0), 1, MaxStrLen(MachineCenter."No."));
+        MachineCenterNo[MaxStrLen(MachineCenter."No.") div 2] := '&';
+        MachineCenterName := LibraryUtility.GenerateGUID;
+
+        // [GIVEN] Machine Center with No. = 'APG-LACK & PACKAGING' (20 symbols and one symbol is '&') and Name 'XXX'
+        MachineCenter.Init;
+        MachineCenter."No." := MachineCenterNo;
+        MachineCenter.Name := CopyStr(MachineCenterName, 1, MaxStrLen(MachineCenter.Name));
+        MachineCenter.Insert;
+
+        // [GIVEN] Calendar Entry with Filter on this No. and Capacity Type Machine Center
+        CalendarEntry."Capacity Type" := CalendarEntry."Capacity Type"::"Machine Center";
+        CalendarEntry.SetRange("No.", MachineCenterNo);
+
+        // [WHEN] Call Caption from Calendar Entry
+        CaptionText := CalendarEntry.Caption;
+
+        // [THEN] Caption returns 'APG-LACK & PACKAGING XXX'
+        Assert.AreEqual(StrSubstNo('%1 %2', MachineCenterNo, MachineCenterName), CaptionText, '');
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Manufacturing");
+        // Clear global variables.
+        Clear(ShowError);
+        Clear(EndingTimeError);
+        Clear(OverWrite);
+        Clear(StartingTime);
+        Clear(EndingTime);
+        Clear(CapacityValue);
+        Clear(WorkCenterNo2);
+        Clear(Capacity2);
+        Clear(ProductionForecastName2);
+        Clear(ItemNo2);
+        Clear(LocationCode2);
+        Clear(DateChangeFormula);
+        Clear(ExchangeNo);
+        Clear(WithNo);
+        Clear(CreateNewVersion);
+        Clear(GLB_ItemTrackingQty);
+        Clear(GLB_SerialNo);
+        LibraryVariableStorage.Clear;
+
+        // Lazy Setup.
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Manufacturing");
+
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+
+        isInitialized := true;
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Manufacturing");
+    end;
+
+    local procedure PrepareUndoApplication(): Code[20]
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Quantity: Decimal;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Quantity := LibraryRandom.RandDecInRange(10, 20, 2);
+
+        CreateAndPostItemJournalLine(
+          ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, Item."No.",
+          Quantity, WorkDate, '');
+        CreateAndPostItemJournalLine(
+          ItemJournalLine, ItemJournalLine."Entry Type"::Sale, Item."No.",
+          Quantity, WorkDate, '');
+
+        exit(Item."No.");
+    end;
+
+    local procedure FindILE(var ItemLedgEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Option)
+    begin
+        with ItemLedgEntry do begin
+            SetRange("Item No.", ItemNo);
+            SetRange("Entry Type", EntryType);
+            FindFirst;
+        end;
+    end;
+
+    local procedure Unapply(PositiveILENo: Integer; NegativeILENo: Integer)
+    var
+        ItemApplnEntry: Record "Item Application Entry";
+        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+    begin
+        with ItemApplnEntry do begin
+            SetRange("Inbound Item Entry No.", PositiveILENo);
+            SetRange("Outbound Item Entry No.", NegativeILENo);
+            FindFirst;
+            ItemJnlPostLine.UnApply(ItemApplnEntry);
+        end;
+    end;
+
+    local procedure SaveExistingILEs(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; ItemNo: Code[20])
+    var
+        ItemLedgEntry: Record "Item Ledger Entry";
+    begin
+        with ItemLedgEntry do begin
+            SetRange("Item No.", ItemNo);
+            FindSet;
+            repeat
+                TempItemLedgEntry := ItemLedgEntry;
+                TempItemLedgEntry.Insert;
+            until Next = 0;
+        end;
+    end;
+
+    local procedure AddParentItemAsBOMComponent(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMLine: Record "Production BOM Line"; Item: Record Item)
+    begin
+        ProductionBOMHeader.Get(Item."Production BOM No.");
+        ModifyStatusInProductionBOM(ProductionBOMHeader, ProductionBOMHeader.Status::"Under Development");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2));  // Taking Random Quantity.
+    end;
+
+    local procedure AddRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20]; WorkCenterNo: Code[20]; OperationNo: Integer)
+    var
+        RoutingHeader: Record "Routing Header";
+    begin
+        RoutingHeader.Get(RoutingNo);
+        ModifyRoutingStatus(RoutingHeader, RoutingHeader.Status::"Under Development");
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(OperationNo), RoutingLine.Type::"Work Center", WorkCenterNo);
+        ModifyRunTimeOnRoutingLine(RoutingLine, LibraryRandom.RandInt(200));
+        ModifyRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+    end;
+
+    local procedure CalculateRandomTime() RandomTime: Time
+    begin
+        Evaluate(RandomTime, Format(LibraryRandom.RandInt(23)));  // Use Random Values for Custom Time.
+    end;
+
+    local procedure CreateAndModifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header")
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        ProductionBOMHeader.Get(CreateProductionBOM(UnitOfMeasure.Code));
+        ModifyStatusInProductionBOM(ProductionBOMHeader, ProductionBOMHeader.Status::New);
+        FindProductionBOMLine(ProductionBOMLine, ProductionBOMHeader."No.");
+        ProductionBOMLine.Validate("Ending Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Use random Ending Date.
+        ProductionBOMLine.Modify(true);
+    end;
+
+    local procedure CreateAndPostCapacityJournal(Quantity: Decimal; WorkCenterNo: Code[20])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Capacity);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Output, '', 0); // Zero used for Quantity.
+        ItemJournalLine.Validate(Type, ItemJournalLine.Type::"Work Center");
+        ItemJournalLine.Validate("No.", WorkCenterNo);
+        ItemJournalLine.Validate("Stop Time", Quantity);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateAndPostConsumptionJournal(ProductionOrderNo: Code[20])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        CalculateConsumptionJournal(ItemJournalBatch, ProductionOrderNo);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostItemJournalLine(ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; PostingDate: Date; LocationCode: Code[10])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
+        ItemJournalLine.Validate("Posting Date", PostingDate);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option): Code[20]
+    begin
+        CreateAndRefreshProductionOrderWithItem(
+          ProductionOrder, Status, CreateItemWithRoutingAndProductionBOM, LibraryRandom.RandDec(10, 2));
+        exit(ProductionOrder."No.");
+    end;
+
+    local procedure CreateAndRefreshProductionOrderWithItem(var ProductionOrder: Record "Production Order"; Status: Option; ItemNo: Code[20]; Quantity: Decimal)
+    begin
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, ItemNo, Quantity);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        ProductionOrder.Find;
+    end;
+
+    local procedure CreateAndRefreshProdOrderWithSpecificDueDate(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; DueDate: Date)
+    var
+        RlsdProdOrder: TestPage "Released Production Order";
+    begin
+        // Create Released Production Order
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder,
+          ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo, LibraryRandom.RandDec(10, 2));
+
+        // Set Due Date and Refresh Production Order
+        // Use page to modify Due Date of Production Order, since using Validate method on Production Order Record cannot work
+        RlsdProdOrder.OpenEdit;
+        RlsdProdOrder.FILTER.SetFilter("No.", ProductionOrder."No.");
+        RlsdProdOrder."Due Date".SetValue(DueDate);
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure CreateBOMComponent(ParentItemNo: Code[20]; ItemNo: Code[20]; QuantityPer: Decimal)
+    var
+        BOMComponent: Record "BOM Component";
+        Item: Record Item;
+    begin
+        Item.Get(ItemNo);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, ParentItemNo, BOMComponent.Type::Item, Item."No.", QuantityPer, Item."Base Unit of Measure");
+    end;
+
+    local procedure CreateCommentLineForProductionBOM(ProductionBOMNo: Code[20])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
+        ProductionBOMLine.FindFirst;
+        LibraryManufacturing.CreateProductionBOMCommentLine(ProductionBOMLine);
+    end;
+
+    local procedure CreateCommentLineForItem(No: Code[20])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        ProductionBOMLine.SetRange("No.", No);
+        ProductionBOMLine.FindFirst;
+        LibraryManufacturing.CreateProductionBOMCommentLine(ProductionBOMLine);
+    end;
+
+    local procedure CreateSalesOrderLinesAtLocations(var SalesLine: array[4] of Record "Sales Line"; var Item: array[4] of Record Item; SalesLineCount: Integer; DifferentLocations: Boolean)
+    var
+        SalesHeader: Record "Sales Header";
+        Location: Record Location;
+        LocationCode: Code[10];
+        i: Integer;
+    begin
+        if not DifferentLocations then begin
+            LibraryWarehouse.CreateLocation(Location);
+            LocationCode := Location.Code;
+        end;
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        for i := 1 to SalesLineCount do begin
+            if DifferentLocations then begin
+                LibraryWarehouse.CreateLocation(Location);
+                LocationCode := Location.Code;
+            end;
+            LibrarySales.CreateSalesLine(SalesLine[i], SalesHeader, SalesLine[i].Type::Item, Item[i]."No.", LibraryRandom.RandInt(20));
+            SalesLine[i].Validate("Location Code", LocationCode);
+            SalesLine[i].Validate("Unit Price", LibraryRandom.RandDec(10, 2));
+            SalesLine[i].Modify(true);
+        end;
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure CalculateConsumptionJournal(var ItemJournalBatch: Record "Item Journal Batch"; ProductionOrderNo: Code[20])
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Consumption);
+        LibraryManufacturing.CalculateConsumption(ProductionOrderNo, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CalculateEndingTime(WorkCenter: Record "Work Center"; StartingTime: Time) EndingTime: Time
+    begin
+        EndingTime := StartingTime + LibraryRandom.RandInt(5) * CalendarManagement.TimeFactor(WorkCenter."Unit of Measure Code");  // Adding Random value to Starting Time as Ending Time should be later than the Starting Time.
+        if EndingTime < StartingTime then
+            EndingTime := 235959T;  // Replace UpdatedTime with Maximum Time.
+    end;
+
+    local procedure CreateInitialSetupForReleasedProductionOrder(var ProductionOrder: Record "Production Order"; var ProdOrderComponent: Record "Prod. Order Component")
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released);
+        FindProductionOrderComponent(ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.");
+        CreateAndPostItemJournalLine(
+          ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", ProdOrderComponent."Item No.",
+          ProdOrderComponent."Expected Quantity", WorkDate, '');
+    end;
+
+    local procedure CreateItemAndItemComponent(var ItemNo: Code[20]; var ComponentNo: Code[20])
+    begin
+        ItemNo := CreateItemWithRoutingAndProductionBOM;
+        ComponentNo := CreateItemWithRoutingAndProductionBOM;
+    end;
+
+    local procedure CreateItemReclassJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Transfer);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::" ", ItemNo,
+          Quantity);
+    end;
+
+    local procedure CreateItemWithLotForLotReorderingPolicyAndSafetyStockQuantity(var Item: Record Item)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item.Validate("Safety Stock Quantity", LibraryRandom.RandDec(100, 2));  // Use random value for Safety Stock Quantity.
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemWithRouting(var Item: Record Item; RoutingNo: Code[20])
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Routing No.", RoutingNo);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemWithRoutingAndProductionBOM(): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2));  // Use random value for Unit Price.
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));  // Use random value for Unit Cost.
+        Item.Validate("Production BOM No.", CreateProductionBOM(Item."Base Unit of Measure"));
+        Item.Validate("Routing No.", CreateRouting);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateItemWithRoutingAndTwoWorkCenters(var WorkCenter: Record "Work Center"; var WorkCenter2: Record "Work Center"; var RoutingNo: Code[20]): Code[20]
+    var
+        Item: Record Item;
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+    begin
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter2, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
+
+        RoutingNo := CreateCertifiedRoutingWithTwoLines(WorkCenter."No.", WorkCenter2."No.");
+
+        LibraryInventory.CreateItem(Item);
+        with Item do begin
+            Validate("Routing No.", RoutingNo);
+            Modify;
+            exit("No.");
+        end;
+    end;
+
+    local procedure CreateItemWithReorderingPolicy(var Item: Record Item; ReplenishmentSystem: Option; ManufacturingPolicy: Option; InventoryPostingGroup: Code[20]; ProductionBOMNo: Code[20]; RoutingNo: Code[20])
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Validate("Manufacturing Policy", ManufacturingPolicy);
+        if InventoryPostingGroup <> '' then
+            Item.Validate("Inventory Posting Group", InventoryPostingGroup);
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Validate("Routing No.", RoutingNo);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateItemWithReplenishmentSystemAndManufacturingPolicy(var Item: Record Item; ReplenishmentSystem: Option; ManufacturingPolicy: Option)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Manufacturing Policy", ManufacturingPolicy);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateMultipleItemsWithReorderingPolicy(var Item: Record Item; var Item2: Record Item; Quantity: Decimal)
+    var
+        InventoryPostingGroup: Record "Inventory Posting Group";
+        BlankLocation: Record Location;
+    begin
+        LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
+        BlankLocation.Init;
+        LibraryInventory.UpdateInventoryPostingSetup(BlankLocation);
+        CreateItemWithReorderingPolicy(
+          Item, Item."Replenishment System"::Purchase, Item."Manufacturing Policy"::"Make-to-Stock",
+          InventoryPostingGroup.Code, '', '');
+        CreateItemWithReorderingPolicy(
+          Item2, Item."Replenishment System"::"Prod. Order", Item2."Manufacturing Policy"::"Make-to-Stock",
+          InventoryPostingGroup.Code,
+          CreateProductionBOMLineForSelectedItem(Item."No.", Item."Base Unit of Measure", Quantity), CreateRoutingWithRoutingLinkCode);
+    end;
+
+    local procedure CreateItemWithReorderingPolicyAndInventoryPostingGroup(var Item: Record Item; ReplenishmentSystem: Option; ManufacturingPolicy: Option): Code[10]
+    var
+        InventoryPostingGroup: Record "Inventory Posting Group";
+        BlankLocation: Record Location;
+    begin
+        LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
+        BlankLocation.Init;
+        LibraryInventory.UpdateInventoryPostingSetup(BlankLocation);
+        CreateItemWithReorderingPolicy(
+          Item, ReplenishmentSystem, ManufacturingPolicy, InventoryPostingGroup.Code, '', '');
+        exit(InventoryPostingGroup.Code);
+    end;
+
+    local procedure CreateLocation(): Code[10]
+    var
+        Location: Record Location;
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+    begin
+        LibraryWarehouse.CreateLocation(Location);
+        exit(Location.Code);
+    end;
+
+    local procedure CreateProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderStatus: Option; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; ItemNo: Code[20]; LocationCode: Code[10]; QtyPer: Decimal)
+    begin
+        with ProdOrderComponent do begin
+            LibraryManufacturing.CreateProductionOrderComponent(ProdOrderComponent, ProdOrderStatus, ProdOrderNo, ProdOrderLineNo);
+            Validate("Item No.", ItemNo);
+            Validate("Quantity per", QtyPer);
+            Validate("Location Code", LocationCode);
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreateWhiteLocation(var Location: Record Location)
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        with Location do begin
+            Validate("Bin Mandatory", true);
+            Validate("Require Receive", true);
+            Validate("Require Shipment", true);
+            Validate("Require Put-away", true);
+            Validate("Require Pick", true);
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreateOutputJournal(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalLine: Record "Item Journal Line"; ProductionOrderNo: Code[20])
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Output);
+        ItemJournalTemplate.Get(ItemJournalBatch."Journal Template Name");
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryManufacturing.CreateOutputJournal(ItemJournalLine, ItemJournalTemplate, ItemJournalBatch, '', ProductionOrderNo);
+    end;
+
+    local procedure CreateAndPostOutputJournal(ProductionOrderNo: Code[20]): Code[20]
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateOutputJournal(ItemJournalBatch, ItemJournalLine, ProductionOrderNo);
+        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+        exit(ItemJournalLine."Document No.");
+    end;
+
+    local procedure CreateProductionBOM(UnitOfMeasureCode: Code[10]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        exit(CreateProductionBOMForSingleItem(Item."No.", UnitOfMeasureCode));
+    end;
+
+    local procedure CreateProductionBOMVersion(var ProdBomVersion: Record "Production BOM Version"; ProductionBOMNo: Code[20]; UnitOfMeasureCode: Code[10]; StartingDate: Date; Type: Option; No: Code[20]; Quantity: Decimal)
+    var
+        ProdBOMHeader: Record "Production BOM Header";
+        ProdBOMLine: Record "Production BOM Line";
+    begin
+        ProdBOMHeader.Get(ProductionBOMNo);
+        LibraryManufacturing.CreateProductionBOMVersion(ProdBomVersion, ProductionBOMNo, LibraryUtility.GenerateGUID, UnitOfMeasureCode);
+        ProdBomVersion.Validate("Starting Date", StartingDate);
+        LibraryManufacturing.CreateProductionBOMLine(ProdBOMHeader, ProdBOMLine, ProdBomVersion."Version Code", Type, No, Quantity);
+    end;
+
+    local procedure CreateNamedProductionBOMVersion(var ProdBomVersion: Record "Production BOM Version"; ProductionBOMNo: Code[20]; UnitOfMeasureCode: Code[10]; StartingDate: Date; Type: Option; No: Code[20]; Quantity: Decimal; Version: Code[20])
+    var
+        ProdBOMHeader: Record "Production BOM Header";
+        ProdBOMLine: Record "Production BOM Line";
+    begin
+        ProdBOMHeader.Get(ProductionBOMNo);
+        LibraryManufacturing.CreateProductionBOMVersion(ProdBomVersion, ProductionBOMNo, Version, UnitOfMeasureCode);
+        ProdBomVersion.Validate("Starting Date", StartingDate);
+        LibraryManufacturing.CreateProductionBOMLine(ProdBOMHeader, ProdBOMLine, ProdBomVersion."Version Code", Type, No, Quantity);
+    end;
+
+    local procedure CreateProductionBOMWithComponent(UnitOfMeasureCode: Code[10]; ComponentItemNo: Code[20]; RoutingLinkCode: Code[10]): Code[20]
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasureCode);
+
+        with ProductionBOMLine do begin
+            LibraryManufacturing.CreateProductionBOMLine(
+              ProductionBOMHeader, ProductionBOMLine, '', Type::Item, ComponentItemNo, 1); // Qty per = 1
+            Validate("Routing Link Code", RoutingLinkCode);
+            Modify(true);
+        end;
+
+        ModifyStatusInProductionBOM(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        exit(ProductionBOMHeader."No.");
+    end;
+
+    local procedure CreateProductionForecastEntry(var ProductionForecastEntry: Record "Production Forecast Entry"; ProductionForecastName: Code[10])
+    var
+        Item: Record Item;
+    begin
+        LibraryManufacturing.CreateProductionForecastEntry(
+          ProductionForecastEntry, ProductionForecastName, LibraryInventory.CreateItem(Item), CreateLocation, WorkDate, true);
+        ProductionForecastEntry.Validate("Forecast Quantity (Base)", LibraryRandom.RandDec(100, 2));  // Use random value for Forecast Quantity Base.
+        ProductionForecastEntry.Modify(true);
+    end;
+
+    local procedure CreateRegisteredAbsence(CapacityType: Option; No: Code[20]; Date: Date): Decimal
+    var
+        RegisteredAbsence: Record "Registered Absence";
+    begin
+        LibraryManufacturing.CreateRegisteredAbsence(RegisteredAbsence, CapacityType, No, Date, StartingTime, EndingTime);
+        RegisteredAbsence.Validate(Capacity, 100 + LibraryRandom.RandDec(10, 2));  // Taking Random value for Capacity.
+        RegisteredAbsence.Modify(true);
+        exit(RegisteredAbsence.Capacity);
+    end;
+
+    local procedure CreateReleasedProductionOrder(var ProductionOrder: Record "Production Order"): Integer
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released);
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        exit(ProdOrderLine.Count);
+    end;
+
+    local procedure CreateRequisitionLine(var RequisitionLine: Record "Requisition Line")
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        Item: Record Item;
+    begin
+        CreateRequisitionWorksheetName(RequisitionWkshName);
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Modify;
+        RequisitionLine.Validate("No.", Item."No.");
+        RequisitionLine.Validate("Ending Date", WorkDate);
+        RequisitionLine.Validate("Due Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Use random Due Date.
+        RequisitionLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Use random Quantity.
+        RequisitionLine.Modify(true);
+    end;
+
+    local procedure CreateRequisitionLineWithDates(var RequisitionLine: Record "Requisition Line")
+    begin
+        CreateRequisitionLine(RequisitionLine);
+        with RequisitionLine do begin
+            Validate("Action Message", "Action Message"::New);
+            Validate("Starting Date", WorkDate);
+            Validate("Starting Time", Time);
+            Validate("Ending Date", WorkDate + 1);
+            Validate("Ending Time", Time + 1);
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreateCertifiedRoutingWithTwoLines(WorkCenterNo: Code[20]; WorkCenterNo2: Code[20]): Code[20]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        with LibraryManufacturing do begin
+            CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+            CreateRoutingLine(
+              RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenterNo);
+            RoutingLine.Validate("Run Time", LibraryRandom.RandInt(10));
+            RoutingLine.Modify;
+
+            CreateRoutingLine(
+              RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenterNo2);
+            RoutingLine.Validate("Run Time", LibraryRandom.RandInt(10));
+            RoutingLine.Modify;
+        end;
+
+        with RoutingHeader do begin
+            Validate(Status, Status::Certified);
+            Modify(true);
+            exit("No.");
+        end;
+    end;
+
+    local procedure CreateProductionBOMForSingleItem(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]): Code[20]
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasureCode);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo, LibraryRandom.RandDec(100, 2));
+        ModifyStatusInProductionBOM(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        exit(ProductionBOMHeader."No.");
+    end;
+
+    local procedure CreateProductionBOMForSetOfItems(var Item: Record Item; UnitOfMeasureCode: Code[10]): Code[20]
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasureCode);
+        if Item.FindSet then
+            repeat
+                LibraryManufacturing.CreateProductionBOMLine(
+                  ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(10, 20));
+            until Item.Next = 0;
+        ModifyStatusInProductionBOM(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        exit(ProductionBOMHeader."No.");
+    end;
+
+    local procedure CreateProductionBOMForSingleItemNonCertified(var ProductionBOMHeader: Record "Production BOM Header"; UnitOfMeasureCode: Code[10]; ItemNo: Code[20]; Qty: Decimal)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasureCode);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo, Qty);
+    end;
+
+    local procedure CreateProductionBOMForSingleItemWithVariant(var Item: Record Item; UnitOfMeasureCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; Qty: Decimal)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        CreateProductionBOMForSingleItemNonCertified(ProductionBOMHeader, UnitOfMeasureCode, ItemNo, Qty);
+
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMHeader."No.");
+        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.Validate("Variant Code", VariantCode);
+        ProductionBOMLine.Modify(true);
+
+        ModifyStatusInProductionBOM(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        CreateItemWithReorderingPolicy(
+          Item, Item."Replenishment System"::"Prod. Order", Item."Manufacturing Policy"::"Make-to-Order", '',
+          ProductionBOMLine."Production BOM No.", '');
+    end;
+
+    local procedure SetNewProductionBOMToItemForArrayOfChildItems(var ParentItem: Record Item; ChildItem: array[4] of Record Item; FromChildNo: Integer; ToChildNo: Integer)
+    var
+        TempChildSetItem: Record Item temporary;
+        i: Integer;
+    begin
+        for i := FromChildNo to ToChildNo do begin
+            TempChildSetItem := ChildItem[i];
+            TempChildSetItem.Insert;
+        end;
+        ParentItem.Validate(
+          "Production BOM No.", CreateProductionBOMForSetOfItems(TempChildSetItem, ParentItem."Base Unit of Measure"));
+        ParentItem.Modify(true);
+    end;
+
+    local procedure CreateProductionBOMVersionWithTwoComponents(var ProdBOMVersion: Record "Production BOM Version"; var ProdBOMHeader: Record "Production BOM Header"; UnitOfMeasureCode: Code[10]; StartingDate: Date; ComponentCode1: Code[20]; ComponentCode2: Code[20])
+    var
+        ProdBOMLine: Record "Production BOM Line";
+    begin
+        CreateProductionBOMVersion(
+          ProdBOMVersion, ProdBOMHeader."No.", UnitOfMeasureCode, StartingDate, ProdBOMLine.Type::Item, ComponentCode1, 1);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProdBOMHeader, ProdBOMLine, ProdBOMVersion."Version Code", ProdBOMLine.Type::Item, ComponentCode2, 1);
+        ModifyProductionBOMVersionStatus(ProdBOMVersion, ProdBOMVersion.Status::Certified);
+    end;
+
+    local procedure CreateProdOrderLineWithWhiteLocationAndUpdateWorkCenterBinCode(var ProdOrderLine: Record "Prod. Order Line"; var WorkCenter: Record "Work Center"; var RoutingRefNo: Integer)
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        Location: Record Location;
+        Bin: Record Bin;
+    begin
+        CreateWhiteLocation(Location);
+        LibraryWarehouse.CreateBin(
+          Bin, Location.Code, LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), '', '');
+
+        CreateReleasedProductionOrder(ProductionOrder);
+        FindFirstProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        UpdateProdOrderLineLocationCode(ProdOrderLine, Location.Code);
+
+        FindProductionOrderRoutingLine(ProdOrderRoutingLine, ProdOrderLine);
+        ProdOrderRoutingLine."From-Production Bin Code" := LibraryUtility.GenerateGUID;
+        ProdOrderRoutingLine.Modify;
+        UpdateWorkCenterLocationCodeAndFromProdBinCode(WorkCenter, ProdOrderRoutingLine."Work Center No.", Location.Code, Bin.Code);
+        RoutingRefNo := ProdOrderRoutingLine."Routing Reference No.";
+    end;
+
+    local procedure CreateReleasedProdOrderWithCustomStartingTime(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Quantity: Decimal; StartingTime: Time)
+    begin
+        CreateAndRefreshProductionOrderWithItem(ProductionOrder, ProductionOrder.Status::Released, ItemNo, Quantity);
+        ProductionOrder.Validate("Starting Time", StartingTime);
+        ProductionOrder.Modify(true);
+    end;
+
+    local procedure CreateProdOrderLineWithGlobalDims(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var DimensionValue: array[2] of Record "Dimension Value")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get;
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], GeneralLedgerSetup."Global Dimension 1 Code");
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], GeneralLedgerSetup."Global Dimension 2 Code");
+
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::Released);
+        FindFirstProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        SetGlobalDimsOnProdOrderLine(ProdOrderLine."Dimension Set ID", DimensionValue);
+        ProdOrderLine.Modify(true);
+    end;
+
+    local procedure CreateRequisitionWorksheetName(var RequisitionWkshName: Record "Requisition Wksh. Name")
+    var
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+    begin
+        ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::Planning);
+        RequisitionWkshName.SetRange(Recurring, false);
+        ReqWkshTemplate.FindFirst;
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
+    end;
+
+    local procedure CreateRouting(): Code[20]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+        exit(RoutingHeader."No.");
+    end;
+
+    local procedure CreateRoutingOnCapacityConstrainedWorkCenter(var RoutingHeader: Record "Routing Header"; RunTime: Integer)
+    var
+        WorkCenter: Record "Work Center";
+        RoutingLine: Record "Routing Line";
+    begin
+        CreateWorkCenterCapacityConstrained(WorkCenter);
+
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID, RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure CreateRoutingWithWorkCenter(WorkCenterNo: Code[20]; ConcurrentCapacities: Integer; RoutingLinkCode: Code[10]): Code[20]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        with RoutingLine do begin
+            LibraryManufacturing.CreateRoutingLine(
+              RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), Type::"Work Center", WorkCenterNo);
+            Validate("Setup Time", 1);
+            Validate("Run Time", 1);
+            Validate("Concurrent Capacities", ConcurrentCapacities);
+            Validate("Routing Link Code", RoutingLinkCode);
+            Modify(true);
+        end;
+
+        with RoutingHeader do begin
+            Validate(Status, Status::Certified);
+            Modify(true);
+            exit("No.");
+        end;
+    end;
+
+    local procedure CreateShopCalendarCodeWithAllDaysWorking(var ShopCalendarWorkingDays: Record "Shop Calendar Working Days"): Code[10]
+    var
+        ShopCalendarWorkingDays2: Record "Shop Calendar Working Days";
+        ShopCalendarCode: Code[10];
+    begin
+        ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
+        ShopCalendarWorkingDays.SetRange("Shop Calendar Code", ShopCalendarCode);
+        ShopCalendarWorkingDays.FindFirst;
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays2, ShopCalendarCode, ShopCalendarWorkingDays.Day::Saturday, ShopCalendarWorkingDays."Work Shift Code",
+          080000T, 160000T);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays2, ShopCalendarCode, ShopCalendarWorkingDays.Day::Sunday, ShopCalendarWorkingDays."Work Shift Code",
+          080000T, 160000T);
+        exit(ShopCalendarCode);
+    end;
+
+    local procedure CreateWorkCenterWithWorkCenterGroup(var WorkCenter: Record "Work Center"; ShopCalendarCode: Code[10])
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Shop Calendar Code", ShopCalendarCode);
+        WorkCenter.Modify(true);
+    end;
+
+    local procedure CreateWorkCenterWithCapacity(var WorkCenter: Record "Work Center"; CapacityToSet: Integer)
+    var
+        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+    begin
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(
+          CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Hours);
+        with WorkCenter do begin
+            LibraryManufacturing.CreateWorkCenter(WorkCenter);
+            Validate("Unit of Measure Code", CapacityUnitOfMeasure.Code);
+            Validate("Shop Calendar Code", CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
+            Validate(Capacity, CapacityToSet);
+            Modify(true);
+        end;
+
+        LibraryManufacturing.CalculateWorkCenterCalendar(
+          WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<+1M>', WorkDate));
+    end;
+
+    local procedure CreateWorkCenterWithCalendarCode(var WorkCenter: Record "Work Center"; ShopCalendarCode: Code[10])
+    begin
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, '');
+        WorkCenter.Validate("Shop Calendar Code", ShopCalendarCode);
+        WorkCenter.Modify(true);
+    end;
+
+    local procedure CreateWorkCenterWithCalendarCodeAndRoundingPrecision(var WorkCenter: Record "Work Center"; ShopCalendarCode: Code[10]; Precision: Decimal)
+    begin
+        CreateWorkCenterWithCalendarCode(WorkCenter, ShopCalendarCode);
+        WorkCenter.Validate("Calendar Rounding Precision", Precision);
+        WorkCenter.Modify(true);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<+1M>', WorkDate));
+    end;
+
+    local procedure CreateMachineCenterAndUpdateProdOderRtngLine(var MachineCenter: Record "Machine Center"; var ProdOrderRtngLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; ProdOrderLine: Record "Prod. Order Line"; RoutingRefNo: Integer)
+    var
+        Bin: Record Bin;
+    begin
+        LibraryWarehouse.CreateBin(
+          Bin, WorkCenter."Location Code", LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), '', '');
+
+        with MachineCenter do begin
+            LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandDec(10, 2));
+            Validate("From-Production Bin Code", Bin.Code);
+            Modify;
+        end;
+
+        with ProdOrderRtngLine do begin
+            SetRange(Status, ProdOrderLine.Status);
+            SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+            SetRange("Routing Reference No.", RoutingRefNo);
+            FindLast;
+        end;
+    end;
+
+    local procedure CreateMachineCenter(WorkCenterNo: Code[20]): Code[20]
+    var
+        MachineCenter: Record "Machine Center";
+    begin
+        LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenterNo, LibraryRandom.RandDec(10, 2));  // Taking Random value for Capacity.
+        exit(MachineCenter."No.")
+    end;
+
+    local procedure CreateAndPostSalesOrder(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal)
+    begin
+        CreateSalesOrder(SalesHeader, ItemNo, Quantity);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateProductionBOMLineForSelectedItem(ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal): Code[20]
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasureCode);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo, Quantity);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+        exit(ProductionBOMHeader."No.");
+    end;
+
+    local procedure CreateRoutingWithRoutingLinkCode(): Code[20]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+        RoutingLink: Record "Routing Link";
+    begin
+        WorkCenter.FindFirst;
+        RoutingLink.FindFirst;
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Routing Link Code", RoutingLink.Code);
+        RoutingLine.Modify(true);
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+        exit(RoutingHeader."No.");
+    end;
+
+    local procedure CreateMultipleProductionBOMLines(ItemNo: Code[20]; ItemNo2: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal): Code[20]
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasureCode);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo, Quantity);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo2, Quantity);
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+        exit(ProductionBOMHeader."No.");
+    end;
+
+    local procedure CreateProdBOMMultipleLinesRoutingLink(var ProductionBOMHeader: Record "Production BOM Header"; Item: array[10] of Record Item; RoutingLinkCode: array[10] of Code[10]; UnitOfMeasureCode: Code[10])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+        ItemArrayCounter: Integer;
+        ItemArrayLength: Integer;
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasureCode);
+        ItemArrayLength := ArrayLen(Item);
+        for ItemArrayCounter := 1 to ItemArrayLength do
+            if Item[ItemArrayCounter]."No." <> '' then begin
+                LibraryManufacturing.CreateProductionBOMLine(
+                  ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item,
+                  Item[ItemArrayCounter]."No.", LibraryRandom.RandInt(100));
+                if RoutingLinkCode[ItemArrayCounter] <> '' then begin
+                    ProductionBOMLine.Validate("Routing Link Code", RoutingLinkCode[ItemArrayCounter]);
+                    ProductionBOMLine.Modify;
+                end;
+            end;
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify(true);
+    end;
+
+    local procedure CreateShopCalendar(StartingTime: Time; EndingTime: Time): Code[10]
+    var
+        ShopCalendar: Record "Shop Calendar";
+        ShopCalendarCode: Code[10];
+    begin
+        ShopCalendarCode := LibraryManufacturing.CreateShopCalendarCode(ShopCalendar);
+        CreateShopCalendarWorkingDays(ShopCalendarCode, StartingTime, EndingTime);
+        exit(ShopCalendarCode);
+    end;
+
+    local procedure CreateShopCalendarWorkingDays(ShopCalendarCode: Code[10]; StartingTime: Time; EndingTime: Time)
+    var
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        WorkShift: Record "Work Shift";
+        WorkShiftCode: Code[10];
+    begin
+        ShopCalendarWorkingDays.SetRange("Shop Calendar Code", ShopCalendarCode);
+        WorkShiftCode := LibraryManufacturing.CreateWorkShiftCode(WorkShift);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Monday, WorkShiftCode, StartingTime, EndingTime);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Tuesday, WorkShiftCode, StartingTime, EndingTime);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Wednesday, WorkShiftCode, StartingTime, EndingTime);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Thursday, WorkShiftCode, StartingTime, EndingTime);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Friday, WorkShiftCode, StartingTime, EndingTime);
+    end;
+
+    local procedure CreateShopCalendarWeekendWorkingDays(ShopCalendarCode: Code[10]; StartingTime: Time; EndingTime: Time)
+    var
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        WorkShift: Record "Work Shift";
+        WorkShiftCode: Code[10];
+    begin
+        WorkShiftCode := LibraryManufacturing.CreateWorkShiftCode(WorkShift);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Saturday, WorkShiftCode, StartingTime, EndingTime);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Sunday, WorkShiftCode, StartingTime, EndingTime);
+    end;
+
+    local procedure CreateShopCalendarWithTwoWorkShifts(StartingTime: Time; ChangeShiftTime: Time; EndingTime: Time): Code[10]
+    var
+        ShopCalendarCode: Code[10];
+    begin
+        ShopCalendarCode := CreateShopCalendar(StartingTime, ChangeShiftTime);
+        CreateShopCalendarWorkingDays(ShopCalendarCode, ChangeShiftTime, EndingTime);
+        exit(ShopCalendarCode);
+    end;
+
+    local procedure CreateProdOrderWithComponentAndPostOutput(var ProductionOrder: Record "Production Order"; OutputItemNo: Code[20]; ComponentItemNo: Code[20]; ProdLocationCode: Code[10]; ComponentLocationCode: Code[10])
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, OutputItemNo, 1);
+        ProductionOrder.Validate("Location Code", ProdLocationCode);
+        ProductionOrder.Modify(true);
+
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", OutputItemNo);
+        CreateProdOrderComponent(
+          ProdOrderComponent, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.",
+          ProdOrderLine."Line No.", ComponentItemNo, ComponentLocationCode, 1);
+
+        CreateAndPostOutputJournal(ProductionOrder."No.");
+
+        TransferItem(OutputItemNo, 1, ProdLocationCode, ComponentLocationCode);
+    end;
+
+    local procedure CreateProdOrdersWithCrossReference(var OpenProdOrder: Record "Production Order")
+    var
+        Item: array[2] of Record Item;
+        Location: array[2] of Record Location;
+        ProductionOrder: array[2] of Record "Production Order";
+    begin
+        LibraryInventory.CreateItem(Item[1]);
+        LibraryInventory.CreateItem(Item[2]);
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
+
+        // 1st prod. order produces item[1] and consumes item[2], 2nd produces item[2] and consumes item[1]
+        CreateProdOrderWithComponentAndPostOutput(ProductionOrder[1], Item[1]."No.", Item[2]."No.", Location[1].Code, Location[2].Code);
+        CreateProdOrderWithComponentAndPostOutput(ProductionOrder[2], Item[2]."No.", Item[1]."No.", Location[1].Code, Location[2].Code);
+
+        // Component for the 2nd production order is consumed, 1st is left on inventory
+        CreateAndPostConsumptionJournal(ProductionOrder[2]."No.");
+        OpenProdOrder := ProductionOrder[1];
+    end;
+
+    local procedure CreateProductionItemWithRouting(var Item: Record Item; var RoutingLine: Record "Routing Line"; WorkCenterNo: Code[20])
+    var
+        RoutingHeader: Record "Routing Header";
+        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+    begin
+        // Create Routing, set work center and run time in routing line
+        RoutingHeader.Get(CreateRouting);
+        RoutingLine.SetRange("Routing No.", RoutingHeader."No.");
+        RoutingLine.FindFirst;
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Minutes); // Create Unit Of Measure (Minutes) for Run Time on routing line
+        ModifyWorkCenterAndRunTimeOnRoutingLine(
+          RoutingLine, WorkCenterNo, CapacityUnitOfMeasure.Code, LibraryRandom.RandInt(200));
+
+        // Create Production Item
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+    end;
+
+    local procedure CreateProductionItemWithMultipleRoutingLines(var RoutingLine: Record "Routing Line"; var RoutingLine2: Record "Routing Line"; var Item: Record Item)
+    var
+        WorkCenter: Record "Work Center";
+        OperationNo: Integer;
+    begin
+        CreateWorkCenterWithCalendarCode(WorkCenter, LibraryManufacturing.UpdateShopCalendarWorkingDays);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<+1M>', WorkDate));
+
+        // Create Production Item with Routing, use the work center created above in routing line
+        CreateProductionItemWithRouting(Item, RoutingLine, WorkCenter."No.");
+        Evaluate(OperationNo, RoutingLine."Operation No.");
+        AddRoutingLine(
+          RoutingLine2, RoutingLine."Routing No.", WorkCenter."No.", OperationNo + LibraryRandom.RandInt(20)); // Add the second routing line
+    end;
+
+    local procedure CreateAndRefreshProdOrderWithSpecificItem(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Forward: Boolean)
+    begin
+        // Create Released Production Order
+        LibraryManufacturing.CreateProductionOrder(ProductionOrder,
+          ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo, LibraryRandom.RandDec(10, 2));
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, Forward, true, true, true, false);
+    end;
+
+    local procedure CreateAndRefreshProdOrderForMakeToOrderItem(var ProductionOrder: Record "Production Order")
+    var
+        ParentItem: Record Item;
+        CompItem: Record Item;
+        PurchasedItem: Record Item;
+        InvtPostingGroupCode: Code[20];
+    begin
+        LibraryInventory.CreateItem(PurchasedItem);
+
+        InvtPostingGroupCode :=
+          CreateItemWithReorderingPolicyAndInventoryPostingGroup(
+            CompItem, CompItem."Replenishment System"::"Prod. Order", CompItem."Manufacturing Policy"::"Make-to-Order");
+
+        CreateItemWithReorderingPolicy(
+          ParentItem, ParentItem."Replenishment System"::"Prod. Order", ParentItem."Manufacturing Policy"::"Make-to-Order",
+          InvtPostingGroupCode, CreateMultipleProductionBOMLines(
+            CompItem."No.", PurchasedItem."No.", CompItem."Base Unit of Measure", LibraryRandom.RandDec(100, 2)), '');
+
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ParentItem."No.",
+          LibraryRandom.RandDec(10, 2));
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure CreateSalesOrderAndCalculateOrderPlan(Item: Record Item; ReplenishmentSystem: Option)
+    var
+        SalesHeader: Record "Sales Header";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        Item.Validate("Replenishment System", ReplenishmentSystem); // Modify the replenishment system for calculating Order Planning
+        Item.Modify(true);
+        CreateSalesOrder(SalesHeader, Item."No.", LibraryRandom.RandInt(10)); // Create a Sales Order for the item
+
+        // Calculate Order Planning for Sales Demand, that will generate Planning Routing Line for the item
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+    end;
+
+    local procedure CreateWorkCenterAndProductionItem(var Item: Record Item; var RoutingLine: Record "Routing Line")
+    var
+        WorkCenter: Record "Work Center";
+    begin
+        // Create Production Item with two Routing Lines, the 1st one contains only run time, the second one contains only wait time
+        CreateWorkCenterWithCalendarCode(WorkCenter, LibraryManufacturing.UpdateShopCalendarWorkingDays);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', WorkDate), CalcDate('<+1M>', WorkDate));
+
+        // Create Production Item with Routing, use the work center created above in routing line
+        CreateProductionItemWithRouting(Item, RoutingLine, WorkCenter."No.");
+
+        ModifyRunTimeOnRoutingLine(RoutingLine, 0); // Set run time to 0 for the convenience of calculating the starting datetime of the routing line with a random Quantity of items to produce
+        ModifyWaitTimeOnRoutingLine(RoutingLine, LibraryRandom.RandIntInRange(7, 14) * 24 * 60); // Set wait time to 1 ~ 2 weeks
+    end;
+
+    local procedure CreateWorkCenterCapacityConstrained(var WorkCenter: Record "Work Center")
+    var
+        CapacityConstrainedResource: Record "Capacity Constrained Resource";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+    begin
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1W>', WorkDate), CalcDate('<1W>', WorkDate));
+        LibraryManufacturing.CreateCapacityConstrainedResource(
+          CapacityConstrainedResource, CapacityConstrainedResource."Capacity Type"::"Work Center", WorkCenter."No.");
+    end;
+
+    local procedure FilteringOnProdOrderCapacityNeed(var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; WorkCenterNo: Code[20]; Date: Date)
+    begin
+        ProdOrderCapacityNeed.SetRange("No.", WorkCenterNo);
+        ProdOrderCapacityNeed.SetRange(Date, Date);
+    end;
+
+    local procedure FindLastBOMVersionCode(ProdBOMNo: Code[20]): Code[20]
+    var
+        ProductionBOMVersion: Record "Production BOM Version";
+    begin
+        with ProductionBOMVersion do begin
+            SetRange("Production BOM No.", ProdBOMNo);
+            FindLast;
+            exit("Version Code");
+        end;
+    end;
+
+    local procedure FindFirstBOMVersionCode(ProdBOMNo: Code[20]): Code[20]
+    var
+        ProductionBOMVersion: Record "Production BOM Version";
+    begin
+        with ProductionBOMVersion do begin
+            SetRange("Production BOM No.", ProdBOMNo);
+            FindFirst;
+            exit("Version Code");
+        end;
+    end;
+
+    local procedure FindProductionOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Option; ProdOrderNo: Code[20]; ItemNo: Code[20])
+    begin
+        ProdOrderLine.SetRange(Status, Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.FindFirst;
+    end;
+
+    local procedure FindFirstProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderStatus: Option; ProdOrderNo: Code[20])
+    begin
+        ProdOrderLine.SetRange(Status, ProdOrderStatus);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
+        ProdOrderLine.FindFirst;
+    end;
+
+    local procedure FindProdOrderLineByItemNoLocationCodeAndPlanningLevelCode(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20]; LocationCode: Code[10]; PlanningLevelCode: Integer)
+    begin
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.SetRange("Location Code", LocationCode);
+        ProdOrderLine.SetRange("Planning Level Code", PlanningLevelCode);
+        ProdOrderLine.FindFirst;
+    end;
+
+    local procedure GetQuantityPerFromProductionBOMLineByNo(var ProductionBOMLine: Record "Production BOM Line"; No: Code[20]): Decimal
+    begin
+        with ProductionBOMLine do begin
+            SetRange(Type, Type::Item);
+            SetRange("No.", No);
+            FindFirst;
+            exit("Quantity per");
+        end;
+    end;
+
+    local procedure FillTempBufOfProductionBOMLinesByBOMNo(var ProductionBOMLineBuf: Record "Production BOM Line"; BOMNo: Code[20])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        ProductionBOMLine.SetRange("Production BOM No.", BOMNo);
+        if ProductionBOMLine.FindSet then
+            repeat
+                ProductionBOMLineBuf := ProductionBOMLine;
+                ProductionBOMLineBuf.Insert;
+            until ProductionBOMLine.Next = 0;
+    end;
+
+    local procedure FindProductionBOMComponent(ProductionBOMNo: Code[20]): Code[20]
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
+        ProductionBOMLine.FindFirst;
+        exit(ProductionBOMLine."No.");
+    end;
+
+    local procedure FindProductionBOMLine(var ProductionBOMLine: Record "Production BOM Line"; ProductionBOMNo: Code[20]): Boolean
+    begin
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
+        exit(ProductionBOMLine.FindFirst);
+    end;
+
+    local procedure FindProductionBOMLineByNo(var ProductionBOMLine: Record "Production BOM Line"; ProdBOMHeaderNo: Code[20]; ProdBomVersion: Code[20]; Component: Code[20]): Boolean
+    begin
+        ProductionBOMLine.SetRange("Production BOM No.", ProdBOMHeaderNo);
+        ProductionBOMLine.SetRange("Version Code", ProdBomVersion);
+        ProductionBOMLine.SetRange("No.", Component);
+        ProductionBOMLine.FindFirst;
+    end;
+
+    local procedure FindProductionOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrderStatus: Option; ProductionOrderNo: Code[20])
+    begin
+        ProdOrderComponent.SetRange(Status, ProductionOrderStatus);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrderNo);
+        ProdOrderComponent.FindFirst;
+    end;
+
+    local procedure FindProductionOrderRoutingLine(var ProdOrdRtngLn: Record "Prod. Order Routing Line"; ProdOrdLn: Record "Prod. Order Line"): Boolean
+    begin
+        ProdOrdRtngLn.SetRange(Status, ProdOrdLn.Status);
+        ProdOrdRtngLn.SetRange("Prod. Order No.", ProdOrdLn."Prod. Order No.");
+        ProdOrdRtngLn.SetRange("Routing Reference No.", ProdOrdLn."Line No.");
+        exit(ProdOrdRtngLn.FindFirst);
+    end;
+
+    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderStatus: Option; ProdOrderNo: Code[20])
+    begin
+        with ProdOrderComponent do begin
+            SetRange(Status, ProdOrderStatus);
+            SetRange("Prod. Order No.", ProdOrderNo);
+            FindFirst;
+        end;
+    end;
+
+    local procedure FindPlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; WorkCenterNo: Code[20]; OperationNo: Code[10])
+    begin
+        PlanningRoutingLine.SetRange("Work Center No.", WorkCenterNo);
+        PlanningRoutingLine.SetRange("Operation No.", OperationNo);
+        PlanningRoutingLine.FindFirst;
+    end;
+
+    local procedure FindFirstProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProductionOrderStatus: Option; ProductionOrderNo: Code[20])
+    begin
+        with ProdOrderRoutingLine do begin
+            SetRange(Status, ProductionOrderStatus);
+            SetRange("Prod. Order No.", ProductionOrderNo);
+            FindFirst;
+        end;
+    end;
+
+    local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; WorkCenterNo: Code[20]; OperationNo: Code[10])
+    begin
+        ProdOrderRoutingLine.SetRange("Work Center No.", WorkCenterNo);
+        ProdOrderRoutingLine.SetRange("Operation No.", OperationNo);
+        ProdOrderRoutingLine.FindFirst;
+    end;
+
+    local procedure FindProdOrderRtngLn(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProductionOrderStatus: Option; ProductionOrderNo: Code[20]; RoutingNo: Code[20]; WorkCenterNo: Code[20])
+    begin
+        with ProdOrderRoutingLine do begin
+            SetRange(Status, ProductionOrderStatus);
+            SetRange("Prod. Order No.", ProductionOrderNo);
+            SetRange("Routing No.", RoutingNo);
+            SetRange("Work Center No.", WorkCenterNo);
+            FindFirst;
+        end;
+    end;
+
+    local procedure FindShopCalendarWorkingDaysForWorkCenter(var ShopCalendarWorkingDays: Record "Shop Calendar Working Days"; WorkCenterNo: Code[20]; Day: Option)
+    var
+        WorkCenter: Record "Work Center";
+    begin
+        WorkCenter.Get(WorkCenterNo);
+        ShopCalendarWorkingDays.SetRange("Shop Calendar Code", WorkCenter."Shop Calendar Code");
+        ShopCalendarWorkingDays.SetRange(Day, Day);
+        ShopCalendarWorkingDays.FindFirst;
+    end;
+
+    local procedure GetCalendarEntry(var CalendarEntry: Record "Calendar Entry"; CapacityType: Option; No: Code[20])
+    begin
+        CalendarEntry.SetRange("Capacity Type", CapacityType);
+        CalendarEntry.SetRange("No.", No);
+        CalendarEntry.FindFirst;
+    end;
+
+    local procedure GetRoundedTime(Date2: Date): Time
+    begin
+        exit(DT2Time(RoundDateTime(CreateDateTime(Date2, Time))));  // Rounding the Time for successfull verification.
+    end;
+
+    local procedure GetProdOrderCapacityNeedDate(WorkCenterNo: Code[20]): Date
+    var
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+    begin
+        ProdOrderCapacityNeed.SetRange("No.", WorkCenterNo);
+        ProdOrderCapacityNeed.FindFirst;
+        exit(ProdOrderCapacityNeed.Date);
+    end;
+
+    local procedure MockProdBOMHeaderWithVersionForItem(var ProductionBOMVersion: Record "Production BOM Version"; ItemNo: Code[20]; VersionStatus: Option)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        ProductionBOMHeader.Init;
+        ProductionBOMHeader."No." := LibraryUtility.GenerateGUID;
+        ProductionBOMHeader.Status := ProductionBOMHeader.Status::"Under Development";
+        ProductionBOMHeader.Insert;
+        ProductionBOMVersion.Init;
+        ProductionBOMVersion."Production BOM No." := ProductionBOMHeader."No.";
+        ProductionBOMVersion."Version Code" := LibraryUtility.GenerateGUID;
+        ProductionBOMVersion.Status := VersionStatus;
+        ProductionBOMVersion.Insert;
+        MockProdBOMLine(ItemNo, ProductionBOMHeader."No.", ProductionBOMVersion."Version Code");
+    end;
+
+    local procedure MockProdBOMLine(ItemNo: Code[20]; ProdBOMHeaderNo: Code[20]; VersionNo: Code[20])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        ProductionBOMLine.Init;
+        ProductionBOMLine."Production BOM No." := ProdBOMHeaderNo;
+        ProductionBOMLine."Version Code" := VersionNo;
+        ProductionBOMLine.Type := ProductionBOMLine.Type::Item;
+        ProductionBOMLine."No." := ItemNo;
+        ProductionBOMLine.Insert;
+    end;
+
+    local procedure ModifyCapacityOfMachineCenter(MachineCenterNo: Code[20]): Decimal
+    var
+        MachineCenter: Record "Machine Center";
+    begin
+        MachineCenter.Get(MachineCenterNo);
+        MachineCenter.Validate(Capacity, LibraryRandom.RandDec(10, 2));  // Taking Random value for Capacity.
+        MachineCenter.Modify(true);
+        exit(MachineCenter.Capacity);
+    end;
+
+    local procedure ModifyCapacityOfWorkCenter(var WorkCenter: Record "Work Center")
+    begin
+        WorkCenter.Validate(Capacity, LibraryRandom.RandDec(10, 2));  // Taking Random value for Capacity.
+        WorkCenter.Modify(true);
+    end;
+
+    local procedure ModifyStatusInProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; Status: Option)
+    begin
+        ProductionBOMHeader.Validate(Status, Status);
+        ProductionBOMHeader.Modify(true);
+    end;
+
+    local procedure ModifyProductionBOMVersionStatus(var ProdBomVersion: Record "Production BOM Version"; Status: Option)
+    begin
+        ProdBomVersion.Validate(Status, Status);
+        ProdBomVersion.Modify(true);
+    end;
+
+    local procedure ModifyWorkCenterAndCalculateCalendar(var WorkCenter: Record "Work Center"; AbsenceCapacity: Decimal)
+    begin
+        WorkCenter.Validate(Capacity, AbsenceCapacity + LibraryRandom.RandDec(10, 2));  // Adding Random value to Absence Capacity as Work Center Capacity should be greater than it.
+        WorkCenter.Modify(true);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, WorkDate, WorkDate);
+    end;
+
+    local procedure ModifyRoutingStatus(var RoutingHeader: Record "Routing Header"; Status: Option)
+    begin
+        RoutingHeader.Validate(Status, Status);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure ModifyWorkCenterAndWaitTimeOnRoutingLine(var RoutingLine: Record "Routing Line"; WorkCenterNo: Code[20]; CapacityUomCode: Code[10]; WaitTime: Integer)
+    var
+        RoutingHeader: Record "Routing Header";
+    begin
+        RoutingHeader.Get(RoutingLine."Routing No.");
+        RoutingHeader.Validate(Status, RoutingHeader.Status::"Under Development");
+        RoutingHeader.Modify(true);
+
+        RoutingLine.Validate("No.", WorkCenterNo);
+        RoutingLine.Validate("Wait Time", WaitTime);
+        RoutingLine.Validate("Wait Time Unit of Meas. Code", CapacityUomCode);
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure ModifyWorkCenterAndRunTimeOnRoutingLine(var RoutingLine: Record "Routing Line"; WorkCenterNo: Code[20]; CapacityUomCode: Code[10]; RunTime: Integer)
+    var
+        RoutingHeader: Record "Routing Header";
+    begin
+        RoutingHeader.Get(RoutingLine."Routing No.");
+        ModifyRoutingStatus(RoutingHeader, RoutingHeader.Status::"Under Development");
+
+        with RoutingLine do begin
+            Validate("No.", WorkCenterNo);
+            Validate("Run Time", RunTime);
+            Validate("Run Time Unit of Meas. Code", CapacityUomCode);
+            Modify(true);
+        end;
+
+        ModifyRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+    end;
+
+    local procedure ModifySetupTimeOnRoutingLine(var RoutingLine: Record "Routing Line"; SetupTime: Decimal)
+    var
+        RoutingHeader: Record "Routing Header";
+    begin
+        RoutingHeader.Get(RoutingLine."Routing No.");
+        ModifyRoutingStatus(RoutingHeader, RoutingHeader.Status::"Under Development");
+        RoutingLine.Validate("Setup Time", SetupTime);
+        RoutingLine.Modify(true);
+        ModifyRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+    end;
+
+    local procedure ModifyWaitTimeOnRoutingLine(var RoutingLine: Record "Routing Line"; WaitTime: Decimal)
+    var
+        RoutingHeader: Record "Routing Header";
+    begin
+        RoutingHeader.Get(RoutingLine."Routing No.");
+        ModifyRoutingStatus(RoutingHeader, RoutingHeader.Status::"Under Development");
+        RoutingLine.Validate("Wait Time", WaitTime);
+        RoutingLine.Modify(true);
+        ModifyRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+    end;
+
+    local procedure ModifyRunTimeOnRoutingLine(var RoutingLine: Record "Routing Line"; RunTime: Decimal)
+    var
+        RoutingHeader: Record "Routing Header";
+    begin
+        RoutingHeader.Get(RoutingLine."Routing No.");
+        ModifyRoutingStatus(RoutingHeader, RoutingHeader.Status::"Under Development");
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Modify(true);
+        ModifyRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+    end;
+
+    local procedure ModifyStartingDateOnProdOrderRtngLn(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; Date: Date)
+    begin
+        ProdOrderRoutingLine.Validate("Starting Date", Date);
+        ProdOrderRoutingLine.Modify(true);
+    end;
+
+    local procedure ModifyEndingDateOnProdOrderRtngLn(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; Date: Date)
+    begin
+        ProdOrderRoutingLine.Validate("Ending Date", Date);
+        ProdOrderRoutingLine.Modify(true);
+    end;
+
+    local procedure ModifyStartingDateOnPlanningRtngLn(var PlanningRoutingLine: Record "Planning Routing Line"; Date: Date)
+    begin
+        PlanningRoutingLine.Validate("Starting Date", Date);
+        PlanningRoutingLine.Modify(true);
+    end;
+
+    local procedure ModifyEndingDateOnPlanningRtngLn(var PlanningRoutingLine: Record "Planning Routing Line"; Date: Date)
+    begin
+        PlanningRoutingLine.Validate("Ending Date", Date);
+        PlanningRoutingLine.Modify(true);
+    end;
+
+    local procedure OutputJournalExplodeRouting(var ItemJournalBatch: Record "Item Journal Batch"; ProductionOrder: Record "Production Order")
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateOutputJournal(ItemJournalBatch, ItemJournalLine, ProductionOrder."No.");
+        LibraryInventory.OutputJnlExplRoute(ItemJournalLine);
+    end;
+
+    local procedure OpenProductionForecast(ProductionForecast: TestPage "Demand Forecast"; ProductionForecastName: Code[10]; LocationCode: Code[10]; ForecastTypeOption: Option)
+    begin
+        with ProductionForecast do begin
+            OpenEdit;
+            ProductionForecastName.SetValue(ProductionForecastName);
+            LocationFilter.SetValue(LocationCode);
+            ForecastType.SetValue(ForecastTypeOption);
+        end;
+    end;
+
+    local procedure PopulateRoutingOnOutputJournalLine(var ItemJournalLine: Record "Item Journal Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.");
+        with ItemJournalLine do begin
+            Validate("Routing No.", ProdOrderRoutingLine."Routing No.");
+            Validate("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+            Validate("Item No.", ProdOrderLine."Item No.");
+            Validate("Operation No.", ProdOrderRoutingLine."Operation No.");
+            Validate(Type, ProdOrderRoutingLine.Type);
+        end;
+    end;
+
+    local procedure ProdOrderCapacityNeedExist(ItemNo: Code[20]; CapacityDate: Date; StartingTime: Time; AllocatedTime: Decimal): Boolean
+    var
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+    begin
+        with ProdOrderCapacityNeed do begin
+            SetRange("No.", ItemNo);
+            SetRange(Date, CapacityDate);
+            SetRange("Starting Time", StartingTime);
+            SetRange("Allocated Time", AllocatedTime);
+            exit(not IsEmpty);
+        end;
+    end;
+
+    local procedure ResetRunTimeOnRoutingLine(RoutingNo: Code[20]; WorkCenterNo: Code[20])
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        with RoutingLine do begin
+            SetRange("Routing No.", RoutingNo);
+            SetRange("Work Center No.", WorkCenterNo);
+            FindFirst;
+            "Run Time" := 0;
+            Modify;
+        end;
+    end;
+
+    local procedure ReserveComponentForProdOrder(ProdOrderStatus: Option; ProdOrderNo: Code[20])
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+        Reservation: Page Reservation;
+    begin
+        FindProdOrderComponent(ProdOrderComponent, ProdOrderStatus, ProdOrderNo);
+        Reservation.SetProdOrderComponent(ProdOrderComponent);
+        Reservation.RunModal;
+    end;
+
+    local procedure RestoreManufacturingSetup(DocNoIsProdOrderNo: Boolean)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get;
+        ManufacturingSetup.Validate("Doc. No. Is Prod. Order No.", DocNoIsProdOrderNo);
+        ManufacturingSetup.Modify(true);
+    end;
+
+    local procedure RunCopyProductionDocument(ProdOrderStatus: Option; ProdOrderNo: Code[20]; NewProductionOrder: Record "Production Order")
+    var
+        CopyProductionOrderDocument: Report "Copy Production Order Document";
+    begin
+        Clear(CopyProductionOrderDocument);
+        CopyProductionOrderDocument.SetProdOrder(NewProductionOrder);
+        LibraryVariableStorage.Enqueue(ProdOrderStatus);
+        LibraryVariableStorage.Enqueue(ProdOrderNo);
+        CopyProductionOrderDocument.Run;
+    end;
+
+    local procedure RunCopyProductionForecast(var ProductionForecastEntry: Record "Production Forecast Entry")
+    var
+        CopyProductionForecast: Report "Copy Production Forecast";
+    begin
+        Commit;  // Commit required for batch job report.
+        Clear(CopyProductionForecast);
+        CopyProductionForecast.SetTableView(ProductionForecastEntry);
+        CopyProductionForecast.Run;
+    end;
+
+    local procedure RunDeleteExpiredComponentsReport(var ProductionBOMHeader: Record "Production BOM Header")
+    var
+        DeleteExpiredComponents: Report "Delete Expired Components";
+    begin
+        Commit;  // Commit required for batch job.
+        Clear(DeleteExpiredComponents);
+        DeleteExpiredComponents.SetTableView(ProductionBOMHeader);
+        DeleteExpiredComponents.Run;
+    end;
+
+    local procedure RunExchangeProductionBOMItemReport()
+    var
+        ExchangeProductionBOMItem: Report "Exchange Production BOM Item";
+    begin
+        Clear(ExchangeProductionBOMItem);
+        Commit;  // Commit required for batch job report.
+        ExchangeProductionBOMItem.Run;
+    end;
+
+    local procedure RunExchangeProdBOMItemReportWithParameters(ItemToExchangeNo: Code[20]; NewItemNo: Code[20]; CreateVersion: Boolean)
+    begin
+        ExchangeNo := ItemToExchangeNo;
+        WithNo := NewItemNo;
+        CreateNewVersion := CreateVersion;
+        RunExchangeProductionBOMItemReport;
+    end;
+
+    local procedure RunImplementRegisteredAbsenceReport(RegisteredAbsence: Record "Registered Absence")
+    var
+        ImplementRegisteredAbsence: Report "Implement Registered Absence";
+    begin
+        Commit;  // Commit is required to run the Report.
+        RegisteredAbsence.SetRange("No.", RegisteredAbsence."No.");
+        Clear(ImplementRegisteredAbsence);
+        ImplementRegisteredAbsence.SetTableView(RegisteredAbsence);
+        ImplementRegisteredAbsence.Run;
+    end;
+
+    local procedure RunRecalculateCalendarReport(var CalendarEntry: Record "Calendar Entry")
+    var
+        RecalculateCalendar: Report "Recalculate Calendar";
+    begin
+        Clear(RecalculateCalendar);
+        Commit;  // COMMIT is required to run the Report.
+        RecalculateCalendar.SetTableView(CalendarEntry);
+        RecalculateCalendar.Run;
+    end;
+
+    local procedure RunRegAbsFromMachineCenterReport(MachineCenterNo: Code[20])
+    var
+        MachineCenter: Record "Machine Center";
+        RegAbsFromMachineCtr: Report "Reg. Abs. (from Machine Ctr.)";
+    begin
+        MachineCenter.SetRange("No.", MachineCenterNo);
+        Clear(RegAbsFromMachineCtr);
+        RegAbsFromMachineCtr.SetTableView(MachineCenter);
+        Commit;  // COMMIT is required to run the Report.
+        RegAbsFromMachineCtr.Run;
+    end;
+
+    local procedure RunRegAbsFromWorkCenterReport(WorkCenterNo: Code[20])
+    var
+        WorkCenter: Record "Work Center";
+        RegAbsFromWorkCenter: Report "Reg. Abs. (from Work Center)";
+    begin
+        WorkCenter.SetRange("No.", WorkCenterNo);
+        Clear(RegAbsFromWorkCenter);
+        RegAbsFromWorkCenter.SetTableView(WorkCenter);
+        Commit;  // COMMIT is required to run the Report.
+        RegAbsFromWorkCenter.Run;
+    end;
+
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Option)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplateType);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplateType, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+    end;
+
+    local procedure SetItemAndComponentQuantity(var ItemQuantity: Decimal; var ComponentQuantity: Decimal)
+    begin
+        // Use random values for Item and Component Quantity.
+        ItemQuantity := LibraryRandom.RandDec(100, 2);
+        ComponentQuantity := LibraryRandom.RandDec(100, 2);
+    end;
+
+    local procedure SetItemTrackingCodeSerialSpecific(ItemNo: Code[20])
+    var
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
+
+        Item.Get(ItemNo);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+    end;
+
+    local procedure SetGlobalDimsOnProdOrderLine(var DimensionSetID: Integer; var DimensionValue: array[2] of Record "Dimension Value")
+    begin
+        DimensionSetID :=
+          LibraryDimension.CreateDimSet(DimensionSetID, DimensionValue[1]."Dimension Code", DimensionValue[1].Code);
+        DimensionSetID :=
+          LibraryDimension.CreateDimSet(DimensionSetID, DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
+    end;
+
+    local procedure SetupProdOrdWithRtng(var ProdOrd: Record "Production Order"; ItemNo: Code[20])
+    var
+        RlsdProdOrd: TestPage "Released Production Order";
+    begin
+        LibraryManufacturing.CreateProductionOrder(
+          ProdOrd, ProdOrd.Status::Released, ProdOrd."Source Type"::Item, ItemNo,
+          LibraryRandom.RandDec(10, 2));  // Taking Random Quantity.
+        RlsdProdOrd.OpenEdit;
+        RlsdProdOrd.FILTER.SetFilter("No.", ProdOrd."No.");
+
+        // Create Released Prod. Order Lines
+        with RlsdProdOrd.ProdOrderLines do begin
+            "Item No.".SetValue(ItemNo);
+            Quantity.SetValue(ProdOrd.Quantity / 2);
+            Next;
+            "Item No.".SetValue(ItemNo);
+            Quantity.SetValue(ProdOrd.Quantity / 2);
+        end;
+
+        LibraryManufacturing.RefreshProdOrder(ProdOrd, false, false, true, false, false); // Select Calculating Lines when Refreshing Order
+    end;
+
+    local procedure SetupProdOrdLnWithPostedOutput(var ProdOrdLn: Record "Prod. Order Line")
+    var
+        Item: Record Item;
+        ProdOrd: Record "Production Order";
+        ProdJnlMgt: Codeunit "Production Journal Mgt";
+    begin
+        Item.Get(CreateItemWithRoutingAndProductionBOM);
+
+        // Create a released Prod. Order, create 2 Prod. Order lines, calculate routings
+        SetupProdOrdWithRtng(ProdOrd, Item."No.");
+
+        // Find the first Prod. Order Line
+        FindProductionOrderLine(ProdOrdLn, ProdOrd.Status, ProdOrd."No.", Item."No.");
+
+        // Open and post Production Journal. Posting is done in ProductionJournalHandler function.
+        ProdJnlMgt.Handling(ProdOrd, ProdOrdLn."Line No.");
+    end;
+
+    local procedure SetupForCalculateWaitingTimeWithMultipleCalendars(var Item: Record Item; var WorkCenter: Record "Work Center"; WaitTime: Integer): Date
+    var
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        AllDaysWorkingWorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        RoutingLine2: Record "Routing Line";
+        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+        MfgSetup: Record "Manufacturing Setup";
+        StartingDate: Date;
+    begin
+        // Create Work Center with all days working Calender
+        CreateWorkCenterWithCalendarCode(AllDaysWorkingWorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
+
+        // Create Work Center with Monday ~ Friday working Calender
+        // The Ending Time of the Monday ~ Friday working Calendar cannot equal that of the Calender with all days working (4:00PM),
+        // otherwise the issue mentioned in TFS48588 can not be reproed. It is not easy to set proper random value
+        // for starting time and ending time, so use 11:00PM as ending time, and 8:00AM as starting time
+        CreateWorkCenterWithCalendarCode(WorkCenter, CreateShopCalendar(080000T, 230000T));
+        StartingDate := CalcDate('<WD6>', WorkDate); // Get a Weekend Date, this will be the starting date for the routing line with weekend work day calendar
+        LibraryManufacturing.CalculateWorkCenterCalendar(
+          AllDaysWorkingWorkCenter, CalcDate('<-1M>', StartingDate), CalcDate('<+1M>', StartingDate)); // Calculate working days needed by the test
+        LibraryManufacturing.CalculateWorkCenterCalendar(
+          WorkCenter, CalcDate('<-1M>', StartingDate), CalcDate('<1M>', StartingDate)); // Calculate working days needed by the test
+
+        LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, CapacityUnitOfMeasure.Type::Days); // Create Unit Of Measure (Days) for Wait Time on routing line
+
+        // Create Routing with 2 routing lines
+        RoutingHeader.Get(CreateRouting);
+        RoutingHeader.Validate(Status, RoutingHeader.Status::"Under Development");
+        RoutingHeader.Modify(true);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+
+        // Set Monday ~ Friday working calendar to the first routing line, set all days working calendar to the second routing line
+        // Set wait time for both lines
+        RoutingLine2.SetRange("Routing No.", RoutingHeader."No.");
+        RoutingLine2.FindSet;
+        ModifyWorkCenterAndWaitTimeOnRoutingLine(RoutingLine2, WorkCenter."No.", CapacityUnitOfMeasure.Code, WaitTime);
+        RoutingLine2.Next;
+        ModifyWorkCenterAndWaitTimeOnRoutingLine(RoutingLine2, AllDaysWorkingWorkCenter."No.", CapacityUnitOfMeasure.Code, WaitTime);
+
+        // Create Production Item
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        // Calculate the due date of prod. order, since the ending date - starting date = WaitTime + 1 for the last routing line,
+        // the ending date of the last routing line + Default Safety Lead Time = the prod. order due date
+        // so use below formula to calculate prod. due date
+        MfgSetup.Get;
+        exit(CalcDate(MfgSetup."Default Safety Lead Time", CalcDate('<+' + Format(WaitTime + 1) + 'D>', StartingDate)));
+    end;
+
+    local procedure SetupWaitTimeOnProdOrderRtngLnWithoutCapactityConstrained(var RoutingLine: Record "Routing Line"; var RoutingLine2: Record "Routing Line")
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+    begin
+        CreateProductionItemWithMultipleRoutingLines(RoutingLine, RoutingLine2, Item);
+        ModifyRunTimeOnRoutingLine(RoutingLine, 0); // Set run time to 0 for the convenience of calculating the ending datetime of the routing line with a random Quantity of items to produce
+        ModifyWaitTimeOnRoutingLine(RoutingLine, LibraryRandom.RandIntInRange(24 * 60, 48 * 60)); // Set wait time to 1 ~ 2 days
+        CreateAndRefreshProdOrderWithSpecificItem(ProductionOrder, Item."No.", false); // Create and Refresh Released Production Order
+    end;
+
+    local procedure SetupWaitTimeOnPlanningRtngLnWithoutCapactityConstrained(var RoutingLine: Record "Routing Line"; var RoutingLine2: Record "Routing Line")
+    var
+        Item: Record Item;
+    begin
+        CreateProductionItemWithMultipleRoutingLines(RoutingLine, RoutingLine2, Item);
+        ModifyRunTimeOnRoutingLine(RoutingLine, 0); // Set run time to 0 for the convenience of calculating the ending datetime of the routing line with a random Quantity of items to produce
+        ModifyWaitTimeOnRoutingLine(RoutingLine, LibraryRandom.RandIntInRange(24 * 60, 48 * 60)); // Set wait time to 1 ~ 2 days
+        CreateSalesOrderAndCalculateOrderPlan(Item, Item."Replenishment System"::"Prod. Order");
+    end;
+
+    local procedure SetupWaitTimeOnProdOrderRtngLnForBackwardCalculation(var RoutingLine: Record "Routing Line"; var RoutingLine2: Record "Routing Line")
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+    begin
+        CreateProductionItemWithMultipleRoutingLines(RoutingLine, RoutingLine2, Item);
+        ModifyRunTimeOnRoutingLine(RoutingLine2, 0); // Set run time to 0 for the convenience of calculating the starting datetime of the routing line with a random Quantity of items to produce
+        ModifyWaitTimeOnRoutingLine(RoutingLine2, LibraryRandom.RandIntInRange(24 * 60, 48 * 60)); // Set wait time to 1 ~ 2 days
+        CreateAndRefreshProdOrderWithSpecificItem(ProductionOrder, Item."No.", false); // Create and Refresh Released Production Order
+    end;
+
+    local procedure SetupWaitTimeOnPlanningRtngLnForBackwardCalculation(var RoutingLine: Record "Routing Line"; var RoutingLine2: Record "Routing Line")
+    var
+        Item: Record Item;
+    begin
+        CreateProductionItemWithMultipleRoutingLines(RoutingLine, RoutingLine2, Item);
+        ModifyRunTimeOnRoutingLine(RoutingLine2, 0); // Set run time to 0 for the convenience of calculating the starting datetime of the routing line with a random Quantity of items to produce
+        ModifyWaitTimeOnRoutingLine(RoutingLine2, LibraryRandom.RandIntInRange(24 * 60, 48 * 60)); // Set wait time to 1 ~ 2 days
+        CreateSalesOrderAndCalculateOrderPlan(Item, Item."Replenishment System"::"Prod. Order");
+    end;
+
+    local procedure TransferItem(ItemNo: Code[20]; Qty: Decimal; FromLocationCode: Code[10]; ToLocationCode: Code[10])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        with ItemJournalLine do begin
+            CreateItemReclassJournalLine(ItemJournalLine, ItemNo, Qty);
+            Validate("Entry Type", "Entry Type"::Transfer);
+            Validate("Location Code", FromLocationCode);
+            Validate("New Location Code", ToLocationCode);
+            Modify(true);
+            LibraryInventory.PostItemJournalLine("Journal Template Name", "Journal Batch Name");
+        end;
+    end;
+
+    local procedure UpdateInventorySetup(ExpectedCostPostingtoGL: Boolean; AutomaticCostPosting: Boolean)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get;
+        InventorySetup.Validate("Expected Cost Posting to G/L", ExpectedCostPostingtoGL);
+        InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
+        InventorySetup.Modify(true);
+    end;
+
+    local procedure UpdateManufacturingSetup(NewDocNoIsProdOrderNo: Boolean) OldDocNoIsProdOrderNo: Boolean
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get;
+        OldDocNoIsProdOrderNo := ManufacturingSetup."Doc. No. Is Prod. Order No.";
+        RestoreManufacturingSetup(NewDocNoIsProdOrderNo);
+    end;
+
+    local procedure UpdateProductionOrderComponent(ProductionOrderNo: Code[20]; ItemNo: Code[20])
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+        RoutingLink: Record "Routing Link";
+    begin
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrderNo);
+        ProdOrderComponent.SetRange("Item No.", ItemNo);
+        ProdOrderComponent.FindFirst;
+        RoutingLink.FindFirst;
+        ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::Backward);
+        ProdOrderComponent.Validate("Routing Link Code", RoutingLink.Code);
+        ProdOrderComponent.Modify(true);
+    end;
+
+    local procedure UpdateSalesReceivableSetup(var OldCreditWarnings: Option; var OldStockoutWarning: Boolean; NewCreditWarnings: Option; NewStockoutWarning: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get;
+        OldCreditWarnings := SalesReceivablesSetup."Credit Warnings";
+        OldStockoutWarning := SalesReceivablesSetup."Stockout Warning";
+        SalesReceivablesSetup.Validate("Credit Warnings", NewCreditWarnings);
+        SalesReceivablesSetup.Validate("Stockout Warning", NewStockoutWarning);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure UpdateProductionBOMOnParentItem(var Item: Record Item; ItemNo: Code[20]; ItemNo2: Code[20])
+    begin
+        Item.Validate(
+          "Production BOM No.",
+          CreateMultipleProductionBOMLines(ItemNo, ItemNo2, Item."Base Unit of Measure", LibraryRandom.RandDec(10, 2)));
+        Item.Modify(true);
+    end;
+
+    local procedure UpdateProdOrderLineLocationCode(var ProdOrderLine: Record "Prod. Order Line"; LocationCode: Code[10])
+    begin
+        ProdOrderLine.Validate("Location Code", LocationCode);
+        ProdOrderLine.Modify;
+    end;
+
+    local procedure UpdateWorkCenterLocationCodeAndFromProdBinCode(var WorkCenter: Record "Work Center"; WorkCenterNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20])
+    begin
+        WorkCenter.Get(WorkCenterNo);
+        WorkCenter.Validate("Location Code", LocationCode);
+        WorkCenter.Validate("From-Production Bin Code", BinCode);
+        WorkCenter.Modify;
+    end;
+
+    local procedure VerifyCalculatedCapacity()
+    var
+        WorkCenter: Record "Work Center";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        WorkCenterCalendar: TestPage "Work Center Calendar";
+    begin
+        WorkCenter.Get(WorkCenterNo2);
+        ShopCalendarWorkingDays.SetRange("Shop Calendar Code", WorkCenter."Shop Calendar Code");
+        ShopCalendarWorkingDays.SetRange(Day, Date2DWY(WorkDate, 1) - 1);  // Indexing for Days start from 0-6.
+        if ShopCalendarWorkingDays.FindFirst then
+            Capacity2 :=
+              (ShopCalendarWorkingDays."Ending Time" - ShopCalendarWorkingDays."Starting Time") /
+              CalendarManagement.TimeFactor(WorkCenter."Unit of Measure Code"); // Use Capacity2 as global for Handler.
+        WorkCenterCalendar.OpenEdit;
+        WorkCenterCalendar.ShowMatrix.Invoke;
+    end;
+
+    local procedure VerifyCalendarAbsenceEntry(WorkCenterNo: Code[20]; RegisteredAbsence: Record "Registered Absence")
+    var
+        CalendarAbsenceEntry: Record "Calendar Absence Entry";
+    begin
+        CalendarAbsenceEntry.SetFilter("Work Center No.", WorkCenterNo);
+        CalendarAbsenceEntry.FindFirst;
+        CalendarAbsenceEntry.TestField(Date, RegisteredAbsence.Date);
+        CalendarAbsenceEntry.TestField(Capacity, RegisteredAbsence.Capacity);
+        CalendarAbsenceEntry.TestField("Starting Time", RegisteredAbsence."Starting Time");
+        CalendarAbsenceEntry.TestField("Ending Time", RegisteredAbsence."Ending Time");
+    end;
+
+    local procedure VerifyCalendarEntry(WorkCenterNo: Code[20]; CapacityTotal: Decimal)
+    var
+        CalendarEntry: Record "Calendar Entry";
+    begin
+        GetCalendarEntry(CalendarEntry, CalendarEntry."Capacity Type"::"Work Center", WorkCenterNo);
+        CalendarEntry.TestField("Capacity (Total)", CapacityTotal);
+    end;
+
+    local procedure VerifyCapacityLedgerEntry(WorkCenterNo: Code[20]; Quantity: Decimal)
+    var
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+    begin
+        CapacityLedgerEntry.SetRange("No.", WorkCenterNo);
+        CapacityLedgerEntry.FindFirst;
+        CapacityLedgerEntry.TestField(Quantity, Quantity);
+    end;
+
+    local procedure VerifyComponentNotOnInventoryError(ProdOrderStatus: Option; ProdOrderNo: Code[20])
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+    begin
+        FindProdOrderComponent(ProdOrderComponent, ProdOrderStatus, ProdOrderNo);
+        Assert.ExpectedError(StrSubstNo(IsNotOnInventoryErr, ProdOrderComponent."Item No."));
+    end;
+
+    local procedure VerifyComponentOnItemReclassJournal(ComponentNo: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemJournalLine.SetRange("Item No.", ComponentNo);
+        ItemJournalLine.FindFirst;
+        ItemJournalLine.TestField(Quantity, Quantity);
+    end;
+
+    local procedure VerifyGlobalDimensionCodesInItemJournalBatch(ItemJournalBatch: Record "Item Journal Batch"; ShortcutDimension1Code: Code[20]; ShortcutDimension2Code: Code[20])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        with ItemJournalLine do begin
+            SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+            SetRange("Journal Batch Name", ItemJournalBatch.Name);
+            FindSet;
+            repeat
+                TestField("Shortcut Dimension 1 Code", ShortcutDimension1Code);
+                TestField("Shortcut Dimension 2 Code", ShortcutDimension2Code);
+            until Next = 0;
+        end;
+    end;
+
+    local procedure VerifyItemJournalLine(ItemJournalBatch: Record "Item Journal Batch"; ProductionOrderNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.FindFirst;
+        ItemJournalLine.TestField("Document No.", ProductionOrderNo);
+        ItemJournalLine.TestField("Item No.", ItemNo);
+        ItemJournalLine.TestField(Quantity, Quantity);
+    end;
+
+    local procedure VerifyEntryInRegisteredAbsence(No: Code[20]; Date: Date; Capacity: Decimal)
+    var
+        RegisteredAbsence: Record "Registered Absence";
+    begin
+        RegisteredAbsence.SetRange("No.", No);
+        RegisteredAbsence.SetRange(Date, Date);
+        RegisteredAbsence.FindFirst;
+        RegisteredAbsence.TestField(Capacity, Capacity);
+    end;
+
+    local procedure VerifyGLEntry(InventoryPostingGroupCode: Code[20]; ProductionOrderNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+    begin
+        InventoryPostingSetup.SetRange("Invt. Posting Group Code", InventoryPostingGroupCode);
+        InventoryPostingSetup.FindFirst;
+        GLEntry.SetRange("Document No.", ProductionOrderNo);
+        GLEntry.FindFirst;
+        GLEntry.TestField("G/L Account No.", InventoryPostingSetup."Inventory Account (Interim)");
+    end;
+
+    local procedure VerifyItemLedgerEntry(ItemNo: Code[20]; EntryType: Option; Quantity: Decimal)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.TestField(Quantity, Quantity);
+    end;
+
+    local procedure VerifyProdOrderLinesIncreaseAfterCopy(ProductionOrder: Record "Production Order"; NoOfRowsBeforeCopy: Integer)
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        Assert.IsTrue(ProdOrderLine.Count > NoOfRowsBeforeCopy, CopyDocumentError);
+    end;
+
+    local procedure VerifyProductionForecastEntry(ProductionForecastEntry: Record "Production Forecast Entry")
+    var
+        ProductionForecastEntry2: Record "Production Forecast Entry";
+    begin
+        ProductionForecastEntry2.SetRange("Production Forecast Name", ProductionForecastName2);
+        ProductionForecastEntry2.FindFirst;
+        ProductionForecastEntry2.TestField("Item No.", ProductionForecastEntry."Item No.");
+        ProductionForecastEntry2.TestField("Forecast Date", CalcDate(DateChangeFormula, WorkDate));
+        ProductionForecastEntry2.TestField("Forecast Quantity", ProductionForecastEntry."Forecast Quantity");
+        ProductionForecastEntry2.TestField("Location Code", ProductionForecastEntry."Location Code");
+        ProductionForecastEntry2.TestField("Component Forecast", ProductionForecastEntry."Component Forecast");
+    end;
+
+    local procedure VerifyProductionForecastName()
+    var
+        ProductionForecastName: Record "Production Forecast Name";
+    begin
+        ProductionForecastName.Get('');
+        ProductionForecastName.TestField(Description, '');
+    end;
+
+    local procedure VerifyProductionOrderStatistics(ProductionOrderNo: Code[20])
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        ReleasedProductionOrders: TestPage "Released Production Orders";
+        ProductionOrderStatistics: TestPage "Production Order Statistics";
+    begin
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
+        ProdOrderLine.FindFirst;
+        ReleasedProductionOrders.OpenView;
+        ReleasedProductionOrders.FILTER.SetFilter("No.", ProductionOrderNo);
+        ProductionOrderStatistics.Trap;
+        ReleasedProductionOrders.Statistics.Invoke;
+        ProductionOrderStatistics.ExpCapNeed.AssertEquals(
+          (ProdOrderLine."Ending Date-Time" - ProdOrderLine."Starting Date-Time") /
+          CalendarManagement.TimeFactor(Format(ProductionOrderStatistics.CapacityUoM)));
+    end;
+
+    local procedure VerifyProdOrderLineBinCode(var ProdOrderLine: Record "Prod. Order Line"; WorkCenterBinCode: Code[20])
+    begin
+        ProdOrderLine.Find;
+        Assert.AreEqual(WorkCenterBinCode, ProdOrderLine."Bin Code", ProdOrderLineBinCodeErr);
+    end;
+
+    local procedure VerifyProdOrderLinesCount(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; ExpectedCount: Integer)
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.SetRange("Location Code", LocationCode);
+        ProdOrderLine.SetRange("Variant Code", VariantCode);
+        Assert.AreEqual(ExpectedCount, ProdOrderLine.Count, WrongProdOrderLinesCountErr);
+    end;
+
+    local procedure VerifyILEs(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; Quantity: Integer; AppliesToEntryFilter: Text[100]; "Count": Integer)
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetFilter("Applies-to Entry", AppliesToEntryFilter);
+        ItemLedgerEntry.SetRange(Quantity, Quantity);
+        ItemLedgerEntry.FindSet;
+        // Output Qty. * two normal postings
+        Assert.AreEqual(Count, ItemLedgerEntry.Count,
+          StrSubstNo('Missing or excess Item Ledger Entries after reverse posting to Output Journal, under filters %1',
+            ItemLedgerEntry.GetFilters));
+    end;
+
+    local procedure VerifyDocumentNoExistOnItemLedgerEntry(DocumentNo: Code[20])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Document No.", DocumentNo);
+        if ItemLedgerEntry.IsEmpty then
+            Error(DocumentNoError, DocumentNo);
+    end;
+
+    local procedure VerifyQuantityOnProdOrderLine(Status: Option; ProductionOrderNo: Code[20]; ItemNo: Code[20]; QtyOnComponentLines: Decimal)
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        FindProductionOrderLine(ProdOrderLine, Status, ProductionOrderNo, ItemNo);
+        ProdOrderLine.TestField(Quantity, QtyOnComponentLines);
+    end;
+
+    local procedure VerifyExpectedQuantityOnProdOrderComponent(Item: Record Item; ProductionOrderNo: Code[20]; ProdOrderLineQuantity: Decimal)
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+        ExpectedQuantity: Decimal;
+    begin
+        ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Released);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrderNo);
+        ProdOrderComponent.SetRange("Item No.", Item."No.");
+        ProdOrderComponent.FindFirst;
+        ExpectedQuantity := ProdOrderComponent."Quantity per" * ProdOrderLineQuantity;
+        Assert.AreNearlyEqual(
+          ExpectedQuantity, ProdOrderComponent."Expected Quantity", Item."Rounding Precision",
+          StrSubstNo(ExpectedQuantityError, ExpectedQuantity));
+        Assert.AreNearlyEqual(
+          ExpectedQuantity, ProdOrderComponent."Remaining Quantity", Item."Rounding Precision",
+          StrSubstNo(ExpectedQuantityError, ExpectedQuantity));
+    end;
+
+    local procedure VerifyDateTimeOnProdOrderRoutingLine(ProductionOrder: Record "Production Order"; RoutingNo: Code[20]; WorkCenterNo: Code[20]; WaitTime: Integer)
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        // Verify: Find the routing line with Monday ~ Friday working days
+        ProdOrderRoutingLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderRoutingLine.SetRange("Routing No.", RoutingNo);
+        ProdOrderRoutingLine.SetRange("Work Center No.", WorkCenterNo);
+        ProdOrderRoutingLine.FindFirst;
+
+        // Verify the start Date-Time and Ending Date-time
+        Assert.AreEqual(
+          CalcDate('<+' + Format(WaitTime) + 'D>', ProdOrderRoutingLine."Starting Date"),
+          ProdOrderRoutingLine."Ending Date", '');
+
+        // The starting time will be equal to ending time
+        ProdOrderRoutingLine.TestField("Starting Time", ProdOrderRoutingLine."Ending Time");
+    end;
+
+    local procedure VerifyProductionBOMLineExists(ProductionBOMNo: Code[20]; VersionCode: Code[20]; No: Code[20]): Boolean
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        ProductionBOMLine.Init;
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
+        ProductionBOMLine.SetRange("Version Code", VersionCode);
+        ProductionBOMLine.SetRange("No.", No);
+        Assert.RecordIsNotEmpty(ProductionBOMLine);
+    end;
+
+    local procedure VerifyProductionBOMLineNotExists(ProductionBOMNo: Code[20]; VersionCode: Code[20]; No: Code[20])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        ProductionBOMLine.Init;
+        ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
+        ProductionBOMLine.SetRange("Version Code", VersionCode);
+        ProductionBOMLine.SetRange("No.", No);
+        Assert.RecordIsEmpty(ProductionBOMLine);
+    end;
+
+    local procedure VerifyExistingILEs(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; ItemNo: Code[20])
+    var
+        ItemLedgEntry: Record "Item Ledger Entry";
+    begin
+        with ItemLedgEntry do begin
+            SetRange("Item No.", ItemNo);
+            FindSet;
+            repeat
+                TempItemLedgEntry.Get("Entry No.");
+                TestField("Remaining Quantity", TempItemLedgEntry."Remaining Quantity");
+            until Next = 0;
+        end;
+    end;
+
+    local procedure VerifyProductionOrderLineToSalesLineMultiLevelStructureWhenAllLocationsAreDifferent(var Item: array[4] of Record Item; var SalesLine: array[4] of Record "Sales Line"; PlanningLevelCode: Integer; SalesLineAndTopLevelItemIndex: Integer; LevelOneItemIndex: Integer; LevelTwoItemIndex: Integer)
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        TempProductionBOMLine: array[2] of Record "Production BOM Line" temporary;
+        ProdOrderItemIndex: Integer;
+        LevelOneMultiplicator: Decimal;
+        LevelTwoMultiplicator: Decimal;
+        i: Integer;
+    begin
+        for i := 1 to 2 do
+            FillTempBufOfProductionBOMLinesByBOMNo(TempProductionBOMLine[i], Item[i]."Production BOM No.");
+
+        LevelOneMultiplicator := 1;
+        LevelTwoMultiplicator := 1;
+
+        case PlanningLevelCode of
+            0:
+                ProdOrderItemIndex := SalesLineAndTopLevelItemIndex;
+            1:
+                begin
+                    ProdOrderItemIndex := LevelOneItemIndex;
+                    LevelOneMultiplicator := GetQuantityPerFromProductionBOMLineByNo(
+                        TempProductionBOMLine[SalesLineAndTopLevelItemIndex], Item[LevelOneItemIndex]."No.");
+                end;
+            2:
+                begin
+                    ProdOrderItemIndex := LevelTwoItemIndex;
+                    LevelOneMultiplicator :=
+                      GetQuantityPerFromProductionBOMLineByNo(
+                        TempProductionBOMLine[SalesLineAndTopLevelItemIndex], Item[LevelOneItemIndex]."No.");
+                    LevelTwoMultiplicator :=
+                      GetQuantityPerFromProductionBOMLineByNo(
+                        TempProductionBOMLine[LevelOneItemIndex], Item[LevelTwoItemIndex]."No.");
+                end;
+        end;
+
+        FindProdOrderLineByItemNoLocationCodeAndPlanningLevelCode(
+          ProdOrderLine, Item[ProdOrderItemIndex]."No.",
+          SalesLine[SalesLineAndTopLevelItemIndex]."Location Code", PlanningLevelCode);
+
+        Assert.RecordCount(ProdOrderLine, 1);
+
+        ProdOrderLine.TestField(
+          "Quantity (Base)",
+          SalesLine[SalesLineAndTopLevelItemIndex]."Quantity (Base)" * LevelOneMultiplicator * LevelTwoMultiplicator);
+    end;
+
+    local procedure VerifyProducionBOMLinePositionFields(ProductionBOMLine1: Record "Production BOM Line"; ProdBOMHeaderNo: Code[20]; ProdBomVersion: Code[20]; Component: Code[20])
+    var
+        ProductionBOMLine2: Record "Production BOM Line";
+    begin
+        FindProductionBOMLineByNo(ProductionBOMLine2, ProdBOMHeaderNo, ProdBomVersion, Component);
+        ProductionBOMLine2.TestField(Position, ProductionBOMLine1.Position);
+        ProductionBOMLine2.TestField("Position 2", ProductionBOMLine1."Position 2");
+        ProductionBOMLine2.TestField("Position 3", ProductionBOMLine1."Position 3");
+    end;
+
+    local procedure SetProducionBOMLinePositionFields(var ProductionBOMLine: Record "Production BOM Line")
+    var
+        ProdBOMHeader: Record "Production BOM Header";
+    begin
+        ProdBOMHeader.SetRange("No.", ProductionBOMLine."Production BOM No.");
+        ProdBOMHeader.FindFirst;
+        ModifyStatusInProductionBOM(ProdBOMHeader, ProdBOMHeader.Status::"Under Development");
+        ProductionBOMLine.Validate(Position, LibraryUtility.GenerateRandomXMLText(10));
+        ProductionBOMLine.Validate("Position 2", LibraryUtility.GenerateRandomXMLText(10));
+        ProductionBOMLine.Validate("Position 3", LibraryUtility.GenerateRandomXMLText(10));
+        ProductionBOMLine.Modify(true);
+        ModifyStatusInProductionBOM(ProdBOMHeader, ProdBOMHeader.Status);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CopyProductionOrderDocumentHandler(var CopyProductionOrderDocument: TestRequestPage "Copy Production Order Document")
+    begin
+        CopyProductionOrderDocument.Status.SetValue(LibraryVariableStorage.DequeueInteger);
+        CopyProductionOrderDocument.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
+        CopyProductionOrderDocument.IncludeHeader.SetValue(true);
+        CopyProductionOrderDocument.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ImplementRegisteredAbsenceHandler(var ImplementRegisteredAbsence: TestRequestPage "Implement Registered Absence")
+    begin
+        ImplementRegisteredAbsence.Overwrite.SetValue(true);
+        ImplementRegisteredAbsence.OK.Invoke;
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure RecalculateCalendarReportHandler(var RecalculateCalendar: Report "Recalculate Calendar")
+    begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RegAbsFromWorkCenterReportHandler(var RegAbsFromWorkCenter: TestRequestPage "Reg. Abs. (from Work Center)")
+    begin
+        RegAbsFromWorkCenter.StartingDate.SetValue(Format(0D));
+
+        if not ShowError then begin
+            RegAbsFromWorkCenter.StartingTime.SetValue(Format(StartingTime));
+            RegAbsFromWorkCenter.EndingTime.SetValue(Format(EndingTime));
+            RegAbsFromWorkCenter.StartingDate.SetValue(Format(WorkDate));
+            RegAbsFromWorkCenter.EndingDate.SetValue(Format(WorkDate));
+            RegAbsFromWorkCenter.Capacity.SetValue(CapacityValue);
+            RegAbsFromWorkCenter.Overwrite.SetValue(OverWrite);
+        end;
+        RegAbsFromWorkCenter.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RegAbsFromMachineCenterReportHandler(var RegAbsFromMachineCenter: TestRequestPage "Reg. Abs. (from Machine Ctr.)")
+    begin
+        RegAbsFromMachineCenter.StartingDate.SetValue(Format(0D));
+
+        if not ShowError then begin
+            RegAbsFromMachineCenter.StartingTime.SetValue(Format(StartingTime));
+            RegAbsFromMachineCenter.EndingTime.SetValue(Format(EndingTime));
+        end;
+        if not EndingTimeError then begin
+            RegAbsFromMachineCenter.StartingDate.SetValue(Format(WorkDate));
+            RegAbsFromMachineCenter.EndingDate.SetValue(Format(WorkDate));
+            RegAbsFromMachineCenter.Capacity.SetValue(CapacityValue);
+            RegAbsFromMachineCenter.Overwrite.SetValue(OverWrite);
+        end;
+        RegAbsFromMachineCenter.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WorkCenterCalendarMatrixHandler(var WorkCenterCalendarMatrix: TestPage "Work Center Calendar Matrix")
+    begin
+        WorkCenterCalendarMatrix.FILTER.SetFilter("No.", WorkCenterNo2);
+        WorkCenterCalendarMatrix.Field1.AssertEquals(Capacity2);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Last;
+        ProductionJournal."Setup Time".SetValue(LibraryRandom.RandInt(5));  // Use random Setup Time value is not important.
+        ProductionJournal."Run Time".SetValue(LibraryRandom.RandInt(5));  // Use random Run Time value is not important.
+        ProductionJournal.Post.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CopyProductionForecastHandler(var CopyProductionForecast: TestRequestPage "Copy Production Forecast")
+    begin
+        if ProductionForecastName2 <> '' then begin
+            CopyProductionForecast.ProductionForecastName.SetValue(ProductionForecastName2);
+            CopyProductionForecast.ItemNo.SetValue(ItemNo2);
+            CopyProductionForecast.LocationCode.SetValue(LocationCode2);
+            CopyProductionForecast.ComponentForecast.SetValue(true);
+            CopyProductionForecast.DateChangeFormula.SetValue(DateChangeFormula);
+        end;
+        CopyProductionForecast.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ExchangeProductionBOMItemHandler(var ExchangeProductionBOMItem: TestRequestPage "Exchange Production BOM Item")
+    begin
+        ExchangeProductionBOMItem.StartingDate.SetValue('');
+
+        if not ShowError then begin
+            ExchangeProductionBOMItem.ExchangeType.SetValue(1);  // Use 1 for Item.
+            ExchangeProductionBOMItem.ExchangeNo.SetValue(ExchangeNo);
+            ExchangeProductionBOMItem.WithType.SetValue(1);   // Use 1 for Item.
+            ExchangeProductionBOMItem.WithNo.SetValue(WithNo);
+            ExchangeProductionBOMItem."Create New Version".SetValue(CreateNewVersion);
+            ExchangeProductionBOMItem.StartingDate.SetValue(Format(WorkDate));
+            ExchangeProductionBOMItem.Recertify.SetValue(true);
+            ExchangeProductionBOMItem.CopyRoutingLink.SetValue(true);
+            ExchangeProductionBOMItem."Delete Exchanged Component".SetValue(not CreateNewVersion);
+        end;
+        ExchangeProductionBOMItem.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure DeleteExpiredComponentsHandler(var DeleteExpiredComponents: TestRequestPage "Delete Expired Components")
+    begin
+        if not ShowError then
+            DeleteExpiredComponents.DeleteBefore.SetValue(Format(WorkDate));
+        DeleteExpiredComponents.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler2(Message: Text[1024])
+    var
+        MessageCount: Integer;
+    begin
+        Assert.IsTrue(StrPos(Message, LibraryVariableStorage.DequeueText) > 0, Message);
+        MessageCount := LibraryVariableStorage.DequeueInteger;
+        MessageCount += 1;
+        LibraryVariableStorage.Enqueue(MessageCount);
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure OptionDialog(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 1;  // Use 1 for Copy Dimensions from BOM.
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure OutputJournalItemtrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        i: Integer;
+    begin
+        for i := 1 to Abs(GLB_ItemTrackingQty) do begin
+            ItemTrackingLines."Serial No.".SetValue(GLB_SerialNo);
+            ItemTrackingLines."Quantity (Base)".SetValue(GLB_ItemTrackingQty / Abs(GLB_ItemTrackingQty));
+            ItemTrackingLines.Next;
+            Commit;
+            GLB_SerialNo := IncStr(GLB_SerialNo);
+        end;
+    end;
+
+    local procedure PostOutputJournalWithIT(ProductionOrder: Record "Production Order"; Quantity: Integer)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        OutputJournal: TestPage "Output Journal";
+    begin
+        ItemJournalLine.DeleteAll;
+        Commit;
+
+        OutputJournal.OpenEdit;
+        OutputJournal."Order No.".SetValue(ProductionOrder."No.");
+        OutputJournal."Item No.".SetValue(ProductionOrder."Source No.");
+        OutputJournal."Operation No.".SetValue(OperationNo(ProductionOrder));
+        OutputJournal."Output Quantity".SetValue(Quantity);
+
+        GLB_ItemTrackingQty := Quantity;
+        GLB_SerialNo := 'OUTPUT_REVERT_SN1';
+
+        OutputJournal."Item Tracking Lines".Invoke; // Jump to: OutputJournalItemtrackingPageHandler
+        Commit;
+        OutputJournal.Post.Invoke;
+    end;
+
+    local procedure SetQuantity(var ProductionOrder: Record "Production Order"; Quantity: Integer)
+    begin
+        ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
+        ProductionOrder.Validate(Quantity, Quantity);
+        ProductionOrder.Modify(true);
+    end;
+
+    local procedure OperationNo(ProductionOrder: Record "Production Order"): Code[10]
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderRoutingLine.FindFirst;
+        exit(ProdOrderRoutingLine."Operation No.");
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ViewAppliedEntriesPageHandler(var ViewAppliedEntries: TestPage "View Applied Entries")
+    var
+        AppliedQuantity: Variant;
+        ItemNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ItemNo);
+        LibraryVariableStorage.Dequeue(AppliedQuantity);
+        ViewAppliedEntries.FILTER.SetFilter("Item No.", ItemNo);
+        ViewAppliedEntries.ApplQty.AssertEquals(AppliedQuantity);
+        ViewAppliedEntries.OK.Invoke;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ViewAppliedEntriesPageHandler2(var ViewAppliedEntries: TestPage "View Applied Entries")
+    begin
+        ViewAppliedEntries.RemoveAppButton.Invoke
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ViewAppliedEntriesModalPageHandler(var ViewAppliedEntries: TestPage "View Applied Entries")
+    begin
+        ViewAppliedEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProdOrderRoutingHandler(var ProdOrderRouting: TestPage "Prod. Order Routing")
+    var
+        Variant: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(Variant);
+        ProdOrderRouting."No.".SetValue(Variant);
+        ProdOrderRouting.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure DummyProdOrderRoutingHandler(var ProdOrderRouting: TestPage "Prod. Order Routing")
+    begin
+        ProdOrderRouting.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure MachineCenterPageHandler(var MachineCenter: TestPage "Machine Center List")
+    begin
+        MachineCenter.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReservationHandler(var ReservationPage: TestPage Reservation)
+    begin
+        ReservationPage.First;
+        ReservationPage."Auto Reserve".Invoke;
+        ReservationPage.OK.Invoke;
+    end;
+
+    local procedure CreateRoutingAndBOM(ItemNo: Code[20]; ComponentNo: Code[20]; WorkCenterNo: Code[20]; ConcurrentCapacities: Integer; RoutingLinkCode: Code[10])
+    var
+        Item: Record Item;
+    begin
+        with Item do begin
+            Get(ItemNo);
+            Validate(
+              "Production BOM No.",
+              CreateProductionBOMWithComponent("Base Unit of Measure", ComponentNo, RoutingLinkCode));
+            Validate(
+              "Routing No.",
+              CreateRoutingWithWorkCenter(WorkCenterNo, ConcurrentCapacities, RoutingLinkCode));
+            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
+            Validate("Manufacturing Policy", "Manufacturing Policy"::"Make-to-Order");
+            Modify(true);
+        end;
+    end;
+
+    local procedure VerifyProdOrderDateTimes(ProductionOrder: Record "Production Order"; WorkCenterCapacity: Integer)
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        ExpStartDateTime: DateTime;
+        ExpEndDateTime: DateTime;
+    begin
+        with ProdOrderLine do begin
+            SetRange(Status, ProductionOrder.Status);
+            SetRange("Prod. Order No.", ProductionOrder."No.");
+            FindSet;
+            ExpStartDateTime := "Ending Date-Time";
+            repeat
+                ExpEndDateTime := ExpStartDateTime;
+                Assert.AreEqual(
+                  DT2Date(ExpEndDateTime), DT2Date("Ending Date-Time"), StrSubstNo(WrongDateTimeErr, FieldCaption("Ending Date")));
+                Assert.AreEqual(
+                  DT2Time(ExpEndDateTime), DT2Time("Ending Date-Time"), StrSubstNo(WrongDateTimeErr, FieldCaption("Ending Time")));
+                ExpStartDateTime := ExpEndDateTime - ((3600 * 1000) * (1 + Quantity / WorkCenterCapacity));
+                Assert.AreEqual(
+                  DT2Date(ExpStartDateTime), DT2Date("Starting Date-Time"), StrSubstNo(WrongDateTimeErr, FieldCaption("Starting Date")));
+                Assert.AreEqual(
+                  DT2Time(ExpStartDateTime), DT2Time("Starting Date-Time"), StrSubstNo(WrongDateTimeErr, FieldCaption("Starting Time")));
+            until Next = 0;
+        end;
+    end;
+}
+
