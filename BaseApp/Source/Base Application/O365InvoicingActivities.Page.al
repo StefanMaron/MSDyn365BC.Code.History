@@ -123,13 +123,6 @@ page 9077 "O365 Invoicing Activities"
     {
     }
 
-    trigger OnAfterGetCurrRecord()
-    var
-        RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
-    begin
-        RoleCenterNotificationMgt.HideEvaluationNotificationAfterStartingTrial;
-    end;
-
     trigger OnInit()
     var
         EnvInfoProxy: Codeunit "Env. Info Proxy";

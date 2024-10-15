@@ -352,6 +352,10 @@ table 363 "Analysis View"
         {
             Caption = 'Refresh When Unblocked';
         }
+        field(19; "Reset Needed"; Boolean)
+        {
+            Caption = 'Data update needed';
+        }
     }
 
     keys
@@ -403,6 +407,7 @@ table 363 "Analysis View"
         Text018Msg: Label 'If you enable the %1 feature it can take significantly more time to post documents, such as sales or purchase orders and invoices. Do you want to continue?', Comment = '%1 = The name of the feature that is being enabled';
         SkipConfirmationDialogue: Boolean;
         ClearDimTotalingConfirmTxt: Label 'Changing dimension will clear dimension totaling columns of Account Schedule Lines using current Analysis Vew. \Do you want to continue?';
+        ResetNeededMsg: Label 'The data in the analysis view needs to be updated because a dimension has been changed. To update the data, choose Reset.';
 
     local procedure ModifyDim(DimFieldName: Text[100]; DimValue: Code[20]; xDimValue: Code[20])
     begin
@@ -509,16 +514,17 @@ table 363 "Analysis View"
 
     procedure AnalysisViewReset()
     var
-        AnalysisViewEntry: Record "Analysis View Entry";
+        AnalysisViewEntry2: Record "Analysis View Entry";
     begin
         AnalysisviewBudgetReset();
 
-        "Last Entry No." := 0;
-        "Last Date Updated" := 0D;
-        Modify();
+        Rec."Last Entry No." := 0;
+        Rec."Last Date Updated" := 0D;
+        Rec."Reset Needed" := false;
+        Rec.Modify();
 
-        AnalysisViewEntry.SetRange("Analysis View Code", Code);
-        AnalysisViewEntry.DeleteAll();
+        AnalysisViewEntry2.SetRange("Analysis View Code", Code);
+        AnalysisViewEntry2.DeleteAll();
 
         OnAfterAnalysisViewReset(Rec);
     end;
@@ -807,11 +813,25 @@ table 363 "Analysis View"
 
     procedure RunAnalysisByDimensionPage()
     var
-        AnalysisByDimParameters: Record "Analysis by Dim. Parameters" temporary;
+        TempAnalysisByDimParameters: Record "Analysis by Dim. Parameters" temporary;
     begin
-        AnalysisByDimParameters."Analysis View Code" := Code;
-        AnalysisByDimParameters.Insert();
-        PAGE.RUN(PAGE::"Analysis by Dimensions", AnalysisByDimParameters);
+        TempAnalysisByDimParameters."Analysis View Code" := Code;
+        TempAnalysisByDimParameters.Insert();
+        PAGE.RUN(PAGE::"Analysis by Dimensions", TempAnalysisByDimParameters);
+    end;
+
+    procedure ShowResetNeededNotification()
+    var
+        ResetNeededNotification: Notification;
+    begin
+        if not Rec."Reset Needed" then
+            exit;
+
+        ResetNeededNotification.Id := '3e4b333c-858d-40d1-871c-7a54d486b484';
+        ResetNeededNotification.Recall();
+        ResetNeededNotification.Message := ResetNeededMsg;
+        ResetNeededNotification.Scope := NotificationScope::LocalScope;
+        ResetNeededNotification.Send();
     end;
 
     [IntegrationEvent(false, false)]

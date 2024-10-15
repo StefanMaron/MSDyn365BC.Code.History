@@ -15,6 +15,7 @@ codeunit 8900 "Email Impl"
                   tabledata "Email View Policy" = r;
 
     var
+        EmailCategoryLbl: Label 'Email', Locked = true;
         EmailMessageDoesNotExistMsg: Label 'The email message has been deleted by another user.';
         EmailMessageCannotBeEditedErr: Label 'The email message has already been sent and cannot be edited.';
         EmailMessageQueuedErr: Label 'The email has already been queued.';
@@ -25,6 +26,7 @@ codeunit 8900 "Email Impl"
         EmailViewPolicyLbl: Label 'Email View Policy', Locked = true;
         EmailViewPolicyUsedTxt: Label 'Email View Policy is used', Locked = true;
         EmailViewPolicyDefaultTxt: Label 'Falling back to default email view policy: %1', Locked = true;
+        EmailModifiedByEventTxt: Label 'Email has been modified by event', Locked = true;
 
     #region API
 
@@ -190,6 +192,7 @@ codeunit 8900 "Email Impl"
         if CurrentUser.Get(UserSecurityId()) then
             Email.AddRelation(EmailMessage, Database::User, CurrentUser.SystemId, Enum::"Email Relation Type"::"Related Entity", Enum::"Email Relation Origin"::"Compose Context");
 
+        BeforeSendEmail(EmailMessage);
         CreateOrUpdateEmailOutbox(EmailMessageImpl, EmailAccountId, EmailConnector, Enum::"Email Status"::Queued, EmailAccountRec."Email Address", EmailOutbox);
         Email.OnEnqueuedInOutbox(EmailMessage.GetId());
 
@@ -203,6 +206,27 @@ codeunit 8900 "Email Impl"
 
             if EmailDispatcher.Run(EmailOutbox) then;
             exit(EmailDispatcher.GetSuccess());
+        end;
+    end;
+
+    local procedure BeforeSendEmail(var EmailMessage: codeunit "Email Message")
+    var
+        Email: Codeunit Email;
+        Telemetry: Codeunit Telemetry;
+        Dimensions: Dictionary of [Text, Text];
+        LastModifiedNo: Integer;
+        EmailMessageId: Guid;
+    begin
+        EmailMessageId := EmailMessage.GetId(); // Prevent different email message from being sent if overwritten in event
+        LastModifiedNo := EmailMessage.GetNoOfModifies();
+
+        Email.OnBeforeSendEmail(EmailMessage);
+
+        EmailMessage.Get(EmailMessageId); // Get any latest changes
+        if LastModifiedNo < EmailMessage.GetNoOfModifies() then begin
+            Dimensions.Add('Category', EmailCategoryLbl);
+            Dimensions.Add('EmailMessageId', EmailMessage.GetId());
+            Telemetry.LogMessage('0000I2F', EmailModifiedByEventTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
         end;
     end;
 

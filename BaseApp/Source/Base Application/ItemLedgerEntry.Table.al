@@ -581,7 +581,7 @@ table 32 "Item Ledger Entry"
         key(Key19; "Lot No.")
         {
         }
-        key(Key20; "Serial No.")
+        key(Key20; "Serial No.", "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date")
         {
         }
         key(Key21; "Item No.", "Location Code", "Posting Date")
@@ -938,6 +938,32 @@ table 32 "Item Ledger Entry"
         QtyToReserve := "Remaining Quantity" - "Reserved Quantity";
     end;
 
+    internal procedure CalcReservedQuantity()
+    var
+        ReservationEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
+    begin
+        OnBeforeCalcReservedQuantity(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Serial No." = '' then
+            CalcFields("Reserved Quantity")
+        else begin
+            ReservationEntry.SetCurrentKey("Serial No.", "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line");
+            ReservationEntry.SetRange("Serial No.", "Serial No.");
+            ReservationEntry.SetRange("Source ID", '');
+            ReservationEntry.SetRange("Source Ref. No.", "Entry No.");
+            ReservationEntry.SetRange("Source Type", Database::"Item Ledger Entry");
+            ReservationEntry.SetRange("Source Subtype", ReservationEntry."Source Subtype"::"0");
+            ReservationEntry.SetRange("Source Batch Name", '');
+            ReservationEntry.SetRange("Source Prod. Order Line", 0);
+            ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+            ReservationEntry.CalcSums("Quantity (Base)");
+            "Reserved Quantity" := ReservationEntry."Quantity (Base)"
+        end;
+    end;
+
     procedure SetItemVariantLocationFilters(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; PostingDate: Date)
     begin
         Reset;
@@ -1143,6 +1169,11 @@ table 32 "Item Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterVerifyOnInventory(var ItemLedgerEntry: Record "Item Ledger Entry"; ErrorMessageText: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcReservedQuantity(var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -577,7 +577,6 @@ page 7024 "Prices Overview"
 
     trigger OnAfterGetRecord()
     begin
-        Rec.SyncDropDownLookupFields();
         CalcSourceNoEditable();
         SetFieldsStyle();
     end;

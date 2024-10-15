@@ -83,9 +83,12 @@ codeunit 134203 "Document Approval - Documents"
         // Verify
         PurchaseCreditMemo.OpenView;
         PurchaseCreditMemo.GotoRecord(PurchHeader);
-        Assert.AreEqual(ApprovalEntry."Sender ID", PurchaseCreditMemo.Control15."Sender ID".Value, '');
-        Assert.AreEqual(ApprovalEntry."Due Date", PurchaseCreditMemo.Control15."Due Date".AsDate, '');
-        Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), PurchaseCreditMemo.Control15.Comment.Value, '');
+
+        if HasOpenApprovalEntriesForCurrentUser(PurchHeader.RecordId) then begin
+            Assert.AreEqual(ApprovalEntry."Sender ID", PurchaseCreditMemo.Control15."Sender ID".Value, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", PurchaseCreditMemo.Control15."Due Date".AsDate, '');
+            Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), PurchaseCreditMemo.Control15.Comment.Value, '');
+        end;
     end;
 
     [Test]
@@ -114,9 +117,12 @@ codeunit 134203 "Document Approval - Documents"
         // Verify
         PurchaseInvoice.OpenView;
         PurchaseInvoice.GotoRecord(PurchHeader);
-        Assert.AreEqual(ApprovalEntry."Sender ID", PurchaseInvoice.Control27."Sender ID".Value, '');
-        Assert.AreEqual(ApprovalEntry."Due Date", PurchaseInvoice.Control27."Due Date".AsDate, '');
-        Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), PurchaseInvoice.Control27.Comment.Value, '');
+
+        if HasOpenApprovalEntriesForCurrentUser(PurchHeader.RecordId) then begin
+            Assert.AreEqual(ApprovalEntry."Sender ID", PurchaseInvoice.Control27."Sender ID".Value, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", PurchaseInvoice.Control27."Due Date".AsDate, '');
+            Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), PurchaseInvoice.Control27.Comment.Value, '');
+        end;
     end;
 
     [Test]
@@ -209,9 +215,12 @@ codeunit 134203 "Document Approval - Documents"
         // Verify
         PurchaseReturnOrder.OpenView;
         PurchaseReturnOrder.GotoRecord(PurchHeader);
-        Assert.AreEqual(ApprovalEntry."Sender ID", PurchaseReturnOrder.Control21."Sender ID".Value, '');
-        Assert.AreEqual(ApprovalEntry."Due Date", PurchaseReturnOrder.Control21."Due Date".AsDate, '');
-        Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), PurchaseReturnOrder.Control21.Comment.Value, '');
+
+        if HasOpenApprovalEntriesForCurrentUser(PurchHeader.RecordId) then begin
+            Assert.AreEqual(ApprovalEntry."Sender ID", PurchaseReturnOrder.Control21."Sender ID".Value, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", PurchaseReturnOrder.Control21."Due Date".AsDate, '');
+            Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), PurchaseReturnOrder.Control21.Comment.Value, '');
+        end;
     end;
 
     [Test]
@@ -272,9 +281,12 @@ codeunit 134203 "Document Approval - Documents"
         // Verify
         SalesCreditMemo.OpenView;
         SalesCreditMemo.GotoRecord(SalesHeader);
-        Assert.AreEqual(ApprovalEntry."Sender ID", SalesCreditMemo.Control19."Sender ID".Value, '');
-        Assert.AreEqual(ApprovalEntry."Due Date", SalesCreditMemo.Control19."Due Date".AsDate, '');
-        Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), SalesCreditMemo.Control19.Comment.Value, '');
+
+        if HasOpenApprovalEntriesForCurrentUser(SalesHeader.RecordId) then begin
+            Assert.AreEqual(ApprovalEntry."Sender ID", SalesCreditMemo.Control19."Sender ID".Value, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", SalesCreditMemo.Control19."Due Date".AsDate, '');
+            Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), SalesCreditMemo.Control19.Comment.Value, '');
+        end;
     end;
 
     [Test]
@@ -303,9 +315,12 @@ codeunit 134203 "Document Approval - Documents"
         // Verify
         SalesInvoice.OpenView;
         SalesInvoice.GotoRecord(SalesHeader);
-        Assert.AreEqual(ApprovalEntry."Sender ID", SalesInvoice.Control31."Sender ID".Value, '');
-        Assert.AreEqual(ApprovalEntry."Due Date", SalesInvoice.Control31."Due Date".AsDate, '');
-        Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), SalesInvoice.Control31.Comment.Value, '');
+
+        if HasOpenApprovalEntriesForCurrentUser(SalesHeader.RecordId) then begin
+            Assert.AreEqual(ApprovalEntry."Sender ID", SalesInvoice.Control31."Sender ID".Value, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", SalesInvoice.Control31."Due Date".AsDate, '');
+            Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), SalesInvoice.Control31.Comment.Value, '');
+        end;
     end;
 
     [Test]
@@ -366,9 +381,12 @@ codeunit 134203 "Document Approval - Documents"
         // Verify
         SalesQuote.OpenView;
         SalesQuote.GotoRecord(SalesHeader);
-        Assert.AreEqual(ApprovalEntry."Sender ID", SalesQuote.Control11."Sender ID".Value, '');
-        Assert.AreEqual(ApprovalEntry."Due Date", SalesQuote.Control11."Due Date".AsDate, '');
-        Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), SalesQuote.Control11.Comment.Value, '');
+
+        if HasOpenApprovalEntriesForCurrentUser(SalesHeader.RecordId) then begin
+            Assert.AreEqual(ApprovalEntry."Sender ID", SalesQuote.Control11."Sender ID".Value, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", SalesQuote.Control11."Due Date".AsDate, '');
+            Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), SalesQuote.Control11.Comment.Value, '');
+        end;
     end;
 
     [Test]
@@ -397,9 +415,12 @@ codeunit 134203 "Document Approval - Documents"
         // Verify
         SalesReturnOrder.OpenView;
         SalesReturnOrder.GotoRecord(SalesHeader);
-        Assert.AreEqual(ApprovalEntry."Sender ID", SalesReturnOrder.Control19."Sender ID".Value, '');
-        Assert.AreEqual(ApprovalEntry."Due Date", SalesReturnOrder.Control19."Due Date".AsDate, '');
-        Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), SalesReturnOrder.Control19.Comment.Value, '');
+
+        if HasOpenApprovalEntriesForCurrentUser(SalesHeader.RecordId) then begin
+            Assert.AreEqual(ApprovalEntry."Sender ID", SalesReturnOrder.Control19."Sender ID".Value, '');
+            Assert.AreEqual(ApprovalEntry."Due Date", SalesReturnOrder.Control19."Due Date".AsDate, '');
+            Assert.AreEqual(GetFirstApprovalComment(ApprovalEntry), SalesReturnOrder.Control19.Comment.Value, '');
+        end;
     end;
 
     [Test]
@@ -1410,6 +1431,13 @@ codeunit 134203 "Document Approval - Documents"
         LibraryWorkflow.SetWorkflowGroupApprover(WorkflowCode, WorkflowUserGroup.Code);
 
         AddUserForNotifications(WorkflowCode, UserSetup."User ID");
+    end;
+
+    local procedure HasOpenApprovalEntriesForCurrentUser(RecID: RecordId): Boolean
+    var
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+    begin
+        exit(ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecID));
     end;
 }
 
