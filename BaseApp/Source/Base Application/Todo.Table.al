@@ -222,6 +222,7 @@ table 5080 "To-do"
 
             trigger OnValidate()
             var
+                EnvironmentInfo: Codeunit "Environment Information";
                 OldEndDate: Date;
                 IsHandled: Boolean;
             begin
@@ -229,6 +230,9 @@ table 5080 "To-do"
                 OnBeforeValidateType(Rec, xRec, IsHandled);
                 if IsHandled then
                     exit;
+
+                if EnvironmentInfo.IsSaaS() and (Type = Type::Meeting) then
+                    Error(MeetingSaaSNotSupportedErr);
 
                 if "No." <> '' then begin
                     if ((xRec.Type = Type::Meeting) and (Type <> Type::Meeting)) or
@@ -864,6 +868,7 @@ table 5080 "To-do"
         Text068: Label 'You cannot select the Send invitation(s) on Finish check box, because none of the %1 check boxes are selected.';
         RunFormCode: Boolean;
         CreateExchangeAppointment: Boolean;
+        MeetingSaaSNotSupportedErr: Label 'You cannot create a task of type Meeting because you''re not using an on-premises deployment.';
 
     protected var
         TempTaskInteractionLanguage: Record "To-do Interaction Language" temporary;
@@ -1510,7 +1515,7 @@ table 5080 "To-do"
 
         if (EndingDate < DMY2Date(1, 1, 1900)) or (EndingDate > DMY2Date(31, 12, 2999)) then
             Error(Text006, DMY2Date(1, 1, 1900), DMY2Date(31, 12, 2999));
-        if not "All Day Event" and IsMeetingOrPhoneCall(Rec.Type) then
+        if not "All Day Event" then
             Duration := CreateDateTime(EndingDate, EndingTime) - CreateDateTime(Date, "Start Time")
         else
             Duration := CreateDateTime(EndingDate + 1, 0T) - CreateDateTime(Date, 0T);
