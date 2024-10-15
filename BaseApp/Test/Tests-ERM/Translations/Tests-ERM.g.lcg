@@ -4811,6 +4811,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Table Name]D;]A;(LookupHint=Codeunit ERM Purchase Invoice - NamedType CurrencyErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3007153660 - NamedType 3905048205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Document No. are not equal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Invoice - NamedType DocumentNoErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3007153660 - NamedType 4189119108" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Document should be copied]]></Val>
@@ -14708,7 +14717,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Reten. Pol. Doc. Arch. - NamedType ArchiveSalesDocMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is a document number]D;]A;(LookupHint=Codeunit Test Reten. Pol. Doc. Arch. - NamedType ArchiveSalesDocMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3359274847 - NamedType 1122546544" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -14717,7 +14726,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Reten. Pol. Doc. Arch. - NamedType ArchiveSalesDocQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is a document number]D;]A;(LookupHint=Codeunit Test Reten. Pol. Doc. Arch. - NamedType ArchiveSalesDocQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3571738936 - NamedType 2120421046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
