@@ -25,12 +25,21 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     then
                         CurrReport.Skip();
 
-                    TestField("Tariff No.");
-                    TestField("Country/Region Code");
-                    TestField("Transaction Type");
-                    TestField("Total Weight");
-
-                    TestField("Statistical Value");
+#if CLEAN19
+                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", true);
+#else
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", true)
+                    else begin
+                        TestField("Tariff No.");
+                        TestField("Country/Region Code");
+                        TestField("Transaction Type");
+                        TestField("Total Weight");
+                        TestField("Statistical Value");
+                        if "Supplementary Units" then
+                            TestField(Quantity);
+                    end;
+#endif
                     if StrLen(Format(Round(Quantity, 1), 0, '<Sign><Integer><Decimals>')) > 11 then
                         Error(Text11201, FieldCaption(Quantity));
                     if StrLen(Format(Round("Total Weight", 1), 0, '<Sign><Integer><Decimals>')) > 11 then
@@ -38,8 +47,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     if StrLen(Format(Round("Statistical Value", 1), 0, '<Sign><Integer><Decimals>')) > 11 then
                         Error(Text11201, FieldCaption("Statistical Value"));
 
-                    if "Supplementary Units" then
-                        TestField(Quantity);
                     CompoundField :=
                       Format("Country/Region Code", 10) + Format(DelChr("Tariff No."), 10) +
                       Format("Transaction Type", 10) + Format("Transport Method", 10);
@@ -133,6 +140,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
             begin
                 TestField(Reported, false);
                 IntraReferenceNo := "Statistics Period" + '000000';
+                IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
             end;
 
             trigger OnPreDataItem()
@@ -155,8 +163,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
         }
 
         trigger OnOpenPage()
-        var
-            IntrastatSetup: Record "Intrastat Setup";
         begin
             if not IntrastatSetup.Get then
                 exit;
@@ -204,6 +210,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
         IntrastatJnlLine5: Record "Intrastat Jnl. Line";
         CompanyInfo: Record "Company Information";
         Country: Record "Country/Region";
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         FileMgt: Codeunit "File Management";
         IntraFile: File;
         QuantityAmt: Decimal;

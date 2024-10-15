@@ -1,8 +1,12 @@
+#if not CLEAN19
 page 8451 "Intrastat Checklist Setup"
 {
     Caption = 'Intrastat Checklist Setup';
     PageType = List;
     SourceTable = "Intrastat Checklist Setup";
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
+    ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
 
     layout
     {
@@ -40,4 +44,4 @@ page 8451 "Intrastat Checklist Setup"
     {
     }
 }
-
+#endif

@@ -29,6 +29,7 @@ codeunit 134202 "Document Approval - Users"
         LibraryPermissions: Codeunit "Library - Permissions";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        DocumentApprovalUsers: Codeunit "Document Approval - Users";
         IsInitialized: Boolean;
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         ApprovalAdministratorErr: Label 'Approval Administrator must have a value in User Setup';
@@ -3473,8 +3474,10 @@ codeunit 134202 "Document Approval - Users"
 
         if IsInitialized then
             exit;
+
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        BindSubscription(DocumentApprovalUsers);
     end;
 
     [ModalPageHandler]
@@ -3482,6 +3485,13 @@ codeunit 134202 "Document Approval - Users"
     procedure SalesListPageHandler(var SalesList: TestPage "Sales List")
     begin
         SalesList.OK.Invoke;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Change Log Management", 'OnBeforeIsLogActive', '', false, false)]
+    local procedure DisableChangeLogOnBeforeIsLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion; var IsActive: Boolean; var IsHandled: Boolean)
+    begin
+        IsHandled := true;
+        IsActive := false;
     end;
 }
 

@@ -126,7 +126,15 @@ report 109 "Customer - Summary Aging Simp."
             }
 
             trigger OnAfterGetRecord()
+            var
+                FilteredCustomer: Record Customer;
             begin
+                FilteredCustomer.CopyFilters(Customer);
+                FilteredCustomer.SetFilter("Date Filter", '..%1', StartDate);
+                FilteredCustomer.SetRange("No.", "No.");
+                if FilteredCustomer.IsEmpty() then
+                    CurrReport.Skip();
+
                 PrintCust := false;
                 for i := 1 to 5 do begin
                     DtldCustLedgEntry.SetCurrentKey("Customer No.", "Initial Entry Due Date", "Posting Date");

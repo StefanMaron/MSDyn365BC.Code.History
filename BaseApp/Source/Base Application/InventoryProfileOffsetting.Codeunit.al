@@ -1694,8 +1694,15 @@
         OriginalSupplyDate: Date;
         NewSupplyDate: Date;
     begin
+        if FromLotAccumulationPeriodStartDate(LotAccumulationPeriodStartDate, DemandInvtProfile."Due Date") then begin
+            NewSupplyDate := LotAccumulationPeriodStartDate;
+            SupplyInvtProfile."Fixed Date" := NewSupplyDate;
+        end else begin
+            NewSupplyDate := SupplyInvtProfile."Due Date";
+            LotAccumulationPeriodStartDate := 0D;
+        end;
+
         OriginalSupplyDate := SupplyInvtProfile."Due Date";
-        NewSupplyDate := SupplyInvtProfile."Due Date";
         WeAreSureThatDatesMatch := false;
 
         if DemandInvtProfile."Due Date" < SupplyInvtProfile."Due Date" then begin
@@ -4003,7 +4010,6 @@
         do begin
             NumberofSupplies += 1;
             TempRescheduledSupplyInvtProfile := SupplyInvtProfile;
-            TempRescheduledSupplyInvtProfile."Line No." := -TempRescheduledSupplyInvtProfile."Line No.";
             TempRescheduledSupplyInvtProfile.Insert();
             Reschedule(TempRescheduledSupplyInvtProfile, NewDate, 0T);
 
@@ -4022,15 +4028,14 @@
         // If we have resheduled we replace the original supply records with the resceduled ones,
         // we re-write the primary key to make sure that the supplies are handled in the right order.
         if TempRescheduledSupplyInvtProfile.FindSet then begin
-            if NextRecExists <> 0 then
+            if (NextRecExists <> 0) and (SupplyInvtProfile."Due Date" = NewDate) then
                 SavedPosition := SupplyInvtProfile."Line No."
             else
                 SavedPosition := 0;
 
             repeat
-                SupplyInvtProfile."Line No." := -TempRescheduledSupplyInvtProfile."Line No.";
-                SupplyInvtProfile.Delete();
                 SupplyInvtProfile := TempRescheduledSupplyInvtProfile;
+                SupplyInvtProfile.Delete();
                 SupplyInvtProfile."Line No." := NextLineNo;
                 SupplyInvtProfile.Insert();
                 if SavedPosition = 0 then

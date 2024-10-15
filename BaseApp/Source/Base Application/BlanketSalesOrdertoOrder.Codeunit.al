@@ -331,10 +331,9 @@ codeunit 87 "Blanket Sales Order to Order"
                             SalesLine."Outstanding Quantity" -= SalesLine."Qty. to Assemble to Order";
                             SalesLine."Outstanding Qty. (Base)" -= SalesLine."Qty. to Asm. to Order (Base)";
                         end;
-                        if SalesLine.Reserve <> SalesLine.Reserve::Always then
-                            if not HideValidationDialog then
-                                if ItemCheckAvail.SalesLineCheck(SalesLine) then
-                                    ItemCheckAvail.RaiseUpdateInterruptedError;
+                        if not HideValidationDialog then
+                            if ItemCheckAvail.SalesLineCheck(SalesLine) then
+                                ItemCheckAvail.RaiseUpdateInterruptedError;
                     end;
                 until Next = 0;
         end;
