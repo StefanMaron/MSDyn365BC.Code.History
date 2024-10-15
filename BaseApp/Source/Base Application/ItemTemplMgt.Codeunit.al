@@ -30,7 +30,7 @@
     procedure ApplyItemTemplate(var Item: Record Item; ItemTempl: Record "Item Templ.")
     begin
         ApplyTemplate(Item, ItemTempl);
-        InsertDimensions(Item."No.", ItemTempl.Code);
+        InsertDimensions(Item."No.", ItemTempl.Code, Database::Item, Database::"Item Templ.");
     end;
 
     local procedure ApplyTemplate(var Item: Record Item; ItemTempl: Record "Item Templ.")
@@ -88,18 +88,18 @@
         exit(false);
     end;
 
-    local procedure InsertDimensions(ItemNo: Code[20]; ItemTemplCode: Code[20])
+    local procedure InsertDimensions(DestNo: Code[20]; SourceNo: Code[20]; DestTableId: Integer; SourceTableId: Integer)
     var
         SourceDefaultDimension: Record "Default Dimension";
         DestDefaultDimension: Record "Default Dimension";
     begin
-        SourceDefaultDimension.SetRange("Table ID", Database::"Item Templ.");
-        SourceDefaultDimension.SetRange("No.", ItemTemplCode);
+        SourceDefaultDimension.SetRange("Table ID", SourceTableId);
+        SourceDefaultDimension.SetRange("No.", SourceNo);
         if SourceDefaultDimension.FindSet() then
             repeat
                 DestDefaultDimension.Init();
-                DestDefaultDimension.Validate("Table ID", Database::Item);
-                DestDefaultDimension.Validate("No.", ItemNo);
+                DestDefaultDimension.Validate("Table ID", DestTableId);
+                DestDefaultDimension.Validate("No.", DestNo);
                 DestDefaultDimension.Validate("Dimension Code", SourceDefaultDimension."Dimension Code");
                 DestDefaultDimension.Validate("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
@@ -193,6 +193,102 @@
         exit(true);
     end;
 
+    procedure SaveAsTemplate(Item: Record Item)
+    var
+        IsHandled: Boolean;
+    begin
+        OnSaveAsTemplate(Item, IsHandled);
+    end;
+
+    procedure CreateTemplateFromItem(Item: Record Item; var IsHandled: Boolean)
+    var
+        ItemTempl: Record "Item Templ.";
+    begin
+        if not IsEnabled() then
+            exit;
+
+        IsHandled := true;
+
+        InsertTemplateFromItem(ItemTempl, Item);
+        InsertDimensions(ItemTempl.Code, Item."No.", Database::"Item Templ.", Database::Item);
+        ItemTempl.Get(ItemTempl.Code);
+        ShowItemTemplCard(ItemTempl);
+    end;
+
+    local procedure InsertTemplateFromItem(var ItemTempl: Record "Item Templ."; Item: Record Item)
+    begin
+        ItemTempl.Init();
+        ItemTempl.Code := GetItemTemplCode();
+
+        ItemTempl.Type := Item.Type;
+        ItemTempl."Inventory Posting Group" := Item."Inventory Posting Group";
+        ItemTempl."Item Disc. Group" := Item."Item Disc. Group";
+        ItemTempl."Allow Invoice Disc." := Item."Allow Invoice Disc.";
+        ItemTempl."Price/Profit Calculation" := Item."Price/Profit Calculation";
+        ItemTempl."Profit %" := Item."Profit %";
+        ItemTempl."Costing Method" := Item."Costing Method";
+        ItemTempl."Indirect Cost %" := Item."Indirect Cost %";
+        ItemTempl."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
+        ItemTempl."Automatic Ext. Texts" := Item."Automatic Ext. Texts";
+        ItemTempl."Tax Group Code" := Item."Tax Group Code";
+        ItemTempl."VAT Prod. Posting Group" := Item."VAT Prod. Posting Group";
+        ItemTempl."Item Category Code" := Item."Item Category Code";
+        ItemTempl."Service Item Group" := Item."Service Item Group";
+        ItemTempl."Warehouse Class Code" := Item."Warehouse Class Code";
+        ItemTempl.Blocked := Item.Blocked;
+        ItemTempl."Sales Blocked" := Item."Sales Blocked";
+        ItemTempl."Purchasing Blocked" := Item."Purchasing Blocked";
+        ItemTempl.Validate("Base Unit of Measure", Item."Base Unit of Measure");
+        ItemTempl."Price Includes VAT" := Item."Price Includes VAT";
+        ItemTempl.Insert();
+    end;
+
+    local procedure GetItemTemplCode() ItemTemplCode: Code[20]
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+    begin
+        if ItemTempl.FindLast() and (IncStr(ItemTempl.Code) <> '') then
+            ItemTemplCode := ItemTempl.Code
+        else
+            ItemTemplCode := CopyStr(Item.TableCaption, 1, 4) + '000001';
+
+        while ItemTempl.Get(ItemTemplCode) do
+            ItemTemplCode := IncStr(ItemTemplCode);
+    end;
+
+    local procedure ShowItemTemplCard(ItemTempl: Record "Item Templ.")
+    var
+        ItemTemplCard: Page "Item Templ. Card";
+    begin
+        if not GuiAllowed then
+            exit;
+
+        Commit();
+        ItemTemplCard.SetRecord(ItemTempl);
+        ItemTemplCard.LookupMode := true;
+        if ItemTemplCard.RunModal() = Action::LookupCancel then begin
+            ItemTempl.Get(ItemTempl.Code);
+            ItemTempl.Delete(true);
+        end;
+    end;
+
+    procedure ShowTemplates()
+    var
+        IsHandled: Boolean;
+    begin
+        OnShowTemplates(IsHandled);
+    end;
+
+    local procedure ShowItemTemplList(var IsHandled: Boolean)
+    begin
+        if not IsEnabled() then
+            exit;
+
+        IsHandled := true;
+        Page.Run(Page::"Item Templ. List");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
     begin
@@ -220,6 +316,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateItemsFromTemplate(var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveAsTemplate(Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowTemplates(var IsHandled: Boolean)
     begin
     end;
 
@@ -257,5 +363,23 @@
             exit;
 
         UpdateMultipleFromTemplate(Item, IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnSaveAsTemplate', '', false, false)]
+    local procedure OnSaveAsTemplateHandler(Item: Record Item; var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        CreateTemplateFromItem(Item, IsHandled);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnShowTemplates', '', false, false)]
+    local procedure OnShowTemplatesHandler(var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+
+        ShowItemTemplList(IsHandled);
     end;
 }

@@ -63,6 +63,7 @@ codeunit 2000040 "Coda Import Management"
         Clear(LineCounter);
         Clear(TotalDebit);
         Clear(TotalCredit);
+        OnAfterInitCodaImport(BankAcc, EnterpriseNo, LineCounter, TotalDebit, TotalCredit);
     end;
 
     procedure CheckCodaHeader(var CodedBankStmtSrcLine: Record "CODA Statement Source Line"): Boolean
@@ -513,6 +514,11 @@ codeunit 2000040 "Coda Import Management"
         YearTxt := '20' + CopyStr(DDMMYY, 5, 2);
         Evaluate(Year, YearTxt);
         exit(DMY2Date(Day, Month, Year));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitCodaImport(var BankAcc: record "Bank Account"; var EnterpriseNo: Text[11]; var LineCounter: array[2] of Integer; var TotalDebit: array[2] of Decimal; var TotalCredit: array[2] of Decimal)
+    begin
     end;
 }
 

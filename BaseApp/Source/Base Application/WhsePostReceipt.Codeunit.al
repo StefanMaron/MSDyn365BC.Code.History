@@ -572,6 +572,7 @@
     var
         WhseComment: Record "Warehouse Comment Line";
         WhseComment2: Record "Warehouse Comment Line";
+        RecordLinkManagement: Codeunit "Record Link Management";
     begin
         ReceivingNo := ReceivingNo2;
         PostingDate := PostingDate2;
@@ -592,6 +593,7 @@
             PostedWhseRcptHeader."Document Status" := PostedWhseRcptHeader."Document Status"::"Completely Put Away";
         OnBeforePostedWhseRcptHeaderInsert(PostedWhseRcptHeader, WhseRcptHeader);
         PostedWhseRcptHeader.Insert();
+        RecordLinkManagement.CopyLinks(WhseRcptHeader, PostedWhseRcptHeader);
         OnAfterPostedWhseRcptHeaderInsert(PostedWhseRcptHeader, WhseRcptHeader);
 
         WhseComment.SetRange("Table Name", WhseComment."Table Name"::"Whse. Receipt");

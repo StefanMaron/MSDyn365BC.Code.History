@@ -4533,10 +4533,16 @@
         exit((not HasPayToAddress) and PayToVendor.HasAddress);
     end;
 
-    procedure ShouldSearchForVendorByName(VendorNo: Code[20]): Boolean
+    procedure ShouldSearchForVendorByName(VendorNo: Code[20]) Result: Boolean
     var
         Vendor: Record Vendor;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShouldSearchForVendorByName(VendorNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if VendorNo = '' then
             exit(true);
 
@@ -5138,7 +5144,6 @@
 
     local procedure SetPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20])
     var
-        UserSetupPurchaserCode: Code[20];
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -5146,17 +5151,15 @@
         if IsHandled then
             exit;
 
-        UserSetupPurchaserCode := GetUserSetupPurchaserCode;
-        if PurchaserCodeToCheck <> '' then begin
-            if SalespersonPurchaser.Get(PurchaserCodeToCheck) then
-                if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then begin
-                    if UserSetupPurchaserCode = '' then
-                        PurchaserCodeToAssign := ''
-                end else
-                    PurchaserCodeToAssign := PurchaserCodeToCheck;
+        if PurchaserCodeToCheck = '' then
+            PurchaserCodeToCheck := GetUserSetupPurchaserCode();
+        if SalespersonPurchaser.Get(PurchaserCodeToCheck) then begin
+            if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
+                PurchaserCodeToAssign := ''
+            else
+                PurchaserCodeToAssign := PurchaserCodeToCheck;
         end else
-            if UserSetupPurchaserCode = '' then
-                PurchaserCodeToAssign := '';
+            PurchaserCodeToAssign := '';
     end;
 
     procedure ValidatePurchaserOnPurchHeader(PurchaseHeader2: Record "Purchase Header"; IsTransaction: Boolean; IsPostAction: Boolean)
@@ -5740,6 +5743,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetShipToCodeEmpty(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShouldSearchForVendorByName(VendorNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

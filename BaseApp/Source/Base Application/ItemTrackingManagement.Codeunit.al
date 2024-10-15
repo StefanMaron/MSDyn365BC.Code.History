@@ -624,7 +624,13 @@
     procedure CopyHandledItemTrkgToInvLine(FromSalesLine: Record "Sales Line"; ToSalesInvLine: Record "Sales Line")
     var
         ItemEntryRelation: Record "Item Entry Relation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyHandledItemTrkgToInvLine(FromSalesLine, ToSalesInvLine, IsHandled);
+        if IsHandled then
+            exit;
+
         // Used for combined shipment/returns:
         if FromSalesLine.Type <> FromSalesLine.Type::Item then
             exit;
@@ -2315,6 +2321,8 @@
         if FillExactCostRevLink then
             FillExactCostRevLink := not ToSalesLine.IsShipment;
 
+        OnCopyItemLedgEntryTrkgToSalesLnOnBeforeTempItemLedgEntryBufFindSet(
+            TempItemLedgEntryBuf, ToSalesLine, FillExactCostRevLink, MissingExCostRevLink, FromPricesInclVAT, ToPricesInclVAT, FromShptOrRcpt);
         with TempItemLedgEntryBuf do
             if FindSet then begin
                 if Quantity / ToSalesLine.Quantity < 0 then
@@ -2897,6 +2905,20 @@
         end;
     end;
 
+    procedure CalcWhseItemTrkgLineQtyBase(SourceType: Integer; SourceSubtype: Integer; SourceId: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; LocationCode: Code[10]; ItemTrackingSetup: Record "Item Tracking Setup"): Decimal
+    var
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        with WhseItemTrackingLine do begin
+            SetSourceFilter(SourceType, SourceSubtype, SourceId, SourceRefNo, true);
+            SetSourceFilter(SourceBatchName, SourceProdOrderLine);
+            SetRange("Location Code", LocationCode);
+            SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup);
+            CalcSums("Quantity (Base)");
+            exit("Quantity (Base)");
+        end;
+    end;
+
     local procedure SetWhseSerialLotNo(var DestNo: Code[50]; SourceNo: Code[50]; NoRequired: Boolean)
     begin
         if NoRequired then
@@ -3449,6 +3471,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCopyItemLedgEntryTrkgToSalesLnOnBeforeTempItemLedgEntryBufFindSet(var TempItemLedgEntryBuf: Record "Item Ledger Entry" temporary; ToSalesLine: Record "Sales Line"; FillExactCostRevLink: Boolean; var MissingExCostRevLink: Boolean; FromPricesInclVAT: Boolean; ToPricesInclVAT: Boolean; FromShptOrRcpt: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnIsOrderNetworkEntity(Type: Integer; Subtype: Integer; var IsNetworkEntity: Boolean)
     begin
     end;
@@ -3545,6 +3572,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyItemTracking3(var ReservEntry: Record "Reservation Entry"; ToRowID: Text[250]; SwapSign: Boolean; SkipReservation: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyHandledItemTrkgToInvLine(FromSalesLine: Record "Sales Line"; var ToSalesInvLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

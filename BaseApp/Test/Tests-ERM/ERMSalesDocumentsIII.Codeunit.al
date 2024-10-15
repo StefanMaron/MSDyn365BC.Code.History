@@ -4158,8 +4158,10 @@ codeunit 134387 "ERM Sales Documents III"
         UserSetup.Validate("Salespers./Purch. Code", SalespersonPurchaser.Code);
         UserSetup.Modify(true);
 
-        // [GIVEN] Sales Order Created for Customer with Salesperson Code "SP01"
+        // [WHEN] Sales Order Created for Customer with blank "Salesperson Code"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [THEN] Sales Order has Salesperson Code "SP01"
         SalesHeader.TestField("Salesperson Code", SalespersonPurchaser.Code);
     end;
 
@@ -4189,9 +4191,52 @@ codeunit 134387 "ERM Sales Documents III"
         UserSetup.Validate("Salespers./Purch. Code", '');
         UserSetup.Modify(true);
 
-        // [GIVEN] Sales Order Created for Customer with Salesperson Code "SP01"
+        // [WHEN] Sales Order Created for Customer with Salesperson Code "SP01"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [THEN] Sales Order has Salesperson Code "SP01"
         SalesHeader.TestField("Salesperson Code", SalespersonPurchaser.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure SalespersonCodeUpdatedFromUserSetupWhenChangingToCustomerWithoutSalesperson()
+    var
+        SalesHeader: Record "Sales Header";
+        Customer: array[2] of Record Customer;
+        SalespersonPurchaser: array[2] of Record "Salesperson/Purchaser";
+        UserSetup: Record "User Setup";
+    begin
+        // [FEATURE] [Salesperson Code]
+        // [SCENARIO ] Customer with blank "Salesperson Code" and Salesperson Code empty - use Salesperson from UserSetup.
+        Initialize();
+
+        // [GIVEN] Salespersons "SP01" and "SP02".
+        LibrarySales.CreateSalesperson(SalespersonPurchaser[1]);
+        LibrarySales.CreateSalesperson(SalespersonPurchaser[2]);
+
+        // [GIVEN] Customer "CU01" with "Salesperson Code" = "SP01".
+        LibrarySales.CreateCustomer(Customer[1]);
+        Customer[1].Validate("Salesperson Code", SalespersonPurchaser[1].Code);
+        Customer[1].Modify(true);
+
+        // [GIVEN] Customer "CU02" with blank "Salesperson Code".
+        LibrarySales.CreateCustomer(Customer[2]);
+
+        // [GIVEN] User Setup with Salesperson Code "SP02.
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        UserSetup.Validate("Salespers./Purch. Code", SalespersonPurchaser[2].Code);
+        UserSetup.Modify(true);
+
+        // [GIVEN] Sales Order created for Customer with Salesperson Code "SP01".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer[1]."No.");
+
+        // [WHEN] "Sell-to Customer No." is changed to Customer "CU02" in Sales Order.
+        SalesHeader.Validate("Sell-to Customer No.", Customer[2]."No.");
+
+        // [THEN] Sales Order has Salesperson Code "SP02".
+        SalesHeader.TestField("Salesperson Code", SalespersonPurchaser[2].Code);
     end;
 
     [Test]
@@ -5048,6 +5093,23 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] Shipping Time in the Sales Order is equal to "T".
         SalesOrder."Shipping Time".AssertEquals(ShippingAgentServices."Shipping Time");
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure CustomerTemplateValidateVATRegFieldUI()
+    var
+        CustomerTemplCard: TestPage "Customer Templ. Card";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 383454] Page 1382 "Customer Templ. Card" has field "Validate EU Vat Reg. No."
+        LibraryApplicationArea.EnableFoundationSetup;
+        CustomerTemplCard.OpenView();
+
+        Assert.IsTrue(CustomerTemplCard."Validate EU Vat Reg. No.".Enabled(), 'Validate EU Vat Reg. No. should be visible');
+        Assert.IsTrue(CustomerTemplCard."Validate EU Vat Reg. No.".Visible(), 'Validate EU Vat Reg. No. should be visible');
+
+        CustomerTemplCard.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     local procedure Initialize()

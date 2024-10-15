@@ -8,6 +8,8 @@ codeunit 1275 "Exp. Post-Mapping Gen. Jnl."
         CreditTransferRegister: Record "Credit Transfer Register";
         CreditTransferEntry: Record "Credit Transfer Entry";
         GenJnlLine: Record "Gen. Journal Line";
+        TempInteger: Record "Integer" temporary;
+        SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
         Window: Dialog;
         LineNo: Integer;
     begin
@@ -23,11 +25,24 @@ codeunit 1275 "Exp. Post-Mapping Gen. Jnl."
             LineNo += 1;
             Window.Update(1, LineNo);
 
-            CreditTransferEntry.CreateNew(CreditTransferRegister."No.", LineNo,
-              GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine.GetAppliesToDocEntryNo,
-              GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount, '',
-              GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
-        until GenJnlLine.Next = 0;
+            TempInteger.DeleteAll();
+            SEPACTFillExportBuffer.GetAppliesToDocEntryNumbers(GenJnlLine, TempInteger);
+            if TempInteger.FindSet() then
+                repeat
+                    CreditTransferEntry.CreateNew(
+                      CreditTransferRegister."No.", 0,
+                      GenJnlLine."Account Type", GenJnlLine."Account No.", TempInteger.Number,
+                      GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount, '',
+                      GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
+                until TempInteger.Next() = 0
+            else
+                CreditTransferEntry.CreateNew(
+                  CreditTransferRegister."No.", LineNo,
+                  GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine.GetAppliesToDocEntryNo(),
+                  GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine.Amount, '',
+                  GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
+        until GenJnlLine.Next() = 0;
+        LineNo += TempInteger.Count();
 
         Window.Close;
     end;

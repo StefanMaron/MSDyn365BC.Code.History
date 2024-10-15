@@ -144,7 +144,7 @@
                     if "Report Output Type" = "Report Output Type"::"None (Processing only)" then
                         Error(ReportOutputTypeCannotBeNoneErr);
                     if ReportLayoutSelection.HasCustomLayout("Object ID to Run") = 2 then // Word layout
-                        if not ("Report Output Type" in ["Report Output Type"::Print, "Report Output Type"::Word]) then
+                        if not ("Report Output Type" in ["Report Output Type"::Print, "Report Output Type"::Word, "Report Output Type"::PDF]) then
                             Error(CustomLayoutReportCanHaveLimitedOutputTypeErr);
                 end;
                 if "Report Output Type" = "Report Output Type"::Print then begin
@@ -542,7 +542,7 @@
         ObjNotFoundErr: Label 'There is no Object with ID %1.', Comment = '%1=Object Id.';
         NoPermissionsErr: Label 'You are not allowed to schedule background tasks. Ask your system administrator to give you permission to do so. Specifically, you need Insert, Modify and Delete Permissions for the %1 table.', Comment = '%1 Table Name';
         ReportOutputTypeCannotBeNoneErr: Label 'You cannot set the report output to None because users can view the report. Use the None option when the report does something in the background. For example, when it is part of a batch job.';
-        CustomLayoutReportCanHaveLimitedOutputTypeErr: Label 'This report uses a custom layout. To view the report you can open it in Word or print it.';
+        CustomLayoutReportCanHaveLimitedOutputTypeErr: Label 'This report uses a custom layout. To view the report you can open it in Word, print it, or save it as PDF.';
 
     procedure DoesExistLocked(): Boolean
     begin

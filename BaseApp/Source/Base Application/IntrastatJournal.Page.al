@@ -206,6 +206,11 @@
                     ObsoleteReason = 'Merged to W1';
                     ObsoleteTag = '18.0';
                 }
+                field("Location Code"; "Location Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the location that the entry is linked to.';
+                }
             }
             group(Control40)
             {

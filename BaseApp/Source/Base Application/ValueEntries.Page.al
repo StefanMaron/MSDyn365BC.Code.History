@@ -1,4 +1,4 @@
-page 5802 "Value Entries"
+﻿page 5802 "Value Entries"
 {
     AdditionalSearchTerms = 'costing,inventory cost,inventory valuation';
     ApplicationArea = Basic, Suite;
@@ -241,13 +241,13 @@ page 5802 "Value Entries"
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
-                    Visible = false;
+                    Visible = Dim1Visible;
                 }
                 field("Global Dimension 2 Code"; "Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
-                    Visible = false;
+                    Visible = Dim2Visible;
                 }
                 field("Source Type"; "Source Type")
                 {
@@ -324,6 +324,48 @@ page 5802 "Value Entries"
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
                     Visible = false;
+                }
+                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                {
+                    ApplicationArea = Dimensions;
+                    Editable = false;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
+                    Visible = Dim3Visible;
+                }
+                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                {
+                    ApplicationArea = Dimensions;
+                    Editable = false;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
+                    Visible = Dim4Visible;
+                }
+                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                {
+                    ApplicationArea = Dimensions;
+                    Editable = false;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
+                    Visible = Dim5Visible;
+                }
+                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                {
+                    ApplicationArea = Dimensions;
+                    Editable = false;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
+                    Visible = Dim6Visible;
+                }
+                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                {
+                    ApplicationArea = Dimensions;
+                    Editable = false;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
+                    Visible = Dim7Visible;
+                }
+                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                {
+                    ApplicationArea = Dimensions;
+                    Editable = false;
+                    ToolTip = 'Specifies the code for Shortcut Dimension 8, which is one of dimension codes that you set up in the General Ledger Setup window.';
+                    Visible = Dim8Visible;
                 }
             }
         }
@@ -421,12 +463,30 @@ page 5802 "Value Entries"
     trigger OnOpenPage()
     begin
         FilterGroupNo := FilterGroup; // Trick: FILTERGROUP is used to transfer an integer value
+        SetDimVisibility();
     end;
 
     var
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
         FilterGroupNo: Integer;
+
+    protected var
+        Dim1Visible: Boolean;
+        Dim2Visible: Boolean;
+        Dim3Visible: Boolean;
+        Dim4Visible: Boolean;
+        Dim5Visible: Boolean;
+        Dim6Visible: Boolean;
+        Dim7Visible: Boolean;
+        Dim8Visible: Boolean;
+
+    local procedure SetDimVisibility()
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+    begin
+        DimensionManagement.UseShortcutDims(Dim1Visible, Dim2Visible, Dim3Visible, Dim4Visible, Dim5Visible, Dim6Visible, Dim7Visible, Dim8Visible);
+    end;
 
     local procedure GetCaption(): Text[250]
     var

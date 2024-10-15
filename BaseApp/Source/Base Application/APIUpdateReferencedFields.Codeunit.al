@@ -45,12 +45,6 @@ codeunit 5152 "API - Update Referenced Fields"
         Rec.Id := Rec.SystemId;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Default Dimension", 'OnBeforeModifyEvent', '', false, false)]
-    local procedure UpdateReferencedIdsDefaultDimensionOnModify(var Rec: Record "Default Dimension"; var xRec: Record "Default Dimension"; RunTrigger: Boolean)
-    begin
-        Rec.UpdateReferencedIdFields();
-    end;
-
     [EventSubscriber(ObjectType::Table, Database::"Default Dimension", 'OnBeforeInsertEvent', '', false, false)]
     local procedure UpdateIdDefaultDimensionOnInsert(var Rec: Record "Default Dimension"; RunTrigger: Boolean)
     begin
@@ -65,6 +59,18 @@ codeunit 5152 "API - Update Referenced Fields"
 
     [EventSubscriber(ObjectType::Table, Database::"Item Variant", 'OnBeforeRenameEvent', '', false, false)]
     local procedure UpdateReferencedIdsItemVariantOnRename(var Rec: Record "Item Variant"; RunTrigger: Boolean)
+    begin
+        Rec.UpdateReferencedIds();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Shipment Line", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure UpdateReferencedIdsSalesShipmentLineOnInsert(var Rec: Record "Sales Shipment Line"; RunTrigger: Boolean)
+    begin
+        Rec.UpdateReferencedIds();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purch. Rcpt. Line", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure UpdateReferencedIdsPurchRcptLineOnInsert(var Rec: Record "Purch. Rcpt. Line"; RunTrigger: Boolean)
     begin
         Rec.UpdateReferencedIds();
     end;

@@ -549,6 +549,10 @@ table 111 "Sales Shipment Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
+        field(8000; "Document Id"; Guid)
+        {
+            Caption = 'Document Id';
+        }
         field(11302; "Pmt. Discount Amount"; Decimal)
         {
             Caption = 'Pmt. Discount Amount';
@@ -1053,6 +1057,26 @@ table 111 "Sales Shipment Line"
     procedure HasTypeToFillMandatoryFields(): Boolean
     begin
         exit(Type <> Type::" ");
+    end;
+
+    local procedure UpdateDocumentId()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        if "Document No." = '' then begin
+            Clear("Document Id");
+            exit;
+        end;
+
+        if not SalesShipmentHeader.Get("Document No.") then
+            exit;
+
+        "Document Id" := SalesShipmentHeader.SystemId;
+    end;
+
+    procedure UpdateReferencedIds()
+    begin
+        UpdateDocumentId();
     end;
 
     [IntegrationEvent(false, false)]
