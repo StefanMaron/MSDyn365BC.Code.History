@@ -33,7 +33,7 @@ page 7374 "Bin Contents"
                             LocationCode := Location.Code;
                             DefFilter();
                         end;
-                        CurrPage.Update(true);
+                        CurrPage.Update(not IsNullGuid(Rec.SystemId));
                     end;
 
                     trigger OnValidate()
@@ -67,7 +67,7 @@ page 7374 "Bin Contents"
                             LocationCode := Zone."Location Code";
                             DefFilter();
                         end;
-                        CurrPage.Update(true);
+                        CurrPage.Update(not IsNullGuid(Rec.SystemId));
                     end;
 
                     trigger OnValidate()
@@ -404,12 +404,12 @@ page 7374 "Bin Contents"
 
     local procedure LocationCodeOnAfterValidate()
     begin
-        CurrPage.Update(true);
+        CurrPage.Update(not IsNullGuid(Rec.SystemId));
     end;
 
     local procedure ZoneCodeOnAfterValidate()
     begin
-        CurrPage.Update(true);
+        CurrPage.Update(not IsNullGuid(Rec.SystemId));
     end;
 
     local procedure RecalculatePickQuantityBaseForCurrentUnitOfMeasureCodeAsFilter()

@@ -605,6 +605,8 @@ table 5405 "Production Order"
         RefreshRecord: Boolean;
     begin
         if Status = Status::Released then begin
+            ConfirmDeletion();
+
             ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
             ItemLedgEntry.SetRange("Order No.", "No.");
             if not ItemLedgEntry.IsEmpty() then
@@ -714,6 +716,7 @@ table 5405 "Production Order"
         UpdateEndDate: Boolean;
         Text010: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         Text011: Label 'You cannot change Finished Production Order dimensions.';
+        ConfirmDeleteQst: Label 'The items have been picked. If you delete the Production Order, then the items will remain in the operation area until you put them away.\Related item tracking information that is defined during the pick will be deleted.\Are you sure that you want to delete the Production Order?';
 
     protected var
         HideValidationDialog: Boolean;
@@ -862,6 +865,7 @@ table 5405 "Production Order"
         ProdOrderLine.LockTable();
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", "No.");
+        ProdOrderLine.SuspendDeletionCheck(true);
         ProdOrderLine.DeleteAll(true);
     end;
 
@@ -1408,6 +1412,22 @@ table 5405 "Production Order"
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, CurrFieldNo);
+    end;
+
+    local procedure ConfirmDeletion()
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+        Confirmed: Boolean;
+    begin
+        ProdOrderComponent.SetRange("Prod. Order No.", "No.");
+        if ProdOrderComponent.FindSet() then
+            repeat
+                if (ProdOrderComponent."Expected Quantity" - ProdOrderComponent."Remaining Quantity") < ProdOrderComponent."Qty. Picked" then begin
+                    if not Confirm(ConfirmDeleteQst) then
+                        Error('');
+                    Confirmed := true;
+                end;
+            until (ProdOrderComponent.Next() = 0) or Confirmed;
     end;
 
 #if not CLEAN20
