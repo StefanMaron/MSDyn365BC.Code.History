@@ -1772,6 +1772,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         NoSeriesManagement: Codeunit NoSeriesManagement;
+        UseGLAccountDimensionsCZZ: Codeunit "Use G/L Account Dimensions CZZ";
         ApplId: Code[50];
         VATDocumentNo: Code[20];
         RemAmount: Decimal;
@@ -1848,7 +1849,9 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                     GenJournalLine."Applies-to ID" := ApplId;
 
                     OnBeforePostClosePayment(GenJournalLine, PurchAdvLetterHeaderCZZ);
+                    BindSubscription(UseGLAccountDimensionsCZZ);
                     GenJnlPostLine.RunWithCheck(GenJournalLine);
+                    UnbindSubscription(UseGLAccountDimensionsCZZ);
                     OnAfterPostClosePayment(GenJournalLine, PurchAdvLetterHeaderCZZ);
 
                     VendorLedgerEntry2.FindLast();

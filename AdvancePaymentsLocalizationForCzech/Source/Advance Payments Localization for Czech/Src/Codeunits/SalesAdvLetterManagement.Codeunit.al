@@ -1821,6 +1821,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
         AdvanceLetterTemplateCZZ: Record "Advance Letter Template CZZ";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         NoSeriesManagement: Codeunit NoSeriesManagement;
+        UseGLAccountDimensionsCZZ: Codeunit "Use G/L Account Dimensions CZZ";
         ApplId: Code[50];
         VATDocumentNo: Code[20];
         RemAmount: Decimal;
@@ -1891,7 +1892,9 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
                     GenJournalLine."Applies-to ID" := ApplId;
 
                     OnBeforePostClosePayment(GenJournalLine, SalesAdvLetterHeaderCZZ);
+                    BindSubscription(UseGLAccountDimensionsCZZ);
                     GenJnlPostLine.RunWithCheck(GenJournalLine);
+                    UnbindSubscription(UseGLAccountDimensionsCZZ);
                     OnAfterPostClosePayment(GenJournalLine, SalesAdvLetterHeaderCZZ);
 
                     CustLedgerEntry2.FindLast();

@@ -592,6 +592,7 @@ table 11732 "Cash Document Header CZP"
     var
         PaymentTxt: Label 'Payment %1', Comment = '%1 = Document No.';
         RefundTxt: Label 'Refund %1', Comment = '%1 = Document No.';
+        InvoiceTxt: Label 'Invoice %1', Comment = '%1 = Document No.';
 
     trigger OnDelete()
     var
@@ -1231,7 +1232,7 @@ table 11732 "Cash Document Header CZP"
         "Shortcut Dimension 1 Code" := PurchInvHeader."Shortcut Dimension 1 Code";
         "Shortcut Dimension 2 Code" := PurchInvHeader."Shortcut Dimension 2 Code";
         "Dimension Set ID" := PurchInvHeader."Dimension Set ID";
-        "Payment Purpose" := StrSubstNo(RefundTxt, PurchInvHeader."No.");
+        "Payment Purpose" := StrSubstNo(InvoiceTxt, PurchInvHeader."No.");
         "Partner Type" := "Partner Type"::Vendor;
         Validate("Partner No.", PurchInvHeader."Buy-from Vendor No.");
         OnAfterCopyCashDocumentHeaderFromPurchInvHeader(PurchInvHeader, Rec);
