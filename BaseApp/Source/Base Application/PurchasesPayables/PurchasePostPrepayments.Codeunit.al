@@ -1007,6 +1007,7 @@
             "VAT Amount (ACY)" := PurchLine."Prepmt. Amt. Incl. VAT" - PurchLine."Prepayment Amount";
             "VAT Base Before Pmt. Disc." := PurchLine."Prepayment Amount";
             "Orig. Pmt. Disc. Possible" := PurchLine."Prepmt. Pmt. Discount Amount";
+            "Location Code" := PurchLine."Location Code";
         end;
 
         OnAfterFillInvLineBuffer(PrepmtInvLineBuf, PurchLine, SuppressCommit, PurchHeader);
@@ -1409,10 +1410,11 @@
         ApplyFilter(PurchHeader, 1, PurchLine);
         if PurchLine.FindSet() then
             repeat
-                if (PrepmtAmount(PurchLine, 0) <> 0) and (PrepmtAmount(PurchLine, 1) <> 0) then begin
-                    PurchLines := PurchLine;
-                    PurchLines.Insert();
-                end;
+                if (PrepmtAmount(PurchLine, 0) <> 0) and (PrepmtAmount(PurchLine, 1) <> 0) then
+                    if not PurchLines.Get(PurchLine.RecordId) then begin
+                        PurchLines := PurchLine;
+                        PurchLines.Insert();
+                    end;
             until PurchLine.Next() = 0;
     end;
 
@@ -1618,6 +1620,7 @@
             PurchInvLine."Job No." := "Job No.";
             PurchInvLine."Job Task No." := "Job Task No.";
             PurchInvLine."Pmt. Discount Amount" := "Orig. Pmt. Disc. Possible";
+            PurchInvLine."Location Code" := "Location Code";
             OnBeforePurchInvLineInsert(PurchInvLine, PurchInvHeader, PrepmtInvLineBuffer, SuppressCommit);
             PurchInvLine.Insert();
             if not PurchaseHeader."Compress Prepayment" then

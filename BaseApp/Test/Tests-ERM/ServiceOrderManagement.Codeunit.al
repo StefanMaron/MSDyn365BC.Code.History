@@ -23,6 +23,7 @@ codeunit 136135 "Service Order Management"
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTemplates: Codeunit "Library - Templates";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         IsInitialized: Boolean;
         ItemNo2: Code[20];
         GlobalItemNo: Code[20];
@@ -954,6 +955,54 @@ codeunit 136135 "Service Order Management"
         LineNo := LibraryRandom.RandInt(1000);
         asserterror ServiceItem.Validate("Sales/Serv. Shpt. Line No.", LineNo);
         Assert.ExpectedError(StrSubstNo(NotExistingServLineNoValueErr, LineNo));
+    end;
+
+    [Test]
+    [HandlerFunctions('StartingFeePageHandler')]
+    procedure VerifyUnitPriceOnServiceWorksheetLineWithServiceCostAndNewPricingExperience()
+    var
+        Customer: Record Customer;
+        ServiceItem: Record "Service Item";
+        ServiceCost: Record "Service Cost";
+        ServiceLine: Record "Service Line";
+        ServiceOrder: TestPage "Service Order";
+        ServiceOrderNo: Code[20];
+        ServiceOrderStartingFee: Code[10];
+    begin
+        // [SCENARIO 484108] Verify Unit Price on Service Worksheet Line with Service Cost and New Pricing Experience
+        Initialize();
+
+        // [GIVEN] Enable New Sales Pricing Experience
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Create Service Cost with Unit Price
+        CreateServiceCost(ServiceCost, '');
+        ServiceCost.Validate("Default Unit Price", LibraryRandom.RandDec(10, 2));
+        ServiceCost.Modify(true);
+
+        // [GIVEN] Set Service Cost on Service Management Setup
+        ServiceOrderStartingFee := UpdateServiceOrderStartingFee(ServiceCost.Code);
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Service Item
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+
+        // [GIVEN] Create Service Order
+        ServiceOrderNo := CreateServiceOrder(ServiceItem);
+
+        // [WHEN] Open Service Item worksheet and run insert Starting Fee function.
+        OpenServiceOrder(ServiceOrder, ServiceOrderNo);
+        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
+
+        // [THEN] Verify Unit Price on Service Worksheet Line
+        ServiceLine.SetRange("Document No.", ServiceOrderNo);
+        ServiceLine.FindFirst();
+        ServiceLine.TestField("Unit Price", ServiceCost."Default Unit Price");
+
+        // Rollback Service Order Starting Fee on Service Management Setup to default value.
+        UpdateServiceOrderStartingFee(ServiceOrderStartingFee);
     end;
 
     local procedure CreateBOMComponent(ItemNo: Code[20]): Integer

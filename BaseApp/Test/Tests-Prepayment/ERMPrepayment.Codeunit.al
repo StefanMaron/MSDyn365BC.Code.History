@@ -3969,6 +3969,48 @@
         TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyDescription2ShouldPopulateInTheSalesPrepaymentInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+    begin
+        // [SCENARIO 483437] Verify that "Description 2" should populate in the sales prepayment invoice.
+        Initialize();
+
+        // [GIVEN] Create a Sales Order.
+        CreateSalesDocument(SalesHeader, SalesLine, LibraryRandom.RandIntInRange(1, 1));
+
+        // [GIVEN] Update the Prepayment % in Sales Header.
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(50, 50));
+        SalesHeader.Validate("Compress Prepayment", false);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Update the "Description 2" in Sales Line.
+        SalesLine.Validate("Description 2", LibraryUtility.GenerateGUID());
+        SalesLine.Modify(true);
+
+        // [WHEN] Post the Prepayment invoice.
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [GIVEN] Find the Prepayment invoice.
+        FindSalesPrepmtInvoice(SalesInvoiceHeader, SalesHeader."No.");
+
+        // [VERIFY] Verify that "Description 2" should populate in the sales prepayment invoice.
+        FindSalesInvoiceLines(SalesInvoiceLine, SalesInvoiceHeader);
+        Assert.AreEqual(
+            SalesLine."Description 2",
+            SalesInvoiceLine."Description 2",
+            StrSubstNo(
+                AmountErr,
+                SalesInvoiceLine.FieldCaption("Description 2"),
+                SalesInvoiceLine."Description 2",
+                SalesInvoiceLine.TableCaption));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

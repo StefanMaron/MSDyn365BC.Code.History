@@ -322,13 +322,15 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
                 case WhseRequest."Source Type" of
                     DATABASE::"Sales Line":
                         if WhseRequest."Source Subtype" = WhseRequest."Source Subtype"::"1" then begin
-                            SalesHeader.Get(SalesHeader."Document Type"::Order, WhseRequest."Source No.");
-                            SkipRecord := GetSrcDocOutbound.CheckSalesHeader(SalesHeader, ShowError);
+                            SkipRecord := not SalesHeader.Get(SalesHeader."Document Type"::Order, WhseRequest."Source No.");
+                            if not SkipRecord then
+                                SkipRecord := GetSrcDocOutbound.CheckSalesHeader(SalesHeader, ShowError);
                         end;
                     DATABASE::"Transfer Line":
                         begin
-                            TransferHeader.Get(WhseRequest."Source No.");
-                            SkipRecord := GetSrcDocOutbound.CheckTransferHeader(TransferHeader, ShowError);
+                            SkipRecord := not TransferHeader.Get(WhseRequest."Source No.");
+                            if not SkipRecord then
+                                SkipRecord := GetSrcDocOutbound.CheckTransferHeader(TransferHeader, ShowError);
                         end;
                 end;
         OnAfterCheckWhseRequest(WhseRequest, SkipRecord);

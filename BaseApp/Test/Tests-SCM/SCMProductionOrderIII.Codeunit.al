@@ -5251,6 +5251,52 @@ codeunit 137079 "SCM Production Order III"
         LibraryPriceCalculation.DisableExtendedPriceCalculation();
     end;
 
+    [Test]
+    procedure VerifyReleasedProdOrderAllocatedCapacityForFamilySourceType()
+    var
+        Items: array[2] of Record Item;
+        WorkCenters: array[3] of Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        Family: Record Family;
+        FamilyLine: Record "Family Line";
+        ProductionOrder: Record "Production Order";
+    begin
+        // [SCENARIO 485090] Verify released prod. order allocated capacity for family source type
+        Initialize();
+
+        // [GIVEN] Create Items
+        LibraryInventory.CreateItem(Items[1]);
+        LibraryInventory.CreateItem(Items[2]);
+
+        // [GIVEN] Create Work Centers
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenters[1]);
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenters[2]);
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenters[3]);
+
+        // [GIVEN] Create Routing and certified it
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateRoutingLineWithWorkCenter(RoutingHeader, WorkCenters[1], '10', 100, 3);
+        CreateRoutingLineWithWorkCenter(RoutingHeader, WorkCenters[2], '20', 50, 2);
+        CreateRoutingLineWithWorkCenter(RoutingHeader, WorkCenters[3], '30', 0, 1);
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Create Family and Family Lines
+        LibraryManufacturing.CreateFamily(Family);
+        Family.Validate("Routing No.", RoutingHeader."No.");
+        Family.Modify(true);
+        LibraryManufacturing.CreateFamilyLine(FamilyLine, Family."No.", Items[1]."No.", 2);
+        LibraryManufacturing.CreateFamilyLine(FamilyLine, Family."No.", Items[2]."No.", 2);
+
+        // [WHEN] Create and refresh a Released Production Order
+        CreateAndRefreshProductionOrderWithSourceTypeFamily(
+          ProductionOrder, ProductionOrder.Status::Released, Family."No.", 100);
+
+        // [THEN] Verify results
+        VerifyProdOrderCapacity(ProductionOrder, WorkCenters[1], 5);
+        VerifyProdOrderCapacity(ProductionOrder, WorkCenters[2], 4);
+        VerifyProdOrderCapacity(ProductionOrder, WorkCenters[3], 1);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");
@@ -7507,6 +7553,26 @@ codeunit 137079 "SCM Production Order III"
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.DeleteAll();
+    end;
+
+    local procedure CreateRoutingLineWithWorkCenter(RoutingHeader: Record "Routing Header"; WorkCenter: Record "Work Center"; OperationNo: Code[10]; SetupTime: Integer; RunTime: Integer)
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', OperationNo, RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Setup Time", SetupTime);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Modify(true);
+    end;
+
+    local procedure VerifyProdOrderCapacity(ProductionOrder: Record "Production Order"; WorkCenter: Record "Work Center"; NoOfRecords: Integer)
+    var
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+    begin
+        ProdOrderCapacityNeed.Reset();
+        ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderCapacityNeed.SetRange("Work Center No.", WorkCenter."No.");
+        Assert.RecordCount(ProdOrderCapacityNeed, NoOfRecords);
     end;
 
     [MessageHandler]

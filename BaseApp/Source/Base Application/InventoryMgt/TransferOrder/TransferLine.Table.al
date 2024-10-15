@@ -563,7 +563,14 @@
             TableRelation = Location;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateTransferToCode(Rec, xRec, CurrFieldNo, StatusCheckSuspended, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Quantity Shipped", 0);
                 if CurrFieldNo <> 0 then
                     TestStatusOpen();
@@ -2266,6 +2273,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcBaseQty(var TransferLine: Record "Transfer Line"; var Qty: Decimal; FromFieldName: Text; ToFieldName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTransferToCode(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; CurrFieldNo: Integer; StatusCheckSuspended: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

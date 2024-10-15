@@ -76,7 +76,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
         if IsHandled then
             exit;
 
-        GetSourceDocHeader();
+        if not GetSourceDocHeader() then
+            exit;
+
         UpdateWhseActivHeader(WhseRequest);
 
         case WhseRequest."Source Document" of
@@ -150,59 +152,63 @@ codeunit 7322 "Create Inventory Pick/Movement"
         end;
     end;
 
-    local procedure GetSourceDocHeader()
+    local procedure GetSourceDocHeader(): Boolean
     var
         IsHandled: Boolean;
+        RecordExists: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetSourceDocHeader(WhseRequest, IsHandled);
+        RecordExists := true;
+        OnBeforeGetSourceDocHeader(WhseRequest, IsHandled, RecordExists);
         if IsHandled then
-            exit;
+            exit(RecordExists);
 
         case WhseRequest."Source Document" of
             WhseRequest."Source Document"::"Purchase Order":
                 begin
-                    PurchHeader.Get(PurchHeader."Document Type"::Order, WhseRequest."Source No.");
+                    RecordExists := PurchHeader.Get(PurchHeader."Document Type"::Order, WhseRequest."Source No.");
                     PostingDate := PurchHeader."Posting Date";
                     VendorDocNo := PurchHeader."Vendor Invoice No.";
                 end;
             WhseRequest."Source Document"::"Purchase Return Order":
                 begin
-                    PurchHeader.Get(PurchHeader."Document Type"::"Return Order", WhseRequest."Source No.");
+                    RecordExists := PurchHeader.Get(PurchHeader."Document Type"::"Return Order", WhseRequest."Source No.");
                     PostingDate := PurchHeader."Posting Date";
                     VendorDocNo := PurchHeader."Vendor Cr. Memo No.";
                 end;
             WhseRequest."Source Document"::"Sales Order":
                 begin
-                    SalesHeader.Get(SalesHeader."Document Type"::Order, WhseRequest."Source No.");
+                    RecordExists := SalesHeader.Get(SalesHeader."Document Type"::Order, WhseRequest."Source No.");
                     PostingDate := SalesHeader."Posting Date";
                 end;
             WhseRequest."Source Document"::"Sales Return Order":
                 begin
-                    SalesHeader.Get(SalesHeader."Document Type"::"Return Order", WhseRequest."Source No.");
+                    RecordExists := SalesHeader.Get(SalesHeader."Document Type"::"Return Order", WhseRequest."Source No.");
                     PostingDate := SalesHeader."Posting Date";
                 end;
             WhseRequest."Source Document"::"Outbound Transfer":
                 begin
-                    TransferHeader.Get(WhseRequest."Source No.");
+                    RecordExists := TransferHeader.Get(WhseRequest."Source No.");
                     PostingDate := TransferHeader."Posting Date";
                 end;
             WhseRequest."Source Document"::"Prod. Consumption":
                 begin
-                    ProdHeader.Get(WhseRequest."Source Subtype", WhseRequest."Source No.");
+                    RecordExists := ProdHeader.Get(WhseRequest."Source Subtype", WhseRequest."Source No.");
                     PostingDate := WorkDate();
                 end;
             WhseRequest."Source Document"::"Assembly Consumption":
                 begin
-                    AssemblyHeader.Get(WhseRequest."Source Subtype", WhseRequest."Source No.");
+                    RecordExists := AssemblyHeader.Get(WhseRequest."Source Subtype", WhseRequest."Source No.");
                     PostingDate := AssemblyHeader."Posting Date";
                 end;
             WhseRequest."Source Document"::"Job Usage":
-                Job.Get(WhseRequest."Source No.");
+                RecordExists := Job.Get(WhseRequest."Source No.");
             else
-                OnGetSourceDocHeaderFromWhseRequest(WhseRequest, SourceDocRecRef, PostingDate, VendorDocNo);
+                OnGetSourceDocHeaderFromWhseRequest(WhseRequest, SourceDocRecRef, PostingDate, VendorDocNo, RecordExists);
         end;
         OnAfterGetSourceDocHeader(WhseRequest, PostingDate, VendorDocNo);
+
+        exit(RecordExists);
     end;
 
     local procedure UpdateWhseActivHeader(WhseRequest: Record "Warehouse Request")
@@ -1240,7 +1246,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
         if IsHandled then
             exit(Result);
 
-        GetSourceDocHeader();
+        if not GetSourceDocHeader() then
+            exit(false);
+
         CheckLineExist := true;
         case WhseRequest."Source Document" of
             WhseRequest."Source Document"::"Purchase Order":
@@ -2378,7 +2386,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetSourceDocHeader(var WhseRequest: Record "Warehouse Request"; var IsHandled: Boolean)
+    local procedure OnBeforeGetSourceDocHeader(var WhseRequest: Record "Warehouse Request"; var IsHandled: Boolean; var RecordExists: Boolean)
     begin
     end;
 
@@ -2530,7 +2538,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetSourceDocHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var SourceDocRecRef: RecordRef; var PostingDate: Date; VendorDocNo: Code[35])
+    local procedure OnGetSourceDocHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var SourceDocRecRef: RecordRef; var PostingDate: Date; VendorDocNo: Code[35]; var RecordExists: Boolean)
     begin
     end;
 

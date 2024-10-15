@@ -329,7 +329,6 @@ codeunit 5069 "Word Template Interactions"
                         Attachment."File Extension" := 'html';
 
                         DummyTempBlob.CreateInStream(DummyInStream);
-                        Commit();
                         DocumentMailing.EmailFile(DummyInStream, TempDeliverySorter.Subject, TempServerFileName, TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
                         FileManagement.DeleteServerFile(TempServerFileName);
                     end;

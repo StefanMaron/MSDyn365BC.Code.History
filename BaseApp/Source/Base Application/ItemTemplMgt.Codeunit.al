@@ -84,6 +84,7 @@ codeunit 1336 "Item Templ. Mgt."
         ItemTemplRecRef.GetTable(ItemTempl);
         EmptyItemTemplRecRef.Open(Database::"Item Templ.");
         EmptyItemTemplRecRef.Init();
+        UpdateDefaultCostingMethodToEmptyItemTemplateRecRef(EmptyItemTemplRecRef, ItemTempl.FieldNo("Costing Method"), InventorySetup);
 
         FillFieldExclusionList(FieldExclusionList);
 
@@ -495,6 +496,11 @@ codeunit 1336 "Item Templ. Mgt."
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         exit(ConfirmManagement.GetResponse(OpenBlankCardQst, false));
+    end;
+
+    local procedure UpdateDefaultCostingMethodToEmptyItemTemplateRecRef(var EmptyItemTemplRecordRef: RecordRef; ItemCostingMethodFieldNo: Integer; InventorySetup: Record "Inventory Setup")
+    begin
+        EmptyItemTemplRecordRef.Field(ItemCostingMethodFieldNo).Value := InventorySetup."Default Costing Method";
     end;
 
     [IntegrationEvent(false, false)]
