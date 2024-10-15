@@ -1534,6 +1534,8 @@
                     begin
                         CopyDocument();
                         if Get("Document Type", "No.") then;
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
+                        CurrPage.Update();
                     end;
                 }
                 action(MoveNegativeLines)
