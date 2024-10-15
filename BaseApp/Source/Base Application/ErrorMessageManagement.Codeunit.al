@@ -237,8 +237,18 @@ codeunit 28 "Error Message Management"
         OnGetLastErrorID(ID, ErrorMessage);
     end;
 
+    procedure GetCachedLastErrorID() ID: Integer
+    begin
+        OnGetCachedLastErrorID(ID);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnGetLastErrorID(var ID: Integer; var ErrorMessage: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCachedLastErrorID(var ID: Integer)
     begin
     end;
 

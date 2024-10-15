@@ -343,6 +343,7 @@ table 1301 "Item Template"
         ConfigTemplateMgt: Codeunit "Config. Template Management";
         RecRef: RecordRef;
         FoundUoM: Boolean;
+        ShouldUpdateBaseUOM: Boolean;
     begin
         InitItemNo(Item, ConfigTemplateHeader);
         Item.Insert(true);
@@ -350,7 +351,9 @@ table 1301 "Item Template"
         ConfigTemplateMgt.UpdateRecord(ConfigTemplateHeader, RecRef);
         RecRef.SetTable(Item);
 
-        if Item."Base Unit of Measure" = '' then begin
+        ShouldUpdateBaseUOM := Item."Base Unit of Measure" = '';
+        OnInsertItemFromTemplateOnAfterCalcShouldUpdateBaseUOM(Item, ShouldUpdateBaseUOM);
+        if ShouldUpdateBaseUOM then begin
             UnitOfMeasure.SetRange("International Standard Code", 'EA'); // 'Each' ~= 'PCS'
             FoundUoM := UnitOfMeasure.FindFirst;
             if not FoundUoM then begin
@@ -434,6 +437,12 @@ table 1301 "Item Template"
     [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitItemNo(var Item: Record Item; ConfigTemplateHeader: Record "Config. Template Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by new templates.', '18.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemFromTemplateOnAfterCalcShouldUpdateBaseUOM(var Item: Record Item; var ShouldUpdateBaseUOM: Boolean)
     begin
     end;
 

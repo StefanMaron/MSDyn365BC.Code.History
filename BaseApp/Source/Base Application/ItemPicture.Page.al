@@ -116,16 +116,15 @@ page 346 "Item Picture"
         DeleteExportEnabled: Boolean;
         HideActions: Boolean;
         MustSpecifyDescriptionErr: Label 'You must add a description to the item before you can import a picture.';
+        MimeTypeTok: Label 'image/jpeg', Locked = true;
 
     procedure TakeNewPicture()
     begin
-        Find;
-        TestField("No.");
-        TestField(Description);
+        Rec.Find();
+        Rec.TestField("No.");
+        Rec.TestField(Description);
 
-        OnAfterTakeNewPicture(
-            Rec,
-            Camera.AddPicture(Rec, Rec.FieldNo(Picture)));
+        OnAfterTakeNewPicture(Rec, DoTakeNewPicture());
     end;
 
     [Scope('OnPrem')]
@@ -155,6 +154,25 @@ page 346 "Item Picture"
         OnImportFromDeviceOnAfterModify(Rec);
 
         if FileManagement.DeleteServerFile(FileName) then;
+    end;
+
+    local procedure DoTakeNewPicture(): Boolean
+    var
+        PictureInstream: InStream;
+        PictureDescription: Text;
+    begin
+        if Rec.Picture.Count() > 0 then
+            if not Confirm(OverrideImageQst) then
+                exit(false);
+
+        if Camera.GetPicture(PictureInstream, PictureDescription) then begin
+            Clear(Rec.Picture);
+            Rec.Picture.ImportStream(PictureInstream, PictureDescription, MimeTypeTok);
+            Rec.Modify(true);
+            exit(true);
+        end;
+
+        exit(false);
     end;
 
     local procedure SetEditableOnPictureActions()

@@ -252,7 +252,14 @@ table 7321 "Warehouse Shipment Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyToShipBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 Validate("Qty. to Ship", CalcQty("Qty. to Ship (Base)"));
             end;
         }
@@ -506,7 +513,6 @@ table 7321 "Warehouse Shipment Line"
     trigger OnDelete()
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        OrderStatus: Option;
     begin
         TestReleased;
 
@@ -526,12 +532,7 @@ table 7321 "Warehouse Shipment Line"
         ItemTrackingMgt.DeleteWhseItemTrkgLines(
           DATABASE::"Warehouse Shipment Line", 0, "No.", '', 0, "Line No.", "Location Code", true);
 
-        OrderStatus :=
-          WhseShptHeader.GetDocumentStatus("Line No.");
-        if OrderStatus <> WhseShptHeader."Document Status" then begin
-            WhseShptHeader.Validate("Document Status", OrderStatus);
-            WhseShptHeader.Modify();
-        end;
+        UpdateDocumentStatus();
     end;
 
     trigger OnRename()
@@ -603,6 +604,23 @@ table 7321 "Warehouse Shipment Line"
         OnBeforeTestReleased(WhseShptHeader, StatusCheckSuspended);
         if not StatusCheckSuspended then
             WhseShptHeader.TestField(Status, WhseShptHeader.Status::Open);
+    end;
+
+    local procedure UpdateDocumentStatus()
+    var
+        OrderStatus: Option;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateDocumentStatus(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        OrderStatus := WhseShptHeader.GetDocumentStatus("Line No.");
+        if OrderStatus <> WhseShptHeader."Document Status" then begin
+            WhseShptHeader.Validate("Document Status", OrderStatus);
+            WhseShptHeader.Modify();
+        end;
     end;
 
     procedure CheckBin(DeductCubage: Decimal; DeductWeight: Decimal)
@@ -1150,6 +1168,16 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestReleased(var WhseShptHeader: Record "Warehouse Shipment Header"; var StatusCheckSuspended: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDocumentStatus(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyToShipBase(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; xWarehouseShipmentLine: Record "Warehouse Shipment Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

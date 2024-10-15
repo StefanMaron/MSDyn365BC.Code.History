@@ -33,10 +33,29 @@ table 253 "G/L Entry - VAT Entry Link"
     var
         GLEntryVatEntryLink: Record "G/L Entry - VAT Entry Link";
     begin
-        GLEntryVatEntryLink.Init();
-        GLEntryVatEntryLink."G/L Entry No." := GLEntryNo;
-        GLEntryVatEntryLink."VAT Entry No." := VATEntryNo;
-        GLEntryVatEntryLink.Insert();
+        GLEntryVatEntryLink.InsertLinkSelf(GLEntryNo, VATEntryNo);
+    end;
+
+    procedure InsertLinkSelf(GLEntryNo: Integer; VATEntryNo: Integer)
+    begin
+        Init();
+        "G/L Entry No." := GLEntryNo;
+        "VAT Entry No." := VATEntryNo;
+        Insert();
+    end;
+
+    procedure InsertLinkWithGLAccountSelf(GLEntryNo: Integer; VATEntryNo: Integer)
+    var
+        GLEntry: Record "G/L Entry";
+        VATEntryEdit: Codeunit "VAT Entry - Edit";
+    begin
+        InsertLinkSelf(GLEntryNo, VATEntryNo);
+
+        if GLEntryNo <> 0 then begin
+            GLEntry.SetLoadFields("G/L Account No.");
+            GLEntry.Get(GLEntryNo);
+            VATEntryEdit.SetGLAccountNo("VAT Entry No.", GLEntry."G/L Account No.");
+        end
     end;
 }
 

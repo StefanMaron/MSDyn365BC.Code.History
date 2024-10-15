@@ -1,4 +1,4 @@
-table 23 Vendor
+﻿table 23 Vendor
 {
     Caption = 'Vendor';
     DataCaptionFields = "No.", Name;
@@ -1349,7 +1349,7 @@ table 23 Vendor
         }
         field(7602; "Validate EU Vat Reg. No."; Boolean)
         {
-            Caption = 'Validate EU Vat Reg. No.';
+            Caption = 'Validate EU VAT Reg. No.';
         }
         field(8000; Id; Guid)
         {
@@ -1451,6 +1451,9 @@ table 23 Vendor
         {
         }
         key(Key16; "Coupled to CRM")
+        {
+        }
+        key(Key21; "IC Partner Code")
         {
         }
     }
@@ -1830,11 +1833,12 @@ table 23 Vendor
 
     procedure DisplayMap()
     var
-        MapPoint: Record "Online Map Setup";
-        MapMgt: Codeunit "Online Map Management";
+        OnLineMapSetup: Record "Online Map Setup";
+        OnlineMapManagement: Codeunit "Online Map Management";
     begin
-        if MapPoint.FindFirst then
-            MapMgt.MakeSelection(DATABASE::Vendor, GetPosition)
+        OnLineMapSetup.SetRange(Enabled, true);
+        if OnLineMapSetup.FindFirst then
+            OnlineMapManagement.MakeSelection(DATABASE::Vendor, GetPosition)
         else
             Message(Text011);
     end;

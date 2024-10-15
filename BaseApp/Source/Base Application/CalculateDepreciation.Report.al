@@ -263,10 +263,14 @@ report 5692 "Calculate Depreciation"
         }
 
         trigger OnOpenPage()
+        var
+            ClientTypeManagement: Codeunit "Client Type Management";
         begin
             BalAccount := true;
-            PostingDate := WorkDate;
-            DeprUntilDate := WorkDate;
+            if ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Background then begin
+                PostingDate := WorkDate;
+                DeprUntilDate := WorkDate;
+            end;
             if DeprBookCode = '' then begin
                 FASetup.Get();
                 DeprBookCode := FASetup."Default Depr. Book";

@@ -407,6 +407,7 @@ table 274 "Bank Acc. Reconciliation Line"
                     if "Statement Amount" = 0 then
                         Error(TransactionAmountMustNotBeZeroErr);
                     PaymentApplication.SetBankAccReconcLine(Rec);
+                    OnDisplayApplicationOnAfterSetBankAccReconcLine(PaymentApplication);
                     PaymentApplication.RunModal;
                 end;
         end;
@@ -494,6 +495,8 @@ table 274 "Bank Acc. Reconciliation Line"
         "Transaction Date" := WorkDate;
         "Match Confidence" := "Match Confidence"::None;
         "Document No." := '';
+
+        OnAfterSetUpNewLine(Rec, xRec);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -976,6 +979,8 @@ table 274 "Bank Acc. Reconciliation Line"
         SetRange("Statement Type", BankAccRecon."Statement Type");
         SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
         SetRange("Statement No.", BankAccRecon."Statement No.");
+
+        OnAfterFilterBankRecLines(Rec, BankAccRecon);
     end;
 
     procedure LinesExist(BankAccRecon: Record "Bank Acc. Reconciliation"): Boolean
@@ -1345,6 +1350,16 @@ table 274 "Bank Acc. Reconciliation Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetUpNewLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; xBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterBankRecLines(var Rec: Record "Bank Acc. Reconciliation Line"; BankAccRecon: Record "Bank Acc. Reconciliation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountName(AccountType: Option; AccountNo: Code[20]; var Name: Text)
     begin
     end;
@@ -1381,6 +1396,11 @@ table 274 "Bank Acc. Reconciliation Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnDisplayApplicationOnAfterBankAccLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDisplayApplicationOnAfterSetBankAccReconcLine(var PaymentApplication: Page "Payment Application");
     begin
     end;
 
