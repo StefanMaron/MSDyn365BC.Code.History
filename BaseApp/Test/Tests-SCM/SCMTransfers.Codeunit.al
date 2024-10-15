@@ -120,7 +120,7 @@ codeunit 137038 "SCM Transfers"
             LibraryRandom.RandInt(5));
         EditTransferOrderQuantity(TransferOrderNo, 1); // This will send a notification (no item in inventory)
         NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
-        NbNotifs := TempNotificationContext.Count;
+        NbNotifs := TempNotificationContext.Count();
 
         // WHEN we decrease the quantity so the item is available (0 items ordered)
         EditTransferOrderQuantity(TransferOrderNo, 0);
@@ -314,7 +314,7 @@ codeunit 137038 "SCM Transfers"
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", Item."Costing Method"::Average);
-        Item.Modify;
+        Item.Modify();
 
         CreateTransferRoutes;
         CreateAndPostItemJnlWithCostLocationVariant(
@@ -325,7 +325,7 @@ codeunit 137038 "SCM Transfers"
         CreateTransferOrder(
           TransferLine, LocationCode[4], LocationCode[2], Item."No.", WorkDate, LibraryRandom.RandInt(5));
         TransferLine.Validate("Appl.-to Item Entry", FindLastILENo(Item."No."));
-        TransferLine.Modify;
+        TransferLine.Modify();
 
         // [WHEN] Ship Transfer Order.
         TransferHeader.Get(TransferLine."Document No.");
@@ -355,7 +355,7 @@ codeunit 137038 "SCM Transfers"
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", Item."Costing Method"::Average);
-        Item.Modify;
+        Item.Modify();
 
         CreateTransferRoutes;
         CreateAndPostItemJnlWithCostLocationVariant(
@@ -370,7 +370,7 @@ codeunit 137038 "SCM Transfers"
         CreateTransferOrder(
           TransferLine, LocationCode[4], LocationCode[2], Item."No.", WorkDate, LibraryRandom.RandInt(5));
         TransferLine.Validate("Appl.-to Item Entry", FindLastILENo(Item."No."));
-        TransferLine.Modify;
+        TransferLine.Modify();
 
         // [GIVEN] Post Transfer Order.
         TransferHeader.Get(TransferLine."Document No.");
@@ -1003,7 +1003,7 @@ codeunit 137038 "SCM Transfers"
         Location.Validate("Require Receive", true);
 
         // [THEN] No Warehouse Request is created.
-        WarehouseRequest.Init;
+        WarehouseRequest.Init();
         WarehouseRequest.SetRange("Location Code", Location.Code);
         Assert.RecordIsEmpty(WarehouseRequest);
     end;
@@ -1038,7 +1038,7 @@ codeunit 137038 "SCM Transfers"
         LibraryWarehouse.PostTransferOrder(TransferHeader, false, true);
 
         // [THEN] Transfer Receipt to "L2" is posted.
-        TransferReceiptHeader.Init;
+        TransferReceiptHeader.Init();
         TransferReceiptHeader.SetRange("Transfer-to Code", Location.Code);
         Assert.RecordIsNotEmpty(TransferReceiptHeader);
     end;
@@ -1576,7 +1576,7 @@ codeunit 137038 "SCM Transfers"
             LibraryInventory.CreateItem(Item[i]);
             Item[i].Description := Desc;
             Item[i]."Description 2" := Desc2;
-            Item[i].Modify;
+            Item[i].Modify();
         end;
 
         // [GIVEN] Transfer order.
@@ -1841,10 +1841,10 @@ codeunit 137038 "SCM Transfers"
         Initialize;
 
         // [GIVEN] Transfer Receipt "TR1"
-        TransferReceiptHeader.Init;
+        TransferReceiptHeader.Init();
         TransferReceiptHeader."No." := LibraryUtility.GenerateRandomCode(
             TransferReceiptHeader.FieldNo("No."), DATABASE::"Transfer Receipt Header");
-        TransferReceiptHeader.Insert;
+        TransferReceiptHeader.Insert();
         LibraryVariableStorage.Enqueue(TransferReceiptHeader."No.");
 
         // [GIVEN] Transfer Receipt Line "TR1",10000 for Item "ITEM1" with Quantity 10
@@ -1873,6 +1873,100 @@ codeunit 137038 "SCM Transfers"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [HandlerFunctions('PostedTransferShipmentLinesHandler')]
+    [Test]
+    procedure TransferOrderQtyShippedDrillDown()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TransferOrder: TestPage "Transfer Order";
+    begin
+        // [FEATURE] [UI] [Transfer Order] 
+        // [SCENARIO 335337] "Quantity Shipped" DrillDown filters lines by "Line No."
+        Initialize;
+
+        // [GIVEN] Partly shipped Transfer Order "T" from "L1" to Location "L2".
+        CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
+
+        // [WHEN] "Quantity Shipped" DrillDown is being activated
+        TransferOrder.OpenEdit();
+        TransferOrder.Filter.SetFilter("No.", TransferHeader."No.");
+        TransferOrder.TransferLines."Quantity Shipped".Drilldown();
+
+        // [THEN] Opened page has filter by "Line No."
+        Assert.AreEqual(Format(TransferLine."Line No."), LibraryVariableStorage.DequeueText(), 'Invalid filter');
+    end;
+
+    [HandlerFunctions('PostedTransferReceiptLinesHandler')]
+    [Test]
+    procedure TransferOrderQtyReceivedDrillDown()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TransferOrder: TestPage "Transfer Order";
+    begin
+        // [FEATURE] [UI] [Transfer Order] 
+        // [SCENARIO 335337] "Quantity Received" DrillDown filters lines by "Line No."
+        Initialize;
+
+        // [GIVEN] Partly Received Transfer Order "T" from "L1" to Location "L2".
+        CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
+        LibraryWarehouse.PostTransferOrder(TransferHeader, false, true);
+
+        // [WHEN] "Quantity Received" DrillDown is being activated
+        TransferOrder.OpenEdit();
+        TransferOrder.Filter.SetFilter("No.", TransferHeader."No.");
+        TransferOrder.TransferLines."Quantity Received".Drilldown();
+
+        // [THEN] Opened page has filter by "Line No."
+        Assert.AreEqual(Format(TransferLine."Line No."), LibraryVariableStorage.DequeueText(), 'Invalid filter');
+    end;
+
+    [HandlerFunctions('PostedTransferShipmentLinesGetDescriptionHandler')]
+    [Test]
+    procedure TransferOrderQtyShippedDrillDownSecondLine()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TransferOrder: TestPage "Transfer Order";
+        PostedTransferShipmentLines: TestPage "Posted Transfer Shipment Lines";
+        Text: Text;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [UI] [Transfer Order] 
+        // [SCENARIO 335337] "Quantity Shipped" DrillDown opens proper line when tranfer order shipped line by line
+        Initialize;
+
+        // [GIVEN] Transfer Order "T" from "L1" to Location "L2".
+        CreateTransferOrderHeader(TransferHeader);
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+        CreateItemWithPositiveInventory(Item, TransferHeader."Transfer-from Code", Qty * 2);
+
+        // [GIVEN] Transfer order line for item "I" with "Qty to Ship" = 0 and Description = "D1"
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
+        TransferLine.Validate("Qty. to Ship", 0);
+        TransferLine.Description := CopyStr(Format(CreateGuid()), 1, MaxStrLen(TransferLine.Description));
+        TransferLine.Modify();
+
+        // [GIVEN] Transfer order line for item "I" with "Qty to Ship" = 10 and Description = "D2"
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
+        TransferLine.Description := CopyStr(Format(CreateGuid()), 1, MaxStrLen(TransferLine.Description));
+        TransferLine.Modify();
+
+        // [GIVEN] Ship tranfer order 
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
+
+        // [WHEN] "Quantity Shipped" DrillDown is being activated for second line
+        TransferOrder.OpenEdit();
+        TransferOrder.Filter.SetFilter("No.", TransferHeader."No.");
+        TransferOrder.TransferLines.Filter.SetFilter(Description, TransferLine.Description);
+        TransferOrder.TransferLines."Quantity Shipped".Drilldown();
+
+        // [THEN] Opened page has Description "D2"
+        Assert.AreEqual(TransferLine.Description, LibraryVariableStorage.DequeueText(), 'Invalid transfer shipment line');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1893,7 +1987,7 @@ codeunit 137038 "SCM Transfers"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Transfers");
     end;
 
@@ -2089,7 +2183,7 @@ codeunit 137038 "SCM Transfers"
         RequisitionWkshName.FindFirst;
         ClearReqWkshBatch(RequisitionWkshName);
 
-        RequisitionLine.Init;
+        RequisitionLine.Init();
         RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
     end;
@@ -2160,7 +2254,7 @@ codeunit 137038 "SCM Transfers"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         PurchaseHeader.Validate("Location Code", LocationCode);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         for i := 1 to LibraryRandom.RandIntInRange(3, 5) do
             LibraryPurchase.CreatePurchaseLine(
@@ -2350,11 +2444,22 @@ codeunit 137038 "SCM Transfers"
         LibraryWarehouse.PostTransferOrder(TransferHeader, Ship, false);
     end;
 
+    local procedure CreateTransferOrderHeader(var TransferHeader: Record "Transfer Header")
+    var
+        InTransitLocation: Record Location;
+        LocationFromCode: Code[10];
+        LocationToCode: Code[10];
+    begin
+        CreateLocations(LocationFromCode, LocationToCode);
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFromCode, LocationToCode, InTransitLocation.Code);
+    end;
+
     local procedure CreateGlobal1DimensionValue(var DimensionValue: Record "Dimension Value"): Code[20]
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GLSetup."Global Dimension 1 Code");
         exit(DimensionValue.Code);
     end;
@@ -2643,7 +2748,7 @@ codeunit 137038 "SCM Transfers"
     var
         CarryOutActionMsgPlan: Report "Carry Out Action Msg. - Plan.";
     begin
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(CombineTransfers);
         CarryOutActionMsgPlan.SetReqWkshLine(RequisitionLine);
         CarryOutActionMsgPlan.UseRequestPage(true);
@@ -2656,7 +2761,7 @@ codeunit 137038 "SCM Transfers"
     begin
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
-        RequisitionLine.DeleteAll;
+        RequisitionLine.DeleteAll();
     end;
 
     local procedure FindLastILENo(ItemNo: Code[20]): Integer
@@ -2884,6 +2989,27 @@ codeunit 137038 "SCM Transfers"
         EditDimensionSetEntries."Dimension Code".SetValue(LibraryVariableStorage.DequeueText);
         EditDimensionSetEntries.DimensionValueCode.SetValue(LibraryVariableStorage.DequeueText);
         EditDimensionSetEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedTransferShipmentLinesHandler(var PostedTransferShipmentLines: TestPage "Posted Transfer Shipment Lines")
+    begin
+        LibraryVariableStorage.Enqueue(PostedTransferShipmentLines.Filter.GetFilter("Line No."));
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedTransferShipmentLinesGetDescriptionHandler(var PostedTransferShipmentLines: TestPage "Posted Transfer Shipment Lines")
+    begin
+        LibraryVariableStorage.Enqueue(PostedTransferShipmentLines.Description.Value);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedTransferReceiptLinesHandler(var PostedTransferReceiptLines: TestPage "Posted Transfer Receipt Lines")
+    begin
+        LibraryVariableStorage.Enqueue(PostedTransferReceiptLines.Filter.GetFilter("Line No."));
     end;
 
     [StrMenuHandler]

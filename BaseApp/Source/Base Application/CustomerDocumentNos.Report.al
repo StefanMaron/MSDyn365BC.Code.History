@@ -115,13 +115,13 @@ report 128 "Customer Document Nos."
             begin
                 if "Customer No." <> Cust."No." then
                     if not Cust.Get("Customer No.") then
-                        Cust.Init;
+                        Cust.Init();
                 if "Source Code" <> SourceCode.Code then
                     if not SourceCode.Get("Source Code") then
-                        SourceCode.Init;
+                        SourceCode.Init();
                 if "No. Series" <> NoSeries.Code then
                     if not NoSeries.Get("No. Series") then
-                        NoSeries.Init;
+                        NoSeries.Init();
 
                 if ("No. Series" <> LastNoSeriesCode) or ("Document Type" <> LastDocType) or FirstRecord then begin
                     if "No. Series" = '' then

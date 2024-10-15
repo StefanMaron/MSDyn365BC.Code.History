@@ -64,7 +64,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         VerifyPrerequisites(true);
         Initialize(GetCheckConnectionURL, 'GET', '');
 
-        DocExchServiceSetup.Get;
+        DocExchServiceSetup.Get();
         if not ExecuteWebServiceRequest then
             LogActivityFailedAndError(DocExchServiceSetup.RecordId, CheckConnectionTxt, '');
 
@@ -290,11 +290,11 @@ codeunit 1410 "Doc. Exch. Service Mgt."
             CreateIncomingDocEntry(IncomingDocument, ContextRecordID, DocIdentifier, Description);
 
             if not MarkDocBusinessProcessed(DocIdentifier) then begin
-                IncomingDocument.Delete;
+                IncomingDocument.Delete();
                 LogActivityFailed(ContextRecordID, MarkBusinessProcessedTxt, '');
             end else
                 LogActivitySucceeded(ContextRecordID, MarkBusinessProcessedTxt, StrSubstNo(DocIdImportedTxt, DocIdentifier));
-            Commit;
+            Commit();
 
             IncomingDocument.Find;
             LogTelemetryDocumentReceived;
@@ -412,7 +412,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         HttpWebRequestMgt.AddBody(BodyFilePath);
 
         // Set tracing
-        DocExchServiceSetup.Get;
+        DocExchServiceSetup.Get();
         GLBTraceLogEnabled := DocExchServiceSetup."Log Web Requests";
         HttpWebRequestMgt.SetTraceLogEnabled(DocExchServiceSetup."Log Web Requests");
     end;
@@ -423,7 +423,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     begin
         if not VerifyPrerequisites(false) then
             if Confirm(StrSubstNo(MissingCredentialsQst, DocExchServiceSetup.TableCaption), true) then begin
-                Commit;
+                Commit();
                 PAGE.RunModal(PAGE::"Doc. Exch. Service Setup", DocExchServiceSetup);
                 if not VerifyPrerequisites(false) then
                     Error(MissingCredentialsErr, DocExchServiceSetup.TableCaption);
@@ -448,7 +448,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
-        DocExchServiceSetup.Get;
+        DocExchServiceSetup.Get();
         if not DocExchServiceSetup.Enabled then
             Error(NotEnabledErr);
     end;
@@ -738,7 +738,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         if ActivityMessage = '' then
             ActivityLog.SetDetailedInfoFromStream(GLBResponseInStream);
 
-        Commit;
+        Commit();
     end;
 
     procedure EnableTraceLog(NewTraceLogEnabled: Boolean)
@@ -753,8 +753,8 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         RecRef: RecordRef;
     begin
         if not DocExchServiceSetup.Get then begin
-            DocExchServiceSetup.Init;
-            DocExchServiceSetup.Insert;
+            DocExchServiceSetup.Init();
+            DocExchServiceSetup.Insert();
         end;
 
         RecRef.GetTable(DocExchServiceSetup);
@@ -803,7 +803,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
-        DocExchServiceSetup.Get;
+        DocExchServiceSetup.Get();
         SendTraceTag('000089R', TelemetryCategoryTok, VERBOSITY::Normal,
           DocExchServiceDocumentSuccessfullySentTxt, DATACLASSIFICATION::SystemMetadata);
         SendTraceTag('000089S', TelemetryCategoryTok, VERBOSITY::Normal,
@@ -814,7 +814,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
-        DocExchServiceSetup.Get;
+        DocExchServiceSetup.Get();
         SendTraceTag('000089T', TelemetryCategoryTok, VERBOSITY::Normal,
           DocExchServiceDocumentSuccessfullyReceivedTxt, DATACLASSIFICATION::SystemMetadata);
         SendTraceTag('000089U', TelemetryCategoryTok, VERBOSITY::Normal,

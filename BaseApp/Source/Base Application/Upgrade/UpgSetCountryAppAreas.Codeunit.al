@@ -23,7 +23,7 @@ codeunit 104010 "UPG Set Country App Areas"
         IF ApplicationAreaSetup.GET AND ApplicationAreaSetup.Basic THEN BEGIN
             ApplicationAreaSetup.VAT := TRUE;
             ApplicationAreaSetup."Basic IS" := TRUE;
-            ApplicationAreaSetup.MODIFY;
+            ApplicationAreaSetup.Modify();
         END;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag);

@@ -69,7 +69,7 @@ report 10913 "IRS notification"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var

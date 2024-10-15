@@ -22,7 +22,7 @@ page 6710 "OData Column Choose SubForm"
                     begin
                         if CalledForExcelExport then
                             CheckFieldFilter;
-                        IsDirty := true;
+                        IsModified := true;
                     end;
                 }
                 field("Field Name"; "Field Name")
@@ -64,7 +64,7 @@ page 6710 "OData Column Choose SubForm"
         ActionType: Option "Create a new data set","Create a copy of an existing data set","Edit an existing data set";
         SourceServiceName: Text;
         SourceObjectID: Integer;
-        IsDirty: Boolean;
+        IsModified: Boolean;
         CheckFieldErr: Label 'You cannot exclude field from selection because of applied filter for it.';
         CalledForExcelExport: Boolean;
 
@@ -72,7 +72,7 @@ page 6710 "OData Column Choose SubForm"
     procedure InitColumns(ObjectType: Option ,,,,,,,,"Page","Query"; ObjectID: Integer; InActionType: Option "Create a new data set","Create a copy of an existing data set","Edit an existing data set"; InSourceServiceName: Text; DestinationServiceName: Text)
     var
         AllObj: Record AllObj;
-        NAVAppObjectMetadata: Record "NAV App Object Metadata";
+        ApplicationObjectMetadata: Record "Application Object Metadata";
         inStream: InStream;
     begin
         if FindFirst then
@@ -85,12 +85,12 @@ page 6710 "OData Column Choose SubForm"
         DestinationServiceName := DestinationServiceName;
 
         AllObj.Get(SourceObjectType, SourceObjectID);
-        NAVAppObjectMetadata.Get(AllObj."App Package ID", SourceObjectType, SourceObjectID);
-        if not NAVAppObjectMetadata.Metadata.HasValue then
+        ApplicationObjectMetadata.Get(AllObj."App Runtime Package ID", SourceObjectType, SourceObjectID);
+        if not ApplicationObjectMetadata.Metadata.HasValue then
             exit;
 
-        NAVAppObjectMetadata.CalcFields(Metadata);
-        NAVAppObjectMetadata.Metadata.CreateInStream(inStream, TEXTENCODING::Windows);
+        ApplicationObjectMetadata.CalcFields(Metadata);
+        ApplicationObjectMetadata.Metadata.CreateInStream(inStream, TEXTENCODING::Windows);
 
         if SourceObjectType = SourceObjectType::Query then
             InitColumnsForQuery(inStream)
@@ -108,7 +108,7 @@ page 6710 "OData Column Choose SubForm"
         if FindFirst then
             repeat
                 TempTenantWebServiceColumns.TransferFields(Rec);
-                TempTenantWebServiceColumns.Insert;
+                TempTenantWebServiceColumns.Insert();
 
             until Next = 0;
         Reset;
@@ -189,7 +189,7 @@ page 6710 "OData Column Choose SubForm"
     procedure DeleteColumns()
     begin
         Clear(Rec);
-        DeleteAll;
+        DeleteAll();
     end;
 
     local procedure SourceColumnExists(TableNo: Integer; FieldNumber: Integer): Boolean
@@ -197,9 +197,9 @@ page 6710 "OData Column Choose SubForm"
         TenantWebService: Record "Tenant Web Service";
         TenantWebServiceColumns: Record "Tenant Web Service Columns";
     begin
-        TenantWebService.Init;
+        TenantWebService.Init();
         if TenantWebService.Get(SourceObjectType, SourceServiceName) then begin
-            TenantWebServiceColumns.Init;
+            TenantWebServiceColumns.Init();
             TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
             TenantWebServiceColumns.SetRange("Field Number", FieldNumber);
             TenantWebServiceColumns.SetRange("Data Item", TableNo);
@@ -212,8 +212,8 @@ page 6710 "OData Column Choose SubForm"
     var
         LocalDirty: Boolean;
     begin
-        LocalDirty := IsDirty;
-        Clear(IsDirty);
+        LocalDirty := IsModified;
+        Clear(IsModified);
         exit(LocalDirty);
     end;
 

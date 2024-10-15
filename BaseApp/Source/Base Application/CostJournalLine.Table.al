@@ -222,13 +222,13 @@ table 1101 "Cost Journal Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         CostJournalTemplate.Get("Journal Template Name");
         CostJournalBatch.Get("Journal Template Name", "Journal Batch Name");
         "Reason Code" := CostJournalBatch."Reason Code";
 
         if "Source Code" = '' then begin
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             "Source Code" := SourceCodeSetup."Cost Journal";
         end;
     end;

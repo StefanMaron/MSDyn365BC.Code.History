@@ -48,7 +48,7 @@ codeunit 7325 "Whse.-Output Prod. Release"
         if ProdOrderLine2.FindFirst then
             ProdOrderLine2.TestField("Unit of Measure Code");
 
-        WhseRqst.Init;
+        WhseRqst.Init();
         WhseRqst.Type := WhseRqst.Type::Inbound;
         WhseRqst."Location Code" := ProdOrderLine."Location Code";
         WhseRqst."Source Type" := DATABASE::"Prod. Order Line";
@@ -56,19 +56,11 @@ codeunit 7325 "Whse.-Output Prod. Release"
         WhseRqst."Source Subtype" := ProdOrderLine.Status;
         WhseRqst."Source Document" := WhseRqst."Source Document"::"Prod. Output";
         WhseRqst."Document Status" := WhseRqst."Document Status"::Released;
-        WhseRqst."Completely Handled" :=
-          ProdOrderCompletelyHandled(ProdOrder, ProdOrderLine."Location Code");
-        case ProdOrder."Source Type" of
-            ProdOrder."Source Type"::Item:
-                WhseRqst."Destination Type" := WhseRqst."Destination Type"::Item;
-            ProdOrder."Source Type"::Family:
-                WhseRqst."Destination Type" := WhseRqst."Destination Type"::Family;
-            ProdOrder."Source Type"::"Sales Header":
-                WhseRqst."Destination Type" := WhseRqst."Destination Type"::"Sales Order";
-        end;
+        WhseRqst."Completely Handled" := ProdOrderCompletelyHandled(ProdOrder, ProdOrderLine."Location Code");
+        WhseRqst.SetDestinationType(ProdOrder);
         OnBeforeWhseRequestInsert(WhseRqst, ProdOrderLine, ProdOrder);
-        if not WhseRqst.Insert then
-            WhseRqst.Modify;
+        if not WhseRqst.Insert() then
+            WhseRqst.Modify();
 
         WhseRqstCreated := true;
 
@@ -84,7 +76,7 @@ codeunit 7325 "Whse.-Output Prod. Release"
             KeepWhseRqst := false;
             GetLocation(ProdOrderLine2."Location Code");
             if Location."Require Put-away" and (not Location."Directed Put-away and Pick") then begin
-                ProdOrderLine2.Reset;
+                ProdOrderLine2.Reset();
                 ProdOrderLine2.SetRange(Status, Status);
                 ProdOrderLine2.SetRange("Prod. Order No.", "Prod. Order No.");
                 ProdOrderLine2.SetRange("Location Code", "Location Code");

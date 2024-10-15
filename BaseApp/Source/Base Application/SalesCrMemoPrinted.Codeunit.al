@@ -5,12 +5,13 @@ codeunit 316 "Sales Cr. Memo-Printed"
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec, SuppressCommit);
         Find;
         "No. Printed" := "No. Printed" + 1;
         OnBeforeModify(Rec);
         Modify;
         if not SuppressCommit then
-            Commit;
+            Commit();
     end;
 
     var
@@ -23,6 +24,11 @@ codeunit 316 "Sales Cr. Memo-Printed"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeModify(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var SuppressCommit: Boolean)
     begin
     end;
 }

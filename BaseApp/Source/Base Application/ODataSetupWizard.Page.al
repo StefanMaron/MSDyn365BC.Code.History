@@ -147,12 +147,16 @@ page 6711 "OData Setup Wizard"
                             ApplicationArea = Basic, Suite;
                             Caption = 'New Name';
                             ExtendedDatatype = None;
+                            ToolTip = 'Specifies the service name. Name cannot contain space(s).';
 
                             trigger OnValidate()
                             var
                                 TenantWebService: Record "Tenant Web Service";
+                                WebServiceManagement: Codeunit "Web Service Management";
                             begin
                                 "Service Name" := ServiceNameEdit;
+                                if not WebServiceManagement.IsServiceNameValid(ServiceNameEdit) then
+                                    Error(WebServiceNameNotValidErr);
                                 if not (ActionType = ActionType::"Edit an existing data set") then begin
                                     TenantWebService.SetRange("Service Name", "Service Name");
                                     if TenantWebService.FindFirst then
@@ -301,12 +305,12 @@ page 6711 "OData Setup Wizard"
                     ChangeFields := CurrPage.ODataColSubForm.PAGE.IncludeIsChanged;
                     if ChangeFields then begin
                         Clear(TempTenantWebServiceFilter);
-                        TempTenantWebServiceFilter.DeleteAll;
+                        TempTenantWebServiceFilter.DeleteAll();
                     end;
 
                     Clear(TempTenantWebServiceColumns);
                     if TempTenantWebServiceColumns.FindFirst then
-                        TempTenantWebServiceColumns.DeleteAll;
+                        TempTenantWebServiceColumns.DeleteAll();
 
                     CurrPage.ODataColSubForm.PAGE.GetColumns(TempTenantWebServiceColumns);
                     if not TempTenantWebServiceColumns.FindFirst then
@@ -377,17 +381,15 @@ page 6711 "OData Setup Wizard"
                 trigger OnAction()
                 var
                     AssistedSetup: Codeunit "Assisted Setup";
-                    Info: ModuleInfo;
                 begin
                     if TempTenantWebServiceColumns.FindFirst then
-                        TempTenantWebServiceColumns.DeleteAll;
+                        TempTenantWebServiceColumns.DeleteAll();
                     CurrPage.ODataColSubForm.PAGE.GetColumns(TempTenantWebServiceColumns);
                     if not TempTenantWebServiceColumns.FindFirst then
                         Error(PublishWithoutFieldsErr);
                     CopyTempTableToConcreteTable;
                     oDataUrl := DisplayODataUrl;
-                    NavApp.GetCurrentModuleInfo(Info);
-                    AssistedSetup.Complete(Info.Id(), PAGE::"OData Setup Wizard");
+                    AssistedSetup.Complete(PAGE::"OData Setup Wizard");
                     PublishFlag := true;
                     CurrentPage := CurrentPage + 1;
                     CurrPage.Update(false);
@@ -466,6 +468,7 @@ page 6711 "OData Setup Wizard"
         MissingServiceNameErr: Label 'Please enter a Name for the data set.';
         MissingObjectIDErr: Label 'Please enter a data source for the data set.';
         DuplicateServiceNameErr: Label 'This name already exists.';
+        WebServiceNameNotValidErr: Label 'The service name is not valid. Please make sure name does not contain space(s).';
         ChangeFields: Boolean;
         ActionType: Option "Create a new data set","Create a copy of an existing data set","Edit an existing data set";
         ServiceNameLookup: Text[240];
@@ -518,7 +521,7 @@ page 6711 "OData Setup Wizard"
         foreach keyValuePair in DataItemDictionary do begin
             FilterText := '';
             FilterTextTemp := '';
-            TempTenantWebServiceFilter.Init;
+            TempTenantWebServiceFilter.Init();
             TempTenantWebServiceFilter.SetRange(TenantWebServiceID, RecordId);
             TempTenantWebServiceFilter.SetRange("Data Item", keyValuePair.Key);
 
@@ -542,7 +545,7 @@ page 6711 "OData Setup Wizard"
             repeat
                 if OldTableNo <> TempTenantWebServiceColumns."Data Item" then begin
                     ColumnList := ColumnList.List;
-                    TempTenantWebServiceFilter.Init;
+                    TempTenantWebServiceFilter.Init();
                     TempTenantWebServiceFilter.SetRange("Data Item", TempTenantWebServiceColumns."Data Item");
 
                     if TempTenantWebServiceFilter.Find('-') then
@@ -575,11 +578,11 @@ page 6711 "OData Setup Wizard"
 
         if FilterPage.RunModal then begin
             Clear(TempTenantWebServiceFilter);
-            TempTenantWebServiceFilter.DeleteAll;
+            TempTenantWebServiceFilter.DeleteAll();
             foreach keyValuePair in DataItemDictionary do begin
                 Clear(TempTenantWebServiceFilter);
                 FilterText := FilterPage.GetView(keyValuePair.Value, true);
-                TempTenantWebServiceFilter.Init;
+                TempTenantWebServiceFilter.Init();
                 TempTenantWebServiceFilter."Data Item" := keyValuePair.Key;
                 TempTenantWebServiceFilter.TenantWebServiceID := RecordId;
                 WebServiceManagement.SetTenantWebServiceFilter(TempTenantWebServiceFilter, FilterText);
@@ -612,7 +615,7 @@ page 6711 "OData Setup Wizard"
         ObjectTypeParam: Option ,,,,,,,,"Page","Query";
     begin
         Clear(TenantWebService);
-        TenantWebService.Init;
+        TenantWebService.Init();
         TenantWebService.Validate("Object Type", "Object Type");
         TenantWebService.Validate("Object ID", "Object ID");
         if (ActionType = ActionType::"Create a new data set") or (ActionType = ActionType::"Create a copy of an existing data set") then
@@ -647,7 +650,7 @@ page 6711 "OData Setup Wizard"
         ODataV3FilterText: Text;
         ODataV4FilterText: Text;
     begin
-        TenantWebService.Init;
+        TenantWebService.Init();
         TenantWebService.Validate("Object Type", ObjectTypeLookup);
         TenantWebService.Validate("Object ID", "Object ID");
         TenantWebService.Validate(Published, true);
@@ -663,9 +666,9 @@ page 6711 "OData Setup Wizard"
 
         if TempTenantWebServiceColumns.FindFirst then begin
             if ActionType = ActionType::"Edit an existing data set" then begin
-                TenantWebServiceColumns.Init;
+                TenantWebServiceColumns.Init();
                 TenantWebServiceColumns.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-                TenantWebServiceColumns.DeleteAll;
+                TenantWebServiceColumns.DeleteAll();
             end;
 
             repeat
@@ -678,9 +681,9 @@ page 6711 "OData Setup Wizard"
 
         if TempTenantWebServiceFilter.Find('-') then begin
             if ActionType = ActionType::"Edit an existing data set" then begin
-                TenantWebServiceFilter.Init;
+                TenantWebServiceFilter.Init();
                 TenantWebServiceFilter.SetRange(TenantWebServiceID, TenantWebService.RecordId);
-                TenantWebServiceFilter.DeleteAll;
+                TenantWebServiceFilter.DeleteAll();
             end;
             repeat
                 TempTenantWebServiceFilter.CalcFields(Filter);
@@ -736,7 +739,7 @@ page 6711 "OData Setup Wizard"
         TenantWebServiceFilter: Record "Tenant Web Service Filter";
         WebServiceManagement: Codeunit "Web Service Management";
     begin
-        TenantWebService.Init;
+        TenantWebService.Init();
         TenantWebService.SetRange("Object Type", "Object Type");
 
         if ActionType = ActionType::"Create a copy of an existing data set" then
@@ -745,7 +748,7 @@ page 6711 "OData Setup Wizard"
             TenantWebService.SetRange("Service Name", "Service Name");
 
         if TenantWebService.FindFirst then begin
-            TenantWebServiceFilter.Init;
+            TenantWebServiceFilter.Init();
             TenantWebServiceFilter.SetRange(TenantWebServiceID, TenantWebService.RecordId);
             TenantWebServiceFilter.SetRange("Data Item", DataItem);
             if TenantWebServiceFilter.FindFirst then
@@ -756,8 +759,8 @@ page 6711 "OData Setup Wizard"
     local procedure ClearTables()
     begin
         CurrPage.ODataColSubForm.PAGE.DeleteColumns;
-        TempTenantWebServiceColumns.DeleteAll;
-        TempTenantWebServiceFilter.DeleteAll;
+        TempTenantWebServiceColumns.DeleteAll();
+        TempTenantWebServiceFilter.DeleteAll();
     end;
 
     local procedure ClearObjectType()

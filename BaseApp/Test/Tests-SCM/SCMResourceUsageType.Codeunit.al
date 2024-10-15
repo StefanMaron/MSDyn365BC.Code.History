@@ -24,7 +24,7 @@ codeunit 137909 "SCM Resource Usage Type"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Resource Usage Type");
 
         Initialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Resource Usage Type");
     end;
 
@@ -207,7 +207,7 @@ codeunit 137909 "SCM Resource Usage Type"
     begin
         item.Get(itemNo);
         item."Unit Cost" := -999;
-        item.Modify;
+        item.Modify();
         CalcRecursionLevel := recursion;
         CalculateStandardCost.CalcItem(itemNo, true);
         validateCost(itemNo, cost);
@@ -229,7 +229,7 @@ codeunit 137909 "SCM Resource Usage Type"
     begin
         item.Get(itemNo);
         item."Unit Price" := -999;
-        item.Modify;
+        item.Modify();
         CalcRecursionLevel := recursion;
         CalculateStandardCost.CalcAssemblyItemPrice(itemNo);
         validatePrice(itemNo, price);

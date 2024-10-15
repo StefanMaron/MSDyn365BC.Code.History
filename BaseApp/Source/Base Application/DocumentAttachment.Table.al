@@ -111,11 +111,9 @@ table 1173 "Document Attachment"
                     Error(NoDocumentAttachedErr);
             end;
         }
-        field(13; "Document Type"; Option)
+        field(13; "Document Type"; Enum "Attachment Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(14; "Line No."; Integer)
         {
@@ -233,11 +231,6 @@ table 1173 "Document Attachment"
     end;
 
     local procedure InsertAttachment(DocStream: InStream; RecRef: RecordRef; FileName: Text)
-    var
-        FieldRef: FieldRef;
-        RecNo: Code[20];
-        DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
-        LineNo: Integer;
     begin
         IncomingFileName := FileName;
 
@@ -250,6 +243,19 @@ table 1173 "Document Attachment"
         if not "Document Reference ID".HasValue then
             Error(NoDocumentAttachedErr);
 
+        InitFieldsFromRecRef(RecRef);
+
+        OnBeforeInsertAttachment(Rec, RecRef);
+        Insert(true);
+    end;
+
+    procedure InitFieldsFromRecRef(RecRef: RecordRef)
+    var
+        FieldRef: FieldRef;
+        RecNo: Code[20];
+        DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
+        LineNo: Integer;
+    begin
         Validate("Table ID", RecRef.Number);
 
         case RecRef.Number of
@@ -320,9 +326,25 @@ table 1173 "Document Attachment"
                     Validate("Line No.", LineNo);
                 end;
         end;
+    end;
 
-        OnBeforeInsertAttachment(Rec, RecRef);
-        Insert(true);
+    procedure FindUniqueFileName(FileName: Text; FileExtension: Text): Text[250]
+    var
+        DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
+        FileIndex: Integer;
+        SourceFileName: Text[250];
+    begin
+        SourceFileName := CopyStr(FileName, 1, MaxStrLen(SourceFileName));
+        while DocumentAttachmentMgmt.IsDuplicateFile("Table ID", "No.", "Document Type", "Line No.", FileName, FileExtension) DO BEGIN
+            FileIndex += 1;
+            FileName := GetNextFileName(SourceFileName, FileIndex);
+        end;
+        exit(CopyStr(StrSubstNo('%1.%2', FileName, FileExtension), 1, MaxStrLen(SourceFileName)));
+    end;
+
+    local procedure GetNextFileName(FileName: Text[250]; FileIndex: Integer): Text[250]
+    begin
+        exit(StrSubstNo('%1 (%2)', FileName, FileIndex));
     end;
 
     [IntegrationEvent(false, false)]

@@ -154,11 +154,9 @@ table 312 "Purchases & Payables Setup"
                 PrepaymentMgt.CreateAndStartJobQueueEntryPurchase("Prepmt. Auto Update Frequency");
             end;
         }
-        field(35; "Default Posting Date"; Option)
+        field(35; "Default Posting Date"; Enum "Default Posting Date")
         {
             Caption = 'Default Posting Date';
-            OptionCaption = 'Work Date,No Date';
-            OptionMembers = "Work Date","No Date";
         }
         field(36; "Default Qty. to Receive"; Option)
         {
@@ -378,6 +376,19 @@ table 312 "Purchases & Payables Setup"
         field(6602; "Exact Cost Reversing Mandatory"; Boolean)
         {
             Caption = 'Exact Cost Reversing Mandatory';
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+            InitValue = "Lowest Price";
+
+            trigger OnValidate()
+            var
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+                PriceType: Enum "Price Type";
+            begin
+                PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Purchase);
+            end;
         }
     }
 

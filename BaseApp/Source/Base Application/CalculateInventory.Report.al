@@ -22,7 +22,7 @@ report 790 "Calculate Inventory"
                     InsertTempSKU: Boolean;
                 begin
                     if not GetLocation("Location Code") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if ColumnDim <> '' then
                         TransferDim("Dimension Set ID");
@@ -45,7 +45,7 @@ report 790 "Calculate Inventory"
                                     TempSKU."Item No." := "Item No.";
                                     TempSKU."Variant Code" := "Variant Code";
                                     TempSKU."Location Code" := "Location Code";
-                                    TempSKU.Insert;
+                                    TempSKU.Insert();
                                     ExecuteLoop := true;
                                 end;
                             end;
@@ -81,7 +81,7 @@ report 790 "Calculate Inventory"
                     else
                         TempDimBufIn.SetRange("Table ID", DATABASE::"Item Ledger Entry");
                     TempDimBufIn.SetRange("Entry No.");
-                    TempDimBufIn.DeleteAll;
+                    TempDimBufIn.DeleteAll();
 
                     OnItemLedgerEntryOnAfterPreDataItem("Item Ledger Entry", Item);
                 end;
@@ -93,7 +93,7 @@ report 790 "Calculate Inventory"
                 trigger OnAfterGetRecord()
                 begin
                     if not "Item Ledger Entry".IsEmpty then
-                        CurrReport.Skip;   // Skip if item has any record in Item Ledger Entry.
+                        CurrReport.Skip();   // Skip if item has any record in Item Ledger Entry.
 
                     Clear(QuantityOnHandBuffer);
                     QuantityOnHandBuffer."Item No." := "Item No.";
@@ -106,7 +106,7 @@ report 790 "Calculate Inventory"
 
                     OnBeforeQuantityOnHandBufferFindAndInsert(QuantityOnHandBuffer, "Warehouse Entry");
                     if not QuantityOnHandBuffer.Find then
-                        QuantityOnHandBuffer.Insert;   // Insert a zero quantity line.
+                        QuantityOnHandBuffer.Insert();   // Insert a zero quantity line.
                 end;
             }
             dataitem(ItemWithNoTransaction; "Integer")
@@ -124,7 +124,7 @@ report 790 "Calculate Inventory"
             begin
                 if not HideValidationDialog then
                     Window.Update;
-                TempSKU.DeleteAll;
+                TempSKU.DeleteAll();
             end;
 
             trigger OnPostDataItem()
@@ -151,7 +151,7 @@ report 790 "Calculate Inventory"
                         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
                         if not ItemJnlLine.FindFirst then
                             NextDocNo := NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", PostingDate, false);
-                        ItemJnlLine.Init;
+                        ItemJnlLine.Init();
                     end;
                     if NextDocNo = '' then
                         Error(Text001);
@@ -165,8 +165,8 @@ report 790 "Calculate Inventory"
                 if not SkipDim then
                     SelectedDim.GetSelectedDim(UserId, 3, REPORT::"Calculate Inventory", '', TempSelectedDim);
 
-                QuantityOnHandBuffer.Reset;
-                QuantityOnHandBuffer.DeleteAll;
+                QuantityOnHandBuffer.Reset();
+                QuantityOnHandBuffer.DeleteAll();
 
                 OnAfterItemOnPreDataItem(Item, ZeroQty, IncludeItemWithNoTransaction);
             end;
@@ -337,13 +337,13 @@ report 790 "Calculate Inventory"
 
         with ItemJnlLine do begin
             if NextLineNo = 0 then begin
-                LockTable;
+                LockTable();
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");
                 if FindLast then
                     NextLineNo := "Line No.";
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
             end;
             NextLineNo := NextLineNo + 10000;
 
@@ -385,7 +385,7 @@ report 790 "Calculate Inventory"
                 "Shortcut Dimension 1 Code" := '';
                 "Shortcut Dimension 2 Code" := '';
 
-                ItemLedgEntry.Reset;
+                ItemLedgEntry.Reset();
                 ItemLedgEntry.SetCurrentKey("Item No.");
                 ItemLedgEntry.SetRange("Item No.", ItemNo);
                 if ItemLedgEntry.FindLast then
@@ -405,21 +405,21 @@ report 790 "Calculate Inventory"
                     DimEntryNo2 := CreateDimFromItemDefault;
 
                 if DimBufMgt.GetDimensions(DimEntryNo2, TempDimBufOut) then begin
-                    TempDimSetEntry.Reset;
-                    TempDimSetEntry.DeleteAll;
+                    TempDimSetEntry.Reset();
+                    TempDimSetEntry.DeleteAll();
                     if TempDimBufOut.Find('-') then begin
                         repeat
                             DimValue.Get(TempDimBufOut."Dimension Code", TempDimBufOut."Dimension Value Code");
                             TempDimSetEntry."Dimension Code" := TempDimBufOut."Dimension Code";
                             TempDimSetEntry."Dimension Value Code" := TempDimBufOut."Dimension Value Code";
                             TempDimSetEntry."Dimension Value ID" := DimValue."Dimension Value ID";
-                            if TempDimSetEntry.Insert then;
+                            if TempDimSetEntry.Insert() then;
                             "Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
                             DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID",
                               "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
                             Modify;
                         until TempDimBufOut.Next = 0;
-                        TempDimBufOut.DeleteAll;
+                        TempDimBufOut.DeleteAll();
                     end;
                 end;
             end;
@@ -473,8 +473,7 @@ report 790 "Calculate Inventory"
             WhseEntry.SetRange("Entry Type", EntryType);
             if WhseEntry.Find('-') then
                 repeat
-                    WhseEntry.SetRange("Lot No.", WhseEntry."Lot No.");
-                    WhseEntry.SetRange("Serial No.", WhseEntry."Serial No.");
+                    WhseEntry.SetTrackingFilterFromWhseEntry(WhseEntry);
                     WhseEntry.CalcSums("Qty. (Base)");
 
                     WhseEntry2.SetCurrentKey(
@@ -507,8 +506,7 @@ report 790 "Calculate Inventory"
                             "Item No.", "Variant Code", "Location Code", Description, 0D, 0D, 0, ReservEntry."Reservation Status"::Prospect);
                     end;
                     WhseEntry.Find('+');
-                    WhseEntry.SetRange("Lot No.");
-                    WhseEntry.SetRange("Serial No.");
+                    WhseEntry.ClearTrackingFilter;
                 until WhseEntry.Next = 0;
         end;
     end;
@@ -540,17 +538,16 @@ report 790 "Calculate Inventory"
     var
         WhseEntry: Record "Warehouse Entry";
         WhseEntry2: Record "Warehouse Entry";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         WhseQuantity: Decimal;
-        WhseSNRequired: Boolean;
-        WhseLNRequired: Boolean;
         NoWhseEntry: Boolean;
         NoWhseEntry2: Boolean;
     begin
         AdjustPosQty := false;
         with QuantityOnHandBuffer do begin
-            ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", WhseSNRequired, WhseLNRequired, false);
-            ItemTrackingSplit := WhseSNRequired or WhseLNRequired;
+            ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+            ItemTrackingSplit := WhseItemTrackingSetup.TrackingRequired();
             WhseEntry.SetCurrentKey(
               "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code",
               "Lot No.", "Serial No.", "Entry Type");
@@ -562,7 +559,7 @@ report 790 "Calculate Inventory"
             WhseQuantity := WhseEntry."Qty. (Base)";
             WhseEntry.SetRange("Bin Code", AdjmtBin);
 
-            if WhseSNRequired then begin
+            if WhseItemTrackingSetup."Serial No. Required" then begin
                 WhseEntry.SetRange("Entry Type", WhseEntry."Entry Type"::"Positive Adjmt.");
                 WhseEntry.CalcSums("Qty. (Base)");
                 PosQuantity := WhseQuantity - WhseEntry."Qty. (Base)";
@@ -583,7 +580,7 @@ report 790 "Calculate Inventory"
                     repeat
                         WhseEntry.SetRange("Serial No.", WhseEntry."Serial No.");
 
-                        WhseEntry2.Reset;
+                        WhseEntry2.Reset();
                         WhseEntry2.SetCurrentKey(
                           "Item No.", "Bin Code", "Location Code", "Variant Code",
                           "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type");
@@ -802,7 +799,7 @@ report 790 "Calculate Inventory"
                           "Item No.", "Variant Code", "Dimension Entry No.",
                           "Bin Code", Quantity, Quantity);
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
             end;
         end;
     end;
@@ -823,7 +820,7 @@ report 790 "Calculate Inventory"
 
         DimEntryNo := DimBufMgt.InsertDimensions(TempDimBufIn);
         TempDimBufIn.SetRange("Table ID", DATABASE::Item);
-        TempDimBufIn.DeleteAll;
+        TempDimBufIn.DeleteAll();
     end;
 
     local procedure InsertDim(TableID: Integer; EntryNo: Integer; DimCode: Code[20]; DimValueCode: Code[20])
@@ -834,7 +831,7 @@ report 790 "Calculate Inventory"
             "Entry No." := EntryNo;
             "Dimension Code" := DimCode;
             "Dimension Value Code" := DimValueCode;
-            if Insert then;
+            if Insert() then;
         end;
     end;
 

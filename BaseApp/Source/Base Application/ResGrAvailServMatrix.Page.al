@@ -473,7 +473,7 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
 
     trigger OnOpenPage()
     begin
-        ServMgtSetup.Get;
+        ServMgtSetup.Get();
     end;
 
     var
@@ -573,7 +573,7 @@ page 9221 "Res. Gr. Avail. (Serv.) Matrix"
     var
         I: Integer;
     begin
-        MatrixRec.Reset;
+        MatrixRec.Reset();
 
         MatrixRec.SetRange("No.", "No.");
 

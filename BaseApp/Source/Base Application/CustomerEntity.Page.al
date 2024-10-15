@@ -416,7 +416,7 @@ page 5471 "Customer Entity"
         Clear(BalanceLCY);
         Clear(SalesLCY);
         Clear(PostalAddressSet);
-        TempFieldSet.DeleteAll;
+        TempFieldSet.DeleteAll();
     end;
 
     local procedure RegisterFieldSet(FieldNo: Integer)
@@ -424,7 +424,7 @@ page 5471 "Customer Entity"
         if TempFieldSet.Get(DATABASE::Customer, FieldNo) then
             exit;
 
-        TempFieldSet.Init;
+        TempFieldSet.Init();
         TempFieldSet.TableNo := DATABASE::Customer;
         TempFieldSet.Validate("No.", FieldNo);
         TempFieldSet.Insert(true);

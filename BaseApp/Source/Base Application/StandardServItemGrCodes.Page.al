@@ -131,7 +131,7 @@ page 5959 "Standard Serv. Item Gr. Codes"
 
     local procedure LookupServItemGroupCode()
     begin
-        Commit;
+        Commit();
         if PAGE.RunModal(0, ServiceItemGroup) = ACTION::LookupOK then begin
             CurrentServiceItemGroupCode := ServiceItemGroup.Code;
             SetServItemGroupCode(CurrentServiceItemGroupCode, true);

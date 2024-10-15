@@ -53,6 +53,17 @@ codeunit 1633 "Office Host Provider"
         TempExchangeObjectInternal.DeleteAll();
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, 1631, 'OnGetHostName', '', false, false)]
+    local procedure OnGetHostName(var HostName: Text)
+    begin
+        if not CanHandle() then
+            exit;
+        if not IsHostInitialized then
+            exit;
+
+        HostName := OfficeHost.HostName();
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, 1631, 'OnGetHostType', '', false, false)]
     local procedure OnGetHostType(var HostType: Text)
     begin

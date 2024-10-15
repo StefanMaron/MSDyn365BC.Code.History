@@ -92,7 +92,7 @@ report 5751 "Put-away List"
                         then begin
                             if TempWhseActivLine."No." = '' then begin
                                 TempWhseActivLine := "Warehouse Activity Line";
-                                TempWhseActivLine.Insert;
+                                TempWhseActivLine.Insert();
                                 Mark(true);
                             end else begin
                                 TempWhseActivLine.SetSumLinesFilter("Warehouse Activity Line");
@@ -100,10 +100,10 @@ report 5751 "Put-away List"
                                     TempWhseActivLine."Qty. (Base)" := TempWhseActivLine."Qty. (Base)" + "Qty. (Base)";
                                     TempWhseActivLine."Qty. to Handle" := TempWhseActivLine."Qty. to Handle" + "Qty. to Handle";
                                     TempWhseActivLine."Source No." := '';
-                                    TempWhseActivLine.Modify;
+                                    TempWhseActivLine.Modify();
                                 end else begin
                                     TempWhseActivLine := "Warehouse Activity Line";
-                                    TempWhseActivLine.Insert;
+                                    TempWhseActivLine.Insert();
                                     Mark(true);
                                 end;
                             end;
@@ -121,7 +121,7 @@ report 5751 "Put-away List"
                     begin
                         TempWhseActivLine.SetRange("Activity Type", "Warehouse Activity Header".Type);
                         TempWhseActivLine.SetRange("No.", "Warehouse Activity Header"."No.");
-                        TempWhseActivLine.DeleteAll;
+                        TempWhseActivLine.DeleteAll();
                         if BreakbulkFilter then
                             TempWhseActivLine.SetRange("Original Breakbulk", false);
                         Clear(TempWhseActivLine);
@@ -242,7 +242,7 @@ report 5751 "Put-away List"
                         Copy("Warehouse Activity Line");
                         Counter := Count;
                         if Counter = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         if BreakbulkFilter then
                             SetRange("Original Breakbulk", false);

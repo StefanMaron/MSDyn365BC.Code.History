@@ -29,10 +29,10 @@ page 363 "Electronic Document Format"
                             exit;
 
                         repeat
-                            TempElectronicDocumentFormat.Init;
+                            TempElectronicDocumentFormat.Init();
                             TempElectronicDocumentFormat.Code := ElectronicDocumentFormatDefined.Code;
                             TempElectronicDocumentFormat.Description := ElectronicDocumentFormatDefined.Description;
-                            if TempElectronicDocumentFormat.Insert then;
+                            if TempElectronicDocumentFormat.Insert() then;
                         until ElectronicDocumentFormatDefined.Next = 0;
 
                         if PAGE.RunModal(PAGE::"Electronic Document Formats", TempElectronicDocumentFormat) = ACTION::LookupOK then begin
@@ -122,7 +122,7 @@ page 363 "Electronic Document Format"
 
     trigger OnOpenPage()
     begin
-        ElectronicDocumentFormat.Init;
+        ElectronicDocumentFormat.Init();
         ElectronicDocumentFormat.OnDiscoverElectronicFormat;
     end;
 

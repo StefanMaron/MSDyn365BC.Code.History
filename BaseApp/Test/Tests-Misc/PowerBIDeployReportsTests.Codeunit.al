@@ -117,7 +117,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
         // [THEN] Uploads table has a new row with correct values.
         Assert.AreEqual(1, LibraryPowerBIServiceMgt.GetMockDeploymentUploadCount, 'Service should have uploaded one report.');
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         Assert.AreEqual(3, PowerBIReportUploads.Count, 'Table 6307 should now have three records total.');
         PowerBIReportUploads.Get(ReportId2, UserSecurityId);
         PowerBIReportSpinnerPartTestPage.Close;
@@ -148,7 +148,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
         // [THEN] Uploads table has new rows with correct values.
         Assert.AreEqual(1, LibraryPowerBIServiceMgt.GetMockDeploymentUploadCount, 'Service should have uploaded two reports.');
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         Assert.AreEqual(2, PowerBIReportUploads.Count, 'Table 6307 should have three records total.');
         PowerBIReportUploads.SetFilter("User ID", UserSecurityId);
         PowerBIReportUploads.Find('-');
@@ -180,7 +180,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
         // [THEN] Uploads table has updated the existing row.
         Assert.AreEqual(1, LibraryPowerBIServiceMgt.GetMockDeploymentUploadCount, 'Service should have uploaded one report.');
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         Assert.AreEqual(1, PowerBIReportUploads.Count, 'Table 6307 should still have only one record.');
         PowerBIReportUploads.Get(ReportId, UserSecurityId);
         Assert.AreEqual(NewVersion, PowerBIReportUploads."Deployed Version", 'Record should have updated version number.');
@@ -211,9 +211,9 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
         // [THEN] Uploads table is still empty and service is marked as unavailable.
         Assert.AreEqual(1, LibraryPowerBIServiceMgt.GetMockDeploymentUploadCount, 'Service should have tried uploading the report.');
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         Assert.AreEqual(0, PowerBIReportUploads.Count, 'Failure should not add any records to table 6307.');
-        PowerBIServiceStatusSetup.Reset;
+        PowerBIServiceStatusSetup.Reset();
         PowerBIServiceStatusSetup.FindFirst;
         Assert.AreEqual(OutageDateTime, PowerBIServiceStatusSetup."Retry After", 'Service failure should update table 6309.');
         Assert.IsFalse(PowerBIServiceMgt.IsPBIServiceAvailable,
@@ -242,7 +242,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
         // [THEN] Uploads table is still empty but service is marked as available still.
         Assert.AreEqual(1, LibraryPowerBIServiceMgt.GetMockDeploymentUploadCount, 'Service should have tried uploading the report.');
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         Assert.AreEqual(0, PowerBIReportUploads.Count, 'Failure should not add any records to table 6307.');
         Assert.IsTrue(PowerBIServiceMgt.IsPBIServiceAvailable,
           'Service should be marked as available still if upload did not fail from service unavailability.');
@@ -276,7 +276,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
         // [THEN] Uploads table has a new row showing a report that needs to be retried.
         Assert.AreEqual(1, LibraryPowerBIServiceMgt.GetMockDeploymentUploadCount, 'Service should have tried uploading the report.');
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         Assert.AreEqual(1, PowerBIReportUploads.Count, 'Table 6307 should have a row added.');
         PowerBIReportUploads.Get(ReportId, UserSecurityId);
         Assert.IsTrue(IsNullGuid(PowerBIReportUploads."Uploaded Report ID"), 'Record should not have a report ID when it fails.');
@@ -342,7 +342,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
         // [THEN] Uploads table record is updated with correct values.
         Assert.AreEqual(1, LibraryPowerBIServiceMgt.GetMockDeploymentRetryCount, 'Service should have retried one report.');
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         Assert.AreEqual(1, PowerBIReportUploads.Count, 'Table 6307 should still have one record.');
         PowerBIReportUploads.Get(ReportId, UserSecurityId);
         Assert.IsFalse(IsNullGuid(PowerBIReportUploads."Uploaded Report ID"), 'Record should be updated with a report ID.');
@@ -376,7 +376,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
         // [THEN] Uploads table record is unchanged.
         Assert.AreEqual(0, LibraryPowerBIServiceMgt.GetMockDeploymentRetryCount, 'Service should not have retried any reports.');
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         Assert.AreEqual(1, PowerBIReportUploads.Count, 'Table 6307 should still have only one record.');
         PowerBIReportUploads.Get(ReportId, UserSecurityId);
         Assert.AreEqual(PbiReportId, PowerBIReportUploads."Uploaded Report ID", 'ID in PBI account should not have changed.');
@@ -407,7 +407,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
         // [THEN] Uploads table record is unchanged.
         Assert.AreEqual(0, LibraryPowerBIServiceMgt.GetMockDeploymentRetryCount, 'Service should not have retried any reports.');
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         Assert.AreEqual(1, PowerBIReportUploads.Count, 'Table 6307 should still have only one record.');
         PowerBIReportUploads.Get(ReportId, UserSecurityId);
         Assert.IsTrue(IsNullGuid(PowerBIReportUploads."Uploaded Report ID"), 'PBI ID should still be empty.');
@@ -437,13 +437,13 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
         // [THEN] Uploads table is unchanged and service is marked as unavailable.
         Assert.AreEqual(1, LibraryPowerBIServiceMgt.GetMockDeploymentRetryCount, 'Service should have tried refreshing the report.');
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         Assert.AreEqual(1, PowerBIReportUploads.Count, 'Still one record in table 6307.');
         PowerBIReportUploads.Get(ReportId, UserSecurityId);
         Assert.IsTrue(IsNullGuid(PowerBIReportUploads."Uploaded Report ID"), 'Report was not uploaded yet.');
         Assert.IsTrue(PowerBIReportUploads."Should Retry", 'Service failure should leave the report as still retryable.');
 
-        PowerBIServiceStatusSetup.Reset;
+        PowerBIServiceStatusSetup.Reset();
         PowerBIServiceStatusSetup.FindFirst;
         Assert.AreEqual(OutageDateTime, PowerBIServiceStatusSetup."Retry After", 'Service failure should update table 6309.');
         Assert.IsFalse(PowerBIServiceMgt.IsPBIServiceAvailable,
@@ -479,7 +479,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
         PowerBIServiceMgt.RetryAllPartialReportUploads;
 
         // [THEN] Uploads table record is unchanged.
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         Assert.AreEqual(1, PowerBIReportUploads.Count, 'Table 6307 should still have only one record.');
         PowerBIReportUploads.Get(ReportId, UserSecurityId);
         Assert.IsTrue(IsNullGuid(PowerBIReportUploads."Uploaded Report ID"), 'PBI ID should still be empty.');
@@ -541,42 +541,42 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
         LibraryAzureADAuthFlow.SetCachedTokenAvailable(true);
         LibraryPowerBIServiceMgt.ResetMockDeploymentCounts;
 
-        PowerBIBlob.Reset;
-        PowerBIBlob.DeleteAll;
+        PowerBIBlob.Reset();
+        PowerBIBlob.DeleteAll();
 
-        PowerBIDefaultSelection.Reset;
-        PowerBIDefaultSelection.DeleteAll;
+        PowerBIDefaultSelection.Reset();
+        PowerBIDefaultSelection.DeleteAll();
 
-        PowerBIReportUploads.Reset;
-        PowerBIReportUploads.DeleteAll;
+        PowerBIReportUploads.Reset();
+        PowerBIReportUploads.DeleteAll();
 
-        PowerBIReportConfiguration.Reset;
-        PowerBIReportConfiguration.DeleteAll;
+        PowerBIReportConfiguration.Reset();
+        PowerBIReportConfiguration.DeleteAll();
 
-        PowerBIUserConfiguration.Reset;
-        PowerBIUserConfiguration.DeleteAll;
+        PowerBIUserConfiguration.Reset();
+        PowerBIUserConfiguration.DeleteAll();
 
-        PowerBIOngoingDeployments.Reset;
-        PowerBIOngoingDeployments.DeleteAll;
+        PowerBIOngoingDeployments.Reset();
+        PowerBIOngoingDeployments.DeleteAll();
 
-        PowerBIServiceStatusSetup.Reset;
-        PowerBIServiceStatusSetup.DeleteAll;
+        PowerBIServiceStatusSetup.Reset();
+        PowerBIServiceStatusSetup.DeleteAll();
 
-        PowerBICustomerReports.Reset;
-        PowerBICustomerReports.DeleteAll;
+        PowerBICustomerReports.Reset();
+        PowerBICustomerReports.DeleteAll();
 
-        PowerBIReportBuffer.Reset;
-        PowerBIReportBuffer.DeleteAll;
+        PowerBIReportBuffer.Reset();
+        PowerBIReportBuffer.DeleteAll();
 
-        IntelligentCloud.Reset;
-        IntelligentCloud.DeleteAll;
+        IntelligentCloud.Reset();
+        IntelligentCloud.DeleteAll();
 
-        PowerBIUserLicense.Reset;
-        PowerBIUserLicense.DeleteAll;
-        PowerBIUserLicense.Init;
+        PowerBIUserLicense.Reset();
+        PowerBIUserLicense.DeleteAll();
+        PowerBIUserLicense.Init();
         PowerBIUserLicense."User Security ID" := UserSecurityId;
         PowerBIUserLicense."Has Power BI License" := true;
-        PowerBIUserLicense.Insert;
+        PowerBIUserLicense.Insert();
 
         LibraryPowerBIServiceMgt.ClearReports;
     end;
@@ -597,30 +597,30 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
     local procedure AddBlobToDatabaseGP(Id: Guid; Name: Text[200]; Version: Integer; GPEnabled: Boolean)
     begin
         // Helper method to add a row to table 2000000144 with the given values and a dummy blob.
-        PowerBIBlob.Reset;
-        PowerBIBlob.Init;
+        PowerBIBlob.Reset();
+        PowerBIBlob.Init();
         PowerBIBlob.Id := Id;
         PowerBIBlob.Name := Name;
         PowerBIBlob.Version := Version;
         PowerBIBlob."GP Enabled" := GPEnabled;
-        PowerBIBlob.Insert;
+        PowerBIBlob.Insert();
     end;
 
     local procedure AddDefaultSelectionToDatabase(Id: Guid; Context: Text[30]; Selected: Boolean)
     begin
         // Helper method to add a row to table 2000000145 with the given values.
-        PowerBIDefaultSelection.Reset;
+        PowerBIDefaultSelection.Reset();
         PowerBIDefaultSelection.Id := Id;
         PowerBIDefaultSelection.Context := Context;
         PowerBIDefaultSelection.Selected := Selected;
-        PowerBIDefaultSelection.Insert;
+        PowerBIDefaultSelection.Insert();
     end;
 
     local procedure AddReportUploadToDatabase(BlobId: Guid; UserId: Guid; ReportId: Guid; ImportId: Guid; Version: Integer; SelectionDone: Boolean; EmbedUrl: Text[250]; ShouldRetry: Boolean; RetryAfter: DateTime)
     begin
         // Helper method to add a row to table 6307 with the given values.
-        PowerBIReportUploads.Reset;
-        PowerBIReportUploads.Init;
+        PowerBIReportUploads.Reset();
+        PowerBIReportUploads.Init();
         PowerBIReportUploads."PBIX BLOB ID" := BlobId;
         PowerBIReportUploads."User ID" := UserId;
         PowerBIReportUploads."Uploaded Report ID" := ReportId;
@@ -630,7 +630,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
         PowerBIReportUploads."Embed Url" := EmbedUrl;
         PowerBIReportUploads."Should Retry" := ShouldRetry;
         PowerBIReportUploads."Retry After" := RetryAfter;
-        PowerBIReportUploads.Insert;
+        PowerBIReportUploads.Insert();
     end;
 
     local procedure AddCompletedUploadToDatabase(BlobId: Guid; UploadedId: Guid; SelectionDone: Boolean)
@@ -647,10 +647,10 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
     local procedure EnableIntelligentCloudForGP()
     begin
-        IntelligentCloud.Init;
+        IntelligentCloud.Init();
         IntelligentCloud."Primary Key" := '';
         IntelligentCloud.Enabled := true;
-        IntelligentCloud.Insert;
+        IntelligentCloud.Insert();
     end;
 
     [ModalPageHandler]
@@ -750,12 +750,12 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
         PowerBIReportSelectionTestPage.Enabled.AssertEquals(false);
         Assert.IsFalse(PowerBIReportSelectionTestPage.Next, 'Only two reports must be available');
 
-        PowerBIUserConfiguration.Reset;
+        PowerBIUserConfiguration.Reset();
         Assert.AreEqual(1, PowerBIUserConfiguration.Count, 'There must be only one selected report');
         PowerBIUserConfiguration.FindFirst;
         Assert.AreEqual(Id1, PowerBIUserConfiguration."Selected Report ID", 'Wrong report is selected');
 
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         Assert.AreEqual(1, PowerBIReportUploads.Count, 'There must be only one report deployed');
 
         // [WHEN] Another report is enabled through selection page
@@ -822,7 +822,7 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
         else
             PowerBIReportFactBoxTestPage.Close;
 
-        PowerBIUserConfiguration.Reset;
+        PowerBIUserConfiguration.Reset();
         Assert.AreEqual(1, PowerBIUserConfiguration.Count, 'There must be only one selected report');
         PowerBIUserConfiguration.FindFirst;
         Assert.AreEqual(Id2, PowerBIUserConfiguration."Selected Report ID", 'Wrong report is selected');
@@ -849,10 +849,10 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
 
         // [THEN] The all reports should be deployed
         Assert.AreEqual(1, LibraryPowerBIServiceMgt.GetMockDeploymentUploadCount, 'GP report should be deployed.');
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         PowerBIReportUploads.SetFilter(IsGP, '%1', false);
         Assert.AreEqual(0, PowerBIReportUploads.Count, 'There should no BC reports');
-        PowerBIReportUploads.Reset;
+        PowerBIReportUploads.Reset();
         PowerBIReportUploads.SetFilter(IsGP, '%1', true);
         Assert.AreEqual(1, PowerBIReportUploads.Count, 'There should be 1 GP report');
         PowerBIReportSpinnerPartTestPage.Close;
@@ -862,20 +862,27 @@ codeunit 139088 "PowerBI Deploy Reports Tests"
     [Scope('OnPrem')]
     procedure TestGetAndSetReportFilter()
     var
-        PowerBIReportFactBox: Page "Power BI Report FactBox";
-        Json: Text;
+        PowerBIEmbedHelper: Codeunit "Power BI Embed Helper";
+        CallbackMessage: Text;
+        CurrentListSelection: Text;
+        CurrentReportFirstPage: Text;
+        ResponseForWebPage: Text;
+        LatestReceivedFilterInfo: Text;
     begin
         // Valid
-        Json := '{"id": "getpagesfromreport", "body": [{"name":"n1"}]}';
-        PowerBIReportFactBox.GetAndSetReportFilter(Json);
+        CallbackMessage := '{"method":"POST","url":"/reports/undefined/events/loaded","headers":{"id":"q627d"},"body":{}}';
+        PowerBIEmbedHelper.HandleAddInCallback(CallbackMessage, CurrentListSelection, CurrentReportFirstPage, LatestReceivedFilterInfo, ResponseForWebPage);
+        Assert.AreNotEqual(ResponseForWebPage, '', 'Unexpected response.');
 
         // Invalid - we swallow expection..so no error should be thrown
-        Json := '{"id": "getpagesfromreport"}';
-        PowerBIReportFactBox.GetAndSetReportFilter(Json);
+        CallbackMessage := '{"id": "getpagesfromreport"}';
+        PowerBIEmbedHelper.HandleAddInCallback(CallbackMessage, CurrentListSelection, CurrentReportFirstPage, LatestReceivedFilterInfo, ResponseForWebPage);
+        Assert.AreEqual(ResponseForWebPage, '', 'Unexpected response.');
 
         // Invalid - we swallow expection..so no error should be thrown
-        Json := '{"id": "getpagesfromreport", "body": "error"}';
-        PowerBIReportFactBox.GetAndSetReportFilter(Json);
+        CallbackMessage := '{"id": "getpagesfromreport", "body": "error"}';
+        PowerBIEmbedHelper.HandleAddInCallback(CallbackMessage, CurrentListSelection, CurrentReportFirstPage, LatestReceivedFilterInfo, ResponseForWebPage);
+        Assert.AreEqual(ResponseForWebPage, '', 'Unexpected response.');
     end;
 }
 

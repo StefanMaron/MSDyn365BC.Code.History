@@ -6,6 +6,9 @@ page 7002 "Sales Prices"
     PageType = List;
     SaveValues = true;
     SourceTable = "Sales Price";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {

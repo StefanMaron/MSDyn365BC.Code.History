@@ -67,7 +67,7 @@ table 5972 "Contract/Service Discount"
     begin
         if "Contract Type" = "Contract Type"::Contract then begin
             VerifyContractOpen;
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             if ServMgtSetup."Register Contract Changes" then
                 ContractChangeLog.LogContractChange(
                   "Contract No.", 2, StrSubstNo('%1 %2 %3', Type, "No.", FieldCaption("No.")), 2,
@@ -80,7 +80,7 @@ table 5972 "Contract/Service Discount"
         TestField("Contract No.");
         if "Contract Type" = "Contract Type"::Contract then begin
             VerifyContractOpen;
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             if ServMgtSetup."Register Contract Changes" then
                 ContractChangeLog.LogContractChange(
                   "Contract No.", 2, StrSubstNo('%1 %2 %3', Type, "No.", FieldCaption("No.")), 1,
@@ -92,7 +92,7 @@ table 5972 "Contract/Service Discount"
     begin
         if "Contract Type" = "Contract Type"::Contract then begin
             VerifyContractOpen;
-            ServMgtSetup.Get;
+            ServMgtSetup.Get();
             if "Discount %" <> xRec."Discount %" then
                 if ServMgtSetup."Register Contract Changes" then
                     ContractChangeLog.LogContractChange(

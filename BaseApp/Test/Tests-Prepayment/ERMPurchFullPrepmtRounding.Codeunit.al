@@ -63,7 +63,7 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         // Magic numbers from original repro steps Bug 332246
         AddPurchOrderLine(PurchLine, PurchaseHeader, 19.625, 1192, 100, 0);
         PurchLine.Validate("Line Amount", 16559.33);
-        PurchLine.Modify;
+        PurchLine.Modify();
     end;
 
     [Test]
@@ -256,7 +256,7 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         PreparePurchOrder(PurchHeader);
         AddPurchOrderLine100PctPrepmt(PurchLine, PurchHeader, PositiveDiff);
         PurchLine.Validate("Line Discount %", GetSpecialLineDiscPct);
-        PurchLine.Modify;
+        PurchLine.Modify();
     end;
 
     [Test]
@@ -743,7 +743,7 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purch Full Prepmt Rounding");
     end;
 
@@ -997,7 +997,7 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         PurchLine.Find;
         PurchLine.Validate("Qty. to Receive", QtyToReceive);
         PurchLine.Validate("Qty. to Invoice", QtyToInvoice);
-        PurchLine.Modify;
+        PurchLine.Modify();
     end;
 
     local procedure UpdatePurchLine(var PurchaseLine: Record "Purchase Line"; NewDirectUnitCost: Decimal; NewDiscountPct: Decimal; NewPrepmtPct: Decimal)

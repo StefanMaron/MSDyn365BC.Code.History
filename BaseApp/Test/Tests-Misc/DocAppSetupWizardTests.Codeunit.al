@@ -266,7 +266,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
           ApprovalWorkflowSetupMgt.CreateSalesDocumentApprovalWorkflow(SalesHeader."Document Type"::Invoice);
         Workflow.Get(WorkflowCode);
         Workflow.Validate(Enabled, false);
-        Workflow.Modify;
+        Workflow.Modify();
 
         // [GIVEN] A Sales Invoice Approval Workflow is created and enabled
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
@@ -310,7 +310,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
           ApprovalWorkflowSetupMgt.CreatePurchaseDocumentApprovalWorkflow(PurchaseHeader."Document Type"::Invoice);
         Workflow.Get(WorkflowCode);
         Workflow.Validate(Enabled, false);
-        Workflow.Modify;
+        Workflow.Modify();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
 
@@ -386,8 +386,8 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowEvent.DeleteAll;
-        WorkflowResponse.DeleteAll;
+        WorkflowEvent.DeleteAll();
+        WorkflowResponse.DeleteAll();
 
         WorkflowSetup.InitWorkflow;
     end;

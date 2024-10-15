@@ -86,7 +86,7 @@ report 309 "Vendor - Purchase List"
             begin
                 AmtPurchLCY := CalculateAmtOfPurchaseLCY;
                 if AmtPurchLCY < MinAmtLCY then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if not HideAddr then
                     FormatAddr.Vendor(VendorAddr, Vendor);

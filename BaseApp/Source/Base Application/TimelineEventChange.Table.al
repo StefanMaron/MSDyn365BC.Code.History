@@ -73,8 +73,8 @@ table 5541 "Timeline Event Change"
         rowEnum: DotNet GenericIEnumerator1;
         Id: Integer;
     begin
-        TimelineEventChange.Reset;
-        TimelineEventChange.DeleteAll;
+        TimelineEventChange.Reset();
+        TimelineEventChange.DeleteAll();
 
         rowEnum := changeTable.GetEnumerator;
         Id := 1;
@@ -90,7 +90,7 @@ table 5541 "Timeline Event Change"
 
     local procedure InsertTransactionRow(var TimelineEventChange: Record "Timeline Event Change"; changeRow: DotNet DataModel_TransactionChangesRow; Id: Integer)
     begin
-        TimelineEventChange.Init;
+        TimelineEventChange.Init();
         TimelineEventChange.ID := Id;
         TimelineEventChange."Reference No." := changeRow.RefNo;
 
@@ -108,7 +108,7 @@ table 5541 "Timeline Event Change"
 
         TimelineEventChange.Changes := changeRow.Changes;
         TimelineEventChange.ChangeRefNo := changeRow.ChangeRefNo;
-        TimelineEventChange.Insert;
+        TimelineEventChange.Insert();
     end;
 
     procedure ActionMessage(): Integer

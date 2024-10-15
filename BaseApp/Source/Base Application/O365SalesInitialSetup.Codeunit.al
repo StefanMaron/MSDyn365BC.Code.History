@@ -47,7 +47,6 @@ codeunit 2110 "O365 Sales Initial Setup"
     local procedure InitializeO365SalesCompany()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        Info: ModuleInfo;
         Overwrite: Boolean;
     begin
         // Override defaults for O365 Sales
@@ -62,8 +61,8 @@ codeunit 2110 "O365 Sales Initial Setup"
             Overwrite := Confirm(OverrideDefaultsWithSalesSetupQst);
         end;
 
-        O365SalesInitialSetup.LockTable;
-        O365SalesInitialSetup.Get;
+        O365SalesInitialSetup.LockTable();
+        O365SalesInitialSetup.Get();
 
         if IsNewCompany or Overwrite then begin
             InitializeBankAccount;
@@ -86,10 +85,9 @@ codeunit 2110 "O365 Sales Initial Setup"
         SetFinancialsJobQueueEntriesOnHold;
 
         O365SalesInitialSetup."Is initialized" := true;
-        O365SalesInitialSetup.Modify;
+        O365SalesInitialSetup.Modify();
 
-        NavApp.GetCurrentModuleInfo(Info);
-        AssistedSetup.Complete(Info.Id(), PAGE::"Assisted Company Setup Wizard");
+        AssistedSetup.Complete(PAGE::"Assisted Company Setup Wizard");
     end;
 
     local procedure InitializePaymentRegistrationSetup()
@@ -104,7 +102,7 @@ codeunit 2110 "O365 Sales Initial Setup"
             exit;
 
         with PaymentRegistrationSetup do begin
-            DeleteAll;
+            DeleteAll();
             Init;
             Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
             Validate("Journal Batch Name", GenJournalBatch.Name);
@@ -185,7 +183,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         PersonTemplateRecordRef: RecordRef;
     begin
         if not MarketingSetup.Get then begin
-            MarketingSetup.Init;
+            MarketingSetup.Init();
             MarketingSetup.Insert(true);
         end;
 
@@ -289,7 +287,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         CustomReportLayout: Record "Custom Report Layout";
     begin
         ReportSelections.SetRange(Usage, ReportUsage);
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
 
         ReportSelections.Usage := ReportUsage;
         ReportSelections.NewRecord;
@@ -299,15 +297,15 @@ codeunit 2110 "O365 Sales Initial Setup"
         ReportSelections.Validate("Email Body Layout Code", EmailBodyLayoutCode);
         ReportSelections.Insert(true);
 
-        CustomReportLayout.Reset;
+        CustomReportLayout.Reset();
         CustomReportLayout.SetRange(Code, LayoutCode);
         CustomReportLayout.SetRange("Report ID", ReportID);
         if not CustomReportLayout.FindFirst then
             exit;
 
         if ReportLayoutSelection.Get(ReportID, CompanyName) then
-            ReportLayoutSelection.Delete;
-        ReportLayoutSelection.Init;
+            ReportLayoutSelection.Delete();
+        ReportLayoutSelection.Init();
         ReportLayoutSelection.Validate("Report ID", ReportID);
         ReportLayoutSelection.Validate(Type, ReportLayoutSelection.Type::"Custom Layout");
         ReportLayoutSelection.Validate("Custom Report Layout Code", CustomReportLayout.Code);
@@ -370,23 +368,23 @@ codeunit 2110 "O365 Sales Initial Setup"
         end;
 
         if not TaxArea.Get(TaxAreaCode) then begin
-            TaxArea.Init;
+            TaxArea.Init();
             TaxArea.Validate(Code, TaxAreaCode);
             TaxArea.Validate(Description, TaxAreaCode);
-            TaxArea.Insert;
+            TaxArea.Insert();
         end;
 
         if not TaxJurisdiction.Get(TaxJurisdictionCode) then begin
-            TaxJurisdiction.Init;
+            TaxJurisdiction.Init();
             TaxJurisdiction.Validate(Code, TaxJurisdictionCode);
-            TaxJurisdiction.Insert;
+            TaxJurisdiction.Insert();
         end;
 
         if not TaxGroup.Get(TaxableCodeTxt) then begin
-            TaxGroup.Init;
+            TaxGroup.Init();
             TaxGroup.Validate(Code, TaxableCodeTxt);
             TaxGroup.Validate(Description, TaxableDescriptionTxt);
-            TaxGroup.Insert;
+            TaxGroup.Insert();
         end;
 
         if TaxSetup.Get then;
@@ -395,17 +393,17 @@ codeunit 2110 "O365 Sales Initial Setup"
             TaxJurisdiction.Validate("Tax Account (Sales)", GLAccount."No.");
         if GLAccount.Get(TaxSetup."Tax Account (Purchases)") then
             TaxJurisdiction.Validate("Tax Account (Purchases)", GLAccount."No.");
-        TaxJurisdiction.Modify;
+        TaxJurisdiction.Modify();
 
         if not TaxAreaLine.Get(TaxArea.Code, TaxJurisdiction.Code) then begin
-            TaxAreaLine.Init;
+            TaxAreaLine.Init();
             TaxAreaLine.Validate("Tax Area", TaxArea.Code);
             TaxAreaLine.Validate("Tax Jurisdiction Code", TaxJurisdiction.Code);
-            TaxAreaLine.Insert;
+            TaxAreaLine.Insert();
         end;
 
         if not TaxDetail.Get(TaxJurisdiction.Code, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax", WorkDate) then begin
-            TaxDetail.Init;
+            TaxDetail.Init();
             TaxDetail.Validate("Tax Jurisdiction Code", TaxJurisdiction.Code);
             TaxDetail.Validate("Tax Group Code", TaxGroup.Code);
             TaxDetail.Validate("Tax Type", TaxDetail."Tax Type"::"Sales Tax");
@@ -415,7 +413,7 @@ codeunit 2110 "O365 Sales Initial Setup"
 
         TaxDetail.Validate("Maximum Amount/Qty.", 0);
         TaxDetail.Validate("Tax Below Maximum", 0);
-        TaxDetail.Modify;
+        TaxDetail.Modify();
 
         ConfigTemplateManagement.ReplaceDefaultValueForAllTemplates(
           DATABASE::Item, Item.FieldNo("Tax Group Code"), TaxGroup.Code);
@@ -431,7 +429,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         VATBusinessPostingGroup.SetFilter(Code, '<>%1', O365SalesInitialSetup."Default VAT Bus. Posting Group");
-        VATBusinessPostingGroup.DeleteAll;
+        VATBusinessPostingGroup.DeleteAll();
 
         VATProductPostingGroup.SetFilter(
           Code,
@@ -439,18 +437,18 @@ codeunit 2110 "O365 Sales Initial Setup"
           O365SalesInitialSetup."Normal VAT Prod. Posting Gr.",
           O365SalesInitialSetup."Reduced VAT Prod. Posting Gr.",
           O365SalesInitialSetup."Zero VAT Prod. Posting Gr.");
-        VATProductPostingGroup.DeleteAll;
+        VATProductPostingGroup.DeleteAll();
 
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', O365SalesInitialSetup."Default VAT Bus. Posting Group");
-        VATPostingSetup.DeleteAll;
-        VATPostingSetup.Reset;
+        VATPostingSetup.DeleteAll();
+        VATPostingSetup.Reset();
         VATPostingSetup.SetFilter(
           "VAT Prod. Posting Group",
           '<>%1&<>%2&<>%3',
           O365SalesInitialSetup."Normal VAT Prod. Posting Gr.",
           O365SalesInitialSetup."Reduced VAT Prod. Posting Gr.",
           O365SalesInitialSetup."Zero VAT Prod. Posting Gr.");
-        VATPostingSetup.DeleteAll;
+        VATPostingSetup.DeleteAll();
     end;
 
     local procedure InitializeAccountingPeriod()
@@ -472,7 +470,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         if not Item.IsEmpty then
             exit;
 
-        AccountingPeriod.LockTable;
+        AccountingPeriod.LockTable();
         if AccountingPeriod.FindLast then
             if AccountingPeriod."Starting Date" > WorkDate + 366 then
                 exit;
@@ -496,7 +494,7 @@ codeunit 2110 "O365 Sales Initial Setup"
         BankAccount: Record "Bank Account";
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
     begin
-        CompanyInformation.LockTable;
+        CompanyInformation.LockTable();
         if not CompanyInformation.Get then
             exit;
 
@@ -547,8 +545,8 @@ codeunit 2110 "O365 Sales Initial Setup"
             exit;
 
         // Add the email to BCC on all invoices
-        O365EmailSetup.Reset;
-        O365EmailSetup.Init;
+        O365EmailSetup.Reset();
+        O365EmailSetup.Init();
         O365EmailSetup.Validate(RecipientType, O365EmailSetup.RecipientType::BCC);
         O365EmailSetup.Email := BccEmail;
         O365EmailSetup.Insert(true);
@@ -601,7 +599,7 @@ codeunit 2110 "O365 Sales Initial Setup"
             exit; // Valid configuration
 
         // Locale may be invalid, perform check again with a lock to be sure
-        UserPersonalization.LockTable;
+        UserPersonalization.LockTable();
         if not UserPersonalization.Get(UserSecurityId) then
             exit;
         if WindowsLanguage.Get(UserPersonalization."Locale ID") then
@@ -764,7 +762,7 @@ codeunit 2110 "O365 Sales Initial Setup"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.Insert(true);
 
@@ -846,7 +844,7 @@ codeunit 2110 "O365 Sales Initial Setup"
             if ConfigTemplateHeader.Get(O365SalesInitialSetup."Default Customer Template") then begin
                 ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
                 ConfigTemplateLine.SetRange("Field ID", DummyCustomer.FieldNo("Country/Region Code"));
-                ConfigTemplateLine.DeleteAll;
+                ConfigTemplateLine.DeleteAll();
                 ConfigTemplateManagement.InsertConfigTemplateLine(ConfigTemplateHeader.Code,
                   DummyCustomer.FieldNo("Country/Region Code"), Rec."Country/Region Code", ConfigTemplateHeader."Table ID");
             end;
@@ -953,7 +951,7 @@ codeunit 2110 "O365 Sales Initial Setup"
     local procedure GetO365SalesInitialSetup(): Boolean
     begin
         if not O365SalesInitSetupRead then
-            O365SalesInitSetupRead := O365SalesInitialSetup.Get;
+            O365SalesInitSetupRead := O365SalesInitialSetup.Get();
         exit(O365SalesInitSetupRead);
     end;
 

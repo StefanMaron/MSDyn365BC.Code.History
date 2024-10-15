@@ -32,7 +32,7 @@ codeunit 99000889 AvailabilityManagement
     procedure SetSalesHeader(var OrderPromisingLine: Record "Order Promising Line"; var SalesHeader: Record "Sales Header")
     begin
         CaptionText := Text000;
-        OrderPromisingLine.DeleteAll;
+        OrderPromisingLine.DeleteAll();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
@@ -40,8 +40,8 @@ codeunit 99000889 AvailabilityManagement
         if SalesLine.FindSet then
             repeat
                 if SalesLine.IsInventoriableItem then begin
-                    OrderPromisingLine.Init;
-                    OrderPromisingLine."Entry No." := OrderPromisingLine.GetLastEntryNo + 10000;
+                    OrderPromisingLine.Init();
+                    OrderPromisingLine."Entry No." := OrderPromisingLine.GetLastEntryNo() + 10000;
                     OrderPromisingLine.TransferFromSalesLine(SalesLine);
                     SalesLine.CalcFields("Reserved Qty. (Base)");
                     InsertPromisingLine(OrderPromisingLine, SalesLine."Outstanding Qty. (Base)" - SalesLine."Reserved Qty. (Base)");
@@ -52,14 +52,14 @@ codeunit 99000889 AvailabilityManagement
     procedure SetServHeader(var OrderPromisingLine: Record "Order Promising Line"; var ServHeader: Record "Service Header")
     begin
         CaptionText := Text002;
-        OrderPromisingLine.DeleteAll;
+        OrderPromisingLine.DeleteAll();
         ServLine.SetRange("Document Type", ServHeader."Document Type");
         ServLine.SetRange("Document No.", ServHeader."No.");
         ServLine.SetRange(Type, ServLine.Type::Item);
         ServLine.SetFilter("Outstanding Quantity", '>0');
         if ServLine.Find('-') then
             repeat
-                OrderPromisingLine."Entry No." := OrderPromisingLine.GetLastEntryNo + 10000;
+                OrderPromisingLine."Entry No." := OrderPromisingLine.GetLastEntryNo() + 10000;
                 OrderPromisingLine.TransferFromServLine(ServLine);
                 ServLine.CalcFields("Reserved Qty. (Base)");
                 InsertPromisingLine(OrderPromisingLine, ServLine."Outstanding Qty. (Base)" - ServLine."Reserved Qty. (Base)");
@@ -69,7 +69,7 @@ codeunit 99000889 AvailabilityManagement
     procedure SetJob(var OrderPromisingLine: Record "Order Promising Line"; var Job: Record Job)
     begin
         CaptionText := Text003;
-        OrderPromisingLine.DeleteAll;
+        OrderPromisingLine.DeleteAll();
         JobPlanningLine.SetRange("Job No.", Job."No.");
         JobPlanningLine.SetRange(Status, Job.Status);
         JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Item);
@@ -77,7 +77,7 @@ codeunit 99000889 AvailabilityManagement
         if JobPlanningLine.Find('-') then
             repeat
                 if JobPlanningLineIsInventoryItem then begin
-                    OrderPromisingLine."Entry No." := OrderPromisingLine.GetLastEntryNo + 10000;
+                    OrderPromisingLine."Entry No." := OrderPromisingLine.GetLastEntryNo() + 10000;
                     OrderPromisingLine.TransferFromJobPlanningLine(JobPlanningLine);
                     JobPlanningLine.CalcFields("Reserved Qty. (Base)");
                     InsertPromisingLine(OrderPromisingLine, JobPlanningLine."Remaining Qty. (Base)" - JobPlanningLine."Reserved Qty. (Base)");
@@ -208,7 +208,7 @@ codeunit 99000889 AvailabilityManagement
                             begin
                                 Clear("Earliest Shipment Date");
                                 Clear("Planned Delivery Date");
-                                JobPlanningLine.Reset;
+                                JobPlanningLine.Reset();
                                 JobPlanningLine.SetRange(Status, "Source Subtype");
                                 JobPlanningLine.SetRange("Job No.", "Source ID");
                                 JobPlanningLine.SetRange("Job Contract Entry No.", "Source Line No.");
@@ -370,13 +370,13 @@ codeunit 99000889 AvailabilityManagement
                        (SalesLine.Reserve = SalesLine.Reserve::Always) and
                        (QtyToReserveBase <> 0)
                     then begin
-                        ReservMgt.SetSalesLine(SalesLine);
+                        ReservMgt.SetReservSource(SalesLine);
                         ReservMgt.AutoReserve(
                           FullAutoReservation, '', SalesLine."Shipment Date", QtyToReserve, QtyToReserveBase);
                         SalesLine.CalcFields("Reserved Quantity");
                     end;
 
-                    SalesLine.Modify;
+                    SalesLine.Modify();
                 end;
             OrderPromisingLine2."Source Type"::"Service Order":
                 begin
@@ -391,13 +391,13 @@ codeunit 99000889 AvailabilityManagement
                        (ServLine.Reserve = ServLine.Reserve::Always) and
                        (QtyToReserveBase <> 0)
                     then begin
-                        ReservMgt.SetServLine(ServLine);
+                        ReservMgt.SetReservSource(ServLine);
                         ReservMgt.AutoReserve(
                           FullAutoReservation, '', ServLine."Needed by Date", QtyToReserve, QtyToReserveBase);
                         ServLine.CalcFields("Reserved Quantity");
                     end;
 
-                    ServLine.Modify;
+                    ServLine.Modify();
                 end;
             OrderPromisingLine2."Source Type"::Job:
                 begin
@@ -413,13 +413,13 @@ codeunit 99000889 AvailabilityManagement
                        (JobPlanningLine.Reserve = JobPlanningLine.Reserve::Always) and
                        (QtyToReserveBase <> 0)
                     then begin
-                        ReservMgt.SetJobPlanningLine(JobPlanningLine);
+                        ReservMgt.SetReservSource(JobPlanningLine);
                         ReservMgt.AutoReserve(
                           FullAutoReservation, '', JobPlanningLine."Planning Date", QtyToReserve, QtyToReserveBase);
                         JobPlanningLine.CalcFields("Reserved Quantity");
                     end;
 
-                    JobPlanningLine.Modify;
+                    JobPlanningLine.Modify();
                 end;
         end;
         OnAfterUpdateSourceLine(OrderPromisingLine2);
@@ -429,7 +429,7 @@ codeunit 99000889 AvailabilityManagement
     begin
         if HasGotCompanyInfo then
             exit;
-        HasGotCompanyInfo := CompanyInfo.Get and InvtSetup.Get;
+        HasGotCompanyInfo := CompanyInfo.Get and InvtSetup.Get();
     end;
 
     local procedure CreateReservations(var OrderPromisingLine: Record "Order Promising Line")
@@ -499,7 +499,7 @@ codeunit 99000889 AvailabilityManagement
                     begin
                         if (SalesLine2.Reserve = SalesLine2.Reserve::Never) and not SalesLine2."Drop Shipment" then begin
                             SalesLine2.Reserve := SalesLine.Reserve::Optional;
-                            SalesLine2.Modify;
+                            SalesLine2.Modify();
                         end;
                         SalesLineReserve.BindToRequisition(SalesLine2, ReqLine, ReservQty, ReservQtyBase);
                     end;
@@ -508,7 +508,7 @@ codeunit 99000889 AvailabilityManagement
                         ServLineReserve.BindToRequisition(ServLine2, ReqLine, ReservQty, ReservQtyBase);
                         if ServLine2.Reserve = ServLine.Reserve::Never then begin
                             ServLine2.Reserve := ServLine.Reserve::Optional;
-                            ServLine2.Modify;
+                            ServLine2.Modify();
                         end;
                     end;
                 OrderPromisingLine."Source Type"::Job:
@@ -516,7 +516,7 @@ codeunit 99000889 AvailabilityManagement
                         JobPlanningLineReserve.BindToRequisition(JobPlanningLine2, ReqLine, ReservQty, ReservQtyBase);
                         if JobPlanningLine2.Reserve = JobPlanningLine2.Reserve::Never then begin
                             JobPlanningLine2.Reserve := JobPlanningLine2.Reserve::Optional;
-                            JobPlanningLine2.Modify;
+                            JobPlanningLine2.Modify();
                         end;
                     end;
             end;

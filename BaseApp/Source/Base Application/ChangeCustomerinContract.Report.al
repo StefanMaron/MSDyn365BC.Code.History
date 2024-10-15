@@ -146,9 +146,9 @@ report 6037 "Change Customer in Contract"
         CounterBreak: Integer;
         ItemCounter: Integer;
     begin
-        ServItem.LockTable;
-        ServContractLine.LockTable;
-        ServContract.LockTable;
+        ServItem.LockTable();
+        ServContractLine.LockTable();
+        ServContract.LockTable();
         Clear(TempServContract);
         Clear(TempServItem);
         ServContractMgt.GetAffectedItemsOnCustChange(
@@ -171,7 +171,7 @@ report 6037 "Change Customer in Contract"
         Window.Update(2, TempServContract.Count);
         Window.Update(5, TempServItem.Count);
 
-        CounterTotal := TempServContract.Count;
+        CounterTotal := TempServContract.Count();
         Counter := 0;
         ItemCounter := 0;
         CounterBreak := Round(CounterTotal / 100, 1, '>');
@@ -190,7 +190,7 @@ report 6037 "Change Customer in Contract"
         else
             Window.Update(3, 10000);
 
-        CounterTotal := TempServItem.Count;
+        CounterTotal := TempServItem.Count();
         Counter := 0;
         ItemCounter := 0;
         CounterBreak := Round(CounterTotal / 100, 1, '>');

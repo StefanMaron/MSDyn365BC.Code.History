@@ -54,7 +54,7 @@ codeunit 398 "Sales Tax Calculate"
                     CalculationOrderViolation := true
                 else
                     LastCalculationOrder := TaxAreaLine."Calculation Order";
-                TaxDetail.Reset;
+                TaxDetail.Reset();
                 TaxDetail.SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
                 if TaxGroupCode = '' then
                     TaxDetail.SetFilter("Tax Group Code", '%1', TaxGroupCode)
@@ -151,7 +151,7 @@ codeunit 398 "Sales Tax Calculate"
                     CalculationOrderViolation := true
                 else
                     LastCalculationOrder := TaxAreaLine."Calculation Order";
-                TaxDetail.Reset;
+                TaxDetail.Reset();
                 TaxDetail.SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
                 if TaxGroupCode = '' then
                     TaxDetail.SetFilter("Tax Group Code", '%1', TaxGroupCode)
@@ -317,7 +317,7 @@ codeunit 398 "Sales Tax Calculate"
 
         Initialised := true;
         FirstLine := true;
-        TMPTaxDetail.DeleteAll;
+        TMPTaxDetail.DeleteAll();
 
         RemainingTaxDetails := 0;
 
@@ -335,7 +335,7 @@ codeunit 398 "Sales Tax Calculate"
                     CalculationOrderViolation := true
                 else
                     LastCalculationOrder := TaxAreaLine."Calculation Order";
-                TaxDetail.Reset;
+                TaxDetail.Reset();
                 TaxDetail.SetRange("Tax Jurisdiction Code", TaxAreaLine."Tax Jurisdiction Code");
                 if TaxGroupCode = '' then
                     TaxDetail.SetFilter("Tax Group Code", '%1', TaxGroupCode)
@@ -369,7 +369,7 @@ codeunit 398 "Sales Tax Calculate"
                     TMPTaxDetail := TaxDetail;
                     TMPTaxDetail."Tax Below Maximum" := AddedTaxAmount;
                     TMPTaxDetail."Tax Above Maximum" := TaxBaseAmount;
-                    TMPTaxDetail.Insert;
+                    TMPTaxDetail.Insert();
                     RemainingTaxDetails := RemainingTaxDetails + 1;
                 end;
                 TaxDetail.SetRange("Tax Type", TaxDetail."Tax Type"::"Excise Tax");
@@ -391,7 +391,7 @@ codeunit 398 "Sales Tax Calculate"
                     TMPTaxDetail := TaxDetail;
                     TMPTaxDetail."Tax Below Maximum" := AddedTaxAmount;
                     TMPTaxDetail."Tax Above Maximum" := TaxBaseAmount;
-                    TMPTaxDetail.Insert;
+                    TMPTaxDetail.Insert();
                     RemainingTaxDetails := RemainingTaxDetails + 1;
                 end;
             until TaxAreaLine.Next(-1) = 0;
@@ -402,7 +402,7 @@ codeunit 398 "Sales Tax Calculate"
                 if TMPTaxDetail.Find('-') then begin
                     TMPTaxDetail."Tax Below Maximum" :=
                       TMPTaxDetail."Tax Below Maximum" - TaxAmount + DesiredTaxAmount;
-                    TMPTaxDetail.Modify;
+                    TMPTaxDetail.Modify();
                     TaxAmount := DesiredTaxAmount;
                 end;
 

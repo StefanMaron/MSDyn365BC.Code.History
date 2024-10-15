@@ -31,7 +31,7 @@ report 15 "Consolidation - Test File"
             trigger OnPostDataItem()
             begin
                 if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Consolidate.SetGlobals(
                   '', '', BusUnit."Company Name",
@@ -44,7 +44,7 @@ report 15 "Consolidation - Test File"
                     case CopyStr(TextLine, 1, 4) of
                         '<02>':
                             begin
-                                TempGLEntry.Init;
+                                TempGLEntry.Init();
                                 Evaluate(TempGLEntry."G/L Account No.", CopyStr(TextLine, 5, 20));
                                 Evaluate(TempGLEntry."Posting Date", CopyStr(TextLine, 26, 9));
                                 Evaluate(TempGLEntry.Amount, CopyStr(TextLine, 36, 22));
@@ -61,7 +61,7 @@ report 15 "Consolidation - Test File"
             trigger OnPreDataItem()
             begin
                 if FileFormat = FileFormat::"Version 4.00 or Later (.xml)" then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem(Header; "Integer")
@@ -342,7 +342,7 @@ report 15 "Consolidation - Test File"
             if SubsidCurrencyCode = '' then
                 SubsidCurrencyCode := BusUnit."Currency Code"
             else begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if ((SubsidCurrencyCode <> BusUnit."Currency Code") and (BusUnit."Currency Code" <> '')) or
                    ((SubsidCurrencyCode <> GLSetup."LCY Code") and (BusUnit."Currency Code" = ''))
                 then

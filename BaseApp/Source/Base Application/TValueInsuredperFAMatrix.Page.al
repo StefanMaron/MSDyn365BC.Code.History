@@ -656,7 +656,7 @@ page 9275 "T. Value Insured per FA Matrix"
 
     local procedure MATRIX_OnAfterGetRecord(MATRIX_ColumnOrdinal: Integer)
     begin
-        InsCoverageLedgEntry.Reset;
+        InsCoverageLedgEntry.Reset();
         InsCoverageLedgEntry.SetCurrentKey("FA No.", "Insurance No.");
         InsCoverageLedgEntry.SetRange("Insurance No.", MatrixRecords[MATRIX_ColumnOrdinal]."No.");
         InsCoverageLedgEntry.SetRange("FA No.", "No.");

@@ -295,7 +295,7 @@ page 5603 "Main Asset Statistics"
         [InDataSet]
         DispDateVisible: Boolean;
 
-    local procedure CalcAmount(var FADate: Date; var Amount: Decimal; FADate2: Date; FAPostingType: Option "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value")
+    local procedure CalcAmount(var FADate: Date; var Amount: Decimal; FADate2: Date; FAPostingType: Enum "FA Journal Line FA Posting Type")
     begin
         if FADate2 = 0D then
             exit;

@@ -29,7 +29,7 @@ page 9249 "Analysis by Dimensions Matrix"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookUpCode(LineDimOption, LineDimCode, Code);
+                        LookUpCode(AnalysisByDimParameters."Line Dim Option", LineDimCode, Code);
                     end;
                 }
                 field(Name; Name)
@@ -627,10 +627,7 @@ page 9249 "Analysis by Dimensions Matrix"
                     begin
                         SetCommonFilters(AnalysisViewEntry);
                         AnalysisViewEntry.Find('-');
-                        AnalysisViewToExcel.ExportData(
-                          AnalysisViewEntry, ShowOppositeSign,
-                          ShowInAddCurr, AmountField, ShowColumnName, DateFilter, AccountFilter, BudgetFilter,
-                          Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, AmountType, ClosingEntryFilter, ShowActualBudg, BusUnitFilter);
+                        AnalysisViewToExcel.ExportData(AnalysisViewEntry, AnalysisByDimParameters);
                     end;
                 }
             }
@@ -642,7 +639,7 @@ page 9249 "Analysis by Dimensions Matrix"
         MATRIX_CurrentColumnOrdinal: Integer;
         MATRIX_Steps: Integer;
     begin
-        Amount := MatrixMgt.RoundValue(CalcAmount(false), RoundingFactor);
+        Amount := MatrixMgt.RoundValue(CalcAmount(false), AnalysisByDimParameters."Rounding Factor");
 
         MATRIX_CurrentColumnOrdinal := 0;
         if MATRIX_PrimKeyFirstCol <> '' then
@@ -666,7 +663,7 @@ page 9249 "Analysis by Dimensions Matrix"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(FindRec(LineDimOption, Rec, Which));
+        exit(FindRec(AnalysisByDimParameters."Line Dim Option", Rec, Which));
     end;
 
     trigger OnInit()
@@ -707,7 +704,7 @@ page 9249 "Analysis by Dimensions Matrix"
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(NextRec(LineDimOption, Rec, Steps));
+        exit(NextRec(AnalysisByDimParameters."Line Dim Option", Rec, Steps));
     end;
 
     trigger OnOpenPage()
@@ -719,8 +716,8 @@ page 9249 "Analysis by Dimensions Matrix"
 
         ValidateAnalysisViewCode;
 
-        InitRec(Rec, LineDimOption);
-        InitRec(MatrixRecord, ColumnDimOption);
+        InitRec(Rec, AnalysisByDimParameters."Line Dim Option");
+        InitRec(MatrixRecord, AnalysisByDimParameters."Column Dim Option");
 
         if (LineDimCode = '') and (ColumnDimCode = '') then begin
             if GLAccountSource then
@@ -733,7 +730,7 @@ page 9249 "Analysis by Dimensions Matrix"
         CalculateClosingDateFilter;
 
         SetVisible;
-        if LineDimOption = LineDimOption::Period then
+        if AnalysisByDimParameters."Line Dim Option" = AnalysisByDimParameters."Line Dim Option"::Period then
             Code := '';
     end;
 
@@ -751,33 +748,13 @@ page 9249 "Analysis by Dimensions Matrix"
         PeriodOption: Record Date;
         MatrixMgt: Codeunit "Matrix Management";
         AnalysisViewCode: Code[10];
-        LineDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast";
-        ColumnDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast";
         LineDimCode: Text[30];
         ColumnDimCode: Text[30];
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
-        RoundingFactor: Option "None","1","1000","1000000";
-        AmountField: Option Amount,"Debit Amount","Credit Amount";
-        ShowActualBudg: Option "Actual Amounts","Budgeted Amounts",Variance,"Variance%","Index%",Amounts;
-        ShowInAddCurr: Boolean;
-        ShowOppositeSign: Boolean;
-        ClosingEntryFilter: Option Include,Exclude;
-        ShowColumnName: Boolean;
-        DateFilter: Text;
-        CashFlowFilter: Text;
         ExcludeClosingDateFilter: Text;
         MATRIX_CellData: array[32] of Decimal;
         MATRIX_PrimKeyFirstCol: Text[1024];
-        AccountFilter: Text;
-        BudgetFilter: Text;
-        Dim1Filter: Text;
-        Dim2Filter: Text;
-        Dim3Filter: Text;
-        Dim4Filter: Text;
         MatrixAmount: Decimal;
         CurrExchDate: Date;
-        BusUnitFilter: Text;
         MATRIX_ColumnOrdinal: Integer;
         MATRIX_NoOfMatrixColumns: Integer;
         ColumnCaptions: array[32] of Text[250];
@@ -850,6 +827,9 @@ page 9249 "Analysis by Dimensions Matrix"
         Text003: Label 'Unsupported Account Source %1.';
         Emphasize: Boolean;
 
+    protected var
+        AnalysisByDimParameters: Record "Analysis by Dim. Parameters" temporary;
+
     local procedure InitRec(var DimCodeBuf: Record "Dimension Code Buffer"; DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast")
     var
         GLAccount: Record "G/L Account";
@@ -860,8 +840,8 @@ page 9249 "Analysis by Dimensions Matrix"
         case DimOption of
             DimOption::"G/L Account":
                 begin
-                    if AccountFilter <> '' then
-                        GLAccount.SetFilter("No.", AccountFilter);
+                    if AnalysisByDimParameters."Account Filter" <> '' then
+                        GLAccount.SetFilter("No.", AnalysisByDimParameters."Account Filter");
                     if GLAccount.FindSet then
                         repeat
                             CopyGLAccToBuf(GLAccount, DimCodeBuf);
@@ -869,8 +849,8 @@ page 9249 "Analysis by Dimensions Matrix"
                 end;
             DimOption::"Cash Flow Account":
                 begin
-                    if AccountFilter <> '' then
-                        CashFlowAccount.SetFilter("No.", AccountFilter);
+                    if AnalysisByDimParameters."Account Filter" <> '' then
+                        CashFlowAccount.SetFilter("No.", AnalysisByDimParameters."Account Filter");
                     if CashFlowAccount.FindSet then
                         repeat
                             CopyCFAccToBuf(CashFlowAccount, DimCodeBuf);
@@ -878,17 +858,17 @@ page 9249 "Analysis by Dimensions Matrix"
                 end;
             DimOption::Period:
                 begin
-                    PeriodOption.SetRange("Period Type", PeriodType);
-                    if DateFilter <> '' then begin
+                    PeriodOption.SetRange("Period Type", AnalysisByDimParameters."Period Type");
+                    if AnalysisByDimParameters."Date Filter" <> '' then begin
                         PeriodOption.FilterGroup(2);
-                        PeriodOption.SetFilter("Period Start", DateFilter);
+                        PeriodOption.SetFilter("Period Start", AnalysisByDimParameters."Date Filter");
                         PeriodOption.FilterGroup(0);
                     end;
                 end;
             DimOption::"Business Unit":
                 begin
-                    if BusUnitFilter <> '' then
-                        BusinessUnit.SetFilter(Code, BusUnitFilter);
+                    if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
+                        BusinessUnit.SetFilter(Code, AnalysisByDimParameters."Bus. Unit Filter");
                     if BusinessUnit.FindSet then
                         repeat
                             CopyBusUnitToBuf(BusinessUnit, DimCodeBuf);
@@ -896,8 +876,8 @@ page 9249 "Analysis by Dimensions Matrix"
                 end;
             DimOption::"Cash Flow Forecast":
                 begin
-                    if CashFlowFilter <> '' then
-                        CashFlowForecast.SetFilter("No.", CashFlowFilter);
+                    if AnalysisByDimParameters."Cash Flow Forecast Filter" <> '' then
+                        CashFlowForecast.SetFilter("No.", AnalysisByDimParameters."Cash Flow Forecast Filter");
                     if CashFlowForecast.FindSet then
                         repeat
                             CopyCashFlowToBuf(CashFlowForecast, DimCodeBuf);
@@ -905,16 +885,16 @@ page 9249 "Analysis by Dimensions Matrix"
                 end;
             DimOption::"Dimension 1":
                 InitDimValue(
-                  DimCodeBuf, AnalysisView."Dimension 1 Code", Dim1Filter);
+                  DimCodeBuf, AnalysisView."Dimension 1 Code", AnalysisByDimParameters."Dimension 1 Filter");
             DimOption::"Dimension 2":
                 InitDimValue(
-                  DimCodeBuf, AnalysisView."Dimension 2 Code", Dim2Filter);
+                  DimCodeBuf, AnalysisView."Dimension 2 Code", AnalysisByDimParameters."Dimension 2 Filter");
             DimOption::"Dimension 3":
                 InitDimValue(
-                  DimCodeBuf, AnalysisView."Dimension 3 Code", Dim3Filter);
+                  DimCodeBuf, AnalysisView."Dimension 3 Code", AnalysisByDimParameters."Dimension 3 Filter");
             DimOption::"Dimension 4":
                 InitDimValue(
-                  DimCodeBuf, AnalysisView."Dimension 4 Code", Dim4Filter);
+                  DimCodeBuf, AnalysisView."Dimension 4 Code", AnalysisByDimParameters."Dimension 4 Filter");
         end;
         if FindFirst then;
     end;
@@ -988,17 +968,17 @@ page 9249 "Analysis by Dimensions Matrix"
             Init;
             Code := Format(ThePeriod."Period Start");
             "Period Start" := ThePeriod."Period Start";
-            if ClosingEntryFilter = ClosingEntryFilter::Include then
+            if AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Include then
                 "Period End" := ClosingDate(ThePeriod."Period End")
             else
                 "Period End" := ThePeriod."Period End";
-            if DateFilter <> '' then begin
-                Period2.SetFilter("Period End", DateFilter);
+            if AnalysisByDimParameters."Date Filter" <> '' then begin
+                Period2.SetFilter("Period End", AnalysisByDimParameters."Date Filter");
                 if Period2.GetRangeMax("Period End") < "Period End" then
                     "Period End" := Period2.GetRangeMax("Period End");
             end;
             Name := ThePeriod."Period Name";
-            if Insert then;
+            if Insert() then;
         end;
     end;
 
@@ -1041,7 +1021,7 @@ page 9249 "Analysis by Dimensions Matrix"
         AccountingPeriod: Record "Accounting Period";
         FirstRec: Boolean;
     begin
-        if ClosingEntryFilter = ClosingEntryFilter::Include then
+        if AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Include then
             ExcludeClosingDateFilter := ''
         else begin
             AccountingPeriod.SetCurrentKey("New Fiscal Year");
@@ -1107,13 +1087,13 @@ page 9249 "Analysis by Dimensions Matrix"
         DateFilter2: Text;
     begin
         with TheAnalysisViewEntry do begin
-            if DateFilter = '' then
+            if AnalysisByDimParameters."Date Filter" = '' then
                 DateFilter2 := ExcludeClosingDateFilter
             else begin
-                if AmountType = AmountType::"Net Change" then begin
-                    DateFilter2 := DateFilter;
+                if AnalysisByDimParameters."Amount Type" = AnalysisByDimParameters."Amount Type"::"Net Change" then begin
+                    DateFilter2 := AnalysisByDimParameters."Date Filter";
                 end else begin
-                    SetFilter("Posting Date", DateFilter);
+                    SetFilter("Posting Date", AnalysisByDimParameters."Date Filter");
                     DateFilter2 := StrSubstNo('..%1', GetRangeMax("Posting Date"));
                 end;
                 if ExcludeClosingDateFilter <> '' then
@@ -1122,26 +1102,28 @@ page 9249 "Analysis by Dimensions Matrix"
             Reset;
 
             SetRange("Analysis View Code", AnalysisView.Code);
-            if BusUnitFilter <> '' then
-                SetFilter("Business Unit Code", BusUnitFilter);
-            if CashFlowFilter <> '' then
-                SetFilter("Cash Flow Forecast No.", CashFlowFilter);
+            if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
+                SetFilter("Business Unit Code", AnalysisByDimParameters."Bus. Unit Filter");
+            if AnalysisByDimParameters."Cash Flow Forecast Filter" <> '' then
+                SetFilter("Cash Flow Forecast No.", AnalysisByDimParameters."Cash Flow Forecast Filter");
 
-            if AccountFilter <> '' then
-                SetFilter("Account No.", AccountFilter);
+            if AnalysisByDimParameters."Account Filter" <> '' then
+                SetFilter("Account No.", AnalysisByDimParameters."Account Filter");
 
             SetRange("Account Source", AnalysisView."Account Source");
 
             SetFilter("Posting Date", DateFilter2);
-            if Dim1Filter <> '' then
-                SetFilter("Dimension 1 Value Code", GetDimValueTotaling(Dim1Filter, AnalysisView."Dimension 1 Code"));
-            if Dim2Filter <> '' then
-                SetFilter("Dimension 2 Value Code", GetDimValueTotaling(Dim2Filter, AnalysisView."Dimension 2 Code"));
-            if Dim3Filter <> '' then
-                SetFilter("Dimension 3 Value Code", GetDimValueTotaling(Dim3Filter, AnalysisView."Dimension 3 Code"));
-            if Dim4Filter <> '' then
-                SetFilter("Dimension 4 Value Code", GetDimValueTotaling(Dim4Filter, AnalysisView."Dimension 4 Code"));
+            if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
+                SetFilter("Dimension 1 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 1 Filter", AnalysisView."Dimension 1 Code"));
+            if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
+                SetFilter("Dimension 2 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 2 Filter", AnalysisView."Dimension 2 Code"));
+            if AnalysisByDimParameters."Dimension 3 Filter" <> '' then
+                SetFilter("Dimension 3 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 3 Filter", AnalysisView."Dimension 3 Code"));
+            if AnalysisByDimParameters."Dimension 4 Filter" <> '' then
+                SetFilter("Dimension 4 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 4 Filter", AnalysisView."Dimension 4 Code"));
         end;
+
+        OnAfterSetCommonFilters(TheAnalysisViewEntry, AnalysisByDimParameters);
     end;
 
     local procedure SetDimFilters(var TheAnalysisViewEntry: Record "Analysis View Entry"; LineOrColumn: Option Line,Column)
@@ -1151,10 +1133,10 @@ page 9249 "Analysis by Dimensions Matrix"
     begin
         if LineOrColumn = LineOrColumn::Line then begin
             DimCodeBuf := Rec;
-            DimOption := LineDimOption;
+            DimOption := AnalysisByDimParameters."Line Dim Option";
         end else begin
             DimCodeBuf := MatrixRecord;
-            DimOption := ColumnDimOption;
+            DimOption := AnalysisByDimParameters."Column Dim Option";
         end;
         case DimOption of
             DimOption::"G/L Account",
@@ -1165,12 +1147,12 @@ page 9249 "Analysis by Dimensions Matrix"
                     TheAnalysisViewEntry.SetFilter("Account No.", DimCodeBuf.Totaling);
             DimOption::Period:
                 begin
-                    if AmountType = AmountType::"Net Change" then
+                    if AnalysisByDimParameters."Amount Type" = AnalysisByDimParameters."Amount Type"::"Net Change" then
                         TheAnalysisViewEntry.SetRange(
                           "Posting Date", DimCodeBuf."Period Start", DimCodeBuf."Period End")
                     else
                         TheAnalysisViewEntry.SetRange("Posting Date", 0D, DimCodeBuf."Period End");
-                    if (ClosingEntryFilter = ClosingEntryFilter::Exclude) and (ExcludeClosingDateFilter <> '') then
+                    if (AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Exclude) and (ExcludeClosingDateFilter <> '') then
                         TheAnalysisViewEntry.SetFilter(
                           "Posting Date", TheAnalysisViewEntry.GetFilter("Posting Date") +
                           '&' + ExcludeClosingDateFilter);
@@ -1207,23 +1189,25 @@ page 9249 "Analysis by Dimensions Matrix"
         with TheAnalysisViewBudgetEntry do begin
             Reset;
             SetRange("Analysis View Code", AnalysisView.Code);
-            if BusUnitFilter <> '' then
-                SetFilter("Business Unit Code", BusUnitFilter);
-            if BudgetFilter <> '' then
-                SetFilter("Budget Name", BudgetFilter);
-            if AccountFilter <> '' then
-                SetFilter("G/L Account No.", AccountFilter);
-            if DateFilter <> '' then
-                SetFilter("Posting Date", DateFilter);
-            if Dim1Filter <> '' then
-                SetFilter("Dimension 1 Value Code", GetDimValueTotaling(Dim1Filter, AnalysisView."Dimension 1 Code"));
-            if Dim2Filter <> '' then
-                SetFilter("Dimension 2 Value Code", GetDimValueTotaling(Dim2Filter, AnalysisView."Dimension 2 Code"));
-            if Dim3Filter <> '' then
-                SetFilter("Dimension 3 Value Code", GetDimValueTotaling(Dim3Filter, AnalysisView."Dimension 3 Code"));
-            if Dim4Filter <> '' then
-                SetFilter("Dimension 4 Value Code", GetDimValueTotaling(Dim4Filter, AnalysisView."Dimension 4 Code"));
+            if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
+                SetFilter("Business Unit Code", AnalysisByDimParameters."Bus. Unit Filter");
+            if AnalysisByDimParameters."Budget Filter" <> '' then
+                SetFilter("Budget Name", AnalysisByDimParameters."Budget Filter");
+            if AnalysisByDimParameters."Account Filter" <> '' then
+                SetFilter("G/L Account No.", AnalysisByDimParameters."Account Filter");
+            if AnalysisByDimParameters."Date Filter" <> '' then
+                SetFilter("Posting Date", AnalysisByDimParameters."Date Filter");
+            if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
+                SetFilter("Dimension 1 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 1 Filter", AnalysisView."Dimension 1 Code"));
+            if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
+                SetFilter("Dimension 2 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 2 Filter", AnalysisView."Dimension 2 Code"));
+            if AnalysisByDimParameters."Dimension 3 Filter" <> '' then
+                SetFilter("Dimension 3 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 3 Filter", AnalysisView."Dimension 3 Code"));
+            if AnalysisByDimParameters."Dimension 4 Filter" <> '' then
+                SetFilter("Dimension 4 Value Code", GetDimValueTotaling(AnalysisByDimParameters."Dimension 4 Filter", AnalysisView."Dimension 4 Code"));
         end;
+
+        OnAfterSetCommonBudgetFilters(TheAnalysisViewBudgetEntry, AnalysisByDimParameters);
     end;
 
     local procedure SetDimBudgetFilters(var TheAnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; LineOrColumn: Option Line,Column)
@@ -1233,10 +1217,10 @@ page 9249 "Analysis by Dimensions Matrix"
     begin
         if LineOrColumn = LineOrColumn::Line then begin
             DimCodeBuf := Rec;
-            DimOption := LineDimOption;
+            DimOption := AnalysisByDimParameters."Line Dim Option";
         end else begin
             DimCodeBuf := MatrixRecord;
-            DimOption := ColumnDimOption;
+            DimOption := AnalysisByDimParameters."Column Dim Option";
         end;
         case DimOption of
             DimOption::"G/L Account":
@@ -1245,7 +1229,7 @@ page 9249 "Analysis by Dimensions Matrix"
                 else
                     TheAnalysisViewBudgetEntry.SetFilter("G/L Account No.", DimCodeBuf.Totaling);
             DimOption::Period:
-                if AmountType = AmountType::"Net Change" then
+                if AnalysisByDimParameters."Amount Type" = AnalysisByDimParameters."Amount Type"::"Net Change" then
                     TheAnalysisViewBudgetEntry.SetRange(
                       "Posting Date", DimCodeBuf."Period Start", DimCodeBuf."Period End")
                 else
@@ -1277,26 +1261,19 @@ page 9249 "Analysis by Dimensions Matrix"
 
     local procedure DrillDown(SetColFilter: Boolean)
     begin
-        if ShowActualBudg = ShowActualBudg::"Actual Amounts" then begin
+        if AnalysisByDimParameters."Show Actual/Budgets" = AnalysisByDimParameters."Show Actual/Budgets"::"Actual Amounts" then begin
             SetCommonFilters(AnalysisViewEntry);
             SetDimFilters(AnalysisViewEntry, 0);
             if SetColFilter then
                 SetDimFilters(AnalysisViewEntry, 1);
             PAGE.Run(PAGE::"Analysis View Entries", AnalysisViewEntry);
         end;
-        if ShowActualBudg = ShowActualBudg::"Budgeted Amounts" then begin
+        if AnalysisByDimParameters."Show Actual/Budgets" = AnalysisByDimParameters."Show Actual/Budgets"::"Budgeted Amounts" then begin
             SetCommonBudgetFilters(AnalysisViewBudgetEntry);
             SetDimBudgetFilters(AnalysisViewBudgetEntry, 0);
             if SetColFilter then
                 SetDimBudgetFilters(AnalysisViewBudgetEntry, 1);
             PAGE.Run(PAGE::"Analysis View Budget Entries", AnalysisViewBudgetEntry);
-        end;
-        if ShowActualBudg = ShowActualBudg::Amounts then begin
-            SetCommonFilters(AnalysisViewEntry);
-            SetDimFilters(AnalysisViewEntry, 0);
-            if SetColFilter then
-                SetDimFilters(AnalysisViewEntry, 1);
-            PAGE.Run(PAGE::"Analysis View Entries", AnalysisViewEntry);
         end;
     end;
 
@@ -1328,34 +1305,32 @@ page 9249 "Analysis by Dimensions Matrix"
             ColumnCode := '';
         if AVBreakdownBuffer.Get(Code, ColumnCode) then
             exit(AVBreakdownBuffer.Amount);
-        case ShowActualBudg of
-            ShowActualBudg::"Actual Amounts":
+        case AnalysisByDimParameters."Show Actual/Budgets" of
+            AnalysisByDimParameters."Show Actual/Budgets"::"Actual Amounts":
                 Amount := CalcActualAmount(SetColFilter);
-            ShowActualBudg::Amounts:
-                Amount := CalcActualAmount(SetColFilter);
-            ShowActualBudg::"Budgeted Amounts":
+            AnalysisByDimParameters."Show Actual/Budgets"::"Budgeted Amounts":
                 Amount := CalcBudgAmount(SetColFilter);
-            ShowActualBudg::Variance:
+            AnalysisByDimParameters."Show Actual/Budgets"::Variance:
                 Amount := CalcActualAmount(SetColFilter) - CalcBudgAmount(SetColFilter);
-            ShowActualBudg::"Variance%":
+            AnalysisByDimParameters."Show Actual/Budgets"::"Variance%":
                 begin
                     Amount := CalcBudgAmount(SetColFilter);
                     if Amount <> 0 then
                         Amount := Round(100 * (CalcActualAmount(SetColFilter) - Amount) / Amount);
                 end;
-            ShowActualBudg::"Index%":
+            AnalysisByDimParameters."Show Actual/Budgets"::"Index%":
                 begin
                     Amount := CalcBudgAmount(SetColFilter);
                     if Amount <> 0 then
                         Amount := Round(100 * CalcActualAmount(SetColFilter) / Amount);
                 end;
         end;
-        if ShowOppositeSign then
+        if AnalysisByDimParameters."Show Opposite Sign" then
             Amount := -Amount;
         AVBreakdownBuffer."Line Code" := Code;
         AVBreakdownBuffer."Column Code" := ColumnCode;
         AVBreakdownBuffer.Amount := Amount;
-        AVBreakdownBuffer.Insert;
+        AVBreakdownBuffer.Insert();
         exit(Amount);
     end;
 
@@ -1363,47 +1338,50 @@ page 9249 "Analysis by Dimensions Matrix"
     var
         Amount: Decimal;
     begin
-        AnalysisViewEntry.Reset;
+        AnalysisViewEntry.Reset();
         SetCommonFilters(AnalysisViewEntry);
         SetDimFilters(AnalysisViewEntry, 0);
         if SetColFilter then
             SetDimFilters(AnalysisViewEntry, 1);
-        if ShowInAddCurr then
-            case AmountField of
-                AmountField::Amount:
+        if AnalysisByDimParameters."Show In Add. Currency" then
+            case AnalysisByDimParameters."Show Amount Field" of
+                AnalysisByDimParameters."Show Amount Field"::Amount:
                     begin
                         AnalysisViewEntry.CalcSums("Add.-Curr. Amount");
                         Amount := AnalysisViewEntry."Add.-Curr. Amount";
                     end;
-                AmountField::"Debit Amount":
+                AnalysisByDimParameters."Show Amount Field"::"Debit Amount":
                     begin
                         AnalysisViewEntry.CalcSums("Add.-Curr. Debit Amount");
                         Amount := AnalysisViewEntry."Add.-Curr. Debit Amount";
                     end;
-                AmountField::"Credit Amount":
+                AnalysisByDimParameters."Show Amount Field"::"Credit Amount":
                     begin
                         AnalysisViewEntry.CalcSums("Add.-Curr. Credit Amount");
                         Amount := AnalysisViewEntry."Add.-Curr. Credit Amount";
                     end;
             end
         else
-            case AmountField of
-                AmountField::Amount:
+            case AnalysisByDimParameters."Show Amount Field" of
+                AnalysisByDimParameters."Show Amount Field"::Amount:
                     begin
                         AnalysisViewEntry.CalcSums(Amount);
                         Amount := AnalysisViewEntry.Amount;
                     end;
-                AmountField::"Debit Amount":
+                AnalysisByDimParameters."Show Amount Field"::"Debit Amount":
                     begin
                         AnalysisViewEntry.CalcSums("Debit Amount");
                         Amount := AnalysisViewEntry."Debit Amount";
                     end;
-                AmountField::"Credit Amount":
+                AnalysisByDimParameters."Show Amount Field"::"Credit Amount":
                     begin
                         AnalysisViewEntry.CalcSums("Credit Amount");
                         Amount := AnalysisViewEntry."Credit Amount";
                     end;
             end;
+
+        OnAfterCalcActualAmount(AnalysisViewEntry, AnalysisByDimParameters, Amount);
+
         exit(Amount);
     end;
 
@@ -1411,24 +1389,24 @@ page 9249 "Analysis by Dimensions Matrix"
     var
         Amount: Decimal;
     begin
-        AnalysisViewBudgetEntry.Reset;
+        AnalysisViewBudgetEntry.Reset();
         SetCommonBudgetFilters(AnalysisViewBudgetEntry);
         SetDimBudgetFilters(AnalysisViewBudgetEntry, 0);
         if SetColFilter then
             SetDimBudgetFilters(AnalysisViewBudgetEntry, 1);
         AnalysisViewBudgetEntry.CalcSums(Amount);
         Amount := AnalysisViewBudgetEntry.Amount;
-        case AmountField of
-            AmountField::"Debit Amount":
+        case AnalysisByDimParameters."Show Amount Field" of
+            AnalysisByDimParameters."Show Amount Field"::"Debit Amount":
                 if Amount < 0 then
                     Amount := 0;
-            AmountField::"Credit Amount":
+            AnalysisByDimParameters."Show Amount Field"::"Credit Amount":
                 if Amount > 0 then
                     Amount := 0
                 else
                     Amount := -Amount;
         end;
-        if (Amount <> 0) and ShowInAddCurr then begin
+        if (Amount <> 0) and AnalysisByDimParameters."Show In Add. Currency" then begin
             if AnalysisViewBudgetEntry.GetFilter("Posting Date") = '' then
                 CurrExchDate := WorkDate
             else
@@ -1440,6 +1418,9 @@ page 9249 "Analysis by Dimensions Matrix"
                   CurrExchRate.ExchangeRate(CurrExchDate, GLSetup."Additional Reporting Currency")),
                 Currency."Amount Rounding Precision");
         end;
+
+        OnAfterCalcBudgetAmount(AnalysisViewBudgetEntry, AnalysisByDimParameters, Amount);
+
         exit(Amount);
     end;
 
@@ -1454,17 +1435,17 @@ page 9249 "Analysis by Dimensions Matrix"
 
     local procedure MATRIX_OnFindRecord(Which: Text[1024]): Boolean
     begin
-        exit(FindRec(ColumnDimOption, MatrixRecord, Which));
+        exit(FindRec(AnalysisByDimParameters."Column Dim Option", MatrixRecord, Which));
     end;
 
     local procedure MATRIX_OnNextRecord(Steps: Integer): Integer
     begin
-        exit(NextRec(ColumnDimOption, MatrixRecord, Steps));
+        exit(NextRec(AnalysisByDimParameters."Column Dim Option", MatrixRecord, Steps));
     end;
 
     local procedure MATRIX_OnAfterGetRecord()
     begin
-        MatrixAmount := MatrixMgt.RoundValue(CalcAmount(true), RoundingFactor);
+        MatrixAmount := MatrixMgt.RoundValue(CalcAmount(true), AnalysisByDimParameters."Rounding Factor");
 
         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixAmount;
     end;
@@ -1505,38 +1486,24 @@ page 9249 "Analysis by Dimensions Matrix"
         Field32Visible := ColumnCaptions[32] <> '';
     end;
 
+    [Obsolete('This function is replaced with another overload','16.0')]
     procedure Load(LineDimOptionLocal: Option; ColumnDimOptionLocal: Option; LineDimCodeLocal: Text[30]; ColumnDimCodeLocal: Text[30]; NewPeriodType: Option; NewDateFilter: Text; NewAccountFilter: Text; NewBusUnitFilter: Text; NewBudgetFilter: Text; NewDim1Filter: Text; NewDim2Filter: Text; NewDim3Filter: Text; NewDim4Filter: Text; NewCashFlowFilter: Text)
     begin
-        LineDimOption := LineDimOptionLocal;
-        ColumnDimOption := ColumnDimOptionLocal;
-        LineDimCode := LineDimCodeLocal;
-        ColumnDimCode := ColumnDimCodeLocal;
-        PeriodType := NewPeriodType;
-        DateFilter := NewDateFilter;
-        AccountFilter := NewAccountFilter;
-        BusUnitFilter := NewBusUnitFilter;
-        BudgetFilter := NewBudgetFilter;
-        CashFlowFilter := NewCashFlowFilter;
-        Dim1Filter := NewDim1Filter;
-        Dim2Filter := NewDim2Filter;
-        Dim3Filter := NewDim3Filter;
-        Dim4Filter := NewDim4Filter;
     end;
 
+    [Obsolete('This function is replaced with another overload','16.0')]
     procedure Load(NewAmountType: Option; ViewCode: Code[50]; ShowOp: Boolean; ShowColumnNameLocal: Boolean; NewShowActualBudg: Option; NewAmountField: Option; NewClosingEntryFilter: Option; NewRoundingFactor: Option; NewShowInAddCurr: Boolean; NewMATRIX_ColumnCaptions: array[32] of Text[250]; NewPrimKeyFirstCol: Text[1024])
     begin
-        AmountType := NewAmountType;
-        ShowOppositeSign := ShowOp;
-        AnalysisViewCode := ViewCode;
-        ShowColumnName := ShowColumnNameLocal;
-        ShowActualBudg := NewShowActualBudg;
-        AmountField := NewAmountField;
-        ClosingEntryFilter := NewClosingEntryFilter;
-        RoundingFactor := NewRoundingFactor;
-        ShowInAddCurr := NewShowInAddCurr;
+    end;
+
+    procedure Load(NewAnalysisByDimParameters: Record "Analysis by Dim. Parameters"; LineDimCodeLocal: Text[30]; ColumnDimCodeLocal: Text[30]; NewMATRIX_ColumnCaptions: array[32] of Text[250]; NewPrimKeyFirstCol: Text[1024])
+    begin
+        AnalysisByDimParameters := NewAnalysisByDimParameters;
+        AnalysisViewCode := AnalysisByDimParameters."Analysis View Code";
+        LineDimCode := LineDimCodeLocal;
+        ColumnDimCode := ColumnDimCodeLocal;
         CopyArray(ColumnCaptions, NewMATRIX_ColumnCaptions, 1);
         MATRIX_PrimKeyFirstCol := NewPrimKeyFirstCol;
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(RoundingFactor, false);
     end;
 
     local procedure FormatLine()
@@ -1550,7 +1517,7 @@ page 9249 "Analysis by Dimensions Matrix"
     begin
         Evaluate(PeriodOption."Period Start", DimCodeBuf.Code);
         FilterLinePeriod(DimCodeBuf);
-        Found := PeriodFormMgt.FindDate(Which, PeriodOption, PeriodType);
+        Found := PeriodFormMgt.FindDate(Which, PeriodOption, AnalysisByDimParameters."Period Type");
         if Found then
             CopyPeriodToBuf(PeriodOption, DimCodeBuf);
         exit(Found);
@@ -1562,7 +1529,7 @@ page 9249 "Analysis by Dimensions Matrix"
     begin
         Evaluate(PeriodOption."Period Start", DimCodeBuf.Code);
         FilterLinePeriod(DimCodeBuf);
-        ResultSteps := PeriodFormMgt.NextDate(Steps, PeriodOption, PeriodType);
+        ResultSteps := PeriodFormMgt.NextDate(Steps, PeriodOption, AnalysisByDimParameters."Period Type");
         if ResultSteps <> 0 then
             CopyPeriodToBuf(PeriodOption, DimCodeBuf);
         exit(ResultSteps);
@@ -1570,7 +1537,7 @@ page 9249 "Analysis by Dimensions Matrix"
 
     local procedure FilterLinePeriod(var DimCodeBuf: Record "Dimension Code Buffer")
     begin
-        if LineDimOption = LineDimOption::Period then begin
+        if AnalysisByDimParameters."Line Dim Option" = AnalysisByDimParameters."Line Dim Option"::Period then begin
             PeriodOption.SetRange("Period Start");
             PeriodOption.SetRange("Period Name");
             PeriodOption.SetFilter("Period Start", DimCodeBuf.GetFilter(Code));
@@ -1610,6 +1577,26 @@ page 9249 "Analysis by Dimensions Matrix"
                     exit(DimensionValue.Totaling);
         end;
         exit(DimValueFilter);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCommonFilters(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCommonBudgetFilters(var AnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcActualAmount(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var Amount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcBudgetAmount(var AnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; var Amount: Decimal)
+    begin
     end;
 }
 

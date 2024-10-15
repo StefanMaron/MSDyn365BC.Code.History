@@ -162,7 +162,7 @@ report 10940 "VAT Reconciliation A"
                         end;
 
                         if (TurnoverReceivable = 0) and (VatReceivable = 0) and (TurnoverPayable = 0) and (VATPayable = 0) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     trigger OnPreDataItem()
@@ -174,26 +174,26 @@ report 10940 "VAT Reconciliation A"
 
                 trigger OnAfterGetRecord()
                 begin
-                    GLEntry.Reset;
+                    GLEntry.Reset();
                     GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
                     GLEntry.SetRange("G/L Account No.", "G/L Account"."No.");
                     GLEntry.SetRange("Posting Date", DateFrom, DateTo);
                     GLEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                     GLEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
                     if GLEntry.IsEmpty then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
-                GLEntry.Reset;
+                GLEntry.Reset();
                 GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
                 GLEntry.SetRange("G/L Account No.", "No.");
                 GLEntry.SetRange("Posting Date", DateFrom, DateTo);
                 GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Purchase, GLEntry."Gen. Posting Type"::Sale);
                 if GLEntry.IsEmpty then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }

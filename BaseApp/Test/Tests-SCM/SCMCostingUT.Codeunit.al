@@ -41,10 +41,10 @@ codeunit 137811 "SCM - Costing UT"
         SetupSKU(SKU, Item);
         SetupValueEntry(ValueEntry, SKU, NewUnitCost);
 
-        InventorySetup.Get;
+        InventorySetup.Get();
         OldAvgCostCalcType := InventorySetup."Average Cost Calc. Type";
         InventorySetup."Average Cost Calc. Type" := InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant";
-        InventorySetup.Modify;
+        InventorySetup.Modify();
 
         // Execution of test
         // test of function

@@ -110,7 +110,7 @@ page 1265 "Data Exch. Setup Subform"
     var
         DataExchDef: Record "Data Exch. Def";
     begin
-        DeleteAll;
+        DeleteAll();
         Clear(Rec);
 
         if DataExchDef.Get(DataExchDefCode) then begin
@@ -130,24 +130,24 @@ page 1265 "Data Exch. Setup Subform"
     procedure SetSuggestedField(var TempNewSuggestedField: Record "Field" temporary)
     begin
         if TempNewSuggestedField.FindSet then begin
-            TempSuggestedField.DeleteAll;
+            TempSuggestedField.DeleteAll();
 
             repeat
                 TempSuggestedField.Copy(TempNewSuggestedField);
-                TempSuggestedField.Insert;
+                TempSuggestedField.Insert();
             until TempNewSuggestedField.Next = 0;
         end;
     end;
 
     procedure SetXMLDefinition(var XMLBuffer: Record "XML Buffer")
     begin
-        TempXMLBuffer.Reset;
-        TempXMLBuffer.DeleteAll;
+        TempXMLBuffer.Reset();
+        TempXMLBuffer.DeleteAll();
 
         if XMLBuffer.FindSet then
             repeat
                 TempXMLBuffer.Copy(XMLBuffer);
-                TempXMLBuffer.Insert;
+                TempXMLBuffer.Insert();
             until XMLBuffer.Next = 0;
     end;
 

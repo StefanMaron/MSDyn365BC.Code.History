@@ -94,7 +94,7 @@ codeunit 132591 "MemoryStream Wrapper Tests"
         InStream: InStream;
     begin
         // Setup
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.CalcFields(Picture);
         CompanyInformation.Picture.CreateInStream(InStream);
         MemoryStreamWrapper.Create(1000);
@@ -116,7 +116,7 @@ codeunit 132591 "MemoryStream Wrapper Tests"
         OutStream: OutStream;
     begin
         // [GIVEN] store picture in MemoryStream
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.CalcFields(Picture);
         CompanyInformation.Picture.CreateInStream(InStream);
         MemoryStreamWrapper.Create(1000);
@@ -124,7 +124,7 @@ codeunit 132591 "MemoryStream Wrapper Tests"
 
         // [GIVEN] delete picture
         Clear(CompanyInformation.Picture);
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
         CompanyInformation.CalcFields(Picture);
         Assert.IsFalse(CompanyInformation.Picture.HasValue, 'Precondition failed');
 
@@ -132,7 +132,7 @@ codeunit 132591 "MemoryStream Wrapper Tests"
         CompanyInformation.Picture.CreateOutStream(OutStream);
         MemoryStreamWrapper.SetPosition(0);
         MemoryStreamWrapper.CopyTo(OutStream);
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
         CompanyInformation.CalcFields(Picture);
 
         // Verify

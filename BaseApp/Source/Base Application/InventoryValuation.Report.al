@@ -1,4 +1,4 @@
-﻿report 1001 "Inventory Valuation"
+report 1001 "Inventory Valuation"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './InventoryValuation.rdlc';
@@ -205,7 +205,7 @@
                 ExpCostPostedToGL := 0;
 
                 IsEmptyLine := true;
-                ValueEntry.Reset;
+                ValueEntry.Reset();
                 ValueEntry.SetRange("Item No.", "No.");
                 ValueEntry.SetFilter("Variant Code", GetFilter("Variant Filter"));
                 ValueEntry.SetFilter("Location Code", GetFilter("Location Filter"));
@@ -270,7 +270,7 @@
                 CostPostedToGL := ExpCostPostedToGL + InvCostPostedToGL;
 
                 if IsEmptyLine then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
         }
     }

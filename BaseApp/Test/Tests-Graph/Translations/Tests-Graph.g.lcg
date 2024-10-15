@@ -887,24 +887,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Graph Collect Mgt Item UT - NamedType BaseUnitOfMeasureCannotHaveConversionsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2771729415 - NamedType 3203020170" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Business]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Graph Delta and Full Sync Test - NamedType BusinessTypeTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2771729415 - NamedType 3828595934" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Shipping]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Graph Delta and Full Sync Test - NamedType ShippingTypeTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3344831276 - NamedType 3430251363" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[MailerResourceId]]></Val>

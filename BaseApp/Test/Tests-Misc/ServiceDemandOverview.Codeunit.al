@@ -53,7 +53,7 @@ codeunit 136131 "Service Demand Overview"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         // Set the Stockout warning to checked in receivables setup
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Demand Overview");
     end;
 
@@ -1127,7 +1127,7 @@ codeunit 136131 "Service Demand Overview"
         PurchaseLine.Validate("Location Code", LocationCode);
         PurchaseLine.Validate("Variant Code", VariantCode);
         PurchaseLine.Validate("Expected Receipt Date", ReceiptDate);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
         exit(PurchaseHeader."No.");
     end;
 
@@ -1165,11 +1165,11 @@ codeunit 136131 "Service Demand Overview"
         FindServiceItem(ServiceItem);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         ServiceHeader.Validate("Bill-to Name", DescriptionText);
-        ServiceHeader.Modify;
+        ServiceHeader.Modify();
 
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         ServiceItemLine.Validate("Line No.", 10000);
-        ServiceItemLine.Modify;
+        ServiceItemLine.Modify();
 
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
         ServiceLine.SetHideReplacementDialog(true);
@@ -1178,7 +1178,7 @@ codeunit 136131 "Service Demand Overview"
         ServiceLine.Validate("Variant Code", VariantCode);
         ServiceLine.Validate("Needed by Date", NeededBy);
         ServiceLine.Validate("Variant Code", VariantCode);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
 
         exit(ServiceHeader."No.");
     end;
@@ -1208,11 +1208,11 @@ codeunit 136131 "Service Demand Overview"
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", true);
         Job.Validate("Description 2", DescriptionText);
-        Job.Modify;
+        Job.Modify();
 
         // Job Task Line:
         LibraryJob.CreateJobTask(Job, JobTaskLine);
-        JobTaskLine.Modify;
+        JobTaskLine.Modify();
 
         // Job Planning Line:
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
@@ -1227,7 +1227,7 @@ codeunit 136131 "Service Demand Overview"
         JobPlanningLine.Validate("Location Code", LocationCode);
         JobPlanningLine.Validate("Variant Code", VariantCode);
         JobPlanningLine.Validate(Quantity, ItemQuantity);
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
 
         exit(Job."No.");
     end;
@@ -1256,10 +1256,10 @@ codeunit 136131 "Service Demand Overview"
         CreateItem(Item, Item."Reordering Policy"::" ");
         LibraryInventory.CreateItemVariant(ItemVariantA, Item."No.");
         ItemVariantA.Validate(Description, Item.Description);
-        ItemVariantA.Modify;
+        ItemVariantA.Modify();
         LibraryInventory.CreateItemVariant(ItemVariantB, Item."No.");
         ItemVariantB.Validate(Description, Item.Description);
-        ItemVariantB.Modify;
+        ItemVariantB.Modify();
     end;
 
     local procedure CreateSalesDemandBasis(ItemNo: Code[20]; Quantity: Integer; LocationCode: Code[10]; VariantCode: Code[10]; ShipDate: Date): Code[20]
@@ -1273,7 +1273,7 @@ codeunit 136131 "Service Demand Overview"
         SalesLine.Validate("Location Code", LocationCode);
         SalesLine.Validate("Shipment Date", ShipDate);
         SalesLine.Validate("Variant Code", VariantCode);
-        SalesLine.Modify;
+        SalesLine.Modify();
         exit(SalesHeader."No.");
     end;
 

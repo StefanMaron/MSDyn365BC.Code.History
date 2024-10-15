@@ -187,9 +187,9 @@ codeunit 131305 "Library - ERM Country Data"
         CompanyInformation: Record "Company Information";
         LibraryERM: Codeunit "Library - ERM";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
     end;
 
     procedure AmountOnBankAccountLedgerEntriesPage(var BankAccountLedgerEntries: TestPage "Bank Account Ledger Entries"): Decimal

@@ -372,7 +372,7 @@ page 954 "Manager Time Sheet by Job"
 
     local procedure FindPeriod(Which: Option Initial,Previous,Next)
     begin
-        ResourcesSetup.Get;
+        ResourcesSetup.Get();
         case Which of
             Which::Initial:
                 if Date2DWY(WorkDate, 1) = ResourcesSetup."Time Sheet First Weekday" + 1 then

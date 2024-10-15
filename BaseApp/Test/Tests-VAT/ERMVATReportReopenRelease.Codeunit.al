@@ -25,7 +25,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
         VATReportsConfiguration: Record "VAT Reports Configuration";
         VATReportReleaseReopen: Codeunit "VAT Report Release/Reopen";
     begin
-        VATReportsConfiguration.DeleteAll;
+        VATReportsConfiguration.DeleteAll();
         CreateVATReportHeaderAndLines(VATReportHdr);
         VATReportReleaseReopen.Release(VATReportHdr);
 
@@ -43,7 +43,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
     begin
         CreateVATReportHeaderAndLines(VATReportHdr);
         VATReportHdr.Status := VATReportHdr.Status::Released;
-        VATReportHdr.Modify;
+        VATReportHdr.Modify();
         VATReportReleaseReopen.Reopen(VATReportHdr);
 
         Assert.AreEqual(VATReportHdr.Status::Open, VATReportHdr.Status, ReopenError);
@@ -61,11 +61,11 @@ codeunit 134058 "ERM VAT Report Reopen Release"
     begin
         CreateVATReportHeaderAndLines(VATReportHdr);
         VATReportHdr.Status := VATReportHdr.Status::Submitted;
-        VATReportHdr.Modify;
+        VATReportHdr.Modify();
 
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup."Modify Submitted Reports" := false;
-        VATReportSetup.Modify;
+        VATReportSetup.Modify();
 
         asserterror VATReportReleaseReopen.Reopen(VATReportHdr);
         Assert.ExpectedError(StrSubstNo(MissingSetupError, VATReportSetup.TableCaption));
@@ -83,7 +83,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
         CreateVATReportHeaderAndLines(VATReportHdr);
 
         VATReportHdr.Status := VATReportHdr.Status::Released;
-        VATReportHdr.Modify;
+        VATReportHdr.Modify();
         VATReportReleaseReopen.Submit(VATReportHdr);
 
         Assert.AreEqual(VATReportHdr.Status::Submitted, VATReportHdr.Status, SubmitError);
@@ -135,20 +135,20 @@ codeunit 134058 "ERM VAT Report Reopen Release"
         VATReportSetup: Record "VAT Report Setup";
         NoSeries: Record "No. Series";
     begin
-        VATReportSetup.Get;
-        NoSeries.Init;
+        VATReportSetup.Get();
+        NoSeries.Init();
         NoSeries.FindFirst;
         VATReportSetup."No. Series" := NoSeries.Code;
-        VATReportSetup.Modify;
+        VATReportSetup.Modify();
 
         VATReportHdr."No." := 'Test';
         VATReportHdr.Status := VATReportHdr.Status::Open;
         VATReportHdr.Insert(true);
 
-        VATStatementReportLine.Init;
+        VATStatementReportLine.Init();
         VATStatementReportLine."VAT Report No." := VATReportHdr."No.";
         VATStatementReportLine."Line No." := 1;
-        VATStatementReportLine.Insert;
+        VATStatementReportLine.Insert();
     end;
 
     local procedure TearDown()
@@ -158,14 +158,14 @@ codeunit 134058 "ERM VAT Report Reopen Release"
         VATReportSetup: Record "VAT Report Setup";
     begin
         VATStatementReportLine.SetRange("VAT Report No.", 'Test');
-        VATStatementReportLine.DeleteAll;
+        VATStatementReportLine.DeleteAll();
 
         VatReportHdr.SetRange("No.", 'Test');
-        VatReportHdr.DeleteAll;
+        VatReportHdr.DeleteAll();
 
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup."No. Series" := '';
-        VATReportSetup.Modify;
+        VATReportSetup.Modify();
     end;
 }
 

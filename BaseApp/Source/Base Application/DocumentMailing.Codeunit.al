@@ -150,7 +150,7 @@ codeunit 260 "Document-Mailing"
         ReportSelections: Record "Report Selections";
     begin
         OnBeforeGetAttachmentFileName(AttachmentFileName, PostedDocNo, EmailDocumentName, ReportUsage);
-        
+
         if AttachmentFileName = '' then
             if PostedDocNo = '' then begin
                 if ReportUsage = ReportSelections.Usage::"P.Order" then
@@ -160,9 +160,10 @@ codeunit 260 "Document-Mailing"
             end else
                 case ReportUsage of
                     ReportSelections.Usage::JQ,
-                  ReportSelections.Usage::"P.Order",
-                  ReportSelections.Usage::"V.Remittance",
-                  ReportSelections.Usage::"P.V.Remit.":
+                    ReportSelections.Usage::"P.Order",
+                    ReportSelections.Usage::"V.Remittance",
+                    ReportSelections.Usage::"P.V.Remit.",
+                    ReportSelections.Usage::"P.Invoice":
                         AttachmentFileName := StrSubstNo(JobsReportAsPdfFileNameMsg, EmailDocumentName, PostedDocNo);
                     else
                         AttachmentFileName := StrSubstNo(ReportAsPdfFileNameMsg, EmailDocumentName, PostedDocNo)
@@ -215,7 +216,7 @@ codeunit 260 "Document-Mailing"
     begin
         if EmailParameter.GetEntryWithReportUsage(PostedDocNo, ReportUsage, EmailParameter."Parameter Type"::Subject) then
             exit(EmailParameter.GetParameterValue);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         if EnvInfoProxy.IsInvoicing then begin
             ReportSelections.ReportUsageToDocumentType(DocumentType, ReportUsage);
             case DocumentType of
@@ -408,6 +409,11 @@ codeunit 260 "Document-Mailing"
     end;
 
     procedure EmailFileAndHtmlFromStream(AttachmentStream: InStream; AttachmentName: Text; MailInStream: InStream; ToEmailAddress: Text[250]; Subject: Text; HideDialog: Boolean; ReportUsage: Integer): Boolean
+    begin
+        EmailFileAndHtmlFromStream(AttachmentStream, AttachmentName, MailInStream, ToEmailAddress, Subject, HideDialog, ReportUsage, '', false);
+    end;
+
+    procedure EmailFileAndHtmlFromStream(AttachmentStream: InStream; AttachmentName: Text; MailInStream: InStream; ToEmailAddress: Text[250]; Subject: Text; HideDialog: Boolean; ReportUsage: Integer; PostedDocNo: Code[20]; IsFromPostedDoc: Boolean): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
         FileManagement: Codeunit "File Management";
@@ -429,11 +435,11 @@ codeunit 260 "Document-Mailing"
             CopyStr(BodyFileName, 1, MaxStrLen(TempEmailItem."Body File Path")),
             CopyStr(Subject, 1, MaxStrLen(TempEmailItem.Subject)),
             CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
-            '',
+            PostedDocNo,
             '',
             HideDialog,
             ReportUsage,
-            false,
+            IsFromPostedDoc,
             ''));
     end;
 

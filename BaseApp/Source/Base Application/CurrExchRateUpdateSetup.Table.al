@@ -150,20 +150,20 @@ table 1650 "Curr. Exch. Rate Update Setup"
         if DataExchDef.Get(DataExchCode) then
             exit;
 
-        DataExchDef.Init;
+        DataExchDef.Init();
         DataExchDef.Code := DataExchCode;
         DataExchDef.Name := Code;
         DataExchDef.Type := DataExchDef.Type::"Generic Import";
         DataExchDef."Reading/Writing Codeunit" := CODEUNIT::"Import XML File to Data Exch.";
         DataExchDef.Insert(true);
 
-        DataExchLineDef.Init;
+        DataExchLineDef.Init();
         DataExchLineDef."Data Exch. Def Code" := DataExchDef.Code;
         DataExchLineDef.Code := DataExchangeLineDefCodeTxt;
         DataExchLineDef.Name := DataExchangeLineDefNameTxt;
         DataExchLineDef.Insert(true);
 
-        DataExchMapping.Init;
+        DataExchMapping.Init();
         DataExchMapping."Data Exch. Def Code" := DataExchDef.Code;
         DataExchMapping."Data Exch. Line Def Code" := DataExchangeLineDefCodeTxt;
         DataExchMapping.Name := DataExchangeMappingDefNameTxt;

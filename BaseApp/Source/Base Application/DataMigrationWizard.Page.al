@@ -457,7 +457,7 @@ page 1808 "Data Migration Wizard"
                 begin
                     case Step of
                         Step::Apply:
-                            TempDataMigrationEntity.DeleteAll;
+                            TempDataMigrationEntity.DeleteAll();
                     end;
                     NextStep(true);
                 end;
@@ -501,10 +501,8 @@ page 1808 "Data Migration Wizard"
                 trigger OnAction()
                 var
                     AssistedSetup: Codeunit "Assisted Setup";
-                    Info: ModuleInfo;
                 begin
-                    NavApp.GetCurrentModuleInfo(Info);
-                    AssistedSetup.Complete(Info.Id(), PAGE::"Data Migration Wizard");
+                    AssistedSetup.Complete(PAGE::"Data Migration Wizard");
                     CurrPage.Close;
                     if ShowOverviewPage then
                         PAGE.Run(PAGE::"Data Migration Overview");
@@ -534,12 +532,10 @@ page 1808 "Data Migration Wizard"
         AssistedSetup: Codeunit "Assisted Setup";
         Info: ModuleInfo;
     begin
-        if CloseAction = ACTION::OK then begin
-            NavApp.GetCurrentModuleInfo(Info);
-            if AssistedSetup.ExistsAndIsNotComplete(Info.Id(), PAGE::"Data Migration Wizard") then
+        if CloseAction = ACTION::OK then 
+            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Data Migration Wizard") then
                 if not Confirm(DataImportNotCompletedQst, false) then
                     Error('');
-        end;
     end;
 
     var
@@ -740,7 +736,7 @@ page 1808 "Data Migration Wizard"
         BackEnabled := false;
         OnPostingGroupSetup(AccountSetupVisible);
         if AccountSetupVisible then begin
-            TempDataMigrationEntity.Reset;
+            TempDataMigrationEntity.Reset();
             TempDataMigrationEntity.SetRange("Table ID", 15);
             TempDataMigrationEntity.SetRange(Selected, true);
             if TempDataMigrationEntity.FindFirst then begin

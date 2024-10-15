@@ -744,7 +744,7 @@ codeunit 137275 "SCM Inventory Journals"
         ItemJournalLine.TestField("Dimension Set ID", 0);
 
         // Tear Down
-        SelectedDimension.DeleteAll;
+        SelectedDimension.DeleteAll();
     end;
 
     [Test]
@@ -786,7 +786,7 @@ codeunit 137275 "SCM Inventory Journals"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [WHEN] Run Calculate Inventory in Phys. Inventory Journal
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         CreateAndPostPhysInventoryJournal(ItemJournalLine, ItemJournalBatch, Item."No.", false);
 
         // [THEN] Phys. Inventory Journal is created with Dimension Set ID = "DS"
@@ -892,7 +892,7 @@ codeunit 137275 "SCM Inventory Journals"
         VerifyDimOnItemJournalLine(ItemJournalBatch, Item."No.", DimSetID);
 
         // Tear Down
-        SelectedDimension.DeleteAll;
+        SelectedDimension.DeleteAll();
     end;
 
     [Test]
@@ -1220,7 +1220,7 @@ codeunit 137275 "SCM Inventory Journals"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Journals");
     end;
 
@@ -1230,7 +1230,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         LibraryVariableStorage.Enqueue(ItemNo); // Enqueue for CalculateInventoryIncludeItemWithoutTransaction handler
         LibraryVariableStorage.Enqueue(LocationCode); // Enqueue for CalculateInventoryIncludeItemWithoutTransaction handler
-        Commit;
+        Commit();
         PhysInvJournal.OpenEdit;
         PhysInvJournal.CalculateInventory.Invoke;
         PhysInvJournal.Last;
@@ -1243,7 +1243,7 @@ codeunit 137275 "SCM Inventory Journals"
     begin
         LibraryVariableStorage.Enqueue(ItemNo); // Enqueue for CalculateInventoryIncludeItemWithoutTransaction handler
         LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', LocationCode[1], LocationCode[2])); // Enqueue for CalculateInventoryIncludeItemWithoutTransaction handler
-        Commit;
+        Commit();
         PhysInvJournal.OpenEdit;
         PhysInvJournal.CalculateInventory.Invoke;
         PhysInvJournal.FILTER.SetFilter("Location Code", LocationCode[1]);
@@ -1264,7 +1264,7 @@ codeunit 137275 "SCM Inventory Journals"
         Item.SetFilter("Location Filter", LocationFilter);
         Item.SetFilter("Variant Filter", VariantFilter);
         CreateItemJournalBatch(ItemJournalBatch);
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         LibraryInventory.CalculateInventory(ItemJournalLine, Item, WorkDate, true, true);
@@ -1284,7 +1284,7 @@ codeunit 137275 "SCM Inventory Journals"
 
     local procedure CreateAndPostPhysInventoryJournal(var ItemJournalLine: Record "Item Journal Line"; var ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; IsPost: Boolean)
     begin
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         CreateItemJournalBatch(ItemJournalBatch);
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
@@ -1338,7 +1338,7 @@ codeunit 137275 "SCM Inventory Journals"
         LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
         DimSetID := LibraryDimension.CreateDimSet(DimSetID, DimensionValue."Dimension Code", DimensionValue.Code);
         ItemJournalLine.Validate("Dimension Set ID", DimSetID);
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
     end;
 
     local procedure CreateItem(var Item: Record Item; CostingMethod: Option)
@@ -1446,7 +1446,7 @@ codeunit 137275 "SCM Inventory Journals"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Global Dimension 1 Code");
     end;
 
@@ -1479,7 +1479,7 @@ codeunit 137275 "SCM Inventory Journals"
         ItemTrackingCodeRec.Get(ItemTrackingCode);
         if not ItemTrackingCodeRec."Use Expiration Dates" then begin
             ItemTrackingCodeRec.Validate("Use Expiration Dates", true);
-            ItemTrackingCodeRec.Modify;
+            ItemTrackingCodeRec.Modify();
         end;
     end;
 
@@ -1557,12 +1557,12 @@ codeunit 137275 "SCM Inventory Journals"
     local procedure ReclassificationJournalSetup()
     begin
         Clear(ReclassificationItemJournalTemplate);
-        ReclassificationItemJournalTemplate.Init;
+        ReclassificationItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(
           ReclassificationItemJournalTemplate, ReclassificationItemJournalTemplate.Type::Transfer);
 
         Clear(ReclassificationItemJournalBatch);
-        ReclassificationItemJournalBatch.Init;
+        ReclassificationItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(
           ReclassificationItemJournalBatch, ReclassificationItemJournalTemplate.Type, ReclassificationItemJournalTemplate.Name);
     end;
@@ -1616,7 +1616,7 @@ codeunit 137275 "SCM Inventory Journals"
             Validate("Journal Batch Name", ItemJournalBatch.Name);
         end;
         CalculateInventory.SetItemJnlLine(ItemJournalLine);
-        Commit;
+        Commit();
         CalculateInventory.RunModal;
     end;
 
@@ -1659,7 +1659,7 @@ codeunit 137275 "SCM Inventory Journals"
         ItemTrackingComments.Date.SetValue(WorkDate);
         ItemTrackingComments.Comment.SetValue(GlobalComment);
         ItemTrackingComments.OK.Invoke;
-        Commit;
+        Commit();
         SerialNoInformationList.Trap;
         SerialNoInformationCard.CopyInfo.Invoke;
     end;
@@ -1679,7 +1679,7 @@ codeunit 137275 "SCM Inventory Journals"
         ItemTrackingComments.Date.SetValue(WorkDate);
         ItemTrackingComments.Comment.SetValue(GlobalComment);
         ItemTrackingComments.OK.Invoke;
-        Commit;
+        Commit();
         LotNoInformationList.Trap;
         LotNoInformationCard.CopyInfo.Invoke;
     end;
@@ -1699,7 +1699,7 @@ codeunit 137275 "SCM Inventory Journals"
         DimensionValue: Record "Dimension Value";
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDefaultDimensionItem(
           DefaultDimension, ItemNo, GeneralLedgerSetup."Global Dimension 1 Code", DimensionValue.Code);
@@ -1808,7 +1808,7 @@ codeunit 137275 "SCM Inventory Journals"
         SerialNoInformation: Record "Serial No. Information";
         TrackingSpecification: Record "Tracking Specification";
     begin
-        Commit;
+        Commit();
         case GlobalItemTrackingAction of
             GlobalItemTrackingAction::SelectEntriesSerialNo:
                 begin

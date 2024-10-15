@@ -12,7 +12,7 @@ report 1135 "Copy G/L Budget to Cost Acctg."
 
             trigger OnAfterGetRecord()
             begin
-                CostBudgetEntry.Init;
+                CostBudgetEntry.Init();
                 CostBudgetEntry."Entry No." := NextEntryNo;
 
                 CostBudgetEntry."Budget Name" := CostBudgetEntryTarget."Budget Name";
@@ -27,7 +27,7 @@ report 1135 "Copy G/L Budget to Cost Acctg."
                 else begin
                     if not GLAccount.Get("G/L Account No.") or (GLAccount."Cost Type No." = '') then begin
                         NoSkipped := NoSkipped + 1;
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     end;
                     CostBudgetEntry."Cost Type No." := GLAccount."Cost Type No.";
                 end;
@@ -51,14 +51,14 @@ report 1135 "Copy G/L Budget to Cost Acctg."
 
                 if (CostBudgetEntry."Cost Center Code" = '') and (CostBudgetEntry."Cost Object Code" = '') then begin
                     NoSkipped := NoSkipped + 1;
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 CostBudgetEntry.Amount := Amount;
                 CostBudgetEntry.Description := Description;
                 TotalAmount := TotalAmount + Amount;
 
-                CostBudgetEntry.Insert;
+                CostBudgetEntry.Insert();
                 NextEntryNo := NextEntryNo + 1;
 
                 NoInserted := NoInserted + 1;
@@ -81,11 +81,11 @@ report 1135 "Copy G/L Budget to Cost Acctg."
 
                 LastCostBudgetEntryNo := NextEntryNo - 1;
 
-                CostBudgetRegister.LockTable;
+                CostBudgetRegister.LockTable();
                 if CostBudgetRegister.FindLast then
                     LastRegisterNo := CostBudgetRegister."No.";
 
-                CostBudgetRegister.Init;
+                CostBudgetRegister.Init();
                 CostBudgetRegister."No." := LastRegisterNo + 1;
                 CostBudgetRegister."Journal Batch Name" := '';
                 CostBudgetRegister."Cost Budget Name" := CostBudgetEntryTarget."Budget Name";
@@ -98,7 +98,7 @@ report 1135 "Copy G/L Budget to Cost Acctg."
                 CostBudgetRegister.Amount := TotalAmount;
                 CostBudgetRegister."User ID" := UserId;
                 CostBudgetRegister."Processed Date" := Today;
-                CostBudgetRegister.Insert;
+                CostBudgetRegister.Insert();
             end;
 
             trigger OnPreDataItem()
@@ -112,11 +112,9 @@ report 1135 "Copy G/L Budget to Cost Acctg."
                 if not Confirm(Text000, true, GetFilter("Budget Name"), CostBudgetEntryTarget."Budget Name") then
                     Error('');
 
-                LockTable;
+                LockTable();
 
-                if CostBudgetEntry.FindLast then
-                    NextEntryNo := CostBudgetEntry."Entry No.";
-                NextEntryNo := NextEntryNo + 1;
+                NextEntryNo := CostBudgetEntry.GetLastEntryNo() + 1;
 
                 Window.Open(Text002);
 
@@ -198,7 +196,7 @@ report 1135 "Copy G/L Budget to Cost Acctg."
 
         trigger OnOpenPage()
         begin
-            CostBudgetEntryTarget.Init;
+            CostBudgetEntryTarget.Init();
         end;
     }
 

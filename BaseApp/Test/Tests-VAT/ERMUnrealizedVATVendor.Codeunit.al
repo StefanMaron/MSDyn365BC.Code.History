@@ -72,7 +72,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
 
         // [GIVEN] Set VAT% = 0 in Unrealized VAT Posting Setup
         ZeroVATPostingSetup."VAT %" := 0;
-        ZeroVATPostingSetup.Modify;
+        ZeroVATPostingSetup.Modify();
 
         // [GIVEN] Post Purchase Invoice1. Transaction No = 100.
         CreatePurchaseInvoice(PurchaseHeader, ZeroVATPostingSetup);
@@ -873,7 +873,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -1114,7 +1114,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
           LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase), Quantity);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
     end;
 
     local procedure CreateAndPostCreditMemo(PostedInvoiceNo: Code[20]; VendorNo: Code[20]): Code[20]
@@ -1286,7 +1286,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Modify(true);
     end;

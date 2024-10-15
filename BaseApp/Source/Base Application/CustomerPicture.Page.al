@@ -131,7 +131,7 @@ page 785 "Customer Picture"
     end;
 
     var
-        Camera: Codeunit Camera;
+        Camera: Page Camera;
         [InDataSet]
         CameraAvailable: Boolean;
         OverrideImageQst: Label 'The existing picture will be replaced. Do you want to continue?';
@@ -141,12 +141,31 @@ page 785 "Customer Picture"
         MustSpecifyNameErr: Label 'You must specify a customer name before you can import a picture.';
 
     procedure TakeNewPicture()
+    var
+        InStream: InStream;
     begin
         Find;
         TestField("No.");
         TestField(Name);
 
-        Camera.AddPicture(Rec, Rec.FieldNo(Image));
+        if not CameraAvailable then
+            exit;
+
+        Camera.RunModal();
+        if Camera.HasPicture() then begin
+            if Image.HasValue then
+                if not Confirm(OverrideImageQst) then
+                    exit;
+
+            Camera.GetPicture(Instream);
+
+            Clear(Image);
+            Image.ImportStream(Instream, 'Customer Picture');
+            if not Modify(true) then
+                Insert(true);
+        end;
+
+        Clear(Camera);
     end;
 
     local procedure SetEditableOnPictureActions()

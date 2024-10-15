@@ -23,7 +23,6 @@ codeunit 212 "Res. Jnl.-Post Line"
         ResJnlCheckLine: Codeunit "Res. Jnl.-Check Line";
         NextEntryNo: Integer;
         GLSetupRead: Boolean;
-        IsHandled: Boolean;
 
     procedure RunWithCheck(var ResJnlLine2: Record "Res. Journal Line")
     begin
@@ -45,19 +44,17 @@ codeunit 212 "Res. Jnl.-Post Line"
             ResJnlCheckLine.RunCheck(ResJnlLine);
 
             if NextEntryNo = 0 then begin
-                ResLedgEntry.LockTable;
-                if ResLedgEntry.FindLast then
-                    NextEntryNo := ResLedgEntry."Entry No.";
-                NextEntryNo := NextEntryNo + 1;
+                ResLedgEntry.LockTable();
+                NextEntryNo := ResLedgEntry.GetLastEntryNo() + 1;
             end;
 
             if "Document Date" = 0D then
                 "Document Date" := "Posting Date";
 
             if ResReg."No." = 0 then begin
-                ResReg.LockTable;
+                ResReg.LockTable();
                 if (not ResReg.FindLast) or (ResReg."To Entry No." <> 0) then begin
-                    ResReg.Init;
+                    ResReg.Init();
                     ResReg."No." := ResReg."No." + 1;
                     ResReg."From Entry No." := NextEntryNo;
                     ResReg."To Entry No." := NextEntryNo;
@@ -66,11 +63,11 @@ codeunit 212 "Res. Jnl.-Post Line"
                     ResReg."Source Code" := "Source Code";
                     ResReg."Journal Batch Name" := "Journal Batch Name";
                     ResReg."User ID" := UserId;
-                    ResReg.Insert;
+                    ResReg.Insert();
                 end;
             end;
             ResReg."To Entry No." := NextEntryNo;
-            ResReg.Modify;
+            ResReg.Modify();
 
             Res.Get("Resource No.");
             Res.CheckResourcePrivacyBlocked(true);
@@ -82,52 +79,51 @@ codeunit 212 "Res. Jnl.-Post Line"
 
             IsHandled := false;
             OnBeforeGenPostingSetupGet(ResJnlLine, IsHandled);
-            if not IsHandled then begin
+            if not IsHandled then
                 if (GenPostingSetup."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group") or
-                (GenPostingSetup."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group")
+                    (GenPostingSetup."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group")
                 then
                     GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
 
-                "Resource Group No." := Res."Resource Group No.";
+            "Resource Group No." := Res."Resource Group No.";
 
-                ResLedgEntry.Init;
-                ResLedgEntry.CopyFromResJnlLine(ResJnlLine);
+            ResLedgEntry.Init();
+            ResLedgEntry.CopyFromResJnlLine(ResJnlLine);
 
-                GetGLSetup;
-                ResLedgEntry."Total Cost" := Round(ResLedgEntry."Total Cost");
-                ResLedgEntry."Total Price" := Round(ResLedgEntry."Total Price");
-                if ResLedgEntry."Entry Type" = ResLedgEntry."Entry Type"::Sale then begin
-                    ResLedgEntry.Quantity := -ResLedgEntry.Quantity;
-                    ResLedgEntry."Total Cost" := -ResLedgEntry."Total Cost";
-                    ResLedgEntry."Total Price" := -ResLedgEntry."Total Price";
-                end;
-                ResLedgEntry."Direct Unit Cost" := Round(ResLedgEntry."Direct Unit Cost", GLSetup."Unit-Amount Rounding Precision");
-                ResLedgEntry."User ID" := UserId;
-                ResLedgEntry."Entry No." := NextEntryNo;
-                ResUOM.Get(ResLedgEntry."Resource No.", ResLedgEntry."Unit of Measure Code");
-                if ResUOM."Related to Base Unit of Meas." then
-                    ResLedgEntry."Quantity (Base)" := ResLedgEntry.Quantity * ResLedgEntry."Qty. per Unit of Measure";
+            GetGLSetup;
+            ResLedgEntry."Total Cost" := Round(ResLedgEntry."Total Cost");
+            ResLedgEntry."Total Price" := Round(ResLedgEntry."Total Price");
+            if ResLedgEntry."Entry Type" = ResLedgEntry."Entry Type"::Sale then begin
+                ResLedgEntry.Quantity := -ResLedgEntry.Quantity;
+                ResLedgEntry."Total Cost" := -ResLedgEntry."Total Cost";
+                ResLedgEntry."Total Price" := -ResLedgEntry."Total Price";
+            end;
+            ResLedgEntry."Direct Unit Cost" := Round(ResLedgEntry."Direct Unit Cost", GLSetup."Unit-Amount Rounding Precision");
+            ResLedgEntry."User ID" := UserId;
+            ResLedgEntry."Entry No." := NextEntryNo;
+            ResUOM.Get(ResLedgEntry."Resource No.", ResLedgEntry."Unit of Measure Code");
+            if ResUOM."Related to Base Unit of Meas." then
+                ResLedgEntry."Quantity (Base)" := ResLedgEntry.Quantity * ResLedgEntry."Qty. per Unit of Measure";
 
-                if ResLedgEntry."Entry Type" = ResLedgEntry."Entry Type"::Usage then begin
-                    PostTimeSheetDetail(ResJnlLine, ResLedgEntry."Quantity (Base)");
-                    ResLedgEntry.Chargeable := IsChargable(ResJnlLine, ResLedgEntry.Chargeable);
-                end;
-
-                OnBeforeResLedgEntryInsert(ResLedgEntry, ResJnlLine);
-
-                ResLedgEntry.Insert(true);
-
-                NextEntryNo := NextEntryNo + 1;
+            if ResLedgEntry."Entry Type" = ResLedgEntry."Entry Type"::Usage then begin
+                PostTimeSheetDetail(ResJnlLine, ResLedgEntry."Quantity (Base)");
+                ResLedgEntry.Chargeable := IsChargable(ResJnlLine, ResLedgEntry.Chargeable);
             end;
 
-            OnAfterPostResJnlLine(ResJnlLine);
+            OnBeforeResLedgEntryInsert(ResLedgEntry, ResJnlLine);
+
+            ResLedgEntry.Insert(true);
+
+            NextEntryNo := NextEntryNo + 1;
         end;
+
+        OnAfterPostResJnlLine(ResJnlLine);
     end;
 
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 
@@ -142,7 +138,7 @@ codeunit 212 "Res. Jnl.-Post Line"
                 TimeSheetDetail.Get("Time Sheet No.", "Time Sheet Line No.", "Time Sheet Date");
                 TimeSheetDetail."Posted Quantity" += QtyToPost;
                 TimeSheetDetail.Posted := TimeSheetDetail.Quantity = TimeSheetDetail."Posted Quantity";
-                TimeSheetDetail.Modify;
+                TimeSheetDetail.Modify();
                 TimeSheetLine.Get("Time Sheet No.", "Time Sheet Line No.");
                 TimeSheetMgt.CreateTSPostingEntry(TimeSheetDetail, Quantity, "Posting Date", "Document No.", TimeSheetLine.Description);
 
@@ -151,7 +147,7 @@ codeunit 212 "Res. Jnl.-Post Line"
                 TimeSheetDetail.SetRange(Posted, false);
                 if TimeSheetDetail.IsEmpty then begin
                     TimeSheetLine.Posted := true;
-                    TimeSheetLine.Modify;
+                    TimeSheetLine.Modify();
                 end;
             end;
     end;

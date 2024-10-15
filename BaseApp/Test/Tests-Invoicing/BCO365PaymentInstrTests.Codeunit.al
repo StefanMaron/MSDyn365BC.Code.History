@@ -418,7 +418,7 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
     begin
         SalesInvoiceHeader.Get(PostedInvoiceNo);
         SalesInvoiceHeader.SetRecFilter;
-        Commit;
+        Commit();
         REPORT.RunModal(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
     end;
 

@@ -313,7 +313,7 @@ table 273 "Bank Acc. Reconciliation"
                 end;
         end;
 
-        BankAcc.Modify;
+        BankAcc.Modify();
     end;
 
     trigger OnRename()
@@ -344,7 +344,7 @@ table 273 "Bank Acc. Reconciliation"
         No: array[10] of Code[20];
         OldDimSetID: Integer;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
@@ -389,7 +389,7 @@ table 273 "Bank Acc. Reconciliation"
         ProcessBankAccRecLines: Codeunit "Process Bank Acc. Rec Lines";
     begin
         if BankAccountCouldBeUsedForImport then begin
-            DataExch.Init;
+            DataExch.Init();
             ProcessBankAccRecLines.ImportBankStatement(Rec, DataExch);
         end;
     end;
@@ -437,7 +437,7 @@ table 273 "Bank Acc. Reconciliation"
         if NewParentDimSetID = OldParentDimSetID then
             exit;
 
-        BankAccReconciliationLine.LockTable;
+        BankAccReconciliationLine.LockTable();
         if BankAccReconciliationLine.LinesExist(Rec) then begin
             if not Confirm(YouChangedDimQst) then
                 exit;
@@ -451,7 +451,7 @@ table 273 "Bank Acc. Reconciliation"
                       BankAccReconciliationLine."Dimension Set ID",
                       BankAccReconciliationLine."Shortcut Dimension 1 Code",
                       BankAccReconciliationLine."Shortcut Dimension 2 Code");
-                    BankAccReconciliationLine.Modify;
+                    BankAccReconciliationLine.Modify();
                 end;
             until BankAccReconciliationLine.Next = 0;
         end;
@@ -486,7 +486,7 @@ table 273 "Bank Acc. Reconciliation"
         if not DataExch.ImportFileContent(DataExchDef) then
             exit;
 
-        BankAccount.LockTable;
+        BankAccount.LockTable();
         LastStatementNo := BankAccount."Last Statement No.";
         CreateNewBankPaymentAppBatch(BankAccount."No.", BankAccReconciliation);
 
@@ -502,17 +502,17 @@ table 273 "Bank Acc. Reconciliation"
             exit;
         end;
 
-        Commit;
+        Commit();
         ProcessStatement(BankAccReconciliation);
     end;
 
     local procedure DeleteBankAccReconciliation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccount: Record "Bank Account"; LastStatementNo: Code[20])
     begin
-        BankAccReconciliation.Delete;
+        BankAccReconciliation.Delete();
         BankAccount.Get(BankAccount."No.");
         BankAccount."Last Statement No." := LastStatementNo;
-        BankAccount.Modify;
-        Commit;
+        BankAccount.Modify();
+        Commit();
     end;
 
     procedure ImportStatement(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; DataExch: Record "Data Exch."): Boolean
@@ -535,7 +535,7 @@ table 273 "Bank Acc. Reconciliation"
 
     procedure CreateNewBankPaymentAppBatch(BankAccountNo: Code[20]; var BankAccReconciliation: Record "Bank Acc. Reconciliation")
     begin
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := BankAccReconciliation."Statement Type"::"Payment Application";
         BankAccReconciliation.Validate("Bank Account No.", BankAccountNo);
         BankAccReconciliation.Insert(true);
@@ -559,9 +559,9 @@ table 273 "Bank Acc. Reconciliation"
             BankAccount.GetLinkedBankAccounts(TempLinkedBankAccount);
             CopyBankAccountsToTemp(TempBankAccount, TempLinkedBankAccount);
 
-            NoOfAccounts := TempBankAccount.Count;
+            NoOfAccounts := TempBankAccount.Count();
         end else
-            NoOfAccounts := BankAccount.Count;
+            NoOfAccounts := BankAccount.Count();
 
         case NoOfAccounts of
             0:
@@ -632,7 +632,7 @@ table 273 "Bank Acc. Reconciliation"
     begin
         if BankAccount."Last Payment Statement No." = '' then begin
             BankAccount."Last Payment Statement No." := '0';
-            BankAccount.Modify;
+            BankAccount.Modify();
         end;
     end;
 
@@ -640,7 +640,7 @@ table 273 "Bank Acc. Reconciliation"
     begin
         if BankAccount."Last Statement No." = '' then begin
             BankAccount."Last Statement No." := '0';
-            BankAccount.Modify;
+            BankAccount.Modify();
         end;
     end;
 
@@ -713,7 +713,7 @@ table 273 "Bank Acc. Reconciliation"
         if FromBankAccount.FindSet then
             repeat
                 TempBankAccount := FromBankAccount;
-                if TempBankAccount.Insert then;
+                if TempBankAccount.Insert() then;
             until FromBankAccount.Next = 0;
     end;
 

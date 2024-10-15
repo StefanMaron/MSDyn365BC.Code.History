@@ -95,8 +95,8 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
 
         // Setup
         CreateVendLedgEntryPaymentWithNonLatinCharsPreserve(VendorLedgerEntry);
-        DataExch.Init;
-        DataExch.Insert;
+        DataExch.Init();
+        DataExch.Insert();
         LineNo := 1;
 
         // Exercise
@@ -123,8 +123,8 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
 
         // Setup
         CreateVendLedgEntryPaymentWithNonLatinCharsDoNotPreserve(VendorLedgerEntry);
-        DataExch.Init;
-        DataExch.Insert;
+        DataExch.Init();
+        DataExch.Insert();
         LineNo := 1;
 
         // Exercise
@@ -153,8 +153,8 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
 
         // Setup
         CreateCustLedgEntryPaymentWithNonLatinCharsPreserve(CustLedgerEntry);
-        DataExch.Init;
-        DataExch.Insert;
+        DataExch.Init();
+        DataExch.Insert();
         LineNo := 1;
 
         // Exercise
@@ -181,8 +181,8 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
 
         // Setup
         CreateCustLedgEntryPaymentWithNonLatinCharsDoNotPreserve(CustLedgerEntry);
-        DataExch.Init;
-        DataExch.Insert;
+        DataExch.Init();
+        DataExch.Insert();
         LineNo := 1;
 
         // Exercise
@@ -268,12 +268,12 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
     begin
         CreateVendorWithBankAccount(Vendor, VendorBankAccount);
         CreateBankAccountWithExportFormat(BankAccount, PreserveNonLatinChars);
-        DataExch.Init;
-        DataExch.Insert;
+        DataExch.Init();
+        DataExch.Insert();
         CreateGenJnlLine(GenJournalLine, BankAccount."No.", Vendor."No.");
         GenJournalLine."Data Exch. Entry No." := DataExch."Entry No.";
         GenJournalLine."Document No." := StringWithNonLatinChars; // some latin and non-latin chars
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
     end;
 
     local procedure CreateVendLedgEntryPaymentWithNonLatinCharsPreserve(var VendorLedgerEntry: Record "Vendor Ledger Entry")
@@ -351,11 +351,11 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
 
         LibraryPaymentFormat.CreateBankExportImportSetup(BankExportImportSetup, DataExchDef);
         BankExportImportSetup."Preserve Non-Latin Characters" := PreserveNonLatinChars;
-        BankExportImportSetup.Modify;
+        BankExportImportSetup.Modify();
 
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount."Payment Export Format" := BankExportImportSetup.Code;
-        BankAccount.Modify;
+        BankAccount.Modify();
         exit(BankAccount."No.")
     end;
 
@@ -368,7 +368,7 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
         GenJournalBatch."Bal. Account No." := BankAccountNo;
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
         LibraryERM.CreateGeneralJnlLine2(GenJournalLine, GenJournalTemplate.Name,
           GenJournalBatch.Name, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo,
           LibraryRandom.RandDec(1000, 2));

@@ -126,7 +126,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsReleased(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -172,7 +172,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsOpen(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsRejected(ApprovalEntry);
     end;
@@ -220,7 +220,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsPendingApproval(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntryApproverID(ApprovalEntry, IntermediateApproverUserSetup."Approver ID");
@@ -233,7 +233,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsReleased(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
     end;
@@ -276,7 +276,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsOpen(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -344,7 +344,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         LineAmount := LibraryRandom.RandInt(5000);
         CreateSalesInvWithLine(SalesHeader, LineAmount);
         SetCustomerCreditLimit(SalesHeader, LineAmount / 10);
-        Commit;
+        Commit();
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
 
@@ -426,7 +426,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         LineAmount := LibraryRandom.RandInt(5000);
         CreateSalesInvWithLine(SalesHeader, LineAmount);
         SetCustomerCreditLimit(SalesHeader, LineAmount / 10);
-        Commit;
+        Commit();
         SalesInvoiceList.OpenEdit;
         SalesInvoiceList.GotoRecord(SalesHeader);
 
@@ -516,7 +516,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsReleased(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsApproved(ApprovalEntry);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
@@ -577,7 +577,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
 
         // Verify - Approval requests and their data
         VerifySalesInvIsOpen(SalesHeader);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, SalesHeader.RecordId);
         VerifyApprovalEntryIsCancelled(ApprovalEntry);
     end;
@@ -620,7 +620,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         UserSetup: Record "User Setup";
     begin
         LibraryVariableStorage.Clear;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryWorkflow.DisableAllWorkflows;

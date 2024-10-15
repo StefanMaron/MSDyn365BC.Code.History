@@ -1,0 +1,23 @@
+{
+    "id":  "8afe7b40-8c87-4beb-ada0-451d1761bf95",
+    "name":  "_Exclude_APIV1_",
+    "publisher":  "Microsoft",
+    "version":  "16.0.11240.12076",
+    "brief":  "",
+    "description":  "",
+    "privacyStatement":  "",
+    "EULA":  "",
+    "help":  "",
+    "url":  "",
+    "logo":  "",
+    "dependencies":  [
+
+                     ],
+    "screenshots":  [
+
+                    ],
+    "platform":  "13.0.0.0",
+    "target":  "OnPrem",
+    "showMyCode":  true,
+    "application":  "16.0.0.0"
+}

@@ -132,7 +132,7 @@ page 6401 "Flow Selector"
                     TempFlowUserEnvironmentBuffer: Record "Flow User Environment Buffer" temporary;
                     FlowUserEnvSelection: Page "Flow User Env. Selection";
                 begin
-                    TempFlowUserEnvironmentBuffer.Reset;
+                    TempFlowUserEnvironmentBuffer.Reset();
                     FlowServiceManagement.GetEnvironments(TempFlowUserEnvironmentBuffer);
                     FlowUserEnvSelection.SetFlowEnvironmentBuffer(TempFlowUserEnvironmentBuffer);
                     FlowUserEnvSelection.LookupMode(true);
@@ -140,13 +140,13 @@ page 6401 "Flow Selector"
                     if FlowUserEnvSelection.RunModal <> ACTION::LookupOK then
                         exit;
 
-                    TempFlowUserEnvironmentBuffer.Reset;
+                    TempFlowUserEnvironmentBuffer.Reset();
                     TempFlowUserEnvironmentBuffer.SetRange(Enabled, true);
 
                     // Remove any previous selection since user did not select anything
                     if not TempFlowUserEnvironmentBuffer.FindFirst then begin
                         if FlowUserEnvironmentConfig.Get(UserSecurityId) then
-                            FlowUserEnvironmentConfig.Delete;
+                            FlowUserEnvironmentConfig.Delete();
                         exit;
                     end;
 

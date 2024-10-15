@@ -3,6 +3,9 @@ page 1013 "Job G/L Account Prices"
     Caption = 'Job G/L Account Prices';
     PageType = List;
     SourceTable = "Job G/L Account Price";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     layout
     {

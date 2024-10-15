@@ -1249,7 +1249,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         LibraryERMCountryData.UpdateLocalData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -1730,7 +1730,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.Validate("Unapplied Purch. Entry Appln.", UnappliedPurchEntryAppln);
         SourceCodeSetup.Modify(true);
     end;
@@ -1741,7 +1741,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         // Use Random Number Generator for Exchange Rate.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CurrencyExchangeRate.SetRange("Currency Code", GeneralLedgerSetup."Additional Reporting Currency");
         CurrencyExchangeRate.FindFirst;
         LibraryERM.CreateExchRate(CurrencyExchangeRate, GeneralLedgerSetup."Additional Reporting Currency", PostingDate);
@@ -2124,7 +2124,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", PaymentTolerance);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -2133,7 +2133,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Appln. Rounding Precision", ApplnRoundingPrecision);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -2164,7 +2164,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Appln. between Currencies", ApplnbetweenCurrencies);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -2213,7 +2213,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         Currency: Record Currency;
         AdditionalCurrencyAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Currency.Get(GeneralLedgerSetup."Additional Reporting Currency");
         FindGLEntries(GLEntry, DocumentNo);
         repeat

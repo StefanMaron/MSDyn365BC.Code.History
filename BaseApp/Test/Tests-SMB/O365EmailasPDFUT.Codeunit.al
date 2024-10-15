@@ -62,7 +62,7 @@ codeunit 138002 "O365 Email as PDF UT"
     begin
         Initialize;
         if SMTPMailSetup.Get then
-            SMTPMailSetup.Delete;
+            SMTPMailSetup.Delete();
 
         SMTPMail.ApplyOffice365Smtp(SMTPMailSetup);
 
@@ -70,7 +70,7 @@ codeunit 138002 "O365 Email as PDF UT"
         ExpectedMail := 'correct@mail.com';
         SMTPMailSetup."User ID" := ExpectedMail;
         SMTPMailSetup."Password Key" := CreateGuid;
-        SMTPMailSetup.Insert;
+        SMTPMailSetup.Insert();
 
         Assert.IsTrue(SMTPMail.IsOffice365Setup(SMTPMailSetup), 'Setup should match o365 setup');
 

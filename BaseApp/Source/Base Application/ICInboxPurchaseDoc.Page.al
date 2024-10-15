@@ -1,4 +1,4 @@
-﻿page 646 "IC Inbox Purchase Doc."
+page 646 "IC Inbox Purchase Doc."
 {
     Caption = 'IC Inbox Purchase Doc.';
     DeleteAllowed = false;

@@ -1300,7 +1300,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse - Shipping III");
     end;
 
@@ -1794,7 +1794,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         // 1st Line: Quantity[2], Lot[2]
         // 2nd Line: Quantity[2], Lot[3]
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivableSetup(SalesReceivablesSetup."Credit Warnings"::"No Warning", false);
         PostPurchaseOrderWithTwoLot(Item, Quantity, LotNo, true, false);
 
@@ -2070,7 +2070,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         AssemblyHeader: Record "Assembly Header";
         i: Integer;
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         for i := 1 to 2 do begin
             LibrarySales.CreateSalesDocumentWithItem(
               SalesHeader[i], SalesLine[i], SalesHeader[i]."Document Type"::Order, LibrarySales.CreateCustomerNo,
@@ -2518,7 +2518,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     begin
         LibraryVariableStorage.Enqueue(DocType);
         LibraryVariableStorage.Enqueue(DocNo);
-        Commit; // Use the COMMIT function to save the changes
+        Commit(); // Use the COMMIT function to save the changes
         Clear(ItemTrackingAppendix);
         ItemTrackingAppendix.UseRequestPage(true);
         ItemTrackingAppendix.Run;
@@ -2551,7 +2551,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
 
         // Passing 0 for No. of Copies, TRUE for Show Serial/ Lot No and FALSE for Show Assembly Components. Appendix option as these options can not be checked.
         SalesShipment.InitializeRequest(0, ShowInternalInformation, LogInteraction, ShowCorrectionLines, true, false);
-        Commit; // Due to limitation in Report Commit is required for this Test case.
+        Commit(); // Due to limitation in Report Commit is required for this Test case.
         SalesShipment.Run;
     end;
 
@@ -2564,7 +2564,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
         ServiceShipment.SetTableView(ServiceShipmentHeader);
         ServiceShipment.InitializeRequest(ShowInternalInfo, ShowCorrectionLine, ShowLotSerialNoAppendix);
-        Commit; // Due to limitation in Report Commit is required for this Test case.
+        Commit(); // Due to limitation in Report Commit is required for this Test case.
         ServiceShipment.Run;
     end;
 

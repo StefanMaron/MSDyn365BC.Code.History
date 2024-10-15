@@ -352,7 +352,7 @@ codeunit 136145 "Service Contracts II"
         LibraryService.CreateServiceContractHeader(
           ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, CreateCustomer(false));
         ServiceContractHeader."Last Invoice Date" := WorkDate; // to cause expiration date analysis
-        ServiceContractHeader.Modify;
+        ServiceContractHeader.Modify();
 
         // 2. Exercise: add service contract line
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, 0D);
@@ -846,7 +846,7 @@ codeunit 136145 "Service Contracts II"
         WorkDate := ServiceContractHeader."Next Invoice Period Start";
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Next Invoice Period Start");
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
-        ServiceLedgerEntry.DeleteAll;
+        ServiceLedgerEntry.DeleteAll();
 
         // [GIVEN] Create Service Invoice from Service Contract
         RunCreateContractInvoices;
@@ -881,7 +881,7 @@ codeunit 136145 "Service Contracts II"
 
         // [GIVEN] Created Service Contract with one Line
         CreateServiceContract(ServiceContractHeader, CreateCustomer(false), StrSubstNo('<%1Y>', LibraryRandom.RandInt(5)), 1);
-        Commit;
+        Commit();
 
         // [GIVEN] "Next Planned Service Date" empty on the Service Contract Line
         FindServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -911,7 +911,7 @@ codeunit 136145 "Service Contracts II"
 
         // [GIVEN] Created Service Contract with one Line
         CreateServiceContract(ServiceContractHeader, CreateCustomer(false), StrSubstNo('<%1Y>', LibraryRandom.RandInt(5)), 1);
-        Commit;
+        Commit();
 
         // [GIVEN] "Next Planned Service Date" empty on the Service Contract Line
         FindServiceContractLine(ServiceContractLine, ServiceContractHeader);
@@ -1298,7 +1298,7 @@ codeunit 136145 "Service Contracts II"
     var
         CreateContractInvoices: Report "Create Contract Invoices";
     begin
-        Commit;  // Required to avoid Test Failure.
+        Commit();  // Required to avoid Test Failure.
         Clear(CreateContractInvoices);
         CreateContractInvoices.Run;
     end;
@@ -1307,7 +1307,7 @@ codeunit 136145 "Service Contracts II"
     var
         CreateContractServiceOrders: Report "Create Contract Service Orders";
     begin
-        Commit;  // Required to avoid Test Failure.
+        Commit();  // Required to avoid Test Failure.
         Clear(CreateContractServiceOrders);
         CreateContractServiceOrders.Run;
     end;
@@ -1317,7 +1317,7 @@ codeunit 136145 "Service Contracts II"
         CreateContractServiceOrders: Report "Create Contract Service Orders";
         CreateServOrders: Option "Create Service Order","Print Only";
     begin
-        Commit;  // Required to avoid Test Failure.
+        Commit();  // Required to avoid Test Failure.
         Clear(CreateContractServiceOrders);
         CreateContractServiceOrders.InitializeRequest(StartDate, EndDate, CreateServOrders::"Create Service Order");
         CreateContractServiceOrders.Run;

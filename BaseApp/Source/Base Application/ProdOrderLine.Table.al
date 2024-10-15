@@ -95,6 +95,8 @@ table 5406 "Prod. Order Line"
                                                        Code = FIELD("Variant Code"));
 
             trigger OnValidate()
+            var
+                ItemVariant: Record "Item Variant";
             begin
                 ReserveProdOrderLine.VerifyChange(Rec, xRec);
                 TestField("Finished Quantity", 0);
@@ -106,6 +108,7 @@ table 5406 "Prod. Order Line"
                     Validate("Item No.");
                     exit;
                 end;
+
                 ItemVariant.Get("Item No.", "Variant Code");
                 Description := ItemVariant.Description;
                 "Description 2" := ItemVariant."Description 2";
@@ -267,6 +270,8 @@ table 5406 "Prod. Order Line"
             Caption = 'Starting Time';
 
             trigger OnValidate()
+            var
+                ProdOrderLine: Record "Prod. Order Line";
             begin
                 if ProdOrderLine.Get(Status, "Prod. Order No.", "Line No.") then begin
                     Modify;
@@ -297,6 +302,8 @@ table 5406 "Prod. Order Line"
             Caption = 'Ending Time';
 
             trigger OnValidate()
+            var
+                ProdOrderLine: Record "Prod. Order Line";
             begin
                 if ProdOrderLine.Get(Status, "Prod. Order No.", "Line No.") then begin
                     Modify;
@@ -328,6 +335,8 @@ table 5406 "Prod. Order Line"
             TableRelation = "Production BOM Header"."No.";
 
             trigger OnValidate()
+            var
+                ProdBOMHeader: Record "Production BOM Header";
             begin
                 "Production BOM Version Code" := '';
                 if "Production BOM No." = '' then
@@ -348,6 +357,8 @@ table 5406 "Prod. Order Line"
 
             trigger OnValidate()
             var
+                RoutingHeader: Record "Routing Header";
+                ProdOrderRoutingLine: Record "Prod. Order Routing Line";
                 CapLedgEntry: Record "Capacity Ledger Entry";
                 PurchLine: Record "Purchase Line";
                 ModifyRecord: Boolean;
@@ -372,11 +383,11 @@ table 5406 "Prod. Order Line"
                     if ModifyRecord then
                         Modify;
 
-                    ProdOrderRtngLine.SetRange(Status, Status);
-                    ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
-                    ProdOrderRtngLine.SetRange("Routing No.", xRec."Routing No.");
-                    ProdOrderRtngLine.SetRange("Routing Reference No.", "Line No.");
-                    ProdOrderRtngLine.DeleteAll(true);
+                    ProdOrderRoutingLine.SetRange(Status, Status);
+                    ProdOrderRoutingLine.SetRange("Prod. Order No.", "Prod. Order No.");
+                    ProdOrderRoutingLine.SetRange("Routing No.", xRec."Routing No.");
+                    ProdOrderRoutingLine.SetRange("Routing Reference No.", "Line No.");
+                    ProdOrderRoutingLine.DeleteAll(true);
 
                     OnAfterDeleteProdOrderRtngLines(Rec);
                 end;
@@ -385,9 +396,9 @@ table 5406 "Prod. Order Line"
 
                 Validate("Routing Version Code", VersionMgt.GetRtngVersion("Routing No.", "Due Date", true));
                 if "Routing Version Code" = '' then begin
-                    RtngHeader.Get("Routing No.");
-                    RtngHeader.TestField(Status, RtngHeader.Status::Certified);
-                    "Routing Type" := RtngHeader.Type;
+                    RoutingHeader.Get("Routing No.");
+                    RoutingHeader.TestField(Status, RoutingHeader.Status::Certified);
+                    "Routing Type" := RoutingHeader.Type;
                 end;
             end;
         }
@@ -446,12 +457,10 @@ table 5406 "Prod. Order Line"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(70; "Capacity Type Filter"; Option)
+        field(70; "Capacity Type Filter"; Enum "Capacity Type")
         {
             Caption = 'Capacity Type Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Work Center,Machine Center';
-            OptionMembers = "Work Center","Machine Center";
         }
         field(71; "Capacity No. Filter"; Code[20])
         {
@@ -621,6 +630,8 @@ table 5406 "Prod. Order Line"
             TableRelation = "Production BOM Version"."Version Code" WHERE("Production BOM No." = FIELD("Production BOM No."));
 
             trigger OnValidate()
+            var
+                ProdBOMVersion: Record "Production BOM Version";
             begin
                 if "Production BOM Version Code" = '' then
                     exit;
@@ -636,13 +647,15 @@ table 5406 "Prod. Order Line"
             TableRelation = "Routing Version"."Version Code" WHERE("Routing No." = FIELD("Routing No."));
 
             trigger OnValidate()
+            var
+                RoutingVersion: Record "Routing Version";
             begin
                 if "Routing Version Code" = '' then
                     exit;
 
-                RtngVersion.Get("Routing No.", "Routing Version Code");
-                RtngVersion.TestField(Status, RtngVersion.Status::Certified);
-                "Routing Type" := RtngVersion.Type;
+                RoutingVersion.Get("Routing No.", "Routing Version Code");
+                RoutingVersion.TestField(Status, RoutingVersion.Status::Certified);
+                "Routing Type" := RoutingVersion.Type;
             end;
         }
         field(99000752; "Routing Type"; Option)
@@ -661,11 +674,9 @@ table 5406 "Prod. Order Line"
         {
             Caption = 'MPS Order';
         }
-        field(99000755; "Planning Flexibility"; Option)
+        field(99000755; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
             Caption = 'Planning Flexibility';
-            OptionCaption = 'Unlimited,None';
-            OptionMembers = Unlimited,"None";
 
             trigger OnValidate()
             begin
@@ -820,26 +831,15 @@ table 5406 "Prod. Order Line"
         Text99000004Err: Label 'You cannot modify %1 %2 because there is at least one %3 associated with it.', Comment = '%1 = Field Caption; %2 = Field Value; %3 = Table Caption';
         Item: Record Item;
         SKU: Record "Stockkeeping Unit";
-        ItemVariant: Record "Item Variant";
-        ReservEntry: Record "Reservation Entry";
-        ProdBOMHeader: Record "Production BOM Header";
-        ProdBOMVersion: Record "Production BOM Version";
-        RtngHeader: Record "Routing Header";
-        RtngVersion: Record "Routing Version";
         ProdOrder: Record "Production Order";
-        ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderComp: Record "Prod. Order Component";
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
         GLSetup: Record "General Ledger Setup";
         Location: Record Location;
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         ReserveProdOrderLine: Codeunit "Prod. Order Line-Reserve";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
         CalcProdOrder: Codeunit "Calculate Prod. Order";
         DimMgt: Codeunit DimensionManagement;
-        Reservation: Page Reservation;
         Blocked: Boolean;
         GLSetupRead: Boolean;
         IgnoreErrors: Boolean;
@@ -848,6 +848,9 @@ table 5406 "Prod. Order Line"
 
     procedure DeleteRelations()
     var
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComp: Record "Prod. Order Component";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         WhseOutputProdRelease: Codeunit "Whse.-Output Prod. Release";
     begin
         OnBeforeDeleteRelations(Rec);
@@ -858,18 +861,18 @@ table 5406 "Prod. Order Line"
         ProdOrderLine.SetFilter("Line No.", '<>%1', "Line No.");
         ProdOrderLine.SetRange("Routing Reference No.", "Routing Reference No.");
         if not ProdOrderLine.FindFirst then begin
-            ProdOrderRtngLine.SetRange(Status, Status);
-            ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
-            ProdOrderRtngLine.SetRange("Routing No.", "Routing No.");
-            ProdOrderRtngLine.SetRange("Routing Reference No.", "Routing Reference No.");
-            if ProdOrderRtngLine.FindSet(true) then
+            ProdOrderRoutingLine.SetRange(Status, Status);
+            ProdOrderRoutingLine.SetRange("Prod. Order No.", "Prod. Order No.");
+            ProdOrderRoutingLine.SetRange("Routing No.", "Routing No.");
+            ProdOrderRoutingLine.SetRange("Routing Reference No.", "Routing Reference No.");
+            if ProdOrderRoutingLine.FindSet(true) then
                 repeat
-                    ProdOrderRtngLine.SetSkipUpdateOfCompBinCodes(true);
-                    ProdOrderRtngLine.Delete(true);
-                until ProdOrderRtngLine.Next = 0;
+                    ProdOrderRoutingLine.SetSkipUpdateOfCompBinCodes(true);
+                    ProdOrderRoutingLine.Delete(true);
+                until ProdOrderRoutingLine.Next = 0;
         end;
 
-        ProdOrderComp.Reset;
+        ProdOrderComp.Reset();
         ProdOrderComp.SetRange(Status, Status);
         ProdOrderComp.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderComp.SetRange("Prod. Order Line No.", "Line No.");
@@ -884,7 +887,7 @@ table 5406 "Prod. Order Line"
                     ProdOrderComp."Supplied-by Line No." := 0;
                     ProdOrderComp."Planning Level Code" -= 1;
                     OnDeleteRelationsNotCalledFromComponentInitFields(ProdOrderComp);
-                    ProdOrderComp.Modify;
+                    ProdOrderComp.Modify();
                 until ProdOrderComp.Next = 0;
         end;
 
@@ -892,18 +895,22 @@ table 5406 "Prod. Order Line"
     end;
 
     procedure ShowReservation()
+    var
+        Reservation: Page Reservation;
     begin
         TestField("Item No.");
         Clear(Reservation);
-        Reservation.SetProdOrderLine(Rec);
-        Reservation.RunModal;
+        Reservation.SetReservSource(Rec);
+        Reservation.RunModal();
     end;
 
     procedure ShowReservationEntries(Modal: Boolean)
+    var
+        ReservEntry: Record "Reservation Entry";
     begin
         TestField("Item No.");
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, true);
-        ReserveProdOrderLine.FilterReservFor(ReservEntry, Rec);
+        ReservEntry.InitSortingAndFilters(true);
+        SetReservationFilters(ReservEntry);
         if Modal then
             PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry)
         else
@@ -1043,14 +1050,14 @@ table 5406 "Prod. Order Line"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 
     local procedure GetCurrencyCode(): Code[10]
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true;
         end;
         exit(GLSetup."Additional Reporting Currency");
@@ -1095,6 +1102,54 @@ table 5406 "Prod. Order Line"
                 WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", "Bin Code");
         end;
         Validate("Bin Code");
+    end;
+
+    procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        RemainingQty := "Remaining Quantity" - Abs("Reserved Quantity");
+        RemainingQtyBase := "Remaining Qty. (Base)" - Abs("Reserved Qty. (Base)");
+    end;
+
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal): Decimal
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        QtyReserved := "Reserved Quantity";
+        QtyReservedBase := "Reserved Qty. (Base)";
+        QtyToReserve := "Remaining Quantity";
+        QtyToReserveBase := "Remaining Qty. (Base)";
+        exit("Qty. per Unit of Measure");
+    end;
+
+    procedure GetSourceCaption(): Text
+    begin
+        exit(StrSubstNo('%1 %2 %3 %4', Status, TableCaption, "Prod. Order No.", "Item No."));
+    end;
+
+    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSource(DATABASE::"Prod. Order Line", Status, "Prod. Order No.", 0, '', "Line No.");
+        ReservEntry.SetItemData("Item No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        ReservEntry."Expected Receipt Date" := "Due Date";
+        ReservEntry."Shipment Date" := "Due Date";
+        ReservEntry."Planning Flexibility" := "Planning Flexibility";
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSourceFilter(DATABASE::"Prod. Order Line", Status, "Prod. Order No.", 0, false);
+        ReservEntry.SetSourceFilter('', "Line No.");
+
+        OnAfterSetReservationFilters(ReservEntry, Rec);
+    end;
+
+    procedure ReservEntryExist(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservEntry);
+        exit(not ReservEntry.IsEmpty);
     end;
 
     local procedure CheckBin()
@@ -1152,6 +1207,21 @@ table 5406 "Prod. Order Line"
         exit(not IsEmpty);
     end;
 
+    procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; NewStatus: Option; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+        Reset;
+        SetCurrentKey(Status, "Item No.", "Variant Code", "Location Code", "Due Date");
+        SetRange(Status, NewStatus);
+        SetRange("Item No.", ReservationEntry."Item No.");
+        SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange("Location Code", ReservationEntry."Location Code");
+        SetFilter("Due Date", AvailabilityFilter);
+        if Positive then
+            SetFilter("Remaining Qty. (Base)", '>0')
+        else
+            SetFilter("Remaining Qty. (Base)", '<0');
+    end;
+
     procedure SetIgnoreErrors()
     begin
         IgnoreErrors := true;
@@ -1189,7 +1259,7 @@ table 5406 "Prod. Order Line"
                 else
                     ProdOrderComp.Validate("Quantity per", "Qty. per Unit of Measure");
                 OnUpdateProdOrderCompOnBeforeModify(Rec, ProdOrderComp);
-                ProdOrderComp.Modify;
+                ProdOrderComp.Modify();
             until ProdOrderComp.Next = 0;
         end;
     end;
@@ -1232,16 +1302,17 @@ table 5406 "Prod. Order Line"
 
     procedure UpdateProdOrderCompDim(NewDimSetID: Integer; OldDimSetID: Integer)
     var
+        ProdOrderComp: Record "Prod. Order Component";
         NewCompDimSetID: Integer;
     begin
         if NewDimSetID = OldDimSetID then
             exit;
 
-        ProdOrderComp.Reset;
+        ProdOrderComp.Reset();
         ProdOrderComp.SetRange(Status, Status);
         ProdOrderComp.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderComp.SetRange("Prod. Order Line No.", "Line No.");
-        ProdOrderComp.LockTable;
+        ProdOrderComp.LockTable();
         if ProdOrderComp.FindSet then
             repeat
                 NewCompDimSetID := DimMgt.GetDeltaDimSetID(ProdOrderComp."Dimension Set ID", NewDimSetID, OldDimSetID);
@@ -1249,21 +1320,21 @@ table 5406 "Prod. Order Line"
                     ProdOrderComp."Dimension Set ID" := NewCompDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       ProdOrderComp."Dimension Set ID", ProdOrderComp."Shortcut Dimension 1 Code", ProdOrderComp."Shortcut Dimension 2 Code");
-                    ProdOrderComp.Modify;
+                    ProdOrderComp.Modify();
                 end;
             until ProdOrderComp.Next = 0;
     end;
 
     procedure ShowRouting()
     var
-        ProdOrderRtngLine: Record "Prod. Order Routing Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
-        ProdOrderRtngLine.SetRange(Status, Status);
-        ProdOrderRtngLine.SetRange("Prod. Order No.", "Prod. Order No.");
-        ProdOrderRtngLine.SetRange("Routing Reference No.", "Routing Reference No.");
-        ProdOrderRtngLine.SetRange("Routing No.", "Routing No.");
+        ProdOrderRoutingLine.SetRange(Status, Status);
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", "Prod. Order No.");
+        ProdOrderRoutingLine.SetRange("Routing Reference No.", "Routing Reference No.");
+        ProdOrderRoutingLine.SetRange("Routing No.", "Routing No.");
 
-        PAGE.RunModal(PAGE::"Prod. Order Routing", ProdOrderRtngLine);
+        PAGE.RunModal(PAGE::"Prod. Order Routing", ProdOrderRoutingLine);
         CalcProdOrder.FindAndSetProdOrderLineBinCodeFromProdRtngLines(Status, "Prod. Order No.", "Line No.");
     end;
 
@@ -1318,6 +1389,11 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRecalculate(var ProdOrderLine: Record "Prod. Order Line"; Direction: Option; var CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; ProdOrderLine: Record "Prod. Order Line");
     begin
     end;
 

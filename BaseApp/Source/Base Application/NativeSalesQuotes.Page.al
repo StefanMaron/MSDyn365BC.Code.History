@@ -605,7 +605,7 @@ page 2812 "Native - Sales Quotes"
         Clear(LastEmailSentTime);
         Clear(LastEmailSentStatus);
         Clear(CurrencyCodeTxt);
-        TempFieldBuffer.DeleteAll;
+        TempFieldBuffer.DeleteAll();
     end;
 
     local procedure RegisterFieldSet(FieldNo: Integer)
@@ -620,7 +620,7 @@ page 2812 "Native - Sales Quotes"
         TempFieldBuffer.Order := LastOrderNo;
         TempFieldBuffer."Table ID" := DATABASE::"Sales Quote Entity Buffer";
         TempFieldBuffer."Field ID" := FieldNo;
-        TempFieldBuffer.Insert;
+        TempFieldBuffer.Insert();
     end;
 
     local procedure ProcessBillingPostalAddress()
@@ -658,10 +658,10 @@ page 2812 "Native - Sales Quotes"
     begin
         UpdateCustomer := "Sell-to Customer No." = '';
         if not UpdateCustomer then begin
-            TempFieldBuffer.Reset;
+            TempFieldBuffer.Reset();
             TempFieldBuffer.SetRange("Field ID", FieldNo("Customer Id"));
             UpdateCustomer := not TempFieldBuffer.FindFirst;
-            TempFieldBuffer.Reset;
+            TempFieldBuffer.Reset();
         end;
 
         if UpdateCustomer then begin
@@ -748,7 +748,7 @@ page 2812 "Native - Sales Quotes"
             end;
         end else begin
             CustInvDisc.SetRange(Code, "No.");
-            CustInvDisc.DeleteAll;
+            CustInvDisc.DeleteAll();
             SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
             GraphMgtSalesQuoteBuffer.RedistributeInvoiceDiscounts(Rec);
         end;
@@ -822,8 +822,8 @@ page 2812 "Native - Sales Quotes"
         if not (DueDateSet or DocumentDateSet) then
             exit;
 
-        TempFieldBuffer.Reset;
-        TempFieldBuffer.DeleteAll;
+        TempFieldBuffer.Reset();
+        TempFieldBuffer.DeleteAll();
 
         if DocumentDateSet then begin
             "Document Date" := DocumentDateVar;

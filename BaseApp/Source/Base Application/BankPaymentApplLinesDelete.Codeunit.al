@@ -7,7 +7,7 @@ codeunit 1296 "BankPaymentApplLines-Delete"
     begin
         PostedPaymentReconLine.SetRange("Bank Account No.", "Bank Account No.");
         PostedPaymentReconLine.SetRange("Statement No.", "Statement No.");
-        PostedPaymentReconLine.DeleteAll;
+        PostedPaymentReconLine.DeleteAll();
     end;
 
     var

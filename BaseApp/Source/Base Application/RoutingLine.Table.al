@@ -236,7 +236,7 @@ table 99000764 "Routing Line"
                         RtngTool."Line No." := StdTaskTool."Line No.";
                         RtngTool."No." := StdTaskTool."No.";
                         RtngTool.Description := StdTaskTool.Description;
-                        RtngTool.Insert;
+                        RtngTool.Insert();
                     until StdTaskTool.Next = 0;
 
                 StdTaskPersonnel.SetRange("Standard Task Code", "Standard Task Code");
@@ -248,7 +248,7 @@ table 99000764 "Routing Line"
                         RtngPersonnel."Line No." := StdTaskPersonnel."Line No.";
                         RtngPersonnel."No." := StdTaskPersonnel."No.";
                         RtngPersonnel.Description := StdTaskPersonnel.Description;
-                        RtngPersonnel.Insert;
+                        RtngPersonnel.Insert();
                     until StdTaskPersonnel.Next = 0;
 
                 StdTaskQltyMeasure.SetRange("Standard Task Code", "Standard Task Code");
@@ -263,7 +263,7 @@ table 99000764 "Routing Line"
                         RtngQltyMeasure."Min. Value" := StdTaskQltyMeasure."Min. Value";
                         RtngQltyMeasure."Max. Value" := StdTaskQltyMeasure."Max. Value";
                         RtngQltyMeasure."Mean Tolerance" := StdTaskQltyMeasure."Mean Tolerance";
-                        RtngQltyMeasure.Insert;
+                        RtngQltyMeasure.Insert();
                     until StdTaskQltyMeasure.Next = 0;
 
                 StdTaskComment.SetRange("Standard Task Code", "Standard Task Code");
@@ -274,7 +274,7 @@ table 99000764 "Routing Line"
                         RtngComment."Operation No." := "Operation No.";
                         RtngComment."Line No." := StdTaskComment."Line No.";
                         RtngComment.Comment := StdTaskComment.Text;
-                        RtngComment.Insert;
+                        RtngComment.Insert();
                     until StdTaskComment.Next = 0;
             end;
         }
@@ -417,22 +417,22 @@ table 99000764 "Routing Line"
         RtngTool.SetRange("Routing No.", "Routing No.");
         RtngTool.SetRange("Version Code", "Version Code");
         RtngTool.SetRange("Operation No.", "Operation No.");
-        RtngTool.DeleteAll;
+        RtngTool.DeleteAll();
 
         RtngPersonnel.SetRange("Routing No.", "Routing No.");
         RtngPersonnel.SetRange("Version Code", "Version Code");
         RtngPersonnel.SetRange("Operation No.", "Operation No.");
-        RtngPersonnel.DeleteAll;
+        RtngPersonnel.DeleteAll();
 
         RtngQltyMeasure.SetRange("Routing No.", "Routing No.");
         RtngQltyMeasure.SetRange("Version Code", "Version Code");
         RtngQltyMeasure.SetRange("Operation No.", "Operation No.");
-        RtngQltyMeasure.DeleteAll;
+        RtngQltyMeasure.DeleteAll();
 
         RtngComment.SetRange("Routing No.", "Routing No.");
         RtngComment.SetRange("Version Code", "Version Code");
         RtngComment.SetRange("Operation No.", "Operation No.");
-        RtngComment.DeleteAll;
+        RtngComment.DeleteAll();
 
         OnAfterDeleteRelations(Rec);
     end;
@@ -515,7 +515,7 @@ table 99000764 "Routing Line"
     begin
         SetRange(Type, RoutingLineType);
         SetRange("No.", No);
-        if Find('-') then begin
+        if Find('-') then
             repeat
                 if RoutingHeader.Get("Routing No.") and
                    (RoutingHeader.Status = RoutingHeader.Status::Certified)
@@ -525,8 +525,7 @@ table 99000764 "Routing Line"
                    (RoutingVersion.Status = RoutingVersion.Status::Certified)
                 then
                     Error(CannotDeleteCertifiedRoutingVersionExistsErr, Type, "No.");
-            until Next = 0;
-        end;
+            until Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -753,7 +753,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
@@ -1096,7 +1096,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         GenJournalLine.FindSet;
         repeat
             NewGenJournalLine := GenJournalLine;
-            NewGenJournalLine.Insert;
+            NewGenJournalLine.Insert();
         until GenJournalLine.Next = 0;
     end;
 

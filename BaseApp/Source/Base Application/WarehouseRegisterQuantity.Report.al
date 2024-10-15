@@ -110,7 +110,7 @@ report 7303 "Warehouse Register - Quantity"
                 begin
                     if Item."No." <> "Item No." then begin
                         if not Item.Get("Item No.") then
-                            Item.Init;
+                            Item.Init();
                         ItemDescription := Item.Description;
                     end;
                 end;

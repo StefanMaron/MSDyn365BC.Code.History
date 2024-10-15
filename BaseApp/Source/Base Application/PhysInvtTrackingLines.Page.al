@@ -66,12 +66,12 @@ page 5899 "Phys. Invt. Tracking Lines"
 
     procedure SetSources(var PhysInvtTracking: Record "Phys. Invt. Tracking")
     begin
-        TempPhysInvtTracking.Reset;
-        TempPhysInvtTracking.DeleteAll;
+        TempPhysInvtTracking.Reset();
+        TempPhysInvtTracking.DeleteAll();
         if PhysInvtTracking.Find('-') then
             repeat
                 TempPhysInvtTracking := PhysInvtTracking;
-                TempPhysInvtTracking.Insert;
+                TempPhysInvtTracking.Insert();
             until PhysInvtTracking.Next = 0;
     end;
 }

@@ -28,10 +28,10 @@ report 5181 "Relocate Attachments"
                         "Storage Pointer" := RMSetup."Attachment Storage Location";
                         Modify;
                         FileManagement.CopyServerFile(FromDiskFileName, ConstDiskFileName, false); // Copy from UNC location to another UNC location
-                        Commit;
+                        Commit();
                         FileManagement.DeleteServerFile(FromDiskFileName);
                     end;
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 // Export Embedded Blob to Diskfile
@@ -46,9 +46,9 @@ report 5181 "Relocate Attachments"
                         ExportAttachmentToServerFile(ServerFileName); // Export blob to UNC location
                         "Storage Type" := "Storage Type"::"Disk File";
                         Clear("Attachment File");
-                        Modify;
-                        Commit;
-                        CurrReport.Skip;
+                        Modify();
+                        Commit();
+                        CurrReport.Skip();
                     end;
                 end;
 
@@ -58,9 +58,9 @@ report 5181 "Relocate Attachments"
                 then begin
                     FromDiskFileName := ConstDiskFileName;
                     ImportAttachmentFromServerFile(GetServerFileName(ConstDiskFileName), false, true); // Import file from UNC location
-                    Commit;
+                    Commit();
                     FileManagement.DeleteServerFile(FromDiskFileName);
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
             end;
         }
@@ -90,8 +90,8 @@ report 5181 "Relocate Attachments"
 
     trigger OnPreReport()
     begin
-        RMSetup.Get;
-        NoOfRecords := Attachment.Count;
+        RMSetup.Get();
+        NoOfRecords := Attachment.Count();
         Window.Open(Text001);
     end;
 

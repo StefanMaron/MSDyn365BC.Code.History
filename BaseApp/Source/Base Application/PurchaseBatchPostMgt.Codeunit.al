@@ -44,7 +44,7 @@ codeunit 1372 "Purchase Batch Post Mgt."
         BatchProcessingMgt.AddParameter(BatchPostParameterTypes.ReplaceDocumentDate, ReplaceDocumentDate);
 
         PurchaseBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
-        Commit;
+        Commit();
         if PurchaseBatchPostMgt.Run(PurchaseHeader) then;
         BatchProcessingMgt.ResetBatchID;
         if GuiAllowed then begin
@@ -70,7 +70,7 @@ codeunit 1372 "Purchase Batch Post Mgt."
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement, DATABASE::"Purchase Header", 0, BatchPostingMsg);
         PurchaseBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
-        Commit;
+        Commit();
         if PurchaseBatchPostMgt.Run(PurchaseHeader) then;
         BatchProcessingMgt.ResetBatchID;
 
@@ -137,12 +137,12 @@ codeunit 1372 "Purchase Batch Post Mgt."
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        PurchaseLine.Reset;
+        PurchaseLine.Reset();
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         if PurchaseLine.FindFirst then begin
             CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchaseLine);
-            Commit;
+            Commit();
             PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
         end;
     end;

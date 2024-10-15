@@ -252,11 +252,9 @@ page 1812 "Item Approval WF Setup Wizard"
                 var
                     AssistedSetup: Codeunit "Assisted Setup";
                     ApprovalWorkflowSetupMgt: Codeunit "Approval Workflow Setup Mgt.";
-                    Info: ModuleInfo;
                 begin
                     ApprovalWorkflowSetupMgt.ApplyItemWizardUserInput(Rec);
-                    NavApp.GetCurrentModuleInfo(Info);
-                    AssistedSetup.Complete(Info.Id(), PAGE::"Item Approval WF Setup Wizard");
+                    AssistedSetup.Complete(PAGE::"Item Approval WF Setup Wizard");
 
                     CurrPage.Close;
                 end;
@@ -284,12 +282,10 @@ page 1812 "Item Approval WF Setup Wizard"
         AssistedSetup: Codeunit "Assisted Setup";
         Info: ModuleInfo;
     begin
-        if CloseAction = ACTION::OK then begin
-            NavApp.GetCurrentModuleInfo(Info);
-            if AssistedSetup.ExistsAndIsNotComplete(Info.Id(), PAGE::"Item Approval WF Setup Wizard") then
+        if CloseAction = ACTION::OK then 
+            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Item Approval WF Setup Wizard") then
                 if not Confirm(NAVNotSetUpQst, false) then
                     Error('');
-        end;
     end;
 
     var

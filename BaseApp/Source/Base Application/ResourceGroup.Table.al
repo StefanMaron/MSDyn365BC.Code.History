@@ -187,22 +187,25 @@ table 152 "Resource Group"
     }
 
     trigger OnDelete()
+    var
+        ResCost: Record "Resource Cost";
+        ResPrice: Record "Resource Price";
     begin
         ResCapacityEntry.SetCurrentKey("Resource Group No.");
         ResCapacityEntry.SetRange("Resource Group No.", "No.");
-        ResCapacityEntry.DeleteAll;
+        ResCapacityEntry.DeleteAll();
 
         ResCost.SetRange(Type, ResCost.Type::"Group(Resource)");
         ResCost.SetRange(Code, "No.");
-        ResCost.DeleteAll;
+        ResCost.DeleteAll();
 
         ResPrice.SetRange(Type, ResPrice.Type::"Group(Resource)");
         ResPrice.SetRange(Code, "No.");
-        ResPrice.DeleteAll;
+        ResPrice.DeleteAll();
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::"Resource Group");
         CommentLine.SetRange("No.", "No.");
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
 
         DimMgt.DeleteDefaultDim(DATABASE::"Resource Group", "No.");
     end;
@@ -221,8 +224,6 @@ table 152 "Resource Group"
 
     var
         ResCapacityEntry: Record "Res. Capacity Entry";
-        ResCost: Record "Resource Cost";
-        ResPrice: Record "Resource Price";
         CommentLine: Record "Comment Line";
         DimMgt: Codeunit DimensionManagement;
 
@@ -235,7 +236,7 @@ table 152 "Resource Group"
             DimMgt.SaveDefaultDim(DATABASE::"Resource Group", "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 

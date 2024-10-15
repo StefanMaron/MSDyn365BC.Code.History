@@ -30,19 +30,19 @@ codeunit 131904 "Library - Time Sheet"
             exit;
 
         if not ResourcesSetup.Get then begin
-            ResourcesSetup.Init;
-            ResourcesSetup.Insert;
+            ResourcesSetup.Init();
+            ResourcesSetup.Insert();
         end;
 
         if ResourcesSetup."Time Sheet Nos." = '' then begin
             ResourcesSetup.Validate("Time Sheet Nos.", GetTimeSheetNoSeries);
-            ResourcesSetup.Modify;
+            ResourcesSetup.Modify();
         end;
 
         Initialized := true;
         LibraryERMCountryData.CreateVATData;
 
-        Commit;
+        Commit();
     end;
 
     procedure CheckAssemblyTimeSheetLine(TimeSheetHeader: Record "Time Sheet Header"; AssemblyHeaderNo: Code[20]; AssemblyLineNo: Integer; AssemblyLineQuantity: Decimal)
@@ -86,7 +86,7 @@ codeunit 131904 "Library - Time Sheet"
     var
         RecRef: RecordRef;
     begin
-        JobJournalLine.Init;
+        JobJournalLine.Init();
         JobJournalLine.Validate("Journal Template Name", JournalTemplateName);
         JobJournalLine.Validate("Journal Batch Name", JournalBatchName);
         RecRef.GetTable(JobJournalLine);
@@ -103,14 +103,14 @@ codeunit 131904 "Library - Time Sheet"
         if JobPlanningLine.FindLast then;
         LineNo := JobPlanningLine."Line No." + 10000;
 
-        JobPlanningLine.Init;
+        JobPlanningLine.Init();
         JobPlanningLine."Job No." := JobNo;
         JobPlanningLine."Job Task No." := JobTaskNo;
         JobPlanningLine."Line No." := LineNo;
         JobPlanningLine.Type := JobPlanningLine.Type::Resource;
         JobPlanningLine."No." := ResourceNo;
         JobPlanningLine."Planning Date" := PlanningDate;
-        JobPlanningLine.Insert;
+        JobPlanningLine.Insert();
     end;
 
     procedure CreateTimeSheet(var TimeSheetHeader: Record "Time Sheet Header"; UseCurrentUserID: Boolean)
@@ -130,7 +130,7 @@ codeunit 131904 "Library - Time Sheet"
         CreateTimeSheetResource(Resource);
         Resource.Validate("Time Sheet Owner User ID", UserSetup."User ID");
         Resource.Validate("Time Sheet Approver User ID", UserId);
-        Resource.Modify;
+        Resource.Modify();
 
         // find first open accounting period
         GetAccountingPeriod(AccountingPeriod);
@@ -159,7 +159,7 @@ codeunit 131904 "Library - Time Sheet"
     begin
         LineNo := TimeSheetHeader.GetLastLineNo + 10000;
 
-        TimeSheetLine.Init;
+        TimeSheetLine.Init();
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
         TimeSheetLine."Line No." := LineNo;
         TimeSheetLine.Type := Type;
@@ -181,13 +181,13 @@ codeunit 131904 "Library - Time Sheet"
     var
         TimeSheetDetail: Record "Time Sheet Detail";
     begin
-        TimeSheetDetail.Init;
+        TimeSheetDetail.Init();
         TimeSheetDetail."Time Sheet No." := TimeSheetLine."Time Sheet No.";
         TimeSheetDetail."Time Sheet Line No." := TimeSheetLine."Line No.";
         TimeSheetDetail.Date := Date;
         TimeSheetDetail.CopyFromTimeSheetLine(TimeSheetLine);
         TimeSheetDetail.Quantity := Quantity;
-        TimeSheetDetail.Insert;
+        TimeSheetDetail.Insert();
     end;
 
     procedure CreateTimeSheetResource(var Resource: Record Resource)
@@ -205,7 +205,7 @@ codeunit 131904 "Library - Time Sheet"
               ResourceUnitOfMeasure, Resource."No.", HumanResourceUnitOfMeasure.Code, 1);
         Resource.Validate("Base Unit of Measure", HumanResourceUnitOfMeasure.Code);
         Resource."Use Time Sheet" := true;
-        Resource.Modify;
+        Resource.Modify();
     end;
 
     procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; PostingDate: Date)
@@ -217,14 +217,14 @@ codeunit 131904 "Library - Time Sheet"
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
         ServiceHeader.Validate("Posting Date", PostingDate);
-        ServiceHeader.Modify;
+        ServiceHeader.Modify();
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
     end;
 
     procedure CreateUserSetup(var UserSetup: Record "User Setup"; CurrUserID: Boolean)
     begin
-        UserSetup.Init;
+        UserSetup.Init();
         if CurrUserID then begin
             UserSetup."User ID" := UserId;
             UserSetup."Time Sheet Admin." := true;
@@ -232,17 +232,17 @@ codeunit 131904 "Library - Time Sheet"
             UserSetup."User ID" :=
               CopyStr(
                 LibraryUtility.GenerateRandomCode(UserSetup.FieldNo("User ID"), DATABASE::"User Setup"), 1, MaxStrLen(UserSetup."User ID"));
-        if UserSetup.Insert then;
+        if UserSetup.Insert() then;
     end;
 
     procedure CreateWorkType(var WorkType: Record "Work Type"; ResourceBUOM: Code[10])
     begin
-        WorkType.Init;
+        WorkType.Init();
         WorkType.Validate(Code, CopyStr(Format(CreateGuid), 1, MaxStrLen(WorkType.Code)));
         WorkType.Insert(true);
         WorkType.Validate(Description, 'test work type');
         WorkType.Validate("Unit of Measure Code", ResourceBUOM);
-        WorkType.Modify;
+        WorkType.Modify();
     end;
 
     procedure CreateHRUnitOfMeasure(var HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure"; QtyPerUnitOfMeasure: Decimal)
@@ -250,7 +250,7 @@ codeunit 131904 "Library - Time Sheet"
         UnitOfMeasure: Record "Unit of Measure";
     begin
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
-        HumanResourceUnitOfMeasure.Init;
+        HumanResourceUnitOfMeasure.Init();
         HumanResourceUnitOfMeasure.Validate(Code, UnitOfMeasure.Code);
         HumanResourceUnitOfMeasure.Validate("Qty. per Unit of Measure", QtyPerUnitOfMeasure);
         HumanResourceUnitOfMeasure.Insert(true);
@@ -307,14 +307,14 @@ codeunit 131904 "Library - Time Sheet"
         AccountingPeriod.SetRange(Closed, false);
         if not AccountingPeriod.FindFirst then begin
             // if accounting period is not found then create new one
-            AccountingPeriod.Reset;
+            AccountingPeriod.Reset();
             if AccountingPeriod.FindLast then
                 StartingDate := CalcDate('<+1M>', AccountingPeriod."Starting Date")
             else
                 StartingDate := CalcDate('<CM>', Today);
-            AccountingPeriod.Init;
+            AccountingPeriod.Init();
             AccountingPeriod."Starting Date" := StartingDate;
-            AccountingPeriod.Insert;
+            AccountingPeriod.Insert();
         end;
     end;
 
@@ -344,7 +344,7 @@ codeunit 131904 "Library - Time Sheet"
         if TempTimeSheetLine.FindSet then
             repeat
                 TimeSheetLine := TempTimeSheetLine;
-                TimeSheetLine.Insert;
+                TimeSheetLine.Insert();
             until TempTimeSheetLine.Next = 0;
     end;
 
@@ -382,7 +382,7 @@ codeunit 131904 "Library - Time Sheet"
 
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
         Resource.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-        Resource.Modify;
+        Resource.Modify();
 
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
@@ -396,7 +396,7 @@ codeunit 131904 "Library - Time Sheet"
             LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
               ItemJournalLine."Entry Type"::"Positive Adjmt.", Item[ItemCount]."No.", 10);
             ItemJournalLine.Validate("Location Code", Location.Code);
-            ItemJournalLine.Modify;
+            ItemJournalLine.Modify();
         end;
 
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
@@ -407,7 +407,7 @@ codeunit 131904 "Library - Time Sheet"
         // create assembly order with lines
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalcDate('<+7D>', Date), Item[1]."No.", Location.Code, 2, '');
         AssemblyHeader.Validate("Posting Date", CalcDate('<+3D>', Date));
-        AssemblyHeader.Modify;
+        AssemblyHeader.Modify();
         LibraryAssembly.CreateAssemblyLine(
           AssemblyHeader, AssemblyLine, AssemblyLine.Type::Resource, Resource."No.", Resource."Base Unit of Measure", 8, 8, 'Working resource');
     end;
@@ -425,7 +425,7 @@ codeunit 131904 "Library - Time Sheet"
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, TimeSheetHeader."Resource No.");
         ServiceLine.Validate("Service Item Line No.", 10000);
         ServiceLine.Validate(Quantity, GetRandomDecimal);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
     end;
 
     procedure InitJobScenario(var TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line")
@@ -445,7 +445,7 @@ codeunit 131904 "Library - Time Sheet"
         // job's responsible person (resource) must have Owner ID filled in
         Resource.Get(Job."Person Responsible");
         Resource."Time Sheet Owner User ID" := UserId;
-        Resource.Modify;
+        Resource.Modify();
         CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Job, Job."No.",
           JobTask."Job Task No.", '', '');
 
@@ -466,7 +466,7 @@ codeunit 131904 "Library - Time Sheet"
         // create time sheet lines with type Resource
         CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
         TimeSheetLine.Description := TimeSheetHeader."Resource No.";
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
 
         // set quantity for line
         CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", GetRandomDecimal);
@@ -496,7 +496,7 @@ codeunit 131904 "Library - Time Sheet"
             // job's responsible person (resource) must have Owner ID filled in
             Resource.Get(Job."Person Responsible");
             Resource."Time Sheet Owner User ID" := UserId;
-            Resource.Modify;
+            Resource.Modify();
             CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine[RowCount], TimeSheetLine[RowCount].Type::Job, Job."No.",
               JobTask."Job Task No.", '', '');
             // change work type
@@ -507,7 +507,7 @@ codeunit 131904 "Library - Time Sheet"
                 TimeSheetLine[RowCount].Validate(Chargeable, false);
                 TimeSheetLine[RowCount].Validate("Work Type Code", WorkType.Code);
             end;
-            TimeSheetLine[RowCount].Modify;
+            TimeSheetLine[RowCount].Modify();
             CreateTimeSheetDetail(TimeSheetLine[RowCount], TimeSheetHeader."Starting Date", GetRandomDecimal);
             CreateTimeSheetDetail(TimeSheetLine[RowCount], TimeSheetHeader."Starting Date" + 1, GetRandomDecimal);
             TimeSheetApprovalMgt.Submit(TimeSheetLine[RowCount]);
@@ -531,7 +531,7 @@ codeunit 131904 "Library - Time Sheet"
         // create time sheets' lines with type Resource, some kind of Work Type and different chargeables
         CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Service, '', '', ServiceHeader."No.", '');
         TimeSheetLine.Validate("Service Order No.", ServiceHeader."No.");
-        TimeSheetLine.Modify;
+        TimeSheetLine.Modify();
         // set quantities for lines
         CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", GetRandomDecimal);
         TimeSheetApprovalMgt.Submit(TimeSheetLine);
@@ -566,7 +566,7 @@ codeunit 131904 "Library - Time Sheet"
     var
         SuggestJobJnlLines: Report "Suggest Job Jnl. Lines";
     begin
-        Commit;
+        Commit();
         Clear(SuggestJobJnlLines);
         SuggestJobJnlLines.InitParameters(JobJournalLine, ResourceNo, '', '', StartingDate, EndingDate);
         SuggestJobJnlLines.Run;

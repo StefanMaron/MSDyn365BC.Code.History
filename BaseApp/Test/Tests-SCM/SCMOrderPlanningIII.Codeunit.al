@@ -718,21 +718,21 @@ codeunit 137088 "SCM Order Planning - III"
         ReservationEntry.SetRange("Item No.", Item."No.");
         if ReservationEntry.FindSet then
             repeat
-                ReservationEntry.Delete;
+                ReservationEntry.Delete();
             until ReservationEntry.Next = 0;
-        ProdOrder.Delete;
+        ProdOrder.Delete();
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrder."No.");
         ProdOrderComponent.FindFirst;
-        ProdOrderComponent.Delete;
+        ProdOrderComponent.Delete();
         ProdBOMLine.SetRange("Production BOM No.", ProdItem."Production BOM No.");
         ProdBOMLine.FindFirst;
-        ProdBOMLine.Delete;
+        ProdBOMLine.Delete();
 
         ProdBOMHeader.SetRange("No.", ProdItem."Production BOM No.");
         ProdBOMHeader.FindFirst;
-        ProdBOMHeader.Delete;
-        ProdItem.Delete;
-        Item.Delete;
+        ProdBOMHeader.Delete();
+        ProdItem.Delete();
+        Item.Delete();
     end;
 
     [Test]
@@ -836,13 +836,13 @@ codeunit 137088 "SCM Order Planning - III"
         ReservationEntry.SetRange("Item No.", Item."No.");
         if ReservationEntry.FindSet then
             repeat
-                ReservationEntry.Delete;
+                ReservationEntry.Delete();
             until ReservationEntry.Next = 0;
-        SalesHeader.Delete;
+        SalesHeader.Delete();
         SalesLine.SetRange("No.", Item."No.");
         SalesLine.FindFirst;
-        SalesLine.Delete;
-        Item.Delete;
+        SalesLine.Delete();
+        Item.Delete();
     end;
 
     local procedure VerifyReservationEntry(RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; SourceID: Code[10]; SourceBatchName: Code[10]; SourceType: Integer; Qty: Decimal)
@@ -1407,7 +1407,7 @@ codeunit 137088 "SCM Order Planning - III"
         CreateLocationSetup;
         NoSeriesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Order Planning - III");
     end;
 
@@ -1419,8 +1419,8 @@ codeunit 137088 "SCM Order Planning - III"
         Clear(DemandTypeGlobal);
         Clear(GlobalChildItemNo);
         Clear(ExpectedQuantity);
-        RequisitionLine.Reset;
-        RequisitionLine.DeleteAll;
+        RequisitionLine.Reset();
+        RequisitionLine.DeleteAll();
         ClearManufacturingUserTemplate;
     end;
 
@@ -1429,11 +1429,11 @@ codeunit 137088 "SCM Order Planning - III"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -1489,7 +1489,7 @@ codeunit 137088 "SCM Order Planning - III"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         LibraryInventory.CreateItem(Item);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Item.Validate("Costing Method", Item."Costing Method"::Standard);
         Item.Validate("Unit Cost", LibraryRandom.RandDec(20, 2));
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -1774,7 +1774,7 @@ codeunit 137088 "SCM Order Planning - III"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         exit(NoSeriesManagement.GetNextNo(PurchasesPayablesSetup."Order Nos.", WorkDate, false));
     end;
 
@@ -1928,9 +1928,9 @@ codeunit 137088 "SCM Order Planning - III"
 
     local procedure UpdateSalesReceivablesSetup(var SalesReceivablesSetup2: Record "Sales & Receivables Setup")
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup2 := SalesReceivablesSetup;
-        SalesReceivablesSetup2.Insert;
+        SalesReceivablesSetup2.Insert();
 
         SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"No Warning");
         SalesReceivablesSetup.Validate("Stockout Warning", false);
@@ -2031,7 +2031,7 @@ codeunit 137088 "SCM Order Planning - III"
 
     local procedure RestoreSalesReceivableSetup(TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Warnings", TempSalesReceivablesSetup."Credit Warnings");
         SalesReceivablesSetup.Validate("Stockout Warning", TempSalesReceivablesSetup."Stockout Warning");
         SalesReceivablesSetup.Modify(true);

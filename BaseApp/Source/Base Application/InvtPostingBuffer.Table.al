@@ -5,12 +5,10 @@ table 48 "Invt. Posting Buffer"
 
     fields
     {
-        field(1; "Account Type"; Option)
+        field(1; "Account Type"; Enum "Invt. Posting Buffer Account Type")
         {
             Caption = 'Account Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Inventory (Interim),Invt. Accrual (Interim),Inventory,WIP Inventory,Inventory Adjmt.,Direct Cost Applied,Overhead Applied,Purchase Variance,COGS,COGS (Interim),Material Variance,Capacity Variance,Subcontracted Variance,Cap. Overhead Variance,Mfg. Overhead Variance';
-            OptionMembers = "Inventory (Interim)","Invt. Accrual (Interim)",Inventory,"WIP Inventory","Inventory Adjmt.","Direct Cost Applied","Overhead Applied","Purchase Variance",COGS,"COGS (Interim)","Material Variance","Capacity Variance","Subcontracted Variance","Cap. Overhead Variance","Mfg. Overhead Variance";
         }
         field(2; "Location Code"; Code[10])
         {
@@ -72,12 +70,10 @@ table 48 "Invt. Posting Buffer"
             Caption = 'Entry No.';
             DataClassification = SystemMetadata;
         }
-        field(14; "Bal. Account Type"; Option)
+        field(14; "Bal. Account Type"; Enum "Invt. Posting Buffer Account Type")
         {
             Caption = 'Bal. Account Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Inventory (Interim),Invt. Accrual (Interim),Inventory,WIP Inventory,Inventory Adjmt.,Direct Cost Applied,Overhead Applied,Purchase Variance,COGS,COGS (Interim),Material Variance,Capacity Variance,Subcontracted Variance,Cap. Overhead Variance,Mfg. Overhead Variance';
-            OptionMembers = "Inventory (Interim)","Invt. Accrual (Interim)",Inventory,"WIP Inventory","Inventory Adjmt.","Direct Cost Applied","Overhead Applied","Purchase Variance",COGS,"COGS (Interim)","Material Variance","Capacity Variance","Subcontracted Variance","Cap. Overhead Variance","Mfg. Overhead Variance";
         }
         field(15; "Job No."; Code[20])
         {
@@ -106,8 +102,10 @@ table 48 "Invt. Posting Buffer"
     }
 
     procedure UseInvtPostSetup(): Boolean
+    var
+        UseInventoryPostingSetup: Boolean;
     begin
-        exit(
+        UseInventoryPostingSetup :=
           "Account Type" in
           ["Account Type"::Inventory,
            "Account Type"::"Inventory (Interim)",
@@ -116,7 +114,16 @@ table 48 "Invt. Posting Buffer"
            "Account Type"::"Capacity Variance",
            "Account Type"::"Subcontracted Variance",
            "Account Type"::"Cap. Overhead Variance",
-           "Account Type"::"Mfg. Overhead Variance"]);
+           "Account Type"::"Mfg. Overhead Variance"];
+
+        OnUseInvtPostSetup(Rec, UseInventoryPostingSetup);
+
+        exit(UseInventoryPostingSetup);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUseInvtPostSetup(var InvtPostingBuffer: Record "Invt. Posting Buffer"; var UseInventoryPostingSetup: Boolean)
+    begin
     end;
 }
 

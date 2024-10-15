@@ -6,11 +6,11 @@ codeunit 132510 TestCodeUnitC
     var
         TestTableC: Record TestTableC;
     begin
-        TestTableC.Init;
+        TestTableC.Init();
 
         Clear(TestTableC.IntegerField);
 
-        TestTableC.Insert;
+        TestTableC.Insert();
     end;
 }
 

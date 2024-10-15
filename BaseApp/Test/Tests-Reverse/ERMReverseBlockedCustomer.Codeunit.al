@@ -203,7 +203,7 @@ codeunit 134138 "ERM Reverse Blocked Customer"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse Blocked Customer");
     end;
 

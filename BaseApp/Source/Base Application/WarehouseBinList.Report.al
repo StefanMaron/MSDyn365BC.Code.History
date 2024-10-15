@@ -135,10 +135,10 @@ report 7319 "Warehouse Bin List"
                 trigger OnPreDataItem()
                 begin
                     if not BinCont then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if not ItemUOM.Get("Item No.", "Unit of Measure Code") then
-                        ItemUOM.Init;
+                        ItemUOM.Init();
                 end;
             }
         }

@@ -80,7 +80,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         CreateAndPostPurchaseDocument(PurchaseLine, ServiceLine."No.", ServiceLine.Quantity, false);  // False for Invoice.
         CreatePurchaseOrder(PurchaseLine2, PurchaseLine."Buy-from Vendor No.", PurchaseLine."No.", PurchaseLine.Quantity);
         PurchaseLine2.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost" + 10);  // Fixed value is taken for greater value of Direct unit Cost.
-        PurchaseLine2.Modify;
+        PurchaseLine2.Modify();
         PostPurchaseDocument(PurchaseLine2, true);
 
         // Exercise: Run Adjust Cost Item Entries.
@@ -1240,7 +1240,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Batch Jobs");
     end;
 
@@ -1519,7 +1519,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         // Create another Purchase Order and Post as Receive and Invoice with Direct Unit Cost greater than above Purchase Order's Direct Unit Cost.
         CreatePurchaseOrder(PurchaseLine2, PurchaseLine."Buy-from Vendor No.", PurchaseLine."No.", PurchaseLine.Quantity);
         PurchaseLine2.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost" + 10);
-        PurchaseLine2.Modify;
+        PurchaseLine2.Modify();
     end;
 
     local procedure CreateServiceDocumentAndUpdateServiceLine(var ServiceLine: Record "Service Line"; ItemNo: Code[20]; CustomerNo: Code[20]; Quantity: Decimal)
@@ -1649,7 +1649,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         PostInventoryCostToGL: Report "Post Inventory Cost to G/L";
     begin
-        Commit;
+        Commit();
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
         PostInventoryCostToGL.InitializeRequest(PostMethod, DocumentNo, true);
         PostInventoryCostToGL.SetTableView(PostValueEntryToGL);

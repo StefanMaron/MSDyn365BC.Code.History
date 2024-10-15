@@ -1,4 +1,4 @@
-﻿page 9301 "Sales Invoice List"
+page 9301 "Sales Invoice List"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Sales Invoices';
@@ -311,7 +311,7 @@
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                     end;
                 }

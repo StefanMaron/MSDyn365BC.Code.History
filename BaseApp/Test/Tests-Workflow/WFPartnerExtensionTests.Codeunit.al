@@ -86,8 +86,8 @@ codeunit 134319 "WF Partner Extension Tests"
 
         // Exercise
         Workflows.OpenView;
-        WorkflowStepInstance.Init; // silly, useless preCAL rule
-        Integer.Init; // silly, useless preCAL rule
+        WorkflowStepInstance.Init(); // silly, useless preCAL rule
+        Integer.Init(); // silly, useless preCAL rule
         Variant := Integer;
         WorkflowStepInstance."Function Name" := NewCustomResponseCode;
         asserterror WorkflowResponseHandling.ExecuteResponse(Variant, WorkflowStepInstance, Variant);
@@ -118,8 +118,8 @@ codeunit 134319 "WF Partner Extension Tests"
 
         // Exercise
         Workflows.OpenView;
-        WorkflowStepInstance.Init; // silly, useless preCAL rule
-        Integer.Init; // silly, useless preCAL rule
+        WorkflowStepInstance.Init(); // silly, useless preCAL rule
+        Integer.Init(); // silly, useless preCAL rule
         WorkflowStepInstance."Function Name" := NewCustomResponse2Code;
         Variant := Integer;
         asserterror WorkflowResponseHandling.ExecuteResponse(Variant, WorkflowStepInstance, Variant);
@@ -181,7 +181,7 @@ codeunit 134319 "WF Partner Extension Tests"
 
     local procedure NewCustomResponse(var "Integer": Record "Integer")
     begin
-        Integer.Init; // dummy line to avoid the error that a variable must be used. If you remove it here, you'll get the error on the EventSubscriber. If you remove it there it will work, but it won't be nice...
+        Integer.Init(); // dummy line to avoid the error that a variable must be used. If you remove it here, you'll get the error on the EventSubscriber. If you remove it there it will work, but it won't be nice...
         Error(CustomResponseExecutedErr);
     end;
 }

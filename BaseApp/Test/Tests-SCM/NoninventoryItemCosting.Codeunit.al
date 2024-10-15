@@ -61,14 +61,14 @@ codeunit 137120 "Non-inventory Item Costing"
           LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Item, Item."No.", true),
           1, 1, '');
         AssemblyLine.Validate(Quantity, 1);
-        AssemblyLine.Modify;
+        AssemblyLine.Modify();
 
         LibraryAssembly.CreateAssemblyLine(
           AssemblyHeader, AssemblyLineNonInventory, AssemblyLineNonInventory.Type::Item, ItemNonInventory."No.",
           LibraryAssembly.GetUnitOfMeasureCode(AssemblyLineNonInventory.Type::Item, ItemNonInventory."No.", true),
           1, 1, '');
         AssemblyLineNonInventory.Validate(Quantity, 1);
-        AssemblyLineNonInventory.Modify;
+        AssemblyLineNonInventory.Modify();
 
         LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate, 1);
 
@@ -162,12 +162,12 @@ codeunit 137120 "Non-inventory Item Costing"
         LibraryService.CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.", 1);
         ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
         ServiceLine.Validate("Qty. to Consume", 1);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
 
         LibraryService.CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNonInventory."No.", 1);
         ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
         ServiceLine.Validate("Qty. to Consume", 1);
-        ServiceLine.Modify;
+        ServiceLine.Modify();
 
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
 
@@ -247,12 +247,12 @@ codeunit 137120 "Non-inventory Item Costing"
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
         ItemJournalTemplate.Type := ItemJournalTemplate.Type::Consumption;
         ItemJournalTemplate.Recurring := false;
-        ItemJournalTemplate.Modify;
+        ItemJournalTemplate.Modify();
 
         LibraryService.SetupServiceMgtNoSeries;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -265,7 +265,7 @@ codeunit 137120 "Non-inventory Item Costing"
     var
         AssemblySetup: Record "Assembly Setup";
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Stockout Warning", NewStockOutWarning);
         AssemblySetup.Modify(true);
     end;
@@ -276,16 +276,16 @@ codeunit 137120 "Non-inventory Item Costing"
         SalesSetup: Record "Sales & Receivables Setup";
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Modify(true);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
 
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Released Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         ManufacturingSetup.Validate("Normal Starting Time", 080000T);
         ManufacturingSetup.Validate("Normal Ending Time", 160000T);
@@ -324,7 +324,7 @@ codeunit 137120 "Non-inventory Item Costing"
         ServiceItemGroups."Default Response Time (Hours)".SetValue(LibraryRandom.RandInt(10));
         ServiceItemGroups."Create Service Item".SetValue(true);
         ServiceItemGroups.OK.Invoke;
-        Commit;
+        Commit();
     end;
 
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")

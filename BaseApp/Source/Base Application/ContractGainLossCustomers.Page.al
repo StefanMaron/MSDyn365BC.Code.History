@@ -65,7 +65,7 @@ page 6067 "Contract Gain/Loss (Customers)"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ShiptoAddr.Reset;
+                        ShiptoAddr.Reset();
                         ShiptoAddr.SetRange("Customer No.", CustomerNo);
                         if PAGE.RunModal(0, ShiptoAddr) = ACTION::LookupOK then begin
                             Text := ShiptoAddr.Code;

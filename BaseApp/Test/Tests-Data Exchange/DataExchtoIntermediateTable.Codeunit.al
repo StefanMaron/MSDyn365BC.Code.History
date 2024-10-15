@@ -30,13 +30,13 @@ codeunit 139156 "DataExch to Intermediate Table"
         DataExchColumnDef: Record "Data Exch. Column Def";
         IntermediateDataImport: Record "Intermediate Data Import";
     begin
-        DataExchDef.DeleteAll;
-        DataExch.DeleteAll;
-        DataExchField.DeleteAll;
-        DataExchColumnDef.DeleteAll;
-        DataExchMapping.DeleteAll;
-        DataExchFieldMapping.DeleteAll;
-        IntermediateDataImport.DeleteAll;
+        DataExchDef.DeleteAll();
+        DataExch.DeleteAll();
+        DataExchField.DeleteAll();
+        DataExchColumnDef.DeleteAll();
+        DataExchMapping.DeleteAll();
+        DataExchFieldMapping.DeleteAll();
+        IntermediateDataImport.DeleteAll();
 
         if IsInitialized then
             exit;
@@ -217,7 +217,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         DataExchField.SetFilter("Column No.", '<>-1');
         DataExchField.SetRange("Data Exch. Line Def Code", SalesLineDataExchLineDef.Code);
-        DataExchField.DeleteAll;
+        DataExchField.DeleteAll();
         NumberOfSalesLinesPerHeader := 0;
         // Execute
         MapDataExchToIntermediate.ProcessAllLinesColumnMapping(DataExch);
@@ -261,7 +261,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         // Remove all field values except the record definition
         DataExchField.SetRange("Data Exch. No.", DataExch."Entry No.");
         DataExchField.SetFilter("Column No.", '<>-1');
-        DataExchField.DeleteAll;
+        DataExchField.DeleteAll();
 
         // Execute
         MapDataExchToIntermediate.ProcessAllLinesColumnMapping(DataExch);
@@ -298,8 +298,8 @@ codeunit 139156 "DataExch to Intermediate Table"
 
         for I := 1 to 2 do begin
             // Clean up from previous mapping
-            DataExch.DeleteAll;
-            DataExchField.DeleteAll;
+            DataExch.DeleteAll();
+            DataExchField.DeleteAll();
             Clear(DataExch);
             Clear(DataExchField);
 
@@ -339,7 +339,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         // [WHEN] There are no records to import but the definion is present
         // [THEN] No records are imported
         Initialize;
-        DataExch.Init;
+        DataExch.Init();
         CreateSalesHeaderAndSalesLinesSetup(SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, DataExchDef);
 
         // Execute
@@ -360,7 +360,7 @@ codeunit 139156 "DataExch to Intermediate Table"
         // [WHEN] There is no definition but the codeunit is run
         // [THEN] No records are imported
         Initialize;
-        DataExch.Init;
+        DataExch.Init();
 
         // Execute
         MapDataExchToIntermediate.ProcessAllLinesColumnMapping(DataExch);
@@ -392,7 +392,7 @@ codeunit 139156 "DataExch to Intermediate Table"
           DataExch, SalesHeaderDataExchLineDef, SalesLineDataExchLineDef, NumberOfSalesHeaders, NumberOfSalesLinesPerHeader,
           CurrentNodeID, LineNo);
 
-        DataExchFieldMapping.DeleteAll;
+        DataExchFieldMapping.DeleteAll();
 
         // Execute
         asserterror MapDataExchToIntermediate.ProcessAllLinesColumnMapping(DataExch);
@@ -640,7 +640,7 @@ codeunit 139156 "DataExch to Intermediate Table"
 
     local procedure CreateDataExchangeColumnDef(var DataExchColumnDef: Record "Data Exch. Column Def"; DataExchLineDef: Record "Data Exch. Line Def"; ColumnNo: Integer; Path: Text[250])
     begin
-        DataExchColumnDef.Init;
+        DataExchColumnDef.Init();
         DataExchColumnDef.Validate("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         DataExchColumnDef.Validate("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchColumnDef.Validate("Column No.", ColumnNo);
@@ -652,7 +652,7 @@ codeunit 139156 "DataExch to Intermediate Table"
     var
         DataExchMapping: Record "Data Exch. Mapping";
     begin
-        DataExchMapping.Init;
+        DataExchMapping.Init();
         DataExchMapping.Validate("Data Exch. Def Code", DataExchLineDef."Data Exch. Def Code");
         DataExchMapping.Validate("Data Exch. Line Def Code", DataExchLineDef.Code);
         DataExchMapping.Validate("Table ID", DATABASE::"Intermediate Data Import");
@@ -663,7 +663,7 @@ codeunit 139156 "DataExch to Intermediate Table"
     var
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
     begin
-        DataExchFieldMapping.Init;
+        DataExchFieldMapping.Init();
         DataExchFieldMapping.Validate("Data Exch. Def Code", DataExchColumnDef."Data Exch. Def Code");
         DataExchFieldMapping.Validate("Data Exch. Line Def Code", DataExchColumnDef."Data Exch. Line Def Code");
         DataExchFieldMapping.Validate("Table ID", DATABASE::"Intermediate Data Import");
@@ -675,7 +675,7 @@ codeunit 139156 "DataExch to Intermediate Table"
 
     local procedure CreateDataExchange(DataExchLineDef: Record "Data Exch. Line Def"; var DataExch: Record "Data Exch.")
     begin
-        DataExch.Init;
+        DataExch.Init();
         DataExch."Data Exch. Def Code" := DataExchLineDef."Data Exch. Def Code";
         DataExch."Data Exch. Line Def Code" := DataExchLineDef.Code;
         DataExch.Insert(true);
@@ -683,7 +683,7 @@ codeunit 139156 "DataExch to Intermediate Table"
 
     local procedure CreateDataExchangeField(var DataExchField: Record "Data Exch. Field"; DataExch: Record "Data Exch."; DataExchLineDef: Record "Data Exch. Line Def"; ColumnNo: Integer; TextValue: Text[250]; CurrentNodeID: Integer; ParentNodeID: Text[250]; LineNo: Integer)
     begin
-        DataExchField.Init;
+        DataExchField.Init();
         DataExchField.Validate("Data Exch. No.", DataExch."Entry No.");
         DataExchField.Validate("Column No.", ColumnNo);
         DataExchField.Validate("Node ID", GetNodeID(CurrentNodeID, ParentNodeID));
@@ -748,7 +748,7 @@ codeunit 139156 "DataExch to Intermediate Table"
             GetDataExchangeFieldsWithValuesOnly(DataExch, DataExchLineDef, DataExchField);
             repeat
                 TempDataExchField := DataExchField;
-                TempDataExchField.Insert;
+                TempDataExchField.Insert();
             until DataExchField.Next = 0;
         until DataExchLineDef.Next = 0;
     end;
@@ -767,11 +767,11 @@ codeunit 139156 "DataExch to Intermediate Table"
         TempReferenceDataExchField: Record "Data Exch. Field" temporary;
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
-        TempDataExchField.Reset;
+        TempDataExchField.Reset();
         TempDataExchField.FindSet;
         repeat
             TempReferenceDataExchField := TempDataExchField;
-            TempReferenceDataExchField.Insert;
+            TempReferenceDataExchField.Insert();
         until TempDataExchField.Next = 0;
 
         TempReferenceDataExchField.FindFirst;

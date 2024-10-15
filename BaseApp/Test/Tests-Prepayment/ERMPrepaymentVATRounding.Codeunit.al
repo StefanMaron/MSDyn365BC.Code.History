@@ -727,7 +727,7 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prepayment - VAT Rounding");
     end;
 
@@ -821,13 +821,13 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         if GenPostingSetup."Sales Prepayments Account" = '' then begin
             GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
             GenPostingSetup."Sales Prepayments Account" := GLAccount."No.";
-            GenPostingSetup.Modify;
+            GenPostingSetup.Modify();
         end else
             GLAccount.Get(GenPostingSetup."Sales Prepayments Account");
         if GLAccount."Gen. Prod. Posting Group" = '' then
             GLAccount."Gen. Prod. Posting Group" := SalesLine."Gen. Prod. Posting Group";
         GLAccount."VAT Prod. Posting Group" := SalesLine."VAT Prod. Posting Group";
-        GLAccount.Modify;
+        GLAccount.Modify();
         exit(GLAccount."No.");
     end;
 
@@ -840,13 +840,13 @@ codeunit 134104 "ERM Prepayment - VAT Rounding"
         if GenPostingSetup."Purch. Prepayments Account" = '' then begin
             GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
             GenPostingSetup."Purch. Prepayments Account" := GLAccount."No.";
-            GenPostingSetup.Modify;
+            GenPostingSetup.Modify();
         end else
             GLAccount.Get(GenPostingSetup."Purch. Prepayments Account");
         if GLAccount."Gen. Prod. Posting Group" = '' then
             GLAccount."Gen. Prod. Posting Group" := PurchLine."Gen. Prod. Posting Group";
         GLAccount."VAT Prod. Posting Group" := PurchLine."VAT Prod. Posting Group";
-        GLAccount.Modify;
+        GLAccount.Modify();
         exit(GLAccount."No.");
     end;
 

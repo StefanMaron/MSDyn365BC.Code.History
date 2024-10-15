@@ -50,9 +50,9 @@ table 362 "ECSL VAT Report Line"
         ECSLVATReportLineRelation: Record "ECSL VAT Report Line Relation";
     begin
         ECSLVATReportLineRelation.SetRange("ECSL Report No.", VATReportHeader."No.");
-        ECSLVATReportLineRelation.DeleteAll;
+        ECSLVATReportLineRelation.DeleteAll();
         ECSLVATReportLine.SetRange("Report No.", VATReportHeader."No.");
-        ECSLVATReportLine.DeleteAll;
+        ECSLVATReportLine.DeleteAll();
     end;
 }
 

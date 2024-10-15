@@ -582,7 +582,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Adjustment");
     end;
 
@@ -595,7 +595,7 @@ codeunit 137037 "SCM Inventory Adjustment"
             Clear(Item);
             CreateItem(Item, CostingMethod[Counter], '');
             TempItem := Item;
-            TempItem.Insert;
+            TempItem.Insert();
         end;
     end;
 
@@ -620,7 +620,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ProductionBOMLine: Record "Production BOM Line";
     begin
         // Random values not important.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         TempItem.FindSet;
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, TempItem."Base Unit of Measure");
         repeat
@@ -681,7 +681,7 @@ codeunit 137037 "SCM Inventory Adjustment"
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
-        TempItem.Reset;
+        TempItem.Reset();
         TempItem.SetRange("Costing Method", ItemCostingMethod);
         TempItem.FindFirst;
         ProductionBOMLine.SetRange("No.", TempItem."No.");
@@ -788,7 +788,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ActualCostAmountConsumption: Decimal;
     begin
         // Verify Cost Amount(Actual) after Adjustment from Item Ledger Entry.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SelectItemLedgerEntries(ItemLedgerEntry, DocumentNo, EntryType);
         repeat
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
@@ -819,7 +819,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate(Quantity, ItemJournalLine.Quantity + RandomConsumptionQty);  // Random values not important.
         ItemJournalLine.Modify(true);
-        ItemJournalLine.Reset;
+        ItemJournalLine.Reset();
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
         ItemJournalLine.FindSet;
@@ -842,7 +842,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ItemJournalLine.FindFirst;
         ItemJournalLine.Validate("Scrap Quantity", RandomScrapQty);  // Random values not important.
         ItemJournalLine.Modify(true);
-        ItemJournalLine.Reset;
+        ItemJournalLine.Reset();
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrderNo);
         ItemJournalLine.FindSet;

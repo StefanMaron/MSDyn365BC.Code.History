@@ -42,69 +42,31 @@ codeunit 1252 "Match Bank Rec. Lines"
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-        CheckLedgEntry: Record "Check Ledger Entry";
         BankAccEntrySetReconNo: Codeunit "Bank Acc. Entry Set Recon.-No.";
-        CheckEntrySetReconNo: Codeunit "Check Entry Set Recon.-No.";
     begin
-        if SelectedBankAccReconciliationLine.FindSet() then
+        if SelectedBankAccReconciliationLine.FindSet then
             repeat
                 BankAccReconciliationLine.Get(
                   SelectedBankAccReconciliationLine."Statement Type",
                   SelectedBankAccReconciliationLine."Bank Account No.",
                   SelectedBankAccReconciliationLine."Statement No.",
                   SelectedBankAccReconciliationLine."Statement Line No.");
+                BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
+                BankAccountLedgerEntry.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
+                BankAccountLedgerEntry.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
+                BankAccountLedgerEntry.SetRange(Open, true);
+                BankAccountLedgerEntry.SetRange("Statement Status", BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied");
+                if BankAccountLedgerEntry.FindSet then
+                    repeat
+                        BankAccEntrySetReconNo.RemoveApplication(BankAccountLedgerEntry);
+                    until BankAccountLedgerEntry.Next = 0;
+            until SelectedBankAccReconciliationLine.Next = 0;
 
-                case BankAccReconciliationLine.Type of
-                    BankAccReconciliationLine.Type::"Bank Account Ledger Entry":
-                        begin
-                            BankAccountLedgerEntry.SetCurrentKey("Bank Account No.", Open);
-                            BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
-                            BankAccountLedgerEntry.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
-                            BankAccountLedgerEntry.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
-                            BankAccountLedgerEntry.SetRange(Open, true);
-                            BankAccountLedgerEntry.SetRange("Statement Status", BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied");
-                            if BankAccountLedgerEntry.FindSet() then
-                                repeat
-                                    BankAccEntrySetReconNo.RemoveApplication(BankAccountLedgerEntry);
-                                until BankAccountLedgerEntry.Next() = 0;
-                        end;
-                    BankAccReconciliationLine.Type::"Check Ledger Entry":
-                        begin
-                            CheckLedgEntry.SetCurrentKey("Bank Account No.", Open);
-                            CheckLedgEntry.SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
-                            CheckLedgEntry.SetRange("Statement No.", BankAccReconciliationLine."Statement No.");
-                            CheckLedgEntry.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
-                            CheckLedgEntry.SetRange("Statement Status", CheckLedgEntry."Statement Status"::"Check Entry Applied");
-                            CheckLedgEntry.SetRange(Open, true);
-                            if CheckLedgEntry.FindSet() then
-                                repeat
-                                    CheckEntrySetReconNo.RemoveApplication(CheckLedgEntry);
-                                until CheckLedgEntry.Next() = 0;
-                        end;
-                end;
-            until SelectedBankAccReconciliationLine.Next() = 0;
-
-        if SelectedBankAccountLedgerEntry.FindSet() then
+        if SelectedBankAccountLedgerEntry.FindSet then
             repeat
-                case SelectedBankAccountLedgerEntry."Statement Status" of
-                    SelectedBankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied":
-                        begin
-                            BankAccountLedgerEntry.Get(SelectedBankAccountLedgerEntry."Entry No.");
-                            BankAccEntrySetReconNo.RemoveApplication(BankAccountLedgerEntry);
-                        end;
-                    SelectedBankAccountLedgerEntry."Statement Status"::"Check Entry Applied":
-                        begin
-                            CheckLedgEntry.Reset();
-                            CheckLedgEntry.SetCurrentKey("Bank Account Ledger Entry No.");
-                            CheckLedgEntry.SetRange("Bank Account Ledger Entry No.", SelectedBankAccountLedgerEntry."Entry No.");
-                            CheckLedgEntry.SetRange(Open, true);
-                            if CheckLedgEntry.FindSet() then
-                                repeat
-                                    CheckEntrySetReconNo.RemoveApplication(CheckLedgEntry);
-                                until CheckLedgEntry.Next() = 0;
-                        end;
-                end;
-            until SelectedBankAccountLedgerEntry.Next() = 0;
+                BankAccountLedgerEntry.Get(SelectedBankAccountLedgerEntry."Entry No.");
+                BankAccEntrySetReconNo.RemoveApplication(BankAccountLedgerEntry);
+            until SelectedBankAccountLedgerEntry.Next = 0;
     end;
 
     procedure MatchSingle(BankAccReconciliation: Record "Bank Acc. Reconciliation"; DateRange: Integer)

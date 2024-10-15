@@ -70,5 +70,12 @@ table 180 "G/L Account Where-Used"
     begin
         exit(StrSubstNo('%1 %2', "G/L Account No.", "G/L Account Name"));
     end;
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 }
 
