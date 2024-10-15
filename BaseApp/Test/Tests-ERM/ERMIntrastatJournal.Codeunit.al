@@ -1366,6 +1366,7 @@
     begin
         // [FEATURE] [UI]
         // [SCENARIO 384736] Stan can see the "Location Code" field in the Intrastat Journal page
+        // [SCENARIO 390312] Stan can see the "Partner VAT ID", "Country/Region of Origin Code" fields in the Intrastat Journal page
 
         Initialize();
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -1373,6 +1374,8 @@
         LibraryApplicationArea.EnableFoundationSetup();
         IntrastatJournal.OpenEdit();
         Assert.IsTrue(IntrastatJournal."Location Code".Visible, '');
+        Assert.IsTrue(IntrastatJournal."Partner VAT ID".Visible(), 'Partner VAT ID');
+        Assert.IsTrue(IntrastatJournal."Country/Region of Origin Code".Visible(), 'Country/Region of Origin Code');
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
@@ -2245,6 +2248,18 @@
         Assert.ExpectedError(IntrastatJnlBatch.FieldName("System 19 reported"));
     end;
 
+    [Test]
+    procedure TotalWeightRounding()
+    var
+        IntraJnlManagement: Codeunit IntraJnlManagement;
+    begin
+        // [FEATURE] [Intrastat] [Export] [UT]
+        // [SCENARIO 390312] Total Weight is rounded to integer
+        Assert.AreEqual(1, IntraJnlManagement.RoundTotalWeight(1), '');
+        Assert.AreEqual(1, IntraJnlManagement.RoundTotalWeight(1.123), '');
+        Assert.AreEqual(2, IntraJnlManagement.RoundTotalWeight(1.789), '');
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -2253,6 +2268,7 @@
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Intrastat Journal");
         LibraryVariableStorage.Clear;
         IntrastatSetup.DeleteAll();
+
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Intrastat Journal");
@@ -2317,9 +2333,9 @@
     local procedure CreateCountryRegion(var CountryRegion: Record "Country/Region"; IsEUCountry: Boolean)
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
-        CountryRegion.Validate("Intrastat Code", CountryRegion.Code);
+        CountryRegion.Validate("Intrastat Code", CopyStr(LibraryUtility.GenerateRandomAlphabeticText(3, 0), 1, 3));
         if IsEUCountry then
-            CountryRegion.Validate("EU Country/Region Code", CountryRegion.Code);
+            CountryRegion.Validate("EU Country/Region Code", CopyStr(LibraryUtility.GenerateRandomAlphabeticText(3, 0), 1, 3));
         CountryRegion.Modify(true);
     end;
 

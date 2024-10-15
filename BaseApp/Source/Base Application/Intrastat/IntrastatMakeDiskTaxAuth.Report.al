@@ -323,7 +323,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     XMLDOMManagement.AddElement(
                       ItemNode, 'Dim', DelChr("Tariff No.", '=', DelChr("Tariff No.", '=', '0123456789')), Namespace, DimNode);
                     XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXTGO');
-                    XMLDOMManagement.AddElement(ItemNode, 'Dim', Format(Round("Total Weight", 1), 0, 9), Namespace, DimNode);
+                    XMLDOMManagement.AddElement(
+                        ItemNode, 'Dim', Format(IntraJnlManagement.RoundTotalWeight("Total Weight"), 0, 9), Namespace, DimNode);
                     XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXWEIGHT');
                     XMLDOMManagement.AddElement(
                       ItemNode, 'Dim', Format(Round("No. of Supplementary Units"), 0, 9), Namespace, DimNode);

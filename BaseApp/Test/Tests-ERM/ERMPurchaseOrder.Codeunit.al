@@ -5826,9 +5826,34 @@
         // [SCENARIO 360476] No duplicate Comment Lines inserted
         Commit();
 
-        PurchCommentLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchCommentLine.SetRange("No.", PurchaseHeader."No.");
-        Assert.RecordCount(PurchCommentLine, 1);
+        VerifyCountPurchCommentLine(PurchaseHeader."Document Type", PurchaseHeader."No.", 10000);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure RecreatePurchCommentLineForPurchaseOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        // [FEATURE] [Purch Comment Line] [UT]
+        // [SCENARIO 399071] The Purch. Comment Lines must be copied after Purchase Lines have been recreated if Purchase Line No. < 10000
+        Initialize();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        CreateSimplePurchLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, 5000);
+        PurchaseLine.Validate("No.", LibraryInventory.CreateItemNo());
+        PurchaseLine.Validate(Quantity, 1);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.CreatePurchCommentLine(PurchCommentLine, "Purchase Document Type"::Order, PurchaseHeader."No.", PurchaseLine."Line No.");
+        LibraryPurchase.CreatePurchCommentLine(PurchCommentLine, "Purchase Document Type"::Order, PurchaseHeader."No.", 0);
+
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
+        Commit();
+
+        VerifyCountPurchCommentLine(PurchaseHeader."Document Type", PurchaseHeader."No.", 10000);
+        VerifyCountPurchCommentLine(PurchaseHeader."Document Type", PurchaseHeader."No.", 0);
     end;
 
     [Test]
@@ -6418,15 +6443,23 @@
     end;
 
     local procedure CreateSimplePurchLine(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type")
+    begin
+        CreateSimplePurchLine(PurchLine, PurchHeader, LineType, 0);
+    end;
+
+    local procedure CreateSimplePurchLine(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type"; LineNo: Integer)
     var
         RecRef: RecordRef;
     begin
         with PurchLine do begin
-            Init;
+            Init();
             Validate("Document Type", PurchHeader."Document Type");
             Validate("Document No.", PurchHeader."No.");
-            RecRef.GetTable(PurchLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
+            if LineNo = 0 then begin
+                RecRef.GetTable(PurchLine);
+                Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, PurchLine.FieldNo("Line No.")))
+            end else
+                Validate("Line No.", LineNo);
             Validate(Type, LineType);
             Insert(true);
         end;
@@ -8871,6 +8904,16 @@
         Assert.AreEqual(Resource."VAT Prod. Posting Group", PurchaseLine."VAT Prod. Posting Group", CopyFromResourceErr);
         Assert.IsFalse(PurchaseLine."Allow Item Charge Assignment", CopyFromResourceErr);
         Assert.AreEqual(Resource."Direct Unit Cost", PurchaseLine."Direct Unit Cost", CopyFromResourceErr);
+    end;
+
+    local procedure VerifyCountPurchCommentLine(DocumentType: Enum "Purchase Comment Document Type"; No: Code[20]; DocumentLineNo: Integer)
+    var
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        PurchCommentLine.SetRange("Document Type", DocumentType);
+        PurchCommentLine.SetRange("No.", No);
+        PurchCommentLine.SetRange("Document Line No.", DocumentLineNo);
+        Assert.RecordCount(PurchCommentLine, 1);
     end;
 
     local procedure MockPostedPurchaseInvoice(var PurchInvHeader: Record "Purch. Inv. Header"; PurchInvLine: Record "Purch. Inv. Line")
