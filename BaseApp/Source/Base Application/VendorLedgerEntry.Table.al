@@ -647,6 +647,10 @@ table 25 "Vendor Ledger Entry"
         key(Key18; "Document Type", "Due Date", Open)
         {
         }
+        key(Key25; "Vendor No.", "Posting Date", "Applies-to ID")
+        {
+            IncludedFields = "Currency Code", "Amount to Apply", Open;
+        }
     }
 
     fieldgroups

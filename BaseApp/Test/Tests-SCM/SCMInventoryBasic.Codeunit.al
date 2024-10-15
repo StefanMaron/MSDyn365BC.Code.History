@@ -1102,7 +1102,7 @@ codeunit 137280 "SCM Inventory Basic"
     end;
 
     [Test]
-    [HandlerFunctions('SelectItemTemplateHandler')]
+    [HandlerFunctions('SelectItemTemplateHandler,ConfirmHandler')]
     [TransactionModel(TransactionModel::AutoCommit)]
     [Scope('OnPrem')]
     procedure CreateItemFromItemTemplate()
@@ -1142,7 +1142,7 @@ codeunit 137280 "SCM Inventory Basic"
     end;
 
     [Test]
-    [HandlerFunctions('SelectItemTemplateHandler')]
+    [HandlerFunctions('SelectItemTemplateHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure CreateItemsFromItemTemplate()
     var
