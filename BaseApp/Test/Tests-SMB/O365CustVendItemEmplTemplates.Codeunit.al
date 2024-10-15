@@ -2949,6 +2949,47 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         VerifyItemDimensions(Database::Item, Item."No.", Database::"Item Templ.", ItemTempl.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTemplCreateItemFromNonstockUTWithItemTemplate()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        NonstockItem: Record "Nonstock Item";
+        CountryRegion: Record "Country/Region";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+        CatalogItemManagement: Codeunit "Catalog Item Management";
+    begin
+        // [SCENARIO 459688] Create Item from Catalog Item with Item Template where some fields are not applied to created item
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
+        UnbindSubscription(CustVendItemEmplTemplates);
+
+        // [GIVEN] Create Item Template with data
+        LibraryTemplates.CreateItemTemplateWithData(ItemTempl);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        ItemTempl.Validate("Tariff No.", LibraryUtility.GenerateGUID());
+        ItemTempl.Validate("Flushing Method", ItemTempl."Flushing Method"::"Pick + Forward");
+        Evaluate(ItemTempl."Safety Lead Time", '<2D>');
+        ItemTempl.Validate("Country/Region of Origin Code", CountryRegion.Code);
+        ItemTempl.Modify(true);
+
+        // [GIVEN] Create Nonstock item (Catalog Item)
+        CreateNonstockItem(NonstockItem, ItemTempl.Code);
+
+        // [WHEN] Create new Item
+        CatalogItemManagement.CreateItemFromNonstock(NonstockItem);
+        Item.Get(NonstockItem."Vendor Item No.");
+
+        // [VERIFY] Verify: Item inserted with data from template
+        VerifyItem(Item, ItemTempl);
+        Item.TestField("Tariff No.", ItemTempl."Tariff No.");
+        Item.TestField("Flushing Method", ItemTempl."Flushing Method");
+        Item.TestField("Safety Lead Time", ItemTempl."Safety Lead Time");
+        Item.TestField("Country/Region of Origin Code", ItemTempl."Country/Region of Origin Code");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Cust/Vend/Item/Empl Templates");

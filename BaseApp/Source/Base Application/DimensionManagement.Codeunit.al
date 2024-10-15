@@ -29,7 +29,7 @@
         DimValueMissingErr: Label '%1 %2 - %3 is missing.', Comment = '%1 = Dimension Value table caption, %2 = Dim Code, %3 = Dim Value';
         Text019: Label 'You have changed a dimension.\\Do you want to update the lines?';
         DimValueNotAllowedForAccountErr: Label 'Dimension value %1, %2 is not allowed for %3, %4.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption, %4 - account number.';
-        DimValueNotAllowedForAccountTypeErr: Label 'Dimension value %1 %2 is not allowed for account type %3.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption.';        
+        DimValueNotAllowedForAccountTypeErr: Label 'Dimension value %1 %2 is not allowed for account type %3.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption.';
         NoAllowedValuesSelectedErr: Label 'There are no allowed dimension values selected.';
         DefaultDimPrioritiesMissingLbl: Label 'Default Dimension Priorities are not defined for Source Code: %1.', Comment = '%1 = Source Code';
         HideNotificationTxt: Label 'Don''t show again';
@@ -955,9 +955,9 @@
             Type::"G/L Account":
                 exit(DATABASE::"G/L Account");
             else begin
-                    OnTypeToTableID2(TableID, Type);
-                    exit(TableID);
-                end;
+                OnTypeToTableID2(TableID, Type);
+                exit(TableID);
+            end;
         end;
     end;
 
@@ -2778,8 +2778,13 @@
 
     local procedure InitializeDefaultDimPrioritiesMissingNotification(SourceCode: Code[20])
     var
+        MyNotifications: Record "My Notifications";
         DefaultDimPrioritiesNotification: Notification;
     begin
+        if not MyNotifications.IsEnabled(InstructionMgt.GetDefaultDimPrioritiesNotificationId()) then
+            exit;
+        DefaultDimPrioritiesNotification.Id := InstructionMgt.GetDefaultDimPrioritiesNotificationId();
+        DefaultDimPrioritiesNotification.Recall();
         DefaultDimPrioritiesNotification.Message(StrSubstNo(DefaultDimPrioritiesMissingLbl, SourceCode));
         DefaultDimPrioritiesNotification.Scope := NotificationScope::LocalScope;
         DefaultDimPrioritiesNotification.SetData('SourceCode', SourceCode);
