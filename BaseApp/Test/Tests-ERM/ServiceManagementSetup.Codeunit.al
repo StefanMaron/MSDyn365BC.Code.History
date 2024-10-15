@@ -1492,6 +1492,45 @@ codeunit 136110 "Service Management Setup"
         ServiceOrder."No.".AssertEquals(NoSeriesLine."Last No. Used");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyContractGroupCodeAvailableOnAllServiceLedgerEntryAfter()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceHeader: Record "Service Header";
+        ContractGroup: Record "Contract Group";
+        SignServContractDoc: Codeunit SignServContractDoc;
+        LockOpenServContract: Codeunit "Lock-OpenServContract";
+    begin
+        // [SCENARIO 475360] Service - Contract group code not set in all Service Ledger Entries
+        Initialize();
+
+        // [GIVEN] Setup: Create Contract Group, and Service Contract
+        LibraryService.CreateContractGroup(ContractGroup);
+        CreateServiceContract(ServiceContractHeader, ServiceContractLine);
+
+        // [THEN] Update Service Contract also set Contract Group Code
+        UpdateServiceContractHeader(ServiceContractHeader, ContractGroup.Code);
+
+
+        // [THEN] Lock and Sign Service Contract
+        LockOpenServContract.LockServContract(ServiceContractHeader);
+        SignServContractDoc.SignContract(ServiceContractHeader);
+
+        // [GIVEN] Create and Post Service Order
+        CreateAndPostServiceOrderForItem(
+            ServiceHeader,
+            ServiceContractLine,
+            ServiceContractHeader."Customer No.",
+            ServiceContractHeader."Contract No.",
+            false);
+
+        // [VERIFY]: Verify COntract Group Code on Service Ledger Entries
+        VerifyContractGroupCodeOnServiceLedgerEntry(ServiceContractHeader."Contract No.", ContractGroup.Code);
+    end;
+
     local procedure CreateAndPostServiceOrderForResource(var ServiceHeader: Record "Service Header"; ServiceContractLine: Record "Service Contract Line"; CustomerNo: Code[20]; ContractNo: Code[20]; Invoice: Boolean)
     var
         ServiceItemLine: Record "Service Item Line";
@@ -1910,6 +1949,74 @@ codeunit 136110 "Service Management Setup"
         ServiceLine.TestField(Quantity, ServiceCost."Default Quantity");
         ServiceLine.TestField("Unit of Measure Code", ServiceCost."Unit of Measure Code");
         ServiceLine.TestField("Unit Cost (LCY)", ServiceCost."Default Unit Cost");
+    end;
+
+    local procedure UpdateServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header"; ContractGroupCode: Code[10])
+    begin
+        ServiceContractHeader.CalcFields("Calcd. Annual Amount");
+        ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
+        ServiceContractHeader.Validate("Starting Date", WorkDate());
+        ServiceContractHeader.Validate("Price Update Period", ServiceContractHeader."Service Period");
+        ServiceContractHeader.Validate("Contract Group Code", ContractGroupCode);
+        ServiceContractHeader.Modify(true);
+    end;
+
+    local procedure CreateAndPostServiceOrderForItem(var ServiceHeader: Record "Service Header"; ServiceContractLine: Record "Service Contract Line"; CustomerNo: Code[20]; ContractNo: Code[20]; Invoice: Boolean)
+    var
+        ServiceItemLine: Record "Service Item Line";
+    begin
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
+        ServiceHeader.Validate("Contract No.", ContractNo);
+        ServiceHeader.Modify(true);
+        CreateServiceItemLinesContract(ServiceItemLine, ServiceContractLine, ServiceHeader);
+        CreateServiceLinesForItem(ServiceHeader);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, Invoice);
+    end;
+
+    local procedure CreateServiceLinesForItem(ServiceHeader: Record "Service Header")
+    var
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+        ItemNo: Code[20];
+    begin
+        ServiceItemLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceItemLine.FindSet();
+        ItemNo := LibraryInventory.CreateItemNo();
+        repeat
+            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
+            ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+            ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
+            ServiceLine.Modify(true);
+        until ServiceItemLine.Next() = 0;
+    end;
+
+    local procedure VerifyContractGroupCodeOnServiceLedgerEntry(ContractNo: Code[20]; ContractGroupCode: Code[10])
+    var
+        ServiceLine: Record "Service Line";
+        ServiceLedgerEntry: Record "Service Ledger Entry";
+    begin
+        FindServiceLine(ServiceLine, ContractNo);
+
+        ServiceLedgerEntry.SetRange("Service Contract No.", ContractNo);
+        ServiceLedgerEntry.SetRange("Service Order No.", ServiceLine."Document No.");
+        ServiceLedgerEntry.FindSet();
+        repeat
+            Assert.AreEqual(ServiceLedgerEntry."Contract Group Code", ContractGroupCode, '');
+        until ServiceLedgerEntry.Next() = 0;
+    end;
+
+    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; ContractNo: Code[20])
+    var
+        ServiceHeader: Record "Service Header";
+    begin
+        ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Order);
+        ServiceHeader.SetRange("Contract No.", ContractNo);
+        ServiceHeader.FindLast();
+
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.FindSet();
     end;
 
     [ConfirmHandler]
