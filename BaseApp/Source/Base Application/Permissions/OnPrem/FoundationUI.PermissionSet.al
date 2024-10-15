@@ -102,9 +102,6 @@ permissionset 6946 "Foundation UI"
                   tabledata Opportunity = r,
                   tabledata "Opportunity Entry" = r,
                   tabledata "Order Promising Setup" = R,
-#if not CLEAN19
-                  tabledata "Outlook Synch. User Setup" = Rim,
-#endif
                   tabledata "Payment Registration Setup" = Rim,
                   tabledata "Picture Entity" = RIMD,
                   tabledata "Post Code" = Ri,
@@ -139,9 +136,6 @@ permissionset 6946 "Foundation UI"
                   tabledata "Trailing Sales Orders Setup" = RIm,
                   tabledata "Trial Balance Setup" = Rim,
                   tabledata "Troubleshooting Setup" = Rim,
-#if not CLEAN19
-                  tabledata "User Callouts" = RIMD,
-#endif
                   tabledata "User Setup" = Rim,
                   tabledata "User Time Register" = rim,
                   tabledata "Value Entry Relation" = Rimd,

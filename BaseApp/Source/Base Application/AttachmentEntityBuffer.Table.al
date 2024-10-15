@@ -16,12 +16,10 @@ table 5509 "Attachment Entity Buffer"
             Caption = 'File Name';
             DataClassification = SystemMetadata;
         }
-        field(6; Type; Option)
+        field(6; Type; Enum "Document Attachment File Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Image,PDF,Word,Excel,PowerPoint,Email,XML,Other';
-            OptionMembers = " ",Image,PDF,Word,Excel,PowerPoint,Email,XML,Other;
         }
         field(8; Content; BLOB)
         {
@@ -32,6 +30,11 @@ table 5509 "Attachment Entity Buffer"
         field(12; "Document Type"; Enum "Attachment Entity Buffer Document Type")
         {
             Caption = 'Document Type';
+            DataClassification = SystemMetadata;
+        }
+        field(13; "Attachment Type"; Enum "Attachment Entity Buffer Type")
+        {
+            Caption = 'Attachment Type';
             DataClassification = SystemMetadata;
         }
         field(8000; Id; Guid)
@@ -54,6 +57,21 @@ table 5509 "Attachment Entity Buffer"
             Caption = 'G/L Entry No.';
             DataClassification = SystemMetadata;
             TableRelation = "G/L Entry";
+        }
+        field(11; "Document Flow Purchase"; Boolean)
+        {
+            Caption = 'Flow to Purch. Trx';
+            DataClassification = SystemMetadata;
+        }
+        field(8012; "Document Flow Sales"; Boolean)
+        {
+            Caption = 'Flow to Sales Trx';
+            DataClassification = SystemMetadata;
+        }
+        field(8014; "Line No."; Integer)
+        {
+            Caption = 'Line No.';
+            DataClassification = SystemMetadata;
         }
     }
 

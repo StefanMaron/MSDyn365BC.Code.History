@@ -17,7 +17,7 @@ page 10607 "Regulatory Reporting Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description.';

@@ -29,7 +29,7 @@ page 10604 "VAT Periods"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the start month for the current VAT period.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the current VAT period.';

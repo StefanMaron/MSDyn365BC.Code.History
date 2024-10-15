@@ -16,7 +16,7 @@ page 15000027 "Payment Type Codes Abroad"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the payment type codes that have been set up.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the payment type code.';

@@ -47,7 +47,6 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [GIVEN] A customer not coupled to a CRM account
         Initialize();
         LibrarySales.CreateCustomer(Customer);
-        LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, DATABASE::Customer, Customer.RecordId);
         ConfirmStartCouplingReply := false;
 
         // [WHEN] Show CRM Entity is invoked
@@ -71,7 +70,6 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.RegisterTestTableConnection;
 
         LibrarySales.CreateCustomer(Customer);
-        LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, DATABASE::Customer, Customer.RecordId);
 
         ConfirmStartCouplingReply := true;
         CRMCouplingPageDoCancel := false;
@@ -92,7 +90,6 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.RegisterTestTableConnection;
 
         LibrarySales.CreateCustomer(Customer);
-        LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, DATABASE::Customer, Customer.RecordId);
 
         ConfirmStartCouplingReply := true;
         CRMCouplingPageDoCancel := true;
@@ -130,7 +127,6 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryCRMIntegration.RegisterTestTableConnection;
 
         LibrarySales.CreateCustomer(Customer);
-        LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, DATABASE::Customer, Customer.RecordId);
 
         ConfirmStartCouplingReply := true;
         asserterror CRMIntegrationManagement.ShowCRMEntityFromRecordID(Customer.RecordId);
@@ -1285,7 +1281,6 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [SCENARIO] IsRecordCoupledToCRM() fails if entity is not supported
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
-        LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, DATABASE::"Customer Bank Account", CustomerBankAccount.RecordId);
         asserterror RunHyperlinkTest(CustomerBankAccount.RecordId, DATABASE::"Customer Bank Account");
     end;
 
@@ -1298,7 +1293,6 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [FEATURE] [CRM Integration Management] [Customer]
         // [SCENARIO] IsRecordCoupledToCRM() returns TRUE if Customers are coupled
         LibrarySales.CreateCustomer(Customer);
-        LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, DATABASE::Customer, Customer.RecordId);
         RunHyperlinkTest(Customer.RecordId, DATABASE::Customer);
     end;
 
@@ -1311,7 +1305,6 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [FEATURE] [CRM Integration Management] [Salesperson]
         // [SCENARIO] IsRecordCoupledToCRM() returns TRUE if Salespersons are coupled
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, DATABASE::"Salesperson/Purchaser", SalespersonPurchaser.RecordId);
         RunHyperlinkTest(SalespersonPurchaser.RecordId, DATABASE::"Salesperson/Purchaser");
     end;
 
@@ -1325,7 +1318,6 @@ codeunit 139162 "CRM Integration Mgt Test"
         // [SCENARIO] IsRecordCoupledToCRM() returns TRUE if Contacts are coupled
         Contact.Init();
         Contact.Insert();
-        LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, DATABASE::Contact, Contact.RecordId);
         RunHyperlinkTest(Contact.RecordId, DATABASE::Contact);
     end;
 
@@ -2341,6 +2333,7 @@ codeunit 139162 "CRM Integration Mgt Test"
     local procedure Initialize(EnableExtendedPrice: Boolean)
     var
         MyNotifications: Record "My Notifications";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2349,8 +2342,12 @@ codeunit 139162 "CRM Integration Mgt Test"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"CRM Integration Mgt Test");
 
         LibraryPriceCalculation.DisableExtendedPriceCalculation();
-        if EnableExtendedPrice then
+        if EnableExtendedPrice then begin
             LibraryPriceCalculation.EnableExtendedPriceCalculation();
+            SalesReceivablesSetup.Get();
+            SalesReceivablesSetup."Default Price List Code" := LibraryUtility.GenerateGUID();
+            SalesReceivablesSetup.Modify();
+        end;
 
         LibraryApplicationArea.EnableFoundationSetup();
         LibraryCRMIntegration.ResetEnvironment;

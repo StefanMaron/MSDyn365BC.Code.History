@@ -403,9 +403,16 @@ codeunit 137630 "SCM Intercompany Item Ref."
 
     local procedure Initialize()
     var
+        ICSetup: Record "IC Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Intercompany Item Ref.");
+        if not ICSetup.Get() then begin
+            ICSetup.Init();
+            ICSetup.Insert();
+        end;
+        ICSetup."Auto. Send Transactions" := false;
+        ICSetup.Modify();
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
         Clear(ICInboxOutboxMgt);

@@ -19,7 +19,7 @@ page 15000002 "Remittance Payment Order"
                     Editable = false;
                     ToolTip = 'Specifies the internal ID of the payment order.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

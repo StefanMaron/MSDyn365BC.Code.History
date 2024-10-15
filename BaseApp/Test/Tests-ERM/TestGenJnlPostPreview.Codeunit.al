@@ -137,7 +137,11 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
           GenJournalLine."Account Type"::"G/L Account",
           GLAccount."No.", Amount);
 
+#if not CLEAN22
         GenJournalLine."IC Partner G/L Acc. No." := ICGLAccount."No.";
+#endif
+        GenJournalLine."IC Account Type" := "IC Journal Account Type"::"G/L Account";
+        GenJournalLine."IC Account No." := ICGLAccount."No.";
         GenJournalLine.Description := 'TEST';
         GenJournalLine.Modify();
 
@@ -703,8 +707,16 @@ codeunit 134760 "Test Gen. Jnl. Post Preview"
     end;
 
     local procedure Initialize()
+    var
+        ICSetup: Record "IC Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Gen. Jnl. Post Preview");
+        if not ICSetup.Get() then begin
+            ICSetup.Init();
+            ICSetup.Insert();
+        end;
+        ICSetup."Auto. Send Transactions" := false;
+        ICSetup.Modify();
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;

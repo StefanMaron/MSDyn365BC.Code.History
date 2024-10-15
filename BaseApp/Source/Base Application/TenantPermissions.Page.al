@@ -246,30 +246,6 @@ page 9850 "Tenant Permissions"
                 ObsoleteReason = 'The SmartList Designer is no longer available in Business Central.';
                 ObsoleteTag = '20.0';
 
-#if not CLEAN19
-                action("SmartList Designer Permissions")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'SmartList Permissions';
-                    Enabled = IsEmptyCurrentAppID and CanManageUsersOnTenant;
-                    Image = Permission;
-                    ToolTip = 'View or edit which query objects created by SmartList Designer users need to access, and setup the related permissions in permission sets that you can assign to the users of the database.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The SmartList Designer is no longer available in Business Central.';
-                    ObsoleteTag = '19.0';
-
-                    trigger OnAction()
-                    var
-                        DesignedQueryPermission: Record "Designed Query Permission";
-                    begin
-                        DesignedQueryPermission.SetRange("App ID", CurrentAppID);
-                        DesignedQueryPermission.SetRange("Role ID", CurrentRoleID);
-
-                        Page.Run(Page::"SmartList Permissions", DesignedQueryPermission);
-                    end;
-                }
-#endif
             }
         }
 #endif
@@ -615,23 +591,6 @@ page 9850 "Tenant Permissions"
                         FillTempPermissions();
                     end;
                 }
-#if not CLEAN19
-                action(FilterPermissionSet)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by AssistEdit trigger on the Permission Set field';
-                    ObsoleteTag = '19.0';
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Select Permission Set';
-                    Image = Filter;
-                    ToolTip = 'Specifies the filter of the permission sets that the object applies to.';
-
-                    trigger OnAction()
-                    begin
-                        SelectFilterSet();
-                    end;
-                }
-#endif
             }
             group("Code Coverage Actions")
             {
@@ -689,18 +648,12 @@ page 9850 "Tenant Permissions"
                 actionref(Stop_Promoted; Stop)
                 {
                 }
-#if not CLEAN19
-                actionref("SmartList Designer Permissions_Promoted"; "SmartList Designer Permissions")
+                actionref(IncludeExclude_Promoted; IncludeExclude)
                 {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The SmartList Designer is no longer available in Business Central.';
-                    ObsoleteTag = '19.0';
                 }
-#endif
-            }
-            group(Category_Report)
-            {
-                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+                actionref(AddRelatedTablesAction_Promoted; AddRelatedTablesAction)
+                {
+                }
             }
             group(Category_Category4)
             {
@@ -721,6 +674,10 @@ page 9850 "Tenant Permissions"
             group(Category_Category8)
             {
                 Caption = 'Execute', Comment = 'Generated from the PromotedActionCategories property index 7.';
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

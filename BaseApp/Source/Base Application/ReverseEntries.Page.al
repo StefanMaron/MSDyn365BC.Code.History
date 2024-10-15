@@ -58,7 +58,7 @@ page 179 "Reverse Entries"
                     Editable = false;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = DescriptionEditable;
@@ -152,7 +152,7 @@ page 179 "Reverse Entries"
                     Editable = false;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

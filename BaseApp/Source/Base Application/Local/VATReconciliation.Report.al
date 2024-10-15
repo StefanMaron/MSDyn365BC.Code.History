@@ -1,3 +1,4 @@
+#if not CLEAN22
 report 10630 "VAT Reconciliation"
 {
     DefaultLayout = RDLC;
@@ -5,6 +6,9 @@ report 10630 "VAT Reconciliation"
     ApplicationArea = Basic, Suite;
     Caption = 'VAT Reconciliation';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'This report is moved to W1, and renamed as VAT Reconciliation Report.';
 
     dataset
     {
@@ -190,6 +194,16 @@ report 10630 "VAT Reconciliation"
         actions
         {
         }
+
+        trigger OnOpenPage()
+        var
+            DeprecationNotification: Notification;
+            DeprecationMsg: Label 'This report will be removed in upcoming releases. Please use "VAT Reconciliation Report" instead.';
+        begin
+            DeprecationNotification.Message := DeprecationMsg;
+            DeprecationNotification.Scope := NotificationScope::LocalScope;
+            DeprecationNotification.Send();
+        end;
     }
 
     labels
@@ -225,4 +239,4 @@ report 10630 "VAT Reconciliation"
         PurchVATCaptionLbl: Label 'Purchase VAT';
         TotalCaptionLbl: Label 'Total';
 }
-
+#endif

@@ -128,7 +128,7 @@ report 10642 "Create Electronic Reminders"
     [Scope('OnPrem')]
     procedure InitLogInteraction()
     begin
-        LogInteraction := SegManagement.FindInteractTmplCode(8) <> '';
+        LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Rmdr.") <> '';
     end;
 }
 

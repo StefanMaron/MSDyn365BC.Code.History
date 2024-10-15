@@ -28,7 +28,7 @@ page 10602 "VAT Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how to test the general posting type when posting.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description.';

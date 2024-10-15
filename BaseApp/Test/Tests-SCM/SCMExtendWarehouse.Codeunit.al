@@ -3322,9 +3322,9 @@ codeunit 137030 "SCM Extend Warehouse"
         CreateRelProdOrderAndRefresh(ProductionOrder, ArrayOfItem[1]."No.", 10, Location.Code, ToBin.Code);
         SetBinCodeOnCompLines(ProductionOrder, FromBin);
 
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 20, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[5]."No.", 20, 20, 0, 0, Location.Code, FromBin.Code, 1);
 
         // Change bin of component
@@ -3345,9 +3345,9 @@ codeunit 137030 "SCM Extend Warehouse"
 
         RegisterInventoryMovement(Location);
 
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 20, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[5]."No.", 20, 20, 20, 20, Location.Code, ToBin.Code, 1);
 
         ExplodeAndPostOutputJournal(ArrayOfItem[1]."No.", ProductionOrder."No.");
@@ -3356,9 +3356,9 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
         ProductionOrder.Status := ProductionOrder.Status::Finished;
 
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[5]."No.", 0, 20, 20, 20, Location.Code, ToBin.Code, 1);
     end;
 
@@ -3400,7 +3400,7 @@ codeunit 137030 "SCM Extend Warehouse"
         CreateRelProdOrderAndRefresh(ProductionOrder, ParentItem."No.", 10, Location.Code, '');
         SetBinCodeOnCompLines(ProductionOrder, FromBin);
 
-        AssertProdOrderComponent(ProductionOrder, ChildItem."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ChildItem."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
 
         FindBin(ToBin, Location, true, 1);
         AddComponentToProdOrder(ProductionOrder, ChildItem."No.", 2, Location.Code, ToBin.Code, ChildItem."Flushing Method");
@@ -3450,7 +3450,7 @@ codeunit 137030 "SCM Extend Warehouse"
         SetBinCodeOnCompLines(ProductionOrder, FromBin);
 
         // validate component lines
-        AssertProdOrderComponent(ProductionOrder, ChildItem."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ChildItem."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
 
         FindBin(ToBin, Location, true, 1);
         AddComponentToProdOrder(ProductionOrder, ChildItem."No.", 2, Location.Code, ToBin.Code, ChildItem."Flushing Method");
@@ -3611,7 +3611,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
         ProductionOrder.Status := ProductionOrder.Status::Finished;
 
-        AssertProdOrderComponent(ProductionOrder, ChildItem."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 2);
+        AssertProdOrderComponent(ProductionOrder, ChildItem."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 2);
     end;
 
     [Test]
@@ -3696,8 +3696,8 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // Verify
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 20, 20, Location.Code, ToBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
     end;
 
     [Test]
@@ -3791,7 +3791,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Assert comp on finished prod order
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 20, 20, Location.Code, ToBin.Code, 1);
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
     end;
 
     [Test]
@@ -3843,8 +3843,8 @@ codeunit 137030 "SCM Extend Warehouse"
         SetBinCodeOnCompLines(ProductionOrder, FromBin);
 
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 20, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
 
         // step 4 changing Bin of CHILD
         FindComponent(ProdOrderComponent, ProductionOrder, ArrayOfItem[2], 1);
@@ -3871,8 +3871,8 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // Assert comp lines
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 20, 20, 20, 20, Location.Code, ToBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
 
         // Post output and consumption
         ExplodeAndPostOutputJournal(ArrayOfItem[1]."No.", ProductionOrder."No.");
@@ -3884,8 +3884,8 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // Assert comp on finished prod order
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 20, 20, Location.Code, ToBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
     end;
 
     [Test]
@@ -3937,8 +3937,8 @@ codeunit 137030 "SCM Extend Warehouse"
         SetBinCodeOnCompLines(ProductionOrder, FromBin);
 
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 20, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
 
         // step 4 changing Bin of CHILD
         FindComponent(ProdOrderComponent, ProductionOrder, ArrayOfItem[2], 1);
@@ -3965,8 +3965,8 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // Assert comp lines
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 20, 20, 20, 20, Location.Code, ToBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
 
         // Post output and consumption
         ExplodeAndPostOutputJournal(ArrayOfItem[1]."No.", ProductionOrder."No.");
@@ -3978,8 +3978,8 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // Assert comp on finished prod order
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 20, 20, Location.Code, ToBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
     end;
 
     [Test]
@@ -4072,8 +4072,8 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // Assert comp on finished prod order
         AssertProdOrderComponent(ProductionOrder, ArrayOfItem[2]."No.", 0, 20, 20, 20, Location.Code, ToBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
-        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 0, 0, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[3]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ArrayOfItem[4]."No.", 0, 20, 20, 20, Location.Code, FromBin.Code, 1);
     end;
 
     [Test]
@@ -7292,7 +7292,7 @@ codeunit 137030 "SCM Extend Warehouse"
         FromBin: array[2] of Record Bin;
         OSFBBin: array[2] of Record Bin;
     begin
-        // [SCENARIO 454689] Verify Bin Code is not updated on Prod. Order Component on update Bin Code on Routing Line
+        // [SCENARIO 454691] Verify Bin Code is not updated on Prod. Order Component on update Bin Code on Routing Line
         // [GIVEN]
         Initialize();
 
@@ -7323,6 +7323,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // [GIVEN] Set Bins on Machine Centers
         SetBinsOnMC(MachineCenter[1], ToBin[1].Code, FromBin[1].Code, OSFBBin[1].Code);
         SetBinsOnMC(MachineCenter[2], ToBin[2].Code, FromBin[2].Code, OSFBBin[2].Code);
+
         FindChild(ParentItem, ChildItem1, 1);
         FindChild(ParentItem, ChildItem2, 2);
 

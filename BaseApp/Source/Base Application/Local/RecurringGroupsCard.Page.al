@@ -16,7 +16,7 @@ page 15000300 "Recurring Groups Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code to identify the recurring group.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description to identify the recurring group.';

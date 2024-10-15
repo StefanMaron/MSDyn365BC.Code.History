@@ -25,7 +25,7 @@ page 15000010 "Remittance Agreement Overview"
                         FeatureTelemetry.LogUptake('1000HU2', NORemittanceAgreementTok, Enum::"Feature Uptake Status"::"Set up");
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the remittance agreement.';

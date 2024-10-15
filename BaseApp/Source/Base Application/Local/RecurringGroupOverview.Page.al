@@ -20,7 +20,7 @@ page 15000301 "Recurring Group Overview"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code to identify the recurring group.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description to identify the recurring group.';

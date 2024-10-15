@@ -2,7 +2,6 @@ codeunit 137274 "Item Jnl. Error Handling"
 {
     Subtype = Test;
     TestPermissions = Disabled;
-    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -16,8 +15,6 @@ codeunit 137274 "Item Jnl. Error Handling"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         TestFieldMustHaveValueErr: Label '%1 must have a value', Comment = '%1 - field caption';
-        BackgroundErrorCheckFeatureEnabled: Boolean;
-        DisabledFeatureErr: Label 'Enabled must be equal to ''All Users''  in Feature Key: ID=DocumentJournalBackgroundCheck';
         IsInitialized: Boolean;
 
     [Test]
@@ -523,25 +520,8 @@ codeunit 137274 "Item Jnl. Error Handling"
         ErrorHandlingParameters."Previous Line No." := PreviosLineNo;
     end;
 
-    procedure EnableFeature()
-    begin
-        BackgroundErrorCheckFeatureEnabled := true;
-    end;
-
-    local procedure EnableFeature(var ItemJnlErrorHandling: codeunit "Item Jnl. Error Handling")
-    begin
-        BindSubscription(ItemJnlErrorHandling);
-        ItemJnlErrorHandling.EnableFeature();
-    end;
-
     local procedure VerifyErrorMessageText(ActualText: Text; ExpectedText: Text)
     begin
         Assert.IsSubstring(ActualText, ExpectedText);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Background Error Handling Mgt.", 'OnAfterIsEnabled', '', false, false)]
-    local procedure OnAfterIsEnabled(var Result: Boolean);
-    begin
-        Result := BackgroundErrorCheckFeatureEnabled;
     end;
 }

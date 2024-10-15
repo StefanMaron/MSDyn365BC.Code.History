@@ -16,7 +16,7 @@ page 15000007 "Remittance Agreement Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a unique ID for the remittance agreement.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the remittance agreement.';

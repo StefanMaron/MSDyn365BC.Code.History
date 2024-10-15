@@ -20,7 +20,7 @@ page 345 Reconciliation
                     Caption = 'Account';
                     ToolTip = 'Specifies the bank account that is being reconciled.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the record.';

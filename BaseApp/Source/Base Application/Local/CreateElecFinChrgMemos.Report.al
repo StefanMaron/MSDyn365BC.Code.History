@@ -128,7 +128,7 @@ report 10643 "Create Elec. Fin. Chrg. Memos"
     [Scope('OnPrem')]
     procedure InitLogInteraction()
     begin
-        LogInteraction := SegManagement.FindInteractTmplCode(19) <> '';
+        LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Finance Charge Memo") <> '';
     end;
 }
 

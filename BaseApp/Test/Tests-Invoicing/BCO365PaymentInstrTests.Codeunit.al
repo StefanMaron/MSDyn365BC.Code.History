@@ -104,10 +104,6 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         // [THEN] The sent invoice references the updated default payment Instructions
         BCO365PostedSalesInvoice.OpenEdit;
         BCO365PostedSalesInvoice.GotoKey(PostedInvoiceNo);
-#if not CLEAN19
-        Assert.AreEqual(
-          NewPaymentDetailName, BCO365PostedSalesInvoice."Payment Instructions Name".Value, 'Wrong payment detail name on draft invoice');
-#endif
         BCO365PostedSalesInvoice.Close();
 
         // [WHEN] The posted invoice is being saved to XML
@@ -163,10 +159,6 @@ codeunit 138962 "BC O365 Payment Instr. Tests"
         // [THEN] The sent invoice references the updated default payment Instructions
         BCO365PostedSalesInvoice.OpenEdit;
         BCO365PostedSalesInvoice.GotoKey(PostedInvoiceNo);
-#if not CLEAN19
-        Assert.AreEqual(
-          NewPaymentDetailName, BCO365PostedSalesInvoice."Payment Instructions Name".Value, 'Wrong payment detail name on draft invoice');
-#endif
         BCO365PostedSalesInvoice.Close();
 
         // [WHEN] The posted invoice is being saved to XML

@@ -54,7 +54,7 @@ page 15000005 "Waiting Journal"
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the waiting journal.';
@@ -71,7 +71,7 @@ page 15000005 "Waiting Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the currency associated with the waiting journal.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the waiting journal.';

@@ -23,7 +23,7 @@ page 10698 "VAT Notes"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a values that will be used for the electronic VAT return submission.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description.';

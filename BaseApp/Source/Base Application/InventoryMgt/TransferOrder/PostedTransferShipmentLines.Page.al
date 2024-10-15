@@ -1,0 +1,155 @@
+page 5758 "Posted Transfer Shipment Lines"
+{
+    Caption = 'Posted Transfer Shipment Lines';
+    Editable = false;
+    PageType = List;
+    SourceTable = "Transfer Shipment Line";
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Control1)
+            {
+                ShowCaption = false;
+                field("Document No."; Rec."Document No.")
+                {
+                    ApplicationArea = Location;
+                    HideValue = DocumentNoHideValue;
+                    StyleExpr = 'Strong';
+                    ToolTip = 'Specifies the document number associated with this transfer line.';
+                }
+                field("Item No."; Rec."Item No.")
+                {
+                    ApplicationArea = Location;
+                    ToolTip = 'Specifies the number of the item that will be transferred.';
+                }
+                field(Description; Rec.Description)
+                {
+                    ApplicationArea = Location;
+                    ToolTip = 'Specifies a description of the entry.';
+                }
+                field(Quantity; Rec.Quantity)
+                {
+                    ApplicationArea = Location;
+                    ToolTip = 'Specifies the quantity of the item specified on the line.';
+                }
+                field("Unit of Measure"; Rec."Unit of Measure")
+                {
+                    ApplicationArea = Location;
+                    ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
+                }
+                field("Shipment Date"; Rec."Shipment Date")
+                {
+                    ApplicationArea = Location;
+                    ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
+                }
+            }
+        }
+        area(factboxes)
+        {
+            systempart(Control1900383207; Links)
+            {
+                ApplicationArea = RecordLinks;
+                Visible = false;
+            }
+            systempart(Control1905767507; Notes)
+            {
+                ApplicationArea = Notes;
+                Visible = false;
+            }
+        }
+    }
+
+    actions
+    {
+        area(navigation)
+        {
+            group("&Line")
+            {
+                Caption = '&Line';
+                Image = Line;
+                action("Show Document")
+                {
+                    ApplicationArea = Location;
+                    Caption = 'Show Document';
+                    Image = View;
+                    ShortCutKey = 'Shift+F7';
+                    ToolTip = 'Open the document that the selected line exists on.';
+
+                    trigger OnAction()
+                    var
+                        TransShptHeader: Record "Transfer Shipment Header";
+                    begin
+                        TransShptHeader.Get("Document No.");
+                        PAGE.Run(PAGE::"Posted Transfer Shipment", TransShptHeader);
+                    end;
+                }
+                action(Dimensions)
+                {
+                    AccessByPermission = TableData Dimension = R;
+                    ApplicationArea = Dimensions;
+                    Caption = 'Dimensions';
+                    Image = Dimensions;
+                    ShortCutKey = 'Alt+D';
+                    ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
+
+                    trigger OnAction()
+                    begin
+                        ShowDimensions();
+                    end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Show Document_Promoted"; "Show Document")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        DocumentNoHideValue := false;
+        DocumentNoOnFormat();
+    end;
+
+    var
+        TempTransShptLine: Record "Transfer Shipment Line" temporary;
+        [InDataSet]
+        DocumentNoHideValue: Boolean;
+
+    local procedure IsFirstLine(DocNo: Code[20]; LineNo: Integer): Boolean
+    var
+        TransShptLine: Record "Transfer Shipment Line";
+    begin
+        TempTransShptLine.Reset();
+        TempTransShptLine.CopyFilters(Rec);
+        TempTransShptLine.SetRange("Document No.", DocNo);
+        if not TempTransShptLine.FindFirst() then begin
+            TransShptLine.CopyFilters(Rec);
+            TransShptLine.SetRange("Document No.", DocNo);
+            TransShptLine.FindFirst();
+            TempTransShptLine := TransShptLine;
+            TempTransShptLine.Insert();
+        end;
+        if TempTransShptLine."Line No." = LineNo then
+            exit(true);
+    end;
+
+    local procedure DocumentNoOnFormat()
+    begin
+        if not IsFirstLine("Document No.", "Line No.") then
+            DocumentNoHideValue := true;
+    end;
+}
+

@@ -21,12 +21,12 @@ page 15000006 "Remittance Account Overview"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the remittance account.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the remittance account.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment type.';

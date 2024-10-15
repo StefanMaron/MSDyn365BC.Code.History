@@ -2017,8 +2017,1378 @@ codeunit 137407 "SCM Warehouse IV"
         VerifyWhseActivityLinesSortedByActionType(WarehouseActivityHeader);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerEnqueueQuestion')]
+    procedure TestItemJnlPostWithProhibitBinCapacityPolicy()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemJnlPost: Codeunit "Item Jnl.-Post";
+        ItemJournal: TestPage "Item Journal";
+    begin
+        // [FEATURE] [Item Journal] [Bin Capacity] [Prohibit]
+        // [SCENARIO ] Item Journal Line that violates Bin Capacity behavior is based on the Bin Capacity Policy on Location.
+        Initialize();
+
+        // [GIVEN] Location with 'Bin Capacity Policy' as 'Prohibit More Than Mac. Cap.'
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Bin Capacity Policy", Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.");
+        Location.Modify(true);
+
+        // [GIVEN] Add bin and define capacity on weight
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        Bin.Validate("Maximum Weight", 10);
+        Bin.Modify(true);
+
+        // [GIVEN] Create Item and set UOM that has weight defined on it.
+        LibraryInventory.CreateItem(Item);
+        ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        ItemUnitOfMeasure.Validate(Weight, 2);
+        ItemUnitOfMeasure.Modify(true);
+
+        // [GIVEN] Create Item Journal Line.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location.Code, Bin.Code, 2);
+
+        // [WHEN] Item Journal Line violates the Bin Capacity
+        ItemJournal.OpenEdit();
+        ItemJournal.GoToRecord(ItemJournalLine);
+        LibraryVariableStorage.Enqueue(true);
+        ItemJournal.Quantity.SetValue(10);
+        ItemJournal.Close();
+
+        // [THEN] Confirmation is shown informing about Bin Capacity violation(overflow) and user can confirm
+        Assert.ExpectedConfirm('Weight to place', LibraryVariableStorage.DequeueText());
+
+        // [WHEN] Item Journal is posted
+        ItemJournalLine.Find();
+        LibraryVariableStorage.Enqueue(true); // Do you want to post journal?
+        asserterror ItemJnlPost.Run(ItemJournalLine);
+
+        // [WHEN] Error is thrown
+        Assert.ExpectedError('Weight to place');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerEnqueueQuestion,MessageHandler')]
+    procedure TestItemJnlPostWithAllowBinCapacityPolicy()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemJnlPost: Codeunit "Item Jnl.-Post";
+        ItemJournal: TestPage "Item Journal";
+    begin
+        // [FEATURE] [Item Journal] [Bin Capacity] [Allow]
+        // [SCENARIO ] Item Journal Line that violates Bin Capacity behavior is based on the Bin Capacity Policy on Location.
+        Initialize();
+
+        // [GIVEN] Location with 'Bin Capacity Policy' as 'Allow More Than Max. Capacity'
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Bin Capacity Policy", Location."Bin Capacity Policy"::"Allow More Than Max. Capacity");
+        Location.Modify(true);
+
+        // [GIVEN] Add bin and define capacity on weight
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        Bin.Validate("Maximum Weight", 10);
+        Bin.Modify(true);
+
+        // [GIVEN] Create Item and set UOM that has weight defined on it.
+        LibraryInventory.CreateItem(Item);
+        ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        ItemUnitOfMeasure.Validate(Weight, 2);
+        ItemUnitOfMeasure.Modify(true);
+
+        // [GIVEN] Create Item Journal Line.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location.Code, Bin.Code, 2);
+
+        // [WHEN] Item Journal Line violates the Bin Capacity
+        ItemJournal.OpenEdit();
+        ItemJournal.GoToRecord(ItemJournalLine);
+        LibraryVariableStorage.Enqueue(true);
+        ItemJournal.Quantity.SetValue(10);
+        ItemJournal.Close();
+
+        // [THEN] Confirmation is shown informing about Bin Capacity violation(overflow) and user can confirm
+        Assert.ExpectedConfirm('Weight to place', LibraryVariableStorage.DequeueText());
+
+        // [WHEN] Item Journal is posted
+        ItemJournalLine.Find();
+        LibraryVariableStorage.Enqueue(true);// Do you want to post journal?
+        LibraryVariableStorage.Enqueue(true);// Weight to place.....?
+        ItemJnlPost.Run(ItemJournalLine);
+
+        // [WHEN] Error is not thrown
+        Assert.ExpectedConfirm('Do you want to', LibraryVariableStorage.DequeueText());
+        Assert.ExpectedConfirm('Weight to place', LibraryVariableStorage.DequeueText());
+        // No error is thrown
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerEnqueueQuestion,MessageHandler')]
+    procedure TestItemJnlPostWithNeverCheckBinCapacityPolicy()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemJnlPost: Codeunit "Item Jnl.-Post";
+        ItemJournal: TestPage "Item Journal";
+    begin
+        // [FEATURE] [Item Journal] [Bin Capacity] [Never Check]
+        // [SCENARIO ] Item Journal Line that violates Bin Capacity behavior is based on the Bin Capacity Policy on Location.
+        Initialize();
+
+        // [GIVEN] Location with 'Bin Capacity Policy' as 'Never Check Capacity'
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Bin Capacity Policy", Location."Bin Capacity Policy"::"Never Check Capacity");
+        Location.Modify(true);
+
+        // [GIVEN] Add bin and define capacity on weight
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        Bin.Validate("Maximum Weight", 10);
+        Bin.Modify(true);
+
+        // [GIVEN] Create Item and set UOM that has weight defined on it.
+        LibraryInventory.CreateItem(Item);
+        ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        ItemUnitOfMeasure.Validate(Weight, 2);
+        ItemUnitOfMeasure.Modify(true);
+
+        // [GIVEN] Create Item Journal Line.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location.Code, Bin.Code, 2);
+
+        // [WHEN] Item Journal Line violates the Bin Capacity
+        ItemJournal.OpenEdit();
+        ItemJournal.GoToRecord(ItemJournalLine);
+        //LibraryVariableStorage.Enqueue(true);
+        ItemJournal.Quantity.SetValue(10);
+        ItemJournal.Close();
+
+        // [WHEN] Item Journal is posted
+        ItemJournalLine.Find();
+        LibraryVariableStorage.Enqueue(true);// Do you want to post journal?
+        ItemJnlPost.Run(ItemJournalLine);
+
+        // [THEN] Error is not thrown
+        // No error is thrown
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerEnqueueQuestion')]
+    procedure TestWhseReceiptPostWithProhibitBinCapacityPolicy()
+    var
+        Location: Record Location;
+    begin
+        // Basic Warehouse
+        TestWhseReceiptPostWithProhibitBinCapacityPolicy(Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.", false);
+
+        // Advanced Warehouse
+        TestWhseReceiptPostWithProhibitBinCapacityPolicy(Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.", true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerEnqueueQuestion')]
+    procedure TestWhseReceiptPostWithAllowBinCapacityPolicy()
+    var
+        Location: Record Location;
+    begin
+        // Basic Warehouse
+        TestWhseReceiptPostWithProhibitBinCapacityPolicy(Location."Bin Capacity Policy"::"Allow More Than Max. Capacity", false);
+
+        // Advanced Warehouse
+        TestWhseReceiptPostWithProhibitBinCapacityPolicy(Location."Bin Capacity Policy"::"Allow More Than Max. Capacity", true);
+    end;
+
+    [Test]
+    procedure TestWhseReceiptPostWithNeverCheckBinCapacityPolicy()
+    var
+        Location: Record Location;
+    begin
+        // Basic Warehouse
+        TestWhseReceiptPostWithProhibitBinCapacityPolicy(Location."Bin Capacity Policy"::"Never Check Capacity", false);
+
+        // Advanced Warehouse
+        TestWhseReceiptPostWithProhibitBinCapacityPolicy(Location."Bin Capacity Policy"::"Never Check Capacity", true);
+    end;
+
+    procedure TestWhseReceiptPostWithProhibitBinCapacityPolicy(BinCapacityPolicy: Option "Never Check Capacity","Allow More Than Max. Capacity","Prohibit More Than Max. Cap."; IsAdvancedWarehouse: Boolean)
+    var
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: Record Bin;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        // [FEATURE] [Warehouse Receipt] [Bin Capacity Policy]
+        // [SCENARIO] Whse. Receipt creation and posting respects the 'Bin Capacity Policy'.
+        Initialize();
+
+        // [GIVEN] Location is created
+        if IsAdvancedWarehouse then begin
+            LibraryWarehouse.CreateFullWMSLocation(Location, 2);
+            LibraryWarehouse.FindZone(Zone, Location.Code, LibraryWarehouse.SelectBinType(true, false, false, false), false);
+            LibraryWarehouse.FindBin(Bin, Location.Code, Zone.Code, 1);
+        end else begin
+            LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+            Location.Validate("Require Receive", true);
+            Location.Validate("Bin Mandatory", true);
+            LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        end;
+
+        // [GIVEN] 'Bin Capacity Policy' is set
+        Location.Validate("Bin Capacity Policy", BinCapacityPolicy);
+        Location.Modify(true);
+
+        // [GIVEN] Max weight on the Bin is set
+        Bin.Validate("Maximum Weight", 10);
+        Bin.Modify(true);
+
+        // [GIVEN] Current user added as an warehouse employee
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Item with weight set on the unit of measure
+        LibraryInventory.CreateItem(Item);
+        ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        ItemUnitOfMeasure.Validate(Weight, 2);
+        ItemUnitOfMeasure.Modify(true);
+
+        // [GIVEN] Create Purchase Order that potentially will exceed the max. weight if the Bin is used and release the PO
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify();
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 10);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Whse. Receipt from the PO
+        if BinCapacityPolicy in [BinCapacityPolicy::"Prohibit More Than Max. Cap.", BinCapacityPolicy::"Allow More Than Max. Capacity"] then
+            LibraryVariableStorage.Enqueue(true);
+
+        // [WHEN] Warehouse Receipt is created 
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [THEN] Confirmation message is shown to the user warning about the exceeding weight
+        if BinCapacityPolicy in [BinCapacityPolicy::"Prohibit More Than Max. Cap.", BinCapacityPolicy::"Allow More Than Max. Capacity"] then
+            if IsAdvancedWarehouse then begin
+                Assert.ExpectedConfirm('Weight to place', LibraryVariableStorage.DequeueText());
+                LibraryVariableStorage.Enqueue(true);
+            end;
+
+        // [WHEN] Bin Code is selected 
+        WarehouseReceiptLine.SetRange("Source Document", WarehouseReceiptLine."Source Document"::"Purchase Order");
+        WarehouseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        WarehouseReceiptLine.FindFirst();
+        WarehouseReceiptLine.Validate("Zone Code", Bin."Zone Code");
+        WarehouseReceiptLine.Validate("Bin Code", Bin.Code);
+
+        // [THEN] Confirmation message is shown to the user warning about the exceeding weight
+        if BinCapacityPolicy in [BinCapacityPolicy::"Prohibit More Than Max. Cap.", BinCapacityPolicy::"Allow More Than Max. Capacity"] then
+            Assert.ExpectedConfirm('Weight to place', LibraryVariableStorage.DequeueText());
+        WarehouseReceiptLine.Modify(true);
+
+        case BinCapacityPolicy of
+            BinCapacityPolicy::"Prohibit More Than Max. Cap.":
+                begin
+                    // [WHEN] Warehouse receipt is posted
+                    asserterror PostWarehouseReceipt(PurchaseHeader."No.");
+
+                    // [THEN] Error is thrown
+                    Assert.ExpectedError('Weight to place');
+                end;
+            BinCapacityPolicy::"Allow More Than Max. Capacity":
+                begin
+                    LibraryVariableStorage.Enqueue(true);
+                    PostWarehouseReceipt(PurchaseHeader."No.");
+                end;
+            BinCapacityPolicy::"Never Check Capacity":
+                PostWarehouseReceipt(PurchaseHeader."No.");
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure TestInvPickPostWithProhibitBinCapacityPolicy()
+    var
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        // [FEATURE] [Warehouse Receipt] [Bin Capacity Policy]
+        // [SCENARIO] Taking things from bins for operations like Inventory picking should not perform bin capacity check.
+        Initialize();
+
+        // [GIVEN] Location is created
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Require Pick", true);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+
+        // [GIVEN] Current user added as an warehouse employee
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Item with weight set on the unit of measure
+        LibraryInventory.CreateItem(Item);
+        ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        ItemUnitOfMeasure.Validate(Weight, 10);
+        ItemUnitOfMeasure.Modify(true);
+
+        // [GIVEN] Item inventory that will exceed the bin capacity
+        CreateAndPostItemJournalLine(Item."No.", 50, Bin."Location Code", Bin.Code);
+
+        // [GIVEN] Create and release the Sales Order
+        LibrarySales.CreateSalesOrder(SalesHeader);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 10);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        SalesLine.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] 'Bin Capacity Policy' is set to Prohibit
+        Location.Validate("Bin Capacity Policy", Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.");
+        Location.Modify(true);
+
+        // [WHEN] Max weight on the Bin is set
+        Bin.Get(Bin."Location Code", Bin."Code");
+        Bin.Validate("Maximum Weight", 5);
+        Bin.Modify(true);
+
+        // [WHEN] Create Inventory Pick for the sales order and post
+        CreateAndPostInventoryPick(SalesHeader."No.", Location.Code, 10);
+
+        // [THEN] No Confirmation message is shown to the user about the bin capacity policy as it is a negative operation
+        // [THEN] No error in posting the inventory picks
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SpclEquipCodeFromSKUOnInvPutAwayLinesWhenLocSetToSKUItem()
+    var
+        Location: Record Location;
+        PurchaseLine: Record "Purchase Line";
+        Bin: Record Bin;
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        SKU: Record "Stockkeeping Unit";
+        Item: Record Item;
+        SpecialEquipment: Record "Special Equipment";
+        SKUCreationMethod: Option Location,Variant,"Location & Variant";
+    begin
+        // [FEATURE] [Inventory Put Away] [Special Equipment]
+        // [SCENARIO] Special Equipment Code is set on Inventory Put-Away lines according to SKU and Item.
+
+        // [GIVEN] Create Location with 'Bin Mandatory' and 'Require Put-away' set to true.
+        // [GIVEN] Set 'Special Equipment' to 'SKU/Item'.
+        Initialize();
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Special Equipment", Location."Special Equipment"::"According to SKU/Item");
+        Location.Modify();
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+
+        // [GIVEN] Item with special equipment code
+        LibraryInventory.CreateItem(Item);
+        SpecialEquipment.FindFirst();
+        Item.Validate("Special Equipment Code", SpecialEquipment.Code);
+        Item.Modify(true);
+
+        // [GIVEN] SKU with special equipment code
+        CreateStockkeepingUnit(Item."No.", Location.Code, '', SKUCreationMethod::Location, false);
+        SKU.Get(Location.Code, Item."No.", '');
+        SpecialEquipment.Next();
+        SKU.Validate("Special Equipment Code", SpecialEquipment.Code);
+        SKU.Modify();
+
+        // [GIVEN] Purchase order for the given item
+        CreateAndReleasePurchaseOrderWithItemTrackingLines(PurchaseLine, false, Item."No.", Location.Code, Bin.Code);
+
+        // [WHEN] Create Inventory Put Away
+        CreateInventoryPut(PurchaseLine, false, false, Location.Code);
+
+        // [THEN] SKU.'Special Equipment Code' is used for the PutAway lines
+        WarehouseActivityLine.SetRange("Source No.", PurchaseLine."Document No.");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Item No.", PurchaseLine."No.");
+        WarehouseActivityLine.TestField(Quantity, PurchaseLine.Quantity);
+        WarehouseActivityLine.TestField("Bin Code", Bin.Code);
+        WarehouseActivityLine.TestField("Special Equipment Code", SKU."Special Equipment Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SpclEquipCodeFromItemOnInvPutAwayLinesWhenLocSetToSKUItem()
+    var
+        Location: Record Location;
+        PurchaseLine: Record "Purchase Line";
+        Bin: Record Bin;
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Item: Record Item;
+        SpecialEquipment: Record "Special Equipment";
+    begin
+        // [FEATURE] [Inventory Put Away] [Special Equipment]
+        // [SCENARIO] Special Equipment Code is set on Inventory Put-Away lines according to SKU and Item.
+
+        // [GIVEN] Create Location with 'Bin Mandatory' and 'Require Put-away' set to true.
+        // [GIVEN] Set 'Special Equipment' to 'SKU/Item'.
+        Initialize();
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Special Equipment", Location."Special Equipment"::"According to SKU/Item");
+        Location.Modify();
+
+        // [GIVEN] Bin with special equipment code
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        SpecialEquipment.FindFirst();
+        Bin.Validate("Special Equipment Code", SpecialEquipment.Code);
+        Bin.Modify();
+
+        // [GIVEN] Item with special equipment code
+        LibraryInventory.CreateItem(Item);
+        SpecialEquipment.Next();
+        Item.Validate("Special Equipment Code", SpecialEquipment.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Purchase order for the given item
+        CreateAndReleasePurchaseOrderWithItemTrackingLines(PurchaseLine, false, Item."No.", Location.Code, Bin.Code);
+
+        // [WHEN] Create Inventory Put Away
+        CreateInventoryPut(PurchaseLine, false, false, Location.Code);
+
+        // [THEN] Item.'Special Equipment Code' is used for the PutAway lines
+        WarehouseActivityLine.SetRange("Source No.", PurchaseLine."Document No.");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Item No.", PurchaseLine."No.");
+        WarehouseActivityLine.TestField(Quantity, PurchaseLine.Quantity);
+        WarehouseActivityLine.TestField("Bin Code", Bin.Code);
+        WarehouseActivityLine.TestField("Special Equipment Code", Item."Special Equipment Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SpclEquipCodeFromBinOnInvPutAwayLinesWhenLocSetToSKUItem()
+    var
+        Location: Record Location;
+        PurchaseLine: Record "Purchase Line";
+        Bin: Record Bin;
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Item: Record Item;
+        SpecialEquipment: Record "Special Equipment";
+    begin
+        // [FEATURE] [Inventory Put Away] [Special Equipment]
+        // [SCENARIO] Special Equipment Code is set on Inventory Put-Away lines according to SKU and Item.
+
+        // [GIVEN] Create Location with 'Bin Mandatory' and 'Require Put-away' set to true.
+        // [GIVEN] Set 'Special Equipment' to 'SKU/Item'.
+        Initialize();
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Special Equipment", Location."Special Equipment"::"According to SKU/Item");
+        Location.Modify();
+
+        // [GIVEN] Bin with special equipment code
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        SpecialEquipment.FindFirst();
+        Bin.Validate("Special Equipment Code", SpecialEquipment.Code);
+        Bin.Modify();
+
+        // [GIVEN] Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Purchase order for the given item
+        CreateAndReleasePurchaseOrderWithItemTrackingLines(PurchaseLine, false, Item."No.", Location.Code, Bin.Code);
+
+        // [WHEN] Create Inventory Put Away
+        CreateInventoryPut(PurchaseLine, false, false, Location.Code);
+
+        // [THEN] Item.'Special Equipment Code' is used for the PutAway lines
+        WarehouseActivityLine.SetRange("Source No.", PurchaseLine."Document No.");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Item No.", PurchaseLine."No.");
+        WarehouseActivityLine.TestField(Quantity, PurchaseLine.Quantity);
+        WarehouseActivityLine.TestField("Bin Code", Bin.Code);
+        WarehouseActivityLine.TestField("Special Equipment Code", Bin."Special Equipment Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SpclEquipCodeFromBinOnInvPutAwayLinesWhenLocSetToBin()
+    var
+        Location: Record Location;
+        PurchaseLine: Record "Purchase Line";
+        Bin: Record Bin;
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Item: Record Item;
+        SpecialEquipment: Record "Special Equipment";
+    begin
+        // [FEATURE] [Inventory Put Away] [Special Equipment]
+        // [SCENARIO] Special Equipment Code is set on Inventory Put-Away lines according to Bin.
+
+        // [GIVEN] Create Location with 'Bin Mandatory' and 'Require Put-away' set to true.
+        // [GIVEN] Set 'Special Equipment' to 'Bin'.
+        Initialize();
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Special Equipment", Location."Special Equipment"::"According to Bin");
+        Location.Modify();
+
+        // [GIVEN] Bin with special equipment code
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        SpecialEquipment.FindFirst();
+        Bin.Validate("Special Equipment Code", SpecialEquipment.Code);
+        Bin.Modify();
+
+        // [GIVEN] Item with special equipment code
+        LibraryInventory.CreateItem(Item);
+        SpecialEquipment.Next();
+        Item.Validate("Special Equipment Code", SpecialEquipment.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Purchase order for the given item
+        CreateAndReleasePurchaseOrderWithItemTrackingLines(PurchaseLine, false, Item."No.", Location.Code, Bin.Code);
+
+        // [WHEN] Create Inventory Put Away
+        CreateInventoryPut(PurchaseLine, false, false, Location.Code);
+
+        // [THEN] Bin.'Special Equipment Code' is used for the PutAway lines
+        WarehouseActivityLine.SetRange("Source No.", PurchaseLine."Document No.");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Item No.", PurchaseLine."No.");
+        WarehouseActivityLine.TestField(Quantity, PurchaseLine.Quantity);
+        WarehouseActivityLine.TestField("Bin Code", Bin.Code);
+        WarehouseActivityLine.TestField("Special Equipment Code", Bin."Special Equipment Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SpclEquipCodeFromSKUOnInvPutAwayLinesWhenLocSetToBin()
+    var
+        Location: Record Location;
+        PurchaseLine: Record "Purchase Line";
+        Bin: Record Bin;
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Item: Record Item;
+        SpecialEquipment: Record "Special Equipment";
+        SKU: Record "Stockkeeping Unit";
+        SKUCreationMethod: Option Location,Variant,"Location & Variant";
+    begin
+        // [FEATURE] [Inventory Put Away] [Special Equipment]
+        // [SCENARIO] Special Equipment Code is set on Inventory Put-Away lines according to Bin.
+
+        // [GIVEN] Create Location with 'Bin Mandatory' and 'Require Put-away' set to true.
+        // [GIVEN] Set 'Special Equipment' to 'Bin'.
+        Initialize();
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Special Equipment", Location."Special Equipment"::"According to Bin");
+        Location.Modify();
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+
+        // [GIVEN] Item with special equipment code
+        LibraryInventory.CreateItem(Item);
+        SpecialEquipment.FindFirst();
+        Item.Validate("Special Equipment Code", SpecialEquipment.Code);
+        Item.Modify(true);
+
+        // [GIVEN] SKU with special equipment code
+        CreateStockkeepingUnit(Item."No.", Location.Code, '', SKUCreationMethod::Location, false);
+        SKU.Get(Location.Code, Item."No.", '');
+        SpecialEquipment.Next();
+        SKU.Validate("Special Equipment Code", SpecialEquipment.Code);
+        SKU.Modify();
+
+        // [GIVEN] Purchase order for the given item
+        CreateAndReleasePurchaseOrderWithItemTrackingLines(PurchaseLine, false, Item."No.", Location.Code, Bin.Code);
+
+        // [WHEN] Create Inventory Put Away
+        CreateInventoryPut(PurchaseLine, false, false, Location.Code);
+
+        // [THEN] SKU.'Special Equipment Code' is used for the PutAway lines
+        WarehouseActivityLine.SetRange("Source No.", PurchaseLine."Document No.");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Item No.", PurchaseLine."No.");
+        WarehouseActivityLine.TestField(Quantity, PurchaseLine.Quantity);
+        WarehouseActivityLine.TestField("Bin Code", Bin.Code);
+        WarehouseActivityLine.TestField("Special Equipment Code", SKU."Special Equipment Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SpclEquipCodeFromItemOnInvPutAwayLinesWhenLocSetToBin()
+    var
+        Location: Record Location;
+        PurchaseLine: Record "Purchase Line";
+        Bin: Record Bin;
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Item: Record Item;
+        SpecialEquipment: Record "Special Equipment";
+    begin
+        // [FEATURE] [Inventory Put Away] [Special Equipment]
+        // [SCENARIO] Special Equipment Code is set on Inventory Put-Away lines according to Bin.
+
+        // [GIVEN] Create Location with 'Bin Mandatory' and 'Require Put-away' set to true.
+        // [GIVEN] Set 'Special Equipment' to 'Bin'.
+        Initialize();
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Special Equipment", Location."Special Equipment"::"According to Bin");
+        Location.Modify();
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+
+        // [GIVEN] Item with special equipment code
+        LibraryInventory.CreateItem(Item);
+        SpecialEquipment.FindFirst();
+        Item.Validate("Special Equipment Code", SpecialEquipment.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Purchase order for the given item
+        CreateAndReleasePurchaseOrderWithItemTrackingLines(PurchaseLine, false, Item."No.", Location.Code, Bin.Code);
+
+        // [WHEN] Create Inventory Put Away
+        CreateInventoryPut(PurchaseLine, false, false, Location.Code);
+
+        // [THEN] Item.'Special Equipment Code' is used for the PutAway lines
+        WarehouseActivityLine.SetRange("Source No.", PurchaseLine."Document No.");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Item No.", PurchaseLine."No.");
+        WarehouseActivityLine.TestField(Quantity, PurchaseLine.Quantity);
+        WarehouseActivityLine.TestField("Bin Code", Bin.Code);
+        WarehouseActivityLine.TestField("Special Equipment Code", Item."Special Equipment Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SpclEquipCodeIsUpdatedOnValidateBinOnWhseActivityLine()
+    var
+        Location: Record Location;
+        PurchaseLine: Record "Purchase Line";
+        Bin1: Record Bin;
+        Bin2: Record Bin;
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Item: Record Item;
+        SpecialEquipment: Record "Special Equipment";
+    begin
+        // [FEATURE] [Inventory Put Away] [Special Equipment]
+        // [SCENARIO] Special Equipment Code is updated on validate of bin in warehouse activity line.
+
+        // [GIVEN] Create Item, Location with 'Bin Mandatory' and 'Require Put-away' set to true.
+        // [GIVEN] Set 'Special Equipment' to 'Bin'.
+        Initialize();
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Special Equipment", Location."Special Equipment"::"According to Bin");
+        Location.Modify();
+
+        // [GIVEN] Bin1 with special equipment code
+        LibraryWarehouse.CreateBin(Bin1, Location.Code, '', '', '');
+        SpecialEquipment.FindFirst();
+        Bin1.Validate("Special Equipment Code", SpecialEquipment.Code);
+        Bin1.Modify();
+
+        // [GIVEN] Bin2 with special equipment code
+        LibraryWarehouse.CreateBin(Bin2, Location.Code, '', '', '');
+        SpecialEquipment.Next();
+        Bin2.Validate("Special Equipment Code", SpecialEquipment.Code);
+        Bin2.Modify();
+
+        // [GIVEN] Purchase order for the given item
+        CreateAndReleasePurchaseOrderWithItemTrackingLines(PurchaseLine, false, Item."No.", Location.Code, Bin1.Code);
+
+        // [WHEN] Create Inventory Put Away
+        CreateInventoryPut(PurchaseLine, false, false, Location.Code);
+
+        // [THEN] Bin1.'Special Equipment Code' is used for the PutAway lines
+        WarehouseActivityLine.SetRange("Source No.", PurchaseLine."Document No.");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Item No.", PurchaseLine."No.");
+        WarehouseActivityLine.TestField(Quantity, PurchaseLine.Quantity);
+        WarehouseActivityLine.TestField("Bin Code", Bin1.Code);
+        WarehouseActivityLine.TestField("Special Equipment Code", Bin1."Special Equipment Code");
+
+        // [WHEN] Update Bin1 to Bin2 on warehouse activity line
+        WarehouseActivityLine.Validate("Bin Code", Bin2.Code);
+
+        // [THEN] Bin2.'Special Equipment Code' is used
+        WarehouseActivityLine.TestField("Special Equipment Code", Bin2."Special Equipment Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SpclEquipCodeOnPutawayLinesWhenLocSetToSKUItem()
+    var
+        Location: Record Location;
+        PurchaseLine: Record "Purchase Line";
+        Bin: Record Bin;
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        SpecialEquipmentCode: Code[10];
+    begin
+        // [FEATURE] [Warehouse Putaway] [Special Equipment]
+        // [SCENARIO] Special Equipment Code is set on Warehouse Putaway lines.
+
+        // [GIVEN] Create Warehouse with 'Bin Mandatory', 'Require Receive' and 'Require Put-away' set to true.
+        // [GIVEN] Set 'Special Equipment' to 'SKU/Item'.
+        Initialize();
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Require Receive", true);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Special Equipment", Location."Special Equipment"::"According to SKU/Item");
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        Location.Validate("Receipt Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create PO and Warehouse Rcpt.
+        // [WHEN] Regiter rcpt. to create putaway lines
+        CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseLine, Location.Code, SpecialEquipmentCode);
+
+        // [THEN] 'Special Equipment Code' is set correctly on the putaway lines.
+        WarehouseActivityLine.SetRange("Source No.", PurchaseLine."Document No.");
+        Assert.RecordCount(WarehouseActivityLine, 2);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Item No.", PurchaseLine."No.");
+        WarehouseActivityLine.TestField(Quantity, PurchaseLine.Quantity);
+        WarehouseActivityLine.TestField("Bin Code", Bin.Code);
+        WarehouseActivityLine.TestField("Special Equipment Code", SpecialEquipmentCode);
+
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.TestField("Item No.", PurchaseLine."No.");
+        WarehouseActivityLine.TestField(Quantity, PurchaseLine.Quantity);
+        WarehouseActivityLine.TestField("Bin Code", '');
+        WarehouseActivityLine.TestField("Special Equipment Code", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SpclEquipCodeOnPutawayLinesWhenLocSetToBin()
+    var
+        Location: Record Location;
+        PurchaseLine: Record "Purchase Line";
+        Bin: Record Bin;
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        SpecialEquipmentCode: Code[10];
+    begin
+        // [FEATURE] [Warehouse Putaway] [Special Equipment]
+        // [SCENARIO] Special Equipment Code is set on Warehouse Putaway lines.
+
+        // [GIVEN] Create Warehouse with 'Bin Mandatory', 'Require Receive' and 'Require Put-away' set to true.
+        // [GIVEN] Set 'Special Equipment' to 'Bin'.
+        Initialize();
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Require Receive", true);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Special Equipment", Location."Special Equipment"::"According to Bin");
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        Location.Validate("Receipt Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create PO and Warehouse Rcpt.
+        // [WHEN] Regiter rcpt. to create putaway lines
+        CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseLine, Location.Code, SpecialEquipmentCode);
+
+        // [THEN] 'Special Equipment Code' is set correctly on the putaway lines.
+        VerifyWarehouseActivityLine(PurchaseLine."Document No.", PurchaseLine."No.", PurchaseLine.Quantity, SpecialEquipmentCode);
+        WarehouseActivityLine.SetRange("Source No.", PurchaseLine."Document No.");
+        Assert.RecordCount(WarehouseActivityLine, 2);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Item No.", PurchaseLine."No.");
+        WarehouseActivityLine.TestField(Quantity, PurchaseLine.Quantity);
+        WarehouseActivityLine.TestField("Bin Code", Bin.Code);
+        WarehouseActivityLine.TestField("Special Equipment Code", SpecialEquipmentCode);
+
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.TestField("Item No.", PurchaseLine."No.");
+        WarehouseActivityLine.TestField(Quantity, PurchaseLine.Quantity);
+        WarehouseActivityLine.TestField("Bin Code", '');
+        WarehouseActivityLine.TestField("Special Equipment Code", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('WarehouseItemTrackingLinesHandler,ItemTrackingLinesHandler,ItemTrackingSummaryHandler')]
+    [Scope('OnPrem')]
+    procedure SpclEquipCodeOnPickLinesWhenLocSetToSKUItem()
+    var
+        SalesLine: Record "Sales Line";
+        Location: Record Location;
+        Item: Record Item;
+        SpecialEquipment: Record "Special Equipment";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // [FEATURE] [Warehouse Putaway] [Special Equipment]
+        // [SCENARIO] Special Equipment Code is set on Warehouse Pick lines.
+
+        // [GIVEN] Create and register Warehouse Journal Line with Item Tracking Lines. Calculate and post Warehouse Adjustment.
+        // [GIVEN] Setup Location Special Equipment policy to 'Acoring to SKU/Item' and set the special equipment code on item.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateWarehouseJournalLineWithItemTrackingLines(WarehouseJournalLine, WarehouseJournalLine."Entry Type"::"Positive Adjmt.");
+        Location.Get(WarehouseJournalLine."Location Code");
+        Location.Validate("Special Equipment", Location."Special Equipment"::"According to SKU/Item");
+        Location.Modify(true);
+        Item.Get(WarehouseJournalLine."Item No.");
+        SpecialEquipment.FindFirst();
+        Item.Validate("Special Equipment Code", SpecialEquipment.Code);
+        Item.Modify(true);
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", WarehouseJournalLine."Location Code",
+          true);
+        CalculateAndPostWarehouseAdjustment(WarehouseJournalLine."Item No.");
+
+        // [GIVEN] Create and release Warehouse Shipment from Sales Order.
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);
+        CreateAndReleaseSalesOrderWithItemTrackingLines(
+          SalesLine, true, WorkDate(), WarehouseJournalLine."Item No.", WarehouseJournalLine."Location Code", '', WarehouseJournalLine.Quantity);
+        CreateAndReleaseWarehouseShipmentFromSalesOrder(WarehouseShipmentHeader, SalesLine);
+
+        // [WHEN] Create Warehouse Pick.
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        // [THEN] Verify Warehouse Activity Line
+        VerifyWarehouseActivityLine(SalesLine."Document No.", SalesLine."No.", SalesLine.Quantity, Item."Special Equipment Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure BinCapacityViolationErrorThrownWhenPutAwayIsPostedWithPolicyAsProhibit()
+    var
+        Location: Record Location;
+        SetWhseClassCodeOnItem: Boolean;
+    begin
+        // [FEATURE] [Warehouse Putaway] [Bin Capacity] [Warehouse Class]
+        // [SCENARIO] Bin Capacity and Warehouse Class is checked while posting Inventory Putaway
+
+        // [WHEN] Inventory Putaway is posted where BinCapacity is set to Prohibit on Location and Warehouse Class is set on both bin and item
+        SetWhseClassCodeOnItem := true;
+
+        asserterror PostInvtPutawayWithWhseClassAndBinCapacity(Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.", SetWhseClassCodeOnItem);
+
+        // [THEN] Error is thrown for Bin Capacity violation
+        Assert.ExpectedError('Weight to place');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure WhseCalssViolationErrorThrownWhenPutAwayIsPostedWithWrongWhseClassCodeAnBinPolicyIsProhibit()
+    var
+        Location: Record Location;
+        SetWhseClassCodeOnItem: Boolean;
+    begin
+        // [FEATURE] [Warehouse Putaway] [Bin Capacity] [Warehouse Class]
+        // [SCENARIO] Bin Capacity and Warehouse Class is checked while posting Inventory Putaway
+
+        // [WHEN] Inventory Putaway is posted where BinCapacity is set to Prohibit on Location and Warehouse Class is not same on bin and item
+        SetWhseClassCodeOnItem := false;
+        asserterror PostInvtPutawayWithWhseClassAndBinCapacity(Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.", SetWhseClassCodeOnItem);
+
+        // [THEN] Error is thrown for Warehouse Class violation
+        Assert.ExpectedError('Warehouse Class Code');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure BinCapacityViolationErrorThrownWhenPutAwayIsPostedWithPolicyAsAllow()
+    var
+        Location: Record Location;
+        SetWhseClassCodeOnItem: Boolean;
+    begin
+        // [FEATURE] [Warehouse Putaway] [Bin Capacity] [Warehouse Class]
+        // [SCENARIO] Bin Capacity and Warehouse Class is checked while posting Inventory Putaway
+
+        // [WHEN] Inventory Putaway is posted where BinCapacity is set to Allow on Location and Warehouse Class is set on both bin and item
+        SetWhseClassCodeOnItem := true;
+        asserterror PostInvtPutawayWithWhseClassAndBinCapacity(Location."Bin Capacity Policy"::"Allow More Than Max. Capacity", SetWhseClassCodeOnItem);
+
+        // [THEN] Error is thrown for Bin Capacity violation
+        Assert.ExpectedError('Weight to place');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure WhseCalssViolationErrorThrownWhenPutAwayIsPostedWithWrongWhseClassCodeBinPolicyIsAllow()
+    var
+        Location: Record Location;
+        SetWhseClassCodeOnItem: Boolean;
+    begin
+        // [FEATURE] [Warehouse Putaway] [Bin Capacity] [Warehouse Class]
+        // [SCENARIO] Bin Capacity and Warehouse Class is checked while posting Inventory Putaway
+
+        // [WHEN] Inventory Putaway is posted where BinCapacity is set to Allow on Location and Warehouse Class is not same on bin and item
+        SetWhseClassCodeOnItem := false;
+        asserterror PostInvtPutawayWithWhseClassAndBinCapacity(Location."Bin Capacity Policy"::"Allow More Than Max. Capacity", SetWhseClassCodeOnItem);
+
+        // [THEN] Error is thrown for Warehouse Class violation
+        Assert.ExpectedError('Warehouse Class Code');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure WhseCalssViolationErrorThrownWhenPutAwayIsPostedWithWrongWhseClassCodeBinPolicyIsNeverCheck()
+    var
+        Location: Record Location;
+        SetWhseClassCodeOnItem: Boolean;
+    begin
+        // [FEATURE] [Warehouse Putaway] [Bin Capacity] [Warehouse Class]
+        // [SCENARIO] Bin Capacity and Warehouse Class is checked while posting Inventory Putaway
+
+        // [WHEN] Inventory Putaway is posted where BinCapacity is set to Never Check on Location and Warehouse Class is not same on bin and item
+        SetWhseClassCodeOnItem := false;
+        asserterror PostInvtPutawayWithWhseClassAndBinCapacity(Location."Bin Capacity Policy"::"Never Check Capacity", SetWhseClassCodeOnItem);
+
+        // [THEN] Error is thrown for Warehouse Class violation
+        Assert.ExpectedError('Warehouse Class Code');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure PutAwayIsPostedWithWhseClassCodeBinPolicyIsAllow()
+    var
+        Location: Record Location;
+        SetWhseClassCodeOnItem: Boolean;
+    begin
+        // [FEATURE] [Warehouse Putaway] [Bin Capacity] [Warehouse Class]
+        // [SCENARIO] Bin Capacity and Warehouse Class is checked while posting Inventory Putaway
+
+        // [WHEN] Inventory Putaway is posted where BinCapacity is set to Never Check on Location and Warehouse Class is set on both bin and item
+        SetWhseClassCodeOnItem := true;
+        PostInvtPutawayWithWhseClassAndBinCapacity(Location."Bin Capacity Policy"::"Never Check Capacity", SetWhseClassCodeOnItem);
+
+        // [THEN] Error is thrown for Warehouse Class or Bin Capacity violation        
+    end;
+
+    local procedure PostInvtPutawayWithWhseClassAndBinCapacity(BinCapacityPolicy: Option; SetWhseClassCodeOnItem: Boolean)
+    var
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: Record Bin;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        WarehouseClass: Record "Warehouse Class";
+    begin
+        // [FEATURE] [Warehouse Receipt] [Bin Capacity Policy]
+        // [SCENARIO] Whse. Receipt creation and posting respects the 'Bin Capacity Policy'.
+        Initialize();
+
+        // [GIVEN] Location is created
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Require Put-away", true);
+        Location.Validate("Require Receive", false);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Check Whse. Class", true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+
+        // [GIVEN] 'Bin Capacity Policy' is set
+        Location.Validate("Bin Capacity Policy", BinCapacityPolicy);
+        Location.Modify(true);
+
+        // [GIVEN] Warehouse Class
+        LibraryWarehouse.CreateWarehouseClass(WarehouseClass);
+        Bin.Validate("Warehouse Class Code", WarehouseClass.Code);
+
+        // [GIVEN] Max weight on the Bin is set
+        Bin.Validate("Maximum Weight", 10);
+        Bin.Modify(true);
+
+        // [GIVEN] Current user added as an warehouse employee
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Item with weight set on the unit of measure
+        LibraryInventory.CreateItem(Item);
+        if SetWhseClassCodeOnItem then begin
+            Item.Validate("Warehouse Class Code", WarehouseClass.Code);
+            Item.Modify(true);
+        end;
+        ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        ItemUnitOfMeasure.Validate(Weight, 2);
+        ItemUnitOfMeasure.Modify(true);
+
+        // [GIVEN] Create Purchase Order that potentially will exceed the max. weight if the Bin is used and release the PO
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify();
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 10);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine."Bin Code" := Bin.Code;
+        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Whse. Receipt from the PO
+        if BinCapacityPolicy in [Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.", Location."Bin Capacity Policy"::"Allow More Than Max. Capacity"] then
+            LibraryVariableStorage.Enqueue(true);
+        CreateInventoryPut(PurchaseLine, false, false, PurchaseLine."Location Code");
+        PostInventoryPut(PurchaseLine."Document No.");
+    end;
+
+    [Test]
+    procedure TestWhseClassCodeOnWhseReceiptLine()
+    begin
+        // [FEATURE] [Warehouse Receipt] [Warehouse Class]
+        // [SCENARIO] Whse. Receipt creation and posting respects the 'Warehouse Class'.
+
+        // Basic Warehouse, Same Whse. Class Code on both Item and Bin, Keep Zone Empty
+        TestWhseClassCodeOnWhseReceiptLine(false, 1, true);
+
+        // Advanced Warehouse, Same Whse. Class Code on both Item and Bin, Keep Zone Empty
+        TestWhseClassCodeOnWhseReceiptLine(true, 1, true);
+
+        // Basic Warehouse, Different Whse.lass Code on both Item and Bin, Keep Zone Empty
+        TestWhseClassCodeOnWhseReceiptLine(false, 2, true);
+
+        // Advanced Warehouse, Different Whse. Class Code on both Item and Bin, Keep Zone Empty
+        TestWhseClassCodeOnWhseReceiptLine(true, 2, true);
+
+        // Basic Warehouse, Whse. Class Code is empty on Bin, Keep Zone Empty
+        TestWhseClassCodeOnWhseReceiptLine(false, 3, true);
+
+        // Advanced Warehouse, Whse. Class Code is empty on Bin, Keep Zone Empty
+        TestWhseClassCodeOnWhseReceiptLine(true, 3, true);
+
+        // Basic Warehouse, Same Whse. Class Code on both Item and Bin, Set Zone
+        TestWhseClassCodeOnWhseReceiptLine(false, 1, false);
+
+        // Basic Warehouse, Dfferen Whse. Class Code on both Item and Bin, Set Zone
+        TestWhseClassCodeOnWhseReceiptLine(false, 2, false);
+
+        // Basic Warehouse, Whse. Class Code is empty on Bin, Set Zone
+        TestWhseClassCodeOnWhseReceiptLine(false, 3, false);
+    end;
+
+    local procedure TestWhseClassCodeOnWhseReceiptLine(IAdvancedWarehouse: Boolean; SetWhseClassCode: Option "Same on Item & Bin","Different on Item & Bin","Empty On Bin"; IsZoneEmpty: Boolean)
+    var
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: Record Bin;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseClass1: Record "Warehouse Class";
+        WarehouseClass2: Record "Warehouse Class";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Location is created
+        if IAdvancedWarehouse then
+            LibraryWarehouse.CreateFullWMSLocation(Location, 3)
+        else begin
+            LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+            Location.Validate("Require Receive", true);
+            Location.Validate("Bin Mandatory", true);
+            Location.Validate("Check Whse. Class", true);
+            if not IsZoneEmpty then
+                LibraryWarehouse.CreateZone(Zone, '', Location.Code, '', '', '', 0, false);
+            LibraryWarehouse.CreateBin(Bin, Location.Code, '', Zone.Code, '');
+            Location.Validate("Receipt Bin Code", Bin.Code);
+            Location.Modify(true);
+        end;
+
+        // [GIVEN] Warehouse classes are created
+        LibraryWarehouse.CreateWarehouseClass(WarehouseClass1);
+        LibraryWarehouse.CreateWarehouseClass(WarehouseClass2);
+
+        // [GIVEN] Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Set Warehouse Class
+        case SetWhseClassCode of
+            SetWhseClassCode::"Same on Item & Bin":
+                begin
+                    Bin.Get(Location.Code, Location."Receipt Bin Code");
+                    Bin.Validate("Warehouse Class Code", WarehouseClass1.Code);
+                    Bin.Modify(true);
+                    Item.Validate("Warehouse Class Code", WarehouseClass1.Code);
+                    Item.Modify(true);
+                end;
+            SetWhseClassCode::"Different on Item & Bin":
+                begin
+                    Bin.Get(Location.Code, Location."Receipt Bin Code");
+                    Bin.Validate("Warehouse Class Code", WarehouseClass1.Code);
+                    Bin.Modify(true);
+                    Item.Validate("Warehouse Class Code", WarehouseClass2.Code);
+                    Item.Modify(true);
+                end;
+            SetWhseClassCode::"Empty On Bin":
+                begin
+                    Item.Validate("Warehouse Class Code", WarehouseClass2.Code);
+                    Item.Modify(true);
+                end;
+        end;
+
+        // [GIVEN] Current user added as an warehouse employee
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create Purchase Order and release
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify();
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 10);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Warehouse Reeipt is created
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [THEN] Bin Code is set to '' if it does not match needed Warehouse class code
+        WarehouseReceiptLine.SetRange("Source Document", WarehouseReceiptLine."Source Document"::"Purchase Order");
+        WarehouseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        WarehouseReceiptLine.FindFirst();
+
+        case SetWhseClassCode of
+            SetWhseClassCode::"Same on Item & Bin":
+                WarehouseReceiptLine.TestField("Bin Code", Bin.Code);
+            SetWhseClassCode::"Different on Item & Bin":
+                WarehouseReceiptLine.TestField("Bin Code", '');
+            SetWhseClassCode::"Empty On Bin":
+                WarehouseReceiptLine.TestField("Bin Code", '');
+        end;
+    end;
+
+    [Test]
+    procedure ErrorWhenWrongWarehouseClassSetOnPurchaseLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CorrectBin: Record Bin;
+        WrongBin: Record Bin;
+    begin
+        // [FEATURE] [Purchase Line] [Warehouse Class]
+        // [SCENARIO] Purchase Line respects the 'Warehouse Class'.
+        WarehouseClassIsValidatedOnPurchaseLine(PurchaseHeader, PurchaseLine, CorrectBin, WrongBin);
+
+        asserterror PurchaseLine.Validate("Bin Code", WrongBin.Code);
+        Assert.ExpectedError('Warehouse Class Code');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure NoErrorWhenCorrectWarehouseClassSetOnPurchaseLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CorrectBin: Record Bin;
+        WrongBin: Record Bin;
+    begin
+        // [FEATURE] [Purchase Line] [Warehouse Class]
+        // [SCENARIO] Purchase Line respects the 'Warehouse Class'.
+        WarehouseClassIsValidatedOnPurchaseLine(PurchaseHeader, PurchaseLine, CorrectBin, WrongBin);
+
+        PurchaseLine.Validate("Bin Code", CorrectBin.Code);
+    end;
+
+    procedure WarehouseClassIsValidatedOnPurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var CorrectBin: Record Bin; var WrongBin: Record Bin)
+    var
+        Location: Record Location;
+        Item: Record Item;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseClass1: Record "Warehouse Class";
+        WarehouseClass2: Record "Warehouse Class";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        Initialize();
+
+        // [GIVEN] Location is created
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Require Receive", true);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Check Whse. Class", true);
+        Location.Modify(true);
+        LibraryWarehouse.CreateBin(WrongBin, Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(CorrectBin, Location.Code, '', '', '');
+
+        // [GIVEN] Warehouse classes are created
+        LibraryWarehouse.CreateWarehouseClass(WarehouseClass1);
+        LibraryWarehouse.CreateWarehouseClass(WarehouseClass2);
+
+        // [GIVEN] Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Set Warehouse Class
+        WrongBin.Validate("Warehouse Class Code", WarehouseClass1.Code);
+        WrongBin.Modify(true);
+        CorrectBin.Validate("Warehouse Class Code", WarehouseClass2.Code);
+        CorrectBin.Modify(true);
+        Item.Validate("Warehouse Class Code", WarehouseClass2.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Current user added as an warehouse employee
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create Purchase Order and release
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify();
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 10);
+        PurchaseLine.Validate("Location Code", Location.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerEnqueueQuestion')]
+    procedure ProhibitPolicyOnBinCapacityIsCheckedOnPurchasePost()
+    var
+        Location: Record Location;
+    begin
+        BinCapacityIsCheckedOnPurchasePost(Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerEnqueueQuestion')]
+    procedure AllowPolicyOnBinCapacityIsCheckedOnPurchasePost()
+    var
+        Location: Record Location;
+    begin
+        BinCapacityIsCheckedOnPurchasePost(Location."Bin Capacity Policy"::"Allow More Than Max. Capacity");
+    end;
+
+    [Test]
+    procedure NeverPolicyOnBinCapacityIsCheckedOnPurchasePost()
+    var
+        Location: Record Location;
+    begin
+        BinCapacityIsCheckedOnPurchasePost(Location."Bin Capacity Policy"::"Never Check Capacity");
+    end;
+
+    local procedure BinCapacityIsCheckedOnPurchasePost(BinCapacityPolicy: Option "Never Check Capacity","Allow More Than Max. Capacity","Prohibit More Than Max. Cap.");
+    var
+        Location: Record Location;
+        Item: Record Item;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Bin: Record Bin;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        Initialize();
+
+        // [GIVEN] Location is created and set Bin Capacity Policy
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Bin Capacity Policy", BinCapacityPolicy);
+        Location.Modify(true);
+
+        // [GIVEN] Create Bin and Max weight on the Bin is set
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+        Bin.Validate("Maximum Weight", 10);
+        Bin.Modify(true);
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+        ItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        ItemUnitOfMeasure.Validate(Weight, 2);
+        ItemUnitOfMeasure.Modify(true);
+
+        // [GIVEN] Current user added as an warehouse employee
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create Purchase Order and release
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify();
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 10);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        if BinCapacityPolicy = BinCapacityPolicy::"Never Check Capacity" then
+            PurchaseLine.validate("Bin Code", Bin.Code)
+        else begin
+            LibraryVariableStorage.Enqueue(true);
+            PurchaseLine.validate("Bin Code", Bin.Code);
+            Assert.ExpectedConfirm('Weight to place', LibraryVariableStorage.DequeueText());
+        end;
+
+        // [GIVEN] Set Qty. to Receive and Qty. to Invoice 
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity);
+        PurchaseLine.Validate("Qty. to Invoice", PurchaseLine.Quantity);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Purchase Order
+        case BinCapacityPolicy of
+            Location."Bin Capacity Policy"::"Never Check Capacity":
+                begin
+                    LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+                    // [THEN] Purchase Order is successfully posted
+                end;
+            Location."Bin Capacity Policy"::"Allow More Than Max. Capacity":
+                begin
+                    LibraryVariableStorage.Enqueue(true);
+                    LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+                    // [THEN] Bin Capacity violation confirmation is shown
+                    Assert.ExpectedConfirm('Weight to place', LibraryVariableStorage.DequeueText());
+                end;
+            Location."Bin Capacity Policy"::"Prohibit More Than Max. Cap.":
+                begin
+                    asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+                    // [THEN] Bin Capacity violation error is thrown
+                    Assert.ExpectedError('Weight to place');
+                end;
+        end;
+    end;
+
     local procedure Initialize()
     var
+        WarehouseSetup: Record "Warehouse Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse IV");
@@ -2039,6 +3409,9 @@ codeunit 137407 "SCM Warehouse IV"
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate("Receipt Posting Policy", WarehouseSetup."Receipt Posting Policy"::"Stop and show the first posting error");
+        WarehouseSetup.Modify();
         LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         NoSeriesSetup();
@@ -2188,6 +3561,24 @@ codeunit 137407 "SCM Warehouse IV"
         Item: Record Item;
     begin
         CreateAndReleasePurchaseOrderWithItemTrackingLines(PurchaseLine, false, LibraryInventory.CreateItem(Item), LocationCode, '');
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+        PostWarehouseReceipt(PurchaseHeader."No.");
+    end;
+
+    local procedure CreateAndPostWarehouseReceiptFromPurchaseOrder(var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]; var SpecialEquipmentCode: Code[10])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        SpecialEquipment: Record "Special Equipment";
+    begin
+        LibraryInventory.CreateItem(Item);
+        SpecialEquipment.FindFirst();
+        SpecialEquipmentCode := SpecialEquipment.Code;
+        Item.Validate("Special Equipment Code", SpecialEquipmentCode);
+        Item.Modify(true);
+
+        CreateAndReleasePurchaseOrderWithItemTrackingLines(PurchaseLine, false, Item."No.", LocationCode, '');
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         PostWarehouseReceipt(PurchaseHeader."No.");
@@ -3161,6 +4552,20 @@ codeunit 137407 "SCM Warehouse IV"
         until WarehouseActivityLine.Next() = 0;
     end;
 
+    local procedure VerifyWarehouseActivityLine(SourceNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; SpecialEquipmentCode: Code[10])
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.TestField("Item No.", ItemNo);
+            WarehouseActivityLine.TestField(Quantity, Quantity);
+            if WarehouseActivityLine."Bin Code" <> '' then
+                WarehouseActivityLine.TestField("Special Equipment Code", SpecialEquipmentCode);
+        until WarehouseActivityLine.Next() = 0;
+    end;
+
     local procedure VerifyWhseActivityLinesSortedByActionType(WarehouseActivityHeader: Record "Warehouse Activity Header")
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -3400,6 +4805,21 @@ codeunit 137407 "SCM Warehouse IV"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerEnqueueQuestion(Question: Text; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean();
+        LibraryVariableStorage.Enqueue(Question);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreatePutawayReportHandler(var CreateInvtPutawayPickMvmt: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreateInvtPutawayPickMvmt.CreateInventorytPutAway.SetValue(true);
+        CreateInvtPutawayPickMvmt.OK.Invoke;
     end;
 }
 

@@ -1,4 +1,4 @@
-codeunit 134986 "ERM Financial Reports II"
+﻿codeunit 134986 "ERM Financial Reports II"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -15,7 +15,7 @@ codeunit 134986 "ERM Financial Reports II"
         Assert: Codeunit Assert;
         LibrarySales: Codeunit "Library - Sales";
         ValidationErr: Label '%1 must be %2 in Report.';
-        WarningMsg: Label 'Statement Ending Balance is not equal to Total Balance.';
+        WarningMsg: Label 'Statement Ending Balance must be equal to Total Balance.';
         HeaderDimensionTxt: Label '%1 - %2';
         PostingGroupErr: Label 'The Customer Posting Group does not exist.';
         NoSeriesGapWarningMsg: Label 'There is a gap in the number series.';

@@ -21,12 +21,12 @@ page 15000004 "Remittance Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the remittance agreement.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment type.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the remittance account.';

@@ -1369,20 +1369,5 @@ codeunit 136450 "Attachment Storage Type"
         BindSubscription(ActiveDirectoryMockEvents);
         ActiveDirectoryMockEvents.Enable();
     end;
-
-#if not CLEAN19
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WordManagement", 'OnFindActiveSubscriber', '', false, false)]
-    procedure OnFindActiveSubscriberWordManagement(var IsFound: Boolean)
-    var
-        DataTypeBuffer: Record "Data Type Buffer";
-    begin
-        if DataTypeBuffer.FindLast() then;
-        DataTypeBuffer.ID := DataTypeBuffer.ID + 1;
-        DataTypeBuffer.Boolean := IsFound;
-        DataTypeBuffer.Insert();
-        Commit();
-        IsFound := IsFound;
-    end;
-#endif
 }
 
