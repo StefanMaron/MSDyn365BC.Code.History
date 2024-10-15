@@ -1370,7 +1370,7 @@ codeunit 8 AccSchedManagement
         exit(PeriodError);
     end;
 
-    local procedure ShowError(MessageLine: Text[100]; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
+    local procedure ShowError(MessageLine: Text; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
     begin
         AccSchedLine.SetRange("Schedule Name", AccSchedLine."Schedule Name");
         AccSchedLine.SetRange("Line No.", CallingAccSchedLineID);

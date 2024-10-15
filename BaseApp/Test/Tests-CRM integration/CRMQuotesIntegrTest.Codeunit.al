@@ -312,11 +312,11 @@ codeunit 139172 "CRM Quotes Integr.Test"
         CreateSalesQuoteInNAV(CRMQuote, SalesHeader);
 
         // [THEN] Created NAV Sales Quote contains 5 lines, long description split by 5 pieces for 50 symbols
-        VerifySalesLinesDescription(SalesHeader, CRMQuotedetail.ProductDescription);
+        VerifySalesLinesWriteInDescription(SalesHeader, CRMQuotedetail.ProductDescription);
     end;
 
-    // [Test]
-    // [Scope('OnPrem')]
+    [Test]
+    [Scope('OnPrem')]
     procedure LineItemDescriptionUsedInsteadOfProductDescription()
     var
         CRMQuote: Record "CRM Quote";
@@ -345,7 +345,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         // [THEN] Created NAV Sales Quote is using CRMQuotedetail.Description as Description
 
         TempBlob.FromRecord(CRMQuotedetail, CRMQuotedetail.FieldNo(Description));
-        TempBlob.CreateInStream(InStream);
+        TempBlob.CreateInStream(InStream, TextEncoding::UTF16);
         InStream.Read(Description);
         VerifySalesLinesDescription(SalesHeader, Description);
     end;
@@ -782,6 +782,19 @@ codeunit 139172 "CRM Quotes Integr.Test"
     end;
 
     local procedure VerifySalesLinesDescription(SalesHeader: Record "Sales Header"; ProductDescription: Text)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.FindSet;
+        repeat
+            SalesLine.Next;
+            VerifySalesLineDescriptionAndTrancateProdDescription(SalesLine, ProductDescription);
+        until StrLen(ProductDescription) = 0;
+    end;
+
+    local procedure VerifySalesLinesWriteInDescription(SalesHeader: Record "Sales Header"; ProductDescription: Text)
     var
         SalesLine: Record "Sales Line";
     begin

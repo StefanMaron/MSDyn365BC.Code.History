@@ -1,6 +1,6 @@
 page 9658 "Vendor Report Selections"
 {
-    Caption = 'Vendor Report Selections';
+    Caption = 'Document Layouts';
     DataCaptionFields = "Source No.";
     DelayedInsert = true;
     PageType = List;
