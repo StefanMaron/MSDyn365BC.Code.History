@@ -362,17 +362,16 @@ codeunit 144005 "ERM Tax Authority"
 
     local procedure GetPostingDate(): Date
     var
-        DateLimit: Date;
+        Math: Codeunit Math;
+        DaysFromNY: Integer;
         CurrentYear: Integer;
+        RandMaxDelta: Integer;
     begin
         // the logic in this method prevent the test from failing in the first days of the year
-        CurrentYear := Date2DWY(Today, 3);
-        DateLimit := DMY2DATE(8, 1, CurrentYear);
-
-        if Today < DateLimit then
-            exit(LibraryRandom.RandDateFrom(DateLimit, -5) - 1);
-
-        exit(LibraryRandom.RandDateFrom(Today, -5) - 1);
+        Evaluate(CurrentYear, Format(Today(), 0, '<Year4>'));  // DATE2DWY works bad for the very beginning/end of a year
+        DaysFromNY := Today() - DMY2Date(1, 1, CurrentYear);
+        RandMaxDelta := Math.Min(DaysFromNY, 10);
+        exit(LibraryRandom.RandDateFrom(Today(), -RandMaxDelta));
     end;
 
     local procedure CreateAndPostPurchaseOrder(PostingDate: Date): Code[20]
