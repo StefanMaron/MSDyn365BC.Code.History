@@ -54,6 +54,7 @@ page 1328 "Purch. Order From Sales Order"
                         if not LookupVendor(Vendor, false) then
                             exit;
 
+                        SetCurrFieldNo(FieldNo("Supply From"));
                         Validate("Supply From", Vendor."No.");
                         VendorName := Vendor.Name;
                     end;
@@ -63,6 +64,8 @@ page 1328 "Purch. Order From Sales Order"
                         Vendor: Record Vendor;
                     begin
                         TestField("Replenishment System", "Replenishment System"::Purchase);
+
+                        SetCurrFieldNo(FieldNo("Supply From"));
                         Validate("Supply From", Vendor.GetVendorNo(VendorName));
                         if Vendor.Get("Supply From") then
                             VendorName := Vendor.Name

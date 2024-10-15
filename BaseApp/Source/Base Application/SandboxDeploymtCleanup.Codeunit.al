@@ -22,9 +22,11 @@ codeunit 1882 "Sandbox Deploymt. Cleanup"
         GraphMailSetup: Record "Graph Mail Setup";
         SMTPMailSetup: Record "SMTP Mail Setup";
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         ServiceConnection: Record "Service Connection";
         MarketingSetup: Record "Marketing Setup";
         ExchangeSync: Record "Exchange Sync";
+        JobQueueManagement: Codeunit "Job Queue Management";
     begin
         OCRServiceSetup.ChangeCompany(CompanyName);
         OCRServiceSetup.ModifyAll("Password Key", nullGUID);
@@ -47,6 +49,9 @@ codeunit 1882 "Sandbox Deploymt. Cleanup"
         CRMConnectionSetup.ChangeCompany(CompanyName);
         CRMConnectionSetup.ModifyAll("Is Enabled", false);
 
+        CDSConnectionSetup.ChangeCompany(CompanyName);
+        CDSConnectionSetup.ModifyAll("Is Enabled", false);
+
         ServiceConnection.ChangeCompany(CompanyName);
         ServiceConnection.ModifyAll(Status, ServiceConnection.Status::Disabled);
 
@@ -55,6 +60,8 @@ codeunit 1882 "Sandbox Deploymt. Cleanup"
 
         ExchangeSync.ChangeCompany(CompanyName);
         ExchangeSync.ModifyAll(Enabled, false);
+
+        JobQueueManagement.SetRecurringJobsOnHold(CompanyName);
 
         OnClearConfiguration(CompanyName);
     end;

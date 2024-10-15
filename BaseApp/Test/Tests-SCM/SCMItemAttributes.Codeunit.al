@@ -2333,6 +2333,56 @@ codeunit 137413 "SCM Item Attributes"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure CannotInsertItemAttributeValueMappingForInexistingItem()
+    var
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeValue: Record "Item Attribute Value";
+        ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 394921] Cannot insert Item Attribute Value Mapping for inexisting item.
+        Initialize();
+
+        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Integer, '');
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, Format(LibraryRandom.RandInt(100)));
+
+        ItemAttributeValueMapping.Init();
+        ItemAttributeValueMapping."Table ID" := DATABASE::Item;
+        ItemAttributeValueMapping."No." := LibraryUtility.GenerateGUID();
+        ItemAttributeValueMapping."Item Attribute ID" := ItemAttributeValue."Attribute ID";
+        ItemAttributeValueMapping."Item Attribute Value ID" := ItemAttributeValue.ID;
+        asserterror ItemAttributeValueMapping.Insert(true);
+
+        Assert.ExpectedError('There is no Item');
+    end;
+
+    [Test]
+    procedure CannotInsertItemAttributeValueMappingForInexistingItemAttrValue()
+    var
+        Item: Record Item;
+        ItemAttribute: Record "Item Attribute";
+        ItemAttributeValue: Record "Item Attribute Value";
+        ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 394921] Cannot insert Item Attribute Value Mapping for inexisting Item Attribute Value.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemAttribute(ItemAttribute, ItemAttribute.Type::Integer, '');
+        LibraryInventory.CreateItemAttributeValue(ItemAttributeValue, ItemAttribute.ID, Format(LibraryRandom.RandInt(100)));
+
+        ItemAttributeValueMapping.Init();
+        ItemAttributeValueMapping."Table ID" := DATABASE::Item;
+        ItemAttributeValueMapping."No." := Item."No.";
+        ItemAttributeValueMapping."Item Attribute ID" := ItemAttributeValue."Attribute ID";
+        ItemAttributeValueMapping."Item Attribute Value ID" := LibraryRandom.RandIntInRange(500, 1000);
+        asserterror ItemAttributeValueMapping.Insert(true);
+
+        Assert.ExpectedError('The Item Attribute Value does not exist');
+    end;
+
     local procedure Initialize()
     var
         ItemAttribute: Record "Item Attribute";

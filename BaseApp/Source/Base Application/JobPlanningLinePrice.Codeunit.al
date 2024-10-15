@@ -114,6 +114,7 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
             else
                 AssetType := AssetType::" ";
         end;
+        OnAfterGetAssetType(JobPlanningLine, AssetType);
     end;
 
     procedure CopyToBuffer(var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."): Boolean
@@ -260,6 +261,11 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillBuffer(var PriceCalculationBuffer: Record "Price Calculation Buffer"; JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAssetType(JobPlanningLine: Record "Job Planning Line"; var AssetType: Enum "Price Asset Type")
     begin
     end;
 

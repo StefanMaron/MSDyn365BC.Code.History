@@ -90,12 +90,8 @@ report 398 "Date Compress Vendor Ledger"
             trigger OnPreDataItem()
             var
                 GLSetup: Record "General Ledger Setup";
-                ConfirmManagement: Codeunit "Confirm Management";
                 LastTransactionNo: Integer;
             begin
-                if not ConfirmManagement.GetResponseOrDefault(Text000, true) then
-                    CurrReport.Break();
-
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
 
@@ -158,6 +154,13 @@ report 398 "Date Compress Vendor Ledger"
                         ApplicationArea = Suite;
                         Caption = 'Ending Date';
                         ToolTip = 'Specifies the date to which the report or batch job processes information.';
+
+                        trigger OnValidate()
+                        var
+                            DateCompression: Codeunit "Date Compression";
+                        begin
+                            DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+                        end;
                     }
                     field("EntrdDateComprReg.""Period Length"""; EntrdDateComprReg."Period Length")
                     {
@@ -214,6 +217,16 @@ report 398 "Date Compress Vendor Ledger"
         {
         }
 
+        trigger OnQueryClosePage(CloseAction: Action): Boolean
+        var
+            ConfirmManagement: Codeunit "Confirm Management";
+        begin
+            if CloseAction = Action::Cancel then
+                exit;
+            if not ConfirmManagement.GetResponseOrDefault(CompressEntriesQst, true) then
+                CurrReport.Break();
+        end;
+
         trigger OnOpenPage()
         begin
             InitializeParameter;
@@ -225,14 +238,24 @@ report 398 "Date Compress Vendor Ledger"
     }
 
     trigger OnPreReport()
+    var
+        DateCompression: Codeunit "Date Compression";
     begin
         DimSelectionBuf.CompareDimText(
           3, REPORT::"Date Compress Vendor Ledger", '', RetainDimText, Text010);
         VendLedgEntryFilter := CopyStr("Vendor Ledger Entry".GetFilters, 1, MaxStrLen(DateComprReg.Filter));
+
+        DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
+        LogStartTelemetryMessage();
+    end;
+
+    trigger OnPostReport()
+    begin
+        LogEndTelemetryMessage();
     end;
 
     var
-        Text000: Label 'This batch job deletes entries. Therefore, it is important that you make a backup of the database before you run the batch job.\\Do you want to date compress the entries?';
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         Text003: Label '%1 must be specified.';
         Text004: Label 'Date compressing vendor ledger entries...\\';
         Text005: Label 'Vendor No.           #1##########\';
@@ -274,6 +297,8 @@ report 398 "Date Compress Vendor Ledger"
         DimEntryNo: Integer;
         RetainDimText: Text[250];
         SummarizePositive: Boolean;
+        StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
+        EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
     local procedure InitRegisters()
     var
@@ -579,9 +604,11 @@ report 398 "Date Compress Vendor Ledger"
     end;
 
     local procedure InitializeParameter()
+    var
+        DateCompression: Codeunit "Date Compression";
     begin
         if EntrdDateComprReg."Ending Date" = 0D then
-            EntrdDateComprReg."Ending Date" := Today;
+            EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
         if EntrdVendLedgEntry.Description = '' then
             EntrdVendLedgEntry.Description := Text009;
 
@@ -596,7 +623,7 @@ report 398 "Date Compress Vendor Ledger"
         RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Compress Vendor Ledger", '');
     end;
 
-    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[50]; RetainDocumentNo: Boolean; RetainBuyfromVendorNo: Boolean; RetainPurchaserCode: Boolean; RetainDimensionText: Text[250])
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentNo: Boolean; RetainBuyfromVendorNo: Boolean; RetainPurchaserCode: Boolean; RetainDimensionText: Text[250])
     begin
         InitializeParameter;
         EntrdDateComprReg."Starting Date" := StartingDate;
@@ -608,5 +635,42 @@ report 398 "Date Compress Vendor Ledger"
         Retain[3] := RetainPurchaserCode;
         RetainDimText := RetainDimensionText;
     end;
+
+    local procedure LogStartTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
+        TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
+        TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
+        TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
+        // TelemetryDimensions.Add('Description', EntrdVendLedgEntry.Description);
+        TelemetryDimensions.Add('RetainDocumentNo', Format(Retain[1], 0, 9));
+        TelemetryDimensions.Add('RetainBuyFromVendorNo', Format(Retain[2], 0, 9));
+        TelemetryDimensions.Add('RetainPurchaserCode', Format(Retain[3], 0, 9));
+        TelemetryDimensions.Add('RetainDimensions', RetainDimText);
+        // TelemetryDimensions.Add('Filters', "Vendor Ledger Entry".GetFilters());
+
+        Session.LogMessage('0000F4Y', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
+    end;
+
+    local procedure LogEndTelemetryMessage()
+    var
+        TelemetryDimensions: Dictionary of [Text, Text];
+    begin
+        // TelemetryDimensions.Add('CompanyName', CompanyName());
+        TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
+        TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
+        TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));
+        TelemetryDimensions.Add('TableID', Format(DateComprReg."Table ID", 0, 9));
+        TelemetryDimensions.Add('NoRecordsDeleted', Format(DateComprReg."No. Records Deleted", 0, 9));
+        TelemetryDimensions.Add('NoofNewRecords', Format(DateComprReg."No. of New Records", 0, 9));
+
+        Session.LogMessage('0000F4Z', StrSubstNo(EndDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
+    end;
+
 }
 

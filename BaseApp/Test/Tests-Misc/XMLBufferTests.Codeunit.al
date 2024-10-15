@@ -13,6 +13,7 @@ codeunit 139200 "XML Buffer Tests"
         Assert: Codeunit Assert;
         FileManagement: Codeunit "File Management";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         WrongNamespaceUriErr: Label 'Wrong namespace uri.';
 
     [Test]
@@ -768,6 +769,50 @@ codeunit 139200 "XML Buffer Tests"
 
         // [THEN] Result must be equal 'uri1'
         Assert.AreEqual('uri1', Namespace, WrongNamespaceUriErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InsertAttributeWithNameSpace()
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempXMLBufferAttributes: Record "XML Buffer" temporary;
+        XmlNodeDotNet: DotNet XmlNode;
+        FileName: Text;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 374587] Stan can export xml element's attribute with specified namespace.
+
+        TempXMLBuffer.AddGroupElement('soapenv:Envelope');
+        TempXMLBuffer.AddNamespace('soapenv', 'http://schemas.xmlsoap.org/soap/envelope/');
+        TempXMLBuffer.AddNamespace('web', 'http://www.MEScontrol.net/WebServices');
+        TempXMLBuffer.AddNamespace('i', 'http://www.w3.org/2001/XMLSchema-instance');
+
+        TempXMLBuffer.AddGroupElement('soapenv:Header');
+        TempXMLBuffer.GetParent();
+        TempXMLBuffer.AddGroupElement('soapenv:Body');
+        TempXMLBuffer.AddGroupElement('web:CreateOrUpdateProduct');
+        TempXMLBuffer.AddGroupElement('web:productDTO');
+        TempXMLBuffer.AddGroupElement('web:Recipe');
+        TempXMLBuffer.AddAttributeWithNamespace('i:nil', 'true');
+        TempXMLBuffer.GetParent();
+
+        TempXMLBuffer.GetParent();
+        TempXMLBuffer.GetParent();
+        TempXMLBuffer.GetParent();
+
+        FileName := FileManagement.ServerTempFileName('xml');
+        if not TempXMLBuffer.Save(FileName) then
+            Assert.Fail(GetLastErrorText());
+
+        LibraryXPathXMLReader.Initialize(FileName, 'xxx');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('soapenv', 'http://schemas.xmlsoap.org/soap/envelope/');
+        LibraryXPathXMLReader.AddAdditionalNamespace('web', 'http://www.MEScontrol.net/WebServices');
+        LibraryXPathXMLReader.AddAdditionalNamespace('i', 'http://www.w3.org/2001/XMLSchema-instance');
+        LibraryXPathXMLReader.GetNodeByXPath(
+            '//soapenv:Envelope/soapenv:Body/web:CreateOrUpdateProduct/web:productDTO/web:Recipe', XmlNodeDotNet);
+        LibraryXPathXMLReader.VerifyAttributeFromNode(XmlNodeDotNet, 'i:nil', 'true');
     end;
 
     local procedure CreateAndVerifyRootNode(var TempXMLBuffer: Record "XML Buffer" temporary; NumNamespaces: Integer; DefaultNamespace: Boolean)

@@ -210,7 +210,6 @@ codeunit 405 "Graph Mail"
         exit(StrSubstNo(TestMessageTxt, User."Full Name"));
     end;
 
-    [Scope('OnPrem')]
     procedure IsEnabled(): Boolean
     var
         GraphMailSetup: Record "Graph Mail Setup";
@@ -240,7 +239,6 @@ codeunit 405 "Graph Mail"
     end;
 
     [NonDebuggable]
-    [Scope('OnPrem')]
     procedure HasConfiguration(): Boolean
     var
         AzureKeyVault: Codeunit "Azure Key Vault";

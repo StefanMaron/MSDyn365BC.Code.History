@@ -1098,7 +1098,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"All Locations", "Source No." is 'X'
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, PriceListHeader."Price Type"::Sale,
-            PriceListHeader."Source Type"::"All Locations", '');
+            PriceListHeader."Source Type"::Test_All_Locations, '');
         PriceListHeader."Source No." := 'x';
         PriceListHeader.Modify();
 
@@ -1120,7 +1120,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Location", "Parent Source No." is 'X', "Source No." is <blank>
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, PriceListHeader."Price Type"::Sale,
-            PriceListHeader."Source Type"::Location, '');
+            PriceListHeader."Source Type"::Test_Location, '');
         PriceListHeader."Parent Source No." := 'X';
         PriceListHeader.Modify();
 
@@ -1142,7 +1142,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"All Locations", "Parent Source No." is 'X'
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, PriceListHeader."Price Type"::Sale,
-            PriceListHeader."Source Type"::"All Locations", '');
+            PriceListHeader."Source Type"::Test_All_Locations, '');
         PriceListHeader."Parent Source No." := 'X';
         PriceListHeader.Modify();
 
@@ -1164,7 +1164,7 @@ codeunit 134118 "Price List Header UT"
         // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Location", "Parent Source No." is <blank>
         LibraryPriceCalculation.CreatePriceHeader(
             PriceListHeader, PriceListHeader."Price Type"::Sale,
-            PriceListHeader."Source Type"::Location, 'X');
+            PriceListHeader."Source Type"::Test_Location, 'X');
 
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);

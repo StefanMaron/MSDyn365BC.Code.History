@@ -237,13 +237,17 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     procedure CreateInNAV(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header"): Boolean
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        IsHandled: Boolean;
     begin
         if not CRMConnectionSetup.IsEnabled() then begin
             Session.LogMessage('0000EU9', StrSubstNo(SkippingCreateSalesOrderHeaderConnectionDisabledMsg, CRMProductName.SHORT(), CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
             exit;
         end;
 
-        CRMSalesorder.TestField(StateCode, CRMSalesorder.StateCode::Submitted);
+        IsHandled := false;
+        OnCreateInNAVOnBeforeCheckState(CRMSalesorder, IsHandled);
+	if not IsHandled then
+            CRMSalesorder.TestField(StateCode, CRMSalesorder.StateCode::Submitted);
         exit(CreateNAVSalesOrder(CRMSalesorder, SalesHeader));
     end;
 
@@ -648,6 +652,8 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         VATPostingSetup: Record "VAT Posting Setup";
         GeneralLedgerSetup: Record "General Ledger Setup";
         UnitPrice: Decimal;
+        UpdateItemUnitPriceNeeded: Boolean;
+        IsHandled: Boolean;
     begin
         InitNewSalesLine(SalesHeader, SalesLine);
 
@@ -661,8 +667,12 @@ codeunit 5343 "CRM Sales Order to Sales Order"
                     InitializeSalesOrderLineFromItem(CRMProduct, SalesLine);
                 CRMProduct.ProductTypeCode::Services:
                     InitializeSalesOrderLineFromResource(CRMProduct, SalesLine);
-                else
-                    Error(UnexpectedProductTypeErr, CannotCreateSalesOrderInNAVTxt, CRMProduct.ProductNumber);
+                else begin
+		    IsHandled := false;
+                    OnInitializeSalesOrderLineOnBeforeUnexpectedProductTypeErr(CRMSalesorderdetail, CRMProduct, SalesLine, SalesHeader, IsHandled);
+		    if not IsHandled then
+                        Error(UnexpectedProductTypeErr, CannotCreateSalesOrderInNAVTxt, CRMProduct.ProductNumber);
+		end;
             end;
         end;
 
@@ -671,7 +681,9 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         SalesLine.Validate(Quantity, CRMSalesorderdetail.Quantity);
         UnitPrice := CRMSalesorderdetail.PricePerUnit;
         GeneralLedgerSetup.Get();
-        if CRMProduct.ProductTypeCode = CRMProduct.ProductTypeCode::SalesInventory then
+        UpdateItemUnitPriceNeeded := CRMProduct.ProductTypeCode = CRMProduct.ProductTypeCode::SalesInventory;
+        OnInitializeSalesOrderLineOnAfterCalcUpdateItemUnitPriceNeeded(CRMSalesorderdetail, CRMProduct, SalesLine, SalesHeader, UpdateItemUnitPriceNeeded);
+        if UpdateItemUnitPriceNeeded then
             if Item.GET(SalesLine."No.") then
                 if (Item."Price Includes VAT") AND (Item."VAT Bus. Posting Gr. (Price)" <> '') then
                     if SalesLine."VAT Bus. Posting Group" = Item."VAT Bus. Posting Gr. (Price)" then
@@ -765,7 +777,22 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateInNAVOnBeforeCheckState(CRMSalesorder: Record "CRM Salesorder"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnHideSalesOrderDiscountsDialog(var Hide: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitializeSalesOrderLineOnBeforeUnexpectedProductTypeErr(CRMSalesorderdetail: Record "CRM Salesorderdetail"; CRMProduct: Record "CRM Product"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitializeSalesOrderLineOnAfterCalcUpdateItemUnitPriceNeeded(CRMSalesorderdetail: Record "CRM Salesorderdetail"; CRMProduct: Record "CRM Product"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var UpdateItemUnitPriceNeeded: Boolean)
     begin
     end;
 
