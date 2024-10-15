@@ -37,6 +37,7 @@
         BiggestLineNo: Integer;
         ICGenJnlLineNo: Integer;
         SavedHideProgressWindow: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforePostPurchaseDoc(Rec, PreviewMode, SuppressCommit, HideProgressWindow, ItemJnlPostLine);
         if not GuiAllowed then
@@ -149,9 +150,10 @@
 
         if ICGenJnlLineNo > 0 then
             PostICGenJnl(PurchHeader);
-
-        OnRunOnBeforeMakeInventoryAdjustment(PurchHeader, GenJnlPostLine, ItemJnlPostLine, PreviewMode, PurchRcptHeader, PurchInvHeader);
-        MakeInventoryAdjustment();
+        IsHandled := false;
+        OnRunOnBeforeMakeInventoryAdjustment(PurchHeader, GenJnlPostLine, ItemJnlPostLine, PreviewMode, PurchRcptHeader, PurchInvHeader, IsHandled);
+        if not IsHandled then
+            MakeInventoryAdjustment();
         UpdateLastPostingNos(PurchHeader);
 
         OnRunOnBeforeFinalizePosting(
@@ -2697,14 +2699,14 @@
                             InsertTrackingSpecification(PurchHeader);
                         end;
                     else begin
-                            ResetTempLines(TempPurchLine);
-                            TempPurchLine.SetFilter("Prepayment %", '<>0');
-                            if TempPurchLine.FindSet() then
-                                repeat
-                                    DecrementPrepmtAmtInvLCY(
-                                      TempPurchLine, TempPurchLine."Prepmt. Amount Inv. (LCY)", TempPurchLine."Prepmt. VAT Amount Inv. (LCY)");
-                                until TempPurchLine.Next() = 0;
-                        end;
+                        ResetTempLines(TempPurchLine);
+                        TempPurchLine.SetFilter("Prepayment %", '<>0');
+                        if TempPurchLine.FindSet() then
+                            repeat
+                                DecrementPrepmtAmtInvLCY(
+                                  TempPurchLine, TempPurchLine."Prepmt. Amount Inv. (LCY)", TempPurchLine."Prepmt. VAT Amount Inv. (LCY)");
+                            until TempPurchLine.Next() = 0;
+                    end;
                 end;
                 IsHandled := false;
                 OnFinalizePostingOnBeforeUpdateAfterPosting(PurchHeader, TempDropShptPostBuffer, EverythingInvoiced, IsHandled, TempPurchLine);
@@ -10789,7 +10791,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeMakeInventoryAdjustment(var PurchaseHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; PreviewMode: Boolean; PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchInvHeader: Record "Purch. Inv. Header")
+    local procedure OnRunOnBeforeMakeInventoryAdjustment(var PurchaseHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; PreviewMode: Boolean; PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
     begin
     end;
 
