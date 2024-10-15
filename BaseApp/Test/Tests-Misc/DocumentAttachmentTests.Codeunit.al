@@ -583,7 +583,7 @@ codeunit 134776 "Document Attachment Tests"
 
         CheckDocAttachments(DATABASE::"Purchase Header", 1, PurchaseHeader."No.", PurchaseHeader."Document Type".AsInteger(), 'vend1');
 
-        // [THEN] the sales line has one attachment.
+        // [THEN] the purchase line has one attachment.
 
         CheckDocAttachments(DATABASE::"Purchase Line", 1, PurchaseLine."Document No.", PurchaseLine."Document Type".AsInteger(), 'item1');
     end;
@@ -965,6 +965,76 @@ codeunit 134776 "Document Attachment Tests"
         // [THEN] Assert docs are flown to purch invoice at the item line level
         CheckDocAttachments(
           DATABASE::"Purchase Line", 1, PurchaseLine."Document No.", PurchaseHeader."Document Type"::Invoice.AsInteger(), 'itemtopurchinvoiceline');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDocAttachDoesNotFlowInPurchaseForGLAccountsWithSameNoAsItem()
+    var
+        Item: Record Item;
+        GLAccount: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO] Ensure that documents from the item do not flow to the purchase line if a GL account with the same no as the item is used
+
+        // Initialize
+        Initialize();
+
+        // [GIVEN] An Item with two attachments, one marked to flow
+        LibraryInventory.CreateItem(Item);
+        RecRef.GetTable(Item);
+
+        CreateDocAttach(RecRef, 'item1.jpeg', true, false);
+        CreateDocAttach(RecRef, 'item2.jpeg', false, false);
+
+        // [GIVEN] A GL Account with the same no as the item is created
+        CopyGLAccountToNewNo(LibraryERM.CreateGLAccountWithPurchSetup(), Item."No.", GLAccount);
+
+        // [GIVEN] A purchase invoice header is created
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+
+        // [WHEN] A purchase line with the GL account is inserted
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+
+        // [THEN] The purchase line has no attachments.
+        AssertNoAttachmentsExist(Database::"Purchase Line", PurchaseLine."Document No.", Enum::"Attachment Document Type"::Invoice);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDocAttachDoesNotFlowInSalesForGLAccountsWithSameNoAsItem()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RecRef: RecordRef;
+        GLAccount: Record "G/L Account";
+    begin
+        // [SCENARIO] Ensure that documents from the item do not flow to the sales line if a GL account with the same no as the item is used
+
+        // Initialize
+        Initialize();
+
+        // [GIVEN] An Item with two attachments, one marked to flow
+        LibraryInventory.CreateItem(Item);
+        RecRef.GetTable(Item);
+
+        CreateDocAttach(RecRef, 'item1.jpeg', false, true);
+        CreateDocAttach(RecRef, 'item2.jpeg', false, false);
+
+        // [GIVEN] A GL Account with the same no as the item is created
+        CopyGLAccountToNewNo(LibraryERM.CreateGLAccountWithSalesSetup(), Item."No.", GLAccount);
+
+        // [GIVEN] A sales order is created.
+        LibrarySales.CreateSalesOrder(SalesHeader);
+
+        // [WHEN] A sales line with the GL account is inserted
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", 1);
+
+        // [THEN] The sales line has no attachment.
+        AssertNoAttachmentsExist(Database::"Sales Line", SalesLine."Document No.", Enum::"Attachment Document Type"::Order);
     end;
 
     [Test]
@@ -2214,7 +2284,7 @@ codeunit 134776 "Document Attachment Tests"
         SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
 
         // [THEN] Attachment is deleted
-        AssertNoAttachmentsExist(Database::"Sales Header", SalesHeader."No.");
+        AssertNoAttachmentsExist(Database::"Sales Header", SalesHeader."No.", Enum::"Attachment Document Type"::Order);
     end;
 
     [Test]
@@ -2266,7 +2336,7 @@ codeunit 134776 "Document Attachment Tests"
         PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
 
         // [THEN] Attachment is deleted
-        AssertNoAttachmentsExist(Database::"Purchase Header", PurchaseHeader."No.");
+        AssertNoAttachmentsExist(Database::"Purchase Header", PurchaseHeader."No.", Enum::"Attachment Document Type"::Order);
     end;
 
     [Test]
@@ -2584,12 +2654,13 @@ codeunit 134776 "Document Attachment Tests"
         Assert.AreEqual(FileName, DocumentAttachment."File Name", 'Unexpected file attached.');
     end;
 
-    local procedure AssertNoAttachmentsExist(TableId: Integer; RecNo: Code[20])
+    local procedure AssertNoAttachmentsExist(TableId: Integer; RecNo: Code[20]; DocumentType: Enum "Attachment Document Type")
     var
         DocumentAttachment: Record "Document Attachment";
     begin
         DocumentAttachment.SetRange("Table ID", TableId);
         DocumentAttachment.SetRange("No.", RecNo);
+        DocumentAttachment.SetRange("Document Type", DocumentType);
         Assert.RecordIsEmpty(DocumentAttachment);
     end;
 
@@ -2618,6 +2689,17 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment."Document Flow Purchase" := FlowPurch;
         DocumentAttachment."Document Flow Sales" := FlowSales;
         DocumentAttachment.Modify();
+    end;
+
+    local procedure CopyGLAccountToNewNo(OldGLAccountNo: Code[20]; NewGLAccountNo: Code[20]; var GLAccount: Record "G/L Account")
+    var
+        OldGLAccount: Record "G/L Account";
+    begin
+        // Duplicate GL account but with specified No. (faster than rename)
+        OldGLAccount.Get(OldGLAccountNo);
+        GLAccount := OldGLAccount;
+        GLAccount."No." := NewGLAccountNo;
+        GLAccount.Insert(true);
     end;
 
     local procedure CreatePostSalesInvoice(CustomerNo: Code[20]): Code[20]

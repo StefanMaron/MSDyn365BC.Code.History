@@ -1066,7 +1066,7 @@ page 232 "Apply Customer Entries"
                             CustLedgerEntry."Document Type", CustLedgerEntry."Document No.");
                 end;
 
-                OnCheckCustLedgEntryOnBeforeCheckAgainstApplnCurrency(CustLedgerEntry);
+                OnCheckCustLedgEntryOnBeforeCheckAgainstApplnCurrency(CustLedgerEntry, GenJnlLine);
 
                 if TempApplyingCustLedgEntry."Entry No." <> 0 then
                     GenJnlApply.CheckAgainstApplnCurrency(
@@ -1688,7 +1688,7 @@ page 232 "Apply Customer Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckCustLedgEntryOnBeforeCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnCheckCustLedgEntryOnBeforeCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

@@ -165,7 +165,8 @@ codeunit 10750 "SII XML Creator"
           Vendor."No.",
           true,
           SIIManagement.VendorIsIntraCommunity(Vendor."No."),
-          false, SIIDocUploadState.IDType);
+          false, SIIDocUploadState.IDType,
+          SIIDocUploadState);
 
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'NumSerieFacturaEmisor', PurchaseVendorLedgerEntry."External Document No.", 'sii', SiiTxt, TempXMLNode);
@@ -546,7 +547,7 @@ codeunit 10750 "SII XML Creator"
                 XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Contraparte', '', 'sii', SiiTxt, XMLNode);
                 FillThirdPartyId(
                   XMLNode, Customer."Country/Region Code", Customer.Name, Customer."VAT Registration No.", Customer."No.", true,
-                  SIIManagement.CustomerIsIntraCommunity(Customer."No."), Customer."Not in AEAT", SIIDocUploadState.IDType);
+                  SIIManagement.CustomerIsIntraCommunity(Customer."No."), Customer."Not in AEAT", SIIDocUploadState.IDType, SIIDocUploadState);
             end;
             IsHandled := false;
             OnPopulateXMLWithSalesInvoiceOnAfterContraparteNode(
@@ -599,7 +600,7 @@ codeunit 10750 "SII XML Creator"
         if IsPurchInvoice(InvoiceType, SIIDocUploadState) then begin
             VendNo := SIIManagement.GetVendFromLedgEntryByGLSetup(VendorLedgerEntry);
             InitializePurchXmlBody(
-              XMLNode, VendNo, VendorLedgerEntry, SIIDocUploadState.IDType);
+              XMLNode, VendNo, VendorLedgerEntry, SIIDocUploadState.IDType, SIIDocUploadState);
 
             XMLDOMManagement.AddElementWithPrefix(
               XMLNode, 'NumSerieFacturaEmisor', Format(VendorLedgerEntry."External Document No."), 'sii', SiiTxt, TempXMLNode);
@@ -665,7 +666,7 @@ codeunit 10750 "SII XML Creator"
             AddPurchTail(
               XMLNode, VendorLedgerEntry."Posting Date", GetRequestDateOfSIIHistoryByVendLedgEntry(VendorLedgerEntry),
               VendNo, CuotaDeducibleValue, SIIDocUploadState.IDType, RegimeCodes, ECVATEntryExists, InvoiceType,
-              not TempVATEntryReverseChargeCalculated.IsEmpty());
+              not TempVATEntryReverseChargeCalculated.IsEmpty(), SIIDocUploadState);
 
             OnAfterAddPurchTail(XMLNode, VendorLedgerEntry);
 
@@ -693,7 +694,7 @@ codeunit 10750 "SII XML Creator"
         SIIDocUploadState.GetSIIDocUploadStateByCustLedgEntry(CustLedgerEntry);
         FillThirdPartyId(
           XMLNode, Customer."Country/Region Code", Customer.Name, Customer."VAT Registration No.", Customer."No.", true,
-          SIIManagement.CustomerIsIntraCommunity(Customer."No."), Customer."Not in AEAT", SIIDocUploadState.IDType);
+          SIIManagement.CustomerIsIntraCommunity(Customer."No."), Customer."Not in AEAT", SIIDocUploadState.IDType, SIIDocUploadState);
 
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'ImporteTotal', FormatNumber(CustLedgerEntry."Sales (LCY)"), 'siiLR', SiiLRTxt, TempXMLNode);
@@ -771,7 +772,8 @@ codeunit 10750 "SII XML Creator"
           IssuerBackupVatNo,
           not IsSales,
           IsIssuerIntraCommunity,
-          NotInAEAT, SIIDocUploadState.IDType);
+          NotInAEAT, SIIDocUploadState.IDType,
+          SIIDocUploadState);
 
         XMLDOMManagement.AddElementWithPrefix(
           XMLNode, 'NumSerieFacturaEmisor', Format(SIIDocUploadState."Corrected Doc. No."), 'sii', SiiTxt, TempXMLNode);
@@ -796,7 +798,7 @@ codeunit 10750 "SII XML Creator"
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
     end;
 
-    local procedure InitializePurchXmlBody(var XMLNode: DotNet XmlNode; VendorNo: Code[20]; VendorLedgerEntry: Record "Vendor Ledger Entry"; IDType: Enum "SII ID Type")
+    local procedure InitializePurchXmlBody(var XMLNode: DotNet XmlNode; VendorNo: Code[20]; VendorLedgerEntry: Record "Vendor Ledger Entry"; IDType: Enum "SII ID Type"; SIIDocUploadState: Record "SII Doc. Upload State")
     var
         Vendor: Record Vendor;
         TempXMLNode: DotNet XmlNode;
@@ -819,7 +821,7 @@ codeunit 10750 "SII XML Creator"
         Vendor.Get(VendorNo);
         FillThirdPartyId(
           XMLNode, Vendor."Country/Region Code", Vendor.Name, Vendor."VAT Registration No.", Vendor."No.", false,
-          SIIManagement.VendorIsIntraCommunity(Vendor."No."), false, IDType);
+          SIIManagement.VendorIsIntraCommunity(Vendor."No."), false, IDType, SIIDocUploadState);
 
         XmlNodeInnerXml := XMLNode.InnerXml();
         OnAfterInitializePurchXmlBody(XmlNodeInnerXml, VendorLedgerEntry);
@@ -837,7 +839,7 @@ codeunit 10750 "SII XML Creator"
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
     end;
 
-    local procedure AddPurchTail(var XMLNode: DotNet XmlNode; PostingDate: Date; RequestDate: Date; BuyFromVendorNo: Code[20]; CuotaDeducibleValue: Decimal; IDType: Enum "SII ID Type"; RegimeCodes: array[3] of Code[2]; ECVATEntryExists: Boolean; InvoiceType: Text; HasReverseChargeEntry: Boolean)
+    local procedure AddPurchTail(var XMLNode: DotNet XmlNode; PostingDate: Date; RequestDate: Date; BuyFromVendorNo: Code[20]; CuotaDeducibleValue: Decimal; IDType: Enum "SII ID Type"; RegimeCodes: array[3] of Code[2]; ECVATEntryExists: Boolean; InvoiceType: Text; HasReverseChargeEntry: Boolean; SIIDocUploadState: Record "SII Doc. Upload State")
     var
         Vendor: Record Vendor;
         TempXMLNode: DotNet XmlNode;
@@ -846,7 +848,7 @@ codeunit 10750 "SII XML Creator"
         Vendor.Get(BuyFromVendorNo);
         FillThirdPartyId(
           XMLNode, Vendor."Country/Region Code", Vendor.Name, Vendor."VAT Registration No.", Vendor."No.",
-          true, SIIManagement.VendorIsIntraCommunity(Vendor."No."), false, IDType);
+          true, SIIManagement.VendorIsIntraCommunity(Vendor."No."), false, IDType, SIIDocUploadState);
 
         FillFechaRegContable(XMLNode, PostingDate, RequestDate);
         XMLDOMManagement.AddElementWithPrefix(
@@ -856,11 +858,13 @@ codeunit 10750 "SII XML Creator"
           'sii', SiiTxt, TempXMLNode);
     end;
 
-    local procedure FillThirdPartyId(var XMLNode: DotNet XmlNode; CountryCode: Code[20]; Name: Text; VatNo: Code[20]; BackupVatId: Code[20]; NeedNombreRazon: Boolean; IsIntraCommunity: Boolean; IsNotInAEAT: Boolean; IDTypeInt: Enum "SII ID Type")
+    local procedure FillThirdPartyId(var XMLNode: DotNet XmlNode; CountryCode: Code[20]; Name: Text; VatNo: Code[20]; BackupVatId: Code[20]; NeedNombreRazon: Boolean; IsIntraCommunity: Boolean; IsNotInAEAT: Boolean; IDTypeInt: Enum "SII ID Type"; SIIDocUploadState: Record "SII Doc. Upload State")
     var
         TempXMLNode: DotNet XmlNode;
         IDType: Text[30];
     begin
+        OnFillThirdPartyIdOnBeforeAssignValues(SIIDocUploadState, CountryCode, Name, VatNo);
+
         if VatNo = '' then
             VatNo := BackupVatId;
         IDType := GetIDTypeToExport(IDTypeInt);
@@ -1316,7 +1320,7 @@ codeunit 10750 "SII XML Creator"
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Contraparte', '', 'sii', SiiTxt, XMLNode);
             FillThirdPartyId(
               XMLNode, Customer."Country/Region Code", Customer.Name, Customer."VAT Registration No.", Customer."No.", true,
-              SIIManagement.CustomerIsIntraCommunity(Customer."No."), Customer."Not in AEAT", SIIDocUploadState.IDType);
+              SIIManagement.CustomerIsIntraCommunity(Customer."No."), Customer."Not in AEAT", SIIDocUploadState.IDType, SIIDocUploadState);
         end;
 
         if SIIInitialDocUpload.DateWithinInitialUploadPeriod(CustLedgerEntry."Posting Date") then begin
@@ -1399,7 +1403,7 @@ codeunit 10750 "SII XML Creator"
                 end;
         end;
         VendNo := SIIManagement.GetVendFromLedgEntryByGLSetup(VendorLedgerEntry);
-        InitializePurchXmlBody(XMLNode, VendNo, VendorLedgerEntry, SIIDocUploadState.IDType);
+        InitializePurchXmlBody(XMLNode, VendNo, VendorLedgerEntry, SIIDocUploadState.IDType, SIIDocUploadState);
 
         // calculate totals for current doc
         DataTypeManagement.GetRecordRef(VendorLedgerEntry, VendorLedgerEntryRecRef);
@@ -1523,7 +1527,7 @@ codeunit 10750 "SII XML Creator"
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Contraparte', '', 'sii', SiiTxt, XMLNode);
         FillThirdPartyId(
           XMLNode, Vendor."Country/Region Code", Vendor.Name, Vendor."VAT Registration No.", Vendor."No.", true,
-          SIIManagement.VendorIsIntraCommunity(Vendor."No."), false, SIIDocUploadState.IDType);
+          SIIManagement.VendorIsIntraCommunity(Vendor."No."), false, SIIDocUploadState.IDType, SIIDocUploadState);
         FillFechaRegContable(XMLNode, VendorLedgerEntry."Posting Date", GetRequestDateOfSIIHistoryByVendLedgEntry(VendorLedgerEntry));
         OnHandleReplacementPurchCorrectiveInvoiceOnBeforeAddCuotaDeducibleElement(VendorLedgerEntry, CuotaDeducibleDecValue, BaseAmountDiff);
         if CuotaDeducibleDecValue = 0 then
@@ -1611,7 +1615,7 @@ codeunit 10750 "SII XML Creator"
             AddPurchTail(
               XMLNode, VendorLedgerEntry."Posting Date", GetRequestDateOfSIIHistoryByVendLedgEntry(VendorLedgerEntry),
               VendNo, CuotaDeducibleDecValue, SIIDocUploadState.IDType, RegimeCodes, ECVATEntryExists, InvoiceType,
-              not TempVATEntryReverseChargeCalculated.IsEmpty());
+              not TempVATEntryReverseChargeCalculated.IsEmpty(), SIIDocUploadState);
         end;
         XMLDOMManagement.FindNode(XMLNode, '../..', XMLNode);
     end;
@@ -1693,7 +1697,7 @@ codeunit 10750 "SII XML Creator"
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Contraparte', '', 'sii', SiiTxt, XMLNode);
             FillThirdPartyId(
               XMLNode, Customer."Country/Region Code", Customer.Name, Customer."VAT Registration No.", Customer."No.", true,
-              SIIManagement.CustomerIsIntraCommunity(Customer."No."), Customer."Not in AEAT", SIIDocUploadState.IDType);
+              SIIManagement.CustomerIsIntraCommunity(Customer."No."), Customer."Not in AEAT", SIIDocUploadState.IDType, SIIDocUploadState);
         end;
 
         DataTypeManagement.GetRecordRef(CustLedgerEntry, CustLedgerEntryRecRef);
@@ -2998,6 +3002,11 @@ codeunit 10750 "SII XML Creator"
 
     [IntegrationEvent(false, false)]
     local procedure OnHandleReplacementPurchCorrectiveInvoiceOnAfterCuotaDeducible(var XMLNode: DotNet XmlNode; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillThirdPartyIdOnBeforeAssignValues(SIIDocUploadState: Record "SII Doc. Upload State"; var CountryCode: Code[20]; var Name: Text; var VatNo: Code[20])
     begin
     end;
 }

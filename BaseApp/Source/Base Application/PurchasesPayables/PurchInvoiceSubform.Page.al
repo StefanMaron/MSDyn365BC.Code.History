@@ -1,4 +1,4 @@
-page 55 "Purch. Invoice Subform"
+﻿page 55 "Purch. Invoice Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -54,7 +54,7 @@ page 55 "Purch. Invoice Subform"
                 {
                     ApplicationArea = All;
                     ShowMandatory = Rec.Type <> Rec.Type::" ";
-                    ToolTip = 'Specifies what you are buying, such as a product or a fixed asset. You�ll see different lists of things to choose from depending on your choice in the Type field.';
+                    ToolTip = 'Specifies what you are buying, such as a product or a fixed asset. You’ll see different lists of things to choose from depending on your choice in the Type field.';
 
                     trigger OnValidate()
                     var
@@ -241,6 +241,7 @@ page 55 "Purch. Invoice Subform"
                     trigger OnValidate()
                     begin
                         DeltaUpdateTotals();
+                        CurrPage.Update();
                     end;
                 }
                 field("Bin Code"; Rec."Bin Code")

@@ -38,7 +38,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         ICPartnerAccountTypeQst: Label 'The resulting entry will be of type IC Transaction, but no Intercompany Outbox transaction will be created. \\Do you want to use the IC Partner account type anyway?';
         StatementAlreadyExistsErr: Label 'A bank account reconciliation with statement number %1 already exists.', Comment = '%1 - statement number';
         PaymentLineAppliedMsg: Label '%1 payment lines out of 1 are applied.\\', Comment = '%1 - number';
-        CheckVATEntryErr: Label 'Check that the all the entries with the same';
+        CheckVATEntryErr: Label 'Check that all the entries with the same';
 
     [Test]
     [HandlerFunctions('GenJnlPageHandler')]
@@ -650,7 +650,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
         asserterror LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
 
-        // [THEN] Known failure: error "Check that the all the entries with same..."
+        // [THEN] Known failure: error "Check that all the entries with same..."
         Assert.ExpectedError(CheckVATEntryErr);
     end;
 

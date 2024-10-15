@@ -130,7 +130,7 @@ page 343 "Check Credit Limit"
         IsHandled: Boolean;
         Result: Boolean;
     begin
-        OnBeforeGenJnlLineShowWarning(GenJnlLine, IsHandled, Result);
+        OnBeforeGenJnlLineShowWarning(GenJnlLine, IsHandled, Result, Rec);
         if IsHandled then
             exit(Result);
 
@@ -161,7 +161,7 @@ page 343 "Check Credit Limit"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSalesHeaderShowWarning(SalesHeader, Result, IsHandled);
+        OnBeforeSalesHeaderShowWarning(SalesHeader, Result, IsHandled, Rec, DeltaAmount);
         if IsHandled then
             exit(Result);
 
@@ -226,7 +226,7 @@ page 343 "Check Credit Limit"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSalesLineShowWarning(SalesLine, Result, IsHandled);
+        OnBeforeSalesLineShowWarning(SalesLine, Result, IsHandled, Rec, DeltaAmount);
         if IsHandled then
             exit(Result);
 
@@ -287,7 +287,7 @@ page 343 "Check Credit Limit"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeServiceHeaderShowWarning(ServHeader, Result, IsHandled);
+        OnBeforeServiceHeaderShowWarning(ServHeader, Result, IsHandled, Rec, DeltaAmount);
         if IsHandled then
             exit;
 
@@ -342,7 +342,7 @@ page 343 "Check Credit Limit"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeServiceLineShowWarning(ServLine, Result, IsHandled);
+        OnBeforeServiceLineShowWarning(ServLine, Result, IsHandled, Rec, DeltaAmount);
         if IsHandled then
             exit(Result);
 
@@ -656,17 +656,17 @@ page 343 "Check Credit Limit"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGenJnlLineShowWarning(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var Result: Boolean);
+    local procedure OnBeforeGenJnlLineShowWarning(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var Result: Boolean; var Customer: Record Customer);
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeSalesHeaderShowWarning(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean);
+    local procedure OnBeforeSalesHeaderShowWarning(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean; var Customer: Record Customer;  var DeltaAmount: Decimal);
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeSalesLineShowWarning(var SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean);
+    local procedure OnBeforeSalesLineShowWarning(var SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean; var Customer: Record Customer; var DeltaAmount: Decimal);
     begin
     end;
 
@@ -676,12 +676,12 @@ page 343 "Check Credit Limit"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceLineShowWarning(var ServLine: Record "Service Line"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeServiceLineShowWarning(var ServLine: Record "Service Line"; var Result: Boolean; var IsHandled: Boolean; var Customer: Record Customer; var DeltaAmount: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceHeaderShowWarning(var ServiceHeader: Record "Service Header"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeServiceHeaderShowWarning(var ServiceHeader: Record "Service Header"; var Result: Boolean; var IsHandled: Boolean; var Customer: Record Customer; var DeltaAmount: Decimal)
     begin
     end;
 

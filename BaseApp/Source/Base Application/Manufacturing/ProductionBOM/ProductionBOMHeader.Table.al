@@ -83,6 +83,11 @@ table 99000771 "Production BOM Header"
                 ProdBOMCheck: Codeunit "Production BOM-Check";
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeOnValidateStatus(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if (Status <> xRec.Status) and (Status = Status::Certified) then begin
                     ProdBOMLineRec.SetLoadFields(Type, "No.", "Variant Code");
                     ProdBOMLineRec.SetRange("Production BOM No.", "No.");
@@ -247,6 +252,11 @@ table 99000771 "Production BOM Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateStatusOnBeforeConfirm(var ProductionBOMHeader: Record "Production BOM Header"; xProductionBOMHeader: Record "Production BOM Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnValidateStatus(var ProductionBOMHeader: Record "Production BOM Header"; var xProductionBOMHeader: Record "Production BOM Header"; var IsHandled: Boolean)
     begin
     end;
 }

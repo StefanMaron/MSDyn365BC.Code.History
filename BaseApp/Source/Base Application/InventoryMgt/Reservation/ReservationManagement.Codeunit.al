@@ -1328,7 +1328,7 @@ codeunit 99000845 "Reservation Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeDeleteReservEntries(ReservEntry, DownToQuantity, CalcReservEntry, CalcReservEntry2, IsHandled);
+        OnBeforeDeleteReservEntries(ReservEntry, DownToQuantity, CalcReservEntry, CalcReservEntry2, IsHandled, ItemTrackingHandling);
         if IsHandled then
             exit;
 
@@ -3054,7 +3054,7 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteReservEntries(var ReservationEntry: Record "Reservation Entry"; var DownToQuantity: Decimal; CalcReservEntry: Record "Reservation Entry"; var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeDeleteReservEntries(var ReservationEntry: Record "Reservation Entry"; var DownToQuantity: Decimal; CalcReservEntry: Record "Reservation Entry"; var CalcReservEntry2: Record "Reservation Entry"; var IsHandled: Boolean; var ItemTrackingHandling: Option "None","Allow deletion",Match)
     begin
     end;
 

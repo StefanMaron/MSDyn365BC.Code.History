@@ -29,7 +29,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         ListEmptyMsg: Label 'No bank transaction lines exist. Choose the Import Bank Transactions action to fill in the lines from a file, or enter lines manually.';
         LinesForReviewNotificationMsg: Label 'One or more lines must be reviewed before posting, because they were matched automatically with rules that require review.', Comment = '%1 number of lines for review';
         SEPA_CAMT_Txt: Label 'SEPA CAMT';
-        IncorrectEntriesErr: Label 'Check that the all the entries with the same %1 and a %2 and \', Comment = '%1 = Document No.;%2 = VAT Bus. Posting Group';
+        IncorrectEntriesErr: Label 'Check that all the entries with the same %1 and a %2 and \', Comment = '%1 = Document No.;%2 = VAT Bus. Posting Group';
         OpenBankStatementPageQst: Label 'Do you want to open the bank account statement?';
 
     [Test]
@@ -942,7 +942,7 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         repeat
             Assert.AreEqual(Vendor.Name, BankAccReconciliationLine.GetAppliedToName, '');
         until BankAccReconciliationLine.Next() = 0;
-        
+
         PmtReconJnl.Post.Invoke;
 
         // Verify that all Vendors | gls | banks go to zero

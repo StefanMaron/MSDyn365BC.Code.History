@@ -368,7 +368,7 @@
         ForceCheckBalance: Boolean;
         IsProcessingKeySet: Boolean;
         IsHandled: Boolean;
-        ShouldCheckDocNoBasedOnNoSeries: Boolean;
+        ShouldCheckDocNoBasedOnNoSeries, SkipCheckingPostingNoSeries : Boolean;
     begin
         IsProcessingKeySet := false;
         OnBeforeProcessBalanceOfLines(GenJnlLine, GenJnlBatch, GenJnlTemplate, IsProcessingKeySet);
@@ -400,11 +400,13 @@
 
                 if not EmptyLine() then begin
                     ShouldCheckDocNoBasedOnNoSeries := not PreviewMode;
-                    OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries(GenJnlLine, GenJnlBatch, ShouldCheckDocNoBasedOnNoSeries);
+                    SkipCheckingPostingNoSeries := false;
+                    OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries(GenJnlLine, GenJnlBatch, ShouldCheckDocNoBasedOnNoSeries, SkipCheckingPostingNoSeries);
                     if ShouldCheckDocNoBasedOnNoSeries then
                         CheckDocNoBasedOnNoSeries(LastDocNo, GenJnlBatch."No. Series", NoSeriesMgt);
-                    if "Posting No. Series" <> '' then
-                        TestField("Posting No. Series", GenJnlBatch."Posting No. Series");
+                    if not SkipCheckingPostingNoSeries then
+                        if "Posting No. Series" <> '' then
+                            TestField("Posting No. Series", GenJnlBatch."Posting No. Series");
                     CheckCorrection(GenJnlLine);
                 end;
                 LastDocTypeOption := LastDocType.AsInteger();
@@ -500,7 +502,8 @@
     begin
         with GenJnlLine do
             if (GenJnlTemplate.Type = GenJnlTemplate.Type::Intercompany) and not EmptyLine() and
-               (("Posting Date" <> ICLastDate) or ("Document Type" <> ICLastDocType) or ("Document No." <> ICLastDocNo))
+               (("Posting Date" <> ICLastDate) or ("Document Type" <> ICLastDocType) or ("Document No." <> ICLastDocNo) or
+               (("IC Partner Code" <> CurrentICPartner) and ("Account Type" = "Account Type"::"IC Partner")))
             then begin
                 CurrentICPartner := '';
                 ICLastDate := "Posting Date";
@@ -512,7 +515,11 @@
                 TempGenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
                 TempGenJnlLine.SetRange("Posting Date", "Posting Date");
                 TempGenJnlLine.SetRange("Document No.", "Document No.");
-                TempGenJnlLine.SetFilter("IC Partner Code", '<>%1', '');
+                if ("IC Partner Code" = '') then
+                    TempGenJnlLine.SetFilter("IC Partner Code", '<>%1', '')
+                else
+                    TempGenJnlLine.SetRange("IC Partner Code", "IC Partner Code");
+
                 if TempGenJnlLine.FindFirst() and (TempGenJnlLine."IC Partner Code" <> '') then begin
                     ICProccessedLines := ICProccessedLines + 1;
                     CurrentICPartner := TempGenJnlLine."IC Partner Code";
@@ -2220,7 +2227,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; var ShouldCheckDocNoBasedOnNoSeries: Boolean)
+    local procedure OnProcessBalanceOfLinesOnAfterCalcShouldCheckDocNoBasedOnNoSeries(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; var ShouldCheckDocNoBasedOnNoSeries: Boolean; var SkipCheckingPostingNoSeries: Boolean)
     begin
     end;
 

@@ -41,8 +41,7 @@
         Text010: Label '%1 %2 and %3 %4 is not allowed.';
         Text011: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5';
         Text012: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
-        DuplicateRecordErr: Label 'The record in table %1 already exists. Identification fields and values: Deferral Doc. Type=%2,Gen. Jnl. Document No.=%3,Account No.=%4,Document Type=%5,Document No.=%6,Line No.=%7',
-                        Comment = '%1=Posted Deferral Header; %2= Deferral Doc. Type; %3 =Document No.; %4=Account No.; %5=Document Type; %6=Document No.;%7=Line No.';
+        DuplicateRecordErr: Label 'Document No. %1 already exists. It is not possible to calculate new deferrals for a Document No. that already exists.', Comment = '%1=Document No.';
         SpecifyGenPostingTypeErr: Label 'Posting to Account %1 must either be of type Purchase or Sale (see %2), because there are specified values in one of the following fields: %3, %4 , %5, or %6', comment = '%1 an G/L Account number;%2 = Gen. Posting Type; %3 = Gen. Bus. Posting Group; %4 = Gen. Prod. Posting Group; %5 = VAT Bus. Posting Group, %6 = VAT Prod. Posting Group';
         SalesDocAlreadyExistsErr: Label 'Sales %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
         PurchDocAlreadyExistsErr: Label 'Purchase %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
@@ -605,12 +604,13 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckSalesDocNoIsNotUsed(GenJournalLine."Document Type".AsInteger(), GenJournalLine."Document No.", IsHandled, GenJournalLine);
+        OnBeforeCheckSalesDocNoIsNotUsed(GenJournalLine."Document Type".AsInteger(), GenJournalLine."Document No.", IsHandled, GenJournalLine, OldCustLedgEntry);
         if IsHandled then
             exit;
 
         OldCustLedgEntry.SetRange("Document No.", GenJournalLine."Document No.");
         OldCustLedgEntry.SetRange("Document Type", GenJournalLine."Document Type");
+        OnCheckSalesDocNoIsNotUsedOnAfterSetFilters(GenJournalLine, OldCustLedgEntry);
         if not OldCustLedgEntry.IsEmpty() then
             Error(
                 ErrorInfo.Create(
@@ -1028,16 +1028,7 @@
             '',
             GenJnlLine."Line No.")
         then begin
-            ErrorTxt := StrSubstNo(
-                DuplicateRecordErr,
-                PostedDeferralHeader.TableCaption,
-                DeferralHeader."Deferral Doc. Type"::"G/L",
-                GenJnlLine."Document No.",
-                AccountNo,
-                0,
-                '',
-                GenJnlLine."Line No.");
-
+            ErrorTxt := StrSubstNo(DuplicateRecordErr, GenJnlLine."Document No.");
             Error(ErrorInfo.Create(ErrorTxt, true, GenJnlLine, GenJnlLine.FieldNo("Deferral Code")));
         end;
     end;
@@ -1174,7 +1165,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckSalesDocNoIsNotUsed(DocType: Option; DocNo: Code[20]; var IsHandled: Boolean; GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnBeforeCheckSalesDocNoIsNotUsed(DocType: Option; DocNo: Code[20]; var IsHandled: Boolean; GenJournalLine: Record "Gen. Journal Line"; var OldCustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
@@ -1258,6 +1249,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckVATDate(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSalesDocNoIsNotUsedOnAfterSetFilters(GenJournalLine: Record "Gen. Journal Line"; var OldCustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

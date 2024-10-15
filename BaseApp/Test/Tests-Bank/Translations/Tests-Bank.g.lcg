@@ -79,7 +79,7 @@
   </Item>
   <Item ItemId=";Codeunit 4055676525 - NamedType 2228785104" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Check that the all the entries with the same]]></Val>
+      <Val><![CDATA[Check that all the entries with the same]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

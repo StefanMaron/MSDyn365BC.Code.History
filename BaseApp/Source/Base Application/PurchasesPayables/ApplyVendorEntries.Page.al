@@ -990,9 +990,11 @@ page 233 "Apply Vendor Entries"
                             VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
                 end;
 
-                if TempApplyingVendLedgEntry."Entry No." <> 0 then
+                if TempApplyingVendLedgEntry."Entry No." <> 0 then begin
+                    OnCheckVendLedgEntryOnBeforeCheckAgainstApplnCurrency(GenJnlLine, VendorLedgerEntry);
                     GenJnlApply.CheckAgainstApplnCurrency(
                         ApplnCurrencyCode, VendorLedgerEntry."Currency Code", GenJnlLine."Account Type"::Vendor, true);
+                end;
             until VendorLedgerEntry.Next() = 0;
     end;
 
@@ -1637,6 +1639,11 @@ page 233 "Apply Vendor Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetApplyingVendLedgEntryGenJnlLine(var TempApplyingVendLedgEntry: Record "Vendor Ledger Entry" temporary; var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckVendLedgEntryOnBeforeCheckAgainstApplnCurrency(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

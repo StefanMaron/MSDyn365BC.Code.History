@@ -306,8 +306,12 @@ page 10752 "SII History"
                 Visible = ShowAdvancedActions;
 
                 trigger OnAction()
+                var
+                    SIIHistory: Record "SII History";
+                    SIIManagement: Codeunit "SII Management";
                 begin
-                    MarkAsAccepted();
+                    CurrPage.SetSelectionFilter(SIIHistory);
+                    SIIManagement.MarkAsAccepted(SIIHistory);
                 end;
             }
             action("Mark As Not Accepted")
@@ -320,8 +324,12 @@ page 10752 "SII History"
                 Visible = ShowAdvancedActions;
 
                 trigger OnAction()
+                var
+                    SIIHistory: Record "SII History";
+                    SIIManagement: Codeunit "SII Management";
                 begin
-                    MarkAsNotAccepted();
+                    CurrPage.SetSelectionFilter(SIIHistory);
+                    SIIManagement.MarkAsNotAccepted(SIIHistory);
                 end;
             }
             action("Recreate Missing SII Entries")

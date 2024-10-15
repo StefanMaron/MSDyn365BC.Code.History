@@ -370,6 +370,12 @@ table 274 "Bank Acc. Reconciliation Line"
         MatchedFromTextMappingRulesTxt: Label 'Matched - Text-To-Account Mapping';
         AppliedManuallyStatusTxt: Label 'Applied Manually';
         ReviewedStatusTxt: Label 'Application Reviewed';
+        PaymentRecJournalFeatureNameTelemetryTxt: Label 'Payment Reconciliation', Locked = true;
+
+    internal procedure GetPaymentRecJournalTelemetryFeatureName(): Text
+    begin
+        exit(PaymentRecJournalFeatureNameTelemetryTxt);
+    end;
 
     procedure DisplayApplication()
     var

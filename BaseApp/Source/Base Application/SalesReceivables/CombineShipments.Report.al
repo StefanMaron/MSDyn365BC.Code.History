@@ -25,6 +25,7 @@
 
                     trigger OnAfterGetRecord()
                     var
+                        CustIsBlocked: Boolean;
                         IsHandled: Boolean;
                     begin
                         IsHandled := false;
@@ -49,7 +50,9 @@
                                     if "Sell-to Customer No." <> '' then
                                         Cust.Get("Sell-to Customer No.");
 
-                            if not (Cust.Blocked in [Cust.Blocked::All, Cust.Blocked::Invoice]) then begin
+                            CustIsBlocked := Cust.Blocked in [Cust.Blocked::All, Cust.Blocked::Invoice];
+                            OnBeforeCustIsBlockedOnAfterGetRecord(SalesOrderHeader, SalesHeader, "Sales Shipment Line", Cust, CustIsBlocked);
+                            if not CustIsBlocked then begin
                                 if ShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, "Sales Shipment Line") then begin
                                     if SalesHeader."No." <> '' then
                                         FinalizeSalesInvHeader();
@@ -567,6 +570,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnOpenPage(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCustIsBlockedOnAfterGetRecord(OrderSalesHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; SalesShipmentLine: Record "Sales Shipment Line"; Customer: Record Customer; var CustIsBlocked: Boolean)
     begin
     end;
 }

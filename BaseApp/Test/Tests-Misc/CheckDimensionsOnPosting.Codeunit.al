@@ -30,8 +30,9 @@ codeunit 134486 "Check Dimensions On Posting"
         DimValueBlockedErr: Label '%1 %2 - %3 is blocked.', Comment = '%1 = Dimension Value table caption, %2 = Dim Code, %3 = Dim Value';
         DimValueMissingErr: Label 'Dimension Value %1 - %2 is missing.', Comment = '%1 = Dim Code, %2 = Dim Value';
         DimValueNotAllowedErr: Label 'Dimension Value Type for Dimension Value %1 - %2 must not be %3.';
-        DimValueMentionedForRecErr: Label '%1 %2 must not be mentioned for %3 %4.';
-        DimValueSameCodeErr: Label 'Select %1 %2 for the %3 %4.';
+        DimValueSameOrNoCodeErr: Label 'The %1 must be %2 for %3 %4 for %5 %6. Currently it''s %7.', Comment = '%1 = "Dimension value code" caption, %2 = expected "Dimension value code" value, %3 = "Dimension code" caption, %4 = "Dimension Code" value, %5 = Table caption (Vendor), %6 = Table value (XYZ), %7 = current "Dimension value code" value';
+        BlankLbl: Label 'blank';
+        SameCodeMissingDimErr: Label 'The %1 %2 with %3 %4 is required.', Comment = '%1 = "Dimension code" caption, %2= "Dimension Code" value, %3 = "Dimension value code" caption, %4 = "Dimension value code" value';
         DimValueBlankSameCodeRecErr: Label '%1 %2 must be blank for %3 %4.';
         SelectDimValueForRecErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for %2 %3.';
         DummyBlankRecID: RecordID;
@@ -351,8 +352,11 @@ codeunit 134486 "Check Dimensions On Posting"
         DefaultDimension[2].Modify();
         ExpectedErrorMessage[2] :=
           StrSubstNo(
-            DimValueMentionedForRecErr,
-            DefaultDimension[2].FieldCaption("Dimension Code"), DimensionValue."Dimension Code", Customer.TableName, CustomerNo);
+            DimValueSameOrNoCodeErr,
+            DefaultDimension[2].FieldCaption("Dimension Value Code"), BlankLbl,
+            DefaultDimension[2].FieldCaption("Dimension Code"), DefaultDimension[2]."Dimension Code",
+            Customer.TableCaption(), CustomerNo,
+            DimensionValue.Code);
         SourceDimRecID[2] := DefaultDimension[2].RecordId;
         SourceFieldNo[2] := DefaultDimension[2].FieldNo("Value Posting");
 
@@ -406,9 +410,9 @@ codeunit 134486 "Check Dimensions On Posting"
         DefaultDimension[1].Modify();
         ExpectedErrorMessage[1] :=
           StrSubstNo(
-            DimValueSameCodeErr,
-            DefaultDimension[1].FieldCaption("Dimension Value Code"), DefaultDimension[1]."Dimension Value Code",
-            DefaultDimension[1].FieldCaption("Dimension Code"), DefaultDimension[1]."Dimension Code");
+            SameCodeMissingDimErr,
+            DefaultDimension[1].FieldCaption("Dimension Code"), DefaultDimension[1]."Dimension Code",
+            DefaultDimension[1].FieldCaption("Dimension Value Code"), DefaultDimension[1]."Dimension Value Code");
         SourceDimRecID[1] := DefaultDimension[1].RecordId;
         SourceFieldNo[1] := DefaultDimension[1].FieldNo("Value Posting");
 
@@ -1272,8 +1276,11 @@ codeunit 134486 "Check Dimensions On Posting"
         DefaultDimension[2].Modify();
         ExpectedErrorMessage[2] :=
           StrSubstNo(
-            DimValueMentionedForRecErr,
-            DefaultDimension[2].FieldCaption("Dimension Code"), DimensionValue."Dimension Code", Vendor.TableName, VendorNo);
+            DimValueSameOrNoCodeErr,
+            DefaultDimension[2].FieldCaption("Dimension Value Code"), BlankLbl,
+            DefaultDimension[2].FieldCaption("Dimension Code"), DefaultDimension[2]."Dimension Code",
+            Vendor.TableCaption(), VendorNo,
+            DimensionValue.Code);
         SourceDimRecID[2] := DefaultDimension[2].RecordId;
         SourceFieldNo[2] := DefaultDimension[2].FieldNo("Value Posting");
 
@@ -1327,9 +1334,9 @@ codeunit 134486 "Check Dimensions On Posting"
         DefaultDimension[1].Modify();
         ExpectedErrorMessage[1] :=
           StrSubstNo(
-            DimValueSameCodeErr,
-            DefaultDimension[1].FieldCaption("Dimension Value Code"), DefaultDimension[1]."Dimension Value Code",
-            DefaultDimension[1].FieldCaption("Dimension Code"), DefaultDimension[1]."Dimension Code");
+            SameCodeMissingDimErr,
+            DefaultDimension[1].FieldCaption("Dimension Code"), DefaultDimension[1]."Dimension Code",
+            DefaultDimension[1].FieldCaption("Dimension Value Code"), DefaultDimension[1]."Dimension Value Code");
         SourceDimRecID[1] := DefaultDimension[1].RecordId;
         SourceFieldNo[1] := DefaultDimension[1].FieldNo("Value Posting");
 
@@ -2389,7 +2396,7 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [THEN] Error is thrown with text "A dimension used in Gen. Journal Line "GJT, "GJB", 10000 has caused an error.
         // [THEN] Dimension Code "DC" must not be mentioned for G/L Account "GL2"."
-        ExpectedErrorMessage := GetDimValueMentionedErrText(DimensionValue."Dimension Code", GLAccount.TableName, GLAccNo[2]);
+        ExpectedErrorMessage := GetDimNoCodeErrText(DimensionValue."Dimension Code", GLAccount.TableName, GLAccNo[2], DimensionValue.Code);
         ExpectedErrorMessage :=
           StrSubstNo(
             PostingDimensionErr, GenJnlLine.TableCaption(), GenJnlTemplate.Name, GenJnlBatch.Name, GenJnlLine."Line No.", ExpectedErrorMessage);
@@ -2447,8 +2454,8 @@ codeunit 134486 "Check Dimensions On Posting"
         // [THEN] 1) "Dimension Code "D" must not be mentioned for G/L Account";
         // [THEN] 2) "Dimension Code "D" must not be mentioned for Customer".
         Assert.IsFalse(Result, '');
-        ExpectedErrorMessage[1] := GetDimValueMentionedErrText(DimValue."Dimension Code", GLAccount.TableName, GLAccount."No.");
-        ExpectedErrorMessage[2] := GetDimValueMentionedErrText(DimValue."Dimension Code", Customer.TableName, Customer."No.");
+        ExpectedErrorMessage[1] := GetDimNoCodeErrText(DimValue."Dimension Code", GLAccount.TableName, GLAccount."No.", DimValue.Code);
+        ExpectedErrorMessage[2] := GetDimNoCodeErrText(DimValue."Dimension Code", Customer.TableName, Customer."No.", DimValue.Code);
         VerifyDimErrors(2, ExpectedErrorMessage, ErrorMessageHandler);
     end;
 
@@ -2503,7 +2510,7 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [THEN] CheckDimValuePosting returns False, single error is "Dimension Code "D" must not be mentioned for Customer.".
         Assert.IsFalse(Result, '');
-        ExpectedErrorMessage[1] := GetDimValueMentionedErrText(DimValue."Dimension Code", Customer.TableName, Customer."No.");
+        ExpectedErrorMessage[1] := GetDimNoCodeErrText(DimValue."Dimension Code", Customer.TableName, Customer."No.", DimValue.Code);
         VerifyDimErrors(1, ExpectedErrorMessage, ErrorMessageHandler);
     end;
 
@@ -2558,7 +2565,7 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [THEN] CheckDimValuePosting returns False, single error "Dimension Code "D" must not be mentioned for G/L Account.".
         Assert.IsFalse(Result, '');
-        ExpectedErrorMessage[1] := GetDimValueMentionedErrText(DimValue."Dimension Code", GLAccount.TableName, GLAccount."No.");
+        ExpectedErrorMessage[1] := GetDimNoCodeErrText(DimValue."Dimension Code", GLAccount.TableName, GLAccount."No.", DimValue.Code);
         VerifyDimErrors(1, ExpectedErrorMessage, ErrorMessageHandler);
     end;
 
@@ -2614,7 +2621,7 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [THEN] CheckDimValuePosting returns False, single error "Dimension Code "D" must not be mentioned for G/L Account.".
         Assert.IsFalse(Result, '');
-        ExpectedErrorMessage[1] := GetDimValueMentionedErrText(DimValue."Dimension Code", GLAccount.TableName, GLAccount."No.");
+        ExpectedErrorMessage[1] := GetDimNoCodeErrText(DimValue."Dimension Code", GLAccount.TableName, GLAccount."No.", DimValue.Code);
         VerifyDimErrors(1, ExpectedErrorMessage, ErrorMessageHandler);
     end;
 
@@ -2672,8 +2679,8 @@ codeunit 134486 "Check Dimensions On Posting"
         // [THEN] 1) "Dimension Code "D" must not be mentioned for G/L Account";
         // [THEN] 2) "Dimension Code "D" must not be mentioned for Customer".
         Assert.IsFalse(Result, '');
-        ExpectedErrorMessage[1] := GetDimValueMentionedErrText(DimValue."Dimension Code", GLAccount.TableName, GLAccount."No.");
-        ExpectedErrorMessage[2] := GetDimValueMentionedErrText(DimValue."Dimension Code", Customer.TableName, Customer."No.");
+        ExpectedErrorMessage[1] := GetDimNoCodeErrText(DimValue."Dimension Code", GLAccount.TableName, GLAccount."No.", DimValue.Code);
+        ExpectedErrorMessage[2] := GetDimNoCodeErrText(DimValue."Dimension Code", Customer.TableName, Customer."No.", DimValue.Code);
         VerifyDimErrors(2, ExpectedErrorMessage, ErrorMessageHandler);
     end;
 
@@ -2729,7 +2736,7 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [THEN] CheckDimValuePosting returns False, single error "Dimension Code "D" must not be mentioned for Customer".
         Assert.IsFalse(Result, '');
-        ExpectedErrorMessage[1] := GetDimValueMentionedErrText(DimValue."Dimension Code", Customer.TableName, Customer."No.");
+        ExpectedErrorMessage[1] := GetDimNoCodeErrText(DimValue."Dimension Code", Customer.TableName, Customer."No.", DimValue.Code);
         VerifyDimErrors(1, ExpectedErrorMessage, ErrorMessageHandler);
     end;
 
@@ -2907,11 +2914,11 @@ codeunit 134486 "Check Dimensions On Posting"
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
     end;
 
-    local procedure GetDimValueMentionedErrText(DimensionCode: Code[20]; TableName: Text; No: Code[20]): Text
+    local procedure GetDimNoCodeErrText(DimensionCode: Code[20]; TableName: Text; No: Code[20]; CurrentDimensionValueCode: Code[20]): Text
     var
         DefaultDim: Record "Default Dimension";
     begin
-        exit(StrSubstNo(DimValueMentionedForRecErr, DefaultDim.FieldCaption("Dimension Code"), DimensionCode, TableName, No));
+        exit(StrSubstNo(DimValueSameOrNoCodeErr, DefaultDim.FieldCaption("Dimension Value Code"), BlankLbl, DefaultDim.FieldCaption("Dimension Code"), DimensionCode, TableName, No, CurrentDimensionValueCode));
     end;
 
     local procedure PostPurchDocument(PurchHeader: Record "Purchase Header"; CodeunitID: Integer)
