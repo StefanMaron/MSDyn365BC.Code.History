@@ -515,8 +515,15 @@ report 1003 "Post Invt. Cost to G/L - Test"
             end;
     end;
 
-    local procedure CheckPostingSetup(InvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer"): Boolean
+    local procedure CheckPostingSetup(InvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPostingSetup(InvtPostToGLTestBuf, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with InvtPostToGLTestBuf do
             if "Invt. Posting Group Code" <> '' then begin
                 if not InvtPostSetup.Get("Location Code", "Invt. Posting Group Code") then begin
@@ -615,6 +622,11 @@ report 1003 "Post Invt. Cost to G/L - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetAccountNameInventoryAccountTypeCase(InvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer"; var AccountName: Text[80]; var IsHandled: Boolean; InvtPostingSetup: Record "Inventory Posting Setup"; GenPostingSetup: Record "General Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckPostingSetup(InvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer"; var Result: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

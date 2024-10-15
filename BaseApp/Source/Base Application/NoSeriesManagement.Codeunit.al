@@ -230,13 +230,25 @@ codeunit 396 NoSeriesManagement
         NoSeriesLine.Validate(Open);
 
         if ModifySeries and (not NoSeriesLine."Allow Gaps in Nos." or not NoSeriesLine.Open) then
-            NoSeriesLine.Modify
+            ModifyNoSeriesLine(NoSeriesLine)
         else
             LastNoSeriesLine := NoSeriesLine;
 
         OnAfterGetNextNo3(NoSeriesLine, ModifySeries);
 
         exit(NoSeriesLine."Last No. Used");
+    end;
+
+    local procedure ModifyNoSeriesLine(var NoSeriesLine: Record "No. Series Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeModifyNoSeriesLine(NoSeriesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        NoSeriesLine.Modify;
     end;
 
     procedure TryGetNextNo(NoSeriesCode: Code[20]; SeriesDate: Date): Code[20]
@@ -466,6 +478,11 @@ codeunit 396 NoSeriesManagement
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyNoSeriesLine(var NoSeriesLine: Record "No. Series Line"; var IsHandled: Boolean)
+    begin
+    end;
+    
     procedure ClearStateAndGetNextNo(NoSeriesCode: Code[20]): Code[20]
     begin
         Clear(LastNoSeriesLine);

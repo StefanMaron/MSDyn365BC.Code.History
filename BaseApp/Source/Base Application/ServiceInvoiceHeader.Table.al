@@ -191,7 +191,7 @@ table 5992 "Service Invoice Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Invoice Header"),
+            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Invoice Header"),
                                                               "No." = FIELD("No."),
                                                               Type = CONST(General)));
             Caption = 'Comment';
@@ -230,7 +230,7 @@ table 5992 "Service Invoice Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Service Invoice Line".Amount WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Service Invoice Line".Amount WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -239,7 +239,7 @@ table 5992 "Service Invoice Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Service Invoice Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Service Invoice Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -542,7 +542,7 @@ table 5992 "Service Invoice Header"
         }
         field(5911; "Allocated Hours"; Decimal)
         {
-            CalcFormula = Sum ("Service Order Allocation"."Allocated Hours" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Service Order Allocation"."Allocated Hours" WHERE("Document Type" = CONST(Order),
                                                                                   "Document No." = FIELD("No."),
                                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                                   Status = FILTER(Active | Finished),
@@ -580,7 +580,7 @@ table 5992 "Service Invoice Header"
         }
         field(5921; "No. of Unallocated Items"; Integer)
         {
-            CalcFormula = Count ("Service Item Line" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Count("Service Item Line" WHERE("Document Type" = CONST(Order),
                                                            "Document No." = FIELD("No."),
                                                            "No. of Active/Finished Allocs" = CONST(0)));
             Caption = 'No. of Unallocated Items';
@@ -639,14 +639,14 @@ table 5992 "Service Invoice Header"
         }
         field(5933; "Contract Serv. Hours Exist"; Boolean)
         {
-            CalcFormula = Exist ("Service Hour" WHERE("Service Contract No." = FIELD("Contract No.")));
+            CalcFormula = Exist("Service Hour" WHERE("Service Contract No." = FIELD("Contract No.")));
             Caption = 'Contract Serv. Hours Exist';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5934; "Reallocation Needed"; Boolean)
         {
-            CalcFormula = Exist ("Service Order Allocation" WHERE(Status = CONST("Reallocation Needed"),
+            CalcFormula = Exist("Service Order Allocation" WHERE(Status = CONST("Reallocation Needed"),
                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                   "Document Type" = CONST(Order),
                                                                   "Document No." = FIELD("No."),
@@ -676,7 +676,7 @@ table 5992 "Service Invoice Header"
         }
         field(5939; "No. of Allocations"; Integer)
         {
-            CalcFormula = Count ("Service Order Allocation" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Count("Service Order Allocation" WHERE("Document Type" = CONST(Order),
                                                                   "Document No." = FIELD("No."),
                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                   "Resource Group No." = FIELD("Resource Group Filter"),
@@ -765,6 +765,10 @@ table 5992 "Service Invoice Header"
         field(5981; "Expected Finishing Date"; Date)
         {
             Caption = 'Expected Finishing Date';
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
         }
         field(7001; "Allow Line Disc."; Boolean)
         {

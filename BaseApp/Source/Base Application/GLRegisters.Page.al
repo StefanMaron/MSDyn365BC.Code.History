@@ -9,6 +9,7 @@ page 116 "G/L Registers"
     SourceTableView = SORTING("No.")
                       ORDER(Descending);
     UsageCategory = History;
+    PromotedActionCategories = 'New,Process,Report,Reverse';
 
     layout
     {
@@ -210,10 +211,10 @@ page 116 "G/L Registers"
         }
         area(processing)
         {
-            group("F&unctions")
+            group(Reverse)
             {
-                Caption = 'F&unctions';
-                Image = "Action";
+                Caption = 'Reverse';
+                Image = "ReverseRegister";
                 action(ReverseRegister)
                 {
                     ApplicationArea = Basic, Suite;
@@ -221,8 +222,10 @@ page 116 "G/L Registers"
                     Ellipsis = true;
                     Image = ReverseRegister;
                     Promoted = true;
-                    PromotedCategory = Process;
-                    ToolTip = 'Undo entries that were incorrectly posted from a general journal line or from a previous reversal.';
+                    PromotedCategory = Category4;
+                    PromotedIsBig = true;
+                    ToolTip = 'Undo entries that were incorrectly posted. You can only reverse entries that were posted from a journal and have not already been involved in a reversal.';
+                    Enabled = ReverseRegisterEnabled;
 
                     trigger OnAction()
                     var
@@ -232,6 +235,11 @@ page 116 "G/L Registers"
                         ReversalEntry.ReverseRegister("No.");
                     end;
                 }
+            }
+            group("F&unctions")
+            {
+                Caption = 'F&unctions';
+                Image = "Action";
                 action("Delete Empty Registers")
                 {
                     ApplicationArea = All;
@@ -291,6 +299,38 @@ page 116 "G/L Registers"
     trigger OnOpenPage()
     begin
         if FindSet then;
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        ReverseRegisterEnabled := GetReverseRegisterEnabled();
+    end;
+
+    local procedure GetReverseRegisterEnabled(): Boolean
+    var
+        IsHandled: Boolean;
+        ReverseEnabled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetReverseRegisterEnabled("No.", ReverseEnabled, IsHandled);
+        if IsHandled then
+            exit(ReverseEnabled);
+
+        if Reversed then
+            exit(false);
+
+        if "Journal Batch Name" = '' then
+            exit(false);
+
+        exit(true);
+    end;
+
+    var
+        ReverseRegisterEnabled: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetReverseRegisterEnabled(RegisterNo: Integer; var ReverseEnabled: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

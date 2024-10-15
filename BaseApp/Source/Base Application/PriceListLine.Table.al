@@ -5,6 +5,7 @@ table 7001 "Price List Line"
         field(1; "Price List Code"; Code[20])
         {
             DataClassification = CustomerContent;
+            TableRelation = "Price List Header";
         }
         field(2; "Line No."; Integer)
         {
@@ -16,10 +17,7 @@ table 7001 "Price List Line"
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
-                if xRec."Source Type" = "Source Type" then
-                    exit;
-
-                xRec.CopyTo(PriceSource);
+                CopyRecTo(PriceSource);
                 PriceSource.Validate("Source Type", "Source Type");
                 CopyFrom(PriceSource);
                 if "Asset No." <> '' then begin
@@ -34,7 +32,7 @@ table 7001 "Price List Line"
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
-                xRec.CopyTo(PriceSource);
+                CopyRecTo(PriceSource);
                 PriceSource.Validate("Source No.", "Source No.");
                 CopyFrom(PriceSource);
             end;
@@ -51,7 +49,7 @@ table 7001 "Price List Line"
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
-                xRec.CopyTo(PriceSource);
+                CopyRecTo(PriceSource);
                 PriceSource.Validate("Parent Source No.", "Parent Source No.");
                 CopyFrom(PriceSource);
             end;
@@ -61,7 +59,7 @@ table 7001 "Price List Line"
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
-                xRec.CopyTo(PriceSource);
+                CopyRecTo(PriceSource);
                 PriceSource.Validate("Source ID", "Source ID");
                 CopyFrom(PriceSource);
             end;
@@ -69,20 +67,24 @@ table 7001 "Price List Line"
         field(7; "Asset Type"; Enum "Price Asset Type")
         {
             DataClassification = CustomerContent;
+
             trigger OnValidate()
             begin
-                xRec.CopyTo(PriceAsset);
+                CopyRecTo(PriceAsset);
                 PriceAsset.Validate("Asset Type", "Asset Type");
                 CopyFrom(PriceAsset);
+
+                InitHeaderDefaults();
             end;
         }
         field(8; "Asset No."; Code[20])
         {
             DataClassification = CustomerContent;
             NotBlank = true;
+
             trigger OnValidate()
             begin
-                xRec.CopyTo(PriceAsset);
+                CopyRecTo(PriceAsset);
                 PriceAsset.Validate("Asset No.", "Asset No.");
                 CopyFrom(PriceAsset);
             end;
@@ -100,7 +102,7 @@ table 7001 "Price List Line"
 
             trigger OnValidate()
             begin
-                xRec.CopyTo(PriceAsset);
+                CopyRecTo(PriceAsset);
                 PriceAsset.Validate("Variant Code", "Variant Code");
                 CopyFrom(PriceAsset);
             end;
@@ -138,7 +140,9 @@ table 7001 "Price List Line"
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
-                VerifyDates();
+                CopyRecTo(PriceSource);
+                PriceSource.Validate("Starting Date", "Starting Date");
+                CopyFrom(PriceSource);
             end;
         }
         field(13; "Ending Date"; Date)
@@ -146,7 +150,9 @@ table 7001 "Price List Line"
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
-                VerifyDates();
+                CopyRecTo(PriceSource);
+                PriceSource.Validate("Ending Date", "Ending Date");
+                CopyFrom(PriceSource);
             end;
         }
         field(14; "Minimum Quantity"; Decimal)
@@ -161,7 +167,7 @@ table 7001 "Price List Line"
 
             trigger OnValidate()
             begin
-                xRec.CopyTo(PriceAsset);
+                CopyRecTo(PriceAsset);
                 PriceAsset.Validate("Unit of Measure Code", "Unit of Measure Code");
                 CopyFrom(PriceAsset);
             end;
@@ -268,7 +274,7 @@ table 7001 "Price List Line"
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
-                xRec.CopyTo(PriceAsset);
+                CopyRecTo(PriceAsset);
                 PriceAsset.Validate("Asset ID", "Asset ID");
                 CopyFrom(PriceAsset);
             end;
@@ -302,25 +308,40 @@ table 7001 "Price List Line"
         }
     }
 
-    trigger OnInsert()
-    begin
-        if IsTemporary then
-            "Line No." := "Line No." + 1
-        else
-            "Line No." := 0;
-    end;
-
     protected var
         PriceAsset: Record "Price Asset";
         PriceSource: Record "Price Source";
 
     var
-        StartingDateErr: Label 'Starting Date cannot be after Ending Date.';
-        CampaignDateErr: Label 'If Source Type is Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
+        IsNewRecord: Boolean;
 
     procedure IsRealLine(): Boolean;
     begin
         exit("Line No." <> 0);
+    end;
+
+    procedure CopyFrom(PriceListHeader: Record "Price List Header")
+    begin
+        if PriceListHeader."Source Type" <> PriceListHeader."Source Type"::All then
+            "Source Type" := PriceListHeader."Source Type";
+        if PriceListHeader."Source No." <> '' then begin
+            "Parent Source No." := PriceListHeader."Parent Source No.";
+            "Source No." := PriceListHeader."Source No.";
+            "Source ID" := PriceListHeader."Source ID";
+        end;
+        if PriceListHeader."Amount Type" <> PriceListHeader."Amount Type"::Any then
+            "Amount Type" := PriceListHeader."Amount Type";
+        if PriceListHeader."Price Type" <> PriceListHeader."Price Type"::Any then
+            "Price Type" := PriceListHeader."Price Type";
+
+        "Starting Date" := PriceListHeader."Starting Date";
+        "Ending Date" := PriceListHeader."Ending Date";
+        "Currency Code" := PriceListHeader."Currency Code";
+        "Price Includes VAT" := PriceListHeader."Price Includes VAT";
+        "VAT Bus. Posting Gr. (Price)" := PriceListHeader."VAT Bus. Posting Gr. (Price)";
+        "Allow Invoice Disc." := PriceListHeader."Allow Invoice Disc.";
+        "Allow Line Disc." := PriceListHeader."Allow Line Disc.";
+        OnAfterCopyFromPriceListHeader(PriceListHeader);
     end;
 
     local procedure CopyFrom(PriceSource: Record "Price Source")
@@ -357,6 +378,27 @@ table 7001 "Price List Line"
             "VAT Bus. Posting Gr. (Price)" := PriceAsset."VAT Bus. Posting Gr. (Price)";
         end;
         OnAfterCopyFromPriceAsset(PriceAsset);
+    end;
+
+    procedure SetNewRecord(NewRecord: Boolean)
+    begin
+        IsNewRecord := NewRecord;
+    end;
+
+    local procedure CopyRecTo(var PriceAsset: Record "Price Asset")
+    begin
+        if IsNewRecord then
+            Rec.CopyTo(PriceAsset)
+        else
+            xRec.CopyTo(PriceAsset);
+    end;
+
+    local procedure CopyRecTo(var PriceSource: Record "Price Source")
+    begin
+        if IsNewRecord then
+            Rec.CopyTo(PriceSource)
+        else
+            xRec.CopyTo(PriceSource);
     end;
 
     procedure CopyTo(var PriceAsset: Record "Price Asset")
@@ -403,21 +445,29 @@ table 7001 "Price List Line"
             until Next() = 0;
     end;
 
-    local procedure VerifyDates()
+    local procedure InitHeaderDefaults()
+    var
+        PriceListHeader: Record "Price List Header";
     begin
-        if (CurrFieldNo <> 0) and ("Source Type" = "Source Type"::Campaign) then
-            Error(CampaignDateErr);
-        if ("Ending Date" <> 0D) and ("Starting Date" <> 0D) and ("Ending Date" < "Starting Date") then
-            Error(StartingDateErr);
-    end;
+        if Rec."Price List Code" <> '' then
+            if PriceListHeader.Get(Rec."Price List Code") then
+                Rec.CopyFrom(PriceListHeader);
 
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterCopyFromPriceSource(PriceSource: Record "Price Source")
-    begin
+        OnAfterInitHeaderDefaults(PriceListHeader);
     end;
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyFromPriceAsset(PriceAsset: Record "Price Asset")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCopyFromPriceListHeader(PriceListHeader: Record "Price List Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCopyFromPriceSource(PriceSource: Record "Price Source")
     begin
     end;
 
@@ -428,6 +478,11 @@ table 7001 "Price List Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyToPriceSource(var PriceSource: Record "Price Source")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitHeaderDefaults(PriceListHeader: Record "Price List Header")
     begin
     end;
 }

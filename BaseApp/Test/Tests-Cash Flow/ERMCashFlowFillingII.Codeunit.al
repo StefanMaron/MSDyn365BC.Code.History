@@ -20,6 +20,9 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         EmptyDateFormula: DateFormula;
         CustomDateFormula: DateFormula;
@@ -2026,12 +2029,45 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // Verify purchase orders PurchaseOrderListAllOrdersVATPageHandler
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CashFlowWorksheetLineMoveDefaultDimToJnlLineDim()
+    var
+        DimensionValue: Record "Dimension Value";
+        CashFlowWorksheetLine: Record "Cash Flow Worksheet Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DimSetID: Integer;
+        GLAccountNo: Code[20];
+    begin
+        // [FEATURE] [UT] [CashFlow]
+        // [SCENARIO 352901] The "Cash Flow Worksheet Line".MoveDefaultDimToJnlLineDim must return correct Dimension Set ID when Dimension Value Code has max lenght.
+        Initialize;
+
+        // [GIVEN] "Dimension Value".Code = 'longnameofdimensionv'
+        // [GIVEN] "G/L Account" with default dimension "Dimension Value"."Dimension Code"
+        CreateGLAccountWithDefaultDimValue(DimensionValue, GLAccountNo);
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Shortcut Dimension 1 Code" := DimensionValue."Dimension Code";
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] "Cash Flow Worksheet Line" with "Shortcut Dimension 1 Code"
+        CashFlowWorksheetLine.Init();
+        CashFlowWorksheetLine."Shortcut Dimension 1 Code" := DimensionValue."Dimension Code";
+
+        // [WHEN] Invoke MoveDefualtDimToJnlLineDim
+        CashFlowWorksheetLine.MoveDefualtDimToJnlLineDim(DATABASE::"G/L Account", GLAccountNo, DimSetID);
+
+        // [THEN] Dimension Set ID must have non-zero value
+        Assert.AreNotEqual(0, DimSetID, 'The Dimension Set ID must have non-zero value.');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cash Flow - Filling II");
         LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
         Evaluate(EmptyDateFormula, '<0D>');
         Evaluate(CustomDateFormula, '<0D>');
         // for boundary reasons
@@ -2052,6 +2088,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
         Commit();
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cash Flow - Filling II");
     end;
 
@@ -2377,6 +2414,20 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalExchangeRateAmount);
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
         CurrencyExchangeRate.Modify(true);
+    end;
+
+    local procedure CreateGLAccountWithDefaultDimValue(var DimensionValue: Record "Dimension Value"; var GLAccountNo: Code[20])
+    var
+        Dimension: Record Dimension;
+        DefaultDimension: Record "Default Dimension";
+    begin
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValueWithCode(
+          DimensionValue,
+          LibraryUtility.GenerateRandomCode20(DimensionValue.FieldNo(Code), DATABASE::"Dimension Value"),
+          Dimension.Code);
+        LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccountNo, Dimension.Code, DimensionValue.Code);
     end;
 
     local procedure GetNumberOfSalesLines(SalesHeader: Record "Sales Header"): Integer

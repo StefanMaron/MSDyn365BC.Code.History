@@ -34,6 +34,9 @@ codeunit 311 "Item-Check Avail."
         ItemAvailabilityNotificationTxt: Label 'Item availability is low.';
         ItemAvailabilityNotificationDescriptionTxt: Label 'Show a warning when someone creates a sales order or sales invoice for an item that is out of stock.';
 
+    protected var
+        ContextInfo: Dictionary of [Text, Text];
+
     procedure ItemJnlCheckLine(ItemJnlLine: Record "Item Journal Line") Rollback: Boolean
     begin
         NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
@@ -181,6 +184,7 @@ codeunit 311 "Item-Check Avail."
 
         if SalesLine."Document Type" = SalesLine."Document Type"::Order then
             UseOrderPromise := true;
+        OnSalesLineShowWarningOnBeforeShowWarning(SalesLine, ContextInfo);
         exit(
           ShowWarning(
             SalesLine."No.",
@@ -252,6 +256,7 @@ codeunit 311 "Item-Check Avail."
                 GrossReq := GrossReq + OldItemNetChange;
         end;
 
+        OnCalculateOnBeforeCalcInitialQtyAvailable(Item, SchedRcpt, ReservedRcpt, GrossReq, ReservedReq, OldItemNetResChange, NewItemNetResChange, ContextInfo);
         InitialQtyAvailable :=
           InventoryQty +
           (SchedRcpt - ReservedRcpt) - (GrossReq - ReservedReq) -
@@ -629,6 +634,16 @@ codeunit 311 "Item-Check Avail."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowWarningForThisItem(Item: Record Item; var ShowWarning: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesLineShowWarningOnBeforeShowWarning(SalesLine: Record "Sales Line"; var ContextInfo: Dictionary of [Text, Text])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnBeforeCalcInitialQtyAvailable(Item: Record Item; SchedRcpt: Decimal; ReservedRcpt: Decimal; GrossReq: Decimal; ReservedReq: Decimal; OldItemNetResChange: Decimal; NewItemNetResChange: Decimal; ContextInfo: Dictionary of [Text, Text])
     begin
     end;
 

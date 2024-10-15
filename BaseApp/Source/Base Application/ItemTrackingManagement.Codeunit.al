@@ -813,16 +813,17 @@ codeunit 6500 "Item Tracking Management"
 
         GetWhseItemTrkgSetup(TempWhseJnlLine."Item No.", WhseItemTrackingSetup);
 
+        IsHandled := false;
         OnSplitWhseJnlLineOnAfterCheckWhseItemTrkgSetup(
             TempWhseJnlLine, TempWhseSplitTrackingSpec, WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Info Required",
-            TempWhseJnlLine2);
-
-        if not WhseItemTrackingSetup.TrackingRequired() then begin
-            TempWhseJnlLine2 := TempWhseJnlLine;
-            TempWhseJnlLine2.Insert();
-            OnAfterSplitWhseJnlLine(TempWhseJnlLine, TempWhseJnlLine2);
-            exit;
-        end;
+            TempWhseJnlLine2, IsHandled);
+        if not IsHandled then
+            if not WhseItemTrackingSetup.TrackingRequired() then begin
+                TempWhseJnlLine2 := TempWhseJnlLine;
+                TempWhseJnlLine2.Insert();
+                OnAfterSplitWhseJnlLine(TempWhseJnlLine, TempWhseJnlLine2);
+                exit;
+            end;
 
         LineNo := TempWhseJnlLine."Line No.";
         with TempWhseSplitTrackingSpec do begin
@@ -3459,7 +3460,7 @@ codeunit 6500 "Item Tracking Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSplitWhseJnlLineOnAfterCheckWhseItemTrkgSetup(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempWhseSplitTrackingSpec: Record "Tracking Specification" temporary; var WhseSNRequired: Boolean; var WhseLNRequired: Boolean; var TempWhseJnlLine2: Record "Warehouse Journal Line" temporary)
+    local procedure OnSplitWhseJnlLineOnAfterCheckWhseItemTrkgSetup(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var TempWhseSplitTrackingSpec: Record "Tracking Specification" temporary; var WhseSNRequired: Boolean; var WhseLNRequired: Boolean; var TempWhseJnlLine2: Record "Warehouse Journal Line" temporary; var IsHandled: Boolean)
     begin
     end;
 

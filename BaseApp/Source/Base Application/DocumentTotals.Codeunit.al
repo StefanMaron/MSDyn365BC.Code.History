@@ -49,7 +49,13 @@ codeunit 57 "Document Totals"
     var
         SalesLine2: Record "Sales Line";
         TotalSalesLine2: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateSalesSubPageTotals(TotalSalesHeader, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct, IsHandled);
+        if IsHandled then
+            exit;
+
         if TotalsUpToDate then
             exit;
         TotalsUpToDate := true;
@@ -101,7 +107,14 @@ codeunit 57 "Document Totals"
     end;
 
     procedure CalculatePostedSalesInvoiceTotals(var SalesInvoiceHeader: Record "Sales Invoice Header"; var VATAmount: Decimal; SalesInvoiceLine: Record "Sales Invoice Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculatePostedSalesInvoiceTotals(SalesInvoiceHeader, VATAmount, SalesInvoiceLine, IsHandled);
+        If IsHandled then
+            exit;
+
         if SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.") then begin
             SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
             VATAmount := SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount;
@@ -111,7 +124,14 @@ codeunit 57 "Document Totals"
     end;
 
     procedure CalculatePostedSalesCreditMemoTotals(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var VATAmount: Decimal; SalesCrMemoLine: Record "Sales Cr.Memo Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculatePostedSalesCreditMemoTotals(SalesCrMemoHeader, VATAmount, SalesCrMemoLine, IsHandled);
+        If IsHandled then
+            exit;
+
         if SalesCrMemoHeader.Get(SalesCrMemoLine."Document No.") then begin
             SalesCrMemoHeader.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
             VATAmount := SalesCrMemoHeader."Amount Including VAT" - SalesCrMemoHeader.Amount;
@@ -219,6 +239,11 @@ codeunit 57 "Document Totals"
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnSalesUpdateTotalsControlsOnBeforeCheckDocumentNo(CurrentSalesLine, TotalSalesHeader, TotalsSalesLine, RefreshMessageEnabled, ControlStyle, RefreshMessageText, InvDiscAmountEditable, CurrPageEditable, VATAmount, IsHandled);
+        If IsHandled then
+            exit;
+
         if CurrentSalesLine."Document No." = '' then
             exit;
 
@@ -286,7 +311,13 @@ codeunit 57 "Document Totals"
     procedure SalesRedistributeInvoiceDiscountAmounts(var TempSalesLine: Record "Sales Line" temporary; var VATAmount: Decimal; var TempTotalSalesLine: Record "Sales Line" temporary)
     var
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesRedistributeInvoiceDiscountAmounts(TempSalesLine, VATAmount, TempTotalSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesHeader do
             if Get(TempSalesLine."Document Type", TempSalesLine."Document No.") then begin
                 CalcFields("Recalculate Invoice Disc.");
@@ -374,7 +405,14 @@ codeunit 57 "Document Totals"
     end;
 
     procedure PurchaseUpdateTotalsControls(CurrentPurchaseLine: Record "Purchase Line"; var TotalPurchaseHeader: Record "Purchase Header"; var TotalsPurchaseLine: Record "Purchase Line"; var RefreshMessageEnabled: Boolean; var ControlStyle: Text; var RefreshMessageText: Text; var InvDiscAmountEditable: Boolean; var VATAmount: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchaseUpdateTotalsControls(CurrentPurchaseLine, TotalPurchaseHeader, TotalsPurchaseLine, RefreshMessageEnabled, ControlStyle, RefreshMessageText, InvDiscAmountEditable, VATAmount, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchaseUpdateTotalsControlsForceable(
           CurrentPurchaseLine, TotalPurchaseHeader, TotalsPurchaseLine, RefreshMessageEnabled, ControlStyle, RefreshMessageText,
           InvDiscAmountEditable, VATAmount, false);
@@ -449,7 +487,13 @@ codeunit 57 "Document Totals"
     procedure PurchaseRedistributeInvoiceDiscountAmounts(var TempPurchaseLine: Record "Purchase Line" temporary; var VATAmount: Decimal; var TempTotalPurchaseLine: Record "Purchase Line" temporary)
     var
         PurchaseHeader: Record "Purchase Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchaseRedistributeInvoiceDiscountAmounts(TempPurchaseLine, VATAmount, TempTotalPurchaseLine, IsHandled);
+        If IsHandled then
+            exit;
+
         with PurchaseHeader do
             if Get(TempPurchaseLine."Document Type", TempPurchaseLine."Document No.") then begin
                 CalcFields("Recalculate Invoice Disc.");
@@ -552,7 +596,13 @@ codeunit 57 "Document Totals"
     var
         PurchaseLine2: Record "Purchase Line";
         TotalPurchaseLine2: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculatePurchaseSubPageTotals(TotalPurchaseHeader, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct, IsHandled);
+        if IsHandled then
+            exit;
+
         if TotalsUpToDate then
             exit;
         TotalsUpToDate := true;
@@ -603,15 +653,29 @@ codeunit 57 "Document Totals"
     end;
 
     procedure CalculatePostedPurchInvoiceTotals(var PurchInvHeader: Record "Purch. Inv. Header"; var VATAmount: Decimal; PurchInvLine: Record "Purch. Inv. Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculatePostedPurchInvoiceTotals(PurchInvHeader, VATAmount, PurchInvLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if PurchInvHeader.Get(PurchInvLine."Document No.") then begin
             PurchInvHeader.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
             VATAmount := PurchInvHeader."Amount Including VAT" - PurchInvHeader.Amount;
         end;
+        OnAfterCalculatePostedPurchInvoiceTotals(PurchInvHeader, VATAmount, PurchInvLine);
     end;
 
     procedure CalculatePostedPurchCreditMemoTotals(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var VATAmount: Decimal; PurchCrMemoLine: Record "Purch. Cr. Memo Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculatePostedPurchCreditMemoTotals(PurchCrMemoHdr, VATAmount, PurchCrMemoLine, IsHandled);
+        if IsHandled then
+            exit;
         if PurchCrMemoHdr.Get(PurchCrMemoLine."Document No.") then begin
             PurchCrMemoHdr.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
             VATAmount := PurchCrMemoHdr."Amount Including VAT" - PurchCrMemoHdr.Amount;
@@ -819,6 +883,11 @@ codeunit 57 "Document Totals"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculatePostedPurchInvoiceTotals(var PurchInvHeader: Record "Purch. Inv. Header"; var VATAmount: Decimal; var PurchInvLine: Record "Purch. Inv. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalculatePurchaseSubPageTotals(var TotalPurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal; var TotalPurchaseLine2: Record "Purchase Line")
     begin
     end;
@@ -869,7 +938,47 @@ codeunit 57 "Document Totals"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculatePostedPurchCreditMemoTotals(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var VATAmount: Decimal; PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculatePostedPurchInvoiceTotals(var PurchInvHeader: Record "Purch. Inv. Header"; var VATAmount: Decimal; PurchInvLine: Record "Purch. Inv. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculatePostedSalesCreditMemoTotals(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var VATAmount: Decimal; SalesCrMemoLine: Record "Sales Cr.Memo Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculatePostedSalesInvoiceTotals(var SalesInvoiceHeader: Record "Sales Invoice Header"; var VATAmount: Decimal; SalesInvoiceLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculatePurchaseSubPageTotals(var TotalPurchaseHeader: Record "Purchase Header"; var TotalPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateSalesSubPageTotals(var TotalSalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesRedistributeInvoiceDiscountAmounts(var TempSalesLine: Record "Sales Line" temporary; var VATAmount: Decimal; var TempTotalSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesUpdateTotalsControls(var SalesHeader: Record "Sales Header"; var InvDiscAmountEditable: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseRedistributeInvoiceDiscountAmounts(var TempPurchaseLine: Record "Purchase Line" temporary; var VATAmount: Decimal; var TempTotalPurchaseLine: Record "Purchase Line" temporary; var IsHandled: Boolean)
     begin
     end;
 
@@ -879,7 +988,17 @@ codeunit 57 "Document Totals"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseUpdateTotalsControls(CurrentPurchaseLine: Record "Purchase Line"; var TotalPurchaseHeader: Record "Purchase Header"; var TotalsPurchaseLine: Record "Purchase Line"; var RefreshMessageEnabled: Boolean; var ControlStyle: Text; var RefreshMessageText: Text; var InvDiscAmountEditable: Boolean; var VATAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalculateSalesSubPageTotalsOnAfterSetFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesUpdateTotalsControlsOnBeforeCheckDocumentNo(CurrentSalesLine: Record "Sales Line"; var TotalSalesHeader: Record "Sales Header"; var TotalsSalesLine: Record "Sales Line"; var RefreshMessageEnabled: Boolean; var ControlStyle: Text; var RefreshMessageText: Text; var InvDiscAmountEditable: Boolean; CurrPageEditable: Boolean; var VATAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 }
