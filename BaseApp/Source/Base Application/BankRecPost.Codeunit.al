@@ -165,10 +165,10 @@ codeunit 10120 "Bank Rec.-Post"
             exit;
 
         with BankRecHeader do
-            if ("G/L Balance" +
+            if Round(("G/L Balance" +
                 ("Positive Adjustments" - "Negative Bal. Adjustments") +
                 ("Negative Adjustments" - "Positive Bal. Adjustments")) -
-               (("Statement Balance" + "Outstanding Deposits") - "Outstanding Checks") <> 0
+               (("Statement Balance" + "Outstanding Deposits") - "Outstanding Checks"), 0.01) <> 0
             then
                 Error(Text007);
     end;

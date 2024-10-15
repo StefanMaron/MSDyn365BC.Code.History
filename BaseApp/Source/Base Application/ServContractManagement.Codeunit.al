@@ -239,7 +239,7 @@ codeunit 5940 ServContractManagement
                             NextInvDate := CalcDate('<1M>', ServContractHeader."Next Invoice Date");
                         end;
 
-                        OnCreateServiceLedgerEntryOnBeforeInsertMultipleServLedgEntries(NextInvDate, ServContractHeader, ServContractLine);
+                        OnCreateServiceLedgerEntryOnBeforeInsertMultipleServLedgEntries(NextInvDate, ServContractHeader, ServContractLine, NoOfPayments, DueDate, InvFromDate, AddingNewLines, CountOfEntryLoop);
                         InsertMultipleServLedgEntries(
                           NoOfPayments, DueDate, NonDistrAmount, InvRoundedAmount, ServHeader2, InvFromDate, NextInvDate,
                           AddingNewLines, CountOfEntryLoop, ServContractLine, Currency."Amount Rounding Precision");
@@ -1181,8 +1181,13 @@ codeunit 5940 ServContractManagement
         LinePeriodStarts: Date;
         LinePeriodEnds: Date;
         ContractLineIncluded: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeCalcContractAmount(ServContractHeader, PeriodStarts, PeriodEnds);
+        IsHandled := false;
+        OnBeforeCalcContractAmount(ServContractHeader, PeriodStarts, PeriodEnds, AmountCalculated, IsHandled);
+        if IsHandled then
+            exit(AmountCalculated);
+
         Currency.InitRoundingPrecision;
         AmountCalculated := 0;
 
@@ -1204,6 +1209,7 @@ codeunit 5940 ServContractManagement
             if ServContractHeader."Last Invoice Date" <> 0D
             then
                 ServContractLine.SetFilter("Invoiced to Date", '%1|%2', ServContractHeader."Last Invoice Date", 0D);
+        OnCalcContractAmountOnAfterServContractLineSetFilters(ServContractLine, ServContractHeader, PeriodStarts, PeriodEnds);
         if ServContractLine.Find('-') then begin
             repeat
                 ContractLineIncluded := true;
@@ -2417,6 +2423,11 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcContractAmountOnAfterServContractLineSetFilters(var ServiceContractLine: Record "Service Contract Line"; var ServiceContractHeader: Record "Service Contract Header"; PeriodStarts: Date; PeriodEnds: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateDetailedServLineOnBeforeServLineInsertFirstLine(var ServiceLine: Record "Service Line"; var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
@@ -2477,7 +2488,7 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcContractAmount(var ServiceContractHeader: Record "Service Contract Header"; PeriodStarts: Date; PeriodEnds: Date)
+    local procedure OnBeforeCalcContractAmount(var ServiceContractHeader: Record "Service Contract Header"; PeriodStarts: Date; PeriodEnds: Date; var AmountCalculated: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -2647,7 +2658,7 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateServiceLedgerEntryOnBeforeInsertMultipleServLedgEntries(var NextInvDate: Date; ServContractHeader: Record "Service Contract Header"; ServContractLine: Record "Service Contract Line")
+    local procedure OnCreateServiceLedgerEntryOnBeforeInsertMultipleServLedgEntries(var NextInvDate: Date; ServContractHeader: Record "Service Contract Header"; ServContractLine: Record "Service Contract Line"; var NoOfPayments: Integer; var DueDate: Date; var InvFromDate: Date; var AddingNewLines: Boolean; var CountOfEntryLoop: Integer)
     begin
     end;
 

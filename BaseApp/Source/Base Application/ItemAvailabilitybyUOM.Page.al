@@ -25,7 +25,7 @@ page 5416 "Item Availability by UOM"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        UpdateSubForm;
+                        UpdateSubForm();
                     end;
                 }
                 field(AmountType; AmountType)
@@ -37,7 +37,7 @@ page 5416 "Item Availability by UOM"
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        UpdateSubForm;
+                        UpdateSubForm();
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -139,7 +139,7 @@ page 5416 "Item Availability by UOM"
                 trigger OnAction()
                 begin
                     FindPeriod('<=');
-                    UpdateSubForm;
+                    UpdateSubForm();
                 end;
             }
             action(NextPeriod)
@@ -155,7 +155,7 @@ page 5416 "Item Availability by UOM"
                 trigger OnAction()
                 begin
                     FindPeriod('>=');
-                    UpdateSubForm;
+                    UpdateSubForm();
                 end;
             }
         }
@@ -165,7 +165,7 @@ page 5416 "Item Availability by UOM"
     begin
         SetRange("Drop Shipment Filter", false);
         FindPeriod('');
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     trigger OnClosePage()
@@ -196,7 +196,7 @@ page 5416 "Item Availability by UOM"
         DateFilter := GetFilter("Date Filter");
     end;
 
-    local procedure UpdateSubForm()
+    protected procedure UpdateSubForm()
     begin
         CurrPage.ItemAvailUOMLines.PAGE.Set(Rec, AmountType);
     end;

@@ -1,4 +1,4 @@
-table 5741 "Transfer Line"
+﻿table 5741 "Transfer Line"
 {
     Caption = 'Transfer Line';
     DrillDownPageID = "Transfer Lines";
@@ -908,6 +908,10 @@ table 5741 "Transfer Line"
                     end;
                 end;
             end;
+        }
+        field(10003; "Custom Transit Number"; Text[30])
+        {
+            Caption = 'Custom Transit Number';
         }
         field(99000755; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {

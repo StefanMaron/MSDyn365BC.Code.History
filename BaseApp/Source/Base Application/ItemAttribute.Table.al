@@ -160,12 +160,13 @@ table 7500 "Item Attribute"
             until ItemAttributeValue.Next() = 0;
     end;
 
-    procedure HasBeenUsed(): Boolean
+    procedure HasBeenUsed() AttributeHasBeenUsed: Boolean
     var
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
     begin
         ItemAttributeValueMapping.SetRange("Item Attribute ID", ID);
-        exit(not ItemAttributeValueMapping.IsEmpty);
+        AttributeHasBeenUsed := not ItemAttributeValueMapping.IsEmpty();
+        OnAfterHasBeenUsed(Rec, AttributeHasBeenUsed);
     end;
 
     procedure RemoveUnusedArbitraryValues()
@@ -241,6 +242,11 @@ table 7500 "Item Attribute"
 
         ItemAttrValueTranslation.SetRange("Attribute ID", ID);
         ItemAttrValueTranslation.DeleteAll();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasBeenUsed(var ItemAttribute: Record "Item Attribute"; var AttributeHasBeenUsed: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

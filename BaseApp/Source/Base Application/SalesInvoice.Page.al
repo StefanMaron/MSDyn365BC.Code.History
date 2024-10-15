@@ -1,4 +1,4 @@
-page 43 "Sales Invoice"
+﻿page 43 "Sales Invoice"
 {
     Caption = 'Sales Invoice';
     PageType = Document;
@@ -146,12 +146,23 @@ page 43 "Sales Invoice"
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact person that the sales document will be sent to.';
 
+                        trigger OnLookup(var Text: Text): Boolean
+                        begin
+                            if not SelltoContactLookup() then
+                                exit(false);
+                            Text := Rec."Sell-to Contact No.";
+                            CurrPage.Update();
+                            exit(true);
+                        end;
+
                         trigger OnValidate()
                         begin
                             if ApplicationAreaMgmtFacade.IsAdvancedEnabled then
                                 if GetFilter("Sell-to Contact No.") = xRec."Sell-to Contact No." then
                                     if "Sell-to Contact No." <> xRec."Sell-to Contact No." then
                                         SetRange("Sell-to Contact No.");
+                            if "Sell-to Contact No." <> xRec."Sell-to Contact No." then
+                                CurrPage.Update();
                         end;
                     }
                     field(SellToPhoneNo; SellToContact."Phone No.")
@@ -884,13 +895,77 @@ page 43 "Sales Invoice"
                 field("Area"; Area)
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
+                    ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
                 }
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
                     Visible = false;
+                }
+            }
+            group(ElectronicDocument)
+            {
+                Caption = 'Electronic Document';
+                field("Transit-to Location"; "Transit-to Location")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the location that the goods or merchandise are moved to.';
+                }
+                field("Transport Operators"; "Transport Operators")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the operator of the vehicle that transports the goods or merchandise.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
+                }
+                field("Transit-from Date/Time"; "Transit-from Date/Time")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the estimated date and time at which the goods or merchandise leave the start address.';
+                }
+                field("Transit Hours"; "Transit Hours")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the estimated time in hours that it will take to transit from the start address to the temporary or final destination.';
+                }
+                field("Transit Distance"; "Transit Distance")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the distance travelled in kilometers from the start address to the temporary or final destination as a combination of the distances that are travelled by the different means of transport that move the goods or merchandise.';
+                }
+                field("Vehicle Code"; "Vehicle Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the vehicle that transports the goods or merchandise.';
+                }
+                field("Trailer 1"; "Trailer 1")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the trailer or semi-trailer that is used with the vehicle for the transfer of goods or merchandise.';
+                }
+                field("Trailer 2"; "Trailer 2")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the second trailer or semi-trailer that is used with the vehicle for the transfer of goods or merchandise.';
+                }
+                field(Control1310005; "Foreign Trade")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies whether the goods or merchandise that are transported enter or leave the national territory.';
+                }
+                field("Insurer Name"; "Insurer Name")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the name of the insurer that covers the risks of the motor transport used for the transfer of goods or merchandise.';
+                }
+                field("Insurer Policy Number"; "Insurer Policy Number")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the policy number assigned by the insurer, which covers the risks of the motor transport used for the transfer of goods or merchandise.';
                 }
             }
         }

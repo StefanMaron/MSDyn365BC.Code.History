@@ -1,4 +1,4 @@
-codeunit 27030 "SAT Utilities"
+﻿codeunit 27030 "SAT Utilities"
 {
     // This codeunit will house various utility functions used by the CFDI Mexican Reg F functionality.
 
@@ -290,6 +290,15 @@ codeunit 27030 "SAT Utilities"
         SATTaxScheme: Record "SAT Tax Scheme";
         SATPaymentTerm: Record "SAT Payment Term";
         MediaResources: Record "Media Resources";
+        SATFederalMotorTransport: Record "SAT Federal Motor Transport";
+        SATTrailerType: Record "SAT Trailer Type";
+        SATPermissionType: Record "SAT Permission Type";
+        SATHazardousMaterial: Record "SAT Hazardous Material";
+        SATPackagingType: Record "SAT Packaging Type";
+        SATState: Record "SAT State";
+        SATMunicipality: Record "SAT Municipality";
+        SATLocality: Record "SAT Locality";
+        SATSuburb: Record "SAT Suburb";
         SATClassificationPort: XMLport "SAT Classification";
         SATRelationshipTypePort: XMLport "SAT Relationship Type";
         SATUseCodePort: XMLport "SAT Use Code";
@@ -298,6 +307,15 @@ codeunit 27030 "SAT Utilities"
         SATPaymentMethodPort: XMLport "SAT Payment Method";
         SATTaxSchemePort: XMLport "SAT Tax Scheme";
         SATPaymentTermPort: XMLport "SAT Payment Term";
+        SATFederalMotorTransportPort: XMLport "SAT Federal Motor Transport";
+        SATTrailerTypePort: XMLport "SAT Trailer Type";
+        SATPermissionTypePort: XMLport "SAT Permission Type";
+        SATHazardousMaterialPort: XMLport "SAT Hazardous Material";
+        SATPackagingTypePort: XMLport "SAT Packaging Type";
+        SATStatePort: XMLport "SAT State";
+        SATMunicipalityPort: XMLport "SAT Municipality";
+        SATLocalityPort: XMLport "SAT Locality";
+        SATSuburbPort: XMLport "SAT Suburb";
         IStr: InStream;
     begin
         if not SATClassification.FindFirst then begin
@@ -362,6 +380,93 @@ codeunit 27030 "SAT Utilities"
             MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
             SATPaymentMethodPort.SetSource(IStr);
             SATPaymentMethodPort.Import;
+        end;
+
+        if SATFederalMotorTransport.IsEmpty() then begin
+            MediaResources.Get('SATFederalMotorTransport.xml');
+            MediaResources.CalcFields(Blob);
+            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+            SATFederalMotorTransportPort.SetSource(IStr);
+            SATFederalMotorTransportPort.Import();
+        end;
+
+        if SATTrailerType.IsEmpty() then begin
+            MediaResources.Get('SATTrailerTypes.xml');
+            MediaResources.CalcFields(Blob);
+            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+            SATTrailerTypePort.SetSource(IStr);
+            SATTrailerTypePort.Import();
+        end;
+
+        if SATPermissionType.IsEmpty() then begin
+            MediaResources.Get('SATPermissionTypes.xml');
+            MediaResources.CalcFields(Blob);
+            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+            SATPermissionTypePort.SetSource(IStr);
+            SATPermissionTypePort.Import();
+        end;
+
+        if SATHazardousMaterial.IsEmpty() then begin
+            MediaResources.Get('SATHazardousMaterials.xml');
+            MediaResources.CalcFields(Blob);
+            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+            SATHazardousMaterialPort.SetSource(IStr);
+            SATHazardousMaterialPort.Import();
+        end;
+
+        if SATPackagingType.IsEmpty() then begin
+            MediaResources.Get('SATPackagingTypes.xml');
+            MediaResources.CalcFields(Blob);
+            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+            SATPackagingTypePort.SetSource(IStr);
+            SATPackagingTypePort.Import();
+        end;
+
+        if SATState.IsEmpty() then begin
+            MediaResources.Get('SATStates.xml');
+            MediaResources.CalcFields(Blob);
+            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+            SATStatePort.SetSource(IStr);
+            SATStatePort.Import();
+        end;
+
+        if SATMunicipality.IsEmpty() then begin
+            MediaResources.Get('SATMunicipalities.xml');
+            MediaResources.CalcFields(Blob);
+            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+            SATMunicipalityPort.SetSource(IStr);
+            SATMunicipalityPort.Import();
+        end;
+
+        if SATLocality.IsEmpty() then begin
+            MediaResources.Get('SATLocalities.xml');
+            MediaResources.CalcFields(Blob);
+            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+            SATLocalityPort.SetSource(IStr);
+            SATLocalityPort.Import();
+        end;
+
+        if SATSuburb.IsEmpty() then begin
+            MediaResources.Get('SATSuburb1.xml');
+            MediaResources.CalcFields(Blob);
+            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+            SATSuburbPort.SetSource(IStr);
+            SATSuburbPort.Import();
+            MediaResources.Get('SATSuburb2.xml');
+            MediaResources.CalcFields(Blob);
+            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+            SATSuburbPort.SetSource(IStr);
+            SATSuburbPort.Import();
+            MediaResources.Get('SATSuburb3.xml');
+            MediaResources.CalcFields(Blob);
+            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+            SATSuburbPort.SetSource(IStr);
+            SATSuburbPort.Import();
+            MediaResources.Get('SATSuburb4.xml');
+            MediaResources.CalcFields(Blob);
+            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+            SATSuburbPort.SetSource(IStr);
+            SATSuburbPort.Import();
         end;
     end;
 

@@ -191,6 +191,7 @@ page 88 "Job Card"
                 SubPageLink = "Job No." = FIELD("No.");
                 SubPageView = SORTING("Job Task No.")
                               ORDER(Ascending);
+                UpdatePropagation = Both;
             }
             group(Posting)
             {

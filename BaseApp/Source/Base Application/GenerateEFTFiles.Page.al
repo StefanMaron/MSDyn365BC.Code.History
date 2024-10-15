@@ -8,6 +8,7 @@ page 10810 "Generate EFT Files"
     PromotedActionCategories = 'New,Process,Report,Manage';
     RefreshOnActivate = true;
     SourceTable = "EFT Export Workset";
+    DataCaptionExpression = CurrPage.GenerateEFTFileLines.PAGE.GetFirstColumn();
     UsageCategory = Tasks;
 
     layout

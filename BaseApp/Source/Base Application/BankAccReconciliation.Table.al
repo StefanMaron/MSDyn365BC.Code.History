@@ -537,8 +537,8 @@ table 273 "Bank Acc. Reconciliation"
     begin
         BankAccReconciliation.Delete();
 
-        BankAccountLedgerEntry.ResetStatementFields("Bank Account No.", "Statement No.");
-        CheckLedgerEntry.ResetStatementFields("Bank Account No.", "Statement No.");
+        BankAccountLedgerEntry.ResetStatementFields("Bank Account No.", "Statement No.", "Statement Type");
+        CheckLedgerEntry.ResetStatementFields("Bank Account No.", "Statement No.", "Statement Type");
 
         BankAccount.Get(BankAccount."No.");
         BankAccount."Last Statement No." := LastStatementNo;

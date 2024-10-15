@@ -17,6 +17,7 @@
                   TableData "Drop Shpt. Post. Buffer" = imd,
                   TableData "General Posting Setup" = imd,
                   TableData "Posted Assemble-to-Order Link" = i,
+                  TableData "Service Item" = rimd,
                   TableData "Item Entry Relation" = ri,
                   TableData "Value Entry Relation" = rid,
                   TableData "Return Receipt Header" = imd,
@@ -1110,6 +1111,7 @@
                     TempItemChargeAssgntSales."Applies-to Doc. Type"::"Credit Memo":
                         CheckItemCharge(TempItemChargeAssgntSales);
                 end;
+                OnPostItemChargeLineOnAfterTempItemChargeAssgntSalesLoop(TempItemChargeAssgntSales, SalesHeader, SalesLineBackup);
             until TempItemChargeAssgntSales.Next() = 0;
 
         OnAfterPostItemChargeLine(SalesLine, SalesLineACY);
@@ -1621,8 +1623,19 @@
                             ItemJnlLine2."Quantity (Base)" := -"Quantity (Base)";
                             ItemJnlLine2."Invoiced Qty. (Base)" := ItemJnlLine2."Quantity (Base)";
 
-                            PreciseTotalChargeAmt += OriginalAmt * Factor;
-                            ItemJnlLine2.Amount := PreciseTotalChargeAmt - RoundedPrevTotalChargeAmt;
+                            if SalesHeader."Currency Code" <> '' then begin
+                                PreciseTotalChargeAmt +=
+                                  CurrExchRate.ExchangeAmtLCYToFCY(
+                                    SalesHeader.GetUseDate(), SalesHeader."Currency Code", OriginalAmt * Factor, SalesHeader."Currency Factor");
+                                ItemJnlLine2.Amount :=
+                                  CurrExchRate.ExchangeAmtFCYToLCY(
+                                    SalesHeader.GetUseDate(), SalesHeader."Currency Code", PreciseTotalChargeAmt + TotalSalesLine.Amount, SalesHeader."Currency Factor") -
+                                  RoundedPrevTotalChargeAmt - TotalSalesLineLCY.Amount;
+                            end else begin
+                                PreciseTotalChargeAmt += OriginalAmt * Factor;
+                                ItemJnlLine2.Amount := PreciseTotalChargeAmt - RoundedPrevTotalChargeAmt;
+                            end;
+
                             RoundedPrevTotalChargeAmt += Round(ItemJnlLine2.Amount, GLSetup."Amount Rounding Precision");
 
                             ItemJnlLine2."Discount Amount" :=
@@ -2535,6 +2548,7 @@
             WarehouseRequest.DeleteRequest(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.");
 
             EInvoiceMgt.DeleteCFDIRelationsAfterPosting(SalesHeader);
+            EInvoiceMgt.DeleteCFDITransportOperatorsAfterPosting(DATABASE::"Sales Header", "Document Type", "No.");
         end;
 
         OnAfterDeleteAfterPosting(SalesHeader, SalesInvHeader, SalesCrMemoHeader, SuppressCommit);
@@ -2635,7 +2649,7 @@
                 Window.Close();
 
             IsHandled := false;
-            OnFinalizePostingOnBeforeCreateOutboxSalesTrans(SalesHeader, IsHandled, EverythingInvoiced);
+            OnFinalizePostingOnBeforeCreateOutboxSalesTrans(SalesHeader, IsHandled, EverythingInvoiced, SalesInvHeader, SalesCrMemoHeader);
             if not IsHandled then
                 if Invoice and "Send IC Document" then
                     if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then
@@ -6752,6 +6766,7 @@
     var
         SalesCommentLine: Record "Sales Comment Line";
         RecordLinkManagement: Codeunit "Record Link Management";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         with SalesHeader do begin
             SalesShptHeader.Init();
@@ -6788,6 +6803,7 @@
                 OnBeforeCreatePostedWhseRcptHeader(PostedWhseRcptHeader, WhseRcptHeader, SalesHeader);
                 WhsePostRcpt.CreatePostedRcptHeader(PostedWhseRcptHeader, WhseRcptHeader, "Shipping No.", "Posting Date");
             end;
+            EInvoiceMgt.InsertSalesShipmentCFDITransportOperators(SalesHeader, SalesShptHeader."No.");
         end;
     end;
 
@@ -7112,6 +7128,7 @@
     var
         WhseShptLine: Record "Warehouse Shipment Line";
         WhseRcptLine: Record "Warehouse Receipt Line";
+        ShouldGetWhseRcptLine: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -7121,13 +7138,15 @@
             exit;
 
         if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine."Return Qty. to Receive" <> 0) then begin
-            if WhseReceive and SalesLine.IsInventoriableItem() then
+            ShouldGetWhseRcptLine := WhseReceive and SalesLine.IsInventoriableItem();
+            OnInsertReturnReceiptLineWhsePostOnAfterCalcShouldGetWhseRcptLine(ReturnRcptLine, SalesLine, WhseShip, WhseReceive, ReturnRcptHeader, ShouldGetWhseRcptLine);
+            if ShouldGetWhseRcptLine then
                 if WhseRcptLine.GetWhseRcptLine(
                      WhseRcptHeader."No.", DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.")
                 then begin
                     WhseRcptLine.TestField("Qty. to Receive", ReturnRcptLine.Quantity);
                     SaveTempWhseSplitSpec(SalesLine, TempHandlingSpecification);
-                    OnInsertReturnReceiptLineOnBeforeCreatePostedRcptLine(SalesLine, ReturnRcptLine);
+                    OnInsertReturnReceiptLineOnBeforeCreatePostedRcptLine(SalesLine, ReturnRcptLine, WhseRcptLine, PostedWhseRcptHeader);
                     WhsePostRcpt.CreatePostedRcptLine(
                       WhseRcptLine, PostedWhseRcptHeader, PostedWhseRcptLine, TempWhseSplitSpecification);
                 end;
@@ -7139,6 +7158,7 @@
                     WhseShptLine.TestField("Qty. to Ship", -ReturnRcptLine.Quantity);
                     SaveTempWhseSplitSpec(SalesLine, TempHandlingSpecification);
                     WhsePostShpt.SetWhseJnlRegisterCU(WhseJnlPostLine);
+                    OnInsertReturnReceiptLineWhsePostOnBeforeCreatePostedShptLine(ReturnRcptLine, WhseShptLine, PostedWhseShptHeader);
                     WhsePostShpt.CreatePostedShptLine(
                       WhseShptLine, PostedWhseShptHeader, PostedWhseShptLine, TempWhseSplitSpecification);
                 end;
@@ -10233,7 +10253,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertReturnReceiptLineOnBeforeCreatePostedRcptLine(SalesLine: record "Sales Line"; ReturnRcptLine: record "Return Receipt Line")
+    local procedure OnInsertReturnReceiptLineOnBeforeCreatePostedRcptLine(SalesLine: record "Sales Line"; var ReturnRcptLine: record "Return Receipt Line"; var WhseRcptLine: Record "Warehouse Receipt Line"; PostedWhseRcptHeader: Record "Posted Whse. Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReturnReceiptLineWhsePostOnAfterCalcShouldGetWhseRcptLine(var ReturnRcptLine: Record "Return Receipt Line"; SalesLine: Record "Sales line"; WhseShip: Boolean; WhseReceive: Boolean; ReturnRcptHeader: Record "Return Receipt Header"; var ShouldGetWhseRcptLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReturnReceiptLineWhsePostOnBeforeCreatePostedShptLine(var ReturnRcptLine: Record "Return Receipt Line"; var WhseShptLine: Record "Warehouse Shipment Line"; PostedWhseShptHeader: Record "Posted Whse. Shipment Header")
     begin
     end;
 
@@ -10451,7 +10481,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFinalizePostingOnBeforeCreateOutboxSalesTrans(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; EverythingInvoiced: Boolean)
+    local procedure OnFinalizePostingOnBeforeCreateOutboxSalesTrans(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; EverythingInvoiced: Boolean; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 
@@ -10814,6 +10844,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemChargeOnAfterPostItemJnlLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemChargeLineOnAfterTempItemChargeAssgntSalesLoop(var TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
 

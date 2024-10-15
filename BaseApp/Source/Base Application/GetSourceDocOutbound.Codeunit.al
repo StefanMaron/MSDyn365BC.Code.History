@@ -56,7 +56,6 @@ codeunit 5752 "Get Source Doc. Outbound"
     procedure GetSingleOutboundDoc(var WhseShptHeader: Record "Warehouse Shipment Header")
     var
         WhseRqst: Record "Warehouse Request";
-        SourceDocSelection: Page "Source Documents";
         IsHandled: Boolean;
     begin
         OnBeforeGetSingleOutboundDoc(WhseShptHeader, IsHandled);
@@ -74,22 +73,35 @@ codeunit 5752 "Get Source Doc. Outbound"
         WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
         WhseRqst.SetRange("Completely Handled", false);
 
-        SourceDocSelection.LookupMode(true);
-        SourceDocSelection.SetTableView(WhseRqst);
-        if SourceDocSelection.RunModal <> ACTION::LookupOK then
-            exit;
-        SourceDocSelection.GetResult(WhseRqst);
-
-        GetSourceDocuments.SetOneCreatedShptHeader(WhseShptHeader);
-        GetSourceDocuments.SetSkipBlocked(true);
-        GetSourceDocuments.UseRequestPage(false);
-        WhseRqst.SetRange("Location Code", WhseShptHeader."Location Code");
-        GetSourceDocuments.SetTableView(WhseRqst);
-        GetSourceDocuments.RunModal;
+        GetSourceDocForHeader(WhseShptHeader, WhseRqst);
 
         UpdateShipmentHeaderStatus(WhseShptHeader);
 
         OnAfterGetSingleOutboundDoc(WhseShptHeader);
+    end;
+
+    local procedure GetSourceDocForHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request")
+    var
+        SourceDocSelection: Page "Source Documents";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetSourceDocForHeader(WarehouseShipmentHeader, WarehouseRequest, IsHandled);
+        if IsHandled then
+            exit;
+
+        SourceDocSelection.LookupMode(true);
+        SourceDocSelection.SetTableView(WarehouseRequest);
+        if SourceDocSelection.RunModal <> ACTION::LookupOK then
+            exit;
+        SourceDocSelection.GetResult(WarehouseRequest);
+
+        GetSourceDocuments.SetOneCreatedShptHeader(WarehouseShipmentHeader);
+        GetSourceDocuments.SetSkipBlocked(true);
+        GetSourceDocuments.UseRequestPage(false);
+        WarehouseRequest.SetRange("Location Code", WarehouseShipmentHeader."Location Code");
+        GetSourceDocuments.SetTableView(WarehouseRequest);
+        GetSourceDocuments.RunModal;
     end;
 
     procedure CreateFromSalesOrder(SalesHeader: Record "Sales Header")
@@ -417,7 +429,13 @@ codeunit 5752 "Get Source Doc. Outbound"
     var
         Location: Record Location;
         LocationCode: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetRequireShipRqst(WhseRqst, IsHandled);
+        if IsHandled then
+            exit;
+
         if WhseRqst.FindSet then begin
             repeat
                 if Location.RequireShipment(WhseRqst."Location Code") then
@@ -631,6 +649,16 @@ codeunit 5752 "Get Source Doc. Outbound"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSalesHeaderMarkSalesLines(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSourceDocForHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetRequireShipRqst(var WarehouseRequest: Record "Warehouse Request"; var IsHandled: Boolean)
     begin
     end;
 

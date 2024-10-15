@@ -1,4 +1,4 @@
-table 14 Location
+﻿table 14 Location
 {
     Caption = 'Location';
     DataCaptionFields = "Code", Name;
@@ -628,6 +628,26 @@ table 14 Location
                 if "Do Not Use For Tax Calculation" then
                     "Provincial Tax Area Code" := '';
             end;
+        }
+        field(27026; "SAT State Code"; Code[10])
+        {
+            Caption = 'SAT State Code';
+            TableRelation = "SAT State";
+        }
+        field(27027; "SAT Municipality Code"; Code[10])
+        {
+            Caption = 'SAT Municipality Code';
+            TableRelation = "SAT Municipality" WHERE (State = FIELD ("SAT State Code"));
+        }
+        field(27028; "SAT Locality Code"; Code[10])
+        {
+            Caption = 'SAT Locality Code';
+            TableRelation = "SAT Locality" WHERE (State = FIELD ("SAT State Code"));
+        }
+        field(27029; "SAT Suburb ID"; Integer)
+        {
+            Caption = 'SAT Suburb ID';
+            TableRelation = "SAT Suburb";
         }
     }
 

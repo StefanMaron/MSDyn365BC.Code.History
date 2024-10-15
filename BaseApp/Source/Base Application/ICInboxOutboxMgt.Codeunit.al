@@ -954,7 +954,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreatePurchDocument(ICInboxPurchHeader, ReplacePostingDate, PostingDate, IsHandled);
+        OnBeforeCreatePurchDocument(ICInboxPurchHeader, ReplacePostingDate, PostingDate, IsHandled, PurchHeader, HandledICInboxPurchHeader);
         if IsHandled then
             exit;
 
@@ -3002,7 +3002,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePurchDocument(ICInboxPurchaseHeader: Record "IC Inbox Purchase Header"; ReplacePostingDate: Boolean; PostingDate: Date; var IsHandled: Boolean)
+    local procedure OnBeforeCreatePurchDocument(ICInboxPurchaseHeader: Record "IC Inbox Purchase Header"; ReplacePostingDate: Boolean; PostingDate: Date; var IsHandled: Boolean; var PurchaseHeader: Record "Purchase Header"; var HandledICInboxPurchHeader: Record "Handled IC Inbox Purch. Header")
     begin
     end;
 
