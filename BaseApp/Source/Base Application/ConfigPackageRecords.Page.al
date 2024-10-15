@@ -1475,7 +1475,7 @@ page 8626 "Config. Package Records"
         ShowDim := ShowDim1;
     end;
 
-    local procedure FindPackageFields(var ConfigPackageField: Record "Config. Package Field"): Boolean
+    local procedure FindPackageFields(var ConfigPackageField: Record "Config. Package Field") Result: Boolean
     begin
         ConfigPackageField.SetRange("Package Code", PackageCode);
         ConfigPackageField.SetRange("Table ID", TableNo);
@@ -1489,7 +1489,8 @@ page 8626 "Config. Package Records"
         end;
         if not ShowDim then
             ConfigPackageField.SetRange(Dimension, false);
-        exit(ConfigPackageField.FindSet);
+        Result := ConfigPackageField.FindSet;
+        OnAfterFindPackageFields(ConfigPackageField, Result);
     end;
 
     procedure SetErrorFieldNo(FieldNo: Integer)
@@ -1657,6 +1658,11 @@ page 8626 "Config. Package Records"
             repeat
                 ConfigPackageMgt.CleanRecordError(ConfigPackageRecord);
             until ConfigPackageRecord.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindPackageFields(var ConfigPackageField: Record "Config. Package Field"; var Result: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

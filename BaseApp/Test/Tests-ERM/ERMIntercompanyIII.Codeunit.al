@@ -4,6 +4,7 @@ codeunit 134154 "ERM Intercompany III"
                   TableData "Vendor Ledger Entry" = rimd;
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -29,9 +30,11 @@ codeunit 134154 "ERM Intercompany III"
         SalesDocType: Enum "Sales Document Type";
         PurchaseDocType: Enum "Purchase Document Type";
         ICTransactionDocType: Enum "IC Transaction Document Type";
+        ICPartnerRefType: Enum "IC Partner Reference Type";
         IsInitialized: Boolean;
         SendAgainQst: Label '%1 %2 has already been sent to intercompany partner %3. Resending it will create a duplicate %1 for them. Do you want to send it again?';
         AcceptAgainQst: Label '%1 %2 has already been received from intercompany partner %3. Accepting it again will create a duplicate %1. Do you want to accept the %1?';
+        InsufficientQtyErr: Label 'You have insufficient quantity of Item';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerYes,ICSetupPageHandler')]
@@ -1806,6 +1809,404 @@ codeunit 134154 "ERM Intercompany III"
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPostAutoSendTransactionSkipSendOnError()
+    var
+        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        CompanyInformation: Record "Company Information";
+        SalesHeader: Record "Sales Header";
+        ICPartner: Record "IC Partner";
+        Customer: Record Customer;
+        InventorySetup: Record "Inventory Setup";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ERMIntercompanyIII: Codeunit "ERM Intercompany III";
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 407832] Auto. Send Transaction should not send IC doc ignoring error
+        Initialize();
+
+        // [GIVEN] An IC Partner Code
+        ICPartnerCode := CreateICPartnerWithInbox();
+
+        // [GIVEN] Auto Send Transactions was enabled
+        CompanyInformation.Get();
+        CompanyInformation."Auto. Send Transactions" := true;
+        CompanyInformation."IC Partner Code" := ICPartnerCode;
+        CompanyInformation.Modify();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Inventory Setup with Prevent Negative Inventory = true
+        InventorySetup.Get();
+        InventorySetup.Validate("Prevent Negative Inventory", true);
+        InventorySetup.Modify();
+
+        // [GIVEN] IC Partner with Vendor No.
+        ICPartner.Get(ICPartnerCode);
+        ICPartner.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        ICPartner.Modify(true);
+
+        // [GIVEN] Created Sales Order
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        SalesHeader.Validate("Sell-to IC Partner Code", ICPartnerCode);
+        SalesHeader.Validate("Send IC Document", true);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Set IC Partner Code for created Customer
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("IC Partner Code", ICPartnerCode);
+        Customer.Modify(true);
+
+        // [WHEN] Post Sales Order with Ship = true, Post = false.
+        BindSubscription(ERMIntercompanyIII);
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Error message appears about insufficient quantity
+        // event OnBeforeSendICDocument should not be called
+        Assert.ExpectedError(InsufficientQtyErr);
+        UnbindSubscription(ERMIntercompanyIII);
+    end;
+    
+    [Test]
+    procedure PostSalesOrderWhenQtyToShipZero()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        Vendor: Record Vendor;
+        ICPartnerCode: Code[20];
+        PostedInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 403295] Post Sales Order for IC Customer when Qty to Ship = Qty to Invoice = 0 for some lines.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Vendor with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateVendorWithICPartner(Vendor, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Sales Order "SO" with two lines for Customer with IC Partner.
+        // [GIVEN] Qty to Ship/Invoice = Quantity = 10 for Sales Line "SL1".
+        // [GIVEN] Qty to Ship/Invoice = 0 and Quantity = 30 for Sales Line "SL2".
+        CreateSalesDocumentForICPartnerCustomer(SalesHeader, SalesDocType::Order, ICPartnerCode);
+        LibrarySales.FindFirstSalesLine(SalesLine[1], SalesHeader);
+        LibrarySales.CreateSalesLine(
+            SalesLine[2], SalesHeader, SalesLine[2].Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(30, 40, 2));
+        UpdateQtyToShipOnSalesLine(SalesLine[2]."Document Type", SalesLine[2]."Document No.", SalesLine[2]."Line No.", 0);
+
+        // [WHEN] Post Sales Order with Ship and Invoice options.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Transaction for Sales Order is created in IC Outbox. It has two lines with Quantity 10 and 30 respectively.
+        FindICOutboxTransaction(
+            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICTransactionDocType::Order, SalesHeader."No.", ICPartnerCode);
+        Assert.RecordIsNotEmpty(ICOutboxTransaction);
+        VerifyICOutboxSalesLineCount(ICOutboxTransaction, 2);
+        VerifyICOutboxSalesLineQty(ICOutboxTransaction, ICPartnerRefType::Item, SalesLine[1]."No.", SalesLine[1].Quantity);
+        VerifyICOutboxSalesLineQty(ICOutboxTransaction, ICPartnerRefType::Item, SalesLine[2]."No.", SalesLine[2].Quantity);
+
+        // [THEN] Transaction for Sales Invoice is created in IC Outbox. It has one line for "SL1" with Quantity = 10.
+        PostedInvoiceNo := FindLastSalesInvoiceHeaderNo(SalesHeader."No.");
+        FindICOutboxTransaction(
+            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICTransactionDocType::Invoice, PostedInvoiceNo, ICPartnerCode);
+        Assert.RecordIsNotEmpty(ICOutboxTransaction);
+        VerifyICOutboxSalesLineCount(ICOutboxTransaction, 1);
+        VerifyICOutboxSalesLineQty(ICOutboxTransaction, ICPartnerRefType::Item, SalesLine[1]."No.", SalesLine[1].Quantity);
+
+        // [WHEN] Set Qty to Ship/Invoice = 30 for "SL2" and post Sales Order again with Ship and Invoice options.
+        UpdateQtyToShipOnSalesLine(SalesLine[2]."Document Type", SalesLine[2]."Document No.", SalesLine[2]."Line No.", SalesLine[2].Quantity);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Transaction for Sales Invoice is created in IC Outbox. It has one line for "SL2" with Quantity = 30.
+        PostedInvoiceNo := FindLastSalesInvoiceHeaderNo(SalesHeader."No.");
+        FindICOutboxTransaction(
+            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICTransactionDocType::Invoice, PostedInvoiceNo, ICPartnerCode);
+        Assert.RecordIsNotEmpty(ICOutboxTransaction);
+        VerifyICOutboxSalesLineCount(ICOutboxTransaction, 1);
+        VerifyICOutboxSalesLineQty(ICOutboxTransaction, ICPartnerRefType::Item, SalesLine[2]."No.", SalesLine[2].Quantity);
+    end;
+
+    [Test]
+    procedure PostSalesReturnOrderWhenQtyToReceiveZero()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        Vendor: Record Vendor;
+        ICPartnerCode: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 403295] Post Sales Return Order for IC Customer when Return Qty to Receive = Qty to Invoice = 0 for some lines.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Vendor with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateVendorWithICPartner(Vendor, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Sales Return Order "SRO" with two lines for Customer with IC Partner.
+        // [GIVEN] Qty to Receive/Invoice = Quantity = 10 for Sales Line "SL1".
+        // [GIVEN] Qty to Receive/Invoice = 0 and Quantity = 30 for Sales Line "SL2".
+        CreateSalesDocumentForICPartnerCustomer(SalesHeader, SalesDocType::"Return Order", ICPartnerCode);
+        LibrarySales.FindFirstSalesLine(SalesLine[1], SalesHeader);
+        LibrarySales.CreateSalesLine(
+            SalesLine[2], SalesHeader, SalesLine[2].Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(30, 40, 2));
+        UpdateReturnQtyToReceiveOnSalesLine(SalesLine[2]."Document Type", SalesLine[2]."Document No.", SalesLine[2]."Line No.", 0);
+
+        // [WHEN] Post Sales Return Order with Receive and Invoice options.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Transaction for Sales Return Order is created in IC Outbox. It has two lines with Quantity 10 and 30 respectively.
+        FindICOutboxTransaction(
+            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICTransactionDocType::"Return Order", SalesHeader."No.", ICPartnerCode);
+        Assert.RecordIsNotEmpty(ICOutboxTransaction);
+        VerifyICOutboxSalesLineCount(ICOutboxTransaction, 2);
+        VerifyICOutboxSalesLineQty(ICOutboxTransaction, ICPartnerRefType::Item, SalesLine[1]."No.", SalesLine[1].Quantity);
+        VerifyICOutboxSalesLineQty(ICOutboxTransaction, ICPartnerRefType::Item, SalesLine[2]."No.", SalesLine[2].Quantity);
+
+        // [THEN] Transaction for Sales Credit Memo is created in IC Outbox. It has one line for "SL1" with Quantity = 10.
+        PostedCrMemoNo := FindLastSalesCrMemoHeaderNo(SalesHeader."No.");
+        FindICOutboxTransaction(
+            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICTransactionDocType::"Credit Memo", PostedCrMemoNo, ICPartnerCode);
+        Assert.RecordIsNotEmpty(ICOutboxTransaction);
+        VerifyICOutboxSalesLineCount(ICOutboxTransaction, 1);
+        VerifyICOutboxSalesLineQty(ICOutboxTransaction, ICPartnerRefType::Item, SalesLine[1]."No.", SalesLine[1].Quantity);
+
+        // [WHEN] Set Qty to Receive/Invoice = 30 for "SL2" and post Sales Order again with Receive and Invoice options.
+        UpdateReturnQtyToReceiveOnSalesLine(SalesLine[2]."Document Type", SalesLine[2]."Document No.", SalesLine[2]."Line No.", SalesLine[2].Quantity);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Transaction for Sales Credit Memo is created in IC Outbox. It has one line for "SL2" with Quantity = 30.
+        PostedCrMemoNo := FindLastSalesCrMemoHeaderNo(SalesHeader."No.");
+        FindICOutboxTransaction(
+            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICTransactionDocType::"Credit Memo", PostedCrMemoNo, ICPartnerCode);
+        Assert.RecordIsNotEmpty(ICOutboxTransaction);
+        VerifyICOutboxSalesLineCount(ICOutboxTransaction, 1);
+        VerifyICOutboxSalesLineQty(ICOutboxTransaction, ICPartnerRefType::Item, SalesLine[2]."No.", SalesLine[2].Quantity);
+    end;
+
+    [Test]
+    procedure PostSalesOrderWhenICDirectionIncoming()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        SalesHeader: Record "Sales Header";
+        Vendor: Record Vendor;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 409079] Post Sales Order for IC Customer when IC Direction = Incoming.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Vendor with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateVendorWithICPartner(Vendor, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Sales Order for Customer with IC Partner. IC Direction = Incoming.
+        CreateSalesDocumentForICPartnerCustomer(SalesHeader, SalesDocType::Order, ICPartnerCode);
+        UpdateICDirectionOnSalesHeader(SalesHeader, SalesHeader."IC Direction"::Incoming);
+        SalesHeader.TestField("Sell-to IC Partner Code");
+        SalesHeader.TestField("Bill-to IC Partner Code");
+
+        // [WHEN] Post Sales Order.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Transaction for Sales Order is not created in IC Outbox.
+        Assert.RecordIsEmpty(ICOutboxTransaction);
+    end;
+
+    [Test]
+    procedure PostSalesOrderWhenICDirectionOutgoing()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        SalesHeader: Record "Sales Header";
+        Vendor: Record Vendor;
+        ICPartnerCode: Code[20];
+        PostedInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 409079] Post Sales Order for IC Customer when IC Direction = Outgoing.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Vendor with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateVendorWithICPartner(Vendor, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Sales Order for Customer with IC Partner. IC Direction = Outgoing.
+        CreateSalesDocumentForICPartnerCustomer(SalesHeader, SalesDocType::Order, ICPartnerCode);
+        UpdateICDirectionOnSalesHeader(SalesHeader, SalesHeader."IC Direction"::Outgoing);
+        SalesHeader.TestField("Sell-to IC Partner Code");
+        SalesHeader.TestField("Bill-to IC Partner Code");
+
+        // [WHEN] Post Sales Order.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Transaction for Sales Order is created in IC Outbox.
+        FindICOutboxTransaction(
+            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICTransactionDocType::Order, SalesHeader."No.", ICPartnerCode);
+        Assert.RecordIsNotEmpty(ICOutboxTransaction);
+
+        // [THEN] Transaction for Sales Invoice is created in IC Outbox.
+        PostedInvoiceNo := FindLastSalesInvoiceHeaderNo(SalesHeader."No.");
+        FindICOutboxTransaction(
+            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICTransactionDocType::Invoice, PostedInvoiceNo, ICPartnerCode);
+        Assert.RecordIsNotEmpty(ICOutboxTransaction);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure PostSalesOrderWhenBillToICPartnerEmpty()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        SalesHeader: Record "Sales Header";
+        Vendor: Record Vendor;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 409079] Post Sales Order for IC Customer when "Bill-to IC Partner Code" = ''.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Vendor with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateVendorWithICPartner(Vendor, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Sales Order for Customer with IC Partner. Bill-to Customer No. is set to another Customer without IC Partner.
+        CreateSalesDocumentForICPartnerCustomer(SalesHeader, SalesDocType::Order, ICPartnerCode);
+        UpdateBillToCustomerNoOnSalesHeader(SalesHeader, LibrarySales.CreateCustomerNo());
+        SalesHeader.TestField("Sell-to IC Partner Code");
+        SalesHeader.TestField("Bill-to IC Partner Code", '');
+
+        // [WHEN] Post Sales Order.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Transaction for Sales Order is not created in IC Outbox.
+        Assert.RecordIsEmpty(ICOutboxTransaction);
+    end;
+
+    [Test]
+    procedure PostSalesReturnOrderWhenICDirectionIncoming()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        SalesHeader: Record "Sales Header";
+        Vendor: Record Vendor;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 409079] Post Sales Return Order for IC Customer when IC Direction = Incoming.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Vendor with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateVendorWithICPartner(Vendor, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Sales Return Order for Customer with IC Partner. IC Direction = Incoming.
+        CreateSalesDocumentForICPartnerCustomer(SalesHeader, SalesDocType::"Return Order", ICPartnerCode);
+        UpdateICDirectionOnSalesHeader(SalesHeader, SalesHeader."IC Direction"::Incoming);
+        SalesHeader.TestField("Sell-to IC Partner Code");
+        SalesHeader.TestField("Bill-to IC Partner Code");
+
+        // [WHEN] Post Sales Return Order.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Transaction for Sales Return Order is not created in IC Outbox.
+        Assert.RecordIsEmpty(ICOutboxTransaction);
+    end;
+
+    [Test]
+    procedure PostSalesReturnOrderWhenICDirectionOutgoing()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        SalesHeader: Record "Sales Header";
+        Vendor: Record Vendor;
+        ICPartnerCode: Code[20];
+        PostedCrMemoNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 409079] Post Sales Return Order for IC Customer when IC Direction = Outgoing.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Vendor with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateVendorWithICPartner(Vendor, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Sales Return Order for Customer with IC Partner. IC Direction = Outgoing.
+        CreateSalesDocumentForICPartnerCustomer(SalesHeader, SalesDocType::"Return Order", ICPartnerCode);
+        UpdateICDirectionOnSalesHeader(SalesHeader, SalesHeader."IC Direction"::Outgoing);
+        SalesHeader.TestField("Sell-to IC Partner Code");
+        SalesHeader.TestField("Bill-to IC Partner Code");
+
+        // [WHEN] Post Sales Return Order.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Transaction for Sales Return Order is created in IC Outbox.
+        FindICOutboxTransaction(
+            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICTransactionDocType::"Return Order", SalesHeader."No.", ICPartnerCode);
+        Assert.RecordIsNotEmpty(ICOutboxTransaction);
+
+        // [THEN] Transaction for Sales Credit Memo is created in IC Outbox.
+        PostedCrMemoNo := FindLastSalesCrMemoHeaderNo(SalesHeader."No.");
+        FindICOutboxTransaction(
+            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document",
+            ICTransactionDocType::"Credit Memo", PostedCrMemoNo, ICPartnerCode);
+        Assert.RecordIsNotEmpty(ICOutboxTransaction);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure PostSalesReturnOrderWhenBillToICPartnerEmpty()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        SalesHeader: Record "Sales Header";
+        Vendor: Record Vendor;
+        ICPartnerCode: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 409079] Post Sales Return Order for IC Customer when "Bill-to IC Partner Code" = ''.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Vendor with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateVendorWithICPartner(Vendor, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Sales Return Order for Customer with IC Partner. Bill-to Customer No. is set to another Customer without IC Partner.
+        CreateSalesDocumentForICPartnerCustomer(SalesHeader, SalesDocType::"Return Order", ICPartnerCode);
+        UpdateBillToCustomerNoOnSalesHeader(SalesHeader, LibrarySales.CreateCustomerNo());
+        SalesHeader.TestField("Sell-to IC Partner Code");
+        SalesHeader.TestField("Bill-to IC Partner Code", '');
+
+        // [WHEN] Post Sales Return Order.
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Transaction for Sales Return Order is not created in IC Outbox.
+        Assert.RecordIsEmpty(ICOutboxTransaction);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1829,6 +2230,7 @@ codeunit 134154 "ERM Intercompany III"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibrarySetupStorage.Save(Database::"Inventory Setup");
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Intercompany III");
     end;
@@ -2082,6 +2484,34 @@ codeunit 134154 "ERM Intercompany III"
             Validate("Check Doc. Total Amounts", false);
             Modify(true);
         end;
+    end;
+
+    local procedure FindLastSalesInvoiceHeaderNo(OrderNo: Code[20]): Code[20]
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        SalesInvoiceHeader.SetRange("Order No.", OrderNo);
+        SalesInvoiceHeader.FindLast();
+        exit(SalesInvoiceHeader."No.");
+    end;
+
+    local procedure FindLastSalesCrMemoHeaderNo(OrderNo: Code[20]): Code[20]
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        SalesCrMemoHeader.SetRange("Return Order No.", OrderNo);
+        SalesCrMemoHeader.FindLast();
+        exit(SalesCrMemoHeader."No.");
+    end;
+
+    local procedure FindICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; SourceType: Option; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20]; ICPartnerCode: Code[20])
+    begin
+        ICOutboxTransaction.Reset();
+        ICOutboxTransaction.SetRange("Source Type", SourceType);
+        ICOutboxTransaction.SetRange("Document Type", DocumentType);
+        ICOutboxTransaction.SetRange("Document No.", DocumentNo);
+        ICOutboxTransaction.SetRange("IC Partner Code", ICPartnerCode);
+        ICOutboxTransaction.FindFirst();
     end;
 
     local procedure GetICDimensionValueFromDimensionValue(var ICDimensionValue: Record "IC Dimension Value"; DimensionValue: Record "Dimension Value")
@@ -2418,6 +2848,36 @@ codeunit 134154 "ERM Intercompany III"
         CompanyInformation.Modify(true);
     end;
 
+    local procedure UpdateQtyToShipOnSalesLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; LineNo: Integer; QtyToShip: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.Get(DocumentType, DocumentNo, LineNo);
+        SalesLine.Validate("Qty. to Ship", QtyToShip);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateReturnQtyToReceiveOnSalesLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; LineNo: Integer; ReturnQtyToReceive: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.Get(DocumentType, DocumentNo, LineNo);
+        SalesLine.Validate("Return Qty. to Receive", ReturnQtyToReceive);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateICDirectionOnSalesHeader(var SalesHeader: Record "Sales Header"; ICDirection: Option)
+    begin
+        SalesHeader.Validate("IC Direction", ICDirection);
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure UpdateBillToCustomerNoOnSalesHeader(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
+    begin
+        SalesHeader.Validate("Bill-to Customer No.", CustomerNo);
+        SalesHeader.Modify(true);
+    end;
+
     local procedure VerifySalesDocDimSet(DimensionValue: array[5] of Record "Dimension Value"; CustomerNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
@@ -2535,6 +2995,29 @@ codeunit 134154 "ERM Intercompany III"
         Assert.RecordCount(HandledICInboxTrans, ExpectedCount);
     end;
 
+    local procedure VerifyICOutboxSalesLineCount(ICOutboxTransaction: Record "IC Outbox Transaction"; ExpectedLineCount: Integer)
+    var
+        ICOutboxSalesLine: Record "IC Outbox Sales Line";
+    begin
+        ICOutboxSalesLine.SetRange("IC Transaction No.", ICOutboxTransaction."Transaction No.");
+        ICOutboxSalesLine.SetRange("IC Partner Code", ICOutboxTransaction."IC Partner Code");
+        ICOutboxSalesLine.SetRange("Transaction Source", ICOutboxTransaction."Transaction Source");
+        Assert.RecordCount(ICOutboxSalesLine, ExpectedLineCount);
+    end;
+
+    local procedure VerifyICOutboxSalesLineQty(ICOutboxTransaction: Record "IC Outbox Transaction"; ICPartnerRefType: Enum "IC Partner Reference Type"; ICPartnerReference: Code[20]; ExpectedQuantity: Decimal)
+    var
+        ICOutboxSalesLine: Record "IC Outbox Sales Line";
+    begin
+        ICOutboxSalesLine.SetRange("IC Transaction No.", ICOutboxTransaction."Transaction No.");
+        ICOutboxSalesLine.SetRange("IC Partner Code", ICOutboxTransaction."IC Partner Code");
+        ICOutboxSalesLine.SetRange("Transaction Source", ICOutboxTransaction."Transaction Source");
+        ICOutboxSalesLine.SetRange("IC Partner Ref. Type", ICPartnerRefType);
+        ICOutboxSalesLine.SetRange("IC Partner Reference", ICPartnerReference);
+        ICOutboxSalesLine.FindFirst();
+        Assert.AreEqual(ExpectedQuantity, ICOutboxSalesLine.Quantity, '');
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
@@ -2561,6 +3044,12 @@ codeunit 134154 "ERM Intercompany III"
     procedure ICSetupPageHandler(var ICSetup: TestPage "IC Setup")
     begin
         ICSetup.Cancel.Invoke;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeSendICDocument', '', false, false)]
+    local procedure OnBeforeSendICDocument(var SalesHeader: Record "Sales Header"; var ModifyHeader: Boolean; var IsHandled: Boolean)
+    begin
+        Error('OnBeforeSendICDocument should not be called');
     end;
 }
 

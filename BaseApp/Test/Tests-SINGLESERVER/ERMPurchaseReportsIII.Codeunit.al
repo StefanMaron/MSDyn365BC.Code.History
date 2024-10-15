@@ -1892,9 +1892,11 @@ codeunit 134988 "ERM Purchase Reports III"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Reports III");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         isInitialized := true;
@@ -3229,8 +3231,25 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/CurrCode_TempVenLedgEntryLoop', CurrencyCode, NodeIndex);
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/TempCurrency2Code', CurrencyCode, NodeIndex);
-        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/VLEEndingDateRemAmt', FormatDecimalXML(Amount), NodeIndex);
-        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/VLEEndingDateRemAmtLCY', FormatDecimalXML(AmountLCY), NodeIndex);
+        VeryXmlNodeWithDecimalValue('//Result/VLEEndingDateRemAmt', NodeIndex, Amount);
+        VeryXmlNodeWithDecimalValue('//Result/VLEEndingDateRemAmtLCY', NodeIndex, AmountLCY);
+    end;
+
+    local procedure VeryXmlNodeWithDecimalValue(NodeXPath: Text; NodeIndex: Integer; ExpectedValue: Decimal)
+    var
+        NodeList: DotNet XmlNodeList;
+        Node: DotNet XmlNode;
+        NodeCount: Integer;
+        ActualValue: Decimal;
+    begin
+        LibraryXPathXMLReader.GetNodeList(NodeXPath, NodeList);
+        NodeCount := NodeList.Count();
+        Assert.AreNotEqual(0, NodeCount, 'Xml Node has not been found by xPath = ' + NodeXPath);
+        Node := NodeList.Item(NodeIndex);
+        if IsNull(Node) then
+            Assert.Fail(StrSubstNo('Node is not found by path: %1, index: %2', NodeXPath, NodeIndex));
+        Evaluate(ActualValue, Node.InnerText);
+        Assert.AreEqual(ExpectedValue, ActualValue, 'Xml Node value');
     end;
 
     local procedure VerifyTotalLCYAgedAccountsPayable(TotalLCY: Decimal)

@@ -1380,7 +1380,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     OnBeforePrePlanDateDemandProc(SupplyInvtProfile, DemandInvtProfile, SupplyExists, DemandExists);
                     while DemandExists do begin
                         IsHandled := false;
-                        OnPlanItemOnBeforeSumDemandInvtProfile(DemandInvtProfile, IsHandled);
+                        OnPlanItemOnBeforeSumDemandInvtProfile(DemandInvtProfile, IsHandled, PlanningStartDate, LastProjectedInventory, LastAvailableInventory);
                         if not IsHandled then begin
                             LastProjectedInventory -= DemandInvtProfile."Remaining Quantity (Base)";
                             LastAvailableInventory -= DemandInvtProfile."Untracked Quantity";
@@ -1458,7 +1458,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
                     LotAccumulationPeriodStartDate := 0D;
                     NextState := NextState::StartOver;
-                    while PlanThisSKU do
+                    OnPlanItemOnBeforePlanThisSKULoop(TempSKU, DemandInvtProfile);
+                    while PlanThisSKU do begin
+                        OnPlanItemOnBeforePlanThisSKULoopIteration(TempSKU, NextState, DemandInvtProfile, SupplyInvtProfile);
                         case NextState of
                             NextState::StartOver:
                                 PlanItemNextStateStartOver(
@@ -1495,6 +1497,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                             else
                                 Error(Text001, SelectStr(NextState + 1, NextStateTxt));
                         end;
+                    end;
                 end;
                 OnPlanItemOnAfterTempSKULoop(TempSKU, ReqLine);
             until TempSKU.Next() = 0;
@@ -5166,7 +5169,17 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPlanItemOnBeforeSumDemandInvtProfile(DemandInvtProfile: Record "Inventory Profile"; var IsHandled: Boolean)
+    local procedure OnPlanItemOnBeforeSumDemandInvtProfile(DemandInvtProfile: Record "Inventory Profile"; var IsHandled: Boolean; PlanningStartDate: Date; var LastProjectedInventory: Decimal; var LastAvailableInventory: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPlanItemOnBeforePlanThisSKULoop(var StockkeepingUnit: Record "Stockkeeping Unit"; var DemandInventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPlanItemOnBeforePlanThisSKULoopIteration(var StockkeepingUnit: Record "Stockkeeping Unit"; NextState: Option; var DemandInventoryProfile: Record "Inventory Profile"; var SupplyInventoryProfile: Record "Inventory Profile")
     begin
     end;
 

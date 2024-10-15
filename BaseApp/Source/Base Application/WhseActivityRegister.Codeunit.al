@@ -1135,7 +1135,13 @@
     var
         WhseItemTrkgLine: Record "Whse. Item Tracking Line";
         QtyToHandleBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitTempTrackingSpecification(WhseActivLine2, QtyToRegisterBase, IsHandled);
+        if IsHandled then
+            exit(QtyToRegisterBase);
+
         QtyToRegisterBase := WhseActivLine2."Qty. to Handle (Base)";
         SetPointerFilter(WhseActivLine2, WhseItemTrkgLine);
 
@@ -2148,6 +2154,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRegisteredInvtMovementHdrInsert(var RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr."; WarehouseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitTempTrackingSpecification(WarehouseActivityLine: Record "Warehouse Activity Line"; var QtyToRegisterBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 
