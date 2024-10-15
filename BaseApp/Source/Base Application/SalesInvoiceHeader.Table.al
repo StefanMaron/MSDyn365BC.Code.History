@@ -767,6 +767,10 @@ table 112 "Sales Invoice Header"
             Caption = 'Draft Invoice SystemId';
             DataClassification = SystemMetadata;
         }
+        field(10801; "VAT Paid on Debits"; Boolean)
+        {
+            Caption = 'VAT Paid on Debits';
+        }
     }
 
     keys

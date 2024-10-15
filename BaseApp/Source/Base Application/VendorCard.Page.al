@@ -340,6 +340,11 @@
                     Importance = Additional;
                     ToolTip = 'Specifies the registration number of the vendor. You can enter a maximum of 20 characters, both numbers and letters.';
                 }
+                field("SIREN No."; Rec."SIREN No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the SIREN No. for the vendor.';
+                }
                 group("Posting Details")
                 {
                     Caption = 'Posting Details';
@@ -1176,33 +1181,39 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Purchase Invoice';
                 Image = NewPurchaseInvoice;
-                RunObject = Page "Purchase Invoice";
-                RunPageLink = "Buy-from Vendor No." = FIELD("No.");
-                RunPageMode = Create;
                 ToolTip = 'Create a new purchase invoice for items or services.';
                 Visible = NOT IsOfficeAddin;
+
+                trigger OnAction()
+                begin
+                    CreateAndShowNewInvoice();
+                end;
             }
             action(NewPurchaseOrder)
             {
                 ApplicationArea = Suite;
                 Caption = 'Purchase Order';
                 Image = Document;
-                RunObject = Page "Purchase Order";
-                RunPageLink = "Buy-from Vendor No." = FIELD("No.");
-                RunPageMode = Create;
                 ToolTip = 'Create a new purchase order.';
                 Visible = NOT IsOfficeAddin;
+
+                trigger OnAction()
+                begin
+                    CreateAndShowNewPurchaseOrder();
+                end;
             }
             action(NewPurchaseCrMemo)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Purchase Credit Memo';
                 Image = CreditMemo;
-                RunObject = Page "Purchase Credit Memo";
-                RunPageLink = "Buy-from Vendor No." = FIELD("No.");
-                RunPageMode = Create;
                 ToolTip = 'Create a new purchase credit memo to revert a posted purchase invoice.';
                 Visible = NOT IsOfficeAddin;
+
+                trigger OnAction()
+                begin
+                    CreateAndShowNewCreditMemo();
+                end;
             }
             action(NewPurchaseReturnOrder)
             {

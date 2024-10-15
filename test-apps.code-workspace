@@ -1,6 +1,9 @@
 {
   "folders": [
     {
+      "path": "./AuditFileExport/Test/Audit File Export Tests"
+    },
+    {
       "path": "./recommendedapps/test/Recommended Apps Tests"
     },
     {
@@ -188,6 +191,9 @@
     },
     {
       "path": "./WorldPayPaymentsStandard/Test/WorldPay Payments Standard Tests"
+    },
+    {
+      "path": "./FECAuditFile/Test/FEC Audit File Tests"
     },
     {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"

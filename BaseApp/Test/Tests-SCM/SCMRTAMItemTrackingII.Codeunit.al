@@ -3032,7 +3032,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         UpdateProductionBOMNoOnItem(ProdItem, ProductionBOMHeader."No.");
 
         // [GIVEN] Post item "C" to inventory, assign lot no. = "LC".
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, CompItem."No.", '', '', Qty);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, CompItem."No.", LocationYellow2.Code, '', Qty);
         LibraryItemTracking.CreateItemJournalLineItemTracking(
           ReservationEntry, ItemJournalLine, '', CompLotNo, ItemJournalLine."Quantity (Base)");
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -3052,7 +3052,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
 
         // [WHEN] Run item tracing for lot "LC" in Origin->Usage direction.
         ItemTracingMgt.FindRecords(
-          TempItemTracingBuffer, TempItemTracingBuffer2, '', CompLotNo, '', '', '', Direction::Forward, ShowComponents::All);
+          TempItemTracingBuffer, TempItemTracingBuffer2, '', CompLotNo, '', CompItem."No.", '', Direction::Forward, ShowComponents::All);
 
         // [THEN] Find the reversed consumption. Ensure it has indentation > 0, which means it is not a root node.
         // [THEN] The item tracing tree will be as follows:
@@ -3835,10 +3835,15 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         ProdOrderComponent: Record "Prod. Order Component";
         ReservationEntry: Record "Reservation Entry";
     begin
-        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItemNo, '', '', Qty);
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItemNo, LocationYellow2.Code, '', Qty);
         FindProdOrderLine(ProdOrderLine, ProductionOrder);
         LibraryItemTracking.CreateProdOrderItemTracking(ReservationEntry, ProdOrderLine, '', ProdLotNo, ProdOrderLine."Quantity (Base)");
         FindProdOrderComponent(ProdOrderComponent, ProdOrderLine, CompItemNo);
+        if ProdOrderComponent.Quantity <> ProdOrderComponent."Expected Quantity" then begin
+            ProdOrderComponent.validate(Quantity, ProdOrderComponent."Expected Quantity");
+            ProdOrderComponent.validate("Quantity (Base)", ProdOrderComponent."Expected Qty. (Base)");
+            ProdOrderComponent.Modify();
+        end;
         LibraryItemTracking.CreateProdOrderCompItemTracking(
           ReservationEntry, ProdOrderComponent, '', CompLotNo, ProdOrderComponent."Quantity (Base)");
         LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
@@ -4259,6 +4264,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
           ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::Consumption, ItemNo, Qty);
         ItemJournalLine.Validate("Order No.", ProductionOrderNo);
+        ItemJournalLine.Validate("Location Code", LocationYellow2.Code);
         ItemJournalLine.Modify(true);
         LibraryItemTracking.CreateItemJournalLineItemTracking(
           ReservationEntry, ItemJournalLine, '', LotNo, ItemJournalLine."Quantity (Base)");

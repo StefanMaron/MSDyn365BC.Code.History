@@ -238,6 +238,8 @@ table 7321 "Warehouse Shipment Line"
 
                 if "Assemble to Order" then
                     ATOLink.UpdateQtyToAsmFromWhseShptLine(Rec);
+
+                OnAfterValidateQtyToShip(Rec, xRec);
             end;
         }
         field(22; "Qty. to Ship (Base)"; Decimal)
@@ -1116,6 +1118,21 @@ table 7321 "Warehouse Shipment Line"
         exit(QtyOutstandingBase);
     end;
 
+    internal procedure CheckDirectTransfer(DirectTransfer: Boolean; DoCheck: Boolean): Boolean
+    var
+        InventorySetup: Record "Inventory Setup";
+        TransferHeader: Record "Transfer Header";
+    begin
+        InventorySetup.Get();
+        if InventorySetup."Direct Transfer Posting" = InventorySetup."Direct Transfer Posting"::"Direct Transfer" then begin
+            TransferHeader.Get(Rec."Source No.");
+            if DoCheck then
+                TransferHeader.TestField("Direct Transfer", DirectTransfer)
+            else
+                exit(TransferHeader."Direct Transfer");
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutofillQtyToHandle(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var HideValidationDialog: Boolean)
     begin
@@ -1258,6 +1275,11 @@ table 7321 "Warehouse Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetQuantityBase(var Rec: Record "Warehouse Shipment Line"; var QuantityBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateQtyToShip(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var xWarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 }

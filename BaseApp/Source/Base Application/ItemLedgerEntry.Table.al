@@ -527,33 +527,15 @@ table 32 "Item Ledger Entry"
         {
             SumIndexFields = Quantity, "Remaining Quantity";
         }
-#pragma warning disable AS0009
-        key(Key7; "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date", "Expiration Date", "Lot No.", "Serial No.", "Package No.")
-#pragma warning restore AS0009
-        {
-            Enabled = false;
-            SumIndexFields = Quantity, "Remaining Quantity";
-        }
         key(Key8; "Country/Region Code", "Entry Type", "Posting Date")
         {
         }
         key(Key9; "Document No.", "Document Type", "Document Line No.")
         {
         }
-        key(Key10; "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Global Dimension 1 Code", "Global Dimension 2 Code", "Location Code", "Posting Date")
-        {
-            Enabled = false;
-            SumIndexFields = Quantity, "Invoiced Quantity";
-        }
-        key(Key11; "Source Type", "Source No.", "Global Dimension 1 Code", "Global Dimension 2 Code", "Item No.", "Variant Code", "Posting Date")
-        {
-            Enabled = false;
-            SumIndexFields = Quantity;
-        }
         key(Key12; "Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.")
         {
-            MaintainSIFTIndex = false;
-            SumIndexFields = Quantity;
+            IncludedFields = Quantity;
         }
         key(Key13; "Item No.", "Applied Entry to Adjust")
         {
@@ -561,30 +543,11 @@ table 32 "Item Ledger Entry"
         key(Key14; "Item No.", Positive, "Location Code", "Variant Code")
         {
         }
-        key(Key15; "Entry Type", Nonstock, "Item No.", "Posting Date")
-        {
-            Enabled = false;
-        }
-#pragma warning disable AS0009
-        key(Key16; "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.")
-#pragma warning restore AS0009
-        {
-            Enabled = false;
-            SumIndexFields = "Remaining Quantity";
-        }
 #pragma warning disable AS0009
         key(Key17; "Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.", "Package No.")
 #pragma warning restore AS0009
         {
-        }
-#pragma warning disable AS0009
-        key(Key18; "Item No.", Open, "Variant Code", "Location Code", "Item Tracking", "Lot No.", "Serial No.", "Package No.")
-#pragma warning restore AS0009
-        {
-            Enabled = false;
-            MaintainSIFTIndex = false;
-            MaintainSQLIndex = false;
-            SumIndexFields = "Remaining Quantity";
+            IncludedFields = "Remaining Quantity";
         }
         key(Key19; "Lot No.")
         {

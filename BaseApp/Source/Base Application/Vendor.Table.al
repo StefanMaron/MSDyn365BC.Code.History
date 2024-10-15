@@ -1424,9 +1424,13 @@
             Caption = 'Over-Receipt Code';
             TableRelation = "Over-Receipt Code";
         }
+        field(10805; "SIREN No."; Code[9])
+        {
+            Caption = 'SIREN No.';
+        }
         field(10860; "Payment in progress (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Payment Line"."Amount (LCY)" WHERE("Account Type" = CONST(Vendor),
+            CalcFormula = Sum("Payment Line"."Amount (LCY)" WHERE("Account Type" = CONST(Vendor),
                                                                    "Account No." = FIELD("No."),
                                                                    "Copied To Line" = CONST(0),
                                                                    "Payment in Progress" = CONST(true)));

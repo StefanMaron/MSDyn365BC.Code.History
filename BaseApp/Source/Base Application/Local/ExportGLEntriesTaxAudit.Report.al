@@ -1,3 +1,4 @@
+#if not CLEAN23
 report 10885 "Export G/L Entries - Tax Audit"
 {
     ApplicationArea = Basic, Suite;
@@ -5,6 +6,9 @@ report 10885 "Export G/L Entries - Tax Audit"
     ProcessingOnly = true;
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
+    ObsoleteReason = 'Use Audit File Export Document with the FEC format selected. The Audit File Export and FEC Audit File extensions must be installed.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
 
     dataset
     {
@@ -852,3 +856,4 @@ report 10885 "Export G/L Entries - Tax Audit"
           '||' + CRLF);
     end;
 }
+#endif

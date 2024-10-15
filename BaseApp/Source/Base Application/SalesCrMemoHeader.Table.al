@@ -493,6 +493,11 @@ table 114 "Sales Cr.Memo Header"
             Caption = 'VAT Date';
             Editable = false;
         }
+        field(180; "Rcvd-from Country/Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -633,6 +638,10 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Draft Cr. Memo System Id';
             DataClassification = SystemMetadata;
+        }
+        field(10801; "VAT Paid on Debits"; Boolean)
+        {
+            Caption = 'VAT Paid on Debits';
         }
     }
 

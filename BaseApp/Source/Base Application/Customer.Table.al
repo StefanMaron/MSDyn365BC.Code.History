@@ -1620,6 +1620,10 @@
         {
             Caption = 'Contact Graph Id';
         }
+        field(10805; "SIREN No."; Code[9])
+        {
+            Caption = 'SIREN No.';
+        }
         field(10860; "Payment in progress (LCY)"; Decimal)
         {
             CalcFormula = - Sum("Payment Line"."Amount (LCY)" WHERE("Account Type" = CONST(Customer),
@@ -1923,6 +1927,7 @@
         RemovePaymentRoleranceQst: Label 'Do you want to remove payment tolerance from entries that are currently open?';
         CreateNewCustTxt: Label 'Create a new customer card for %1', Comment = '%1 is the name to be used to create the customer. ';
         SelectCustErr: Label 'You must select an existing customer.';
+        SirenNoTemplateTxt: Label '%1: %2', Locked = True;
         CustNotRegisteredTxt: Label 'This customer is not registered. To continue, choose one of the following options:';
         SelectCustTxt: Label 'Select an existing customer';
         OverrideImageQst: Label 'Override Image?';
@@ -2180,6 +2185,11 @@
         if "Customer Price Group" <> '' then
             if CustomerPriceGroup.Get("Customer Price Group") then
                 exit(CustomerPriceGroup."Price Calculation Method");
+    end;
+
+    procedure GetSIRENNoWithCaption(): Text
+    begin
+        exit(StrSubstNo(SirenNoTemplateTxt, Rec.FieldCaption("Siren No."), Rec."Siren No."));
     end;
 
     procedure GetTotalAmountLCY() TotalAmountLCY: Decimal

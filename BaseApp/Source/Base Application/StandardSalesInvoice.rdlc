@@ -4293,9 +4293,9 @@
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>15.74954cm</Top>
+                              <Top>19.92077cm</Top>
                               <Left>0.02032in</Left>
-                              <Height>1.55224cm</Height>
+                              <Height>1.16418cm</Height>
                               <Width>16.8cm</Width>
                               <ZIndex>2</ZIndex>
                               <Visibility>
@@ -5230,7 +5230,7 @@
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>13.49784cm</Top>
+                              <Top>17.59215cm</Top>
                               <Left>0.02032in</Left>
                               <Height>1.76418cm</Height>
                               <Width>15.2cm</Width>
@@ -5796,11 +5796,11 @@
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>17.34384cm</Top>
+                              <Top>13.60574cm</Top>
                               <Left>0.02032in</Left>
                               <Height>3.88058cm</Height>
                               <Width>18.02485cm</Width>
-                              <ZIndex>4</ZIndex>
+                              <ZIndex>12</ZIndex>
                               <Visibility>
                                 <Hidden>=NOT Fields!ShowShippingAddress.Value</Hidden>
                               </Visibility>
@@ -6531,7 +6531,7 @@
                               <Left>11.55097cm</Left>
                               <Height>2.946cm</Height>
                               <Width>7cm</Width>
-                              <ZIndex>5</ZIndex>
+                              <ZIndex>4</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -6560,7 +6560,7 @@
                               <Left>0.02032in</Left>
                               <Height>11pt</Height>
                               <Width>18cm</Width>
-                              <ZIndex>6</ZIndex>
+                              <ZIndex>13</ZIndex>
                               <Visibility>
                                 <Hidden>=Fields!CompanyLegalStatement.Value = ""</Hidden>
                               </Visibility>
@@ -6676,11 +6676,11 @@
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>15.28162cm</Top>
+                              <Top>19.39161cm</Top>
                               <Left>0.21461cm</Left>
                               <Height>0.42333cm</Height>
                               <Width>17.88733cm</Width>
-                              <ZIndex>7</ZIndex>
+                              <ZIndex>5</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -6825,7 +6825,7 @@
                               <Left>0.21398cm</Left>
                               <Height>1.4636cm</Height>
                               <Width>3.3782cm</Width>
-                              <ZIndex>8</ZIndex>
+                              <ZIndex>6</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -6836,7 +6836,7 @@
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>18.30602cm</Width>
+                                    <Width>12cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
@@ -6906,10 +6906,10 @@
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
                               <Top>5.60621cm</Top>
-                              <Left>0.09398cm</Left>
+                              <Left>6cm</Left>
                               <Height>0.4cm</Height>
-                              <Width>18.30602cm</Width>
-                              <ZIndex>9</ZIndex>
+                              <Width>12cm</Width>
+                              <ZIndex>7</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -6940,13 +6940,106 @@
                               <Left>2.05161cm</Left>
                               <Height>0.5cm</Height>
                               <Width>16.44839cm</Width>
-                              <ZIndex>10</ZIndex>
+                              <ZIndex>8</ZIndex>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
                                 </Border>
                                 <PaddingLeft>5pt</PaddingLeft>
                                 <PaddingRight>5pt</PaddingRight>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="CustomerSirenNo">
+                              <CanGrow>true</CanGrow>
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>=First(Fields!CustomerSirenNo.Value)</Value>
+                                      <Style>
+                                        <FontFamily>Segoe UI</FontFamily>
+                                        <FontSize>8pt</FontSize>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style />
+                                </Paragraph>
+                              </Paragraphs>
+                              <rd:DefaultName>CustomerSirenNo</rd:DefaultName>
+                              <Top>5.60717cm</Top>
+                              <Left>0cm</Left>
+                              <Height>0.4cm</Height>
+                              <Width>5cm</Width>
+                              <ZIndex>9</ZIndex>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <PaddingLeft>5pt</PaddingLeft>
+                                <PaddingRight>5pt</PaddingRight>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="Textbox67">
+                              <CanGrow>true</CanGrow>
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>=Fields!GoodsAndServices_Lbl.Value</Value>
+                                      <Style>
+                                        <FontFamily>Segoe UI</FontFamily>
+                                        <FontSize>8pt</FontSize>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style />
+                                </Paragraph>
+                              </Paragraphs>
+                              <rd:DefaultName>Textbox67</rd:DefaultName>
+                              <Top>11.87779cm</Top>
+                              <Left>0cm</Left>
+                              <Height>0.4cm</Height>
+                              <Width>4.5cm</Width>
+                              <ZIndex>10</ZIndex>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <PaddingTop>5pt</PaddingTop>
+                                <PaddingBottom>5pt</PaddingBottom>
+                              </Style>
+                            </Textbox>
+                            <Textbox Name="Textbox68">
+                              <CanGrow>true</CanGrow>
+                              <KeepTogether>true</KeepTogether>
+                              <Paragraphs>
+                                <Paragraph>
+                                  <TextRuns>
+                                    <TextRun>
+                                      <Value>=Fields!VATPaidOnDebits_Lbl.Value</Value>
+                                      <Style>
+                                        <FontFamily>Segoe UI</FontFamily>
+                                        <FontSize>8pt</FontSize>
+                                      </Style>
+                                    </TextRun>
+                                  </TextRuns>
+                                  <Style />
+                                </Paragraph>
+                              </Paragraphs>
+                              <rd:DefaultName>Textbox67</rd:DefaultName>
+                              <Top>12.38362cm</Top>
+                              <Left>0cm</Left>
+                              <Height>0.4cm</Height>
+                              <Width>4.5cm</Width>
+                              <ZIndex>11</ZIndex>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                                <PaddingTop>5pt</PaddingTop>
+                                <PaddingBottom>5pt</PaddingBottom>
                               </Style>
                             </Textbox>
                           </ReportItems>
@@ -7449,6 +7542,42 @@ End Function
         </Field>
         <Field Name="ShipToAddress8">
           <DataField>ShipToAddress8</DataField>
+        </Field>
+        <Field Name="AlternativeAddress_Lbl">
+          <DataField>AlternativeAddress_Lbl</DataField>
+        </Field>
+        <Field Name="AlternativeAddress1">
+          <DataField>AlternativeAddress1</DataField>
+        </Field>
+        <Field Name="AlternativeAddress2">
+          <DataField>AlternativeAddress2</DataField>
+        </Field>
+        <Field Name="AlternativeAddress3">
+          <DataField>AlternativeAddress3</DataField>
+        </Field>
+        <Field Name="AlternativeAddress4">
+          <DataField>AlternativeAddress4</DataField>
+        </Field>
+        <Field Name="AlternativeAddress5">
+          <DataField>AlternativeAddress5</DataField>
+        </Field>
+        <Field Name="AlternativeAddress6">
+          <DataField>AlternativeAddress6</DataField>
+        </Field>
+        <Field Name="AlternativeAddress7">
+          <DataField>AlternativeAddress7</DataField>
+        </Field>
+        <Field Name="AlternativeAddress8">
+          <DataField>AlternativeAddress8</DataField>
+        </Field>
+        <Field Name="CustomerSirenNo">
+          <DataField>CustomerSirenNo</DataField>
+        </Field>
+        <Field Name="GoodsAndServices_Lbl">
+          <DataField>GoodsAndServices_Lbl</DataField>
+        </Field>
+        <Field Name="VATPaidOnDebits_Lbl">
+          <DataField>VATPaidOnDebits_Lbl</DataField>
         </Field>
         <Field Name="SellToContactPhoneNoLbl">
           <DataField>SellToContactPhoneNoLbl</DataField>

@@ -148,14 +148,19 @@ page 21 "Customer Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the preferred method of sending documents to this customer, so that you do not have to select a sending option every time that you post and send a document to the customer. Sales documents to this customer will be sent using the specified sending profile and will override the default document sending profile.';
                 }
-                field(TotalSales2; Rec."Sales (LCY)")
+                field(TotalSales2; CustSalesLCY)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Total Sales';
+                    Caption = 'Total Sales - Fiscal Year';
                     Style = Strong;
                     StyleExpr = TRUE;
                     Editable = false;
                     ToolTip = 'Specifies your total sales turnover with the customer in the current fiscal year. It is calculated from amounts excluding VAT on all completed and open invoices and credit memos.';
+
+                    trigger OnDrillDown()
+                    begin
+                        OpenCurrFiscalYearCustLedgerEntries();
+                    end;
                 }
                 field("CustSalesLCY - CustProfit - AdjmtCostLCY"; CustSalesLCY - CustProfit - AdjmtCostLCY)
                 {
@@ -380,6 +385,11 @@ page 21 "Customer Card"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the registration number of the customer. You can enter a maximum of 20 characters, both numbers and letters.';
+                }
+                field("SIREN No."; Rec."SIREN No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the SIREN No. for the customer.';
                 }
                 group(PostingDetails)
                 {
@@ -2903,6 +2913,16 @@ page 21 "Customer Card"
                 EUVATRegistrationNoCheck.GetRecordRef(CustomerRecRef);
                 CustomerRecRef.SetTable(Customer);
             end;
+    end;
+
+    local procedure OpenCurrFiscalYearCustLedgerEntries()
+    var
+        CustLedgerEntries: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntries.SetCurrentKey("Customer No.", "Posting Date", "Currency Code");
+        CustLedgerEntries.SetRange("Customer No.", Rec."No.");
+        CustLedgerEntries.SetFilter("Posting Date", CustomerMgt.GetCurrentYearFilter());
+        Page.Run(0, CustLedgerEntries);
     end;
 
     [IntegrationEvent(true, false)]
