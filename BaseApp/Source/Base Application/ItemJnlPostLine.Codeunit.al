@@ -185,7 +185,7 @@ codeunit 22 "Item Jnl.-Post Line"
                not DisableItemTracking and not Adjustment and
                not Subcontracting and not IsAssemblyResourceConsumpLine
             then
-                CheckItemTracking;
+                CheckItemTracking();
 
             if Correction then
                 UndoQuantityPosting;
@@ -300,7 +300,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
         OnPostSplitJnlLineOnBeforeSplitJnlLine(ItemJnlLine, ItemJnlLineToPost, PostItemJnlLine);
 
-        while SplitJnlLine(ItemJnlLine, PostItemJnlLine) do
+        while SplitItemJnlLine(ItemJnlLine, PostItemJnlLine) do
             if PostItemJnlLine then
                 Code;
         Clear(PrevAppliedItemLedgEntry);
@@ -538,7 +538,7 @@ codeunit 22 "Item Jnl.-Post Line"
             OnPostOutputOnAfterInsertCostValueEntries(ItemJnlLine, CapLedgEntry, CalledFromAdjustment, PostToGL);
 
             if LastOperation and ("Output Quantity" <> 0) then begin
-                CheckItemTracking;
+                CheckItemTracking();
                 if ("Output Quantity" < 0) and not Adjustment then begin
                     if "Applies-to Entry" = 0 then
                         "Applies-to Entry" := FindOpenOutputEntryNoToApply(ItemJnlLine);
@@ -1221,7 +1221,8 @@ codeunit 22 "Item Jnl.-Post Line"
             QtyToPost :=
               CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, ProdOrderComp, OutputQtyBase) / ProdOrderComp."Qty. per Unit of Measure";
             if (ProdOrderLine."Remaining Qty. (Base)" = OutputQtyBase) and
-               (Abs(QtyToPost - ProdOrderComp."Remaining Quantity") < CompItem."Rounding Precision")
+               (Abs(QtyToPost - ProdOrderComp."Remaining Quantity") < CompItem."Rounding Precision") and
+               (ProdOrderComp."Remaining Quantity" <> 0)
             then
                 QtyToPost := ProdOrderComp."Remaining Quantity";
         end else
@@ -1271,7 +1272,7 @@ codeunit 22 "Item Jnl.-Post Line"
             TrackingSpecExists := ItemTrackingMgt.RetrieveItemTracking(ItemJnlLine, TempTrackingSpecification);
             PostItemJnlLine := SetupSplitJnlLine(ItemJnlLine, TrackingSpecExists);
 
-            while SplitJnlLine(ItemJnlLine, PostItemJnlLine) do begin
+            while SplitItemJnlLine(ItemJnlLine, PostItemJnlLine) do begin
                 if SNRequired and ("Serial No." = '') then
                     Error(SerialNoRequiredErr, "Item No.");
                 if LotRequired and ("Lot No." = '') then
@@ -1737,6 +1738,8 @@ codeunit 22 "Item Jnl.-Post Line"
                     if ItemApplnEntry."Cost Application" then
                         ItemLedgEntry."Applied Entry to Adjust" := true;
                 end else begin
+                    OnApplyItemLedgEntryOnBeforeCheckApplyEntry(OldItemLedgEntry);
+
                     if ItemTrackingCode."Strict Expiration Posting" and (OldItemLedgEntry."Expiration Date" <> 0D) and
                        not ItemLedgEntry.Correction and
                        not (ItemLedgEntry."Document Type" in
@@ -2286,7 +2289,14 @@ codeunit 22 "Item Jnl.-Post Line"
         OldItemApplnEntry: Record "Item Application Entry";
         ItemApplHistoryEntry: Record "Item Application Entry History";
         ItemApplnEntryExists: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertApplEntry(
+            ItemLedgEntryNo, InboundItemEntry, OutboundItemEntry, TransferedFromEntryNo, PostingDate, Quantity, CostToApply, IsHandled);
+        if IsHandled then
+            exit;
+
         if Item.IsNonInventoriableType then
             exit;
 
@@ -2413,6 +2423,8 @@ codeunit 22 "Item Jnl.-Post Line"
             ValueEntry."Posting Date" := "Posting Date";
             if "Partial Revaluation" then
                 ValueEntry."Partial Revaluation" := true;
+
+            OnInitValueEntryOnAfterAssignFields(ValueEntry, ItemLedgEntry);
 
             if (ItemLedgEntry.Quantity > 0) or
                (ItemLedgEntry."Invoiced Quantity" > 0) or
@@ -3653,9 +3665,11 @@ codeunit 22 "Item Jnl.-Post Line"
                     if Format(Item."Expiration Calculation") <> '' then
                         CalcExpirationDate := CalcDate(Item."Expiration Calculation", ItemJnlLine2."Document Date");
 
-                if SignFactor * ItemJnlLine2.Quantity < 0 then // Demand
-                    if ItemTrackingCode."SN Specific Tracking" or ItemTrackingCode."Lot Specific Tracking" then
-                        LateBindingMgt.ReallocateTrkgSpecification(TempTrackingSpecification);
+                OnSetupSplitJnlLineOnBeforeReallocateTrkgSpecification(ItemTrackingCode, TempTrackingSpecification, ItemJnlLine2, SignFactor, IsHandled);
+                if not IsHandled then
+                    if SignFactor * ItemJnlLine2.Quantity < 0 then // Demand
+                        if ItemTrackingCode."SN Specific Tracking" or ItemTrackingCode."Lot Specific Tracking" then
+                            LateBindingMgt.ReallocateTrkgSpecification(TempTrackingSpecification);
 
                 TempTrackingSpecification.CalcSums(
                   "Qty. to Handle (Base)", "Qty. to Invoice (Base)", "Qty. to Handle", "Qty. to Invoice");
@@ -3710,57 +3724,62 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(PostItemJnlLine);
     end;
 
-    local procedure SplitJnlLine(var ItemJnlLine2: Record "Item Journal Line"; PostItemJnlLine: Boolean): Boolean
+    local procedure SplitItemJnlLine(var ItemJnlLine2: Record "Item Journal Line"; PostItemJnlLine: Boolean): Boolean
     var
         FreeEntryNo: Integer;
         JnlLineNo: Integer;
         SignFactor: Integer;
         IsHandled: Boolean;
     begin
-        if (ItemJnlLine2."Quantity (Base)" <> 0) and ItemJnlLine2.TrackingExists then begin
-            if (ItemJnlLine2."Entry Type" in
-                [ItemJnlLine2."Entry Type"::Sale,
-                 ItemJnlLine2."Entry Type"::"Negative Adjmt.",
-                 ItemJnlLine2."Entry Type"::Consumption,
-                 ItemJnlLine2."Entry Type"::"Assembly Consumption"]) or
-               ((ItemJnlLine2."Entry Type" = ItemJnlLine2."Entry Type"::Transfer) and
-                not PostponeReservationHandling)
-            then
-                SignFactor := -1
-            else
-                SignFactor := 1;
+        IsHandled := false;
+        OnSplitItemJnlLineOnBeforeTracking(
+            ItemJnlLine2, PostItemJnlLine, TempTrackingSpecification, GlobalItemLedgEntry, TempItemEntryRelation,
+            PostponeReservationHandling, SignFactor, IsHandled);
+        if not IsHandled then
+            if (ItemJnlLine2."Quantity (Base)" <> 0) and ItemJnlLine2.TrackingExists then begin
+                if (ItemJnlLine2."Entry Type" in
+                    [ItemJnlLine2."Entry Type"::Sale,
+                    ItemJnlLine2."Entry Type"::"Negative Adjmt.",
+                    ItemJnlLine2."Entry Type"::Consumption,
+                    ItemJnlLine2."Entry Type"::"Assembly Consumption"]) or
+                ((ItemJnlLine2."Entry Type" = ItemJnlLine2."Entry Type"::Transfer) and
+                    not PostponeReservationHandling)
+                then
+                    SignFactor := -1
+                else
+                    SignFactor := 1;
 
-            TempTrackingSpecification.SetRange("Serial No.", ItemJnlLine2."Serial No.");
-            TempTrackingSpecification.SetRange("Lot No.", ItemJnlLine2."Lot No.");
-            if TempTrackingSpecification.FindFirst then begin
-                FreeEntryNo := TempTrackingSpecification."Entry No.";
-                TempTrackingSpecification.Delete;
-                ItemJnlLine2.TestField("Serial No.", TempTrackingSpecification."Serial No.");
-                ItemJnlLine2.TestField("Lot No.", TempTrackingSpecification."Lot No.");
-                TempTrackingSpecification."Quantity (Base)" := SignFactor * ItemJnlLine2."Quantity (Base)";
-                TempTrackingSpecification."Quantity Handled (Base)" := SignFactor * ItemJnlLine2."Quantity (Base)";
-                TempTrackingSpecification."Quantity actual Handled (Base)" := SignFactor * ItemJnlLine2."Quantity (Base)";
-                TempTrackingSpecification."Quantity Invoiced (Base)" := SignFactor * ItemJnlLine2."Invoiced Qty. (Base)";
-                TempTrackingSpecification."Qty. to Invoice (Base)" :=
-                  SignFactor * (ItemJnlLine2."Quantity (Base)" - ItemJnlLine2."Invoiced Qty. (Base)");
-                TempTrackingSpecification."Qty. to Handle (Base)" := 0;
-                TempTrackingSpecification."Qty. to Handle" := 0;
-                TempTrackingSpecification."Qty. to Invoice" :=
-                  SignFactor * (ItemJnlLine2.Quantity - ItemJnlLine2."Invoiced Quantity");
-                TempTrackingSpecification."Item Ledger Entry No." := GlobalItemLedgEntry."Entry No.";
-                TempTrackingSpecification."Transfer Item Entry No." := TempItemEntryRelation."Item Entry No.";
-                if PostItemJnlLine then
-                    TempTrackingSpecification."Entry No." := TempTrackingSpecification."Item Ledger Entry No.";
-                InsertTempTrkgSpecification(FreeEntryNo);
-            end else
-                if (ItemJnlLine2."Item Charge No." = '') and (ItemJnlLine2."Job No." = '') then
-                    if not ItemJnlLine2.Correction then begin // Undo quantity posting
-                        IsHandled := false;
-                        OnBeforeTrackingSpecificationMissingErr(ItemJnlLine2, IsHandled);
-                        if IsHandled then
-                            Error(TrackingSpecificationMissingErr);
-                    end;
-        end;
+                TempTrackingSpecification.SetRange("Serial No.", ItemJnlLine2."Serial No.");
+                TempTrackingSpecification.SetRange("Lot No.", ItemJnlLine2."Lot No.");
+                if TempTrackingSpecification.FindFirst then begin
+                    FreeEntryNo := TempTrackingSpecification."Entry No.";
+                    TempTrackingSpecification.Delete();
+                    ItemJnlLine2.TestField("Serial No.", TempTrackingSpecification."Serial No.");
+                    ItemJnlLine2.TestField("Lot No.", TempTrackingSpecification."Lot No.");
+                    TempTrackingSpecification."Quantity (Base)" := SignFactor * ItemJnlLine2."Quantity (Base)";
+                    TempTrackingSpecification."Quantity Handled (Base)" := SignFactor * ItemJnlLine2."Quantity (Base)";
+                    TempTrackingSpecification."Quantity actual Handled (Base)" := SignFactor * ItemJnlLine2."Quantity (Base)";
+                    TempTrackingSpecification."Quantity Invoiced (Base)" := SignFactor * ItemJnlLine2."Invoiced Qty. (Base)";
+                    TempTrackingSpecification."Qty. to Invoice (Base)" :=
+                    SignFactor * (ItemJnlLine2."Quantity (Base)" - ItemJnlLine2."Invoiced Qty. (Base)");
+                    TempTrackingSpecification."Qty. to Handle (Base)" := 0;
+                    TempTrackingSpecification."Qty. to Handle" := 0;
+                    TempTrackingSpecification."Qty. to Invoice" :=
+                    SignFactor * (ItemJnlLine2.Quantity - ItemJnlLine2."Invoiced Quantity");
+                    TempTrackingSpecification."Item Ledger Entry No." := GlobalItemLedgEntry."Entry No.";
+                    TempTrackingSpecification."Transfer Item Entry No." := TempItemEntryRelation."Item Entry No.";
+                    if PostItemJnlLine then
+                        TempTrackingSpecification."Entry No." := TempTrackingSpecification."Item Ledger Entry No.";
+                    InsertTempTrkgSpecification(FreeEntryNo);
+                end else
+                    if (ItemJnlLine2."Item Charge No." = '') and (ItemJnlLine2."Job No." = '') then
+                        if not ItemJnlLine2.Correction then begin // Undo quantity posting
+                            IsHandled := false;
+                            OnBeforeTrackingSpecificationMissingErr(ItemJnlLine2, IsHandled);
+                            if IsHandled then
+                                Error(TrackingSpecificationMissingErr);
+                        end;
+            end;
 
         if TempSplitItemJnlLine.FindFirst then begin
             JnlLineNo := ItemJnlLine2."Line No.";
@@ -5336,6 +5355,11 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertApplEntry(ItemLedgEntryNo: Integer; InboundItemEntry: Integer; OutboundItemEntry: Integer; TransferedFromEntryNo: Integer; PostingDate: Date; Quantity: Decimal; CostToApply: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTransferEntry(var NewItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -5731,6 +5755,11 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyItemLedgEntryOnBeforeCheckApplyEntry(var OldItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnApplyItemLedgEntryOnBeforeInsertApplEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -5757,6 +5786,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetValuationDateOnBeforeFindOldValueEntry(var OldValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitValueEntryOnAfterAssignFields(var ValueEntry: Record "Value Entry"; ItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -5867,6 +5901,19 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetOrderAdjmtPropertiesOnBeforeSetAllowOnlineAdjustment(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var ModifyOrderAdjmt: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetupSplitJnlLineOnBeforeReallocateTrkgSpecification(var ItemTrackingCode: Record "Item Tracking Code"; var TempTrackingSpecification: Record "Tracking Specification" temporary; var ItemJnlLine: Record "Item Journal Line"; var SignFactor: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitItemJnlLineOnBeforeTracking(
+        var ItemJnlLine2: Record "Item Journal Line"; var PostItemJnlLine: Boolean; var TempTrackingSpecification: Record "Tracking Specification" temporary;
+        var GlobalItemLedgEntry: Record "Item Ledger Entry"; var TempItemEntryRelation: Record "Item Entry Relation" temporary;
+        var PostponeReservationHandling: Boolean; var SignFactor: Integer; var IsHandled: Boolean)
     begin
     end;
 

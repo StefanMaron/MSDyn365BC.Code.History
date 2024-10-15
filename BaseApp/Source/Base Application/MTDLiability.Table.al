@@ -3,6 +3,7 @@ table 10533 "MTD-Liability"
     Caption = 'VAT Liability';
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

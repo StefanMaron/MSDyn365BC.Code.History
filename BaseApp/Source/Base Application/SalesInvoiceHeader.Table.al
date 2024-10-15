@@ -226,10 +226,13 @@ table 112 "Sales Invoice Header"
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                CustLedgEntry: Record "Cust. Ledger Entry";
             begin
                 CustLedgEntry.SetCurrentKey("Document No.");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(CustLedgEntry, Rec);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -696,6 +699,7 @@ table 112 "Sales Invoice Header"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Draft Invoice SystemId"; Guid)
         {
@@ -708,6 +712,7 @@ table 112 "Sales Invoice Header"
             ObsoleteReason = 'Removed based on feedback.';
             ObsoleteState = Removed;
             TableRelation = "Type of Supply";
+            ObsoleteTag = '15.0';
         }
     }
 
@@ -787,7 +792,6 @@ table 112 "Sales Invoice Header"
     var
         SalesCommentLine: Record "Sales Comment Line";
         SalesSetup: Record "Sales & Receivables Setup";
-        CustLedgEntry: Record "Cust. Ledger Entry";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
@@ -1096,6 +1100,11 @@ table 112 "Sales Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetPaymentReferenceLbl(var PaymentReferenceLbl: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 }

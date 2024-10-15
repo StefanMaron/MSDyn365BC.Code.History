@@ -336,9 +336,18 @@ table 210 "Job Journal Line"
             TableRelation = "Work Type";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
+                IsLineDiscountHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateWorkTypeCode(Rec, xRec, IsLineDiscountHandled, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Type, Type::Resource);
-                Validate("Line Discount %", 0);
+                if not IsLineDiscountHandled then
+                    Validate("Line Discount %", 0);
                 if ("Work Type Code" = '') and (xRec."Work Type Code" <> '') then begin
                     Res.Get("No.");
                     "Unit of Measure Code" := Res."Base Unit of Measure";
@@ -982,6 +991,7 @@ table 210 "Job Journal Line"
             ObsoleteReason = 'Merge to W1';
             ObsoleteState = Pending;
             TableRelation = "Shipment Method";
+            ObsoleteTag = '15.0';
         }
     }
 
@@ -1898,6 +1908,11 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var JobJournalLine: Record "Job Journal Line"; var xJobJournalLine: Record "Job Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateWorkTypeCode(var JobJournalLine: Record "Job Journal Line"; var xJobJournalLine: Record "Job Journal Line"; var IsLineDiscountHandled: Boolean; var IsHandled: Boolean)
     begin
     end;
 

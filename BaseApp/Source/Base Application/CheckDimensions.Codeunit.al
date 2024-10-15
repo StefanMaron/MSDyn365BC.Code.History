@@ -93,7 +93,7 @@ codeunit 481 "Check Dimensions"
             NumberArr[4] := "Responsibility Center";
             OnCheckDimValuePostingOnAfterCreateDimTableIDs(PurchHeader, TableIDArr, NumberArr);
 
-            DimMgt.SetSourceCode(DATABASE::"Purchase Header");
+            DimMgt.SetSourceCode(DATABASE::"Purchase Header", PurchHeader);
             ContextErrorMessage := StrSubstNo(InvalidDimensionsErr, "Document Type", "No.");
             ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, "Dimension Set ID") then
@@ -117,7 +117,7 @@ codeunit 481 "Check Dimensions"
             NumberArr[3] := "Work Center No.";
             OnCheckDimValuePostingOnAfterCreateDimTableIDs(PurchLine, TableIDArr, NumberArr);
 
-            DimMgt.SetSourceCode(DATABASE::"Purchase Line");
+            DimMgt.SetSourceCode(DATABASE::"Purchase Line", PurchLine);
             ContextErrorMessage := StrSubstNo(LineInvalidDimensionsErr, "Document Type", "Document No.", "Line No.");
             ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, "Dimension Set ID") then
@@ -232,7 +232,7 @@ codeunit 481 "Check Dimensions"
             NumberArr[4] := "Responsibility Center";
             OnCheckDimValuePostingOnAfterCreateDimTableIDs(SalesHeader, TableIDArr, NumberArr);
 
-            DimMgt.SetSourceCode(DATABASE::"Sales Header");
+            DimMgt.SetSourceCode(DATABASE::"Sales Header", SalesHeader);
             ContextErrorMessage := StrSubstNo(InvalidDimensionsErr, "Document Type", "No.");
             ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, "Dimension Set ID") then
@@ -252,7 +252,7 @@ codeunit 481 "Check Dimensions"
             NumberArr[1] := "No.";
             TableIDArr[2] := DATABASE::Job;
             NumberArr[2] := "Job No.";
-            DimMgt.SetSourceCode(DATABASE::"Sales Line");
+            DimMgt.SetSourceCode(DATABASE::"Sales Line", SalesLine);
             OnCheckDimValuePostingOnAfterCreateDimTableIDs(SalesLine, TableIDArr, NumberArr);
 
             ContextErrorMessage := StrSubstNo(LineInvalidDimensionsErr, "Document Type", "Document No.", "Line No.");

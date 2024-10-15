@@ -308,7 +308,8 @@
                     Promoted = true;
                     PromotedCategory = Category7;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Sell-to Customer No.");
+                    RunPageLink = "No." = FIELD("Sell-to Customer No."),
+                                  "Date Filter" = FIELD("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer.';
                 }
@@ -345,10 +346,16 @@
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
                     trigger OnAction()
+                    var
+                        IsHandled: Boolean;
                     begin
-                        CalcInvDiscForHeader;
-                        Commit;
-                        PAGE.RunModal(PAGE::"Sales Statistics", Rec);
+                        IsHandled := false;
+                        OnBeforeStatisticsAction(Rec, IsHandled);
+                        if not IsHandled then begin
+                            CalcInvDiscForHeader();
+                            Commit();
+                            PAGE.RunModal(PAGE::"Sales Statistics", Rec);
+                        end;
                     end;
                 }
                 action("Co&mments")
@@ -625,6 +632,11 @@
             exit('Unfavorable');
 
         exit('');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

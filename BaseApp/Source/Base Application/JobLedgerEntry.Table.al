@@ -417,6 +417,7 @@ table 169 "Job Ledger Entry"
             ObsoleteReason = 'Merge to W1';
             ObsoleteState = Pending;
             TableRelation = "Shipment Method";
+            ObsoleteTag = '15.0';
         }
     }
 

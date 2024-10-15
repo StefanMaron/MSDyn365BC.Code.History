@@ -2,6 +2,7 @@ table 99008535 TempBlob
 {
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by BLOB Storage Module.';
+    ObsoleteTag = '15.0';
 
     fields
     {

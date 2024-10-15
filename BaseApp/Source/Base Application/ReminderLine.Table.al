@@ -482,6 +482,7 @@ table 296 "Reminder Line"
             Caption = 'Multiple Interest Rates Entry';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 
@@ -509,12 +510,14 @@ table 296 "Reminder Line"
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
             SumIndexFields = Amount, "VAT Amount", "Remaining Amount";
+            ObsoleteTag = '15.0';
         }
         key(Key5; "Reminder No.", "Multiple Interest Rates Entry")
         {
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
             SumIndexFields = Amount, "VAT Amount", "Remaining Amount";
+            ObsoleteTag = '15.0';
         }
     }
 

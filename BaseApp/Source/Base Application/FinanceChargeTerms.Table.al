@@ -93,6 +93,7 @@ table 5 "Finance Charge Terms"
             Caption = 'Multiple Lines Description';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 

@@ -18,6 +18,7 @@ codeunit 134924 "ERM Cues"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         ShipStatus: Option Full,Partial,"Not Shipped";
         WrongNumberOfDelayedOrdersErr: Label 'Wrong number of delayed Sales Orders.';
         RedundantSalesOnListErr: Label 'List of delayed Sales Order contains redundant documents.';
@@ -452,6 +453,84 @@ codeunit 134924 "ERM Cues"
 
         // [THEN] The filter is valid. The Sales Order is within the filter.
         Assert.RecordIsNotEmpty(SalesHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocationFilterFromGetEmployeeLocation()
+    var
+        Location: array[10] of Record Location;
+        WarehouseEmployee: array[5] of Record "Warehouse Employee";
+        WarehouseWMSCue: Record "Warehouse WMS Cue";
+        Index: Integer;
+        FilterValue: Text[1024];
+        LocationRange: Text[40];
+        LocationSelection: Text[30];
+        ExpectedLocationFilter: Text[1024];
+    begin
+        // [FEATURE] [UT] [Location]
+        // [SCENARIO 338933] WarehouseWMSCue.GetEmployeeLocation returns Locations filter created using SelectionFilterManagement codeunit
+        Initialize;
+        WarehouseEmployee[1].DeleteAll;
+
+        // [GIVEN] 10 Locations "L001..L010" where "L001..L003" and "L007" and "L009" are assigned to a WarehouseEmployee
+        for Index := 1 to ArrayLen(Location) do
+            LibraryWarehouse.CreateLocation(Location[Index]);
+
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee[1], Location[1].Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee[2], Location[2].Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee[3], Location[3].Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee[4], Location[7].Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee[5], Location[9].Code, false);
+
+        // [WHEN] Run WarehouseWMSCue.GetEmployeeLocation to get filter for allowed Warehouse Employee locations
+        FilterValue := WarehouseWMSCue.GetEmployeeLocation(UserId);
+
+        // [THEN] Verify filter returned to contain "L001..L003" range together with "L007|L009" selections
+        LocationRange := StrSubstNo('%1..%2', Location[1].Code, Location[3].Code);
+        LocationSelection := StrSubstNo('%1|%2', Location[7].Code, Location[9].Code);
+        ExpectedLocationFilter := StrSubstNo('%1|%2', LocationRange, LocationSelection);
+
+        Assert.IsTrue(StrPos(FilterValue, LocationRange) > 0, 'Expected range of Locations in the filter');
+        Assert.IsTrue(StrPos(FilterValue, LocationSelection) > 0, 'Expected selections of Locations in the filter');
+        Assert.AreEqual(ExpectedLocationFilter, FilterValue, 'Expected filter string to contain range and selection');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocationFilterFromWarehouseEmployeeOnlyBlankLoc()
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseWMSCue: Record "Warehouse WMS Cue";
+    begin
+        // [FEATURE] [UT] [Location] [Warehouse Employee]
+        // [SCENARIO 339308] WarehouseWMSCue.GetEmployeeLocation returns valid filter when a user is a warehouse employee only on blank location.
+        Initialize;
+        WarehouseEmployee.DeleteAll;
+
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, '', false);
+
+        Assert.AreEqual('''''', WarehouseWMSCue.GetEmployeeLocation(UserId), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocationFilterFromWarehouseEmployeeRealAndBlankLoc()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseWMSCue: Record "Warehouse WMS Cue";
+    begin
+        // [FEATURE] [UT] [Location] [Warehouse Employee]
+        // [SCENARIO 339308] WarehouseWMSCue.GetEmployeeLocation returns valid filter when a user is a warehouse employee on several locations including blank.
+        Initialize;
+        WarehouseEmployee.DeleteAll;
+
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, '', false);
+
+        Assert.AreEqual(StrSubstNo('%1|%2', '''''', Location.Code), WarehouseWMSCue.GetEmployeeLocation(UserId), '');
     end;
 
     local procedure Initialize()

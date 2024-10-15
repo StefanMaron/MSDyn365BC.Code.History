@@ -38,6 +38,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetUpdateProfileReferencesForCompanyTag());
         PerCompanyUpgradeTags.Add(GetCashFlowCortanaFieldsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCortanaIntelligenceUsageUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetPowerBiEmbedUrlTooShortUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -277,6 +278,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetLoadNamedForwardLinksUpgradeTag(): Code[250];
     begin
         exit('MS-328639-LoadNamedForwardLinks-20191003');
+    end;
+
+    procedure GetPowerBiEmbedUrlTooShortUpgradeTag(): Code[250];
+    begin
+        exit('MS-343007-PowerBiEmbedUrlTooShort-20200220');
     end;
 }
 

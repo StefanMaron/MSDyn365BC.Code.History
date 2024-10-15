@@ -366,6 +366,7 @@ table 303 "Finance Charge Memo Line"
             Caption = 'Multiple Interest Rates Entry';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 
@@ -392,12 +393,14 @@ table 303 "Finance Charge Memo Line"
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
             SumIndexFields = Amount, "VAT Amount", "Remaining Amount";
+            ObsoleteTag = '15.0';
         }
         key(Key5; "Finance Charge Memo No.", "Multiple Interest Rates Entry")
         {
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
             SumIndexFields = Amount, "VAT Amount", "Remaining Amount";
+            ObsoleteTag = '15.0';
         }
     }
 

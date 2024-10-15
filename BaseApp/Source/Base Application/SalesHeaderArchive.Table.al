@@ -675,6 +675,7 @@ table 5107 "Sales Header Archive"
             Caption = 'Credit Card No.';
             ObsoleteReason = 'This field is not needed and it is not used anymore.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(5043; "Interaction Exist"; Boolean)
         {
@@ -846,6 +847,7 @@ table 5107 "Sales Header Archive"
             ObsoleteReason = 'Removed based on feedback.';
             ObsoleteState = Removed;
             TableRelation = "Type of Supply";
+            ObsoleteTag = '15.0';
         }
     }
 

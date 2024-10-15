@@ -3,6 +3,7 @@ table 10535 "MTD-Return Details"
     Caption = 'Submitted VAT Return';
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

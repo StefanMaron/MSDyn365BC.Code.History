@@ -3,6 +3,7 @@ table 7825 "MS-QBO Synchronization Error"
     Caption = 'MS-QBO Synchronization Error';
     ObsoleteReason = 'replacing burntIn Extension tables with V2 Extension';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

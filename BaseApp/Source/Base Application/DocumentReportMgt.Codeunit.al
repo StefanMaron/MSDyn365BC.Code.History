@@ -25,7 +25,7 @@ codeunit 9651 "Document Report Mgt."
         EnableLegacyPrint: Boolean;
 
     [Scope('OnPrem')]
-    [Obsolete('Update calling code to use the function with an OutStream parameter')]
+    [Obsolete('Update calling code to use the function with an OutStream parameter','15.3')]
     procedure MergeWordLayout(ReportID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; InStrXmlData: InStream; FileName: Text)
     var
         DocumentStream: OutStream;
@@ -114,7 +114,7 @@ codeunit 9651 "Document Report Mgt."
         case ReportAction of
             ReportAction::SaveAsWord:
                 CurrentFileType := FileTypeWordTxt;
-            ReportAction::SaveAsPdf:
+            ReportAction::SaveAsPdf, ReportAction::Preview:
                 begin
                     CurrentFileType := FileTypePdfTxt;
                     ConvertToPdf(TempBlobOut, ReportID);
@@ -129,8 +129,6 @@ codeunit 9651 "Document Report Mgt."
             ReportAction::Print:
                 if IsStreamHasDataset(InStrXmlData) then
                     PrintWordDoc(ReportID, TempBlobOut, PrinterName, true, DocumentStream);
-            ReportAction::Preview:
-                FileMgt.BLOBExport(TempBlobOut, UserFileName(ReportID, CurrentFileType), true);
         end;
 
         // Export the file to the client of the action generates an output object in which case currentFileType is non-empty.

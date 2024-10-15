@@ -212,10 +212,13 @@ table 120 "Purch. Rcpt. Header"
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                VendLedgEntry: Record "Vendor Ledger Entry";
             begin
                 VendLedgEntry.SetCurrentKey("Document No.");
                 VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(VendLedgEntry, Rec);
                 PAGE.Run(0, VendLedgEntry);
             end;
         }
@@ -540,7 +543,6 @@ table 120 "Purch. Rcpt. Header"
     var
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchCommentLine: Record "Purch. Comment Line";
-        VendLedgEntry: Record "Vendor Ledger Entry";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
@@ -576,6 +578,11 @@ table 120 "Purch. Rcpt. Header"
             SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
             FilterGroup(0);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; PurchRcptHeader: Record "Purch. Rcpt. Header")
+    begin
     end;
 }
 

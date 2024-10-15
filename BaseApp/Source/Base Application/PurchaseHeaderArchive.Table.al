@@ -752,6 +752,7 @@ table 5109 "Purchase Header Archive"
             ObsoleteReason = 'Removed based on feedback.';
             ObsoleteState = Removed;
             TableRelation = "Type of Supply";
+            ObsoleteTag = '15.0';
         }
     }
 

@@ -3,6 +3,7 @@ table 10534 "MTD-Payment"
     Caption = 'VAT Payment';
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {
