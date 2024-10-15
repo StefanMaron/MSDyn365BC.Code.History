@@ -30,7 +30,7 @@ page 12210 "Withholding Tax Lines"
                 field("Non-Taxable Income Type"; "Non-Taxable Income Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    OptionCaption = ' ,,,5,6,7,8,9,10,11,12,13';
+                    OptionCaption = ' ,,2,,6,,8,9,,,,13,4,14,21,22,23,24';
                     ToolTip = 'Specifies the type of non-taxable income.';
                 }
             }

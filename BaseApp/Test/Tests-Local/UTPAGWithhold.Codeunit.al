@@ -357,67 +357,6 @@ codeunit 144094 "UT PAG Withhold"
         ComputedWithholdingTaxPage.Close;
     end;
 
-#if not CLEAN19
-    [Test]
-    [Scope('OnPrem')]
-    procedure NonTaxableIncomeTypeUT()
-    var
-        WithholdingTax: Record "Withholding Tax";
-        WithholdingTaxCard: TestPage "Withholding Tax Card";
-    begin
-        // [FEATURE] [UT] [UI]
-        // [SCENARIO 345377] Withholding tax card has only following options for Non-Taxable Income Visible: ' ,5,6,7,8,9,10,11' and they are equal to corresponding Tab values
-        // TFS 391419: New regulation adds two more options: 12 and 13
-        Initialize();
-
-        // [GIVEN] Withholding Tax Card page was open
-        WithholdingTaxCard.OpenNew;
-
-        // [THEN] There are 10 options visible in the Non-Taxable Income Type
-        Assert.AreEqual(10, WithholdingTaxCard."Non-Taxable Income Type".OptionCount, 'There must be exactly 10 options in this field');
-
-        // [THEN] Empty option equals to tab empty option
-        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(1));
-        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::" ");
-
-        // [THEN] First option is tab option "5"
-        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(2));
-        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"5");
-
-        // [THEN] Second option is tab option "6"
-        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(3));
-        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"6");
-
-        // [THEN] Third option is tab option "7"
-        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(4));
-        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"7");
-
-        // [THEN] Fourth option is tab option "8"
-        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(5));
-        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"8");
-
-        // [THEN] Fifth option is tab option "9"
-        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(6));
-        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"9");
-
-        // [THEN] Sixth option is tab option "10"
-        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(7));
-        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"10");
-
-        // [THEN] Seventh option is tab option "11"
-        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(8));
-        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"11");
-
-        // [THEN] Eigth option is tab option "12"
-        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(9));
-        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"12");
-
-        // [THEN] Ninth option is tab option "13"
-        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(10));
-        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"13");
-    end;
-#endif
-
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
