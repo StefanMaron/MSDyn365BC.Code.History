@@ -3714,7 +3714,8 @@
                                     CreateGLEntry(
                                       GenJnlLine, CustPostingGr.GetReceivablesAccount(), -DtldCVLedgEntryBuf."Amount (LCY)", 0,
                                       DtldCVLedgEntryBuf."Currency Code" = AddCurrencyCode);
-                                end;
+                                end else
+                                    PostDtldCustLedgEntry(GenJnlLine, DtldCVLedgEntryBuf, CustPostingGr, AdjAmount);
                             DtldCVLedgEntryBuf."Entry Type"::Redrawal:
                                 ;
                             DtldCVLedgEntryBuf."Entry Type"::Rejection:

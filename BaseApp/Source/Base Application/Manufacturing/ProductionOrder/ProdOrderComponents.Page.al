@@ -2,7 +2,7 @@ page 99000818 "Prod. Order Components"
 {
     AutoSplitKey = true;
     Caption = 'Prod. Order Components';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DelayedInsert = true;
     MultipleNewLines = true;
     PageType = List;

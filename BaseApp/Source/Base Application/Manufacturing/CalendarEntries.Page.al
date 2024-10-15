@@ -1,7 +1,7 @@
 page 99000759 "Calendar Entries"
 {
     Caption = 'Calendar Entries';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Calendar Entry";

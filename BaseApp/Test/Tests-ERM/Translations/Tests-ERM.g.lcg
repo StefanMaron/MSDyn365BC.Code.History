@@ -6206,6 +6206,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purch. Correct. Docs - NamedType CannotCancelSalesInvInventoryPeriodClosedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4208132312 - NamedType 1517275207" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No. should not be blank.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purch. Correct. Docs - NamedType NoShouldNotBeBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4208132312 - NamedType 1357064048" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot correct this posted purchase invoice because G/L Account %1 is blocked.]]></Val>
