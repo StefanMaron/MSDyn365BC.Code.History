@@ -107,7 +107,6 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transaction specification code for the item transaction on this journal line.';
-                    Visible = false;
                 }
                 field("Transport Method"; "Transport Method")
                 {
