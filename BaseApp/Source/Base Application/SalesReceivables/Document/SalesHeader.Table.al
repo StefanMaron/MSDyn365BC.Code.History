@@ -7865,7 +7865,6 @@
         CancelledDocument: Record "Cancelled Document";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
-        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         IsHandled: Boolean;
     begin
         if (Rec."Applies-to Doc. Type" = Rec."Applies-to Doc. Type"::" ") and (Rec."Applies-to Doc. No." = '')
@@ -7885,10 +7884,26 @@
             exit;
         IsHandled := false;
         OnSetTrackInfoForCancellationOnBeforeInsertCancelledDocument(SalesCreditMemoHeader, IsHandled);
-        if not IsHandled then begin
+        if not IsHandled then
             CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(SalesInvoiceHeader."No.", SalesCreditMemoHeader."No.");
-            CorrectPostedSalesInvoice.UpdateSalesOrderLineIfExist(SalesCreditMemoHeader."No.");
-        end;
+    end;
+
+    procedure UpdateSalesOrderLineIfExist()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        SalesInvoiceHeader.SetLoadFields("No.");
+        if not SalesInvoiceHeader.Get(Rec."Applies-to Doc. No.") then
+            exit;
+        SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.", "Cust. Ledger Entry No.");
+        SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
+        if not SalesCreditMemoHeader.FindFirst() then
+            exit;
+        if IsNotFullyCancelled(SalesCreditMemoHeader) then
+            exit;
+        CorrectPostedSalesInvoice.UpdateSalesOrderLineIfExist(SalesCreditMemoHeader."No.");
     end;
 
     local procedure IsNotFullyCancelled(var SalesCreditMemoHeader: Record "Sales Cr.Memo Header"): Boolean

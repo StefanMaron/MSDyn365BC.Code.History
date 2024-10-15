@@ -63,7 +63,7 @@ codeunit 144005 "VAT Statement"
         REPORT.Run(REPORT::"Swiss VAT Statement", true, false);
 
         // [THEN] Cipher Amount in Swiss VAT Statement Report for both sales and purchase invoices.
-        // [THEN] Ciphers for sales are exported with values: 301,311,341,381 / 302,312,342,382 (TFS 235785)
+        // [THEN] Ciphers for sales are exported with values: 302,312,342,382 / 303,313,343,383 (TFS 469330)
         // [THEN] Tax Amount is exported to cipher 510 (TFS 258760)
         // [THEN] VAT Rates are exported for current and precious periods (TFS 266933)
         // [THEN] FromDate and ToDate printed as start and end dates of previous year in Tax Calculation section (TFS 271803)
@@ -119,7 +119,7 @@ codeunit 144005 "VAT Statement"
         REPORT.Run(REPORT::"Swiss VAT Statement", true);
 
         // [THEN] Cipher Amount in Swiss VAT Statement Report for both sales and purchase invoices.
-        // [THEN] Ciphers for sales are exported with values: 301,311,341,381 / 302,312,342,382 (TFS 235785)
+        // [THEN] Ciphers for sales are exported with values: 302,312,342,382 / 303,313,343,383 (TFS 469330)
         // [THEN] Tax Amount is exported to cipher 510 (TFS 258760)
         // [THEN] VAT Rates are exported for current and precious periods (TFS 266933)
         // [THEN] FromDate and ToDate printed as start and end dates of previous year in Tax Calculation section (TFS 271803)
@@ -461,14 +461,14 @@ codeunit 144005 "VAT Statement"
     local procedure VerifySalesCipherCodes()
     begin
         LibraryReportDataset.GetLastRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('V300Caption', '301');
-        LibraryReportDataset.AssertCurrentRowValueEquals('V301Caption', '302');
-        LibraryReportDataset.AssertCurrentRowValueEquals('V310Caption', '311');
-        LibraryReportDataset.AssertCurrentRowValueEquals('V311Caption', '312');
-        LibraryReportDataset.AssertCurrentRowValueEquals('V340Caption', '341');
-        LibraryReportDataset.AssertCurrentRowValueEquals('V341Caption', '342');
-        LibraryReportDataset.AssertCurrentRowValueEquals('V380Caption', '381');
-        LibraryReportDataset.AssertCurrentRowValueEquals('V381Caption', '382');
+        LibraryReportDataset.AssertCurrentRowValueEquals('V300Caption', '302');
+        LibraryReportDataset.AssertCurrentRowValueEquals('V301Caption', '303');
+        LibraryReportDataset.AssertCurrentRowValueEquals('V310Caption', '312');
+        LibraryReportDataset.AssertCurrentRowValueEquals('V311Caption', '313');
+        LibraryReportDataset.AssertCurrentRowValueEquals('V340Caption', '342');
+        LibraryReportDataset.AssertCurrentRowValueEquals('V341Caption', '343');
+        LibraryReportDataset.AssertCurrentRowValueEquals('V380Caption', '382');
+        LibraryReportDataset.AssertCurrentRowValueEquals('V381Caption', '383');
     end;
 
     local procedure VerifyPurchaseCipherCodes()
