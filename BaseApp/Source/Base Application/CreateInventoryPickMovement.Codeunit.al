@@ -943,9 +943,14 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 WhseActivLine."Location Code", WhseActivLine."Item No.", WhseActivLine."Variant Code", TempWhseActivLine2);
 
         BlockedItemTrackingSetup.CopyTrackingFromItemTrackingSetup(WhseItemTrackingSetup);
-        QtyBlocked :=
-            WhseAvailMgt.CalcQtyOnBlockedITOrOnBlockedOutbndBins(
-                WhseActivLine."Location Code", WhseActivLine."Item No.", WhseActivLine."Variant Code", WhseItemTrackingSetup);
+        if Location."Bin Mandatory" then
+            QtyBlocked :=
+                WhseAvailMgt.CalcQtyOnBlockedITOrOnBlockedOutbndBins(
+                    WhseActivLine."Location Code", WhseActivLine."Item No.", WhseActivLine."Variant Code", WhseItemTrackingSetup)
+        else
+            QtyBlocked := 
+                WhseAvailMgt.CalcQtyOnBlockedItemTracking(
+                    WhseActivLine."Location Code", WhseActivLine."Item No.", WhseActivLine."Variant Code");
         OnCalcInvtAvailabilityOnAfterCalcQtyBlocked(WhseActivLine, WhseItemTrackingSetup, QtyBlocked);
         exit(
           Item2.Inventory - Abs(Item2."Reserved Qty. on Inventory") - QtyAssgndtoPick - QtyOnDedicatedBins - QtyBlocked +

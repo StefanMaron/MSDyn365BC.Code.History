@@ -664,7 +664,7 @@
     var
         IsHandled: Boolean;
     begin
-        OnBeforePostItem(ItemJnlLine, IsHandled);
+        OnBeforePostItem(ItemJnlLine, IsHandled, CalledFromAdjustment);
 
         with ItemJnlLine do begin
             SKUExists := SKU.Get("Location Code", "Item No.", "Variant Code");
@@ -1555,7 +1555,7 @@
         end;
 
         if Item."Costing Method" = Item."Costing Method"::Average then
-            if ItemApplnEntry.Fixed then
+            if not ItemApplnEntry.Fixed then
                 UpdateValuedByAverageCost(CostItemLedgEntry."Entry No.", true);
 
         ItemApplnEntry.InsertHistory;
@@ -5801,7 +5801,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItem(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforePostItem(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean; CalledFromAdjustment: Boolean)
     begin
     end;
 

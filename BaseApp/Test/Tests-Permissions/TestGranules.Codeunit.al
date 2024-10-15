@@ -156,6 +156,7 @@ codeunit 132532 "Test Granules"
         // CopyAllAppTableObjectsToTempBuffer and CopyAllTablePermissionsToTempBuffer to contain correct ranges
         CopyAllAppTableObjectsToTempBuffer(TempTableDataAllObj);
         CopyAllTablePermissionsToTempBuffer(TempPermission);
+        TempPermission.SetFilter("Object ID", '<%1', 130000);
         TempPermission.FindSet();
         repeat
             TempTableDataAllObj.SetRange("Object Type", TempPermission."Object Type");

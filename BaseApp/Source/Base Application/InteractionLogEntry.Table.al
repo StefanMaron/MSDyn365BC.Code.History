@@ -217,6 +217,10 @@ table 5065 "Interaction Log Entry"
         {
             Caption = 'Postponed';
         }
+        field(46; "Word Template Code"; Code[30])
+        {
+            DataClassification = CustomerContent;
+        }
     }
 
     keys
@@ -384,6 +388,7 @@ table 5065 "Interaction Log Entry"
         "Send Word Docs. as Attmt." := SegLine."Send Word Doc. As Attmt.";
         "Contact Via" := SegLine."Contact Via";
         "Opportunity No." := SegLine."Opportunity No.";
+        "Word Template Code" := SegLine."Word Template Code";
 
         OnAfterCopyFromSegment(Rec, SegLine);
     end;
@@ -422,8 +427,6 @@ table 5065 "Interaction Log Entry"
         Attachment: Record Attachment;
         SegLine: Record "Segment Line";
         WebRequestHelper: Codeunit "Web Request Helper";
-        WordManagement: Codeunit WordManagement;
-        WordApplicationHandler: Codeunit WordApplicationHandler;
         IStream: InStream;
         EmailMessageUrl: Text;
         IsHandled: Boolean;
@@ -449,10 +452,8 @@ table 5065 "Interaction Log Entry"
             SegLine.Description := Description;
             SegLine.Subject := Subject;
             SegLine."Language Code" := "Interaction Language Code";
-            if WordManagement.IsWordDocumentExtension(Attachment."File Extension") then
-                WordManagement.Activate(WordApplicationHandler, 5065);
             OnOpenAttachmentOnBeforeShowAttachment(Rec, SegLine, Attachment);
-            Attachment.ShowAttachment(SegLine, Format("Entry No.") + ' ' + Description, false, false);
+            Attachment.ShowAttachment(SegLine, Format("Entry No.") + ' ' + Description);
         end else begin
             Attachment.CalcFields("Email Message Url");
             if Attachment."Email Message Url".HasValue then begin

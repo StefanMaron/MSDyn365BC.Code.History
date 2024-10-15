@@ -894,6 +894,7 @@
             end else
                 CVLedgEntryBuf."Original Currency Factor" := 1;
             CVLedgEntryBuf."Adjusted Currency Factor" := CVLedgEntryBuf."Original Currency Factor";
+            OnPostCustOnAfterAssignCurrencyFactors(CVLedgEntryBuf, GenJnlLine);
 
             // Check the document no.
             if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
@@ -989,6 +990,7 @@
             end else
                 CVLedgEntryBuf."Adjusted Currency Factor" := 1;
             CVLedgEntryBuf."Original Currency Factor" := CVLedgEntryBuf."Adjusted Currency Factor";
+            OnPostVendOnAfterAssignCurrencyFactors(CVLedgEntryBuf, GenJnlLine);
 
             // Check the document no.
             if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
@@ -7850,6 +7852,16 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterStartPosting(GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostCustOnAfterAssignCurrencyFactors(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostVendOnAfterAssignCurrencyFactors(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

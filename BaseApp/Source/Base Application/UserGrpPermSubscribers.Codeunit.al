@@ -1,9 +1,7 @@
 codeunit 9004 "User Grp. Perm. Subscribers"
 {
-
-    trigger OnRun()
-    begin
-    end;
+    var
+        NullAppIDErr: Label 'Records in the User Group Permission Set table must have a non-empty App ID.';
 
     [EventSubscriber(ObjectType::Table, Database::"User Group", 'OnBeforeDeleteEvent', '', false, false)]
     local procedure DeleteUserGroupPermissionSetsOnDeleteUserGroup(var Rec: Record "User Group"; RunTrigger: Boolean)
@@ -19,7 +17,17 @@ codeunit 9004 "User Grp. Perm. Subscribers"
     local procedure AddUserGroupAccessControlOnInsertUserGroupPermissionSet(var Rec: Record "User Group Permission Set"; RunTrigger: Boolean)
     var
         UserGroupAccessControl: Record "User Group Access Control";
+        AggregatePermissionSet: Record "Aggregate Permission Set";
     begin
+        if IsNullGuid(Rec."App ID") then
+            if not (Rec."Role ID" in ['SUPER', 'SECURITY']) then begin
+                AggregatePermissionSet.SetRange("Role ID", Rec."Role ID");
+                if AggregatePermissionSet.FindFirst() then
+                    Rec."App ID" := AggregatePermissionSet."App ID"
+                else
+                    Error(NullAppIDErr);
+            end;
+
         UserGroupAccessControl.AddUserGroupPermissionSet(Rec."User Group Code", Rec."Role ID", Rec."App ID", Rec.Scope);
     end;
 

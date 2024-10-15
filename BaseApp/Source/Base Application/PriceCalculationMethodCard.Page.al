@@ -33,9 +33,9 @@ page 7026 "Price Calculation Method Card"
 
     trigger OnInit()
     var
-        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
-        PriceCalculationMgt.TestIsEnabled();
+        FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
 
     procedure Set(CurrMethod: Enum "Price Calculation Method")

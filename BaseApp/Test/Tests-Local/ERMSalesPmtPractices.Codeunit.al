@@ -1,7 +1,9 @@
 codeunit 144565 "ERM Sales Pmt. Practices"
 {
     Permissions = TableData "Cust. Ledger Entry" = id,
-                  TableData "Detailed Cust. Ledg. Entry" = i;
+                  TableData "Detailed Cust. Ledg. Entry" = id,
+                  TableData "Vendor Ledger Entry" = id,
+                  TableData "Detailed Vendor Ledg. Entry" = id;
     Subtype = Test;
 
     trigger OnRun()
@@ -32,9 +34,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] No sales invoices includes into Payment Application Buffer by function BuildCustPmtApplicationBuffer of codeunit "Payment Reporting Mgt." for Customer with "Exclude from Payment Reporting" option
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         MockSimpleCustLedgEntry(true, CustLedgerEntry."Document Type"::Invoice, StartingDate, 0D, false);
 
@@ -56,9 +58,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] Only sales invoices within specified period includes into Payment Application Buffer by function BuildCustPmtApplicationBuffer of codeunit "Payment Reporting Mgt."
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // 4 invoices are within StartingDate and Ending Date
@@ -91,9 +93,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] "Days Since Due Date" of Payment Application Buffer calculates as WORKDATE - "Due Date"
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         DaysSinceDueDate := LibraryRandom.RandInt(100);
         MockSimpleCustLedgEntry(false, CustLedgerEntry."Document Type"::Invoice, StartingDate, WorkDate - DaysSinceDueDate, true);
@@ -117,9 +119,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] Payment includes into calculation when "Posting Date" within period of report and "Payments Within Period" option is enabled
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         InvLedgEntryNo := MockSimpleCustLedgEntry(false, CustLedgerEntry."Document Type"::Invoice, StartingDate, StartingDate, true);
         MockPaymentApplication(InvLedgEntryNo, EndingDate, 0, 0);
@@ -142,9 +144,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] Payment does not include into calculation when "Posting Date" outside period of report and "Payments Within Period" option is enabled
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         InvLedgEntryNo := MockSimpleCustLedgEntry(false, CustLedgerEntry."Document Type"::Invoice, StartingDate, StartingDate, true);
         MockPaymentApplication(InvLedgEntryNo, EndingDate + 1, 0, 0);
@@ -167,9 +169,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] Payment includes into calculation when "Posting Date" outside period of report but "Payments Within Period" option is disabled
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         InvLedgEntryNo := MockSimpleCustLedgEntry(false, CustLedgerEntry."Document Type"::Invoice, StartingDate, StartingDate, true);
         MockPaymentApplication(InvLedgEntryNo, EndingDate + 1, 0, 0);
@@ -193,9 +195,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] "Pmt. Days Delayed" is difference between the "Due Date" of invoice and "Posting Date" of payment
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         DueDate := StartingDate + 1;
         PaymentDate := EndingDate - 1;
@@ -225,9 +227,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 278044] "Pmt. Amount (LCY)" is application amount of Payment
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         MockCustLedgEntryWithAmt(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, StartingDate, StartingDate, true);
         CustLedgerEntry.CalcFields("Amount (LCY)");
@@ -255,9 +257,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] "Entry Amount Corrected (LCY)" is invoice amount excluding applied credit memo amount
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         MockCustLedgEntryWithAmt(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, StartingDate, StartingDate, true);
         CustLedgerEntry.CalcFields("Amount (LCY)");
@@ -285,9 +287,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         // [FEATURE] [UT]
         // [SCENARIO 257582] "Remaining Amount (LCY)" is "Entry Amount Corrected (LCY)" amount excluding payment amount
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
         MockCustLedgEntryWithAmt(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, StartingDate, StartingDate, true);
         CustLedgerEntry.CalcFields("Amount (LCY)");
@@ -314,9 +316,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         // [FEATURE] [Report]
         // [SCENARIO] Payment Practices Reporting does not show details is "Show Invoices option is disabled on Request Page
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
 
         // [GIVEN] Work Date is January 3
         // [GIVEN] Invoice with "Due Date"  = January 4
@@ -344,9 +346,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         // [FEATURE] [Report]
         // [SCENARIO] Payment Practices Reporting shows details is "Show Invoices option is enabled on Request Page
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
 
         // [GIVEN] Work Date is January 3
         // [GIVEN] Invoice with "Due Date"  = January 4
@@ -376,9 +378,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         // [FEATURE] [Report]
         // [SCENARIO 271362] Payment Practices Reporting prints total count of invoices not paid and delayed
 
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
 
         // [GIVEN] Work Date is January 3
         // [GIVEN] Two invoices with "Due Date"  = January 4
@@ -411,9 +413,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 278906] Only nonzero total amount of invoices is shown on page with customer invoices, that are not paid.
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Customer Ledger Entry with "Amount (LCY)" = "A" and Open = TRUE.
@@ -443,9 +445,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 278906] Only nonzero total amount of invoices is shown on page with customer invoices, that were delayed in payment.
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] Closed Customer Ledger Entry with "Amount (LCY)" = "A".
@@ -479,9 +481,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 279080] Closed Customer Ledger Entries are considered in calculation of "Total amount of invoices" for unpaid invoices.
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] One opened Invoice with Amount = "A1".
@@ -515,9 +517,9 @@ codeunit 144565 "ERM Sales Pmt. Practices"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 279080] Closed Customer Ledger Entries are considered in calculation of "Total amount of invoices" for delayed in payment invoices.
-        Initialize;
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddSalesDocsPost;
+        Initialize();
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddSalesDocsPost();
         SetStartingEndingDates(StartingDate, EndingDate);
 
         // [GIVEN] One closed Invoice with Amount = "A1" and with applied Payment with Amount = "A1", posted after "Due Date".
@@ -530,7 +532,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
 
         // [THEN] "Total amount of invoices (Corrected)" = "A1" + "A2" + "A3"; "Total Amount" = "A1" + 10.
         // [THEN] "Total %" = "Total Amount" / "Total amount of invoices (Corrected)" * 100
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(1);
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalCustAmount', TotalInvoiceAmount);
         LibraryReportDataset.MoveToRow(5);
@@ -546,7 +548,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Pmt. Practices");
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Sales Pmt. Practices");
         // Remove all existing Vendor/Customer Ledger Entries and Detailed Ledger Entries to make sure no more entries except generated by test will be considered
         VendorLedgerEntry.DeleteAll();
         CustLedgerEntry.DeleteAll();

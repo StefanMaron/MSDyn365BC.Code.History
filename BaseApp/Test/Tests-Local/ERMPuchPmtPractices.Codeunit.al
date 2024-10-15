@@ -1,7 +1,9 @@
 codeunit 144564 "ERM Puch. Pmt. Practices"
 {
-    Permissions = TableData "Vendor Ledger Entry" = id,
-                  TableData "Detailed Vendor Ledg. Entry" = i;
+    Permissions = TableData "Cust. Ledger Entry" = rimd,
+                  TableData "Vendor Ledger Entry" = rimd,
+                  TableData "Detailed Cust. Ledg. Entry" = rimd,
+                  TableData "Detailed Vendor Ledg. Entry" = rimd;
     Subtype = Test;
 
     trigger OnRun()
@@ -31,7 +33,6 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 257582] No purchase invoices includes into Payment Application Buffer by function BuildVendPmtApplicationBuffer of codeunit "Payment Reporting Mgt." for Vendor with "Exclude from Payment Reporting" option
-
         Initialize;
         LibraryLowerPermissions.SetO365Setup;
         LibraryLowerPermissions.AddPurchDocsPost;

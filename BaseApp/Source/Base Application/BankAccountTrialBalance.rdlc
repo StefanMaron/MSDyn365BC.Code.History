@@ -1043,7 +1043,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Code.BlankNegAndZero(Fields!BankAccount2__Debit_Amount__LCY_Control1120081.Value)</Value>
+                                  <Value>=Code.BlankNegAndZero(Fields!BankAccount2__Credit_Amount__LCY_Control1120084.Value)</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                     <Format>=Fields!BankAccount2__Credit_Amount__LCY_Control1120084Format.Value</Format>

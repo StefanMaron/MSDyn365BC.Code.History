@@ -720,6 +720,22 @@ page 26 "Vendor Card"
                         PAGE.RunModal(PAGE::"Vendor Report Selections", CustomReportSelection);
                     end;
                 }
+                action(SentEmails)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    ToolTip = 'View a list of emails that you have sent to this vendor.';
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Vendor, Rec.SystemId);
+                    end;
+                }
                 action(Attachments)
                 {
                     ApplicationArea = All;
@@ -930,7 +946,7 @@ page 26 "Vendor Card"
                     RunObject = Page "Purchase Quotes";
                     RunPageLink = "Buy-from Vendor No." = FIELD("No.");
                     RunPageView = SORTING("Document Type", "Buy-from Vendor No.");
-                    ToolTip = 'View a list of ongoing sales quotes.';
+                    ToolTip = 'View a list of ongoing purchase quotes.';
                 }
                 action(Orders)
                 {
@@ -1550,6 +1566,25 @@ page 26 "Vendor Card"
                     CurrPage.SetSelectionFilter(Vendor);
                     WordTemplateSelectionWizard.SetData(Vendor);
                     WordTemplateSelectionWizard.RunModal();
+                end;
+            }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Contact by Email';
+                Image = Email;
+                Promoted = true;
+                PromotedCategory = Category9;
+                ToolTip = 'Send an email to this vendor.';
+
+                trigger OnAction()
+                var
+                    Email: Codeunit Email;
+                    EmailMessage: Codeunit "Email Message";
+                begin
+                    EmailMessage.Create(Rec."E-Mail", '', '', true);
+                    Email.AddRelation(EmailMessage, Database::Vendor, Rec.SystemId, Enum::"Email Relation Type"::"Primary Source");
+                    Email.OpenInEditorModally(EmailMessage);
                 end;
             }
             group("Incoming Documents")

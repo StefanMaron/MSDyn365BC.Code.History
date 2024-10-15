@@ -241,6 +241,7 @@ codeunit 1336 "Item Templ. Mgt."
         ItemTempl."Purchasing Blocked" := Item."Purchasing Blocked";
         ItemTempl.Validate("Base Unit of Measure", Item."Base Unit of Measure");
         ItemTempl."Price Includes VAT" := Item."Price Includes VAT";
+        OnInsertTemplateFromItemOnBeforeItemTemplInsert(ItemTempl, Item);
         ItemTempl.Insert();
     end;
 
@@ -392,5 +393,10 @@ codeunit 1336 "Item Templ. Mgt."
             exit;
 
         ShowItemTemplList(IsHandled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTemplateFromItemOnBeforeItemTemplInsert(var ItemTempl: Record "Item Templ."; Item: Record Item)
+    begin
     end;
 }
