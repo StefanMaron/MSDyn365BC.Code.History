@@ -19,6 +19,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         isInitialized: Boolean;
         FieldValueErr: Label '%1 must be equal to ''%2''';
         FieldBlankErr: Label 'Mandate ID must have a value in the currently selected record.';
@@ -1028,6 +1029,32 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         Assert.AreNotEqual('', LibraryTextFileValidation.FindLineWithValue(FileName, 101, 16, GetOutputFixedVATRegNo()), ValueNotFoundErr);
     end;
 
+    [Test]
+    procedure OrgIdOthrIdNodeHasCUCValueWhenExportDDEntry()
+    var
+        DirectDebitCollection: Record "Direct Debit Collection";
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        BankAccount: Record "Bank Account";
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        // [SCENARIO 466867] "InitgPty/Id/OrgId/Othr/Id" node value when export SEPA DD xml file.
+        Initialize();
+
+        // [GIVEN] Bank Account 'B' with CUC = '12345678'.
+        // [GIVEN] Direct Debit Collection with "To Bank Account No." = 'B'. Direct Debit Collection Entry.
+        CreateDirectDebitCollectionEntry(DirectDebitCollection, DirectDebitCollectionEntry, CustLedgerEntry);
+        BankAccount.Get(DirectDebitCollection."To Bank Account No.");
+
+        // [WHEN] Export Direct Debit Collection Entry using xmlport "SEPA DD pain.008.001.02".
+        SEPADDExportToTempBlob(TempBlob, DirectDebitCollectionEntry);
+
+        // [THEN] Exported XML has node "../InitgPty/Id/OrgId/Othr/Id" with value '12345678'.
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+            '/Document/CstmrDrctDbtInitn/GrpHdr/InitgPty/Id/OrgId/Othr/Id', BankAccount.CUC);
+    end;
+
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -1180,9 +1207,10 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer."Partner Type" := PartnerType;
-        Customer.Modify();
         CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
+        Customer."Partner Type" := PartnerType;
+        Customer."Preferred Bank Account Code" := CustomerBankAccount.Code;
+        Customer.Modify();
         CreateDirectDebitMandate(SEPADirectDebitMandate, Customer."No.", CustomerBankAccount.Code);
         CreateCustomerLedgerEntry(GenJournalLine, CustLedgerEntry, Customer."No.", SEPADirectDebitMandate.ID);
     end;
@@ -1211,6 +1239,37 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         BankExportImportSetup.Insert();
     end;
 
+    local procedure CreateBankAccount(var BankAccount: Record "Bank Account"; SEPADDExportFormat: Code[20])
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount."SEPA Direct Debit Exp. Format" := SEPADDExportFormat;
+        BankAccount."Direct Debit Msg. Nos." := SalesReceivablesSetup."Direct Debit Mandate Nos.";
+        BankAccount.IBAN := 'MU17 BOMM 0101 1010 3030 0200 000M UR';
+        BankAccount."SWIFT Code" := 'MUDABAABC';
+        BankAccount."Creditor No." := LibraryUtility.GenerateGUID();
+        BankAccount.CUC := CopyStr(LibraryUtility.GenerateRandomNumericText(MaxStrLen(BankAccount.CUC)), 1, MaxStrLen(BankAccount.CUC));
+        BankAccount.Modify();
+    end;
+
+    local procedure CreateDirectDebitCollectionEntry(var DirectDebitCollection: Record "Direct Debit Collection"; var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    var
+        Customer: Record Customer;
+        BankAccount: Record "Bank Account";
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+    begin
+        CreateCustomerWithEntry(Customer, CustLedgerEntry, "Partner Type"::Company);
+        CreateBankExportImportSetup(BankExportImportSetup, Codeunit::"SEPA DD-Export File", Xmlport::"SEPA DD pain.008.001.02");
+        CreateBankAccount(BankAccount, BankExportImportSetup.Code);
+
+        DirectDebitCollection.CreateRecord(LibraryUtility.GenerateGUID(), BankAccount."No.", Customer."Partner Type");
+        DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
+        DirectDebitCollectionEntry.CreateNew(DirectDebitCollection."No.", CustLedgerEntry);
+        DirectDebitCollectionEntry.Modify();
+    end;
+
     local procedure RunCustBillsFloppyReport(var FileName: Text[1024]; CustomerBillHeader: Record "Customer Bill Header")
     var
         CustBillsFloppy: Report "Cust Bills Floppy";
@@ -1237,6 +1296,15 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         IssuedCustBillsFloppy.SetTableView(IssuedCustomerBillHeader);
         IssuedCustBillsFloppy.UseRequestPage(false);
         IssuedCustBillsFloppy.Run();
+    end;
+
+    local procedure SEPADDExportToTempBlob(TempBlob: Codeunit "Temp Blob"; DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
+    var
+        OutStream: OutStream;
+    begin
+        TempBlob.CreateOutStream(OutStream);
+        DirectDebitCollectionEntry.SetRecFilter();
+        Xmlport.Export(Xmlport::"SEPA DD pain.008.001.02", OutStream, DirectDebitCollectionEntry);
     end;
 
     local procedure FindIssuedCustBillLines(var TempIssuedCustomerBillLine: Record "Issued Customer Bill Line" temporary; var IssuedCustomerBillHeader: Record "Issued Customer Bill Header"; CustomerBillHeader: Record "Customer Bill Header")
