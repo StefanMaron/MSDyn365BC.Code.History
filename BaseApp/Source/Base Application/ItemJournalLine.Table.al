@@ -4033,6 +4033,7 @@
             "Entry Type"::Purchase:
                 if Item."Purchasing Blocked" and
                    not ("Document Type" in ["Document Type"::"Purchase Return Shipment", "Document Type"::"Purchase Credit Memo"])
+                   and ("Value Entry Type" <> "Value Entry Type"::Revaluation)
                 then
                     Error(PurchasingBlockedErr);
             "Entry Type"::Sale:
