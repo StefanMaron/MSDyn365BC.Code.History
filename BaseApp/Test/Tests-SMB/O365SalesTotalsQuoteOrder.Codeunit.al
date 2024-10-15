@@ -49,7 +49,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         if not LibraryFiscalYear.AccountingPeriodsExists then
             LibraryFiscalYear.CreateFiscalYear();
 
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
 
         SalesSetup.Get();
         SalesSetup."Stockout Warning" := false;
@@ -1020,7 +1020,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesOrder."Bill-to Name".SetValue(Customer."No.");
 
         // [THEN] "Bill-to IC Partner Code" is changed to "ICP01" on "SO01"
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Bill-to IC Partner Code", Customer."IC Partner Code");
     end;
 
@@ -1056,7 +1056,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesQuote."Bill-to Name".SetValue(Customer."No.");
 
         // [THEN] "Bill-to IC Partner Code" is changed to "ICP01" on "SQ01"
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Bill-to IC Partner Code", Customer."IC Partner Code");
     end;
 
@@ -1093,7 +1093,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesReturnOrder."Bill-to Name".SetValue(Customer."No.");
 
         // [THEN] "Bill-to IC Partner Code" is changed to "ICP01" on "SO01"
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Bill-to IC Partner Code", Customer."IC Partner Code");
     end;
 
@@ -1129,7 +1129,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         BlanketSalesOrder."Bill-to Name".SetValue(Customer."No.");
 
         // [THEN] "Bill-to IC Partner Code" is changed to "ICP01" on "SO01"
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Bill-to IC Partner Code", Customer."IC Partner Code");
     end;
 
@@ -1158,9 +1158,9 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.SetFilter("Starting Date", '<=%1', WorkDate);
+        CurrencyExchangeRate.SetFilter("Starting Date", '<=%1', WorkDate());
         if not CurrencyExchangeRate.FindFirst() then
-            LibrarySmallBusiness.CreateCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
+            LibrarySmallBusiness.CreateCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
     end;
 
     local procedure CheckInvoiceDiscountTypePercentage(DiscPct: Decimal; TotalAmountWithoutDiscount: Decimal; SalesInvoice: TestPage "Sales Invoice"; VATApplied: Boolean; CurrencyCode: Code[10])
@@ -1339,7 +1339,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         Currency: Record Currency;
     begin
         Currency.Init();
-        Currency.SetFilter(Code, '<>%1', LibraryERM.GetLCYCode);
+        Currency.SetFilter(Code, '<>%1', LibraryERM.GetLCYCode());
         Currency.FindFirst();
         CheckExistOrAddCurrencyExchageRate(Currency.Code);
 
@@ -1354,7 +1354,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesQuote.SalesLines.First;
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
         SalesQuote.SalesLines.Quantity.SetValue(ItemQuantity);
-        SalesQuote.SalesLines.Next;
+        SalesQuote.SalesLines.Next();
         SalesQuote.SalesLines.Previous();
     end;
 
@@ -1366,7 +1366,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
         SalesOrder.SalesLines.First;
         SalesOrder.SalesLines."No.".SetValue(Item."No.");
         SalesOrder.SalesLines.Quantity.SetValue(ItemQuantity);
-        SalesOrder.SalesLines.Next;
+        SalesOrder.SalesLines.Next();
         SalesOrder.SalesLines.Previous();
     end;
 
@@ -1374,7 +1374,7 @@ codeunit 138006 "O365 Sales Totals Quote/Order"
     begin
         SalesQuote.OpenEdit;
         SalesQuote.GotoRecord(SalesHeader);
-        SalesQuote.SalesLines.Next;
+        SalesQuote.SalesLines.Next();
     end;
 
     local procedure OpenSalesOrder(SalesHeader: Record "Sales Header"; var SalesOrder: TestPage "Sales Order")

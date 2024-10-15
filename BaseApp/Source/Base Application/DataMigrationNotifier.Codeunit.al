@@ -6,14 +6,15 @@ codeunit 1802 "Data Migration Notifier"
     end;
 
     var
+        DataTypeManagement: Codeunit "Data Type Management";
+        DataMigrationMgt: Codeunit "Data Migration Mgt.";
+
         ListEmptyMsg: Label 'Want to import entries?';
         OpenDataMigrationTxt: Label 'Open Data Migration';
-        DataTypeManagement: Codeunit "Data Type Management";
         ListSuggestCreateContactsCustomersMsg: Label 'You can create contacts automatically from newly created customers.';
         ListSuggestCreateContactsVendorsMsg: Label 'You can create contacts automatically from newly created vendors.';
         OpenCreateContactsFromCustomersTxt: Label 'Create contacts from customers';
         OpenCreateContactsFromVendorsTxt: Label 'Create contacts from vendors';
-        DataMigrationMgt: Codeunit "Data Migration Mgt.";
         DisableNotificationTxt: Label 'Disable notification';
 
     [EventSubscriber(ObjectType::Page, Page::"Customer List", 'OnOpenPageEvent', '', false, false)]
@@ -73,7 +74,7 @@ codeunit 1802 "Data Migration Notifier"
     var
         MyNotifications: Record "My Notifications";
     begin
-        if not MyNotifications.Disable(DataMigrationMgt.GetCustomerContactNotificationId) then
+        if not MyNotifications.Disable(DataMigrationMgt.GetCustomerContactNotificationId()) then
             DataMigrationMgt.InsertDefaultCustomerContactNotification(false);
     end;
 
@@ -81,7 +82,7 @@ codeunit 1802 "Data Migration Notifier"
     var
         MyNotifications: Record "My Notifications";
     begin
-        if not MyNotifications.Disable(DataMigrationMgt.GetVendorContactNotificationId) then
+        if not MyNotifications.Disable(DataMigrationMgt.GetVendorContactNotificationId()) then
             DataMigrationMgt.InsertDefaultVendorContactNotification(false);
     end;
 
@@ -95,7 +96,7 @@ codeunit 1802 "Data Migration Notifier"
         Notification.AddAction(ActionText, CODEUNIT::"Data Migration Notifier", ActionFunction);
         if RemoveNotificationFunction <> '' then
             Notification.AddAction(DisableNotificationTxt, CODEUNIT::"Data Migration Notifier", RemoveNotificationFunction);
-        Notification.Send;
+        Notification.Send();
     end;
 
     local procedure ShowCustomerContactCreationNotification(SourceNo: Code[20]; SourceTableID: Integer)
@@ -139,9 +140,9 @@ codeunit 1802 "Data Migration Notifier"
     begin
         case SourceTableID of
             DATABASE::Customer:
-                NotificationID := DataMigrationMgt.GetCustomerContactNotificationId;
+                NotificationID := DataMigrationMgt.GetCustomerContactNotificationId();
             DATABASE::Vendor:
-                NotificationID := DataMigrationMgt.GetVendorContactNotificationId;
+                NotificationID := DataMigrationMgt.GetVendorContactNotificationId();
             else
                 exit;
         end;
@@ -154,7 +155,7 @@ codeunit 1802 "Data Migration Notifier"
         Notification: Notification;
     begin
         Notification.Id := NotificationID;
-        if Notification.Recall then;
+        if Notification.Recall() then;
     end;
 
     procedure ShowContactNotificationIfCustWithoutContExist()
@@ -190,8 +191,8 @@ codeunit 1802 "Data Migration Notifier"
     [EventSubscriber(ObjectType::Page, Page::"Sales & Relationship Mgr. Act.", 'OnOpenPageEvent', '', false, false)]
     local procedure OnOpenSalesRelationshipMgrActPage(var Rec: Record "Relationship Mgmt. Cue")
     begin
-        ShowContactNotificationIfCustWithoutContExist;
-        ShowContactNotificationIfVendWithoutContExist;
+        ShowContactNotificationIfCustWithoutContExist();
+        ShowContactNotificationIfVendWithoutContExist();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Customer List", 'OnAfterGetCurrRecordEvent', '', false, false)]
@@ -203,7 +204,7 @@ codeunit 1802 "Data Migration Notifier"
     [EventSubscriber(ObjectType::Page, Page::"Customer Card", 'OnAfterGetCurrRecordEvent', '', false, false)]
     local procedure OnCustomerCardGetCurrRec(var Rec: Record Customer)
     begin
-        if Rec.Find then
+        if Rec.Find() then
             ShowCustomerContactCreationNotification(Rec."No.", DATABASE::Customer);
     end;
 
@@ -216,7 +217,7 @@ codeunit 1802 "Data Migration Notifier"
     [EventSubscriber(ObjectType::Page, Page::"Vendor Card", 'OnAfterGetCurrRecordEvent', '', false, false)]
     local procedure OnVendorCardGetCurrRec(var Rec: Record Vendor)
     begin
-        if Rec.Find then
+        if Rec.Find() then
             ShowCustomerContactCreationNotification(Rec."No.", DATABASE::Vendor);
     end;
 

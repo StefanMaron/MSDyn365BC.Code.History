@@ -409,7 +409,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         PostedSalesCreditMemos.FILTER.SetFilter("Sell-to Customer No.", CustomerNo);
         PostedSalesCreditMemos.FILTER.SetFilter("Return Order No.", SalesReturnOrderNo);
         PostedSalesCreditMemos.View.Invoke;
-        PostedSalesCreditMemos.Close;
+        PostedSalesCreditMemos.Close();
     end;
 
     local procedure VerifyPurchaseCreditMemoCreatedFromReturnOrder(PurchaseReturnOrderNo: Code[20]; VendorNo: Code[20])
@@ -420,7 +420,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         PostedPurchaseCreditMemos.FILTER.SetFilter("Buy-from Vendor No.", VendorNo);
         PostedPurchaseCreditMemos.FILTER.SetFilter("Return Order No.", PurchaseReturnOrderNo);
         PostedPurchaseCreditMemos.View.Invoke;
-        PostedPurchaseCreditMemos.Close;
+        PostedPurchaseCreditMemos.Close();
     end;
 
     local procedure CreateSalesReturnOrderAndPostIt(CustomerNo: Code[20]) SalesReturnOrderNo: Code[20]
@@ -527,28 +527,28 @@ codeunit 135408 "Return Order Plan-based E2E"
     [Scope('OnPrem')]
     procedure PostedSalesInvoicePageHandler(var PostedSalesInvoice: TestPage "Posted Sales Invoice")
     begin
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchaseInvoicePageHandler(var PostedPurchaseInvoice: TestPage "Posted Purchase Invoice")
     begin
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesCreditMemoPageHandler(var PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo")
     begin
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchaseCreditMemoPageHandler(var PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo")
     begin
-        PostedPurchaseCreditMemo.Close;
+        PostedPurchaseCreditMemo.Close();
     end;
 
     [ModalPageHandler]

@@ -11,7 +11,7 @@ report 32 "VAT Registration No. Check"
         dataitem("Integer"; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(VAT_Registration_No__CheckCaption; VAT_Registration_No__CheckCaptionLbl)
@@ -417,12 +417,12 @@ report 32 "VAT Registration No. Check"
         end else
             VATRegNoFormat.SetRange("Country/Region Code", CountryCode);
         VATRegNoFormat.SetFilter(Format, '<>%1', '');
-        if VATRegNoFormat.Find('-') then begin
+        if VATRegNoFormat.Find('-') then
             repeat
                 if VATRegNoFormat.Compare(VATRegNo, VATRegNoFormat.Format) = true then
                     CurrReport.Skip();
-            until Check or (VATRegNoFormat.Next() = 0);
-        end else
+            until Check or (VATRegNoFormat.Next() = 0)
+        else
             CurrReport.Skip();
     end;
 }

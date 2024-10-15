@@ -165,7 +165,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         TableID[1] := DATABASE::Vendor;
         No[1] := Vendor."No.";
         if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchCrMemoHdr."Dimension Set ID") then
-            ErrorHelperAccount(ErrorType::DimErr, Vendor.TableCaption, Vendor."No.", Vendor."No.", Vendor.Name);
+            ErrorHelperAccount(ErrorType::DimErr, Vendor."No.", Vendor.TableCaption(), Vendor."No.", Vendor.Name);
     end;
 
     local procedure TestPurchLines(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
@@ -189,7 +189,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
                         TableID[1] := DATABASE::Item;
                         No[1] := PurchCrMemoLine."No.";
                         if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchCrMemoLine."Dimension Set ID") then
-                            ErrorHelperAccount(ErrorType::DimErr, Item.TableCaption, No[1], Item."No.", Item.Description);
+                            ErrorHelperAccount(ErrorType::DimErr, No[1], Item.TableCaption(), Item."No.", Item.Description);
 
                         if Item.Type = Item.Type::Inventory then
                             TestInventoryPostingSetup(PurchCrMemoLine);
@@ -215,14 +215,14 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
     begin
         GLAccount.Get(AccountNo);
         if GLAccount.Blocked then
-            ErrorHelperAccount(ErrorType::AccountBlocked, GLAccount.TableCaption, AccountNo, '', '');
+            ErrorHelperAccount(ErrorType::AccountBlocked, AccountNo, GLAccount.TableCaption(), '', '');
         TableID[1] := DATABASE::"G/L Account";
         No[1] := AccountNo;
 
         if PurchCrMemoLine.Type = PurchCrMemoLine.Type::Item then begin
             Item.Get(PurchCrMemoLine."No.");
             if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchCrMemoLine."Dimension Set ID") then
-                ErrorHelperAccount(ErrorType::DimErr, GLAccount.TableCaption, AccountNo, Item."No.", Item.Description);
+                ErrorHelperAccount(ErrorType::DimErr, AccountNo, GLAccount.TableCaption(), Item."No.", Item.Description);
         end;
     end;
 
@@ -265,7 +265,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         PostingDate: Date;
         PostingNoSeries: Code[20];
     begin
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
         PurchasesPayablesSetup.Get();
 
         if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Invoice Nos.", PostingDate) = '' then
@@ -324,8 +324,8 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
             CheckGLAccount("Purch. Line Disc. Account", PurchCrMemoLine);
             if PurchCrMemoLine.Type = PurchCrMemoLine.Type::Item then begin
                 Item.Get(PurchCrMemoLine."No.");
-                if Item.IsInventoriableType then
-                    CheckGLAccount(GetCOGSAccount, PurchCrMemoLine);
+                if Item.IsInventoriableType() then
+                    CheckGLAccount(GetCOGSAccount(), PurchCrMemoLine);
             end;
         end;
     end;

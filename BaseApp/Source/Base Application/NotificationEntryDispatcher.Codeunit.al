@@ -1,4 +1,4 @@
-﻿codeunit 1509 "Notification Entry Dispatcher"
+codeunit 1509 "Notification Entry Dispatcher"
 {
     Permissions = TableData "User Setup" = r,
                   TableData "Notification Entry" = rimd,
@@ -9,7 +9,7 @@
     trigger OnRun()
     begin
         if "Parameter String" = '' then
-            DispatchInstantNotifications
+            DispatchInstantNotifications()
         else
             DispatchNotificationTypeForUser("Parameter String");
     end;
@@ -193,11 +193,11 @@
         Link: Text;
     begin
         with RecordLink do begin
-            Init;
+            Init();
             "Link ID" := 0;
             GetTargetRecRef(NotificationEntry, RecRefLink);
             if not RecRefLink.HasFilter then
-                RecRefLink.SetRecFilter;
+                RecRefLink.SetRecFilter();
             "Record ID" := RecRefLink.RecordId;
             Link := GetUrl(DefaultClientType, CompanyName, OBJECTTYPE::Page, PageManagement.GetPageID(RecRefLink), RecRefLink, true);
             OnAddNoteOnAfterGetUrl(Link, NotificationEntry, RecRefLink);
@@ -276,7 +276,7 @@
             NotificationEntry."Error Message" := GetLastErrorText;
             NotificationEntry.Modify(true);
             ErrorMessageMgt.LogError(NotificationEntry, GetLastErrorText(), '');
-            ClearLastError;
+            ClearLastError();
             exit(false);
         end;
 
@@ -408,7 +408,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDispatchNotificationTypeForUser(Parameter: Text; IsHandled: Boolean)
+    local procedure OnBeforeDispatchNotificationTypeForUser(Parameter: Text; var IsHandled: Boolean)
     begin
     end;
 

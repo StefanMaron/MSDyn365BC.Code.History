@@ -1,6 +1,6 @@
 page 6302 "Azure AD Access Dialog"
 {
-    Caption = 'AZURE ACTIVE DIRECTORY SERVICE PERMISSIONS';
+    Caption = 'Azure Active Directory service permissions';
     PageType = NavigatePage;
 
     layout
@@ -29,8 +29,8 @@ page 6302 "Azure AD Access Dialog"
                 trigger AuthorizationCodeRetrieved(authorizationCode: Text)
                 begin
                     AuthCode := authorizationCode;
-                    CurrPage.Close;
-                    if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows then
+                    CurrPage.Close();
+                    if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Windows then
                         Message(CloseWindowMsg);
                 end;
 
@@ -51,7 +51,7 @@ page 6302 "Azure AD Access Dialog"
                             ActivityLog.LogActivityForUser(
                               AzureAdAppSetup.RecordId, ActivityLog.Status::Failed, 'Azure Authorization', description, error, UserId);
                         end;
-                        ThrowError;
+                        ThrowError();
                     end;
                 end;
             }
@@ -98,9 +98,9 @@ page 6302 "Azure AD Access Dialog"
         ResourceUrl := Resource;
         ResourceFriendlyName := ResourceName;
         CurrPage.Update();
-        if not AzureAdMgt.IsAzureADAppSetupDone then begin
+        if not AzureAdMgt.IsAzureADAppSetupDone() then begin
             PAGE.RunModal(PAGE::"Azure AD App Setup Wizard");
-            if not AzureAdMgt.IsAzureADAppSetupDone then
+            if not AzureAdMgt.IsAzureADAppSetupDone() then
                 exit('');
         end;
 
@@ -110,7 +110,7 @@ page 6302 "Azure AD Access Dialog"
 
     local procedure ThrowError()
     begin
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Windows then
             Message(AuthorizationTxt)
         else
             Error(AuthorizationTxt)

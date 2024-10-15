@@ -470,8 +470,6 @@ page 7024 "Prices Overview"
                 ApplicationArea = All;
                 Caption = 'Open Price List';
                 Image = EditLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 Visible = LineExists;
                 ToolTip = 'View or edit the price list.';
 
@@ -493,8 +491,6 @@ page 7024 "Prices Overview"
                     ApplicationArea = Basic, Suite;
                     Ellipsis = true;
                     Image = CheckDuplicates;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Caption = 'Verify Lines';
                     ToolTip = 'Checks data consistency in the new and modified price list lines. Finds the duplicate price lines and suggests the resolution of the line conflicts.';
 
@@ -512,8 +508,6 @@ page 7024 "Prices Overview"
                     ApplicationArea = Basic, Suite;
                     Ellipsis = true;
                     Image = NewRow;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Caption = 'Add New Lines';
                     ToolTip = 'Opens the page where you can add new lines manually or copy them from the existing price lists or suggest new lines based on data in the product cards.';
 
@@ -529,9 +523,26 @@ page 7024 "Prices Overview"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(VerifyLines_Promoted; VerifyLines)
+                {
+                }
+                actionref(AddLines_Promoted; AddLines)
+                {
+                }
+                actionref(OpenPriceList_Promoted; OpenPriceList)
+                {
+                }
+            }
+        }
     }
 
-#if not CLEAN19
+#if not CLEAN21
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";

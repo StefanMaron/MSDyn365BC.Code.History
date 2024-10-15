@@ -25,7 +25,7 @@ page 5958 "Standard Service Codes"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the service the standard service code represents.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the currency on the standard service lines linked to the standard service code.';

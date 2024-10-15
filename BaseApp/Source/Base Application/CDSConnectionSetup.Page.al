@@ -6,7 +6,6 @@ page 7200 "CDS Connection Setup"
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
-    PromotedActionCategories = 'New,Connection,Integration,Encryption,Virtual Tables,Synchronization,Upgrade,Cloud Migration';
     ShowFilter = false;
     SourceTable = "CDS Connection Setup";
     UsageCategory = Administration;
@@ -19,7 +18,7 @@ page 7200 "CDS Connection Setup"
             group(Connection)
             {
                 Caption = 'Connection from Dynamics 365 Business Central to the Dataverse environment';
-                field("Server Address"; "Server Address")
+                field("Server Address"; Rec."Server Address")
                 {
                     ApplicationArea = Suite;
                     Enabled = IsEditable;
@@ -45,7 +44,7 @@ page 7200 "CDS Connection Setup"
                         CurrPage.Update();
                     end;
                 }
-                field("User Name"; "User Name")
+                field("User Name"; Rec."User Name")
                 {
                     ApplicationArea = Suite;
                     Editable = IsEditable;
@@ -69,7 +68,7 @@ page 7200 "CDS Connection Setup"
                         SetPassword(UserPassword);
                     end;
                 }
-                field("Client Id"; "Client Id")
+                field("Client Id"; Rec."Client Id")
                 {
                     ApplicationArea = Suite;
                     Editable = IsEditable;
@@ -94,14 +93,14 @@ page 7200 "CDS Connection Setup"
                         SetClientSecret(ClientSecret);
                     end;
                 }
-                field("Redirect URL"; "Redirect URL")
+                field("Redirect URL"; Rec."Redirect URL")
                 {
                     ApplicationArea = Suite;
                     Editable = IsEditable;
                     Visible = IsClientIdClientSecretVisible;
                     ToolTip = 'Specifies the Redirect URL of the Azure Active Directory app registration that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
                 }
-                field("SDK Version"; "Proxy Version")
+                field("SDK Version"; Rec."Proxy Version")
                 {
                     ApplicationArea = Suite;
                     AssistEdit = true;
@@ -118,7 +117,7 @@ page 7200 "CDS Connection Setup"
                         end;
                     end;
                 }
-                field("Is Enabled"; "Is Enabled")
+                field("Is Enabled"; Rec."Is Enabled")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Enable Data Synchronization', Comment = 'Name of the check box that shows whether data synchronization with the Dataverse environment is enabled.';
@@ -260,13 +259,13 @@ page 7200 "CDS Connection Setup"
             {
                 Caption = 'Authentication Type Details';
                 Visible = not SoftwareAsAService;
-                field("Authentication Type"; "Authentication Type")
+                field("Authentication Type"; Rec."Authentication Type")
                 {
                     ApplicationArea = Advanced;
                     Editable = IsEditable;
                     ToolTip = 'Specifies the authentication type that will be used to authenticate with the Dataverse environment.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
                 }
-                field("Connection String"; "Connection String")
+                field("Connection String"; Rec."Connection String")
                 {
                     ApplicationArea = Advanced;
                     Caption = 'Connection String';
@@ -283,7 +282,7 @@ page 7200 "CDS Connection Setup"
             {
                 Caption = 'Advanced Settings';
 
-                field("Ownership Model"; "Ownership Model")
+                field("Ownership Model"; Rec."Ownership Model")
                 {
                     ApplicationArea = Suite;
                     Editable = IsEditable;
@@ -295,7 +294,7 @@ page 7200 "CDS Connection Setup"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Business Unit Name"; "Business Unit Name")
+                field("Business Unit Name"; Rec."Business Unit Name")
                 {
                     ApplicationArea = Suite;
                     AssistEdit = true;
@@ -327,8 +326,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Assisted Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
                 Enabled = (not "Is Enabled") or (not BusinessEventsEnabled);
                 ToolTip = 'Start the Dataverse Connection Setup guide.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
@@ -349,8 +346,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Test Connection', Comment = 'Test is a verb.';
                 Image = ValidateEmailLoggingSetup;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Test the connection to Dataverse using the specified settings.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
@@ -367,9 +362,7 @@ page 7200 "CDS Connection Setup"
                 Caption = 'Use Certificate Authentication';
                 Image = Certificate;
                 Visible = SoftwareAsAService;
-                Promoted = true;
                 Enabled = Rec."Is Enabled";
-                PromotedCategory = Process;
                 ToolTip = 'Upgrades the connection to Dataverse to use certificate-based OAuth 2.0 service-to-service authentication.';
 
                 trigger OnAction()
@@ -430,8 +423,6 @@ page 7200 "CDS Connection Setup"
                 Caption = 'Couple Salespersons';
                 Enabled = "Is Enabled" and ("Ownership Model" = "Ownership Model"::Person);
                 Image = CoupledUsers;
-                Promoted = true;
-                PromotedCategory = "Report";
                 ToolTip = 'Open the list of users in Dataverse to manually couple them with salespersons in Business Central.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
@@ -448,8 +439,6 @@ page 7200 "CDS Connection Setup"
                 Caption = 'Add Coupled Users to Team';
                 Enabled = "Is Enabled" and ("Ownership Model" = "Ownership Model"::Person);
                 Image = LinkAccount;
-                Promoted = true;
-                PromotedCategory = "Report";
                 ToolTip = 'Add the coupled Dataverse users to the default owning team.';
 
                 trigger OnAction()
@@ -466,9 +455,6 @@ page 7200 "CDS Connection Setup"
                 Caption = 'Run Full Synchronization';
                 Enabled = "Is Enabled";
                 Image = RefreshLines;
-                Promoted = true;
-                PromotedCategory = Category6;
-                PromotedIsBig = true;
                 ToolTip = 'Start all of the default integration jobs for synchronizing Business Central record types and Dataverse tables. Data is synchronized according to the mappings defined on the Integration Table Mappings page.';
 
                 trigger OnAction()
@@ -482,9 +468,6 @@ page 7200 "CDS Connection Setup"
                 Caption = 'Synchronize Modified Records';
                 Enabled = "Is Enabled";
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Category6;
-                PromotedIsBig = true;
                 ToolTip = 'Synchronize records that have been modified since the last time they were synchronized.';
 
                 trigger OnAction()
@@ -504,9 +487,6 @@ page 7200 "CDS Connection Setup"
                 Caption = 'Mark Coupled Records';
                 Enabled = SetCoupledFlagsActionEnabled;
                 Image = CoupledItem;
-                Promoted = true;
-                PromotedCategory = Category7;
-                PromotedIsBig = true;
                 ToolTip = 'Set field ''Coupled to Dataverse'' to true for all records that are coupled to an entity in Dataverse.';
 
                 trigger OnAction()
@@ -552,9 +532,6 @@ page 7200 "CDS Connection Setup"
                 Caption = 'Rebuild Coupling Table';
                 Enabled = true;
                 Image = Restore;
-                Promoted = true;
-                PromotedCategory = Category8;
-                PromotedIsBig = false;
                 ToolTip = 'Rebuilds the coupling table after Cloud Migration from Business Central 2019 Wave 1 (Business Central 14).';
 
                 trigger OnAction()
@@ -572,8 +549,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Redeploy Integration Solution';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Report;
                 Enabled = not "Is Enabled";
                 ToolTip = 'Redeploy and reconfigure the base integration solution.';
 
@@ -597,8 +572,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Integration Solutions';
                 Image = UserSetup;
-                Promoted = true;
-                PromotedCategory = Report;
                 Enabled = "Is Enabled";
                 ToolTip = 'View the integration solutions that help business apps synchronize data with Business Central through Dataverse.';
 
@@ -613,8 +586,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Integration User Roles';
                 Image = UserSetup;
-                Promoted = true;
-                PromotedCategory = Report;
                 Enabled = "Is Enabled";
                 ToolTip = 'View the roles assigned to the integration user. The integration user is the user account in Dataverse that business apps use to synchronize data with Business Central through Dataverse.';
 
@@ -629,8 +600,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Owning Team Roles';
                 Image = UserSetup;
-                Promoted = true;
-                PromotedCategory = Report;
                 Enabled = "Is Enabled";
                 ToolTip = 'View the roles assigned to the team in Dataverse that owns the coupled entities. This requires that you are using the Team ownership model.';
 
@@ -645,8 +614,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Dataverse Integration User';
                 Image = UserSetup;
-                Promoted = true;
-                PromotedCategory = Report;
                 Enabled = "Is Enabled";
                 ToolTip = 'Open the Dataverse integration user.';
 
@@ -660,8 +627,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Dataverse Owning Team';
                 Image = UserSetup;
-                Promoted = true;
-                PromotedCategory = Report;
                 Enabled = "Is Enabled";
                 ToolTip = 'Open the Dataverse owning team.';
 
@@ -678,9 +643,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Advanced;
                 Caption = 'Encryption Management';
                 Image = EncryptionKeys;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 RunObject = Page "Data Encryption Management";
                 RunPageMode = View;
                 ToolTip = 'Enable or disable data encryption. Data encryption helps make sure that unauthorized users cannot read business data.';
@@ -691,8 +653,6 @@ page 7200 "CDS Connection Setup"
                 Caption = 'Skipped Synch. Records';
                 Enabled = "Is Enabled";
                 Image = NegativeLines;
-                Promoted = true;
-                PromotedCategory = Category6;
                 RunObject = Page "CRM Skipped Records";
                 RunPageMode = View;
                 ToolTip = 'View the list of records that synchronization will skip.';
@@ -702,8 +662,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Synch. Job Queue Entries';
                 Image = JobListSetup;
-                Promoted = true;
-                PromotedCategory = Category6;
                 ToolTip = 'View the job queue entries that manage the scheduled synchronization between Dataverse and Business Central.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
 
                 trigger OnAction()
@@ -724,8 +682,6 @@ page 7200 "CDS Connection Setup"
                 Caption = 'Integration Table Mappings';
                 Enabled = "Is Enabled";
                 Image = MapAccounts;
-                Promoted = true;
-                PromotedCategory = "Report";
                 ToolTip = 'View the list of integration table mappings.';
 
                 trigger OnAction()
@@ -738,8 +694,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Virtual Tables App';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Category5;
                 Enabled = BusinessEventsSupported;
                 ToolTip = 'Go to Microsoft AppSource to get the Business Central Virtual Tables app. The app will let you create virtual tables for Business Central data in Dataverse';
 
@@ -753,8 +707,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Virtual Tables Config';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Category5;
                 Enabled = BusinessEventsSupported and IsConfigIdSpecified;
                 ToolTip = 'View configuration settings for virtual tables.';
 
@@ -768,8 +720,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Available Virtual Tables';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Category5;
                 Enabled = BusinessEventsSupported and IsConfigIdSpecified;
                 ToolTip = 'View the virtual tables in your Dataverse environment. You can specify which tables are visible.';
 
@@ -786,8 +736,6 @@ page 7200 "CDS Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Virtual Tables AAD App';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Category5;
                 Enabled = BusinessEventsSupported;
                 ToolTip = 'Open the Azure Active Directory Application page to view settings for the application registration for the Business Central Virtual Table app. The application registration is required for using Business Central virtual tables in your Dataverse environment.';
 
@@ -799,6 +747,113 @@ page 7200 "CDS Connection Setup"
                     AADApplication.Get(AADApplicationSetup.GetD365BCForVEAppId());
                     Page.RunModal(Page::"AAD Application Card", AADApplication);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Connection', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Assisted Setup_Promoted"; "Assisted Setup")
+                {
+                }
+                actionref("Test Connection_Promoted"; "Test Connection")
+                {
+                }
+                actionref("Use Certificate Authentication_Promoted"; "Use Certificate Authentication")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Integration', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref(CoupleUsers_Promoted; CoupleUsers)
+                {
+                }
+                actionref(AddUsersToTeam_Promoted; AddUsersToTeam)
+                {
+                }
+                actionref(IntegrationTableMappings_Promoted; IntegrationTableMappings)
+                {
+                }
+                actionref("Redeploy Solution_Promoted"; "Redeploy Solution")
+                {
+                }
+                actionref("Integration Solutions_Promoted"; "Integration Solutions")
+                {
+                }
+                actionref("Integration User Roles_Promoted"; "Integration User Roles")
+                {
+                }
+                actionref("Owning Team Roles_Promoted"; "Owning Team Roles")
+                {
+                }
+                actionref("Dataverse Integration User_Promoted"; "Dataverse Integration User")
+                {
+                }
+                actionref("Dataverse Owning Team_Promoted"; "Dataverse Owning Team")
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Encryption', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(EncryptionManagement_Promoted; EncryptionManagement)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Virtual Tables', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("Virtual Tables App_Promoted"; "Virtual Tables App")
+                {
+                }
+                actionref("Virtual Tables Config_Promoted"; "Virtual Tables Config")
+                {
+                }
+                actionref("Available Virtual Tables_Promoted"; "Available Virtual Tables")
+                {
+                }
+                actionref("Virtual Tables AAD app_Promoted"; "Virtual Tables AAD app")
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Synchronization', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(StartInitialSynchAction_Promoted; StartInitialSynchAction)
+                {
+                }
+                actionref(SynchronizeNow_Promoted; SynchronizeNow)
+                {
+                }
+                actionref(SkippedSynchRecords_Promoted; SkippedSynchRecords)
+                {
+                }
+                actionref("Synch. Job Queue Entries_Promoted"; "Synch. Job Queue Entries")
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Upgrade', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(SetCoupledFlags_Promoted; SetCoupledFlags)
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Cloud Migration', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref(RebuildCouplingTable_Promoted; RebuildCouplingTable)
+                {
+                }
             }
         }
     }

@@ -33,10 +33,10 @@ codeunit 134229 "ERM Analysis View"
         // [GIVEN] Open and close Analysis View List Sales page.
         Initialize();
         AnalysisViewListSales.OpenView;
-        AnalysisViewListSales.Close;
+        AnalysisViewListSales.Close();
 
         // [WHEN] Close Analysis View List Sales page again.
-        asserterror AnalysisViewListSales.Close;
+        asserterror AnalysisViewListSales.Close();
 
         // [THEN] Error: Analysis View List Sales page is not open.
         Assert.ExpectedError(PageVerify);
@@ -53,10 +53,10 @@ codeunit 134229 "ERM Analysis View"
         // [GIVEN] Open and close Analysis View List Purchase page.
         Initialize();
         AnalysisViewListPurchase.OpenView;
-        AnalysisViewListPurchase.Close;
+        AnalysisViewListPurchase.Close();
 
         // [WHEN] Close Analysis View List Purchase page again.
-        asserterror AnalysisViewListPurchase.Close;
+        asserterror AnalysisViewListPurchase.Close();
 
         // [THEN] Error: Analysis View List Purchase is not open.
         Assert.ExpectedError(PageVerify);
@@ -148,12 +148,12 @@ codeunit 134229 "ERM Analysis View"
         CreateAnalysisViewWithDimensions(AnalysisView, AnalysisView."Account Source"::"G/L Account");
 
         // Validate
-        AnalysisView.Find;
+        AnalysisView.Find();
         AnalysisView.TestField("Last Entry No.");
         LastEntryNo := AnalysisView."Last Entry No.";
         PostSalesOrder;
         CODEUNIT.Run(CODEUNIT::"Update Analysis View", AnalysisView);
-        AnalysisView.Find;
+        AnalysisView.Find();
         AnalysisView.TestField("Last Entry No.");
         Assert.IsTrue(AnalysisView."Last Entry No." > LastEntryNo, 'Analysis View was not updated.');
     end;
@@ -541,11 +541,11 @@ codeunit 134229 "ERM Analysis View"
     local procedure CreateAnalysisView(var AnalysisView: Record "Analysis View"; AccountSource: Integer)
     begin
         with AnalysisView do begin
-            Init;
+            Init();
             Code := Format(LibraryRandom.RandIntInRange(1, 10000));
             "Account Source" := AccountSource;
             if not Insert then
-                Modify;
+                Modify();
         end;
     end;
 
@@ -571,7 +571,7 @@ codeunit 134229 "ERM Analysis View"
                     4:
                         AnalysisView."Dimension 4 Code" := Dimension.Code;
                 end;
-            until (i = 4) or (Dimension.Next = 0);
+            until (i = 4) or (Dimension.Next() = 0);
         AnalysisView.Modify();
         CODEUNIT.Run(CODEUNIT::"Update Analysis View", AnalysisView);
     end;

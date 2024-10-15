@@ -7,13 +7,11 @@ codeunit 8618 "Config. Excel Exchange"
 
     var
         SelectedConfigPackage: Record "Config. Package";
-        SelectedTable: Record "Integer" temporary;
+        TempSelectedTable: Record "Integer" temporary;
         ConfigXMLExchange: Codeunit "Config. XML Exchange";
         FileMgt: Codeunit "File Management";
         ConfigProgressBar: Codeunit "Config. Progress Bar";
         ConfigValidateMgt: Codeunit "Config. Validate Management";
-        CannotCreateXmlSchemaErr: Label 'Could not create XML Schema.';
-        CreatingExcelMsg: Label 'Creating Excel worksheet';
         OpenXMLManagement: Codeunit "OpenXML Management";
         TypeHelper: Codeunit "Type Helper";
         WrkbkReader: DotNet WorkbookReader;
@@ -30,6 +28,10 @@ codeunit 8618 "Config. Excel Exchange"
         StringBld: DotNet StringBuilder;
         id: BigInteger;
         HideDialog: Boolean;
+        FileOnServer: Boolean;
+
+        CannotCreateXmlSchemaErr: Label 'Could not create XML Schema.';
+        CreatingExcelMsg: Label 'Creating Excel worksheet';
         VmlDrawingXmlTxt: Label '<xml xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><o:shapelayout v:ext="edit"><o:idmap v:ext="edit" data="1"/></o:shapelayout><v:shapetype id="_x0000_t202" coordsize="21600,21600" o:spt="202"  path="m,l,21600r21600,l21600,xe"><v:stroke joinstyle="miter"/><v:path gradientshapeok="t" o:connecttype="rect"/></v:shapetype>', Locked = true;
         EndXmlTokenTxt: Label '</xml>', Locked = true;
         FileExtensionFilterTok: Label 'Excel Files (*.xlsx)|*.xlsx|All Files (*.*)|*.*';
@@ -38,7 +40,6 @@ codeunit 8618 "Config. Excel Exchange"
         InvalidDataInSheetMsg: Label 'Data in sheet ''%1'' could not be imported, because the sheet has an unexpected format.', Comment = '%1=excel sheet name';
         ImportFromExcelMsg: Label 'Import from Excel';
         RapidStartTxt: Label 'RapidStart', Locked = true;
-        FileOnServer: Boolean;
 
     procedure ExportExcelFromConfig(var ConfigLine: Record "Config. Line"): Text
     var
@@ -56,8 +57,8 @@ codeunit 8618 "Config. Excel Exchange"
         ConfigPackageTable.SetRange("Dimensions as Columns", true);
         if ConfigPackageTable.FindSet() then
             repeat
-                if not (ConfigPackageTable.DimensionPackageDataExist or (ConfigPackageTable.DimensionFieldsCount > 0)) then
-                    ConfigPackageTable.InitDimensionFields;
+                if not (ConfigPackageTable.DimensionPackageDataExist() or (ConfigPackageTable.DimensionFieldsCount() > 0)) then
+                    ConfigPackageTable.InitDimensionFields();
             until ConfigPackageTable.Next() = 0;
         ConfigPackageTable.SetRange("Dimensions as Columns");
         OnExportExcelFromConfigOnBeforeExportExcel(ConfigLine, ConfigPackageTable);
@@ -139,7 +140,7 @@ codeunit 8618 "Config. Excel Exchange"
         if ConfigPackageTable.FindSet() then
             repeat
                 if IsNull(StringBld) then begin
-                    StringBld := StringBld.StringBuilder;
+                    StringBld := StringBld.StringBuilder();
                     StringBld.Append(VmlDrawingXmlTxt);
                 end;
 
@@ -157,8 +158,8 @@ codeunit 8618 "Config. Excel Exchange"
                 Worksheet := WrkShtWriter.Worksheet;
 
                 // Add and initialize SingleCellTable part
-                WrkShtWriter.AddSingleCellTablePart;
-                SingleXMLCells := SingleXMLCells.SingleXmlCells;
+                WrkShtWriter.AddSingleCellTablePart();
+                SingleXMLCells := SingleXMLCells.SingleXmlCells();
                 Worksheet.WorksheetPart.SingleCellTablePart.SingleXmlCells := SingleXMLCells;
                 id += 3;
 
@@ -177,9 +178,9 @@ codeunit 8618 "Config. Excel Exchange"
                 StringBld.Append(EndXmlTokenTxt);
 
                 XmlTextWriter := XmlTextWriter.XmlTextWriter(VmlDrawingPart.GetStream(FileMode.Create), Encoding.UTF8);
-                XmlTextWriter.WriteRaw(StringBld.ToString);
-                XmlTextWriter.Flush;
-                XmlTextWriter.Close;
+                XmlTextWriter.WriteRaw(StringBld.ToString());
+                XmlTextWriter.Flush();
+                XmlTextWriter.Close();
 
                 Clear(StringBld);
 
@@ -189,12 +190,12 @@ codeunit 8618 "Config. Excel Exchange"
         FILE.Erase(TempSetupDataFileName);
 
         OpenXMLManagement.CleanMapInfo(WrkbkWriter.Workbook.WorkbookPart.CustomXmlMappingsPart.MapInfo);
-        WrkbkWriter.Workbook.Save;
-        WrkbkWriter.Close;
-        ClearOpenXmlVariables;
+        WrkbkWriter.Workbook.Save();
+        WrkbkWriter.Close();
+        ClearOpenXmlVariables();
 
         if not HideDialog then
-            ConfigProgressBar.Close;
+            ConfigProgressBar.Close();
 
         if FileName = '' then
             FileName :=
@@ -252,16 +253,16 @@ codeunit 8618 "Config. Excel Exchange"
     begin
         if ConfigPackageTable.FindSet() then
             repeat
-                SelectedTable.Number := ConfigPackageTable."Table ID";
-                if SelectedTable.Insert() then;
+                TempSelectedTable.Number := ConfigPackageTable."Table ID";
+                if TempSelectedTable.Insert() then;
             until ConfigPackageTable.Next() = 0;
     end;
 
     local procedure IsTableSelected(TableId: Integer): Boolean
     begin
-        if SelectedTable.IsEmpty() then
+        if TempSelectedTable.IsEmpty() then
             exit(true);
-        exit(SelectedTable.Get(TableId));
+        exit(TempSelectedTable.Get(TableId));
     end;
 
     local procedure IsWorksheetSelected(var TempConfigPackageTable: Record "Config. Package Table" temporary; WrksheetId: Integer): Boolean
@@ -301,12 +302,12 @@ codeunit 8618 "Config. Excel Exchange"
         SheetCount := WrkbkReader.Workbook.Sheets.ChildElements.Count + WrkSheetId;
         repeat
             WrkShtReader := WrkbkReader.GetWorksheetById(Format(WrkSheetId));
-            Enumerator := WrkShtReader.GetEnumerator;
+            Enumerator := WrkShtReader.GetEnumerator();
             while NextCellInRow(Enumerator, CellData, 1) do
                 FillImportPreviewBuffer(TempConfigPackageTable, WrkSheetId, CellData.ColumnNumber, CellData.Value);
             WrkSheetId += 1;
         until WrkSheetId >= SheetCount;
-        SelectedTable.DeleteAll();
+        TempSelectedTable.DeleteAll();
         if TempConfigPackageTable.FindFirst() then;
         if ShowDialog then
             Window.Close();
@@ -328,14 +329,14 @@ codeunit 8618 "Config. Excel Exchange"
                         "Delayed Insert" := not ConfigPackage.Get("Package Code"); // New Package flag value
                         Validated := not ConfigPackageTable.Get("Package Code", "Table ID"); // New Table flag value
                         if IsTableSelected("Table ID") then
-                            Insert;
+                            Insert();
                     end;
             end;
     end;
 
     local procedure NextCellInRow(Enumerator: DotNet IEnumerator; CellData: DotNet CellData; RowNo: Integer): Boolean
     begin
-        if Enumerator.MoveNext then begin
+        if Enumerator.MoveNext() then begin
             CellData := Enumerator.Current;
             exit(CellData.RowNumber = RowNo);
         end;
@@ -371,7 +372,7 @@ codeunit 8618 "Config. Excel Exchange"
 
         WrkSheetId := WrkbkReader.FirstSheetId;
         SheetCount := WorkBookPart.Workbook.Sheets.ChildElements.Count + WrkSheetId;
-        DataSet := DataSet.DataSet;
+        DataSet := DataSet.DataSet();
         DataSet.ReadXmlSchema(XMLSchemaDataFile);
 
         WrkSheetId := WrkbkReader.FirstSheetId;
@@ -407,6 +408,7 @@ codeunit 8618 "Config. Excel Exchange"
         Type: DotNet Type;
         WrkShtReader: DotNet WorksheetReader;
         SheetHeaderRead: Boolean;
+        ColumnInt: Integer;
         ColumnCount: Integer;
         TotalColumnCount: Integer;
         RowIn: Integer;
@@ -417,12 +419,12 @@ codeunit 8618 "Config. Excel Exchange"
     begin
         WrkShtReader := WrkbkReader.GetWorksheetById(Format(WrkSheetId));
         if InitColumnMapping(WrkShtReader, TempXMLBuffer) then begin
-            Enumerator := WrkShtReader.GetEnumerator;
+            Enumerator := WrkShtReader.GetEnumerator();
             if GetDataTable(DataColumnTableId) then begin
                 DataColumn := DataTable.Columns.Item(1);
                 DataColumn.DataType := Type.GetType('System.String');
-                DataTable.BeginLoadData;
-                DataRow := DataTable.NewRow;
+                DataTable.BeginLoadData();
+                DataRow := DataTable.NewRow();
                 SheetHeaderRead := false;
                 DataColumn := DataTable.Columns.Item(1);
                 RowIn := 1;
@@ -430,7 +432,7 @@ codeunit 8618 "Config. Excel Exchange"
                 TotalColumnCount := 0;
                 CurrentRowIndex := 1;
                 FirstDataRow := 4;
-                while Enumerator.MoveNext do begin
+                while Enumerator.MoveNext() do begin
                     CellData := Enumerator.Current;
                     CellValueText := CellData.Value;
                     RowChanged := CurrentRowIndex <> CellData.RowNumber;
@@ -452,7 +454,7 @@ codeunit 8618 "Config. Excel Exchange"
                                 ColumnCount += 1;
                             until ColumnCount = TotalColumnCount;
                             ColumnCount := 0;
-                            DataRow2 := DataTable.NewRow;
+                            DataRow2 := DataTable.NewRow();
                             DataRow2.SetParentRow(DataRow);
                             SheetHeaderRead := true;
                         end;
@@ -466,19 +468,20 @@ codeunit 8618 "Config. Excel Exchange"
 
                         if RowChanged and (CellData.RowNumber > FirstDataRow) and (RowIn <> 1) then begin
                             DataTable.Rows.Add(DataRow2);
-                            DataTable.EndLoadData;
-                            DataRow2 := DataTable.NewRow;
+                            DataTable.EndLoadData();
+                            DataRow2 := DataTable.NewRow();
                             DataRow2.SetParentRow(DataRow);
                             RowIn += 1;
                             ColumnCount := 0;
                         end;
 
                         if RowIn <> 1 then
-                            if TempXMLBuffer.Get(CellData.ColumnNumber) then begin
-                                DataColumn := DataTable.Columns.Item(TempXMLBuffer."Parent Entry No.");
-                                DataColumn.AllowDBNull(true);
-                                DataRow2.Item(TempXMLBuffer."Parent Entry No.", CellValueText);
-                            end;
+                            ColumnInt := CellData.ColumnNumber;
+                        if TempXMLBuffer.Get(ColumnInt) then begin
+                            DataColumn := DataTable.Columns.Item(TempXMLBuffer."Parent Entry No.");
+                            DataColumn.AllowDBNull(true);
+                            DataRow2.Item(TempXMLBuffer."Parent Entry No.", CellValueText);
+                        end;
 
                         ColumnCount := CellData.ColumnNumber + 1;
                     end;
@@ -486,7 +489,7 @@ codeunit 8618 "Config. Excel Exchange"
                 end;
                 // Add the last row
                 DataTable.Rows.Add(DataRow2);
-                DataTable.EndLoadData;
+                DataTable.EndLoadData();
             end else
                 Message(InvalidDataInSheetMsg, WrkShtReader.Name);
         end;
@@ -527,17 +530,17 @@ codeunit 8618 "Config. Excel Exchange"
         TempSchemaFile: File;
         TempSchemaFileName: Text;
     begin
-        TempSchemaFile.CreateTempFile;
+        TempSchemaFile.CreateTempFile();
         TempSchemaFileName := TempSchemaFile.Name + '.xsd';
-        TempSchemaFile.Close;
+        TempSchemaFile.Close();
         TempSchemaFile.Create(TempSchemaFileName);
         TempSchemaFile.CreateOutStream(OStream);
-        RootElementName := ConfigDataSchema.GetRootElementName;
+        RootElementName := ConfigDataSchema.GetRootElementName();
         ConfigDataSchema.SetDestination(OStream);
         ConfigDataSchema.SetTableView(ConfigPackageTable);
-        if not ConfigDataSchema.Export then
+        if not ConfigDataSchema.Export() then
             Error(CannotCreateXmlSchemaErr);
-        TempSchemaFile.Close;
+        TempSchemaFile.Close();
         exit(TempSchemaFileName);
     end;
 
@@ -556,11 +559,11 @@ codeunit 8618 "Config. Excel Exchange"
     var
         "Field": Record "Field";
         Dimension: Record Dimension;
+        RecRef: RecordRef;
+        FieldRef: FieldRef;
         XmlColumnProperties: DotNet XmlColumnProperties;
         TableColumn: DotNet TableColumn;
         WrkShtWriter2: DotNet WorksheetWriter;
-        RecRef: RecordRef;
-        FieldRef: FieldRef;
         TableColumnName: Text;
         ColumnID: Integer;
         IsHandled: Boolean;
@@ -609,7 +612,7 @@ codeunit 8618 "Config. Excel Exchange"
                 ColumnID += 1;
             until ConfigPackageField.Next() = 0;
         end;
-        RecRef.Close;
+        RecRef.Close();
     end;
 
     local procedure GetTableColumnName(ConfigPackageField: Record "Config. Package Field"; Dimension: Record Dimension) TableColumnName: Text
@@ -632,8 +635,8 @@ codeunit 8618 "Config. Excel Exchange"
 
     local procedure AddPackageAndTableInformation(var ConfigPackageTable: Record "Config. Package Table"; var SingleXMLCells: DotNet SingleXmlCells)
     var
-        SingleXMLCell: DotNet SingleXmlCell;
         RecRef: RecordRef;
+        SingleXMLCell: DotNet SingleXmlCell;
         TableCaptionString: Text;
     begin
         // Add package name
@@ -647,7 +650,7 @@ codeunit 8618 "Config. Excel Exchange"
         // Add Table name
         RecRef.Open(ConfigPackageTable."Table ID");
         TableCaptionString := RecRef.Caption;
-        RecRef.Close;
+        RecRef.Close();
         WrkShtWriter.SetCellValueText(1, 'B', TableCaptionString, WrkShtWriter.DefaultCellDecorator);
 
         // Add Table id
@@ -666,7 +669,7 @@ codeunit 8618 "Config. Excel Exchange"
         TempSetupDataFileName: Text;
     begin
         TempSetupDataFileName := CreateXMLPackage(FileMgt.ServerTempFileName(''), ConfigPackageTable);
-        DataSet := DataSet.DataSet;
+        DataSet := DataSet.DataSet();
         DataSet.ReadXml(TempSetupDataFileName);
         exit(TempSetupDataFileName);
     end;
@@ -680,7 +683,7 @@ codeunit 8618 "Config. Excel Exchange"
         StringValue: DotNet StringValue;
         RowsCount: Integer;
     begin
-        TableDefinitionPart := WrkShtWriter.CreateTableDefinitionPart;
+        TableDefinitionPart := WrkShtWriter.CreateTableDefinitionPart();
         ConfigPackageField.Reset();
         ConfigPackageField.SetRange("Package Code", ConfigPackageTable."Package Code");
         ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
@@ -732,15 +735,14 @@ codeunit 8618 "Config. Excel Exchange"
         TableStartColumnIndex := GetTableStartColumnIndex(Table);
         Index := 0;
         Enumerable := Table.TableColumns;
-        Enumerator := Enumerable.GetEnumerator;
-        while Enumerator.MoveNext do begin
+        Enumerator := Enumerable.GetEnumerator();
+        while Enumerator.MoveNext() do begin
             TableColumn := Enumerator.Current;
-            XmlColumnProperties := TableColumn.XmlColumnProperties;
-            if not IsNull(XmlColumnProperties) then begin
+            XmlColumnProperties := TableColumn.XmlColumnProperties();
+            if not IsNull(XmlColumnProperties) then
                 // identifies column to xsd mapping.
                 if not IsNull(XmlColumnProperties.XPath) then
                     InsertXMLBuffer(Index + TableStartColumnIndex, TempXMLBuffer);
-            end;
             Index += 1;
         end;
 

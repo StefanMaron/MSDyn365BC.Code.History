@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138942 "BC O365 Contact Tests"
 {
     EventSubscriberInstance = Manual;
@@ -204,7 +205,7 @@ codeunit 138942 "BC O365 Contact Tests"
     local procedure CreateCustItem(var Customer: Record Customer; var Item: Record Item)
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Address := CopyStr(Format(CreateGuid), 1, MaxStrLen(Customer.Address));
+        Customer.Address := CopyStr(Format(CreateGuid()), 1, MaxStrLen(Customer.Address));
         Customer."E-Mail" := 'a@b.c';
         Customer.Modify();
 
@@ -287,4 +288,4 @@ codeunit 138942 "BC O365 Contact Tests"
         ReportSelections.Insert();
     end;
 }
-
+#endif

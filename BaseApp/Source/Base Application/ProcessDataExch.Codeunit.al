@@ -51,11 +51,12 @@ codeunit 1201 "Process Data Exch."
         if not DataExchFieldGroupByLineNo.FindSet() then
             exit;
 
+        CurrLineNo := 0;
         repeat
             if DataExchFieldGroupByLineNo."Line No." <> CurrLineNo then begin
                 CurrLineNo := DataExchFieldGroupByLineNo."Line No.";
                 OnProcessColumnMappingOnBeforeCreateBankAccReconciliationLine(RecRefTemplate, DataExchField, DataExch, CurrLineNo);
-                RecRef := RecRefTemplate.Duplicate;
+                RecRef := RecRefTemplate.Duplicate();
                 if (DataExchMapping."Data Exch. No. Field ID" <> 0) and (DataExchMapping."Data Exch. Line Field ID" <> 0) then begin
                     SetFieldValue(RecRef, DataExchMapping."Data Exch. No. Field ID", DataExch."Entry No.");
                     SetFieldValue(RecRef, DataExchMapping."Data Exch. Line Field ID", CurrLineNo);
@@ -163,7 +164,7 @@ codeunit 1201 "Process Data Exch."
         IsHandled := false;
         OnSetFieldOnBeforeFieldRefValidate(TransformedValue, DataExchField, DataExchFieldMapping, FieldRef, DataExchColumnDef, IsHandled);
         if not IsHandled then
-            FieldRef.Validate;
+            FieldRef.Validate();
     end;
 
     local procedure SetOptionField(ValueText: Text; FieldRef: FieldRef)
@@ -192,7 +193,7 @@ codeunit 1201 "Process Data Exch."
             FieldRef.Value := StrSubstNo('%1 %2', Format(FieldRef.Value), CopyStr(Value, 1, FieldRef.Length - CurrentLength - 1));
     end;
 
-    local procedure SetDateDecimalField(ValueText: Text; var DataExchField: Record "Data Exch. Field"; var FieldRef: FieldRef; var DataExchColumnDef: Record "Data Exch. Column Def")
+    procedure SetDateDecimalField(ValueText: Text; var DataExchField: Record "Data Exch. Field"; var FieldRef: FieldRef; var DataExchColumnDef: Record "Data Exch. Column Def")
     var
         TypeHelper: Codeunit "Type Helper";
         Value: Variant;
@@ -206,7 +207,7 @@ codeunit 1201 "Process Data Exch."
               GetFileName(DataExchField."Data Exch. No."), GetType(DataExchColumnDef."Data Exch. Def Code"),
               DataExchColumnDef."Data Exch. Def Code", DataExchField."Line No.", DataExchField."Column No.", Format(FieldRef.Type),
               DataExchColumnDef.FieldCaption("Data Format"), DataExchColumnDef.FieldCaption("Data Formatting Culture"),
-              DataExchColumnDef.TableCaption, DataExchField.Value);
+              DataExchColumnDef.TableCaption(), DataExchField.Value);
 
         FieldRef.Value := Value;
     end;
@@ -237,10 +238,10 @@ codeunit 1201 "Process Data Exch."
         RecRef: RecordRef;
         FieldRef: FieldRef;
     begin
-        RecRef := RecRefTemplate.Duplicate;
+        RecRef := RecRefTemplate.Duplicate();
         SetKeyAsFilter(RecRef);
         FieldRef := RecRef.Field(FieldId);
-        FieldRef.SetRange;
+        FieldRef.SetRange();
         if RecRef.FindLast() then
             exit(RecRef.Field(FieldId).Value);
         exit(0);
@@ -316,7 +317,7 @@ codeunit 1201 "Process Data Exch."
                 FieldRef := RecRef.Field(TempFieldIdsToNegate.Number);
                 Amount := FieldRef.Value;
                 FieldRef.Value := -Amount;
-                FieldRef.Validate;
+                FieldRef.Validate();
             until TempFieldIdsToNegate.Next() = 0;
             TempFieldIdsToNegate.DeleteAll();
         end;

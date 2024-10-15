@@ -39,7 +39,7 @@ report 99001025 "Refresh Production Order"
 
                 ProdOrderLine.LockTable();
                 OnBeforeCalcProdOrder("Production Order", Direction);
-                CheckReservationExist;
+                CheckReservationExist();
 
                 if CalcLines then begin
                     OnBeforeCalcProdOrderLines("Production Order", Direction, CalcLines, CalcRoutings, CalcComponents, IsHandled, ErrorOccured);
@@ -91,12 +91,12 @@ report 99001025 "Refresh Production Order"
                 OnProductionOrderOnAfterGetRecordOnAfterCalcRoutingsOrComponents("Production Order", CalcLines, CalcRoutings, CalcComponents, ErrorOccured);
 
                 if (Direction = Direction::Backward) and ("Source Type" = "Source Type"::Family) then begin
-                    SetUpdateEndDate;
+                    SetUpdateEndDate();
                     Validate("Due Date", "Due Date");
                 end;
 
                 if Status = Status::Released then begin
-                    ProdOrderStatusMgt.FlushProdOrder("Production Order", Status, WorkDate);
+                    ProdOrderStatusMgt.FlushProdOrder("Production Order", Status, WorkDate());
                     WhseProdRelease.Release("Production Order");
                     if CreateInbRqst then
                         WhseOutputProdRelease.Release("Production Order");
@@ -104,7 +104,7 @@ report 99001025 "Refresh Production Order"
 
                 OnAfterRefreshProdOrder("Production Order", ErrorOccured);
                 if ErrorOccured then
-                    Message(Text005, ProdOrder.TableCaption, ProdOrderLine.FieldCaption("Bin Code"));
+                    Message(Text005, ProdOrder.TableCaption(), ProdOrderLine.FieldCaption("Bin Code"));
             end;
 
             trigger OnPreDataItem()
@@ -263,7 +263,7 @@ report 99001025 "Refresh Production Order"
                     ProdOrderComp2.SetRange("Prod. Order No.", ProdOrderLine2."Prod. Order No.");
                     ProdOrderComp2.SetRange("Prod. Order Line No.", ProdOrderLine2."Line No.");
                     ProdOrderComp2.SetAutoCalcFields("Reserved Qty. (Base)");
-                    if ProdOrderComp2.Find('-') then begin
+                    if ProdOrderComp2.Find('-') then
                         repeat
                             OnCheckReservationExistOnBeforeCheckProdOrderComp2ReservedQtyBase(ProdOrderComp2);
                             if ProdOrderComp2."Reserved Qty. (Base)" <> 0 then
@@ -274,7 +274,6 @@ report 99001025 "Refresh Production Order"
                                 then
                                     ProdOrderComp2.TestField("Reserved Qty. (Base)", 0);
                         until ProdOrderComp2.Next() = 0;
-                    end;
                 end;
             until ProdOrderLine2.Next() = 0;
     end;
@@ -310,7 +309,7 @@ report 99001025 "Refresh Production Order"
         with ProductionOrder do
             if RoutingNo <> "Routing No." then begin
                 "Routing No." := RoutingNo;
-                Modify;
+                Modify();
             end;
     end;
 

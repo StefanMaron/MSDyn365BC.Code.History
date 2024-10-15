@@ -220,7 +220,7 @@ codeunit 144001 CurrencyExchangeRateFile
         CurrencyExchangeRateFile.Create(CurrencyExchangeRateFileName);
         CurrencyExchangeRateFile.TextMode := true;
         CurrencyExchangeRateFile.Write(CurrencyExchangeRateData);
-        CurrencyExchangeRateFile.Close;
+        CurrencyExchangeRateFile.Close();
 
         exit(CurrencyExchangeRateFileName);
     end;

@@ -153,7 +153,7 @@ table 7340 "Posted Invt. Put-away Header"
         PostedInvtPutAwayLine: Record "Posted Invt. Put-away Line";
         WhseCommentLine: Record "Warehouse Comment Line";
     begin
-        CheckLocation;
+        CheckLocation();
 
         PostedInvtPutAwayLine.SetRange("No.", "No.");
         PostedInvtPutAwayLine.DeleteAll();
@@ -167,11 +167,11 @@ table 7340 "Posted Invt. Put-away Header"
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            TestNoSeries;
-            "No. Series" := GetNoSeriesCode;
+            TestNoSeries();
+            "No. Series" := GetNoSeriesCode();
             NoSeriesMgt.InitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series");
         end;
-        "Registering Date" := WorkDate;
+        "Registering Date" := WorkDate();
     end;
 
     var

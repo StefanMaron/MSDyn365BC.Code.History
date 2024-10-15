@@ -31,6 +31,9 @@
       "path": "./testframework/TestLibraries"
     },
     {
+      "path": "./testframework/teststabilitytools"
+    },
+    {
       "path": "./testframework/TestRunner/Test Runner"
     },
     {
@@ -38,6 +41,9 @@
     },
     {
       "path": "./testframework/performancetoolkit/Performance Toolkit Tests/src/Mock Tests"
+    },
+    {
+      "path": "./DataSearch/test/Data Search Tests"
     },
     {
       "path": "./vatgroupmanagement/test/VAT Group Management Tests"

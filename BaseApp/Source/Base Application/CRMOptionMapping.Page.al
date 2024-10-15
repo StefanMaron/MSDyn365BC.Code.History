@@ -22,12 +22,12 @@ page 5334 "CRM Option Mapping"
                     Caption = 'Record';
                     ToolTip = 'Specifies the record in Business Central that is mapped to the option value in Dataverse.';
                 }
-                field("Option Value"; "Option Value")
+                field("Option Value"; Rec."Option Value")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the numeric value of the mapped option value in Dataverse.';
                 }
-                field("Option Value Caption"; "Option Value Caption")
+                field("Option Value Caption"; Rec."Option Value Caption")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the caption of the mapped option value in Dataverse.';

@@ -6,8 +6,8 @@ codeunit 6520 "Item Tracing Mgt."
     end;
 
     var
-        FirstLevelEntries: Record "Item Tracing Buffer" temporary;
-        TempTraceHistory: Record "Item Tracing History Buffer" temporary;
+        TempItemTracingBuffer: Record "Item Tracing Buffer" temporary;
+        TempItemTracingHistoryBuffer: Record "Item Tracing History Buffer" temporary;
         SearchCriteria: Option "None",Lot,Serial,Both,Item,Package;
         TempLineNo: Integer;
         CurrentLevel: Integer;
@@ -86,39 +86,39 @@ codeunit 6520 "Item Tracing Mgt."
 
         OnFirstLevelOnAfterSetLedgerEntryFilters(ItemLedgEntry, SerialNoFilter, LotNoFilter, ItemNoFilter);
 
-        Clear(FirstLevelEntries);
-        FirstLevelEntries.DeleteAll();
+        Clear(TempItemTracingBuffer);
+        TempItemTracingBuffer.DeleteAll();
         NextLineNo := 0;
         if ItemLedgEntry.FindSet() then
             repeat
                 NextLineNo += 1;
-                FirstLevelEntries."Line No." := NextLineNo;
-                FirstLevelEntries."Item No." := ItemLedgEntry."Item No.";
-                FirstLevelEntries.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
-                FirstLevelEntries."Item Ledger Entry No." := ItemLedgEntry."Entry No.";
-                OnFirstLevelOnBeforeInsertFirstLevelEntry(FirstLevelEntries, ItemLedgEntry);
-                FirstLevelEntries.Insert();
+                TempItemTracingBuffer."Line No." := NextLineNo;
+                TempItemTracingBuffer."Item No." := ItemLedgEntry."Item No.";
+                TempItemTracingBuffer.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
+                TempItemTracingBuffer."Item Ledger Entry No." := ItemLedgEntry."Entry No.";
+                OnFirstLevelOnBeforeInsertFirstLevelEntry(TempItemTracingBuffer, ItemLedgEntry);
+                TempItemTracingBuffer.Insert();
             until ItemLedgEntry.Next() = 0;
 
         case SearchCriteria of
             SearchCriteria::None:
                 exit;
             SearchCriteria::Serial:
-                FirstLevelEntries.SetCurrentKey("Serial No.", "Item Ledger Entry No.");
+                TempItemTracingBuffer.SetCurrentKey("Serial No.", "Item Ledger Entry No.");
             SearchCriteria::Lot,
             SearchCriteria::Both:
-                FirstLevelEntries.SetCurrentKey("Lot No.", "Item Ledger Entry No.");
+                TempItemTracingBuffer.SetCurrentKey("Lot No.", "Item Ledger Entry No.");
             SearchCriteria::Item:
-                FirstLevelEntries.SetCurrentKey("Item No.", "Item Ledger Entry No.");
+                TempItemTracingBuffer.SetCurrentKey("Item No.", "Item Ledger Entry No.");
             SearchCriteria::Package:
-                FirstLevelEntries.SetCurrentKey("Item No.", "Item Ledger Entry No.");
+                TempItemTracingBuffer.SetCurrentKey("Item No.", "Item Ledger Entry No.");
         end;
 
-        FirstLevelEntries.Ascending(Direction = Direction::Forward);
-        if FirstLevelEntries.Find('-') then
+        TempItemTracingBuffer.Ascending(Direction = Direction::Forward);
+        if TempItemTracingBuffer.Find('-') then
             repeat
-                ItemLedgEntry.Get(FirstLevelEntries."Item Ledger Entry No.");
-                if ItemLedgEntry.TrackingExists then begin
+                ItemLedgEntry.Get(TempItemTracingBuffer."Item Ledger Entry No.");
+                if ItemLedgEntry.TrackingExists() then begin
                     ItemLedgEntry2 := ItemLedgEntry;
 
                     // Test for Reclass
@@ -155,7 +155,7 @@ codeunit 6520 "Item Tracing Mgt."
                         NextLevel(TempTrackEntry, TempTrackEntry, Direction, ShowComponents, ItemLedgEntry2."Entry No.");
                     end;
                 end;
-            until (FirstLevelEntries.Next() = 0) or (CurrentLevel > 50);
+            until (TempItemTracingBuffer.Next() = 0) or (CurrentLevel > 50);
     end;
 
     procedure NextLevel(var TempTrackEntry: Record "Item Tracing Buffer"; TempTrackEntry2: Record "Item Tracing Buffer"; Direction: Option Forward,Backward; ShowComponents: Option No,"Item-tracked only",All; ParentID: Integer)
@@ -259,7 +259,7 @@ codeunit 6520 "Item Tracing Mgt."
                         ItemLedgEntry.SetRange(Positive, false);
                         if ItemLedgEntry.Find('-') then
                             repeat
-                                if (ShowComponents = ShowComponents::All) or ItemLedgEntry.TrackingExists then begin
+                                if (ShowComponents = ShowComponents::All) or ItemLedgEntry.TrackingExists() then begin
                                     CurrentLevel += 1;
                                     TransferData(ItemLedgEntry, TempItemTracingBuffer);
                                     OnFindComponentsOnAfterTransferData(TempItemTracingBuffer, ItemLedgEntry2, ItemLedgEntry);
@@ -283,7 +283,7 @@ codeunit 6520 "Item Tracing Mgt."
                 CurrentLevel += 1;
                 if ItemLedgEntry.Find('-') then
                     repeat
-                        if (ShowComponents = ShowComponents::All) or ItemLedgEntry.TrackingExists then begin
+                        if (ShowComponents = ShowComponents::All) or ItemLedgEntry.TrackingExists() then begin
                             TransferData(ItemLedgEntry, TempItemTracingBuffer);
                             OnFindComponentsOnAfterTransferData(TempItemTracingBuffer, ItemLedgEntry2, ItemLedgEntry);
                             if InsertRecord(TempItemTracingBuffer, ParentID) then
@@ -307,7 +307,7 @@ codeunit 6520 "Item Tracing Mgt."
     begin
         with TempTrackEntry do begin
             TempTrackEntry2 := TempTrackEntry;
-            Reset;
+            Reset();
             SetCurrentKey("Item Ledger Entry No.");
             SetRange("Item Ledger Entry No.", "Item Ledger Entry No.");
 
@@ -348,7 +348,7 @@ codeunit 6520 "Item Tracing Mgt."
                                     RecRef.SetTable(ItemLedgerEntry);
                                     if ItemLedgerEntry."Job No." <> '' then begin
                                         Job.Get(ItemLedgerEntry."Job No.");
-                                        Description2 := Format(StrSubstNo('%1 %2', Job.TableCaption, ItemLedgerEntry."Job No."), -50);
+                                        Description2 := Format(StrSubstNo('%1 %2', Job.TableCaption(), ItemLedgerEntry."Job No."), -50);
                                     end;
                                 end;
                         end;
@@ -357,7 +357,7 @@ codeunit 6520 "Item Tracing Mgt."
                 end;
                 OnInsertRecordOnBeforeSetDescription(TempTrackEntry, RecRef, Description2);
                 SetDescription(Description2);
-                Insert;
+                Insert();
                 exit(true);
             end;
             exit(false);
@@ -408,7 +408,7 @@ codeunit 6520 "Item Tracing Mgt."
         xTrackEntry.Copy(TempTrackEntry2);
         TempTrackEntry2.Reset();
         TempTrackEntry2 := ActualTrackingLine;
-        Found := (TempTrackEntry2.Next <> 0);
+        Found := (TempTrackEntry2.Next() <> 0);
         if Found then
             Found := (TempTrackEntry2.Level > ActualTrackingLine.Level);
         TempTrackEntry2.Copy(xTrackEntry);
@@ -738,7 +738,7 @@ codeunit 6520 "Item Tracing Mgt."
         if Format(RecID) = '' then
             exit;
 
-        RecRef := RecID.GetRecord;
+        RecRef := RecID.GetRecord();
 
         IsHandled := false;
         OnBeforeShowDocument(RecRef, IsHandled);
@@ -921,17 +921,17 @@ codeunit 6520 "Item Tracing Mgt."
         LevelCount: Integer;
         ExtFilterExists: Boolean;
     begin
-        with TempTraceHistory do begin
-            Reset;
+        with TempItemTracingHistoryBuffer do begin
+            Reset();
             SetFilter("Entry No.", '>%1', CurrentHistoryEntryNo);
             DeleteAll();
-
+            LevelCount := 0;
             repeat
-                Init;
+                Init();
                 "Entry No." := CurrentHistoryEntryNo + 1;
                 Level := LevelCount;
 
-                OnAfterInitItemTracingHistoryBuffer(TempTraceHistory, ExtFilterExists);
+                OnAfterInitItemTracingHistoryBuffer(TempItemTracingHistoryBuffer, ExtFilterExists);
 
                 "Serial No. Filter" := CopyStr(SerialNoFilter, 1, MaxStrLen("Serial No. Filter"));
                 "Lot No. Filter" := CopyStr(LotNoFilter, 1, MaxStrLen("Lot No. Filter"));
@@ -943,8 +943,8 @@ codeunit 6520 "Item Tracing Mgt."
                     "Trace Method" := TraceMethod;
                     "Show Components" := ShowComponents;
                 end;
-                OnBeforeItemTracingHistoryBufferInsert(TempTraceHistory);
-                Insert;
+                OnBeforeItemTracingHistoryBufferInsert(TempItemTracingHistoryBuffer);
+                Insert();
 
                 LevelCount += 1;
                 SerialNoFilter := DelStr(SerialNoFilter, 1, MaxStrLen("Serial No. Filter"));
@@ -1000,8 +1000,8 @@ codeunit 6520 "Item Tracing Mgt."
 
     local procedure RetrieveHistoryData(EntryNo: Integer; var SerialNoFilter: Text; var LotNoFilter: Text; var PackageNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option "Origin->Usage","Usage->Origin"; var ShowComponents: Option No,"Item-tracked only",All): Boolean
     begin
-        with TempTraceHistory do begin
-            Reset;
+        with TempItemTracingHistoryBuffer do begin
+            Reset();
             SetCurrentKey("Entry No.", Level);
             SetRange("Entry No.", EntryNo);
             if not FindSet() then
@@ -1022,7 +1022,7 @@ codeunit 6520 "Item Tracing Mgt."
                     ItemNoFilter := ItemNoFilter + "Item No. Filter";
                     VariantFilter := VariantFilter + "Variant Filter";
                 end;
-                OnRetrieveHistoryDataOnAfterTraceHistoryLine(TempTraceHistory);
+                OnRetrieveHistoryDataOnAfterTraceHistoryLine(TempItemTracingHistoryBuffer);
             until Next() = 0;
             exit(true);
         end;
@@ -1030,11 +1030,11 @@ codeunit 6520 "Item Tracing Mgt."
 
     procedure GetHistoryStatus(var PreviousExists: Boolean; var NextExists: Boolean)
     begin
-        TempTraceHistory.Reset();
-        TempTraceHistory.SetFilter("Entry No.", '>%1', CurrentHistoryEntryNo);
-        NextExists := not TempTraceHistory.IsEmpty;
-        TempTraceHistory.SetFilter("Entry No.", '<%1', CurrentHistoryEntryNo);
-        PreviousExists := not TempTraceHistory.IsEmpty;
+        TempItemTracingHistoryBuffer.Reset();
+        TempItemTracingHistoryBuffer.SetFilter("Entry No.", '>%1', CurrentHistoryEntryNo);
+        NextExists := not TempItemTracingHistoryBuffer.IsEmpty();
+        TempItemTracingHistoryBuffer.SetFilter("Entry No.", '<%1', CurrentHistoryEntryNo);
+        PreviousExists := not TempItemTracingHistoryBuffer.IsEmpty();
     end;
 
     local procedure IsServiceDocument(ItemLedgEntryNo: Integer; var ItemLedgEntry: Record "Item Ledger Entry"): Boolean

@@ -44,7 +44,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryManufacturing.CreateMachineCenter(MachineCenter, WorkCenter."No.", LibraryRandom.RandDec(100, 2));  // Random Value for Capacity.
 
         // Exercise: Run Calculate Machine Center Calendar Report.
-        LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate), CalcDate('<1M>', WorkDate));  // Calculate for the Month.
+        LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-1M>', WorkDate()), CalcDate('<1M>', WorkDate()));  // Calculate for the Month.
 
         // Verify: Verify Calendar Entry for Machine Center.
         VerifyMachineCenterCalendar(MachineCenter, WorkCenter."No.");
@@ -621,7 +621,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         CreateAndRefreshProductionOrder(
           ProductionOrder[3], ProductionOrder[3].Status::"Firm Planned", CompItem."No.", QtySuppliedFromPlannedOrder);
         FindProdOrderLine(ProdOrderLine, ProductionOrder[3]);
-        ProdOrderLine.Validate("Due Date", WorkDate - 1);
+        ProdOrderLine.Validate("Due Date", WorkDate() - 1);
         ProdOrderLine.Modify(true);
 
         // [GIVEN] Thus, the overall supply of item "C" is equal to ("X" + "W").
@@ -666,7 +666,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", Qty);
         ProductionOrder.SetUpdateEndDate;
-        ProductionOrder.Validate("Due Date", LibraryRandom.RandDateFromInRange(WorkDate, 10, 20));
+        ProductionOrder.Validate("Due Date", LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20));
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
@@ -857,7 +857,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         repeat
             ProdOrderRoutingLine.Validate("Unit Cost per", LibraryRandom.RandInt(10));
             ProdOrderRoutingLine.Modify(true);
-        until ProdOrderRoutingLine.Next = 0;
+        until ProdOrderRoutingLine.Next() = 0;
     end;
 
     local procedure ExplodeRoutingAndPostOutputJournal(ProductionOrderNo: Code[20])
@@ -946,7 +946,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     begin
         Item.SetRange("No.", Item."No.");
         Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(PeriodLength);
         LibraryVariableStorage.Enqueue(UseStockkeepingUnit);
         REPORT.Run(REPORT::"Inventory - Availability Plan", true, false, Item);
@@ -966,8 +966,8 @@ codeunit 137310 "SCM Manufacturing Reports -II"
     local procedure RunAndSaveInventoryValuationWIPReport(ProductionOrder: Record "Production Order")
     begin
         ProductionOrder.SetRange("No.", ProductionOrder."No.");
-        LibraryVariableStorage.Enqueue(WorkDate);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(WorkDate());
         REPORT.Run(REPORT::"Inventory Valuation - WIP", true, false, ProductionOrder);
     end;
 
@@ -982,7 +982,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
             CalendarEntry.TestField("Work Center No.", WorkCenterNo);
             CalendarEntry.TestField(Efficiency, MachineCenter.Efficiency);
             CalendarEntry.TestField(Capacity, MachineCenter.Capacity);
-        until CalendarEntry.Next = 0;
+        until CalendarEntry.Next() = 0;
     end;
 
     local procedure VerifyMachineCenterList(MachineCenter: Record "Machine Center")
@@ -1051,7 +1051,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
             LibraryReportDataset.GetNextRow;
             LibraryReportDataset.AssertCurrentRowValueEquals('Prod__Order_Routing_Line_Type', Format(RoutingLine.Type));
             LibraryReportDataset.AssertCurrentRowValueEquals('Prod__Order_Routing_Line__No__', RoutingLine."No.");
-        until RoutingLine.Next = 0;
+        until RoutingLine.Next() = 0;
     end;
 
     local procedure VerifyProdOrderCalculation(ProdOrderLine: Record "Prod. Order Line")
@@ -1169,7 +1169,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         NoOfPeriods: Variant;
     begin
         LibraryVariableStorage.Dequeue(NoOfPeriods);
-        MachineCenterLoadBar.StartingDate.SetValue(WorkDate);
+        MachineCenterLoadBar.StartingDate.SetValue(WorkDate());
         MachineCenterLoadBar.NoOfPeriods.SetValue(NoOfPeriods);
         MachineCenterLoadBar.PeriodLength.SetValue('<1W>');
         MachineCenterLoadBar.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
@@ -1182,7 +1182,7 @@ codeunit 137310 "SCM Manufacturing Reports -II"
         NoOfPeriods: Variant;
     begin
         LibraryVariableStorage.Dequeue(NoOfPeriods);
-        WorkCenterLoadBar.StartingDate.SetValue(WorkDate);
+        WorkCenterLoadBar.StartingDate.SetValue(WorkDate());
         WorkCenterLoadBar.NoOfPeriods.SetValue(NoOfPeriods);
         WorkCenterLoadBar.PeriodLength.SetValue('<1W>');
         WorkCenterLoadBar.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);

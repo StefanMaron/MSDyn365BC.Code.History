@@ -11,7 +11,7 @@ page 758 "Payment Method Translations"
         {
             repeater(Group)
             {
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to business partners abroad, such as an item description on an order confirmation.';

@@ -44,7 +44,7 @@ codeunit 144021 "Ref. Payment - Exported Test"
     begin
         with RefPaymentExported do begin
             LibraryPurchase.CreateVendor(Vendor);
-            Validate("Payment Date", WorkDate);
+            Validate("Payment Date", WorkDate());
             Validate("Document No.", '1');
             Validate("Vendor No.", Vendor."No.");
 
@@ -55,7 +55,7 @@ codeunit 144021 "Ref. Payment - Exported Test"
             Assert.AreEqual("Amount (LCY)", Amount, 'Currency convertion failed');
 
             // Check with currency
-            Validate("Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 0.5, 0.5));
+            Validate("Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 0.5, 0.5));
             Validate(Amount, 1.0);
             Assert.AreEqual("Amount (LCY)", 2.0, 'Currency convertion failed');
             Validate("Amount (LCY)", 2.0);

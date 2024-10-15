@@ -125,7 +125,7 @@ table 5847 "Average Cost Calc. Overview"
     begin
         AverageCost := 0;
         if Type = Type::"Closing Entry" then begin
-            SetItemFilters;
+            SetItemFilters();
             ValueEntry.SumCostsTillValuationDate(ValueEntry);
             if ValueEntry."Item Ledger Entry Quantity" = 0 then
                 exit(AverageCost);
@@ -144,7 +144,7 @@ table 5847 "Average Cost Calc. Overview"
     begin
         if Type <> Type::"Closing Entry" then
             exit(0);
-        SetItemFilters;
+        SetItemFilters();
         ValueEntry.SumCostsTillValuationDate(ValueEntry);
         exit(ValueEntry."Item Ledger Entry Quantity");
     end;
@@ -153,7 +153,7 @@ table 5847 "Average Cost Calc. Overview"
     begin
         if Type <> Type::"Closing Entry" then
             exit(0);
-        SetItemFilters;
+        SetItemFilters();
         ValueEntry.SumCostsTillValuationDate(ValueEntry);
         if Actual then
             exit(ValueEntry."Cost Amount (Actual)");

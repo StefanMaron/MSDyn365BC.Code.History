@@ -8,7 +8,7 @@ page 9090 "Item Replenishment FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = Planning;
                 Caption = 'Item No.';
@@ -16,10 +16,10 @@ page 9090 "Item Replenishment FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
-            field("Replenishment System"; "Replenishment System")
+            field("Replenishment System"; Rec."Replenishment System")
             {
                 ApplicationArea = Planning;
                 ToolTip = 'Specifies the type of supply order that is created by the planning system when the item needs to be replenished.';
@@ -27,7 +27,7 @@ page 9090 "Item Replenishment FactBox"
             group(Purchase)
             {
                 Caption = 'Purchase';
-                field("Vendor No."; "Vendor No.")
+                field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = Planning;
                     Lookup = false;
@@ -42,7 +42,7 @@ page 9090 "Item Replenishment FactBox"
                         PAGE.Run(PAGE::"Vendor Card", Vendor);
                     end;
                 }
-                field("Vendor Item No."; "Vendor Item No.")
+                field("Vendor Item No."; Rec."Vendor Item No.")
                 {
                     ApplicationArea = Planning;
                     Lookup = false;
@@ -52,12 +52,12 @@ page 9090 "Item Replenishment FactBox"
             group(Production)
             {
                 Caption = 'Production';
-                field("Manufacturing Policy"; "Manufacturing Policy")
+                field("Manufacturing Policy"; Rec."Manufacturing Policy")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies if additional orders for any related components are calculated.';
                 }
-                field("Routing No."; "Routing No.")
+                field("Routing No."; Rec."Routing No.")
                 {
                     ApplicationArea = Manufacturing;
                     Lookup = false;
@@ -72,7 +72,7 @@ page 9090 "Item Replenishment FactBox"
                         PAGE.Run(PAGE::Routing, RoutingHeader);
                     end;
                 }
-                field("Production BOM No."; "Production BOM No.")
+                field("Production BOM No."; Rec."Production BOM No.")
                 {
                     ApplicationArea = Manufacturing;
                     Lookup = false;

@@ -111,9 +111,9 @@ codeunit 144026 "SEPA Bank Payment Export"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             "Country/Region Code" := CountryCode;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -122,9 +122,9 @@ codeunit 144026 "SEPA Bank Payment Export"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "LCY Code" := LCYCode;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -135,7 +135,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         with CountryRegion do begin
             Get(CountryCode);
             "SEPA Allowed" := SepaAllowed;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -149,9 +149,9 @@ codeunit 144026 "SEPA Bank Payment Export"
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, StartingNo, EndingNo);
 
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             "Bank Batch Nos." := NoSeries.Code;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -160,7 +160,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         BankAccount: Record "Bank Account";
     begin
         with BankAccount do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Bank Account");
             Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Bank Account");
             "SWIFT Code" := LibraryUtility.GenerateRandomCode(FieldNo("SWIFT Code"), DATABASE::"Bank Account");
@@ -173,7 +173,7 @@ codeunit 144026 "SEPA Bank Payment Export"
             Validate(IBAN, IBANCode);
             "Payment Export Format" := PmtExpFormat;
             "Credit Transfer Msg. Nos." := SEPACTNoSeries;
-            Insert;
+            Insert();
             exit("No.");
         end
     end;
@@ -202,10 +202,10 @@ codeunit 144026 "SEPA Bank Payment Export"
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
         with BankAccountPostingGroup do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Bank Account Posting Group");
             "G/L Account No." := CreateGLAccount;
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -215,12 +215,12 @@ codeunit 144026 "SEPA Bank Payment Export"
         FieldLength: Integer;
     begin
         with ReferenceFileSetup do begin
-            Init;
+            Init();
             "No." := BankAccountNo;
             Validate("Bank Party ID", LibraryUtility.GenerateRandomCode(FieldNo("Bank Party ID"), DATABASE::"Reference File Setup"));
             "File Name" :=
               CopyStr(GenerateFileName(FieldNo("File Name"), DATABASE::"Reference File Setup", 'xml', FieldLength), 1, FieldLength);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -265,7 +265,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         with VendorBankAccount do begin
-            Init;
+            Init();
             "Vendor No." := VendorNo;
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Vendor Bank Account");
             Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Vendor Bank Account");
@@ -278,7 +278,7 @@ codeunit 144026 "SEPA Bank Payment Export"
             IBAN := IBANCode;
             "SEPA Payment" := SEPAPayment;
             "Clearing Code" := LibraryUtility.GenerateRandomCode(FieldNo("Clearing Code"), DATABASE::"Vendor Bank Account");
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;

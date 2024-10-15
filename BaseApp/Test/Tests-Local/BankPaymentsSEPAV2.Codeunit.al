@@ -443,7 +443,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         RefPmtExported.FindSet();
         Assert.AreEqual(2, RefPmtExported.Count, '2 lines should exist');
         Assert.IsFalse(RefPmtExported.Transferred, 'Export should keep all NON SEPA lines');
-        RefPmtExported.Next;
+        RefPmtExported.Next();
         Assert.IsTrue(RefPmtExported.Transferred, 'Export should remove all SEPA lines out of view');
     end;
 
@@ -689,11 +689,11 @@ codeunit 144004 "Bank Payments - SEPA V2"
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Two posted purchase orders
-        InvoiceNo[1] := CreatePostPurchaseDocument(PurchaseHeader."Document Type"::Invoice, Vendor."No.", WorkDate);
-        InvoiceNo[2] := CreatePostPurchaseDocument(PurchaseHeader."Document Type"::Invoice, Vendor."No.", WorkDate);
+        InvoiceNo[1] := CreatePostPurchaseDocument(PurchaseHeader."Document Type"::Invoice, Vendor."No.", WorkDate());
+        InvoiceNo[2] := CreatePostPurchaseDocument(PurchaseHeader."Document Type"::Invoice, Vendor."No.", WorkDate());
 
         // [GIVEN] Set up different bank payments dates
-        SuggestBankPayments(WorkDate, Vendor."No.");
+        SuggestBankPayments(WorkDate(), Vendor."No.");
         UpdateRefPaymentExportedWithPaymentDate(Vendor."No.", InvoiceNo[1], WorkDate + 1, true);
         UpdateRefPaymentExportedWithPaymentDate(Vendor."No.", InvoiceNo[2], WorkDate + 2, true);
 
@@ -779,7 +779,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
             Validate("SWIFT Code", LibraryUtility.GenerateRandomCode(FieldNo("SWIFT Code"), DATABASE::"Bank Account"));
             Validate(IBAN, 'FI9780RBOS16173241116737'); // Hardcoded to match a valid IBAN
             Validate("Payment Export Format", 'SEPACT V02'); // Hardcoded to match the test format under test
-            Modify;
+            Modify();
         end;
 
         CreateBankAccountReferenceFileSetup(BankAccount."No.");
@@ -806,7 +806,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
             IBAN := CountryCode + Format(LibraryRandom.RandIntInRange(111111111, 999999999)); // Use direct assignement to avoid confirm dialog
             Validate("Clearing Code", LibraryUtility.GenerateRandomCode(FieldNo("Clearing Code"), DATABASE::"Vendor Bank Account"));
             Validate("SEPA Payment", SEPAPayment);
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
@@ -842,11 +842,11 @@ codeunit 144004 "Bank Payments - SEPA V2"
         ReferenceFileSetup: Record "Reference File Setup";
     begin
         with ReferenceFileSetup do begin
-            Init;
+            Init();
             Validate("No.", BankAccountNo);
             Validate("Bank Party ID", LibraryUtility.GenerateRandomCode(FieldNo("Bank Party ID"), DATABASE::"Reference File Setup"));
             Validate("File Name", GenerateFileName(FieldNo("File Name"), DATABASE::"Reference File Setup", 'xml'));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -903,7 +903,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         CreateAndPostPurchasePrepayments(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
         RefPmtExported.DeleteAll();
         Commit();
-        RunSuggestBankPayments(BankAccountNo, VendorNo, CalcDate('<30D>', WorkDate));
+        RunSuggestBankPayments(BankAccountNo, VendorNo, CalcDate('<30D>', WorkDate()));
     end;
 
     local procedure CreateRefPaymentExportLinesFromJournal(BankAccountNo: Code[20]; VendorNo: Code[20])
@@ -929,7 +929,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
 
         RefPmtExported.DeleteAll();
         Commit();
-        RunSuggestBankPayments(BankAccountNo, VendorNo, CalcDate('<30D>', WorkDate));
+        RunSuggestBankPayments(BankAccountNo, VendorNo, CalcDate('<30D>', WorkDate()));
     end;
 
     local procedure CreateAndPostPurchaseDocumentWithRandomAmounts(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ToShipReceive: Boolean; ToInvoice: Boolean; MessageType: Option) DocumentNo: Code[20]

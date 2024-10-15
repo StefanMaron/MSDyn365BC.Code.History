@@ -1,5 +1,7 @@
 table 132802 "UPG - CRM Connection Setup"
 {
+    ReplicateData = false;
+
     fields
     {
         field(1; "Primary Key"; Code[20])

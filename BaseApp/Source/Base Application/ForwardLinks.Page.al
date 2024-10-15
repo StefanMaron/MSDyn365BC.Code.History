@@ -38,16 +38,23 @@ page 1431 "Forward Links"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Load';
                 Image = Import;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Fill the table with the links used by error handlers.';
 
                 trigger OnAction()
                 begin
-                    Load;
+                    Load();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Load_Promoted; Load)
+                {
+                }
             }
         }
     }

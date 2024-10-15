@@ -35,7 +35,7 @@ table 130401 "CAL Test Line"
                         end;
                 end;
 
-                UpdateLevelNo;
+                UpdateLevelNo();
             end;
         }
         field(4; "Test Codeunit"; Integer)
@@ -56,7 +56,7 @@ table 130401 "CAL Test Line"
                     TestField("Test Codeunit", 0);
                 if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Codeunit, "Test Codeunit") then
                     Name := AllObjWithCaption."Object Name";
-                UpdateLevelNo;
+                UpdateLevelNo();
             end;
         }
         field(5; Name; Text[128])
@@ -93,7 +93,7 @@ table 130401 "CAL Test Line"
                     TestField("Function", '');
                     exit;
                 end;
-                UpdateLevelNo;
+                UpdateLevelNo();
                 Name := "Function";
             end;
         }
@@ -168,7 +168,7 @@ table 130401 "CAL Test Line"
 
     trigger OnDelete()
     begin
-        DeleteChildren;
+        DeleteChildren();
     end;
 
     trigger OnInsert()
@@ -187,8 +187,8 @@ table 130401 "CAL Test Line"
 
     var
         CALTestLine: Record "CAL Test Line";
-        CannotChangeValueErr: Label 'You cannot change the value of the OnRun.', Locked = true;
         CALTestMgt: Codeunit "CAL Test Management";
+        CannotChangeValueErr: Label 'You cannot change the value of the OnRun.', Locked = true;
 
     procedure UpdateGroup(var CALTestLine: Record "CAL Test Line")
     var
@@ -202,7 +202,7 @@ table 130401 "CAL Test Line"
 
         CopyOfCALTestLine.Copy(CALTestLine);
         with CALTestLine do begin
-            Reset;
+            Reset();
             SetRange("Test Suite", "Test Suite");
             repeat
                 OutOfGroup :=
@@ -213,7 +213,7 @@ table 130401 "CAL Test Line"
                    not Run
                 then begin
                     Run := true;
-                    Modify;
+                    Modify();
                 end;
             until OutOfGroup;
         end;
@@ -229,11 +229,11 @@ table 130401 "CAL Test Line"
 
         CopyOfCALTestLine.Copy(CALTestLine);
         with CALTestLine do begin
-            Reset;
+            Reset();
             SetRange("Test Suite", "Test Suite");
-            while (Next <> 0) and not ("Line Type" in ["Line Type"::Group, CopyOfCALTestLine."Line Type"]) do begin
+            while (Next() <> 0) and not ("Line Type" in ["Line Type"::Group, CopyOfCALTestLine."Line Type"]) do begin
                 Run := CopyOfCALTestLine.Run;
-                Modify;
+                Modify();
             end;
         end;
         CALTestLine.Copy(CopyOfCALTestLine);
@@ -245,7 +245,7 @@ table 130401 "CAL Test Line"
     begin
         with CALTestLine do begin
             Copy(Rec);
-            Reset;
+            Reset();
             SetRange("Test Suite", "Test Suite");
 
             MinLineNo := "Line No.";
@@ -261,11 +261,11 @@ table 130401 "CAL Test Line"
     begin
         with CALTestLine do begin
             Copy(Rec);
-            Reset;
+            Reset();
             SetRange("Test Suite", "Test Suite");
 
             MaxLineNo := "Line No.";
-            while (Next <> 0) and (Level >= Rec.Level) do
+            while (Next() <> 0) and (Level >= Rec.Level) do
                 MaxLineNo := "Line No.";
         end;
     end;
@@ -279,10 +279,10 @@ table 130401 "CAL Test Line"
 
         with CALTestLine do begin
             Copy(Rec);
-            Reset;
+            Reset();
             SetRange("Test Suite", "Test Suite");
             MaxLineNo := "Line No.";
-            while (Next <> 0) and ("Line Type" = "Line Type"::"Function") do begin
+            while (Next() <> 0) and ("Line Type" = "Line Type"::"Function") do begin
                 MaxLineNo := "Line No.";
                 if Run then
                     NoOfFunctions += 1;
@@ -295,9 +295,9 @@ table 130401 "CAL Test Line"
         CopyOfCALTestLine: Record "CAL Test Line";
     begin
         CopyOfCALTestLine.Copy(Rec);
-        Reset;
+        Reset();
         SetRange("Test Suite", "Test Suite");
-        while (Next <> 0) and (Level > CopyOfCALTestLine.Level) do
+        while (Next() <> 0) and (Level > CopyOfCALTestLine.Level) do
             Delete(true);
         Copy(CopyOfCALTestLine);
     end;

@@ -47,7 +47,7 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         Assert.ExpectedError(StrSubstNo(IndentBeginEndError, CostType."No."));
 
         // Tear Down.
-        ChartOfCostTypePage.Close;
+        ChartOfCostTypePage.Close();
     end;
 
     [Test]
@@ -87,7 +87,7 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
             VerifyIndentationOfChartofCostType(CostType[i]);
 
         // Tear Down.
-        ChartOfCostTypePage.Close;
+        ChartOfCostTypePage.Close();
     end;
 
     [Test]

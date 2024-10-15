@@ -1,7 +1,7 @@
 page 6081 "Serv. Price Group Setup"
 {
     Caption = 'Serv. Price Group Setup';
-    DataCaptionExpression = FormCaption;
+    DataCaptionExpression = FormCaption();
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Serv. Price Group Setup";
@@ -13,43 +13,43 @@ page 6081 "Serv. Price Group Setup"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Service Price Group Code"; "Service Price Group Code")
+                field("Service Price Group Code"; Rec."Service Price Group Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the Service Price Adjustment Group that was assigned to the service item linked to this service line.';
                     Visible = ServicePriceGroupCodeVisible;
                 }
-                field("Fault Area Code"; "Fault Area Code")
+                field("Fault Area Code"; Rec."Fault Area Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for the fault area assigned to the given service price group.';
                 }
-                field("Cust. Price Group Code"; "Cust. Price Group Code")
+                field("Cust. Price Group Code"; Rec."Cust. Price Group Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the customer price group associated with the given service price group.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the currency code assigned to the service price group.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the service hours become applicable to the service price group.';
                 }
-                field("Serv. Price Adjmt. Gr. Code"; "Serv. Price Adjmt. Gr. Code")
+                field("Serv. Price Adjmt. Gr. Code"; Rec."Serv. Price Adjmt. Gr. Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the service price adjustment group that applies to the posted service line.';
                 }
-                field("Include Discounts"; "Include Discounts")
+                field("Include Discounts"; Rec."Include Discounts")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that any sales line or invoice discount set up for the customer will be deducted from the price of the item assigned to the service price group.';
                 }
-                field("Adjustment Type"; "Adjustment Type")
+                field("Adjustment Type"; Rec."Adjustment Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the adjustment type for the service item line.';
@@ -59,7 +59,7 @@ page 6081 "Serv. Price Group Setup"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the amount to which the price on the service price group is going to be adjusted.';
                 }
-                field("Include VAT"; "Include VAT")
+                field("Include VAT"; Rec."Include VAT")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the amount to be adjusted for the given service price group should include VAT.';
@@ -100,7 +100,7 @@ page 6081 "Serv. Price Group Setup"
             if ServPriceGroup.Get("Service Price Group Code") then
                 ShowColumn := false
             else
-                Reset;
+                Reset();
         ServicePriceGroupCodeVisible := ShowColumn;
     end;
 

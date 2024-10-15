@@ -55,17 +55,17 @@ page 328 "Intrastat Setup"
                     ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
                 }
 #endif
-                field("Company VAT No. on File"; "Company VAT No. on File")
+                field("Company VAT No. on File"; Rec."Company VAT No. on File")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how the company''s VAT registration number exports to the Intrastat file. 0 is the value of the VAT Reg. No. field, 1 adds the EU country code as a prefix, and 2 removes the EU country code.';
                 }
-                field("Vend. VAT No. on File"; "Vend. VAT No. on File")
+                field("Vend. VAT No. on File"; Rec."Vend. VAT No. on File")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how a vendor''s VAT registration number exports to the Intrastat file. 0 is the value of the VAT Reg. No. field, 1 adds the EU country code as a prefix, and 2 removes the EU country code.';
                 }
-                field("Cust. VAT No. on File"; "Cust. VAT No. on File")
+                field("Cust. VAT No. on File"; Rec."Cust. VAT No. on File")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how a customer''s VAT registration number exports to the Intrastat file. 0 is the value of the VAT Reg. No. field, 1 adds the EU country code as a prefix, and 2 removes the EU country code.';
@@ -74,12 +74,12 @@ page 328 "Intrastat Setup"
             group("Default Transactions")
             {
                 Caption = 'Default Transactions';
-                field("Default Transaction Type"; "Default Trans. - Purchase")
+                field("Default Transaction Type"; Rec."Default Trans. - Purchase")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the default transaction type for regular sales shipments and service shipments, and purchase receipts.';
                 }
-                field("Default Trans. Type - Returns"; "Default Trans. - Return")
+                field("Default Trans. Type - Returns"; Rec."Default Trans. - Return")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the default transaction type for sales returns and service returns, and purchase returns';
@@ -110,12 +110,19 @@ page 328 "Intrastat Setup"
                 ApplicationArea = BasicEU;
                 Caption = 'Advanced Intrastat Checklist Setup';
                 Image = Column;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = Page "Advanced Intrastat Checklist";
                 ToolTip = 'View and edit fields to be verified by the Intrastat journal check.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(AdvancedIntrastatChecklistSetup_Promoted; AdvancedIntrastatChecklistSetup)
+                {
+                }
             }
         }
     }

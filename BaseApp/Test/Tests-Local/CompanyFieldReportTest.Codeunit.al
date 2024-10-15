@@ -226,7 +226,7 @@ codeunit 144010 "Company Field Report Test"
         Initialize();
 
         VATVIESDeclarationTaxAuthReport.UseRequestPage(true);
-        VATVIESDeclarationTaxAuthReport.InitializeRequest(true, WorkDate, WorkDate + 365, '');
+        VATVIESDeclarationTaxAuthReport.InitializeRequest(true, WorkDate(), WorkDate + 365, '');
         VATVIESDeclarationTaxAuthReport.Run();
         TestBusinessIdentityandHomeCity(3);
     end;
@@ -744,7 +744,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
         LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlTemplate.Name, IntrastatJnlBatch.Name);
-        IntrastatJnlLine.Date := WorkDate;
+        IntrastatJnlLine.Date := WorkDate();
         LibraryERM.CreateCountryRegion(CountryRegion);
         IntrastatJnlLine.Validate("Country/Region Code", CountryRegion.Code);
         TariffNumber.FindFirst();

@@ -12,17 +12,17 @@ page 6504 "Serial No. Information Card"
             group(General)
             {
                 Caption = 'General';
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the number that is copied from the Tracking Specification table, when a serial number information record is created.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies this number from the Tracking Specification table when a serial number information record is created.';
@@ -46,7 +46,7 @@ page 6504 "Serial No. Information Card"
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the inventory quantity of the specified serial number.';
                 }
-                field("Expired Inventory"; "Expired Inventory")
+                field("Expired Inventory"; Rec."Expired Inventory")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the inventory of the serial number with an expiration date before the posting date on the associated document.';
@@ -125,7 +125,7 @@ page 6504 "Serial No. Information Card"
                         ItemTracingBuffer.SetRange("Variant Code", "Variant Code");
                         ItemTracingBuffer.SetRange("Serial No.", "Serial No.");
                         ItemTracing.InitFilters(ItemTracingBuffer);
-                        ItemTracing.FindRecords;
+                        ItemTracing.FindRecords();
                         ItemTracing.RunModal();
                     end;
                 }
@@ -158,13 +158,13 @@ page 6504 "Serial No. Information Card"
                         ShowRecords.SetRange("Variant Code", "Variant Code");
 
                         FocusOnRecord.Copy(ShowRecords);
-                        FocusOnRecord.SetRange("Serial No.", TrackingSpec."Serial No.");
+                        FocusOnRecord.SetRange("Serial No.", TrackingSpecification."Serial No.");
 
                         SerialNoInfoList.SetTableView(ShowRecords);
 
                         if FocusOnRecord.FindFirst() then
                             SerialNoInfoList.SetRecord(FocusOnRecord);
-                        if SerialNoInfoList.RunModal = ACTION::LookupOK then begin
+                        if SerialNoInfoList.RunModal() = ACTION::LookupOK then begin
                             SerialNoInfoList.GetRecord(SelectedRecord);
                             ItemTrackingMgt.CopySerialNoInformation(SelectedRecord, "Serial No.");
                         end;
@@ -176,8 +176,6 @@ page 6504 "Serial No. Information Card"
                 ApplicationArea = ItemTracking;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -192,6 +190,17 @@ page 6504 "Serial No. Information Card"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
@@ -202,20 +211,22 @@ page 6504 "Serial No. Information Card"
     end;
 
     var
-        TrackingSpec: Record "Tracking Specification";
         ShowButtonFunctions: Boolean;
         [InDataSet]
         ButtonFunctionsVisible: Boolean;
 
-    procedure Init(CurrentTrackingSpec: Record "Tracking Specification")
+    protected var
+        TrackingSpecification: Record "Tracking Specification";
+
+    procedure Init(CurrentTrackingSpecification: Record "Tracking Specification")
     begin
-        TrackingSpec := CurrentTrackingSpec;
+        TrackingSpecification := CurrentTrackingSpecification;
         ShowButtonFunctions := true;
     end;
 
-    procedure InitWhse(CurrentTrackingSpec: Record "Whse. Item Tracking Line")
+    procedure InitWhse(CurrentTrackingSpecification: Record "Whse. Item Tracking Line")
     begin
-        TrackingSpec."Serial No." := CurrentTrackingSpec."Serial No.";
+        TrackingSpecification."Serial No." := CurrentTrackingSpecification."Serial No.";
         ShowButtonFunctions := true;
     end;
 }

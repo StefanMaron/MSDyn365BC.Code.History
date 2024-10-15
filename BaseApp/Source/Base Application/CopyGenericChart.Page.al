@@ -35,7 +35,7 @@ page 9187 "Copy Generic Chart"
         GenericChartMgt: Codeunit "Generic Chart Mgt";
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then begin
-            ValidateUserInput;
+            ValidateUserInput();
             GenericChartMgt.CopyChart(SourceChart, NewChartID, NewChartTitle);
             Message(Text001);
         end

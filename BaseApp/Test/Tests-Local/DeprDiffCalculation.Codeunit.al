@@ -69,7 +69,7 @@ codeunit 144020 "Depr. Diff. Calculation"
     begin
         // Setup
         Initialize();
-        StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         PostingDate := CalcDate('<3M-1D>', StartingDate);
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
         DepreciationBookCodeTax := CreateDepreciationBook(0, false);
@@ -88,7 +88,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         RunCalcAndPostDeprDifferenceReportWithEnqueue(
           DepreciationBookCodeSUMU, DepreciationBookCodeTax, StartingDate, PostingDate, PostingDate,
-          CopyStr(Format(CreateGuid), 1, 20), false, false, StrSubstNo('%1..%2', FixedAssetNo1, FixedAssetNo2));
+          CopyStr(Format(CreateGuid()), 1, 20), false, false, StrSubstNo('%1..%2', FixedAssetNo1, FixedAssetNo2));
 
         // Verify
         VerifyCalcAndPostDeprDifferenceReportWithZeroDifference;
@@ -108,7 +108,7 @@ codeunit 144020 "Depr. Diff. Calculation"
     begin
         // Setup
         Initialize();
-        StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         PostingDate := CalcDate('<3M-1D>', StartingDate);
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
         DepreciationBookCodeTax := CreateDepreciationBook(0, false);
@@ -120,7 +120,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         RunCalcAndPostDeprDifferenceReportWithEnqueue(
           DepreciationBookCodeSUMU, DepreciationBookCodeTax, StartingDate, PostingDate, PostingDate,
-          CopyStr(Format(CreateGuid), 1, 20), true, false, FixedAssetNo1);
+          CopyStr(Format(CreateGuid()), 1, 20), true, false, FixedAssetNo1);
 
         // Verify
         VerifyCalcAndPostDeprDifferenceReportWithEmptyLines;
@@ -142,7 +142,7 @@ codeunit 144020 "Depr. Diff. Calculation"
     begin
         // Setup
         Initialize();
-        StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         PostingDate := CalcDate('<3M-1D>', StartingDate);
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
         DepreciationBookCodeTax := CreateDepreciationBook(0, false);
@@ -161,7 +161,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         RunCalcAndPostDeprDifferenceReportWithEnqueue(
           DepreciationBookCodeSUMU, DepreciationBookCodeTax, StartingDate, PostingDate, PostingDate,
-          CopyStr(Format(CreateGuid), 1, 20), false, true, StrSubstNo('%1..%2', FixedAssetNo1, FixedAssetNo2));
+          CopyStr(Format(CreateGuid()), 1, 20), false, true, StrSubstNo('%1..%2', FixedAssetNo1, FixedAssetNo2));
 
         // Verify
         ExpectedMessage := DeprDiffPostedTxt;
@@ -183,7 +183,7 @@ codeunit 144020 "Depr. Diff. Calculation"
     begin
         // Setup
         Initialize();
-        StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         PostingDate := CalcDate('<3M-1D>', StartingDate);
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
         DepreciationBookCodeTax := CreateDepreciationBook(0, false);
@@ -214,7 +214,7 @@ codeunit 144020 "Depr. Diff. Calculation"
     begin
         // Setup
         Initialize();
-        StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         PostingDate := CalcDate('<3M-1D>', StartingDate);
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
         DepreciationBookCodeTax := CreateDepreciationBook(0, false);
@@ -251,7 +251,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // Excercise
         asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(
-            DepreciationBookCodeSUMU, DepreciationBookCodeTax, WorkDate, WorkDate, PostingDate, '', false, PostDepreciationDifference, '');
+            DepreciationBookCodeSUMU, DepreciationBookCodeTax, WorkDate(), WorkDate, PostingDate, '', false, PostDepreciationDifference, '');
 
         // Verify
         Assert.ExpectedError(PleaseEnterPostingDateTxt);
@@ -277,7 +277,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // Excercise
         asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(
-            DepreciationBookCodeSUMU, DepreciationBookCodeTax, WorkDate, WorkDate, WorkDate, DocumentNo, false, PostDepreciationDifference, '');
+            DepreciationBookCodeSUMU, DepreciationBookCodeTax, WorkDate(), WorkDate, WorkDate(), DocumentNo, false, PostDepreciationDifference, '');
 
         // Verify
         Assert.ExpectedError(PleaseEnterDocumentNoTxt);
@@ -301,7 +301,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // Excercise
         asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(
-            DepreciationBookCodeSUMU, DepreciationBookCodeTax, StartingDate, WorkDate, WorkDate, '', false, false, '');
+            DepreciationBookCodeSUMU, DepreciationBookCodeTax, StartingDate, WorkDate(), WorkDate, '', false, false, '');
 
         // Verify
         Assert.ExpectedError(PleaseEnterStartingDateTxt);
@@ -325,7 +325,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // Excercise
         asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(
-            DepreciationBookCodeSUMU, DepreciationBookCodeTax, WorkDate, EndingDate, WorkDate, '', false, false, '');
+            DepreciationBookCodeSUMU, DepreciationBookCodeTax, WorkDate(), EndingDate, WorkDate(), '', false, false, '');
 
         // Verify
         Assert.ExpectedError(PleaseEnterEndingDateTxt);
@@ -343,7 +343,7 @@ codeunit 144020 "Depr. Diff. Calculation"
     begin
         // Setup
         Initialize();
-        StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         EndingDate := CalcDate('<-1D>', StartingDate);
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
         DepreciationBookCodeTax := CreateDepreciationBook(0, false);
@@ -351,7 +351,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // Excercise
         asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(
-            DepreciationBookCodeSUMU, DepreciationBookCodeTax, WorkDate, EndingDate, WorkDate, '', false, false, '');
+            DepreciationBookCodeSUMU, DepreciationBookCodeTax, WorkDate(), EndingDate, WorkDate(), '', false, false, '');
 
         // Verify
         Assert.ExpectedError(EndingDateAfterStartingDateTxt);
@@ -370,7 +370,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // Excercise
         asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(
-            EmptyBookCode, EmptyBookCode, WorkDate, WorkDate, WorkDate, '', false, false, '');
+            EmptyBookCode, EmptyBookCode, WorkDate(), WorkDate, WorkDate(), '', false, false, '');
 
         // Verify
         Assert.ExpectedError(PleaseEnterBook1AndBook2Txt);
@@ -390,7 +390,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // Excercise
         asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(
-            BookInGL, BookInGL, WorkDate, WorkDate, WorkDate, '', false, false, '');
+            BookInGL, BookInGL, WorkDate(), WorkDate, WorkDate(), '', false, false, '');
 
         // Verify
         Assert.ExpectedError(Book1InGLTxt);
@@ -409,7 +409,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         Commit();
 
         // Excercise
-        asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(BookNotInGL, BookNotInGL, WorkDate, WorkDate, WorkDate, '', false, false, '');
+        asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(BookNotInGL, BookNotInGL, WorkDate(), WorkDate, WorkDate(), '', false, false, '');
 
         // Verify
         Assert.ExpectedError(Book2NotInGLTxt);
@@ -435,7 +435,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         // Excercise
         RunCalcAndPostDeprDifferenceReportWithEnqueue(
           DepreciationBookCodeSUMU, DepreciationBookCodeTax, PostingDate, PostingDate, PostingDate,
-          CopyStr(Format(CreateGuid), 1, 20), false, true, '');
+          CopyStr(Format(CreateGuid()), 1, 20), false, true, '');
 
         // Verify
         ExpectedMessage := NoDeprDiffPostedTxt;
@@ -475,7 +475,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // [WHEN] Run report 13402 for books "FAB1" and "FAB2"
         EnqueueParamsForCalcAndPostDeprDifferenceReport(
-          DeprBookCode[1], DeprBookCode[2], WorkDate, WorkDate, WorkDate, LibraryUtility.GenerateGUID, false, true);
+          DeprBookCode[1], DeprBookCode[2], WorkDate(), WorkDate, WorkDate(), LibraryUtility.GenerateGUID, false, true);
 
         Commit();
 
@@ -609,7 +609,7 @@ codeunit 144020 "Depr. Diff. Calculation"
             "G/L Integration - Disposal" := Integration;
             "G/L Integration - Maintenance" := Integration;
             "Allow more than 360/365 Days" := true;
-            Modify;
+            Modify();
         end;
 
         exit(DepreciationBook.Code);
@@ -728,15 +728,15 @@ codeunit 144020 "Depr. Diff. Calculation"
     local procedure MockFADepreciationLedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; DeprBookCode: Code[10])
     begin
         with FALedgerEntry do begin
-            Init;
+            Init();
             "FA No." := FANo;
             "Depreciation Book Code" := DeprBookCode;
             "FA Posting Category" := "FA Posting Category"::"Bal. Disposal";
             "FA Posting Type" := "FA Posting Type"::Depreciation;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Depr. Difference Posted" := false;
             Amount := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -779,7 +779,7 @@ codeunit 144020 "Depr. Diff. Calculation"
             FindSet();
             GenJournalBatch.Get("Journal Template Name", "Journal Batch Name");
 
-            DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);
+            DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false);
             repeat
                 Validate("Document No.", DocumentNo);
                 Validate(Description, FAJournalSetup."Gen. Jnl. Batch Name");
@@ -805,7 +805,7 @@ codeunit 144020 "Depr. Diff. Calculation"
             FindSet();
             FAJournalBatch.Get("Journal Template Name", "Journal Batch Name");
 
-            DocumentNo := NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate, false);
+            DocumentNo := NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false);
             repeat
                 Validate("Document No.", DocumentNo);
                 Validate(Description, FAJournalSetup."Gen. Jnl. Batch Name");

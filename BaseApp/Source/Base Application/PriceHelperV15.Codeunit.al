@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 codeunit 7019 "Price Helper - V15"
 {
     ObsoleteState = Pending;
@@ -228,7 +228,7 @@ codeunit 7019 "Price Helper - V15"
             if ConfirmManagement.GetResponseOrDefault(
                 StrSubstNo(
                     WantUpdatePriceQst,
-                    Rec.FieldCaption("Prices Including VAT"), Rec."Prices Including VAT", PurchPrice.TableCaption), true)
+                    Rec.FieldCaption("Prices Including VAT"), Rec."Prices Including VAT", PurchPrice.TableCaption()), true)
             then
                 repeat
                     if PurchPrice."Item No." <> Item."No." then

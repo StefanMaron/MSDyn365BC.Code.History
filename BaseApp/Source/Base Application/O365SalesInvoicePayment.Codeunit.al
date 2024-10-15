@@ -1,10 +1,9 @@
 codeunit 2105 "O365 Sales Invoice Payment"
 {
-
     trigger OnRun()
     begin
     end;
-
+#if not CLEAN21
     var
         PaymentRegistrationMgt: Codeunit "Payment Registration Mgt.";
         NoDetailedCustomerLedgerEntryForPaymentErr: Label 'No Detailed Customer Ledger Entry could be found for the payment of the invoice.';
@@ -16,18 +15,20 @@ codeunit 2105 "O365 Sales Invoice Payment"
         InvoicePaymentRemovedTelemetryTxt: Label 'Invoice payment has been removed.', Locked = true;
         PostingPaymentDialogMsg: Label 'We are applying your payment, this will take a moment.';
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure ShowHistory(SalesInvoiceDocumentNo: Code[20]): Boolean
     var
         O365PaymentHistoryList: Page "O365 Payment History List";
     begin
         O365PaymentHistoryList.ShowHistory(SalesInvoiceDocumentNo);
-        if O365PaymentHistoryList.RunModal <> ACTION::OK then
+        if O365PaymentHistoryList.RunModal() <> ACTION::OK then
             exit(false);
 
         // The returned action is OK even when X is selected: find if records have been deleted
-        exit(O365PaymentHistoryList.RecordDeleted);
+        exit(O365PaymentHistoryList.RecordDeleted());
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     [Scope('OnPrem')]
     procedure MarkAsPaid(SalesInvoiceDocumentNo: Code[20]): Boolean
     var
@@ -44,14 +45,14 @@ codeunit 2105 "O365 Sales Invoice Payment"
 
         O365MarkAsPaid.SetPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
 
-        if O365MarkAsPaid.RunModal = ACTION::OK then begin
+        if O365MarkAsPaid.RunModal() = ACTION::OK then begin
             PaymentPostingWindow.HideSubsequentDialogs(true);
             PaymentPostingWindow.Open('#1#################################');
             PaymentPostingWindow.Update(1, PostingPaymentDialogMsg);
 
             PaymentRegistrationMgt.Post(TempPaymentRegistrationBuffer, false);
 
-            PaymentPostingWindow.Close;
+            PaymentPostingWindow.Close();
 
             SalesInvoiceHeader.CalcFields("Amount Including VAT");
             if TempPaymentRegistrationBuffer."Amount Received" <> SalesInvoiceHeader."Amount Including VAT" then
@@ -66,6 +67,7 @@ codeunit 2105 "O365 Sales Invoice Payment"
         exit(false);
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure CancelSalesInvoicePayment(SalesInvoiceDocumentNo: Code[20]): Boolean
     var
         TempO365PaymentHistoryBuffer: Record "O365 Payment History Buffer" temporary;
@@ -76,13 +78,14 @@ codeunit 2105 "O365 Sales Invoice Payment"
                 exit(true); // All payments for the invoice has already been cancelled :)
             1:
                 if TempO365PaymentHistoryBuffer.FindFirst() then
-                    exit(TempO365PaymentHistoryBuffer.CancelPayment);
+                    exit(TempO365PaymentHistoryBuffer.CancelPayment());
             else
                 // There are multiple payments, so show the history list instead and let the user specify the entries to cancel
                 exit(ShowHistory(SalesInvoiceDocumentNo));
         end;
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure CancelCustLedgerEntry(CustomerLedgerEntry: Integer)
     var
         ApplyUnapplyParameters: Record "Apply Unapply Parameters";
@@ -106,7 +109,7 @@ codeunit 2105 "O365 Sales Invoice Payment"
         ApplyUnapplyParameters."Posting Date" := DetailedCustLedgEntry."Posting Date";
         CustEntryApplyPostedEntries.PostUnApplyCustomerCommit(DetailedCustLedgEntry, ApplyUnapplyParameters, false);
 
-        ReversalEntry.SetHideWarningDialogs;
+        ReversalEntry.SetHideWarningDialogs();
         ReversalEntry.ReverseTransaction(PaymentCustLedgerEntry."Transaction No.");
 
         Session.LogMessage('0000248', InvoicePaymentRemovedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SentInvoiceCategoryLbl);
@@ -114,6 +117,7 @@ codeunit 2105 "O365 Sales Invoice Payment"
         Message(MarkedUnpaidMsg);
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetPaymentCustLedgerEntry(var PaymentCustLedgerEntry: Record "Cust. Ledger Entry"; SalesInvoiceDocumentNo: Code[20]): Boolean
     var
         InvoiceCustLedgerEntry: Record "Cust. Ledger Entry";
@@ -131,6 +135,7 @@ codeunit 2105 "O365 Sales Invoice Payment"
         exit(true);
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure CalculatePaymentRegistrationBuffer(SalesInvoiceDocumentNo: Code[20]; var PaymentRegistrationBuffer: Record "Payment Registration Buffer"): Boolean
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -148,35 +153,37 @@ codeunit 2105 "O365 Sales Invoice Payment"
 
         exit(true);
     end;
-
+#endif
     procedure CollectRemainingPayments(SalesInvoiceDocumentNo: Code[20]; var PaymentRegistrationBuffer: Record "Payment Registration Buffer"): Boolean
     begin
-        PaymentRegistrationBuffer.PopulateTable;
+        PaymentRegistrationBuffer.PopulateTable();
         PaymentRegistrationBuffer.SetRange("Document Type", PaymentRegistrationBuffer."Document Type"::Invoice);
         PaymentRegistrationBuffer.SetRange("Document No.", SalesInvoiceDocumentNo);
-        exit(PaymentRegistrationBuffer.FindFirst);
+        exit(PaymentRegistrationBuffer.FindFirst());
     end;
-
+#if not CLEAN21
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetPaypalDefault()
     var
         DummyPaymentServiceSetup: Record "Payment Service Setup";
         PaypalAccountProxy: Codeunit "Paypal Account Proxy";
     begin
-        DummyPaymentServiceSetup.OnDoNotIncludeAnyPaymentServicesOnAllDocuments;
+        DummyPaymentServiceSetup.OnDoNotIncludeAnyPaymentServicesOnAllDocuments();
         PaypalAccountProxy.SetAlwaysIncludePaypalOnDocuments(true, true);
-        UpdatePaymentServicesForInvoicesQuotesAndOrders;
+        UpdatePaymentServicesForInvoicesQuotesAndOrders();
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetMspayDefault()
     var
         DummyPaymentServiceSetup: Record "Payment Service Setup";
         PaypalAccountProxy: Codeunit "Paypal Account Proxy";
     begin
-        DummyPaymentServiceSetup.OnDoNotIncludeAnyPaymentServicesOnAllDocuments;
+        DummyPaymentServiceSetup.OnDoNotIncludeAnyPaymentServicesOnAllDocuments();
         PaypalAccountProxy.SetAlwaysIncludeMsPayOnDocuments(true, true);
-        UpdatePaymentServicesForInvoicesQuotesAndOrders;
+        UpdatePaymentServicesForInvoicesQuotesAndOrders();
     end;
-
+#endif
     procedure UpdatePaymentServicesForInvoicesQuotesAndOrders()
     var
         SalesHeader: Record "Sales Header";
@@ -186,14 +193,16 @@ codeunit 2105 "O365 Sales Invoice Payment"
 
         if SalesHeader.FindSet(true, false) then
             repeat
-                SalesHeader.SetDefaultPaymentServices;
+                SalesHeader.SetDefaultPaymentServices();
                 SalesHeader.Modify(true);
             until SalesHeader.Next() = 0;
     end;
-
+#if not CLEAN21
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure OnPayPalEmailSetToEmpty()
     begin
-        SetMspayDefault;
+        SetMspayDefault();
     end;
+#endif
 }
 

@@ -28,7 +28,7 @@ codeunit 131305 "Library - ERM Country Data"
                     VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccount);
                     VATPostingSetup.Modify(true);
                 end;
-            until VATPostingSetup.Next = 0;
+            until VATPostingSetup.Next() = 0;
     end;
 
     procedure GetVATCalculationType(): Enum "Tax Calculation Type"

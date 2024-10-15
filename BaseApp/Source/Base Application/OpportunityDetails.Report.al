@@ -14,7 +14,7 @@ report 5068 "Opportunity - Details"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Filter_Opportunity; TableCaption + OppFilter)
@@ -74,7 +74,7 @@ report 5068 "Opportunity - Details"
                 trigger OnAfterGetRecord()
                 begin
                     if ("Team Code" <> '') and ("System To-do Type" <> "System To-do Type"::Team) then
-                        CurrReport.Skip
+                        CurrReport.Skip();
                 end;
             }
             dataitem("Opportunity Entry"; "Opportunity Entry")
@@ -245,7 +245,7 @@ report 5068 "Opportunity - Details"
                 begin
                     SetFilter(Stage, '>%1', CurrStage);
                     if CurrStage = 0 then
-                        PlannedStartingDate := WorkDate;
+                        PlannedStartingDate := WorkDate();
                 end;
             }
         }
@@ -271,7 +271,7 @@ report 5068 "Opportunity - Details"
 
     trigger OnPreReport()
     begin
-        OppFilter := Opportunity.GetFilters;
+        OppFilter := Opportunity.GetFilters();
     end;
 
     var

@@ -56,7 +56,7 @@ page 5620 "Fixed Asset Picture"
                     TestField("No.");
                     TestField(Description);
 
-                    if Image.HasValue then
+                    if Image.HasValue() then
                         if not Confirm(OverrideImageQst) then
                             exit;
 
@@ -120,7 +120,7 @@ page 5620 "Fixed Asset Picture"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetEditableOnPictureActions;
+        SetEditableOnPictureActions();
     end;
 
     trigger OnOpenPage()

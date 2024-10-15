@@ -286,7 +286,7 @@
                 EnvironmentInformation: Codeunit "Environment Information";
             begin
                 if "Report Output Type" = "Report Output Type"::Print then
-                    if EnvironmentInformation.IsSaaS then
+                    if EnvironmentInformation.IsSaaS() then
                         TestField("Report Output Type", "Report Output Type"::PDF);
             end;
         }
@@ -311,6 +311,14 @@
         field(53; "Archive Orders"; Boolean)
         {
             Caption = 'Archive Orders';
+
+            trigger OnValidate()
+            var
+                CRMConnectionSetup: Record "CRM Connection Setup";
+            begin
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                    Error(CRMBidirectionalSalesOrderIntEnabledErr);
+            end;
         }
         field(54; "Archive Blanket Orders"; Boolean)
         {
@@ -686,12 +694,12 @@
             begin
                 if "Reference Nos." <> '' then begin
                     NoSeriesLine.LockTable();
-                    NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, "Reference Nos.", WorkDate);
+                    NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, "Reference Nos.", WorkDate());
 
                     if not NoSeriesLine.FindFirst() then begin
                         NoSeriesLine.SetRange("Starting Date");
                         if not NoSeriesLine.FindFirst() then
-                            Error(Text1090000, "Reference Nos.", WorkDate);
+                            Error(Text1090000, "Reference Nos.", WorkDate());
                     end else
                         if not Evaluate(TestNo, NoSeriesLine."Starting No.") then
                             Error(Text1090001, "Reference Nos.");
@@ -733,12 +741,13 @@
         MultiplePostingGroupsNotAllowedErr: Label 'Use of multiple posting groups in production environment is currently not allowed.';
 #endif
         RecordHasBeenRead: Boolean;
+        CRMBidirectionalSalesOrderIntEnabledErr: Label 'You cannot disable Archive Orders when Dynamics 365 Sales connection and Bidirectional Sales Order Integration are enabled.';
 
     procedure GetRecordOnce()
     begin
         if RecordHasBeenRead then
             exit;
-        Get;
+        Get();
         RecordHasBeenRead := true;
     end;
 
@@ -749,7 +758,7 @@
 
     procedure JobQueueActive(): Boolean
     begin
-        Get;
+        Get();
         exit("Post with Job Queue" or "Post & Print with Job Queue");
     end;
 
@@ -759,7 +768,7 @@
     begin
         if AccNo <> '' then begin
             GLAcc.Get(AccNo);
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
             GLAcc.TestField("Gen. Prod. Posting Group");
         end;
     end;

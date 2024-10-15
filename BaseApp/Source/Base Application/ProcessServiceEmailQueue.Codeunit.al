@@ -12,9 +12,9 @@ codeunit 5917 "Process Service Email Queue"
     begin
         if RecRef.Get("Record ID to Process") then begin
             RecRef.SetTable(ServEmailQueue);
-            if not ServEmailQueue.Find then
+            if not ServEmailQueue.Find() then
                 exit;
-            ServEmailQueue.SetRecFilter;
+            ServEmailQueue.SetRecFilter();
         end else begin
             ServEmailQueue.Reset();
             ServEmailQueue.SetCurrentKey(Status, "Sending Date", "Document Type", "Document No.");

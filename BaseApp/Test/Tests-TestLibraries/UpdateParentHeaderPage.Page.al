@@ -60,7 +60,7 @@ page 139141 "Update Parent Header Page"
             repeat
                 LinesAmount := LinesAmount + UpdateParentLine.Amount * UpdateParentLine.Quantity;
                 LinesQuantity := LinesQuantity + UpdateParentLine.Quantity;
-            until UpdateParentLine.Next = 0;
+            until UpdateParentLine.Next() = 0;
         UpdateParentRegisterMgt.RegistrateVisit(HeaderPageId, UpdateParentRegisterLine.Method::AfterGetRecord);
     end;
 

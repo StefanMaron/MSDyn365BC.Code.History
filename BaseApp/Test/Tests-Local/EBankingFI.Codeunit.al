@@ -36,9 +36,9 @@ codeunit 144007 "E-Banking FI"
         RefPaymentExported.DeleteAll(true);
 
         // Exercise
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         SuggestBankPayments.SetTableView(Vendor);
-        SuggestBankPayments.InitializeRequest(CalcDate('<1M>', WorkDate), false, 0);
+        SuggestBankPayments.InitializeRequest(CalcDate('<1M>', WorkDate()), false, 0);
         SuggestBankPayments.UseRequestPage := false;
         SuggestBankPayments.RunModal();
 
@@ -386,9 +386,9 @@ codeunit 144007 "E-Banking FI"
         RecRef.GetTable(RefPaymentExported);
 
         with RefPaymentExported do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("No."));
-            Insert;
+            Insert();
         end;
     end;
 

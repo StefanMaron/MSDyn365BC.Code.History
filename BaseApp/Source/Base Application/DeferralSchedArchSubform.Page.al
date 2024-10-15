@@ -10,7 +10,7 @@ page 1707 "Deferral Sched. Arch. Subform"
         {
             repeater(Group)
             {
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
@@ -51,7 +51,7 @@ page 1707 "Deferral Sched. Arch. Subform"
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateTotal;
+        UpdateTotal();
     end;
 
     trigger OnAfterGetRecord()
@@ -61,7 +61,7 @@ page 1707 "Deferral Sched. Arch. Subform"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        UpdateTotal;
+        UpdateTotal();
     end;
 
     var

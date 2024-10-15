@@ -31,6 +31,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         DialogTxt: Label 'Dialog';
         EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.';
         DifferentCurrenciesErr: Label 'All entries in one application must be in the same currency.';
+        AppliesToDocErr: Label 'Applies-To Doc, should not be blank.';
 
     [Test]
     [Scope('OnPrem')]
@@ -266,7 +267,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
 
         // Verify: Verify Error when Unapply Entry of the type Appln. Rounding from Detailed Customer Ledger Entry.
         Assert.AreEqual(
-          StrSubstNo(ApplnRoundingError, DetailedCustLedgEntry.FieldCaption("Entry Type"), DetailedCustLedgEntry.TableCaption,
+          StrSubstNo(ApplnRoundingError, DetailedCustLedgEntry.FieldCaption("Entry Type"), DetailedCustLedgEntry.TableCaption(),
             DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."), GetLastErrorText, ErrorMessage);
     end;
 
@@ -291,8 +292,8 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GenJnlLine.Modify(true);
 
         // [THEN] "Applies-to ID" in Customer Ledger Entry is empty
-        CustLedgEntry.Find;
-        Assert.AreEqual('', CustLedgEntry."Applies-to ID", StrSubstNo(AppliesToIDIsNotEmptyOnLedgEntryErr, CustLedgEntry.TableCaption));
+        CustLedgEntry.Find();
+        Assert.AreEqual('', CustLedgEntry."Applies-to ID", StrSubstNo(AppliesToIDIsNotEmptyOnLedgEntryErr, CustLedgEntry.TableCaption()));
         Assert.AreEqual(0, CustLedgEntry."Amount to Apply", AmountToApplyErr);
     end;
 
@@ -316,8 +317,8 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GenJnlLine.Delete(true);
 
         // [THEN] "Applies-to ID" in Customer Ledger Entry is empty
-        CustLedgEntry.Find;
-        Assert.AreEqual('', CustLedgEntry."Applies-to ID", StrSubstNo(AppliesToIDIsNotEmptyOnLedgEntryErr, CustLedgEntry.TableCaption));
+        CustLedgEntry.Find();
+        Assert.AreEqual('', CustLedgEntry."Applies-to ID", StrSubstNo(AppliesToIDIsNotEmptyOnLedgEntryErr, CustLedgEntry.TableCaption()));
         Assert.AreEqual(0, CustLedgEntry."Amount to Apply", AmountToApplyErr);
     end;
 
@@ -341,7 +342,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GenJnlLine.Modify(true);
 
         // [THEN] Customer Ledger Entry "Amount to Apply" = 0
-        CustLedgEntry.Find;
+        CustLedgEntry.Find();
         Assert.AreEqual(0, CustLedgEntry."Amount to Apply", AmountToApplyErr);
     end;
 
@@ -364,7 +365,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GenJnlLine.Delete(true);
 
         // [THEN] Customer Ledger Entry "Amount to Apply" = 0
-        CustLedgEntry.Find;
+        CustLedgEntry.Find();
         Assert.AreEqual(0, CustLedgEntry."Amount to Apply", AmountToApplyErr);
     end;
 
@@ -457,7 +458,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
 
         // [GIVEN] Posted Sales Invoice with Amount Including VAT = 10000 and possible Discount = 2%. No dimension is set.
         CreateAndPostGenJnlLine(
-          GenJournalLine, WorkDate, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000), CustomerNo, '');
+          GenJournalLine, WorkDate(), GenJournalLine."Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000), CustomerNo, '');
         PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct / 100;
 
         // [GIVEN] Sales Journal with Payment Amount = 9800 and applied to posted Invoice. No dimension is set.
@@ -469,7 +470,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         Assert.ExpectedErrorCode(DialogTxt);
         Assert.ExpectedError(
           StrSubstNo(DimensionUsedErr,
-            GenJournalLine.TableCaption, GenJournalLine."Journal Template Name",
+            GenJournalLine.TableCaption(), GenJournalLine."Journal Template Name",
             GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
     end;
 
@@ -496,7 +497,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
 
         // [GIVEN] Posted Sales Invoice with Amount Including VAT = 10000 and possible Discount = 2%. No dimension is set.
         CreateAndPostGenJnlLine(
-          GenJournalLine, WorkDate, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000), CustomerNo, '');
+          GenJournalLine, WorkDate(), GenJournalLine."Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000), CustomerNo, '');
         PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct / 100;
 
         // [GIVEN] Sales Journal with Payment Amount = 9800 and applied to posted Invoice. Dimension "D" is set.
@@ -538,13 +539,13 @@ codeunit 134000 "ERM Apply Sales/Receivables"
 
         // [GIVEN] Posted Sales Invoice with Amount Including VAT = 10000 and possible Discount = 2%. No dimension is set.
         CreateAndPostGenJnlLine(
-          GenJournalLine, WorkDate, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000), CustomerNo, '');
+          GenJournalLine, WorkDate(), GenJournalLine."Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000), CustomerNo, '');
         InvoiceDocumentNo := GenJournalLine."Document No.";
         PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct / 100;
 
         // [GIVEN] Posted Sales Payment with Amount = 9800. No dimension is set.
         CreateAndPostGenJnlLine(
-          GenJournalLine, WorkDate, GenJournalLine."Document Type"::Payment,
+          GenJournalLine, WorkDate(), GenJournalLine."Document Type"::Payment,
           PaymentAmount, GenJournalLine."Account No.", '');
 
         // [WHEN] Post Payment to Invoice application
@@ -748,7 +749,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         CashReceiptJournal.OK.Invoke;
 
         // [THEN] External doc. no. of posted invoice is not transferred to 'External Document No.' of Cash Receipt Journal Line
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("External Document No.", OriginalExtDocNo);
         // [THEN] Applies-to Ext. Doc. No. of Cash Receipt Journal Line contains External Document No. of the posted invoice
         GenJournalLine.TestField("Applies-to Ext. Doc. No.", InvoiceExtDocNo);
@@ -1034,6 +1035,31 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotClearAppliesToDocNoValueFromGenJnlLine()
+    var
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        GenJnlLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 446576] When selecting the Applies-to Doc. No. manually in General Journal, the Account No. is  filled automatically, 
+        // but the Applies-to Doc. No. deleted, if the lines is created from Bank Acc. Reconciliation.
+
+        Initialize();
+
+        // [GIVEN] Customer Ledger Entry and General Journal Line with "Applies-to Doc. No"
+        FindOpenInvCustLedgEntry(CustLedgEntry);
+        CreateGenJnlLineWithAppliesToDocNo(
+          GenJnlLine, GenJnlLine."Account Type"::Customer, '', CustLedgEntry."Document No.");
+
+        // [WHEN] Validate "Applies-to Doc. No." field in General Journal Line. And "Applies-to Doc. No." will not be deleted.
+        GenJnlLine.Validate("Applies-to Doc. No.", CustLedgEntry."Document No.");
+        GenJnlLine.Modify(true);
+
+        // [VERIFY] "Applies-to Doc. No." will be same as  in Customer Ledger Entry
+        Assert.AreEqual(GenJnlLine."Applies-to Doc. No.", CustLedgEntry."Document No.", AppliesToDocErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1071,7 +1097,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         // Setup: Create Invoice and Payment General Lines and Post them.
         CreateAndPostGenJnlLine(
-          GenJournalLine, WorkDate, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(10000), CreateCustomer, '');
+          GenJournalLine, WorkDate(), GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(10000), CreateCustomer, '');
         DocumentNo := GenJournalLine."Document No.";
         CreateAndPostGenJnlLine(
           GenJournalLine, DueDate, GenJournalLine."Document Type"::Payment, -GenJournalLine.Amount, GenJournalLine."Account No.", '');
@@ -1086,7 +1112,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         // Calculate Due Date and Discount Percentage.
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
-        DueDate := CalcDate(PaymentTerms."Discount Date Calculation", WorkDate);
+        DueDate := CalcDate(PaymentTerms."Discount Date Calculation", WorkDate());
         PaymentDiscountPercent := PaymentTerms."Discount %";
     end;
 
@@ -1176,10 +1202,10 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // Setup: Create Invoice Line and Post with Currency without Application Rounding then Payment Line with Currency
         // Application Rounding.
         LibrarySales.CreateCustomer(Customer);
-        CreateAndPostGenJnlLine(GenJournalLine, WorkDate, DocumentType, Amount, Customer."No.", CurrencyCode);
+        CreateAndPostGenJnlLine(GenJournalLine, WorkDate(), DocumentType, Amount, Customer."No.", CurrencyCode);
         DocumentNo := GenJournalLine."Document No.";
         CreateAndPostGenJnlLine(
-          GenJournalLine, WorkDate, DocumentType2, -GenJournalLine.Amount + AppRounding, Customer."No.", CreateCurrency(AppRounding));
+          GenJournalLine, WorkDate(), DocumentType2, -GenJournalLine.Amount + AppRounding, Customer."No.", CreateCurrency(AppRounding));
         LibraryERM.ApplyCustomerLedgerEntries(DocumentType2, DocumentType, GenJournalLine."Document No.", DocumentNo);
     end;
 
@@ -1192,7 +1218,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
             LibraryERM.CreateGeneralJnlLine(
               GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Document Type"::Payment, AccType, AccNo, 0);
             "Applies-to ID" := AppliesToID;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1206,7 +1232,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
               GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Document Type"::Payment, AccType, AccNo, 0);
             "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
             "Applies-to Doc. No." := AppliesToDocNo;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1264,7 +1290,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         with GenJournalLine do begin
             CreateGenJnlLine(
-              GenJournalLine, WorkDate, "Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000),
+              GenJournalLine, WorkDate(), "Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000),
               LibrarySales.CreateCustomerNo, '');
             Validate("External Document No.", LibraryUtility.GenerateGUID());
             Modify(true);
@@ -1371,7 +1397,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         FindDetailedLedgerEntry(DetailedCustLedgEntry, DocumentNo, DetailedCustLedgEntry."Entry Type"::"Appln. Rounding");
         Assert.AreEqual(
           Amount, DetailedCustLedgEntry.Amount,
-          StrSubstNo(WrongValErr, DetailedCustLedgEntry.FieldCaption(Amount), Amount, DetailedCustLedgEntry.TableCaption));
+          StrSubstNo(WrongValErr, DetailedCustLedgEntry.FieldCaption(Amount), Amount, DetailedCustLedgEntry.TableCaption()));
     end;
 
     local procedure VerifyPaymentWithDiscount(DocumentNo: Code[20]; Amount: Decimal)
@@ -1449,14 +1475,14 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount / 2, LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate), Currency."Amount Rounding Precision",
+          Amount / 2, LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate()), Currency."Amount Rounding Precision",
           'Amount must be equal');
     end;
 
     local procedure VerifyExtDocNoAmount(GenJournalLine: Record "Gen. Journal Line"; ExpectedExtDocNo: Code[35]; ExpectedAmount: Decimal)
     begin
         with GenJournalLine do begin
-            Find;
+            Find();
             Assert.AreEqual(
               ExpectedExtDocNo, "Applies-to Ext. Doc. No.",
               StrSubstNo(WrongValErr, FieldCaption("Applies-to Ext. Doc. No."), ExpectedExtDocNo, TableCaption));
@@ -1517,7 +1543,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         AppliesToID := ApplyCustomerEntries.AppliesToID.Value;
 
-        ApplyCustomerEntries.Next;
+        ApplyCustomerEntries.Next();
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         ApplyCustomerEntries.AppliesToID.SetValue('');
         ApplyCustomerEntries.AppliesToID.AssertEquals('');
@@ -1537,7 +1563,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         AppliesToID := ApplyCustomerEntries.AppliesToID.Value;
 
-        ApplyCustomerEntries.Next;
+        ApplyCustomerEntries.Next();
         ApplyCustomerEntries.AppliesToID.SetValue(AppliesToID);
         ApplyCustomerEntries.AppliesToID.AssertEquals(AppliesToID);
 
@@ -1557,7 +1583,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         AppliesToID := ApplyCustomerEntries.AppliesToID.Value;
 
-        ApplyCustomerEntries.Next;
+        ApplyCustomerEntries.Next();
         AlternativeAppliesToID := LibraryUtility.GenerateGUID();
         ApplyCustomerEntries.AppliesToID.SetValue(AlternativeAppliesToID);
         ApplyCustomerEntries.AppliesToID.AssertEquals(AlternativeAppliesToID);

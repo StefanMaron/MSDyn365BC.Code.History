@@ -33,7 +33,7 @@ codeunit 144000 TestIntrastatForCustoms
 
         // Exercise
         IntrastatFileSetupPage.OpenEdit;
-        IntrastatFileSetupPage.Close;
+        IntrastatFileSetupPage.Close();
 
         // Verify
         IntrastatFileSetup.Get();
@@ -57,7 +57,7 @@ codeunit 144000 TestIntrastatForCustoms
 
         // Exercise
         IntrastatFileSetupPage.OpenEdit;
-        IntrastatFileSetupPage.Close;
+        IntrastatFileSetupPage.Close();
 
         // Verify
         Assert.AreEqual(1, IntrastatFileSetup.Count, 'Incorrect number of setup records created');
@@ -206,7 +206,7 @@ codeunit 144000 TestIntrastatForCustoms
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
     begin
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
 
         with IntrastatJnlLine do begin
@@ -223,10 +223,10 @@ codeunit 144000 TestIntrastatForCustoms
     var
         CountryRegion: Record "Country/Region";
     begin
-        CreateIntrastatLine(IntrastatJnlLine, WorkDate);
+        CreateIntrastatLine(IntrastatJnlLine, WorkDate());
         with IntrastatJnlLine do begin
             Validate(Type, Type::Receipt);
-            Validate(Date, WorkDate);
+            Validate(Date, WorkDate());
             CreateCountryRegion(CountryRegion);
             Validate("Country/Region Code", CountryRegion.Code);
             Validate("Tariff No.", LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Tariff Number"));

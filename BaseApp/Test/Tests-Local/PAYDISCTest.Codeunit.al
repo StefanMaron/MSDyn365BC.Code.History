@@ -75,10 +75,10 @@ codeunit 144018 "PAYDISC Test"
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         // Using a random value for the amount.
         Amount := LibraryRandom.RandDec(1000, 2);
-        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         CustLedgerEntry.CalcFields(Amount);
         CreateAndPostGenJournalLine(GenJournalLine2, Customer."No.", CurrencyCode, GenJournalLine2."Document Type"::Payment,
-          -Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+          -Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
         WarningsInGeneralLedgerSetup(true, false);
 
         // 2. Exercise: Apply and Post the Customer Ledger Entry.
@@ -130,9 +130,9 @@ codeunit 144018 "PAYDISC Test"
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         // Using a random value for the amount.
         Amount := LibraryRandom.RandDec(1000, 2);
-        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         CreateAndPostGenJournalLine(GenJournalLine2, Customer."No.", CurrencyCode, GenJournalLine2."Document Type"::Payment,
-          -Amount, CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate)));
+          -Amount, CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate())));
         WarningsInGeneralLedgerSetup(true, false);
 
         // 2. Exercise: Apply and Post the Customer Ledger Entry.
@@ -184,9 +184,9 @@ codeunit 144018 "PAYDISC Test"
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         // Using a random value for the amount.
         Amount := LibraryRandom.RandDec(1000, 2);
-        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         CreateAndPostGenJournalLine(GenJournalLine2, Customer."No.", CurrencyCode, GenJournalLine2."Document Type"::Payment,
-          -Amount, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+          -Amount, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
         WarningsInGeneralLedgerSetup(true, false);
 
         // 2. Exercise: Apply and Post the Customer Ledger Entry.
@@ -236,11 +236,11 @@ codeunit 144018 "PAYDISC Test"
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         // Using a random value for the amount.
         Amount := LibraryRandom.RandDec(1000, 2);
-        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         CreateAndPostGenJournalLine(GenJournalLine2, Customer."No.", CurrencyCode, GenJournalLine2."Document Type"::Invoice, Amount,
           WorkDate);
         CreateAndPostGenJournalLine(GenJournalLine3, Customer."No.", CurrencyCode, GenJournalLine3."Document Type"::Payment,
-          -Amount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+          -Amount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
 
         WarningsInGeneralLedgerSetup(true, false);
 
@@ -292,11 +292,11 @@ codeunit 144018 "PAYDISC Test"
         // Using a random value for the amount.
         Amount := LibraryRandom.RandDec(1000, 1);
         PaymentAmount := Amount / 2;
-        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         CreateAndPostGenJournalLine(GenJournalLine2, Customer."No.", CurrencyCode, GenJournalLine2."Document Type"::Payment,
-          -PaymentAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+          -PaymentAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
         CreateAndPostGenJournalLine(GenJournalLine3, Customer."No.", CurrencyCode, GenJournalLine3."Document Type"::Payment,
-          -PaymentAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+          -PaymentAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
         WarningsInGeneralLedgerSetup(true, false);
 
         // 2. Exercise: Apply and Post the Customer Ledger Entry.
@@ -357,9 +357,9 @@ codeunit 144018 "PAYDISC Test"
         // Using a random value for the amount.
         Amount := LibraryRandom.RandDec(1000, 2);
         PaymentAmount := Amount * 2;
-        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         CreateAndPostGenJournalLine(GenJournalLine2, Customer."No.", CurrencyCode, GenJournalLine2."Document Type"::Payment,
-          -PaymentAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+          -PaymentAmount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
         WarningsInGeneralLedgerSetup(true, false);
 
         // 2. Exercise: Apply and Post the Customer Ledger Entry.
@@ -411,9 +411,9 @@ codeunit 144018 "PAYDISC Test"
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         // Using a random value for the amount.
         Amount := LibraryRandom.RandDec(1000, 2);
-        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         CreateAndPostGenJournalLine(GenJournalLine2, Customer."No.", CurrencyCode, GenJournalLine2."Document Type"::Payment,
-          -Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+          -Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
         WarningsInGeneralLedgerSetup(true, false);
 
         // 2. Exercise: Apply and Post the Customer Ledger Entry.
@@ -465,9 +465,9 @@ codeunit 144018 "PAYDISC Test"
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         // Using a random value for the amount.
         Amount := LibraryRandom.RandDec(1000, 2);
-        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         CreateAndPostGenJournalLine(GenJournalLine2, Customer."No.", CurrencyCode, GenJournalLine2."Document Type"::Payment,
-          -Amount, CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate)));
+          -Amount, CalcDate('<1D>', CalcDate(PaymentTerms."Discount Date Calculation", WorkDate())));
         WarningsInGeneralLedgerSetup(true, false);
 
         // 2. Exercise: Apply and Post the Customer Ledger Entry.
@@ -519,9 +519,9 @@ codeunit 144018 "PAYDISC Test"
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
         // Using a random value for the amount.
         Amount := LibraryRandom.RandDec(1000, 2);
-        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate);
+        CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         CreateAndPostGenJournalLine(GenJournalLine2, Customer."No.", CurrencyCode, GenJournalLine2."Document Type"::Payment,
-          -Amount, CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+          -Amount, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
         WarningsInGeneralLedgerSetup(true, false);
 
         // 2. Exercise: Apply and Post the Customer Ledger Entry.

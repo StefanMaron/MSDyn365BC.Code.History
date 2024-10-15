@@ -43,7 +43,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
         WorkDate2: Date;
         ConfirmPostCount: Integer;
         MSG_WANT_TO_POST: Label 'Do you want to post the ';
-        MSG_ORDERS_POSTED: Label 'All the documents were processed.';
+        MSG_ORDERS_POSTED: Label 'All of your selections were processed.';
         MSG_POSTING_DATE_NOTALLOWED: Label 'Posting Date is not within your range of allowed posting dates. in Assembly Header Document Type';
         MSG_INCORRECT_COMMENT: Label 'Type should be blank for comment text:';
         MSG_ENTER_POSTING_DATE: Label 'Enter the posting date.';
@@ -70,9 +70,9 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
-        ClearLastError;
+        ClearLastError();
         MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card",
           LibraryUtility.GetGlobalNoSeriesCode);
 
@@ -236,7 +236,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
             else
                 Assert.AreEqual(0, WarehouseEntry.Count,
                   'Incorrect number of warehouse entries for assembly line ' + TempAssemblyLine."No.");
-        until TempAssemblyLine.Next = 0;
+        until TempAssemblyLine.Next() = 0;
     end;
 
     local procedure VerifyBinContent(LocationCode: Code[20]; BinCode: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
@@ -267,7 +267,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
             VerifyBinContent(TempAssemblyLine."Location Code", TempAssemblyLine."Bin Code",
               TempAssemblyLine."No.",
               QtySupplement + TempAssemblyLine.Quantity - TempAssemblyLine."Quantity to Consume" - TempAssemblyLine."Consumed Quantity");
-        until TempAssemblyLine.Next = 0;
+        until TempAssemblyLine.Next() = 0;
     end;
 
     local procedure VerifyBinContentsQtys(AssemblyHeader: Record "Assembly Header"; var TempAssemblyLine: Record "Assembly Line" temporary; AssembledQty: Decimal; Qtys: array[10] of Decimal; NoOfItems: Integer)
@@ -300,7 +300,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
             VerifyBinContent(TempAssemblyLine."Location Code", TempAssemblyLine."Bin Code",
               TempAssemblyLine."No.", CompQty);
             i += 1;
-        until TempAssemblyLine.Next = 0;
+        until TempAssemblyLine.Next() = 0;
     end;
 
     local procedure AddCompInventoryNotEnough(AssemblyHeader: Record "Assembly Header"; NotEnoughNo: Integer; var NotEnoughItemNo: Code[20]; CompQtyFactor: Integer; var ResultQtys: array[10] of Decimal; AddAdditionalQty: Boolean; BinToPutCode: Code[20])
@@ -331,7 +331,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
                 ResultQtys[i] := Round(ResultQtys[i], 0.00001, '>');
 
             i += 1;
-        until AssemblyLine.Next = 0;
+        until AssemblyLine.Next() = 0;
 
         // Add inventory
         i := 1;
@@ -339,7 +339,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
         repeat
             LibraryAssembly.AddItemInventory(AssemblyLine, WorkDate2, AssemblyLine."Location Code", BinToPutCode, ResultQtys[i]);
             i += 1;
-        until AssemblyLine.Next = 0;
+        until AssemblyLine.Next() = 0;
 
         // Add rest inventory to additional bin
         if AddAdditionalQty then begin
@@ -383,7 +383,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
             TempAssemblyLine := AssemblyLine;
             TempAssemblyLine.Insert();
             i += 1;
-        until (AssemblyLine.Next = 0);
+        until (AssemblyLine.Next() = 0);
 
         TempAssemblyLine.SetRange("Quantity to Consume", 0);
         if TempAssemblyLine.FindSet() then
@@ -415,7 +415,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
                 TempAssemblyLine.Insert();
             end;
             i += 1;
-        until (AssemblyLine.Next = 0);
+        until (AssemblyLine.Next() = 0);
     end;
 
     local procedure LocationSetupBM(var Location: Record Location)
@@ -498,7 +498,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
                 TempAssemblyLine2 := AssemblyLine;
                 TempAssemblyLine2.Insert
             end;
-        until (AssemblyLine.Next = 0);
+        until (AssemblyLine.Next() = 0);
 
         CODEUNIT.Run(CODEUNIT::"Release Assembly Document", AssemblyHeader);
 
@@ -529,7 +529,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
             repeat
                 CreatePurchaseLine(PurchaseHeader, AssemblyLine."No.", Location, BinCode,
                   Round(AssemblyLine.Quantity + QtySupplement, 1, '>'));
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
 
         PostPurchaseHeader(PurchaseHeader, Location, '');
     end;
@@ -563,7 +563,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
                 ResultQtys[i] := Round(ResultQtys[i], 1, '>');
 
             i += 1;
-        until AssemblyLine.Next = 0;
+        until AssemblyLine.Next() = 0;
 
         // Add inventory
         CreatePurchaseHeader(Location.Code, PurchaseHeader);
@@ -573,7 +573,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
         repeat
             CreatePurchaseLine(PurchaseHeader, AssemblyLine."No.", Location, BinToPutCode, ResultQtys[i]);
             i += 1;
-        until AssemblyLine.Next = 0;
+        until AssemblyLine.Next() = 0;
 
         // Add rest inventory to additional bin
         if AddAdditionalQty then begin
@@ -720,7 +720,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
             asserterror LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
             Assert.IsTrue(StrPos(GetLastErrorText, ExpectedError) > 0,
               'Expected:' + ExpectedError + '. Actual:' + GetLastErrorText);
-            ClearLastError;
+            ClearLastError();
         end;
     end;
 
@@ -745,7 +745,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
                     AssemblyLine.Validate("Quantity to Consume", Round(AssemblyLine."Quantity to Consume", 1, '<'));
                     AssemblyLine.Modify(true)
                 end;
-            until (AssemblyLine.Next = 0);
+            until (AssemblyLine.Next() = 0);
 
         AssemblyHeader.Get(AssemblyHeader."Document Type", AssemblyHeader."No.");
         CODEUNIT.Run(CODEUNIT::"Release Assembly Document", AssemblyHeader);
@@ -797,7 +797,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
                     WarehouseActivityLine.Validate("Zone Code", 'PICK');
                     WarehouseActivityLine.Validate("Bin Code", Bin.Code);
                     WarehouseActivityLine.Modify(true)
-                until (WarehouseActivityLine.Next = 0);
+                until (WarehouseActivityLine.Next() = 0);
 
             if (LocationAdditionalPickBinCode <> '') and (NotEnoughItemNo <> '') then begin
                 WarehouseActivityLine.Reset();
@@ -808,7 +808,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
                 WarehouseActivityLine.Validate("Bin Code", LocationAdditionalPickBinCode);
                 WarehouseActivityLine.Modify(true);
-                WarehouseActivityLine.Next;
+                WarehouseActivityLine.Next();
                 WarehouseActivityLine.Validate("Bin Code", LocationAdditionalPickBinCode);
                 WarehouseActivityLine.Modify(true);
             end;
@@ -833,7 +833,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
             repeat
                 Assert.AreEqual(0, WhseActivityLine."Qty. to Handle", 'Incorrect value');
-            until WhseActivityLine.Next = 0;
+            until WhseActivityLine.Next() = 0;
 
             LibraryWarehouse.AutoFillQtyInventoryActivity(WhseActivityHeader);
         end;
@@ -1008,7 +1008,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
             TrackedQty -= 1;
 
         if ItemTrackingLinesPage.Last then
-            ItemTrackingLinesPage.Next;
+            ItemTrackingLinesPage.Next();
 
         while TrackedQty > 0 do begin
             TrackedQty -= 1;
@@ -1022,8 +1022,8 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
                 ItemTrackingLinesPage."Quantity (Base)".SetValue(PAR_ITPage_AssignQty)
             else
                 ItemTrackingLinesPage."Quantity (Base)".SetValue(ItemLedgerEntry.Quantity);
-            if ItemLedgerEntry.Next <> 0 then
-                ItemTrackingLinesPage.Next;
+            if ItemLedgerEntry.Next() <> 0 then
+                ItemTrackingLinesPage.Next();
         end;
 
         ItemTrackingLinesPage.OK.Invoke;
@@ -1083,7 +1083,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
         repeat
             AssignITToAsmLine(AssemblyLine."No.", AssemblyLine."Quantity to Consume", ITPartial, SelectEntries, AssemblyOrderPage, FindDir);
-        until AssemblyLine.Next = 0;
+        until AssemblyLine.Next() = 0;
 
         AssemblyOrderPage.OK.Invoke;
     end;
@@ -1120,7 +1120,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
         if AssemblyLine.FindSet() then
             repeat
                 AssingITWhseActivityLine(AssemblyLine."No.", WhseActivityHeader, ITPartial, FindDirection);
-            until (AssemblyLine.Next = 0);
+            until (AssemblyLine.Next() = 0);
     end;
 
     local procedure AssingITWhseActivityLine(ItemNo: Code[20]; WhseActivityHeader: Record "Warehouse Activity Header"; ITPartial: Boolean; FindDirection: Code[10])
@@ -1176,7 +1176,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
             WhseActivityLineTake.Modify(true);
             WhseActivityLinePlace.Modify(true);
 
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     local procedure NotEnoughItemPostingIT(Location: Record Location; HeaderQtyFactor: Decimal; PartialPostFactor: Decimal; AddAdditionalQty: Boolean; WhseActivity: Option; ExpectedErrorMessagePost: Text[1024]; ExpectedErrorMessageReg: Text[1024]; AssignITBeforeWhseAct: Boolean; AssignITOnWhseAct: Boolean; ITPartial: Boolean)
@@ -1226,8 +1226,8 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
         Initialize();
 
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        UserSetup.Validate("Allow Posting From", CalcDate('<-11M>', WorkDate));
-        UserSetup.Validate("Allow Posting To", CalcDate('<11M>', WorkDate));
+        UserSetup.Validate("Allow Posting From", CalcDate('<-11M>', WorkDate()));
+        UserSetup.Validate("Allow Posting To", CalcDate('<11M>', WorkDate()));
         UserSetup.Modify(true);
 
         AssignBinCodesBM;
@@ -1239,7 +1239,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
         LibraryAssembly.PrepareOrderPosting(AssemblyHeader, TempAssemblyLine, 100, 100, true, WorkDate2);
 
-        AssemblyHeader.Validate("Posting Date", CalcDate('<-11M-1D>', WorkDate));
+        AssemblyHeader.Validate("Posting Date", CalcDate('<-11M-1D>', WorkDate()));
 
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, MSG_POSTING_DATE_NOTALLOWED);
 
@@ -1379,7 +1379,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
         // Verify.
         VerifyBinContents(AssemblyHeader, TempAssemblyLine, 0, AssembledQty);
-        VerifyWarehouseEntries(AssemblyHeader, TempAssemblyLine, AssembledQty, true, TempAssemblyLine.Count + 1, CalcDate('<1M>', WorkDate));
+        VerifyWarehouseEntries(AssemblyHeader, TempAssemblyLine, AssembledQty, true, TempAssemblyLine.Count + 1, CalcDate('<1M>', WorkDate()));
     end;
 
     [Test]
@@ -1408,7 +1408,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
         asserterror REPORT.RunModal(REPORT::"Batch Post Assembly Orders", true, true, AssemblyHeader);
         Assert.IsTrue(StrPos(GetLastErrorText, MSG_ENTER_POSTING_DATE) > 0,
           'Expected:' + MSG_ENTER_POSTING_DATE + '. Actual:' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -1557,7 +1557,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
                 TempAssemblyLine2 := AssemblyLine;
                 TempAssemblyLine2.Insert
             end;
-        until (AssemblyLine.Next = 0);
+        until (AssemblyLine.Next() = 0);
 
         AssembledQty := AssemblyHeader."Quantity to Assemble";
         FullAssembledQty := AssemblyHeader.Quantity;
@@ -1683,7 +1683,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
             VerifyBinContent(TempAssemblyLine."Location Code", TempAssemblyLine."Bin Code",
               TempAssemblyLine."No.", Qtys[i] - TempAssemblyLine."Quantity to Consume");
             i += 1;
-        until TempAssemblyLine.Next = 0;
+        until TempAssemblyLine.Next() = 0;
     end;
 
     [Test]
@@ -1762,7 +1762,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
         LibraryAssembly.CreateAssemblyOrder(AssemblyHeader, WorkDate2, LocationBM.Code, 0);
         asserterror AssemblyHeader.Rename(AssemblyHeader."Document Type", 'New');
         Assert.IsTrue(StrPos(GetLastErrorText, MSG_CANNOT_RENAME) > 0, 'Expected:' + MSG_CANNOT_RENAME + '. Actual:' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [ModalPageHandler]
@@ -1789,7 +1789,7 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
     [Scope('OnPrem')]
     procedure PostBatchHandler(var PostBatchForm: TestRequestPage "Batch Post Assembly Orders")
     begin
-        PostBatchForm.PostingDate.SetValue(CalcDate('<1M>', WorkDate));
+        PostBatchForm.PostingDate.SetValue(CalcDate('<1M>', WorkDate()));
         PostBatchForm.ReplacePostingDate.SetValue(true);
         PostBatchForm.OK.Invoke;
     end;

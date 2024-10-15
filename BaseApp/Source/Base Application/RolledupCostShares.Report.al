@@ -12,7 +12,7 @@ report 99000754 "Rolled-up Cost Shares"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "Search Description", "Inventory Posting Group";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(AsOfFormatCalcDate; Text000 + Format(CalculateDate))
@@ -158,7 +158,7 @@ report 99000754 "Rolled-up Cost Shares"
                     begin
                         Index := NextIndex;
 
-                        if CompItem.IsMfgItem and (CompItem."Production BOM No." <> '') then begin
+                        if CompItem.IsMfgItem() and (CompItem."Production BOM No." <> '') then begin
                             MfgItem := CompItem;
                             Level := Level + 1;
                         end;
@@ -194,7 +194,7 @@ report 99000754 "Rolled-up Cost Shares"
                         ProdBOMLine[Index].Type::Item:
                             begin
                                 CompItem.Get(ProdBOMLine[Index]."No.");
-                                if CompItem.IsMfgItem and (CompItem."Production BOM No." <> '') then begin
+                                if CompItem.IsMfgItem() and (CompItem."Production BOM No." <> '') then begin
                                     ProdBOMHeader.Get(CompItem."Production BOM No.");
                                     if ProdBOMHeader.Status = ProdBOMHeader.Status::Closed then
                                         CurrReport.Skip();
@@ -269,13 +269,13 @@ report 99000754 "Rolled-up Cost Shares"
 
             trigger OnAfterGetRecord()
             begin
-                if not IsMfgItem or ("Production BOM No." = '') then
+                if not IsMfgItem() or ("Production BOM No." = '') then
                     CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
             begin
-                ItemFilter := GetFilters;
+                ItemFilter := GetFilters();
                 GLSetup.Get();
             end;
         }
@@ -307,7 +307,7 @@ report 99000754 "Rolled-up Cost Shares"
 
         trigger OnInit()
         begin
-            CalculateDate := WorkDate;
+            CalculateDate := WorkDate();
         end;
     }
 
@@ -316,7 +316,6 @@ report 99000754 "Rolled-up Cost Shares"
     }
 
     var
-        Text000: Label 'As of ';
         GLSetup: Record "General Ledger Setup";
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMLine: array[99] of Record "Production BOM Line";
@@ -342,6 +341,8 @@ report 99000754 "Rolled-up Cost Shares"
         OverheadCost: Decimal;
         TotalCost: Decimal;
         CompItemQtyBase: Decimal;
+
+        Text000: Label 'As of ';
         RolledupCostSharesCaptLbl: Label 'Rolled-up Cost Shares';
         PageCaptionLbl: Label 'Page';
         TotalCostCaptionLbl: Label 'Total Cost';

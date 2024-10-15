@@ -17,7 +17,7 @@ page 1366 "Field Monitoring Setup"
         {
             group(General)
             {
-                field("User ID"; "User Id")
+                field("User ID"; Rec."User Id")
                 {
                     ToolTip = 'Specifies the user ID';
                     ApplicationArea = Basic, Suite;
@@ -25,7 +25,7 @@ page 1366 "Field Monitoring Setup"
                 group(Email)
                 {
                     ShowCaption = false;
-                    field("Email Account Name"; "Email Account Name")
+                    field("Email Account Name"; Rec."Email Account Name")
                     {
                         ToolTip = 'Specifies the email account that will send the notification email. Typically, this is a system account that is not associated with a user.';
                         ApplicationArea = Basic, Suite;
@@ -45,7 +45,7 @@ page 1366 "Field Monitoring Setup"
                     }
                 }
 
-                field("Monitor Status"; "Monitor Status")
+                field("Monitor Status"; Rec."Monitor Status")
                 {
                     ToolTip = 'Specifies the monitor status';
                     ApplicationArea = Basic, Suite;
@@ -63,11 +63,7 @@ page 1366 "Field Monitoring Setup"
             {
                 ToolTip = 'Start monitoring fields for changes.';
                 ApplicationArea = Basic, Suite;
-                Promoted = true;
                 Image = Start;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Enabled = not IsMonitorEnabled;
 
                 trigger OnAction()
@@ -79,11 +75,7 @@ page 1366 "Field Monitoring Setup"
             {
                 ToolTip = 'Stop monitoring fields for changes.';
                 ApplicationArea = Basic, Suite;
-                Promoted = true;
                 Image = Stop;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Enabled = IsMonitorEnabled;
 
                 trigger OnAction()
@@ -102,6 +94,20 @@ page 1366 "Field Monitoring Setup"
                 AccessByPermission = tabledata "Retention Policy Setup" = R;
                 RunPageMode = View;
                 Ellipsis = true;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Start_Promoted; Start)
+                {
+                }
+                actionref(Stop_Promoted; Stop)
+                {
+                }
             }
         }
     }

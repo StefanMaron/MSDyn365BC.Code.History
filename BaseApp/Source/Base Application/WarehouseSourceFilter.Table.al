@@ -193,7 +193,7 @@ table 5771 "Warehouse Source Filter"
             trigger OnValidate()
             begin
                 if Type = Type::Outbound then
-                    CheckOutboundSourceDocumentChosen;
+                    CheckOutboundSourceDocumentChosen();
             end;
         }
         field(102; "Sales Return Orders"; Boolean)
@@ -205,7 +205,7 @@ table 5771 "Warehouse Source Filter"
             trigger OnValidate()
             begin
                 if Type = Type::Inbound then
-                    CheckInboundSourceDocumentChosen;
+                    CheckInboundSourceDocumentChosen();
             end;
         }
         field(103; "Purchase Orders"; Boolean)
@@ -217,7 +217,7 @@ table 5771 "Warehouse Source Filter"
             trigger OnValidate()
             begin
                 if Type = Type::Inbound then
-                    CheckInboundSourceDocumentChosen;
+                    CheckInboundSourceDocumentChosen();
             end;
         }
         field(104; "Purchase Return Orders"; Boolean)
@@ -229,7 +229,7 @@ table 5771 "Warehouse Source Filter"
             trigger OnValidate()
             begin
                 if Type = Type::Outbound then
-                    CheckOutboundSourceDocumentChosen;
+                    CheckOutboundSourceDocumentChosen();
             end;
         }
         field(105; "Inbound Transfers"; Boolean)
@@ -241,7 +241,7 @@ table 5771 "Warehouse Source Filter"
             trigger OnValidate()
             begin
                 if Type = Type::Inbound then
-                    CheckInboundSourceDocumentChosen;
+                    CheckInboundSourceDocumentChosen();
             end;
         }
         field(106; "Outbound Transfers"; Boolean)
@@ -253,7 +253,7 @@ table 5771 "Warehouse Source Filter"
             trigger OnValidate()
             begin
                 if Type = Type::Outbound then
-                    CheckOutboundSourceDocumentChosen;
+                    CheckOutboundSourceDocumentChosen();
             end;
         }
         field(108; Partial; Boolean)
@@ -286,7 +286,7 @@ table 5771 "Warehouse Source Filter"
             trigger OnValidate()
             begin
                 if Type = Type::Outbound then
-                    CheckOutboundSourceDocumentChosen;
+                    CheckOutboundSourceDocumentChosen();
             end;
         }
         field(7300; "Planned Delivery Date"; Text[250])

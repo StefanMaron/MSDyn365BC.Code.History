@@ -82,7 +82,7 @@ table 7326 "Whse. Worksheet Line"
 
             trigger OnLookup()
             begin
-                LookupFromBinCode;
+                LookupFromBinCode();
             end;
 
             trigger OnValidate()
@@ -141,7 +141,7 @@ table 7326 "Whse. Worksheet Line"
             trigger OnValidate()
             begin
                 if "Item No." <> '' then begin
-                    GetItemUnitOfMeasure;
+                    GetItemUnitOfMeasure();
                     Description := Item.Description;
                     Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
                 end else begin
@@ -233,7 +233,7 @@ table 7326 "Whse. Worksheet Line"
                     end else
                         if WhseWkshTemplate.Type = WhseWkshTemplate.Type::Movement then
                             if CurrFieldNo <> FieldNo("Qty. to Handle") then begin
-                                AvailableQty := CheckAvailQtytoMove;
+                                AvailableQty := CheckAvailQtytoMove();
                                 OnValidateQtyToHandleOnAfterCalcQtyAvailToMove(Rec, xRec, AvailableQty);
                                 if AvailableQty < 0 then
                                     "Qty. to Handle (Base)" := 0
@@ -250,7 +250,7 @@ table 7326 "Whse. Worksheet Line"
                 if "Qty. to Handle (Base)" = "Qty. Outstanding (Base)" then
                     "Qty. to Handle" := "Qty. Outstanding"
                 else
-                    "Qty. to Handle" := Round("Qty. to Handle (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision); // what about this???
+                    "Qty. to Handle" := Round("Qty. to Handle (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()); // what about this???
             end;
         }
         field(22; "Qty. to Handle (Base)"; Decimal)
@@ -299,7 +299,7 @@ table 7326 "Whse. Worksheet Line"
                 FromItemUnitOfMeasure: Record "Item Unit of Measure";
             begin
                 if "Item No." <> '' then begin
-                    GetItemUnitOfMeasure;
+                    GetItemUnitOfMeasure();
                     if not FromItemUnitOfMeasure.Get(Item."No.", "From Unit of Measure Code") then
                         FromItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
                     "Qty. per From Unit of Measure" := FromItemUnitOfMeasure."Qty. per Unit of Measure";
@@ -323,7 +323,7 @@ table 7326 "Whse. Worksheet Line"
             trigger OnValidate()
             begin
                 if "Item No." <> '' then begin
-                    GetItemUnitOfMeasure;
+                    GetItemUnitOfMeasure();
                     "Qty. per Unit of Measure" := ItemUnitOfMeasure."Qty. per Unit of Measure";
                     "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, ItemUnitOfMeasure.Code);
                     "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
@@ -549,23 +549,30 @@ table 7326 "Whse. Worksheet Line"
     begin
         WhseWkshTemplate.Get("Worksheet Template Name");
         if WhseWkshTemplate.Type = WhseWkshTemplate.Type::Movement then begin
-            UpdateMovActivLines;
+            UpdateMovActivLines();
             ItemTrackingMgt.DeleteWhseItemTrkgLines(
               DATABASE::"Whse. Worksheet Line", 0, Name, "Worksheet Template Name", 0, "Line No.", "Location Code", true);
         end;
     end;
 
     var
-        Text000: Label 'You cannot handle more than the outstanding %1 units.';
-        Text001: Label '%1 is set to %2. %3 should be %4.\\';
-        Text002: Label 'Accept the entered value?';
-        Text003: Label 'The update was interrupted to respect the warning.';
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         Location: Record Location;
         Item: Record Item;
         Bin: Record Bin;
         BinType: Record "Bin Type";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
+        CreatePick: Codeunit "Create Pick";
+        WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
+        UOMMgt: Codeunit "Unit of Measure Management";
+        LastLineNo: Integer;
+        OpenFromBatch: Boolean;
+        CurrentFieldNo: Integer;
+
+        Text000: Label 'You cannot handle more than the outstanding %1 units.';
+        Text001: Label '%1 is set to %2. %3 should be %4.\\';
+        Text002: Label 'Accept the entered value?';
+        Text003: Label 'The update was interrupted to respect the warning.';
         Text004: Label 'You cannot handle more than the available %1 units.';
         Text005: Label 'DEFAULT';
         Text006: Label 'Default %1 Worksheet';
@@ -573,13 +580,7 @@ table 7326 "Whse. Worksheet Line"
         Text008: Label '%1 Worksheet';
         Text009: Label 'The location %1 of %2 %3 is not enabled for user %4.';
         Text010: Label 'must not be less than %1 units';
-        CreatePick: Codeunit "Create Pick";
-        WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
-        UOMMgt: Codeunit "Unit of Measure Management";
-        LastLineNo: Integer;
         Text011: Label 'Quantity available to pick is not enough to fill in all the lines.';
-        OpenFromBatch: Boolean;
-        CurrentFieldNo: Integer;
 
     protected var
         HideValidationDialog: Boolean;
@@ -600,7 +601,7 @@ table 7326 "Whse. Worksheet Line"
     procedure CalcQty(QtyBase: Decimal): Decimal
     begin
         TestField("Qty. per Unit of Measure");
-        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     procedure AutofillQtyToHandle(var WhseWkshLine: Record "Whse. Worksheet Line")
@@ -640,7 +641,7 @@ table 7326 "Whse. Worksheet Line"
                 repeat
                     Validate("Qty. to Handle", 0);
                     OnDeleteQtyToHandleOnBeforeModify(WhseWkshLine);
-                    Modify;
+                    Modify();
                 until Next() = 0;
         end;
     end;
@@ -709,7 +710,7 @@ table 7326 "Whse. Worksheet Line"
             AvailQtyBase := WhseAvailMgt.CalcQtyAvailToTakeOnWhseWorksheetLine(Rec);
         end;
 
-        AvailableQty := AvailQtyBase - QtyAssgndOnWkshBase + AssignedQtyOnReservedLines;
+        AvailableQty := AvailQtyBase - QtyAssgndOnWkshBase + AssignedQtyOnReservedLines();
     end;
 
     procedure CalcReservedNotFromILEQty(QtyBaseAvailToPick: Decimal; var QtyToPick: Decimal; var QtyToPickBase: Decimal)
@@ -721,7 +722,7 @@ table 7326 "Whse. Worksheet Line"
 
     procedure CheckAvailQtytoMove() AvailableQtyToMoveBase: Decimal
     begin
-        AvailableQtyToMoveBase := CalcAvailQtyToMove + xRec."Qty. to Handle (Base)";
+        AvailableQtyToMoveBase := CalcAvailQtyToMove() + xRec."Qty. to Handle (Base)";
         OnAfterCheckAvailQtytoMove(Rec, xRec, AvailableQtyToMoveBase);
     end;
 
@@ -805,12 +806,11 @@ table 7326 "Whse. Worksheet Line"
 
     local procedure GetLocation(LocationCode: Code[10])
     begin
-        if Location.Code <> LocationCode then begin
+        if Location.Code <> LocationCode then
             if LocationCode = '' then
                 Location.GetLocationSetup(LocationCode, Location)
             else
                 Location.Get(LocationCode);
-        end;
     end;
 
     procedure GetItem(ItemNo: Code[20]; var ItemDescription: Text[100])
@@ -923,7 +923,7 @@ table 7326 "Whse. Worksheet Line"
     local procedure GetBinType(BinTypeCode: Code[10])
     begin
         if BinTypeCode = '' then
-            BinType.Init
+            BinType.Init()
         else
             if BinType.Code <> BinTypeCode then
                 BinType.Get(BinTypeCode);
@@ -1033,7 +1033,7 @@ table 7326 "Whse. Worksheet Line"
 
     procedure OpenWhseWksh(var WhseWkshLine: Record "Whse. Worksheet Line"; var CurrentWkshTemplateName: Code[10]; var CurrentWkshName: Code[10]; var CurrentLocationCode: Code[10])
     begin
-        CheckWhseEmployee;
+        CheckWhseEmployee();
         CurrentWkshTemplateName := WhseWkshLine.GetRangeMax("Worksheet Template Name");
         CheckTemplateName(CurrentWkshTemplateName, CurrentWkshName, CurrentLocationCode);
         WhseWkshLine.FilterGroup := 2;
@@ -1066,7 +1066,7 @@ table 7326 "Whse. Worksheet Line"
                     TemplateSelection(0, WhseWkshTemplate.Type.AsInteger(), WhseWkshLine, JnlSelected);
                 if WhseWkshTemplate.FindFirst() then begin
                     if WhseWkshName."Location Code" = '' then
-                        WhseWkshName."Location Code" := WmsMgt.GetDefaultLocation;
+                        WhseWkshName."Location Code" := WmsMgt.GetDefaultLocation();
                     CheckTemplateName(WhseWkshTemplate.Name, WhseWkshName.Name, WhseWkshName."Location Code");
                 end;
             end;
@@ -1111,7 +1111,7 @@ table 7326 "Whse. Worksheet Line"
            ((UserId <> '') and not WhseEmployee.Get(UserId, CurrentLocationCode))
         then begin
             if UserId <> '' then begin
-                CurrentLocationCode := WmsMgt.GetDefaultLocation;
+                CurrentLocationCode := WmsMgt.GetDefaultLocation();
                 WhseWkshName.SetRange("Location Code", CurrentLocationCode);
             end;
             if not WhseWkshName.FindFirst() then begin
@@ -1128,7 +1128,7 @@ table 7326 "Whse. Worksheet Line"
                 if not FoundLocation then begin
                     WhseWkshName.Init();
                     WhseWkshName."Worksheet Template Name" := CurrentWkshTemplateName;
-                    WhseWkshName.SetupNewName;
+                    WhseWkshName.SetupNewName();
                     WhseWkshName.Name := Text005;
                     WhseWkshName.Description :=
                       StrSubstNo(Text006, WhseWkshTemplate.Type);
@@ -1156,7 +1156,7 @@ table 7326 "Whse. Worksheet Line"
         WhseWkshName.Get(
           WhseWkshLine.GetRangeMax("Worksheet Template Name"), CurrentWkshName, CurrentLocationCode);
         if (UserId <> '') and not WhseEmployee.Get(UserId, CurrentLocationCode) then
-            Error(Text009, CurrentLocationCode, WhseWkshName.TableCaption, CurrentWkshName, UserId);
+            Error(Text009, CurrentLocationCode, WhseWkshName.TableCaption(), CurrentWkshName, UserId);
     end;
 
     local procedure CheckWhseEmployee()
@@ -1218,14 +1218,13 @@ table 7326 "Whse. Worksheet Line"
             if CurrFieldNo <> FieldNo("Qty. to Handle") then begin
                 AvailableQty := CalcAvailableQtyBase();
                 if not Location."Always Create Pick Line" then
-                    if "Qty. to Handle (Base)" > AvailableQty then begin
+                    if "Qty. to Handle (Base)" > AvailableQty then
                         if ("Shipping Advice" = "Shipping Advice"::Complete) or
                            (AvailableQty < 0)
                         then
                             "Qty. to Handle (Base)" := 0
                         else
                             "Qty. to Handle (Base)" := AvailableQty;
-                    end;
             end
         end else begin
             AvailableQty := CalcAvailableQtyBase();
@@ -1305,7 +1304,7 @@ table 7326 "Whse. Worksheet Line"
     procedure AvailableQtyToPick(): Decimal
     begin
         if "Qty. per Unit of Measure" <> 0 then
-            exit(Round(CalcAvailableQtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+            exit(Round(CalcAvailableQtyBase() / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
         exit(0);
     end;
 
@@ -1317,7 +1316,7 @@ table 7326 "Whse. Worksheet Line"
             exit(
                 UOMMgt.CalcQtyFromBase(
                     "Item No.", "Variant Code", "Unit of Measure Code",
-                    TypeHelper.Maximum(0, CalcAvailableQtyBase - QtyOnQCBins), "Qty. per Unit of Measure"));
+                    TypeHelper.Maximum(0, CalcAvailableQtyBase() - QtyOnQCBins()), "Qty. per Unit of Measure"));
         exit(0);
     end;
 
@@ -1335,12 +1334,12 @@ table 7326 "Whse. Worksheet Line"
         AvailQtyBaseInQCBins.SetRange(Location_Code, "Location Code");
         AvailQtyBaseInQCBins.SetRange(Item_No, "Item No.");
         AvailQtyBaseInQCBins.SetRange(Variant_Code, "Variant Code");
-        if not AvailQtyBaseInQCBins.Open then
+        if not AvailQtyBaseInQCBins.Open() then
             exit(0);
-        if not AvailQtyBaseInQCBins.Read then
+        if not AvailQtyBaseInQCBins.Read() then
             exit(0);
         ReturnedQty := AvailQtyBaseInQCBins.Sum_Qty_Base;
-        AvailQtyBaseInQCBins.Close;
+        AvailQtyBaseInQCBins.Close();
         exit(ReturnedQty);
     end;
 
@@ -1397,7 +1396,7 @@ table 7326 "Whse. Worksheet Line"
     begin
         WhseWorksheetLine2.Copy(WhseWorksheetLine);
         if SortMethod <> SortMethod::None then
-            exit(GetLastLineNo + 10000);
+            exit(GetLastLineNo() + 10000);
 
         WhseWorksheetLine2 := Rec;
         WhseWorksheetLine2."Line No." := LastLineNo;
@@ -1436,7 +1435,7 @@ table 7326 "Whse. Worksheet Line"
         LastSeqNo: Integer;
     begin
         WhseWorksheetLine2 := Rec;
-        WhseWorksheetLine2.SetRecFilter;
+        WhseWorksheetLine2.SetRecFilter();
         WhseWorksheetLine2.SetRange("Line No.");
 
         case SortMethod of
@@ -1491,7 +1490,7 @@ table 7326 "Whse. Worksheet Line"
 
     local procedure GetLastSeqNo(WhseWorksheetLine2: Record "Whse. Worksheet Line"): Integer
     begin
-        WhseWorksheetLine2.SetRecFilter;
+        WhseWorksheetLine2.SetRecFilter();
         WhseWorksheetLine2.SetRange("Line No.");
         WhseWorksheetLine2.SetCurrentKey("Worksheet Template Name", Name, "Location Code", "Sorting Sequence No.");
         if WhseWorksheetLine2.FindLast() then

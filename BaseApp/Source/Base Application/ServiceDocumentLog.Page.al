@@ -2,7 +2,7 @@ page 5920 "Service Document Log"
 {
     ApplicationArea = Service;
     Caption = 'Service Document Log';
-    DataCaptionExpression = GetCaptionHeader;
+    DataCaptionExpression = GetCaptionHeader();
     Editable = false;
     PageType = List;
     RefreshOnActivate = true;
@@ -18,25 +18,25 @@ page 5920 "Service Document Log"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type of the service document that underwent changes.';
                     Visible = DocumentTypeVisible;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service document that has undergone changes.';
                     Visible = DocumentNoVisible;
                 }
-                field("Service Item Line No."; "Service Item Line No.")
+                field("Service Item Line No."; Rec."Service Item Line No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service item line, if the event is linked to a service item line.';
                     Visible = false;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -58,17 +58,17 @@ page 5920 "Service Document Log"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the contents of the modified field before the event takes place.';
                 }
-                field("Change Date"; "Change Date")
+                field("Change Date"; Rec."Change Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date of the event.';
                 }
-                field("Change Time"; "Change Time")
+                field("Change Time"; Rec."Change Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the time of the event.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -123,12 +123,12 @@ page 5920 "Service Document Log"
                         DeleteServOrderLog.SetTableView(ServOrderLog);
                         DeleteServOrderLog.RunModal();
 
-                        if DeleteServOrderLog.GetOnPostReportStatus then begin
+                        if DeleteServOrderLog.GetOnPostReportStatus() then begin
                             ServOrderLog.Reset();
                             DeleteServOrderLog.GetServDocLog(ServOrderLog);
                             CopyFilters(ServOrderLog);
                             DeleteAll();
-                            Reset;
+                            Reset();
                             SetCurrentKey("Change Date", "Change Time");
                             Ascending(false);
                         end;
@@ -140,8 +140,6 @@ page 5920 "Service Document Log"
                 ApplicationArea = Service;
                 Caption = '&Show';
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View the log details.';
 
                 trigger OnAction()
@@ -184,6 +182,17 @@ page 5920 "Service Document Log"
                     if isError then
                         Error(Text001, "Document Type", "Document No.");
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Show_Promoted"; "&Show")
+                {
+                }
             }
         }
     }

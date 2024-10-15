@@ -83,7 +83,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Parameters!DocType_VendLedgEntry3Caption.Value</Value>
+                                  <Value EvaluationMode="Auto">=iif(Fields!No_Vendor.Value="","",Parameters!DocType_VendLedgEntry3Caption.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -143,7 +143,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Parameters!Desc_VendLedgEntry3Caption.Value</Value>
+                                  <Value EvaluationMode="Auto">=iif(Fields!No_Vendor.Value="","",Parameters!Desc_VendLedgEntry3Caption.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -237,7 +237,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=Parameters!EntryNo_VendLedgEntry3Caption.Value</Value>
+                                  <Value EvaluationMode="Auto">=iif(Fields!No_Vendor.Value="","",Parameters!EntryNo_VendLedgEntry3Caption.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI Semibold</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -4779,9 +4779,7 @@
                     <TablixMember />
                     <TablixMember />
                   </TablixMembers>
-                  <Visibility>
-                    <Hidden>=IIF(First(Fields!PrintOnePrPage.Value, "DataSet_Result"),TRUE,FALSE)</Hidden>
-                  </Visibility>
+                  <Visibility></Visibility>
                 </TablixMember>
                 <TablixMember>
                   <Visibility>

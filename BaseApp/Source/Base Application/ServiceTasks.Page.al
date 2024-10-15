@@ -27,7 +27,7 @@ page 5915 "Service Tasks"
                         Res.Reset();
                         if PAGE.RunModal(0, Res) = ACTION::LookupOK then begin
                             Text := Res."No.";
-                            SetResourceFilter;
+                            SetResourceFilter();
                             exit(true);
                         end;
                     end;
@@ -37,13 +37,13 @@ page 5915 "Service Tasks"
                         FilterGroup(2);
                         TempTextFilter := GetFilter("Resource Filter");
                         FilterGroup(0);
-                        SetResourceFilter;
-                        if not TestFilter then begin
+                        SetResourceFilter();
+                        if not TestFilter() then begin
                             ResourceFilter := TempTextFilter;
-                            SetResourceFilter;
+                            SetResourceFilter();
                             Error(Text000, TableCaption);
                         end;
-                        ResourceFilterOnAfterValidate;
+                        ResourceFilterOnAfterValidate();
                     end;
                 }
                 field(ResourceGroupFilter; ResourceGroupFilter)
@@ -57,7 +57,7 @@ page 5915 "Service Tasks"
                         ResourceGroup.Reset();
                         if PAGE.RunModal(0, ResourceGroup) = ACTION::LookupOK then begin
                             Text := ResourceGroup."No.";
-                            SetResourceGroupFilter;
+                            SetResourceGroupFilter();
                             exit(true);
                         end;
                     end;
@@ -67,13 +67,13 @@ page 5915 "Service Tasks"
                         FilterGroup(2);
                         TempTextFilter := GetFilter("Resource Group Filter");
                         FilterGroup(0);
-                        SetResourceGroupFilter;
-                        if not TestFilter then begin
+                        SetResourceGroupFilter();
+                        if not TestFilter() then begin
                             ResourceGroupFilter := TempTextFilter;
-                            SetResourceGroupFilter;
+                            SetResourceGroupFilter();
                             Error(Text000, TableCaption);
                         end;
-                        ResourceGroupFilterOnAfterVali;
+                        ResourceGroupFilterOnAfterVali();
                     end;
                 }
                 field(RespDateFilter; RespDateFilter)
@@ -87,13 +87,13 @@ page 5915 "Service Tasks"
                         FilterGroup(2);
                         TempTextFilter := GetFilter("Response Date");
                         FilterGroup(0);
-                        SetRespDateFilter;
-                        if not TestFilter then begin
+                        SetRespDateFilter();
+                        if not TestFilter() then begin
                             RespDateFilter := TempTextFilter;
-                            SetRespDateFilter;
+                            SetRespDateFilter();
                             Error(Text000, TableCaption);
                         end;
-                        RespDateFilterOnAfterValidate;
+                        RespDateFilterOnAfterValidate();
                     end;
                 }
                 field(AllocationStatus; AllocationStatus)
@@ -106,13 +106,13 @@ page 5915 "Service Tasks"
                     trigger OnValidate()
                     begin
                         TempAllocationStatus := "Allocation Status Filter";
-                        SetAllocationFilter;
-                        if not TestFilter then begin
+                        SetAllocationFilter();
+                        if not TestFilter() then begin
                             AllocationStatus := TempAllocationStatus;
-                            SetAllocationFilter;
+                            SetAllocationFilter();
                             Error(Text000, TableCaption);
                         end;
-                        AllocationStatusOnAfterValidat;
+                        AllocationStatusOnAfterValidat();
                     end;
                 }
                 field(DocFilter; DocFilter)
@@ -125,9 +125,9 @@ page 5915 "Service Tasks"
                     trigger OnValidate()
                     begin
                         ServOrderFilter := '';
-                        SetServOrderFilter;
-                        SetDocFilter;
-                        DocFilterOnAfterValidate;
+                        SetServOrderFilter();
+                        SetDocFilter();
+                        DocFilterOnAfterValidate();
                     end;
                 }
                 field(ServOrderFilter; ServOrderFilter)
@@ -151,13 +151,13 @@ page 5915 "Service Tasks"
                         FilterGroup(2);
                         TempTextFilter := GetFilter("Document No.");
                         FilterGroup(0);
-                        SetServOrderFilter;
-                        if not TestFilter then begin
+                        SetServOrderFilter();
+                        if not TestFilter() then begin
                             ServOrderFilter := TempTextFilter;
-                            SetServOrderFilter;
-                            Error(Text000, TableCaption);
+                            SetServOrderFilter();
+                            Error(Text000, TableCaption());
                         end;
-                        ServOrderFilterOnAfterValidate;
+                        ServOrderFilterOnAfterValidate();
                     end;
                 }
                 field(RepairStatusFilter; RepairStatusFilter)
@@ -171,7 +171,7 @@ page 5915 "Service Tasks"
                         RepairStatus.Reset();
                         if PAGE.RunModal(0, RepairStatus) = ACTION::LookupOK then begin
                             Text := RepairStatus.Code;
-                            SetRepStatFilter;
+                            SetRepStatFilter();
                             exit(true);
                         end;
                     end;
@@ -181,13 +181,13 @@ page 5915 "Service Tasks"
                         FilterGroup(2);
                         TempTextFilter := GetFilter("Repair Status Code");
                         FilterGroup(0);
-                        SetRepStatFilter;
-                        if not TestFilter then begin
+                        SetRepStatFilter();
+                        if not TestFilter() then begin
                             RepairStatusFilter := TempTextFilter;
-                            SetRepStatFilter;
+                            SetRepStatFilter();
                             Error(Text000, TableCaption);
                         end;
-                        RepairStatusFilterOnAfterValid;
+                        RepairStatusFilterOnAfterValid();
                     end;
                 }
             }
@@ -195,12 +195,12 @@ page 5915 "Service Tasks"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("Response Date"; "Response Date")
+                field("Response Date"; Rec."Response Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated date when service should start on this service item line.';
                 }
-                field("Response Time"; "Response Time")
+                field("Response Time"; Rec."Response Time")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated time when service should start on this service item.';
@@ -210,32 +210,32 @@ page 5915 "Service Tasks"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service priority for this item.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies whether the service document is a service order or service quote.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service order linked to this service item line.';
                 }
-                field("Repair Status Code"; "Repair Status Code")
+                field("Repair Status Code"; Rec."Repair Status Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the repair status of this service item.';
                 }
-                field("Service Item No."; "Service Item No.")
+                field("Service Item No."; Rec."Service Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service item number registered in the Service Item table.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the customer number associated with the service contract.';
                 }
-                field("Ship-to Code"; "Ship-to Code")
+                field("Ship-to Code"; Rec."Ship-to Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a code for an alternate shipment address if you want to ship to another address than the one that has been entered automatically. This field is also used in case of drop shipment.';
@@ -248,28 +248,28 @@ page 5915 "Service Tasks"
                     ToolTip = 'Specifies the name of the customer.';
                     Visible = false;
                 }
-                field("Service Shelf No."; "Service Shelf No.")
+                field("Service Shelf No."; Rec."Service Shelf No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service shelf this item is stored on.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the item number linked to this service item.';
                 }
-                field("Service Item Group Code"; "Service Item Group Code")
+                field("Service Item Group Code"; Rec."Service Item Group Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the service item group for this item.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number of this item.';
@@ -294,12 +294,12 @@ page 5915 "Service Tasks"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that warranty on either parts or labor exists for this item.';
                 }
-                field("Contract No."; "Contract No.")
+                field("Contract No."; Rec."Contract No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service contract associated with the item or service on the line.';
                 }
-                field("No. of Allocations"; "No. of Allocations")
+                field("No. of Allocations"; Rec."No. of Allocations")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of resource allocations with the allocation status specified in the Allocation Status Filter field.';
@@ -344,9 +344,6 @@ page 5915 "Service Tasks"
                     ApplicationArea = Service;
                     Caption = '&Show Document';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'Open the document that the information on the line comes from.';
 
@@ -363,7 +360,7 @@ page 5915 "Service Tasks"
                                 if ServItemLine.GetRangeMin("Document No.") = ServItemLine.GetRangeMax("Document No.") then
                                     if ServItemLine.IsEmpty() then begin
                                         ServOrderFilter := '';
-                                        SetServOrderFilter;
+                                        SetServOrderFilter();
                                     end
                             end;
                         end;
@@ -374,9 +371,6 @@ page 5915 "Service Tasks"
                     ApplicationArea = Service;
                     Caption = '&Item Worksheet';
                     Image = ItemWorksheet;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Service Item Worksheet";
                     RunPageLink = "Document Type" = FIELD("Document Type"),
                                   "Document No." = FIELD("Document No."),
@@ -404,7 +398,7 @@ page 5915 "Service Tasks"
                     begin
                         Clear(ServItemLine);
                         FilterGroup(2);
-                        ServItemLine.SetView(GetView);
+                        ServItemLine.SetView(GetView());
                         FilterGroup(0);
                         ServItemLine.SetRange("No. of Allocations");
                         ServItemLine.SetRange("No. of Active/Finished Allocs");
@@ -428,6 +422,20 @@ page 5915 "Service Tasks"
                         ServItemLine.SetRange("Line No.", "Line No.");
                         REPORT.Run(REPORT::"Service Item Worksheet", true, true, ServItemLine);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Show Document_Promoted"; "&Show Document")
+                {
+                }
+                actionref("&Item Worksheet_Promoted"; "&Item Worksheet")
+                {
                 }
             }
         }
@@ -478,13 +486,13 @@ page 5915 "Service Tasks"
 
     procedure SetAllFilters()
     begin
-        SetRepStatFilter;
-        SetRespDateFilter;
-        SetDocFilter;
-        SetServOrderFilter;
-        SetResourceFilter;
-        SetResourceGroupFilter;
-        SetAllocationFilter;
+        SetRepStatFilter();
+        SetRespDateFilter();
+        SetDocFilter();
+        SetServOrderFilter();
+        SetResourceFilter();
+        SetResourceGroupFilter();
+        SetAllocationFilter();
 
         OnAfterSetAllFilters(Rec);
     end;

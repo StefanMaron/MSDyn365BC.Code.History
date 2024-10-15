@@ -15,7 +15,7 @@ page 597 "XBRL Comment Lines Part"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Comment Type"; "Comment Type")
+                field("Comment Type"; Rec."Comment Type")
                 {
                     ApplicationArea = XBRL;
                     ToolTip = 'Specifies the type of comment that the line contains. Info: a comment imported from the schema file when you imported the taxonomy. Note: A comment that will be exported with the other financial information. Reference: A comment imported from the reference linkbase when you imported the taxonomy.';

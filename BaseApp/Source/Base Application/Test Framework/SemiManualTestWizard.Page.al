@@ -32,17 +32,17 @@ page 130415 "Semi-Manual Test Wizard"
                             GetSemiManualTestCodeunits: Page "Get Semi-Manual Test Codeunits";
                         begin
                             GetSemiManualTestCodeunits.LookupMode := true;
-                            if GetSemiManualTestCodeunits.RunModal = ACTION::LookupOK then begin
+                            if GetSemiManualTestCodeunits.RunModal() = ACTION::LookupOK then begin
                                 GetSemiManualTestCodeunits.SetSelectionFilter(AllObjWithCaption);
                                 if AllObjWithCaption.FindFirst() then
                                     CodeunitId := AllObjWithCaption."Object ID";
-                                LoadTest;
+                                LoadTest();
                             end;
                         end;
 
                         trigger OnValidate()
                         begin
-                            LoadTest;
+                            LoadTest();
                         end;
                     }
                 }
@@ -113,10 +113,10 @@ page 130415 "Semi-Manual Test Wizard"
                     if SemiManualExecutionLog.FindSet() then
                         repeat
                             OutStream.Write('[' + Format(SemiManualExecutionLog."Time stamp") + '] ');
-                            OutStream.WriteText(SemiManualExecutionLog.GetMessage);
-                            OutStream.WriteText;
+                            OutStream.WriteText(SemiManualExecutionLog.GetMessage());
+                            OutStream.WriteText();
                         until SemiManualExecutionLog.Next() = 0;
-                    File.Close;
+                    File.Close();
                     FileManagement.DownloadTempFile(ServerFileName);
                 end;
             }
@@ -142,7 +142,7 @@ page 130415 "Semi-Manual Test Wizard"
 
                 trigger OnAction()
                 begin
-                    LoadTest;
+                    LoadTest();
                 end;
             }
             action(SkipStep)
@@ -156,7 +156,7 @@ page 130415 "Semi-Manual Test Wizard"
                 trigger OnAction()
                 begin
                     "Skip current step" := true;
-                    OnNextStep;
+                    OnNextStep();
                 end;
             }
             action(NextStep)
@@ -170,7 +170,7 @@ page 130415 "Semi-Manual Test Wizard"
                 trigger OnAction()
                 begin
                     "Skip current step" := false;
-                    OnNextStep;
+                    OnNextStep();
                 end;
             }
         }
@@ -210,7 +210,7 @@ page 130415 "Semi-Manual Test Wizard"
 
         CodeunitIdentifier := StrSubstNo('%1: %2', CodeunitId, AllObjWithCaption."Object Name");
         Initialize(AllObjWithCaption."Object ID", AllObjWithCaption."Object Name");
-        ManualSteps := GetManualSteps;
+        ManualSteps := GetManualSteps();
         TestExecuting := true;
         SemiManualExecutionLog.Log(StrSubstNo('Loaded codeunit %1. Total steps = %2.',
             CodeunitId, "Total steps"));
@@ -219,11 +219,11 @@ page 130415 "Semi-Manual Test Wizard"
 
     local procedure OnNextStep()
     begin
-        ClearLastError;
+        ClearLastError();
         SemiManualExecutionLog.Log(StrSubstNo('Manual step %1- %2 executed. Attempting to execute the automation post process.',
             "Step number", "Step heading"));
         if CODEUNIT.Run("Codeunit number", Rec) then begin
-            ManualSteps := GetManualSteps;
+            ManualSteps := GetManualSteps();
             if "Step number" > "Total steps" then begin
                 TestExecuting := false;
                 Message(TestSuccessfulMsg);

@@ -18,13 +18,13 @@ page 1297 "Transfer Difference to Account"
                     Editable = false;
                     ToolTip = 'Specifies the total amount (including VAT) that the journal line consists of.';
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account that the entry on the journal line will be posted to.';
                     ValuesAllowed = "G/L Account", Customer, Vendor, "Bank Account";
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the account number that the entry on the journal line will be posted to.';

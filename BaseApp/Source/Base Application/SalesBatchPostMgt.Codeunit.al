@@ -52,7 +52,7 @@ codeunit 1371 "Sales Batch Post Mgt."
         SalesBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
         Commit();
         if SalesBatchPostMgt.Run(SalesHeader) then;
-        BatchProcessingMgt.ResetBatchID;
+        BatchProcessingMgt.ResetBatchID();
         if GuiAllowed then begin
             BatchProcessingMgt.GetErrorMessages(TempErrorMessage);
 
@@ -78,10 +78,10 @@ codeunit 1371 "Sales Batch Post Mgt."
         SalesBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
         Commit();
         if SalesBatchPostMgt.Run(SalesHeader) then;
-        BatchProcessingMgt.ResetBatchID;
+        BatchProcessingMgt.ResetBatchID();
 
-        if ErrorMessageMgt.GetLastErrorID > 0 then
-            ErrorMessageHandler.ShowErrors;
+        if ErrorMessageMgt.GetLastErrorID() > 0 then
+            ErrorMessageHandler.ShowErrors();
     end;
 
     procedure GetBatchProcessor(var ResultBatchProcessingMgt: Codeunit "Batch Processing Mgt.")
@@ -164,7 +164,7 @@ codeunit 1371 "Sales Batch Post Mgt."
         if not CheckApprovalWorkflow(SalesHeader) then
             exit(false);
 
-        if not SalesHeader.IsApprovedForPostingBatch then
+        if not SalesHeader.IsApprovedForPostingBatch() then
             exit(false);
 
         Result := true;
@@ -230,7 +230,7 @@ codeunit 1371 "Sales Batch Post Mgt."
                     SkippedRecordExists := true;
                     if GetLastErrorText <> '' then begin
                         ErrorMessageManagement.LogError(SalesHeader.RecordId, GetLastErrorText, '');
-                        ClearLastError;
+                        ClearLastError();
                     end;
                 end;
             until SalesHeader.Next() = 0;

@@ -1110,7 +1110,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         Initialize();
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
 
         CreateVendor(Vendor);
         CreateItem(Item, LibraryRandom.RandDec(100, 2));
@@ -1120,14 +1120,14 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         Assert.IsTrue(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.Editable, FieldShouldBeEditableTxt);
 
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.");
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         PurchaseInvoice.OpenView;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         Assert.IsFalse(PurchaseInvoice.PurchLines."Invoice Disc. Pct.".Editable, FieldShouldNotBeEditableTxt);
         Assert.IsFalse(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.Editable, FieldShouldNotBeEditableTxt);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -1162,7 +1162,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseInvoice."Pay-to Name".SetValue(Vendor."No.");
 
         // [THEN] "Pay-to IC Partner Code" is changed to "ICP01" on "PI01"
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField("Pay-to IC Partner Code", Vendor."IC Partner Code");
     end;
 
@@ -1198,7 +1198,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseCreditMemo."Pay-to Name".SetValue(Vendor."No.");
 
         // [THEN] "Pay-to IC Partner Code" is changed to "ICP01" on "PC01"
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField("Pay-to IC Partner Code", Vendor."IC Partner Code");
     end;
 
@@ -1235,7 +1235,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseOrder."Pay-to Name".SetValue(Vendor."No.");
 
         // [THEN] "Pay-to IC Partner Code" is changed to "ICP01" on "PC01"
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField("Pay-to IC Partner Code", Vendor."IC Partner Code");
     end;
 
@@ -1272,7 +1272,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseQuote."Pay-to Name".SetValue(Vendor."No.");
 
         // [THEN] "Pay-to IC Partner Code" is changed to "ICP01" on "PC01"
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField("Pay-to IC Partner Code", Vendor."IC Partner Code");
     end;
 
@@ -1309,7 +1309,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         BlanketPurchaseOrder."Pay-to Name".SetValue(Vendor."No.");
 
         // [THEN] "Pay-to IC Partner Code" is changed to "ICP01" on "PC01"
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField("Pay-to IC Partner Code", Vendor."IC Partner Code");
     end;
 
@@ -1347,7 +1347,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseReturnOrder."Pay-to Name".SetValue(Vendor."No.");
 
         // [THEN] "Pay-to IC Partner Code" is changed to "ICP01" on "PC01"
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField("Pay-to IC Partner Code", Vendor."IC Partner Code");
     end;
 
@@ -1378,9 +1378,9 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.SetFilter("Starting Date", '<=%1', WorkDate);
+        CurrencyExchangeRate.SetFilter("Starting Date", '<=%1', WorkDate());
         if not CurrencyExchangeRate.FindFirst() then
-            LibrarySmallBusiness.CreateCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
+            LibrarySmallBusiness.CreateCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
     end;
 
     local procedure CheckInvoiceDiscountTypePercentage(DiscPct: Decimal; TotalAmountWithoutDiscount: Decimal; PurchaseInvoice: TestPage "Purchase Invoice"; VATApplied: Boolean; CurrencyCode: Code[10])
@@ -1514,7 +1514,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         Currency: Record Currency;
     begin
         Currency.Init();
-        Currency.SetFilter(Code, '<>%1', LibraryERM.GetLCYCode);
+        Currency.SetFilter(Code, '<>%1', LibraryERM.GetLCYCode());
         Currency.FindFirst();
         CheckExistOrAddCurrencyExchageRate(Currency.Code);
 
@@ -1565,13 +1565,13 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
     local procedure UpdateInvoiceLine(var PurchaseInvoice: TestPage "Purchase Invoice")
     begin
-        if PurchaseInvoice.PurchLines.Next then
+        if PurchaseInvoice.PurchLines.Next() then
             PurchaseInvoice.PurchLines.Previous();
     end;
 
     local procedure UpdateCreditMemoLine(var PurchaseCreditMemo: TestPage "Purchase Credit Memo")
     begin
-        if PurchaseCreditMemo.PurchLines.Next then
+        if PurchaseCreditMemo.PurchLines.Next() then
             PurchaseCreditMemo.PurchLines.Previous();
     end;
 

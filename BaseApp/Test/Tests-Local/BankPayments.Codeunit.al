@@ -187,9 +187,9 @@ codeunit 144002 "Bank Payments"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             "Country/Region Code" := CountryCode;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -198,9 +198,9 @@ codeunit 144002 "Bank Payments"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "LCY Code" := LCYCode;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -211,7 +211,7 @@ codeunit 144002 "Bank Payments"
         with CountryRegion do begin
             Get(CountryCode);
             "SEPA Allowed" := SepaAllowed;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -225,9 +225,9 @@ codeunit 144002 "Bank Payments"
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, StartingNo, EndingNo);
 
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             "Bank Batch Nos." := NoSeries.Code;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -302,12 +302,12 @@ codeunit 144002 "Bank Payments"
         FieldLength: Integer;
     begin
         with ReferenceFileSetup do begin
-            Init;
+            Init();
             "No." := BankAccountNo;
             Validate("Bank Party ID", LibraryUtility.GenerateRandomCode(FieldNo("Bank Party ID"), DATABASE::"Reference File Setup"));
             "File Name" :=
               CopyStr(GenerateFileName(FieldNo("File Name"), DATABASE::"Reference File Setup", 'xml', FieldLength), 1, FieldLength);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -342,7 +342,7 @@ codeunit 144002 "Bank Payments"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         with VendorBankAccount do begin
-            Init;
+            Init();
             "Vendor No." := VendorNo;
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Vendor Bank Account");
             Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Vendor Bank Account");
@@ -355,7 +355,7 @@ codeunit 144002 "Bank Payments"
             IBAN := IBANCode;
             "SEPA Payment" := SEPAPayment;
             "Clearing Code" := LibraryUtility.GenerateRandomCode(FieldNo("Clearing Code"), DATABASE::"Vendor Bank Account");
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;

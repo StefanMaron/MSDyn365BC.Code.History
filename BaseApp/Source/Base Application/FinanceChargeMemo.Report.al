@@ -83,7 +83,7 @@ report 118 "Finance Charge Memo"
                 column(ReferenceText; ReferenceText)
                 {
                 }
-                column(VatRNo_IssuFinChrgMemoHr; "Issued Fin. Charge Memo Header".GetCustomerVATRegistrationNumber)
+                column(VatRNo_IssuFinChrgMemoHr; "Issued Fin. Charge Memo Header".GetCustomerVATRegistrationNumber())
                 {
                 }
                 column(VATNoText; VATNoText)
@@ -104,7 +104,7 @@ report 118 "Finance Charge Memo"
                 column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
                 {
                 }
-                column(CompanyInfoVatRegNo; CompanyInfo.GetVATRegistrationNumber)
+                column(CompanyInfoVatRegNo; CompanyInfo.GetVATRegistrationNumber())
                 {
                 }
                 column(CompanyInfoHomePage; CompanyInfo."Home Page")
@@ -176,7 +176,7 @@ report 118 "Finance Charge Memo"
                 column(GiroNoCaption; GiroNoCaptionLbl)
                 {
                 }
-                column(VATRegNoCaption; "Issued Fin. Charge Memo Header".GetCustomerVATRegistrationNumberLbl)
+                column(VATRegNoCaption; "Issued Fin. Charge Memo Header".GetCustomerVATRegistrationNumberLbl())
                 {
                 }
                 column(PhoneNoCaption; PhoneNoCaptionLbl)
@@ -185,7 +185,7 @@ report 118 "Finance Charge Memo"
                 column(FinChgMemoCaption; FinChgMemoCaptionLbl)
                 {
                 }
-                column(CompanyVATRegistrationNoCaption; CompanyInfo.GetVATRegistrationNumberLbl)
+                column(CompanyVATRegistrationNoCaption; CompanyInfo.GetVATRegistrationNumberLbl())
                 {
                 }
                 column(CompanyInfoBusinessIdCode; CompanyInfo."Business Identity Code")
@@ -330,16 +330,16 @@ report 118 "Finance Charge Memo"
                     trigger OnAfterGetRecord()
                     begin
                         if not "Detailed Interest Rates Entry" then begin
-                            VATAmountLine.Init();
-                            VATAmountLine."VAT Identifier" := "VAT Identifier";
-                            VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
-                            VATAmountLine."Tax Group Code" := "Tax Group Code";
-                            VATAmountLine."VAT %" := "VAT %";
-                            VATAmountLine."VAT Base" := Amount;
-                            VATAmountLine."VAT Amount" := "VAT Amount";
-                            VATAmountLine."Amount Including VAT" := Amount + "VAT Amount";
-                            VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                            VATAmountLine.InsertLine;
+                            TempVATAmountLine.Init();
+                            TempVATAmountLine."VAT Identifier" := "VAT Identifier";
+                            TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
+                            TempVATAmountLine."Tax Group Code" := "Tax Group Code";
+                            TempVATAmountLine."VAT %" := "VAT %";
+                            TempVATAmountLine."VAT Base" := Amount;
+                            TempVATAmountLine."VAT Amount" := "VAT Amount";
+                            TempVATAmountLine."Amount Including VAT" := Amount + "VAT Amount";
+                            TempVATAmountLine."VAT Clause Code" := "VAT Clause Code";
+                            TempVATAmountLine.InsertLine();
 
                             TotalAmount += Amount;
                             TotalVatAmount += "VAT Amount";
@@ -367,7 +367,7 @@ report 118 "Finance Charge Memo"
                             until (Next(-1) = 0) or not Continue;
                         end;
 
-                        VATAmountLine.DeleteAll();
+                        TempVATAmountLine.DeleteAll();
                         SetFilter("Line No.", '<%1', EndLineNo);
                         if not ShowMIRLines then
                             SetRange("Detailed Interest Rates Entry", false);
@@ -411,7 +411,7 @@ report 118 "Finance Charge Memo"
                         AutoFormatExpression = "Issued Fin. Charge Memo Header"."Currency Code";
                         AutoFormatType = 1;
                     }
-                    column(VatAmtLineVAT; VATAmountLine."VAT %")
+                    column(VatAmtLineVAT; TempVATAmountLine."VAT %")
                     {
                     }
                     column(AmtInclVATCaption; AmtInclVATCaptionLbl)
@@ -426,14 +426,14 @@ report 118 "Finance Charge Memo"
 
                     trigger OnAfterGetRecord()
                     begin
-                        VATAmountLine.GetLine(Number);
-                        VALVATBase := VATAmountLine."Amount Including VAT" / (1 + VATAmountLine."VAT %" / 100);
-                        VALVATAmount := VATAmountLine."Amount Including VAT" - VALVATBase;
+                        TempVATAmountLine.GetLine(Number);
+                        VALVATBase := TempVATAmountLine."Amount Including VAT" / (1 + TempVATAmountLine."VAT %" / 100);
+                        VALVATAmount := TempVATAmountLine."Amount Including VAT" - VALVATBase;
                     end;
 
                     trigger OnPreDataItem()
                     begin
-                        SetRange(Number, 1, VATAmountLine.Count);
+                        SetRange(Number, 1, TempVATAmountLine.Count);
                         Clear(VALVATBase);
                         Clear(VALVATAmount);
                     end;
@@ -441,10 +441,10 @@ report 118 "Finance Charge Memo"
                 dataitem(VATClauseEntryCounter; "Integer")
                 {
                     DataItemTableView = SORTING(Number);
-                    column(VATClauseVATIdentifier; VATAmountLine."VAT Identifier")
+                    column(VATClauseVATIdentifier; TempVATAmountLine."VAT Identifier")
                     {
                     }
-                    column(VATClauseCode; VATAmountLine."VAT Clause Code")
+                    column(VATClauseCode; TempVATAmountLine."VAT Clause Code")
                     {
                     }
                     column(VATClauseDescription; VATClause.Description)
@@ -453,7 +453,7 @@ report 118 "Finance Charge Memo"
                     column(VATClauseDescription2; VATClause."Description 2")
                     {
                     }
-                    column(VATClauseAmount; VATAmountLine."VAT Amount")
+                    column(VATClauseAmount; TempVATAmountLine."VAT Amount")
                     {
                         AutoFormatExpression = "Issued Fin. Charge Memo Header"."Currency Code";
                         AutoFormatType = 1;
@@ -470,8 +470,8 @@ report 118 "Finance Charge Memo"
 
                     trigger OnAfterGetRecord()
                     begin
-                        VATAmountLine.GetLine(Number);
-                        if not VATClause.Get(VATAmountLine."VAT Clause Code") then
+                        TempVATAmountLine.GetLine(Number);
+                        if not VATClause.Get(TempVATAmountLine."VAT Clause Code") then
                             CurrReport.Skip();
                         VATClause.GetDescription("Issued Fin. Charge Memo Header");
                     end;
@@ -479,7 +479,7 @@ report 118 "Finance Charge Memo"
                     trigger OnPreDataItem()
                     begin
                         Clear(VATClause);
-                        SetRange(Number, 1, VATAmountLine.Count);
+                        SetRange(Number, 1, TempVATAmountLine.Count);
                     end;
                 }
                 dataitem(VATCounterLCY; "Integer")
@@ -499,7 +499,7 @@ report 118 "Finance Charge Memo"
                     {
                         AutoFormatType = 1;
                     }
-                    column(VatAmtLnVat1; VATAmountLine."VAT %")
+                    column(VatAmtLnVat1; TempVATAmountLine."VAT %")
                     {
                         DecimalPlaces = 0 : 5;
                     }
@@ -509,21 +509,21 @@ report 118 "Finance Charge Memo"
 
                     trigger OnAfterGetRecord()
                     begin
-                        VATAmountLine.GetLine(Number);
+                        TempVATAmountLine.GetLine(Number);
 
-                        VALVATBaseLCY := Round(VATAmountLine."Amount Including VAT" / (1 + VATAmountLine."VAT %" / 100) / CurrFactor);
-                        VALVATAmountLCY := Round(VATAmountLine."Amount Including VAT" / CurrFactor - VALVATBaseLCY);
+                        VALVATBaseLCY := Round(TempVATAmountLine."Amount Including VAT" / (1 + TempVATAmountLine."VAT %" / 100) / CurrFactor);
+                        VALVATAmountLCY := Round(TempVATAmountLine."Amount Including VAT" / CurrFactor - VALVATBaseLCY);
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         if (not GLSetup."Print VAT specification in LCY") or
                            ("Issued Fin. Charge Memo Header"."Currency Code" = '') or
-                           (VATAmountLine.GetTotalVATAmount = 0)
+                           (TempVATAmountLine.GetTotalVATAmount() = 0)
                         then
                             CurrReport.Break();
 
-                        SetRange(Number, 1, VATAmountLine.Count);
+                        SetRange(Number, 1, TempVATAmountLine.Count);
                         Clear(VALVATBaseLCY);
                         Clear(VALVATAmountLCY);
 
@@ -576,8 +576,8 @@ report 118 "Finance Charge Memo"
                     TotalText := StrSubstNo(Text000, "Currency Code");
                     TotalInclVATText := StrSubstNo(Text001, "Currency Code");
                 end;
-                if not IsReportInPreviewMode then
-                    IncrNoPrinted;
+                if not IsReportInPreviewMode() then
+                    IncrNoPrinted();
             end;
 
             trigger OnPreDataItem()
@@ -633,7 +633,7 @@ report 118 "Finance Charge Memo"
 
         trigger OnOpenPage()
         begin
-            InitLogInteraction;
+            InitLogInteraction();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -669,7 +669,7 @@ report 118 "Finance Charge Memo"
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Issued Fin. Charge Memo Header".FindSet() then
                 repeat
                     SegManagement.LogDocument(
@@ -682,13 +682,10 @@ report 118 "Finance Charge Memo"
     trigger OnPreReport()
     begin
         if not CurrReport.UseRequestPage then
-            InitLogInteraction;
+            InitLogInteraction();
     end;
 
     var
-        Text000: Label 'Total %1';
-        Text001: Label 'Total %1 Incl. VAT';
-        Text002: Label 'Page %1';
         PrimaryContact: Record Contact;
         Customer: Record Customer;
         GLSetup: Record "General Ledger Setup";
@@ -697,7 +694,7 @@ report 118 "Finance Charge Memo"
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";
-        VATAmountLine: Record "VAT Amount Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
         VATClause: Record "VAT Clause";
         DimSetEntry: Record "Dimension Set Entry";
         CurrExchRate: Record "Currency Exchange Rate";
@@ -719,20 +716,25 @@ report 118 "Finance Charge Memo"
         Continue: Boolean;
         DimText: Text[120];
         OldDimText: Text[75];
-        ShowInternalInfo: Boolean;
-        LogInteraction: Boolean;
         VALVATBaseLCY: Decimal;
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
         CurrFactor: Decimal;
-        Text007: Label 'VAT Amount Specification in ';
-        Text008: Label 'Local Currency';
-        Text009: Label 'Exchange rate: %1/%2';
         VALVATBase: Decimal;
         VALVATAmount: Decimal;
         [InDataSet]
         LogInteractionEnable: Boolean;
+        TotalAmount: Decimal;
+        TotalVatAmount: Decimal;
+        ShowMIRLines: Boolean;
+
+        Text000: Label 'Total %1';
+        Text001: Label 'Total %1 Incl. VAT';
+        Text002: Label 'Page %1';
+        Text007: Label 'VAT Amount Specification in ';
+        Text008: Label 'Local Currency';
+        Text009: Label 'Exchange rate: %1/%2';
         PostingDateCaptionLbl: Label 'Posting Date';
         FinChrgMemoNoCaptionLbl: Label 'Finance Charge Memo No.';
         BankAccNoCaptionLbl: Label 'Account No.';
@@ -758,17 +760,18 @@ report 118 "Finance Charge Memo"
         ContactPhoneNoLbl: Label 'Contact Phone No.';
         ContactMobilePhoneNoLbl: Label 'Contact Mobile Phone No.';
         ContactEmailLbl: Label 'Contact E-Mail';
-        TotalAmount: Decimal;
-        TotalVatAmount: Decimal;
-        ShowMIRLines: Boolean;
         CompanyInfoBusinessIdentityCodeLbl: Label 'Business Identity Code';
         CompanyInfoRegisteredHomeCityLbl: Label 'Registered Home City';
 
-    local procedure IsReportInPreviewMode(): Boolean
+    protected var
+        LogInteraction: Boolean;
+        ShowInternalInfo: Boolean;
+
+    protected procedure IsReportInPreviewMode(): Boolean
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     procedure InitLogInteraction()

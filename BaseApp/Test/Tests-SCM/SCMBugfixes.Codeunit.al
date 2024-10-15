@@ -18,6 +18,7 @@ codeunit 137045 "SCM Bugfixes"
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryMarketing: Codeunit "Library - Marketing";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -31,6 +32,7 @@ codeunit 137045 "SCM Bugfixes"
         ReservEntryNotDeletedErr: Label 'Requisition line is deleted. All reservation entries must be deleted as well.';
         WrongPurchLineQtyErr: Label 'Quantity in purchase line is incorrect after carrying performing action message.';
         WrongSKUUnitCostErr: Label 'Stockkeeping unit''s unit cost must be equal to item unit cost';
+        EmailNotAutomaticallySetErr: Label 'Expected BuyFromContactEmail to automatically be set to the email of the contact, but it wasnt.';
         UseInTransitLocationErr: Label 'You can use In-Transit location %1 for transfer orders only.';
 
     [Test]
@@ -159,6 +161,80 @@ codeunit 137045 "SCM Bugfixes"
     end;
 
     [Test]
+    [HandlerFunctions('ContactListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ContactEmailSyncs_PurchaseDocuments()
+    var
+        Contact: Record Contact;
+        Vendor: Record Vendor;
+        PurchaseOrder: TestPage "Purchase Order";
+        BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        PurchaseCrMemo: TestPage "Purchase Credit Memo";
+        PurchaseReturnOrder: TestPage "Purchase Return Order";
+    begin
+        // [GIVEN] A vendor with a contact who has an E-mail
+        LibraryMarketing.CreateContactWithVendor(Contact, Vendor);
+        Contact.Validate("E-Mail", 'test123@test.com');
+        Contact.Modify();
+
+        // [GIVEN] Purchase Order page with a new record
+        PurchaseOrder.OpenNew();
+        PurchaseOrder."Buy-from Vendor No.".SetValue(Vendor."No.");
+
+        // [WHEN] Contact is selectd via Lookup() of field "Contact"
+        LibraryVariableStorage.Enqueue(Contact."No.");
+        PurchaseOrder."Buy-from Contact".Lookup();
+
+        // [THEN] Contact E-mail is auto-filled
+        Assert.AreEqual(PurchaseOrder.BuyFromContactEmail.Value, Contact."E-Mail", EmailNotAutomaticallySetErr);
+
+        // [GIVEN] Blanket Purchase Order page with a new record
+        BlanketPurchaseOrder.OpenNew();
+        BlanketPurchaseOrder."Buy-from Vendor No.".SetValue(Vendor."No.");
+
+        // [WHEN] Contact is selectd via Lookup() of field "Contact"
+        LibraryVariableStorage.Enqueue(Contact."No.");
+        BlanketPurchaseOrder."Buy-from Contact".Lookup();
+
+        // [THEN] Contact E-mail is auto-filled
+        Assert.AreEqual(BlanketPurchaseOrder.BuyFromContactEmail.Value, Contact."E-Mail", EmailNotAutomaticallySetErr);
+
+        // [GIVEN] Blanket Purchase Order page with a new record
+        PurchaseInvoice.OpenNew();
+        PurchaseInvoice."Buy-from Vendor No.".SetValue(Vendor."No.");
+
+        // [WHEN] Contact is selectd via Lookup() of field "Contact"
+        LibraryVariableStorage.Enqueue(Contact."No.");
+        PurchaseInvoice."Buy-from Contact".Lookup();
+
+        // [THEN] Contact E-mail is auto-filled
+        Assert.AreEqual(PurchaseInvoice.BuyFromContactEmail.Value, Contact."E-Mail", EmailNotAutomaticallySetErr);
+
+        // [GIVEN] Blanket Purchase Order page with a new record
+        PurchaseCrMemo.OpenNew();
+        PurchaseCrMemo."Buy-from Vendor No.".SetValue(Vendor."No.");
+
+        // [WHEN] Contact is selectd via Lookup() of field "Contact"
+        LibraryVariableStorage.Enqueue(Contact."No.");
+        PurchaseCrMemo."Buy-from Contact".Lookup();
+
+        // [THEN] Contact E-mail is auto-filled
+        Assert.AreEqual(PurchaseCrMemo.BuyFromContactEmail.Value, Contact."E-Mail", EmailNotAutomaticallySetErr);
+
+        // [GIVEN] Blanket Purchase Order page with a new record
+        PurchaseReturnOrder.OpenNew();
+        PurchaseReturnOrder."Buy-from Vendor No.".SetValue(Vendor."No.");
+
+        // [WHEN] Contact is selectd via Lookup() of field "Contact"
+        LibraryVariableStorage.Enqueue(Contact."No.");
+        PurchaseReturnOrder."Buy-from Contact".Lookup();
+
+        // [THEN] Contact E-mail is auto-filled
+        Assert.AreEqual(PurchaseReturnOrder.BuyFromContactEmail.Value, Contact."E-Mail", EmailNotAutomaticallySetErr);
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure WorkFlowPurchaseOrder()
@@ -230,7 +306,7 @@ codeunit 137045 "SCM Bugfixes"
 
         // [GIVEN] Calculate regenerative plan in planning worksheet, the program suggests to change quantity in the purchase to 5.
         // [GIVEN] Assign lot no. on the planning line.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         FindRequsitionLine(ReqLine, Item."No.");
         ReqLine.OpenItemTrackingLines();
 
@@ -270,7 +346,7 @@ codeunit 137045 "SCM Bugfixes"
 
         // [GIVEN] Calculate regenerative plan in planning worksheet, the program suggests to change quantity in the purchase to 5.
         // [GIVEN] Do not assign item tracking.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         FindRequsitionLine(ReqLine, Item."No.");
 
         // [WHEN] Increase quantity on the planning line up to 50.
@@ -308,7 +384,7 @@ codeunit 137045 "SCM Bugfixes"
 
         // [GIVEN] Calculate regenerative plan in planning worksheet, the program suggests to change quantity in the purchase to 5.
         // [GIVEN] Assign lot no. on the planning line.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         FindRequsitionLine(ReqLine, Item."No.");
         ReqLine.OpenItemTrackingLines();
 
@@ -344,7 +420,7 @@ codeunit 137045 "SCM Bugfixes"
 
         // [GIVEN] Calculate regenerative plan in planning worksheet, the program suggests to change quantity in the purchase to 5.
         // [GIVEN] Do not assign item tracking.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         FindRequsitionLine(ReqLine, Item."No.");
 
         // [WHEN] Decrease quantity on the planning line to 1.
@@ -376,7 +452,6 @@ codeunit 137045 "SCM Bugfixes"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CarryOutActionMessageAfterQtyChange()
     var
@@ -388,7 +463,7 @@ codeunit 137045 "SCM Bugfixes"
         TempRequisitionLine := RequisitionLine;
 
         // Exercise: Carry out action message
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate(), WorkDate, WorkDate(), '');
 
         // Verify: Quantity in purchase line is updated correctly
         with TempRequisitionLine do
@@ -396,7 +471,6 @@ codeunit 137045 "SCM Bugfixes"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ActionMsgAfterReshedAndQtyChange()
     var
@@ -415,7 +489,7 @@ codeunit 137045 "SCM Bugfixes"
         TempRequisitionLine := RequisitionLine;
 
         // Exercise: Carry out action message
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, 0D, WorkDate(), WorkDate, WorkDate(), '');
 
         // Verify: Quantity in purchase line is updated correctly
         with TempRequisitionLine do
@@ -438,7 +512,7 @@ codeunit 137045 "SCM Bugfixes"
         CreateSalesOrder(SalesHeader, Item."No.", '', -LibraryRandom.RandDec(15, 2), SalesHeader."Document Type"::"Return Order");
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
         LibraryPlanning.CalcRegenPlanForPlanWkshPlanningParams(
-          Item, WorkDate, CalcDate(StrSubstNo('<%1m>', LibraryRandom.RandInt(3)), WorkDate), false);
+          Item, WorkDate(), CalcDate(StrSubstNo('<%1m>', LibraryRandom.RandInt(3)), WorkDate()), false);
 
         // Exercise : Open Planning work sheet and invoke Order Tracking page.
         OpenOrderTrackingFromPlanWorkSheet(Item."No.");
@@ -580,7 +654,7 @@ codeunit 137045 "SCM Bugfixes"
         // [GIVEN] Items "I2" and "I3" are replenished via production, "I1" is purchased
         // [GIVEN] Create production BOM structure, so that "I1" is a component of "I2", and "I2" is a component of "I3"
         // [GIVEN] Low-level component "I1" is included in a production BOM with the Starting Date = WORKDATE
-        CreateProdBOMStructureOfCriticalItems(Item, WorkDate, Item[1]."Replenishment System"::Purchase);
+        CreateProdBOMStructureOfCriticalItems(Item, WorkDate(), Item[1]."Replenishment System"::Purchase);
 
         // [GIVEN] Create a sales order with item "I3"
         CreateSalesOrder(SalesHeader, Item[3]."No.", '', LibraryRandom.RandInt(100), SalesHeader."Document Type"::Order);
@@ -611,7 +685,7 @@ codeunit 137045 "SCM Bugfixes"
         // [GIVEN] Items "I2" and "I3" are replenished via production, "I1" is purchased
         // [GIVEN] Create production BOM structure, so that "I1" is a component of "I2", and "I2" is a component of "I3"
         // [GIVEN] Low-level component "I1" is included in a production BOM with the Starting Date = WORKDATE + 1 week
-        CreateProdBOMStructureOfCriticalItems(Item, CalcDate('<1W>', WorkDate), Item[1]."Replenishment System"::Purchase);
+        CreateProdBOMStructureOfCriticalItems(Item, CalcDate('<1W>', WorkDate()), Item[1]."Replenishment System"::Purchase);
 
         // [GIVEN] Create a sales order with item "I3"
         CreateSalesOrder(SalesHeader, Item[3]."No.", '', LibraryRandom.RandInt(100), SalesHeader."Document Type"::Order);
@@ -638,7 +712,7 @@ codeunit 137045 "SCM Bugfixes"
         Initialize();
 
         // [GIVEN] BOM structure of three production items "I1", "I2" and "I3" is created, so that "I1" is a component of "I2", and "I2" is a component of "I3".
-        CreateProdBOMStructureOfCriticalItems(Item, WorkDate, Item[1]."Replenishment System"::"Prod. Order");
+        CreateProdBOMStructureOfCriticalItems(Item, WorkDate(), Item[1]."Replenishment System"::"Prod. Order");
 
         // [GIVEN] Create a sales order with item "I3"
         CreateSalesOrder(SalesHeader, Item[3]."No.", '', LibraryRandom.RandInt(100), SalesHeader."Document Type"::Order);
@@ -779,7 +853,7 @@ codeunit 137045 "SCM Bugfixes"
         LibraryPlanning.CreateRequisitionWkshName(ReqWkshName, ReqWkshTemplate.Name);
 
         DateRec.SetRange("Period Type", DateRec."Period Type"::Year);
-        DateRec.SetFilter("Period Start", '<=%1', WorkDate);
+        DateRec.SetFilter("Period Start", '<=%1', WorkDate());
         DateRec.FindLast();
         LibraryPlanning.CalculatePlanForReqWksh(
           Item, ReqWkshTemplate.Name, ReqWkshName.Name, DateRec."Period Start", NormalDate(DateRec."Period End"));
@@ -1002,7 +1076,7 @@ codeunit 137045 "SCM Bugfixes"
         PurchLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchHeader, PurchLine, PurchHeader."Document Type"::Order, '', ItemNo, Quantity, '', WorkDate);
+          PurchHeader, PurchLine, PurchHeader."Document Type"::Order, '', ItemNo, Quantity, '', WorkDate());
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; DocumentType: Enum "Sales Document Type")
@@ -1010,7 +1084,7 @@ codeunit 137045 "SCM Bugfixes"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, DocumentType, '', ItemNo, Quantity, LocationCode, WorkDate);
+          SalesHeader, SalesLine, DocumentType, '', ItemNo, Quantity, LocationCode, WorkDate());
     end;
 
     local procedure AcceptCapableToPromise(var RequisitionLine: Record "Requisition Line"; SalesHeader: Record "Sales Header")
@@ -1027,7 +1101,7 @@ codeunit 137045 "SCM Bugfixes"
         repeat
             RequisitionLine.Validate("Accept Action Message", true);
             RequisitionLine.Modify(true);
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
     end;
 
     local procedure CreateShippingAgentServices(var ShippingAgent: Record "Shipping Agent"; var ShippingAgentServicesCode: array[3] of Code[10])
@@ -1075,7 +1149,7 @@ codeunit 137045 "SCM Bugfixes"
         repeat
             RequisitionLine.Validate("Accept Action Message", true);
             RequisitionLine.Modify(true);
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
     end;
 
     local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; FromDocType: Enum "Sales Document Type From"; DocumentNo: Code[20])
@@ -1222,6 +1296,17 @@ codeunit 137045 "SCM Bugfixes"
             CalcSums(Quantity);
             TestField(Quantity, TrackedQuantity);
         end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ContactListModalPageHandler(var ContactLookup: Page "Contact List"; var Response: Action)
+    var
+        Contact: Record Contact;
+    begin
+        Contact.Get(LibraryVariableStorage.DequeueText);
+        ContactLookup.SetRecord(Contact);
+        Response := ACTION::LookupOK;
     end;
 
     [ConfirmHandler]

@@ -418,7 +418,7 @@ page 5380 "CRM Sales Order"
                             PAGE.RunModal(PAGE::"Sales Order", SalesHeader)
                         else
                             Message(GetLastErrorText);
-                        RecalculateRecordCouplingStatus;
+                        RecalculateRecordCouplingStatus();
                     end;
                 }
                 action(CreateInNAV)
@@ -427,8 +427,6 @@ page 5380 "CRM Sales Order"
                     Caption = 'Create in Business Central';
                     Enabled = CRMIntegrationEnabled and (not CRMIsCoupledToRecord);
                     Image = New;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create a sales order in Dynamics 365 that is coupled to the Dynamics 365 Sales entity.';
 
                     trigger OnAction()
@@ -443,8 +441,19 @@ page 5380 "CRM Sales Order"
                               CRMCouplingManagement.IsRecordCoupledToNAV(SalesOrderId, DATABASE::"Sales Header") and CRMIntegrationEnabled;
                             PAGE.RunModal(PAGE::"Sales Order", SalesHeader);
                         end;
-                        RecalculateRecordCouplingStatus;
+                        RecalculateRecordCouplingStatus();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CreateInNAV_Promoted; CreateInNAV)
+                {
                 }
             }
         }
@@ -452,7 +461,7 @@ page 5380 "CRM Sales Order"
 
     trigger OnAfterGetCurrRecord()
     begin
-        RecalculateRecordCouplingStatus;
+        RecalculateRecordCouplingStatus();
     end;
 
     trigger OnOpenPage()

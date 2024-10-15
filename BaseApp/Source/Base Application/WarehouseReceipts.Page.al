@@ -16,51 +16,51 @@ page 7332 "Warehouse Receipts"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location in which the items are being received.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Sorting Method"; "Sorting Method")
+                field("Sorting Method"; Rec."Sorting Method")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the method by which the receipts are sorted.';
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the zone in which the items are being received if you are using directed put-away and pick.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                     Visible = false;
                 }
-                field("Document Status"; "Document Status")
+                field("Document Status"; Rec."Document Status")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the status of the warehouse receipt.';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the posting date of the warehouse receipt.';
                     Visible = false;
                 }
-                field("Assignment Date"; "Assignment Date")
+                field("Assignment Date"; Rec."Assignment Date")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the user was assigned the activity.';
@@ -148,7 +148,7 @@ page 7332 "Warehouse Receipts"
     var
         WMSManagement: Codeunit "WMS Management";
     begin
-        ErrorIfUserIsNotWhseEmployee;
+        ErrorIfUserIsNotWhseEmployee();
         FilterGroup(2); // set group of filters user cannot change
         SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId));
         FilterGroup(0); // set filter group back to standard

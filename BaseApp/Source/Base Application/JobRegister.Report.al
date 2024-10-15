@@ -13,7 +13,7 @@ report 1015 "Job Register"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -148,7 +148,7 @@ report 1015 "Job Register"
 
     trigger OnPreReport()
     begin
-        JobRegFilter := "Job Register".GetFilters;
+        JobRegFilter := "Job Register".GetFilters();
     end;
 
     var

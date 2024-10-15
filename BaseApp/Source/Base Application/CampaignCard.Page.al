@@ -3,7 +3,6 @@ page 5086 "Campaign Card"
     Caption = 'Campaign Card';
     PageType = Card;
     PopulateAllFields = true;
-    PromotedActionCategories = 'New,Process,Report,Campaign,Navigate,Prices & Discounts';
     SourceTable = Campaign;
 
     layout
@@ -13,7 +12,7 @@ page 5086 "Campaign Card"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -29,27 +28,27 @@ page 5086 "Campaign Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the campaign.';
                 }
-                field("Status Code"; "Status Code")
+                field("Status Code"; Rec."Status Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the status code for the campaign.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the date on which the campaign is valid. There are certain rules for how dates should be entered.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the last day on which this campaign is valid.';
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code of the salesperson responsible for the campaign.';
                 }
-                field("Last Date Modified"; "Last Date Modified")
+                field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the date when the campaign card was last modified. This field is not editable.';
@@ -63,12 +62,12 @@ page 5086 "Campaign Card"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
@@ -114,8 +113,6 @@ page 5086 "Campaign Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Rlshp. Mgt. Comment Sheet";
                     RunPageLink = "Table Name" = CONST(Campaign),
                                   "No." = FIELD("No."),
@@ -127,9 +124,6 @@ page 5086 "Campaign Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Campaign Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -140,9 +134,6 @@ page 5086 "Campaign Card"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = CONST(5071),
                                   "No." = FIELD("No.");
@@ -165,9 +156,6 @@ page 5086 "Campaign Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'S&egments';
                     Image = Segment;
-                    Promoted = true;
-                    PromotedCategory = Category5;
-                    PromotedIsBig = true;
                     RunObject = Page "Segment List";
                     RunPageLink = "Campaign No." = FIELD("No.");
                     RunPageView = SORTING("Campaign No.");
@@ -178,21 +166,17 @@ page 5086 "Campaign Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Oppo&rtunities';
                     Image = OpportunitiesList;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Opportunity List";
                     RunPageLink = "Campaign No." = FIELD("No.");
                     RunPageView = SORTING("Campaign No.");
                     ToolTip = 'View opportunities for the campaign.';
                 }
-#if not CLEAN19
+#if not CLEAN21
                 action("Sales &Prices")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Sales &Prices';
                     Image = SalesPrices;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Define how to set up sales price agreements. These sales prices can be for individual customers, for a group of customers, for all customers, or for a campaign.';
                     ObsoleteState = Pending;
@@ -214,8 +198,6 @@ page 5086 "Campaign Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Sales &Line Discounts';
                     Image = SalesLineDisc;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
                     ObsoleteState = Pending;
@@ -238,8 +220,6 @@ page 5086 "Campaign Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Price Lists';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
@@ -256,8 +236,6 @@ page 5086 "Campaign Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up sales price lines for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
@@ -276,8 +254,6 @@ page 5086 "Campaign Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Discounts';
                     Image = LineDiscount;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
 
@@ -290,14 +266,12 @@ page 5086 "Campaign Card"
                         PriceUXManagement.ShowPriceListLines(PriceSource, "Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN18
+#if not CLEAN21
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Price Lists (Discounts)';
                     Image = LineDiscount;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     Visible = false;
                     ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
                     ObsoleteState = Pending;
@@ -327,8 +301,6 @@ page 5086 "Campaign Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = '&Activate Sales Prices/Line Discounts';
                     Image = ActivateDiscounts;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ToolTip = 'Activate discounts that are associated with the campaign.';
 
                     trigger OnAction()
@@ -341,8 +313,6 @@ page 5086 "Campaign Card"
                     ApplicationArea = RelationshipMgmt;
                     Caption = '&Deactivate Sales Prices/Line Discounts';
                     Image = DeactivateDiscounts;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ToolTip = 'Deactivate discounts that are associated with the campaign.';
 
                     trigger OnAction()
@@ -361,6 +331,80 @@ page 5086 "Campaign Card"
                 Image = "Report";
                 RunObject = Report "Campaign - Details";
                 ToolTip = 'Show detailed information about the campaign.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Campaign', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("S&egments_Promoted"; "S&egments")
+                {
+                }
+                actionref("Oppo&rtunities_Promoted"; "Oppo&rtunities")
+                {
+                }
+#if not CLEAN21
+                actionref(PriceListsDiscounts_Promoted; PriceListsDiscounts)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action PriceLists shows all sales price lists with prices and discounts';
+                    ObsoleteTag = '18.0';
+                }
+#endif
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(ActivateSalesPricesLineDisc_Promoted; ActivateSalesPricesLineDisc)
+                {
+                }
+                actionref("&Deactivate Sales Prices/Line Discounts_Promoted"; "&Deactivate Sales Prices/Line Discounts")
+                {
+                }
+#if not CLEAN21
+                actionref("Sales &Prices_Promoted"; "Sales &Prices")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+                actionref("Sales &Line Discounts_Promoted"; "Sales &Line Discounts")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
+                actionref(PriceLists_Promoted; PriceLists)
+                {
+                }
+                actionref(PriceLines_Promoted; PriceLines)
+                {
+                }
+                actionref(DiscountLines_Promoted; DiscountLines)
+                {
+                }
             }
         }
     }

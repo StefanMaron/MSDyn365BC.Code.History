@@ -244,7 +244,7 @@ codeunit 144006 "UT COD Bank Nos Check"
         // Exercise
         NewRefNo := BankNosCheck.CreateSalesInvReference(PostingNo, BillToCustomer);
         // Verify, ignore checkdigit in end
-        ExpectedRefNo := Format(WorkDate, 0, '<day,2><Month,2><year,2>') + '10101010';
+        ExpectedRefNo := Format(WorkDate(), 0, '<day,2><Month,2><year,2>') + '10101010';
         Assert.IsTrue(StrPos(NewRefNo, ExpectedRefNo) > 0, 'Missing Date in RefNo');
 
         // Setup for Default Number in RefNo string
@@ -254,7 +254,7 @@ codeunit 144006 "UT COD Bank Nos Check"
         // Exercise
         NewRefNo := BankNosCheck.CreateSalesInvReference(PostingNo, BillToCustomer);
         // Verify, ignore checkdigit in end
-        ExpectedRefNo := '9' + Format(WorkDate, 0, '<day,2><Month,2><year,2>') + '10101010';
+        ExpectedRefNo := '9' + Format(WorkDate(), 0, '<day,2><Month,2><year,2>') + '10101010';
         Assert.IsTrue(StrPos(NewRefNo, ExpectedRefNo) > 0, 'Missing Default Number in RefNo');
 
         // Setup for Default Number in RefNo string

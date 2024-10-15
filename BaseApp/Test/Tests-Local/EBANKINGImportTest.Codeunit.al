@@ -91,7 +91,7 @@ codeunit 144022 "E-BANKING Import Test"
         ValidateAndGetGenJournalLine(GenJournalLine, 2000, GenJournalBatch.Name, GenJournalTemplate.Name, PostingNo, ReferenceNo);
 
         // Exercise - Import the second file
-        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Validate("Bal. Account No.", BankAccount."No.");
         GenJournalLine.Validate(Amount, -10);
         GenJournalLine.Modify(true);
@@ -176,7 +176,7 @@ codeunit 144022 "E-BANKING Import Test"
         RefPaymentImported.FindFirst();
         Assert.AreEqual(1500.6, RefPaymentImported.Amount, 'Expected amount on first line does not match');
 
-        RefPaymentImported.Next;
+        RefPaymentImported.Next();
         Assert.AreEqual(2000, RefPaymentImported.Amount, 'Expected amount on second line does not match');
 
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
@@ -322,7 +322,7 @@ codeunit 144022 "E-BANKING Import Test"
         FileWriter.Write('31590300012447705112205112111215  LM 06573700000008710101064321KESKO OYJ   1A00000240060A0');
         FileWriter.Write('31590300012447705112205112111215  LM 06573800000008710101064334KESKO OYJ   1A00000240060A0');
         FileWriter.Write('900000400000096024000000000000000000000000000000000000000000000000000000000000000000000000');
-        FileWriter.Close;
+        FileWriter.Close();
 
         exit(TmpFile);
     end;
@@ -338,7 +338,7 @@ codeunit 144022 "E-BANKING Import Test"
         FileWriter.Write('006082323592 08948590810654467340000000000000000000000000000000000000000000000000000000000');
         FileWriter.Write('30000000145567806082306082308232588NGP4073800000000000001030229TESTIAS1    1J00001500600A0');
         FileWriter.Write('30000000145567806082306082309232588NGP4073800000000000001030229TESTIAS1    1J00002000000A0');
-        FileWriter.Close;
+        FileWriter.Close();
 
         exit(TmpFile);
     end;
@@ -358,7 +358,7 @@ codeunit 144022 "E-BANKING Import Test"
         else
             FileWriter.Write('30000000145567806082306082309232588NGP407380000000000000' + ReferenceNo + 'TESTIAS1    1J00001500600A0');
 
-        FileWriter.Close;
+        FileWriter.Close();
 
         exit(TmpFile);
     end;
@@ -375,7 +375,7 @@ codeunit 144022 "E-BANKING Import Test"
         FileWriter.Write('006082323592 08948590810654467340000000000000000000000000000000000000000000000000000000000');
         FileWriter.Write('30000000145567806082306082308232588NGP407380000000000000' + ReferenceNo + 'TESTIAS1    1J00002000000A0');
 
-        FileWriter.Close;
+        FileWriter.Close();
 
         exit(TmpFile);
     end;
@@ -498,7 +498,7 @@ codeunit 144022 "E-BANKING Import Test"
               'Applies-to Doc. Type does not match');
             LibraryVariableStorage2.Dequeue(InvoiceNo);
             Assert.AreEqual(InvoiceNo, GenJournalLine."Applies-to Doc. No.", 'Applies-to Doc. No. does not match');
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
         LibraryVariableStorage2.AssertEmpty;
     end;
 

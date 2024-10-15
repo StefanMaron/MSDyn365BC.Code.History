@@ -66,7 +66,7 @@ codeunit 131000 "Library - Utility"
     begin
         Field.SetRange(TableNo, TableNo);
         Field.SetRange(FieldName, FieldName);
-        exit(Field.FindFirst);
+        exit(Field.FindFirst())
     end;
 
     procedure CheckFileNotEmpty(FileName: Text): Boolean
@@ -176,7 +176,7 @@ codeunit 131000 "Library - Utility"
         AllObj.Get(AllObj."Object Type"::Page, ObjectNo);
         AppObjectMetadata.Get(AllObj."App Runtime Package ID", AppObjectMetadata."Object Type"::Page, ObjectNo);
         AppObjectMetadata.CalcFields(Metadata);
-        if AppObjectMetadata.Metadata.HasValue then
+        if AppObjectMetadata.Metadata.HasValue() then
             AppObjectMetadata.Metadata.CreateInStream(MetaDataInstream);
 
         while not MetaDataInstream.EOS do begin
@@ -322,7 +322,7 @@ codeunit 131000 "Library - Utility"
     begin
         NoSeries.Get(NoSeriesCode);
         NoSeries.TestField("Date Order", false); // Use of Date Order is only tested on IT
-        exit(WorkDate);
+        exit(WorkDate());
     end;
 
     procedure GetNextNoSeriesPurchaseDate(NoSeriesCode: Code[20]): Date
@@ -331,7 +331,7 @@ codeunit 131000 "Library - Utility"
     begin
         NoSeries.Get(NoSeriesCode);
         NoSeries.TestField("Date Order", false); // Use of Date Order is only tested on IT
-        exit(WorkDate);
+        exit(WorkDate());
     end;
 
     local procedure GetPropertyValue(ObjectType: Option; ObjectNo: Integer; FieldNo: Integer; PropertyName: Text[30]; SuppressError: Boolean): Text[30]
@@ -345,7 +345,7 @@ codeunit 131000 "Library - Utility"
         AllObj.Get(ObjectType, ObjectNo);
         AppObjectMetadata.Get(AllObj."App Runtime Package ID", ObjectType, ObjectNo);
         AppObjectMetadata.CalcFields(Metadata);
-        if AppObjectMetadata.Metadata.HasValue then
+        if AppObjectMetadata.Metadata.HasValue() then
             AppObjectMetadata.Metadata.CreateInStream(MetaDataInstream);
 
         while not MetaDataInstream.EOS do begin
@@ -404,7 +404,7 @@ codeunit 131000 "Library - Utility"
                 FieldRef.SetRange(CopyStr(GenerateGUID, 10 - FieldRef.Length + 1)) // Cut characters on the left side.
             else
                 FieldRef.SetRange(GenerateGUID);
-        until RecRef.IsEmpty;
+        until RecRef.IsEmpty();
 
         exit(FieldRef.GetFilter)
     end;
@@ -422,7 +422,7 @@ codeunit 131000 "Library - Utility"
         repeat
             NewCode := CopyStr(GenerateRandomXMLText(CodeLength), 1, MaxStrLen(NewCode));
             FieldRef.SetRange(NewCode);
-        until RecRef.IsEmpty;
+        until RecRef.IsEmpty();
 
         exit(NewCode);
     end;
@@ -438,7 +438,7 @@ codeunit 131000 "Library - Utility"
         FieldRef := RecRef.Field(FieldNo);
         repeat
             FieldRef.SetRange(PadStr(GenerateGUID, FieldRef.Length, '0'));
-        until RecRef.IsEmpty;
+        until RecRef.IsEmpty();
 
         exit(FieldRef.GetFilter);
     end;
@@ -585,7 +585,7 @@ codeunit 131000 "Library - Utility"
             CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
         end;
 
-        exit(NoSeriesMgt.GetNextNo(NoSeries.Code, WorkDate, true));
+        exit(NoSeriesMgt.GetNextNo(NoSeries.Code, WorkDate(), true));
     end;
 
     procedure GetEmptyGuid(): Guid
@@ -688,7 +688,7 @@ codeunit 131000 "Library - Utility"
         NoSeriesCode: Code[20];
     begin
         RecRef.Open(TableID);
-        RecRef.Find;
+        RecRef.Find();
         FieldRef := RecRef.Field(FieldID);
         NoSeriesCode := GetGlobalNoSeriesCode;
         if Format(FieldRef.Value) <> NoSeriesCode then begin

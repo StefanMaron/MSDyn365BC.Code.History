@@ -50,7 +50,7 @@ report 5689 "Create FA Depreciation Books"
 
                         trigger OnValidate()
                         begin
-                            CheckFADeprBook;
+                            CheckFADeprBook();
                         end;
                     }
                     field(CopyFromFANo; FANo)
@@ -62,7 +62,7 @@ report 5689 "Create FA Depreciation Books"
 
                         trigger OnValidate()
                         begin
-                            CheckFADeprBook;
+                            CheckFADeprBook();
                         end;
                     }
                 }
@@ -97,8 +97,6 @@ report 5689 "Create FA Depreciation Books"
     end;
 
     var
-        Text000: Label 'Creating fixed asset book     #1##########\';
-        Text001: Label 'Not creating fixed asset book #2##########';
         FASetup: Record "FA Setup";
         DeprBook: Record "Depreciation Book";
         FADeprBook: Record "FA Depreciation Book";
@@ -106,6 +104,9 @@ report 5689 "Create FA Depreciation Books"
         Window: Dialog;
         DeprBookCode: Code[10];
         FANo: Code[20];
+
+        Text000: Label 'Creating fixed asset book     #1##########\';
+        Text001: Label 'Not creating fixed asset book #2##########';
 
     local procedure CheckFADeprBook()
     var

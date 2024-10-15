@@ -249,14 +249,13 @@ codeunit 1501 "Workflow Management"
         WorkflowStepInstance.SetRange("Function Name", FunctionName);
         WorkflowStepInstance.SetRange(Type, WorkflowStepInstance.Type::"Event");
         WorkflowStepInstance.SetFilter(Status, '%1|%2', WorkflowStepInstance.Status::Active, WorkflowStepInstance.Status::Processing);
-        if WorkflowStepInstance.FindSet() then begin
+        if WorkflowStepInstance.FindSet() then
             repeat
                 WorkflowStepInstance.FindWorkflowRules(WorkflowRule);
                 if WorkflowStepInstance.MatchesRecordValues(RecRef) then
                     if EvaluateCondition(RecRef, xRecRef, WorkflowStepInstance.Argument, WorkflowRule) then
                         exit(true);
             until WorkflowStepInstance.Next() = 0;
-        end;
         exit(false);
     end;
 
@@ -266,7 +265,7 @@ codeunit 1501 "Workflow Management"
         TempBlob: Codeunit "Temp Blob";
         Result: Boolean;
     begin
-        if WorkflowStepArgument.Get(ArgumentID) and WorkflowStepArgument."Event Conditions".HasValue then begin
+        if WorkflowStepArgument.Get(ArgumentID) and WorkflowStepArgument."Event Conditions".HasValue() then begin
             TempBlob.FromRecord(WorkflowStepArgument, WorkflowStepArgument.FieldNo("Event Conditions"));
             Result := EvaluateConditionOnTable(RecRef.RecordId, RecRef.Number, TempBlob) and
               EvaluateConditionsOnRelatedTables(RecRef, TempBlob);
@@ -295,7 +294,7 @@ codeunit 1501 "Workflow Management"
 
         LookupRecRef.SetView(RecRef.GetView(false));
 
-        exit(LookupRecRef.Find);
+        exit(LookupRecRef.Find());
     end;
 
     local procedure EvaluateRules(RecRef: RecordRef; xRecRef: RecordRef; var WorkflowRule: Record "Workflow Rule") Result: Boolean
@@ -375,7 +374,7 @@ codeunit 1501 "Workflow Management"
         WorkflowTableRelation.SetRange("Table ID", RecRef.Number);
 
         if WorkflowTableRelation.FindSet() then begin
-            List := List.ArrayList;
+            List := List.ArrayList();
             repeat
                 if not List.Contains(WorkflowTableRelation."Related Table ID") then begin
                     List.Add(WorkflowTableRelation."Related Table ID");
@@ -385,7 +384,7 @@ codeunit 1501 "Workflow Management"
                         if RecRefRelated.IsEmpty() then
                             exit(false);
                     end;
-                    RecRefRelated.Close;
+                    RecRefRelated.Close();
                 end;
             until WorkflowTableRelation.Next() = 0;
         end;
@@ -415,7 +414,7 @@ codeunit 1501 "Workflow Management"
         ResponseWorkflowStepInstance.SetRange(ID, PreviousWorkflowStepInstance.ID);
         ResponseWorkflowStepInstance.SetRange(Type, ResponseWorkflowStepInstance.Type::Response);
         ResponseWorkflowStepInstance.SetRange("Previous Workflow Step ID", PreviousWorkflowStepInstance."Workflow Step ID");
-        exit(ResponseWorkflowStepInstance.FindFirst);
+        exit(ResponseWorkflowStepInstance.FindFirst());
     end;
 
     procedure FindEventWorkflowStepInstance(var WorkflowStepInstance: Record "Workflow Step Instance"; FunctionName: Code[128]; Variant: Variant; xVariant: Variant): Boolean
@@ -560,7 +559,7 @@ codeunit 1501 "Workflow Management"
             Clear(ResponseWorkflowStepInstance);
         end;
 
-        ExecuteQueuedEvents;
+        ExecuteQueuedEvents();
 
         if IsWorkflowCompleted(ActionableWorkflowStepInstance) then
             ArchiveWorkflowInstance(ActionableWorkflowStepInstance);
@@ -597,7 +596,7 @@ codeunit 1501 "Workflow Management"
         RecRef.GetTable(Variant);
 
         WorkflowEventQueue.Init();
-        WorkflowEventQueue."Session ID" := SessionId;
+        WorkflowEventQueue."Session ID" := SessionId();
         WorkflowEventQueue."Step Record ID" := WorkflowStepInstance.RecordId;
         WorkflowEventQueue."Record ID" := RecRef.RecordId;
         WorkflowEventQueue."Record Index" := WorkflowRecordManagement.BackupRecord(Variant);
@@ -615,7 +614,7 @@ codeunit 1501 "Workflow Management"
         Variant: Variant;
         xVariant: Variant;
     begin
-        WorkflowEventQueue.SetRange("Session ID", SessionId);
+        WorkflowEventQueue.SetRange("Session ID", SessionId());
         if WorkflowEventQueue.FindSet() then
             repeat
                 WorkflowStepInstance.Get(WorkflowEventQueue."Step Record ID");
@@ -649,7 +648,7 @@ codeunit 1501 "Workflow Management"
                     ChangeStatusForResponsesAndEvents(MarkWorkflowStepInstance);
                 end else begin
                     // check if queued event
-                    WorkflowEventQueue.SetRange("Session ID", SessionId);
+                    WorkflowEventQueue.SetRange("Session ID", SessionId());
                     WorkflowEventQueue.SetRange("Step Record ID", MarkWorkflowStepInstance."Record ID");
                     if WorkflowEventQueue.IsEmpty() then begin
                         MarkWorkflowStepInstance.Status := MarkWorkflowStepInstance.Status::Active;
@@ -701,8 +700,8 @@ codeunit 1501 "Workflow Management"
         WorkflowDefinition.SetRange(Template, false);
         WorkflowDefinition.SetRange(Type, WorkflowDefinition.Type::"Event");
         WorkflowDefinition.SetFilter(Function_Name, EventFilter);
-        WorkflowDefinition.Open;
-        exit(WorkflowDefinition.Read);
+        WorkflowDefinition.Open();
+        exit(WorkflowDefinition.Read());
     end;
 
     procedure NavigateToWorkflows(TableNo: Integer; EventFilter: Text)
@@ -721,9 +720,9 @@ codeunit 1501 "Workflow Management"
         WorkflowDefinition.SetRange(Template, false);
         WorkflowDefinition.SetRange(Type, WorkflowDefinition.Type::"Event");
         WorkflowDefinition.SetFilter(Function_Name, EventFilter);
-        WorkflowDefinition.Open;
+        WorkflowDefinition.Open();
 
-        while WorkflowDefinition.Read do begin
+        while WorkflowDefinition.Read() do begin
             Workflow.Get(WorkflowDefinition.Code);
             BuildFilter(WorkflowFilter, Workflow.Code);
             BuildFilter(CategoryFilter, Workflow.Category);
@@ -767,8 +766,8 @@ codeunit 1501 "Workflow Management"
     var
         RuleAsText: Text;
     begin
-        Condition := CopyStr(WorkflowStep.GetConditionAsDisplayText, 1, MaxStrLen(Condition));
-        RuleAsText := WorkflowStep.GetRuleAsDisplayText;
+        Condition := CopyStr(WorkflowStep.GetConditionAsDisplayText(), 1, MaxStrLen(Condition));
+        RuleAsText := WorkflowStep.GetRuleAsDisplayText();
         if RuleAsText <> '' then
             if Condition = '' then
                 Condition := CopyStr(RuleAsText, 1, MaxStrLen(Condition))

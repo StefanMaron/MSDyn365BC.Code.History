@@ -6,14 +6,16 @@ codeunit 5334 "CRM Setup Defaults"
     end;
 
     var
+        CRMProductName: Codeunit "CRM Product Name";
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+
         IntegrationTablePrefixTok: Label 'Dataverse', Comment = 'Product name', Locked = true;
         CustomStatisticsSynchJobDescTxt: Label 'Customer Statistics - %1 synchronization job', Comment = '%1 = CRM product name';
         ItemAvailabilitySynchJobDescTxt: Label 'Item Availability - %1 synchronization job', Comment = '%1 = CRM product name';
         CustomSalesOrderSynchJobDescTxt: Label 'Sales Order Status - %1 synchronization job', Comment = '%1 = CRM product name';
         CustomSalesOrderNotesSynchJobDescTxt: Label 'Sales Order Notes - %1 synchronization job', Comment = '%1 = CRM product name';
-        CRMProductName: Codeunit "CRM Product Name";
-        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        ArchivedSalesOrdersSynchJobDescTxt: Label 'Archived Sales Orders - %1 synchronization job', Comment = '%1 = CRM product name';
         AutoCreateSalesOrdersTxt: Label 'Automatically create sales orders from sales orders that are submitted in %1.', Comment = '%1 = CRM product name';
         AutoProcessQuotesTxt: Label 'Automatically process sales quotes from sales quotes that are activated in %1.', Comment = '%1 = CRM product name';
         OrTok: Label '%1|%2', Locked = true, Comment = '%1 and %2 - some filters';
@@ -33,7 +35,7 @@ codeunit 5334 "CRM Setup Defaults"
         if IsHandled then
             exit;
 
-        EnqueueJobQueEntries := CRMConnectionSetup.DoReadCRMData;
+        EnqueueJobQueEntries := CRMConnectionSetup.DoReadCRMData();
         IsTeamOwnershipModel := CDSIntegrationMgt.IsTeamOwnershipModelSelected();
 
         if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then begin
@@ -47,7 +49,7 @@ codeunit 5334 "CRM Setup Defaults"
         if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then begin
             ResetPriceListHeaderPricelevelMapping('PLHEADER-PRICE', EnqueueJobQueEntries);
             ResetPriceListLineProductPricelevelMapping('PLLINE-PRODPRICE', EnqueueJobQueEntries);
-#if not CLEAN19
+#if not CLEAN21
         end else begin
             ResetCustomerPriceGroupPricelevelMapping('CUSTPRCGRP-PRICE', EnqueueJobQueEntries);
             ResetSalesPriceProductPricelevelMapping('SALESPRC-PRODPRICE', EnqueueJobQueEntries);
@@ -56,10 +58,17 @@ codeunit 5334 "CRM Setup Defaults"
         ResetSalesInvoiceHeaderInvoiceMapping('POSTEDSALESINV-INV', IsTeamOwnershipModel, EnqueueJobQueEntries);
         ResetSalesInvoiceLineInvoiceMapping('POSTEDSALESLINE-INV');
         ResetOpportunityMapping('OPPORTUNITY', IsTeamOwnershipModel);
-        ResetSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueEntries);
-        RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueEntries);
-        RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueEntries);
-        CODEUNIT.Run(CODEUNIT::"CRM Enable Posts");
+        if not CRMConnectionSetup."Bidirectional Sales Order Int." then begin
+            ResetSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueEntries);
+            RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueEntries);
+            RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueEntries);
+            CODEUNIT.Run(CODEUNIT::"CRM Enable Posts");
+        end else begin
+            ResetBidirectionalSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueEntries);
+            ResetBidirectionalSalesOrderLineMapping('SOLINE-ORDERDETAIL');
+            RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueEntries);
+            RecreateArchivedSalesOrdersJobQueueEntry(EnqueueJobQueEntries);
+        end;
 
 #if not CLEAN19
         CDSSetupDefaults.RemoveCustomerContactLinkJobQueueEntries();
@@ -72,8 +81,8 @@ codeunit 5334 "CRM Setup Defaults"
         if CRMConnectionSetup."Item Availability Enabled" then
             RecreateItemAvailabilityJobQueueEntry(EnqueueJobQueEntries);
 
-        if CRMIntegrationManagement.IsCRMSolutionInstalled then
-            ResetCRMNAVConnectionData;
+        if CRMIntegrationManagement.IsCRMSolutionInstalled() then
+            ResetCRMNAVConnectionData();
 
         ResetDefaultCRMPricelevel(CRMConnectionSetup);
 
@@ -87,7 +96,7 @@ codeunit 5334 "CRM Setup Defaults"
     begin
         if not CRMConnectionSetup.Get() then
             exit;
-        EnqueueJobQueEntries := CRMConnectionSetup.DoReadCRMData;
+        EnqueueJobQueEntries := CRMConnectionSetup.DoReadCRMData();
 
         ResetPriceListHeaderPricelevelMapping('PLHEADER-PRICE', EnqueueJobQueEntries);
         ResetPriceListLineProductPricelevelMapping('PLLINE-PRODPRICE', EnqueueJobQueEntries);
@@ -438,7 +447,7 @@ codeunit 5334 "CRM Setup Defaults"
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then begin
             CRMInvoice.SetFilter(CompanyId, StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
             IntegrationTableMapping.SetIntegrationTableFilter(
-              GetTableFilterFromView(DATABASE::"CRM Invoice", CRMInvoice.TableCaption, CRMInvoice.GetView));
+              GetTableFilterFromView(DATABASE::"CRM Invoice", CRMInvoice.TableCaption(), CRMInvoice.GetView()));
             IntegrationTableMapping.Modify();
         end;
 
@@ -465,7 +474,7 @@ codeunit 5334 "CRM Setup Defaults"
               CRMInvoice.FieldNo(OwnerId),
               IntegrationFieldMapping.Direction::ToIntegrationTable,
               '', true, false);
-            SetIntegrationFieldMappingNotNull;
+            SetIntegrationFieldMappingNotNull();
         end;
 
         // "Currency Code" > TransactionCurrencyId
@@ -752,7 +761,7 @@ codeunit 5334 "CRM Setup Defaults"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange(Status, SalesHeader.Status::Released);
         IntegrationTableMapping.SetTableFilter(
-          GetTableFilterFromView(DATABASE::"Sales Header", SalesHeader.TableCaption, SalesHeader.GetView));
+          GetTableFilterFromView(DATABASE::"Sales Header", SalesHeader.TableCaption(), SalesHeader.GetView()));
         IntegrationTableMapping."Dependency Filter" := 'ITEM-PRODUCT|RESOURCE-PRODUCT|OPPORTUNITY';
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
         IntegrationTableMapping.Modify();
@@ -760,7 +769,7 @@ codeunit 5334 "CRM Setup Defaults"
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then begin
             CRMSalesorder.SetFilter(CompanyId, StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
             IntegrationTableMapping.SetIntegrationTableFilter(
-              GetTableFilterFromView(DATABASE::"CRM Salesorder", CRMSalesorder.TableCaption, CRMSalesorder.GetView));
+              GetTableFilterFromView(DATABASE::"CRM Salesorder", CRMSalesorder.TableCaption(), CRMSalesorder.GetView()));
             IntegrationTableMapping.Modify();
         end;
 
@@ -787,7 +796,7 @@ codeunit 5334 "CRM Setup Defaults"
               CRMSalesorder.FieldNo(OwnerId),
               IntegrationFieldMapping.Direction::ToIntegrationTable,
               '', true, false);
-            SetIntegrationFieldMappingNotNull;
+            SetIntegrationFieldMappingNotNull();
         end;
 
         // "Currency Code" > TransactionCurrencyId
@@ -972,20 +981,440 @@ codeunit 5334 "CRM Setup Defaults"
     end;
 
     [Scope('OnPrem')]
+    procedure ResetBidirectionalSalesOrderMapping(IntegrationTableMappingName: Code[20]; IsTeamOwnershipModel: Boolean; EnqueueJobQueEntry: Boolean)
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        SalesHeader: Record "Sales Header";
+        CRMSalesorder: Record "CRM Salesorder";
+        CDSCompany: Record "CDS Company";
+        EmptyGuid: Guid;
+        IsHandled: Boolean;
+    begin
+        OnBeforeResetBidirectionalSalesOrderMapping(IntegrationTableMappingName, EnqueueJobQueEntry, IsHandled);
+        if IsHandled then
+            exit;
+        InsertIntegrationTableMapping(
+          IntegrationTableMapping, IntegrationTableMappingName,
+          Database::"Sales Header", Database::"CRM Salesorder",
+          CRMSalesorder.FieldNo(SalesOrderId), CRMSalesorder.FieldNo(ModifiedOn),
+          '', '', true);
+        SalesHeader.Reset();
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.SetRange(Status, SalesHeader.Status::Released);
+        IntegrationTableMapping.SetTableFilter(
+          GetTableFilterFromView(Database::"Sales Header", SalesHeader.TableCaption, SalesHeader.GetView));
+
+        IntegrationTableMapping."Dependency Filter" := 'CUSTOMER|ITEM-PRODUCT|RESOURCE-PRODUCT|OPPORTUNITY';
+        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::Bidirectional;
+
+        CRMSalesorder.Reset();
+        if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then
+            CRMSalesorder.SetFilter(CompanyId, StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
+        CRMSalesorder.SetRange(StateCode, CRMSalesorder.StateCode::Submitted);
+        IntegrationTableMapping.SetIntegrationTableFilter(
+                      GetTableFilterFromView(Database::"CRM Salesorder", CRMSalesorder.TableCaption, CRMSalesorder.GetView));
+        IntegrationTableMapping.Modify();
+
+        if not IsTeamOwnershipModel then begin
+            // OwnerId = systemuser
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              0, CRMSalesorder.FieldNo(OwnerIdType),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              Format(CRMSalesorder.OwnerIdType::systemuser), false, false);
+
+            // Salesperson Code > OwnerId
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              SalesHeader.FieldNo("Salesperson Code"),
+              CRMSalesorder.FieldNo(OwnerId),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              '', true, false);
+            SetIntegrationFieldMappingNotNull;
+        end;
+
+        // Type
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Document Type"), 0,
+          IntegrationFieldMapping.Direction::FromIntegrationTable,
+          Format(SalesHeader."Document Type"::Order), true, false);
+
+        // "No." > BusinessCentralOrderNumber
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("No."),
+          CRMSalesorder.FieldNo(BusinessCentralOrderNumber),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // "Your Reference" > OrderNumber
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Your Reference"),
+          CRMSalesorder.FieldNo(OrderNumber),
+          IntegrationFieldMapping.Direction::FromIntegrationTable,
+          '', true, false);
+
+        // CustomerIdType
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          0, CRMSalesorder.FieldNo(CustomerIdType),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          Format(CRMSalesorder.CustomerIdType::account), false, false);
+
+        // "Sell-to Customer No." > CustomerId
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Sell-to Customer No."),
+          CRMSalesorder.FieldNo(CustomerId),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Currency Code" > TransactionCurrencyId
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Currency Code"),
+          CRMSalesorder.FieldNo(TransactionCurrencyId),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // Ship-to Name
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Ship-to Name"),
+          CRMSalesorder.FieldNo(ShipTo_Name),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // Ship-to Address
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Ship-to Address"),
+          CRMSalesorder.FieldNo(ShipTo_Line1),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // Ship-to Address 2
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Ship-to Address 2"),
+          CRMSalesorder.FieldNo(ShipTo_Line2),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // Ship-to City
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Ship-to City"),
+          CRMSalesorder.FieldNo(ShipTo_City),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Ship-to Country/Region Code"
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Ship-to Country/Region Code"),
+          CRMSalesorder.FieldNo(ShipTo_Country),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Ship-to Post Code"
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Ship-to Post Code"),
+          CRMSalesorder.FieldNo(ShipTo_PostalCode),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Ship-to County"
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Ship-to County"),
+          CRMSalesorder.FieldNo(ShipTo_StateOrProvince),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Shipment Date"
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Last Shipment Date"),
+          CRMSalesorder.FieldNo(DateFulfilled),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // Bill-to Address
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Bill-to Address"),
+          CRMSalesorder.FieldNo(BillTo_Line1),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // Bill-to Address 2
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Bill-to Address 2"),
+          CRMSalesorder.FieldNo(BillTo_Line2),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // Bill-to City
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Bill-to City"),
+          CRMSalesorder.FieldNo(BillTo_City),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // Bill-to Country/Region Code
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Bill-to Country/Region Code"),
+          CRMSalesorder.FieldNo(BillTo_Country),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Bill-to Post Code"
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Bill-to Post Code"),
+          CRMSalesorder.FieldNo(BillTo_PostalCode),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Bill-to County"
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Bill-to County"),
+          CRMSalesorder.FieldNo(BillTo_StateOrProvince),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Invoice Discount Amount" > DiscountAmount
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Invoice Discount Amount"),
+          CRMSalesorder.FieldNo(DiscountAmount),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // Shipping Agent Code > address1_shippingmethodcode
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Shipping Agent Code"),
+          CRMSalesorder.FieldNo(ShippingMethodCodeEnum),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // Payment Terms Code > paymenttermscode
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Payment Terms Code"),
+          CRMSalesorder.FieldNo(PaymentTermsCodeEnum),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // Shipment Method Code > FreightTermsCodeEnum
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Shipment Method Code"),
+          CRMSalesorder.FieldNo(FreightTermsCodeEnum),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Requested Delivery Date" -> RequestDeliveryBy
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Requested Delivery Date"),
+          CRMSalesorder.FieldNo(RequestDeliveryBy),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Payment Discount %" > DiscountPercentage
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Payment Discount %"),
+          CRMSalesorder.FieldNo(DiscountPercentage),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Work description" <-> Description
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Work Description"),
+          CRMSalesorder.FieldNo(Description),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', false, false);
+
+        OnResetBidirectionalSalesOrderMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
+
+        RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 720);
+    end;
+
+    procedure ResetBidirectionalSalesOrderLineMapping(IntegrationTableMappingName: Code[20])
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        SalesLine: Record "Sales Line";
+        CRMSalesorderdetail: Record "CRM Salesorderdetail";
+        CDSCompany: Record "CDS Company";
+        IsHandled: Boolean;
+    begin
+        OnBeforeResetBidirectionalSalesOrderLineMapping(IntegrationTableMappingName, IsHandled);
+        if IsHandled then
+            exit;
+        InsertIntegrationTableMapping(
+          IntegrationTableMapping, IntegrationTableMappingName,
+          Database::"Sales Line", Database::"CRM Salesorderdetail",
+          CRMSalesorderdetail.FieldNo(SalesOrderDetailId), CRMSalesorderdetail.FieldNo(ModifiedOn),
+          '', '', false);
+
+        SalesLine.Reset();
+        SalesLine.SetFilter("Type", OrTok, SalesLine."Type"::Item, SalesLine."Type"::Resource);
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        IntegrationTableMapping.SetTableFilter(
+          GetTableFilterFromView(DATABASE::"Sales Line", SalesLine.TableCaption, SalesLine.GetView));
+
+        IntegrationTableMapping."Dependency Filter" := 'SALESORDER-ORDER';
+        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::Bidirectional;
+        IntegrationTableMapping."Deletion-Conflict Resolution" := IntegrationTableMapping."Deletion-Conflict Resolution"::"Remove Coupling";
+        IntegrationTableMapping.Modify();
+
+        // Document Type
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesLine.FieldNo("Document Type"),
+          0,
+          IntegrationFieldMapping.Direction::FromIntegrationTable,
+          Format(SalesLine."Document Type"::Order), true, false);
+
+        // ProductTypeCode
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          0,
+          CRMSalesorderdetail.FieldNo(ProductTypeCode),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          Format(CRMSalesorderdetail.ProductTypeCode::Product), false, false);
+
+        // "No." > ProductId
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesLine.FieldNo("No."),
+          CRMSalesorderdetail.FieldNo(ProductId),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Line No." > BusinessCentralLineNumber
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesLine.FieldNo("Line No."),
+          CRMSalesorderdetail.FieldNo(BusinessCentralLineNumber),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // Quantity > Quantity
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesLine.FieldNo(Quantity),
+          CRMSalesorderdetail.FieldNo(Quantity),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Quantity Shipped" > QuantityShipped
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesLine.FieldNo("Quantity Shipped"),
+          CRMSalesorderdetail.FieldNo(QuantityShipped),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Line Discount Amount" > ManualDiscountAmount
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesLine.FieldNo("Line Discount Amount"),
+          CRMSalesorderdetail.FieldNo(ManualDiscountAmount),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // TRUE > IsPriceOverridden
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          0,
+          CRMSalesorderdetail.FieldNo(IsPriceOverridden),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '1', true, false);
+
+        // "Unit Price" > PricePerUnit
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesLine.FieldNo("Unit Price"),
+          CRMSalesorderdetail.FieldNo(PricePerUnit),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Currency Code" > TransactionCurrencyId
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesLine.FieldNo("Currency Code"),
+          CRMSalesorderdetail.FieldNo(TransactionCurrencyId),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Amount" > Amount
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesLine.FieldNo("Amount"),
+          CRMSalesorderdetail.FieldNo(BaseAmount),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        // "Amount Including VAT" > ExtendedAmount
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesLine.FieldNo("Amount Including VAT"),
+          CRMSalesorderdetail.FieldNo(ExtendedAmount),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
+        OnResetBidirectionalSalesOrderLineMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
+    end;
+
+    [Scope('OnPrem')]
     procedure ResetSalesOrderMappingConfiguration(CRMConnectionSetup: Record "CRM Connection Setup")
     var
+        JobQueueEntry: Record "Job Queue Entry";
+        IntegrationTableMapping: Record "Integration Table Mapping";
         EnqueueJobQueueEntries: Boolean;
         IsTeamOwnershipModel: Boolean;
     begin
-        EnqueueJobQueueEntries := CRMConnectionSetup.DoReadCRMData;
+        EnqueueJobQueueEntries := CRMConnectionSetup.DoReadCRMData();
         IsTeamOwnershipModel := CDSIntegrationMgt.IsTeamOwnershipModelSelected();
-        ResetSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueueEntries);
-        RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueueEntries);
-        RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueueEntries);
-        CODEUNIT.Run(CODEUNIT::"CRM Enable Posts")
+        if CRMConnectionSetup."Bidirectional Sales Order Int." then begin
+            ResetBidirectionalSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueueEntries);
+            ResetBidirectionalSalesOrderLineMapping('SOLINE-ORDERDETAIL');
+            JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+            JobQueueEntry.SetFilter("Object ID to Run", '%1|%2|%3', Codeunit::"Auto Create Sales Orders", Codeunit::"CRM Order Status Update Job", Codeunit::"CRM Notes Synch Job");
+            JobQueueEntry.DeleteAll();
+            RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueueEntries);
+            RecreateArchivedSalesOrdersJobQueueEntry(EnqueueJobQueueEntries);
+        end else begin
+            ResetSalesOrderMapping('SALESORDER-ORDER', IsTeamOwnershipModel, EnqueueJobQueueEntries);
+            if IntegrationTableMapping.Get('SOLINE-ORDERDETAIL') then begin
+                JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+                JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Integration Synch. Job Runner");
+                JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
+                JobQueueEntry.DeleteAll();
+                IntegrationTableMapping.Delete()
+            end;
+            RecreateSalesOrderStatusJobQueueEntry(EnqueueJobQueueEntries);
+            RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueueEntries);
+            CODEUNIT.Run(CODEUNIT::"CRM Enable Posts");
+        end;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '18.0')]
     [Scope('OnPrem')]
     procedure ResetCustomerPriceGroupPricelevelMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
@@ -1013,7 +1442,7 @@ codeunit 5334 "CRM Setup Defaults"
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then begin
             CRMPricelevel.SetFilter(CompanyId, StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
             IntegrationTableMapping.SetIntegrationTableFilter(
-              GetTableFilterFromView(DATABASE::"CRM Pricelevel", CRMPricelevel.TableCaption, CRMPricelevel.GetView));
+              GetTableFilterFromView(DATABASE::"CRM Pricelevel", CRMPricelevel.TableCaption(), CRMPricelevel.GetView()));
             IntegrationTableMapping.Modify();
         end;
 
@@ -1052,7 +1481,7 @@ codeunit 5334 "CRM Setup Defaults"
         SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::"Customer Price Group");
         SalesPrice.SetFilter("Sales Code", '<>''''');
         IntegrationTableMapping.SetTableFilter(
-          GetTableFilterFromView(DATABASE::"Sales Price", SalesPrice.TableCaption, SalesPrice.GetView));
+          GetTableFilterFromView(DATABASE::"Sales Price", SalesPrice.TableCaption(), SalesPrice.GetView()));
 
         IntegrationTableMapping."Dependency Filter" := 'CUSTPRCGRP-PRICE|ITEM-PRODUCT';
         IntegrationTableMapping.Modify();
@@ -1134,14 +1563,14 @@ codeunit 5334 "CRM Setup Defaults"
         PriceListHeader.SetRange("Amount Type", "Price Amount Type"::Price);
         PriceListHeader.SetRange("Allow Updating Defaults", true);
         IntegrationTableMapping.SetTableFilter(
-            GetTableFilterFromView(DATABASE::"Price List Header", PriceListHeader.TableCaption, PriceListHeader.GetView));
+            GetTableFilterFromView(DATABASE::"Price List Header", PriceListHeader.TableCaption(), PriceListHeader.GetView()));
         IntegrationTableMapping."Dependency Filter" := 'CURRENCY|ITEM-PRODUCT';
         IntegrationTableMapping.Modify();
 
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then begin
             CRMPricelevel.SetFilter(CompanyId, StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
             IntegrationTableMapping.SetIntegrationTableFilter(
-                GetTableFilterFromView(DATABASE::"CRM Pricelevel", CRMPricelevel.TableCaption, CRMPricelevel.GetView));
+                GetTableFilterFromView(DATABASE::"CRM Pricelevel", CRMPricelevel.TableCaption(), CRMPricelevel.GetView()));
             IntegrationTableMapping.Modify();
         end;
 
@@ -1213,7 +1642,7 @@ codeunit 5334 "CRM Setup Defaults"
         PriceListLine.SetFilter("Asset Type", OrTok, "Price Asset Type"::Item, "Price Asset Type"::Resource);
         PriceListLine.SetRange("Minimum Quantity", 0);
         IntegrationTableMapping.SetTableFilter(
-          GetTableFilterFromView(DATABASE::"Price List Line", PriceListLine.TableCaption, PriceListLine.GetView));
+          GetTableFilterFromView(DATABASE::"Price List Line", PriceListLine.TableCaption(), PriceListLine.GetView()));
 
         IntegrationTableMapping."Dependency Filter" := 'PLHEADER-PRICE|ITEM-PRODUCT';
         IntegrationTableMapping.Modify();
@@ -1335,18 +1764,18 @@ codeunit 5334 "CRM Setup Defaults"
           CRMUomschedule.FieldNo(UoMScheduleId), CRMUomschedule.FieldNo(ModifiedOn),
           '', '', true);
 
-        // Code > Name
+        // "Source No." > Name - we prefix this in CRMIntTableSubscriber OnTransferFieldData
         InsertIntegrationFieldMapping(
           IntegrationTableMappingName,
-          UnitGroup.FieldNo("Code"),
+          UnitGroup.FieldNo("Source No."),
           CRMUomschedule.FieldNo(Name),
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
-        // Code > BaseUoM Name
+        // "Source No." > BaseUoM Name - we prefix this in CRMIntTableSubscriber OnTransferFieldData
         InsertIntegrationFieldMapping(
           IntegrationTableMappingName,
-          UnitGroup.FieldNo("Code"),
+          UnitGroup.FieldNo("Source No."),
           CRMUomschedule.FieldNo(BaseUoMName),
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
@@ -1464,7 +1893,7 @@ codeunit 5334 "CRM Setup Defaults"
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then begin
             CRMOpportunity.SetFilter(CompanyId, StrSubstno(OrTok, CDSCompany.CompanyId, EmptyGuid));
             IntegrationTableMapping.SetIntegrationTableFilter(
-              GetTableFilterFromView(DATABASE::"CRM Opportunity", CRMOpportunity.TableCaption, CRMOpportunity.GetView));
+              GetTableFilterFromView(DATABASE::"CRM Opportunity", CRMOpportunity.TableCaption(), CRMOpportunity.GetView()));
             IntegrationTableMapping.Modify();
         end;
 
@@ -1507,7 +1936,7 @@ codeunit 5334 "CRM Setup Defaults"
               CRMOpportunity.FieldNo(OwnerId),
               IntegrationFieldMapping.Direction::ToIntegrationTable,
               '', true, false);
-            SetIntegrationFieldMappingNotNull;
+            SetIntegrationFieldMappingNotNull();
         end;
 
         // "Estimated Value (LCY)" > EstimatedValue
@@ -1599,7 +2028,7 @@ codeunit 5334 "CRM Setup Defaults"
           EnqueueJobQueEntry,
           CODEUNIT::"CRM Statistics Job",
           30,
-          StrSubstNo(CustomStatisticsSynchJobDescTxt, CRMProductName.SHORT),
+          StrSubstNo(CustomStatisticsSynchJobDescTxt, CRMProductName.SHORT()),
           false);
     end;
 
@@ -1629,7 +2058,7 @@ codeunit 5334 "CRM Setup Defaults"
           EnqueueJobQueEntry,
           CODEUNIT::"CRM Order Status Update Job",
           7,
-          StrSubstNo(CustomSalesOrderSynchJobDescTxt, CRMProductName.SHORT),
+          StrSubstNo(CustomSalesOrderSynchJobDescTxt, CRMProductName.SHORT()),
           false);
     end;
 
@@ -1640,7 +2069,18 @@ codeunit 5334 "CRM Setup Defaults"
           EnqueueJobQueEntry,
           CODEUNIT::"CRM Notes Synch Job",
           5,
-          StrSubstNo(CustomSalesOrderNotesSynchJobDescTxt, CRMProductName.SHORT),
+          StrSubstNo(CustomSalesOrderNotesSynchJobDescTxt, CRMProductName.SHORT()),
+          false);
+    end;
+
+    [Scope('OnPrem')]
+    procedure RecreateArchivedSalesOrdersJobQueueEntry(EnqueueJobQueEntry: Boolean)
+    begin
+        RecreateJobQueueEntry(
+          EnqueueJobQueEntry,
+          Codeunit::"CRM Archived Sales Orders Job",
+          30,
+          StrSubstNo(ArchivedSalesOrdersSynchJobDescTxt, CRMProductName.SHORT()),
           false);
     end;
 
@@ -1662,7 +2102,7 @@ codeunit 5334 "CRM Setup Defaults"
           EnqueueJobQueEntry,
           CODEUNIT::"Auto Create Sales Orders",
           30,
-          StrSubstNo(AutoCreateSalesOrdersTxt, CRMProductName.SHORT),
+          StrSubstNo(AutoCreateSalesOrdersTxt, CRMProductName.SHORT()),
           false);
     end;
 
@@ -1672,7 +2112,7 @@ codeunit 5334 "CRM Setup Defaults"
           EnqueueJobQueEntry,
           CODEUNIT::"Auto Process Sales Quotes",
           30,
-          StrSubstNo(AutoProcessQuotesTxt, CRMProductName.SHORT),
+          StrSubstNo(AutoProcessQuotesTxt, CRMProductName.SHORT()),
           false);
     end;
 
@@ -1683,7 +2123,7 @@ codeunit 5334 "CRM Setup Defaults"
         with JobQueueEntry do begin
             SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
             SetRange("Object ID to Run", CodeunitId);
-            DeleteTasks;
+            DeleteTasks();
 
             InitRecurringJob(MinutesBetweenRun);
             "Object Type to Run" := "Object Type to Run"::Codeunit;
@@ -1711,7 +2151,7 @@ codeunit 5334 "CRM Setup Defaults"
         with JobQueueEntry do begin
             SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
             SetRange("Object ID to Run", CODEUNIT::"Auto Create Sales Orders");
-            DeleteTasks;
+            DeleteTasks();
         end;
     end;
 
@@ -1722,7 +2162,7 @@ codeunit 5334 "CRM Setup Defaults"
         with JobQueueEntry do begin
             SetRange("Object Type to Run", "Object Type to Run"::Codeunit);
             SetRange("Object ID to Run", CODEUNIT::"Auto Process Sales Quotes");
-            DeleteTasks;
+            DeleteTasks();
         end;
     end;
 
@@ -1765,7 +2205,7 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(DATABASE::"CRM Invoice");
             DATABASE::"Sales Invoice Line":
                 exit(DATABASE::"CRM Invoicedetail");
-#if not CLEAN19
+#if not CLEAN21
             DATABASE::"Sales Price",
 #endif
             DATABASE::"Price List Line":
@@ -1810,7 +2250,7 @@ codeunit 5334 "CRM Setup Defaults"
           DATABASE::"Price List Line",
           DATABASE::"Sales Invoice Header",
           DATABASE::"Sales Invoice Line",
-#if not CLEAN19
+#if not CLEAN21
           DATABASE::"Sales Price",
 #endif
           DATABASE::"Unit of Measure",
@@ -1861,6 +2301,8 @@ codeunit 5334 "CRM Setup Defaults"
         CRMPaymentTerms: Record "CRM Payment Terms";
         CRMFreightTerms: Record "CRM Freight Terms";
         CRMShippingMethod: Record "CRM Shipping Method";
+        SalesHeader: Record "Sales Header";
+        CRMSalesorder: Record "CRM Salesorder";
         FieldNo: Integer;
     begin
         OnBeforeGetNameFieldNo(TableID, FieldNo);
@@ -1904,7 +2346,7 @@ codeunit 5334 "CRM Setup Defaults"
             DATABASE::"CRM Opportunity":
                 exit(CRMOpportunity.FieldNo(Name));
             DATABASE::"Unit Group":
-                exit(UnitGroup.FieldNo(Code));
+                exit(UnitGroup.FieldNo("Source No."));
             DATABASE::"Item Unit of Measure":
                 exit(ItemUnitOfMeasure.FieldNo(Code));
             DATABASE::"Resource Unit of Measure":
@@ -1923,6 +2365,10 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(CRMFreightTerms.FieldNo("Code"));
             DATABASE::"CRM Shipping Method":
                 exit(CRMShippingMethod.FieldNo("Code"));
+            DATABASE::"Sales Header":
+                exit(SalesHeader.FieldNo("No."));
+            DATABASE::"CRM Salesorder":
+                exit(CRMSalesorder.FieldNo(Name));
         end;
     end;
 
@@ -1974,7 +2420,7 @@ codeunit 5334 "CRM Setup Defaults"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         with IntegrationTableMapping do begin
-            Reset;
+            Reset();
             SetRange("Delete After Synchronization", false);
             if TableID > 0 then
                 SetRange("Table ID", TableID);
@@ -1994,15 +2440,15 @@ codeunit 5334 "CRM Setup Defaults"
             SetRange(Value, MappingName);
 
             if not FindFirst() then begin
-                Init;
+                Init();
                 ID := Priority;
                 Name := Format(Priority);
                 Value := MappingName;
-                Insert;
+                Insert();
                 Priority := Priority + 1;
             end;
 
-            Reset;
+            Reset();
         end;
     end;
 
@@ -2064,17 +2510,17 @@ codeunit 5334 "CRM Setup Defaults"
     begin
         OnBeforeAddEntityTableMapping(CRMEntityTypeName, TableID, TempNameValueBuffer);
         with TempNameValueBuffer do begin
-            Init;
+            Init();
             ID := Count + 1;
             Name := CopyStr(CRMEntityTypeName, 1, MaxStrLen(Name));
             Value := Format(TableID);
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure ResetDefaultCRMPricelevel(CRMConnectionSetup: Record "CRM Connection Setup")
     begin
-        CRMConnectionSetup.Find;
+        CRMConnectionSetup.Find();
         Clear(CRMConnectionSetup."Default CRM Price List ID");
         CRMConnectionSetup.Modify();
     end;
@@ -2089,7 +2535,7 @@ codeunit 5334 "CRM Setup Defaults"
         CRMProduct.SetRange(ProductTypeCode, ProductTypeCode);
         CRMProduct.SetRange(StateCode, CRMProduct.StateCode::Active);
         IntegrationTableMapping.SetIntegrationTableFilter(
-          GetTableFilterFromView(DATABASE::"CRM Product", CRMProduct.TableCaption, CRMProduct.GetView));
+          GetTableFilterFromView(DATABASE::"CRM Product", CRMProduct.TableCaption(), CRMProduct.GetView()));
         IntegrationTableMapping.Modify();
     end;
 
@@ -2162,6 +2608,16 @@ codeunit 5334 "CRM Setup Defaults"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResetSalesOrderMapping(var IntegrationTableMappingName: Code[20]; var EnqueueJobQueEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetBidirectionalSalesOrderMapping(var IntegrationTableMappingName: Code[20]; var EnqueueJobQueEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetBidirectionalSalesOrderLineMapping(var IntegrationTableMappingName: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -2242,7 +2698,7 @@ codeunit 5334 "CRM Setup Defaults"
     begin
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnResetCustomerPriceGroupPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
@@ -2290,7 +2746,17 @@ codeunit 5334 "CRM Setup Defaults"
     begin
     end;
 
-#if not CLEAN19
+    [IntegrationEvent(false, false)]
+    local procedure OnResetBidirectionalSalesOrderMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetBidirectionalSalesOrderLineMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
+    begin
+    end;
+
+#if not CLEAN21
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnResetSalesPriceProductPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])

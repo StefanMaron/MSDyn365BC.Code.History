@@ -1149,8 +1149,6 @@ page 8626 "Config. Package Records"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Error';
                     Image = Error;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F7';
                     ToolTip = 'Show the error message that has stopped the entry.';
 
@@ -1172,8 +1170,6 @@ page 8626 "Config. Package Records"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Process Data';
                     Image = DataEntry;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Process data in the configuration package before you apply it to the database. For example, convert dates and decimals to the format required by the regional settings on a user''s computer and remove leading/trailing spaces or special characters.';
 
                     trigger OnAction()
@@ -1196,8 +1192,6 @@ page 8626 "Config. Package Records"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Apply Data';
                     Image = Apply;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Apply the data in the package to the database. After you apply data, you can only see it in the database.';
 
                     trigger OnAction()
@@ -1211,6 +1205,23 @@ page 8626 "Config. Package Records"
 
                         ConfigPackageMgt.ApplySelectedPackageRecords(ConfigPackageRecord, PackageCode, TableNo);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Show Error_Promoted"; "Show Error")
+                {
+                }
+                actionref(ApplyData_Promoted; ApplyData)
+                {
+                }
+                actionref(ProcessData_Promoted; ProcessData)
+                {
                 }
             }
         }
@@ -1235,7 +1246,7 @@ page 8626 "Config. Package Records"
 
     trigger OnClosePage()
     begin
-        ClearAll;
+        ClearAll();
     end;
 
     trigger OnInit()
@@ -1623,7 +1634,7 @@ page 8626 "Config. Package Records"
         if MatrixDimension[ColumnID] then begin
             if MatrixCellData[ColumnID] <> '' then
                 if not DimValue.Get(MatrixColumnCaptions[ColumnID], MatrixCellData[ColumnID]) then
-                    Error(Text001, Dimension.TableCaption, MatrixCellData[ColumnID]);
+                    Error(Text001, Dimension.TableCaption(), MatrixCellData[ColumnID]);
             ConfigPackageData.Get("Package Code", "Table ID", "No.", PackageColumnField[ColumnID]);
             ConfigPackageData.Validate(Value, MatrixCellData[ColumnID]);
             ConfigPackageData.Modify();

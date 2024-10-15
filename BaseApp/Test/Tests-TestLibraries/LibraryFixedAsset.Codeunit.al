@@ -506,7 +506,7 @@ codeunit 131330 "Library - Fixed Asset"
             Assert.IsTrue(
               GLEntry."FA Entry No." in [FARegister."From Entry No." .. FARegister."To Entry No."],
               FARegisterGLRegisterErr);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     procedure VerifyMaintenanceLastFARegisterGLRegisterOneToOneRelation()
@@ -526,7 +526,7 @@ codeunit 131330 "Library - Fixed Asset"
             Assert.IsTrue(
               GLEntry."FA Entry No." in [FARegister."From Maintenance Entry No." .. FARegister."To Maintenance Entry No."],
               FARegisterGLRegisterErr);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 }
 

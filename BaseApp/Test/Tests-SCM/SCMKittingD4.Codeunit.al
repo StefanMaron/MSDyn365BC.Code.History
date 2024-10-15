@@ -63,7 +63,7 @@ codeunit 137093 "SCM Kitting - D4"
 
     local procedure GlobalSetup()
     begin
-        WorkDate2 := CalcSafeDate(WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcSafeDate(WorkDate()); // to avoid Due Date Before Work Date message.
         WorkDate10D := CalcDate('<10D>', WorkDate2);
         AssemblySetup;
         SetupItemJournal;
@@ -689,7 +689,7 @@ codeunit 137093 "SCM Kitting - D4"
         AssemblySetup.Get();
         AssemblySetup."Posted Assembly Order Nos." := LibraryERM.CreateNoSeriesCode;
         AssemblySetup.Modify(true);
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, LibraryInventory.CreateItemNo, '', 0, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo, '', 0, '');
 
         // [WHEN] Validate Posting No. Series field from Assembly Header
         AssemblyHeader.Validate("Posting No. Series", AssemblySetup."Posted Assembly Order Nos.");
@@ -715,7 +715,7 @@ codeunit 137093 "SCM Kitting - D4"
         AssemblySetup.Modify(true);
 
         // [WHEN] Insert Assembly Header
-        asserterror LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, LibraryInventory.CreateItemNo, '', 0, '');
+        asserterror LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo, '', 0, '');
 
         // [THEN] Error in testing field Posting No. Series is expected
         Assert.ExpectedError(PostedNoSeriesErr);

@@ -23,10 +23,11 @@ codeunit 94 "Blnkt Purch Ord. to Ord. (Y/N)"
     end;
 
     var
-        Text000: Label 'Do you want to create an order from the blanket order?';
-        Text001: Label 'Order %1 has been created from blanket order %2.';
         PurchOrderHeader: Record "Purchase Header";
         BlanketPurchOrderToOrder: Codeunit "Blanket Purch. Order to Order";
+
+        Text000: Label 'Do you want to create an order from the blanket order?';
+        Text001: Label 'Order %1 has been created from blanket order %2.';
 
     local procedure IsOnRunHandled(var PurchaseHeader: Record "Purchase Header") IsHandled: Boolean
     begin

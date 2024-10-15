@@ -1,5 +1,6 @@
 table 130203 "Enabled Test Method"
 {
+    ReplicateData = false;
 
     fields
     {
@@ -26,7 +27,7 @@ table 130203 "Enabled Test Method"
     [Scope('OnPrem')]
     procedure InsertEntry(CodeunitID: Integer; FunctionName: Text[128])
     begin
-        Init;
+        Init();
 
         Validate("Test Codeunit ID", CodeunitID);
         Validate("Test Method Name", FunctionName);

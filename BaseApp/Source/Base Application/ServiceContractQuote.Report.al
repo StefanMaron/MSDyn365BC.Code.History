@@ -334,7 +334,7 @@ report 5972 "Service Contract Quote"
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
                 end;
@@ -425,7 +425,7 @@ report 5972 "Service Contract Quote"
 
     trigger OnPostReport()
     begin
-        if LogInteraction and not IsReportInPreviewMode then
+        if LogInteraction and not IsReportInPreviewMode() then
             if "Service Contract Header".FindSet() then
                 repeat
                     if "Service Contract Header"."Contact No." <> '' then
@@ -482,7 +482,7 @@ report 5972 "Service Contract Quote"
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     procedure InitializeRequestComment(ShowCommentsFrom: Boolean)

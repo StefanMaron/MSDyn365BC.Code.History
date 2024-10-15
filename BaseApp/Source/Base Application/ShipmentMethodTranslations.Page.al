@@ -12,7 +12,7 @@ page 757 "Shipment Method Translations"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';

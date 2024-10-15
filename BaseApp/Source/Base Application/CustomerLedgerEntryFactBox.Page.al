@@ -19,7 +19,7 @@ page 9106 "Customer Ledger Entry FactBox"
                 var
                     GLEntry: Record "G/L Entry";
                 begin
-                    if not ShowDoc then begin
+                    if not ShowDoc() then begin
                         GLEntry.SetCurrentKey("Document No.", "Posting Date");
                         GLEntry.SetRange("Document No.", "Document No.");
                         GLEntry.SetRange("Posting Date", "Posting Date");
@@ -28,12 +28,12 @@ page 9106 "Customer Ledger Entry FactBox"
                     end;
                 end;
             }
-            field("Due Date"; "Due Date")
+            field("Due Date"; Rec."Due Date")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the due date on the entry.';
             }
-            field("Pmt. Discount Date"; "Pmt. Discount Date")
+            field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
@@ -95,7 +95,7 @@ page 9106 "Customer Ledger Entry FactBox"
     trigger OnAfterGetRecord()
     begin
         DocumentHeading := GetDocumentHeading(Rec);
-        CalcNoOfRecords;
+        CalcNoOfRecords();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -110,7 +110,7 @@ page 9106 "Customer Ledger Entry FactBox"
     trigger OnOpenPage()
     begin
         DocumentHeading := GetDocumentHeading(Rec);
-        CalcNoOfRecords;
+        CalcNoOfRecords();
     end;
 
     var

@@ -197,8 +197,8 @@ codeunit 134268 "Payment Proposal UT 2"
             // Verify Applied Payment Entry Exists and the fields are set
             VerifyAppliedPaymentEntryMatchesProposalLine(TempPaymentApplicationProposal);
 
-            VendorLedgerEntry.Next;
-            TempPaymentApplicationProposal.Next;
+            VendorLedgerEntry.Next();
+            TempPaymentApplicationProposal.Next();
         end;
 
         // Test no Insertions to Payment Application Proposal has occured
@@ -293,8 +293,8 @@ codeunit 134268 "Payment Proposal UT 2"
         for I := 1 to NoOfEntries do begin
             TempPaymentApplicationProposal.Validate(Applied, true);
             TempPaymentApplicationProposal.Modify(true);
-            VendorLedgerEntry.Next;
-            TempPaymentApplicationProposal.Next;
+            VendorLedgerEntry.Next();
+            TempPaymentApplicationProposal.Next();
         end;
 
         Difference := 0;
@@ -316,7 +316,7 @@ codeunit 134268 "Payment Proposal UT 2"
 
             // Verify Applied Payment Entry Does not Exist and the fields are set
             VerifyAppliedPaymentEntryDoesntExist(TempPaymentApplicationProposal);
-            TempPaymentApplicationProposal.Next;
+            TempPaymentApplicationProposal.Next();
         end;
 
         // Test no Insertions to Payment Application Proposal has occured
@@ -449,8 +449,8 @@ codeunit 134268 "Payment Proposal UT 2"
             // Verify Applied Payment Entry Exists and the fields are set
             VerifyAppliedPaymentEntryMatchesProposalLine(TempPaymentApplicationProposal);
 
-            VendorLedgerEntry.Next;
-            TempPaymentApplicationProposal.Next;
+            VendorLedgerEntry.Next();
+            TempPaymentApplicationProposal.Next();
         end;
 
         // Test no Insertions to Payment Application Proposal has occured
@@ -504,8 +504,8 @@ codeunit 134268 "Payment Proposal UT 2"
             Difference -= VendorLedgerEntry."Remaining Amount";
             AppliedAmount += VendorLedgerEntry."Remaining Amount";
 
-            VendorLedgerEntry.Next;
-            TempPaymentApplicationProposal.Next;
+            VendorLedgerEntry.Next();
+            TempPaymentApplicationProposal.Next();
         end;
 
         // Excercise and verify multiple applications
@@ -525,7 +525,7 @@ codeunit 134268 "Payment Proposal UT 2"
 
             // Verify Applied Payment Entry Exists and the fields are updated
             VerifyAppliedPaymentEntryMatchesProposalLine(TempPaymentApplicationProposal);
-            TempPaymentApplicationProposal.Next;
+            TempPaymentApplicationProposal.Next();
         end;
 
         // Test no Insertions to Payment Application Proposal has occured
@@ -628,8 +628,8 @@ codeunit 134268 "Payment Proposal UT 2"
             Difference -= VendorLedgerEntry."Remaining Amount";
             AppliedAmount += VendorLedgerEntry."Remaining Amount";
 
-            VendorLedgerEntry.Next;
-            TempPaymentApplicationProposal.Next;
+            VendorLedgerEntry.Next();
+            TempPaymentApplicationProposal.Next();
         end;
 
         // Excercise and verify multiple applications
@@ -649,7 +649,7 @@ codeunit 134268 "Payment Proposal UT 2"
 
             // Verify Applied Payment Entry is Deleted
             VerifyAppliedPaymentEntryDoesntExist(TempPaymentApplicationProposal);
-            TempPaymentApplicationProposal.Next;
+            TempPaymentApplicationProposal.Next();
         end;
 
         // Test no Insertions to Payment Application Proposal has occured
@@ -840,7 +840,7 @@ codeunit 134268 "Payment Proposal UT 2"
         TempPaymentApplicationProposal.Validate(Applied, true);
         TempPaymentApplicationProposal.Modify(true);
 
-        NewDiscountDueDate := CalcDate('<1M>', WorkDate);
+        NewDiscountDueDate := CalcDate('<1M>', WorkDate());
         NewDiscountAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
         TempPaymentApplicationProposal.Validate("Pmt. Disc. Due Date", NewDiscountDueDate);
         TempPaymentApplicationProposal.Validate("Remaining Pmt. Disc. Possible", NewDiscountAmount);
@@ -906,7 +906,7 @@ codeunit 134268 "Payment Proposal UT 2"
         TempPaymentApplicationProposal.Validate(Applied, true);
         TempPaymentApplicationProposal.Modify(true);
 
-        NewDiscountDueDate := CalcDate('<1M>', WorkDate);
+        NewDiscountDueDate := CalcDate('<1M>', WorkDate());
         NewDiscountAmount := Amount - AppliedAmount;
         TempPaymentApplicationProposal.Validate("Pmt. Disc. Due Date", NewDiscountDueDate);
         TempPaymentApplicationProposal.Validate("Remaining Pmt. Disc. Possible", NewDiscountAmount);
@@ -968,7 +968,7 @@ codeunit 134268 "Payment Proposal UT 2"
         TempPaymentApplicationProposal.Validate(Applied, true);
         TempPaymentApplicationProposal.Modify(true);
 
-        NewDiscountDueDate := CalcDate('<1M>', WorkDate);
+        NewDiscountDueDate := CalcDate('<1M>', WorkDate());
         NewDiscountAmount := Amount - AppliedAmount;
         TempPaymentApplicationProposal.Validate("Pmt. Disc. Due Date", NewDiscountDueDate);
         TempPaymentApplicationProposal.Validate("Remaining Pmt. Disc. Possible", NewDiscountAmount);
@@ -1028,7 +1028,7 @@ codeunit 134268 "Payment Proposal UT 2"
         TempPaymentApplicationProposal.Validate(Applied, true);
         TempPaymentApplicationProposal.Modify(true);
 
-        NewDiscountDueDate := CalcDate('<1M>', WorkDate);
+        NewDiscountDueDate := CalcDate('<1M>', WorkDate());
         NewDiscountAmount := Round(Amount / 2, LibraryERM.GetAmountRoundingPrecision);
         TempPaymentApplicationProposal.Validate("Pmt. Disc. Due Date", NewDiscountDueDate);
         TempPaymentApplicationProposal.Validate("Remaining Pmt. Disc. Possible", NewDiscountAmount);
@@ -1091,7 +1091,7 @@ codeunit 134268 "Payment Proposal UT 2"
         TempPaymentApplicationProposal.Validate(Applied, true);
         TempPaymentApplicationProposal.Modify(true);
 
-        NewDiscountDueDate := CalcDate('<1M>', WorkDate);
+        NewDiscountDueDate := CalcDate('<1M>', WorkDate());
         NewDiscountAmount := Round(VendorLedgerEntry."Remaining Pmt. Disc. Possible" / 2, LibraryERM.GetAmountRoundingPrecision);
         TempPaymentApplicationProposal.Validate("Pmt. Disc. Due Date", NewDiscountDueDate);
         TempPaymentApplicationProposal.Validate("Remaining Pmt. Disc. Possible", NewDiscountAmount);
@@ -1862,9 +1862,8 @@ codeunit 134268 "Payment Proposal UT 2"
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
         BankAccReconciliationLine.Validate("Transaction Text", TransactionText);
         BankAccReconciliationLine.Validate("Additional Transaction Info", AdditionalTransactionInfo);
-        BankAccReconciliationLine.Validate("Transaction Date", WorkDate);
+        BankAccReconciliationLine.Validate("Transaction Date", WorkDate());
         BankAccReconciliationLine.Validate("Statement Amount", Amount);
-        BankAccReconciliationLine.Validate(Type, BankAccReconciliationLine.Type::"Bank Account Ledger Entry");
         BankAccReconciliationLine.Modify(true);
     end;
 

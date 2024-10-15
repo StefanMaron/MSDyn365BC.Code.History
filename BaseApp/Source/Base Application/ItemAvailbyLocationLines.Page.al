@@ -76,7 +76,7 @@ page 515 "Item Avail. by Location Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetItemFilter;
+                        SetItemFilter();
                         ItemAvailFormsMgt.ShowItemLedgerEntries(Item, false);
                     end;
                 }
@@ -103,7 +103,7 @@ page 515 "Item Avail. by Location Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetItemFilter;
+                        SetItemFilter();
                         ItemAvailFormsMgt.ShowPurchLines(Item);
                     end;
                 }
@@ -118,7 +118,7 @@ page 515 "Item Avail. by Location Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetItemFilter;
+                        SetItemFilter();
                         ItemAvailFormsMgt.ShowSalesLines(Item);
                     end;
                 }
@@ -132,7 +132,7 @@ page 515 "Item Avail. by Location Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetItemFilter;
+                        SetItemFilter();
                         ItemAvailFormsMgt.ShowServLines(Item);
                     end;
                 }
@@ -146,7 +146,7 @@ page 515 "Item Avail. by Location Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetItemFilter;
+                        SetItemFilter();
                         ItemAvailFormsMgt.ShowJobPlanningLines(Item);
                     end;
                 }
@@ -160,7 +160,7 @@ page 515 "Item Avail. by Location Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetItemFilter;
+                        SetItemFilter();
                         ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Trans. Ord. Shipment (Qty.)"));
                     end;
                 }
@@ -202,7 +202,7 @@ page 515 "Item Avail. by Location Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetItemFilter;
+                        SetItemFilter();
                         ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Qty. in Transit"));
                     end;
                 }
@@ -216,7 +216,7 @@ page 515 "Item Avail. by Location Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetItemFilter;
+                        SetItemFilter();
                         ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Trans. Ord. Receipt (Qty.)"));
                     end;
                 }
@@ -246,7 +246,7 @@ page 515 "Item Avail. by Location Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetItemFilter;
+                        SetItemFilter();
                         ItemAvailFormsMgt.ShowSchedReceipt(Item);
                     end;
                 }
@@ -259,7 +259,7 @@ page 515 "Item Avail. by Location Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetItemFilter;
+                        SetItemFilter();
                         ItemAvailFormsMgt.ShowSchedNeed(Item);
                     end;
                 }
@@ -286,7 +286,7 @@ page 515 "Item Avail. by Location Lines"
 
                     trigger OnDrillDown()
                     begin
-                        SetItemFilter;
+                        SetItemFilter();
                         ItemAvailFormsMgt.ShowItemLedgerEntries(Item, true);
                     end;
                 }
@@ -328,14 +328,6 @@ page 515 "Item Avail. by Location Lines"
         PeriodEnd: Date;
         LocationCode: Code[10];
 
-#if not CLEAN18
-    [Obsolete('Replaced by SetItem().', '18.0')]
-    procedure Set(var NewItem: Record Item; NewAmountType: Option "Net Change","Balance at Date")
-    begin
-        SetItem(NewItem, NewAmountType);
-    end;
-#endif
-
 #if not CLEAN19
     [Obsolete('Replaced by SetLines().', '19.0')]
     procedure SetItem(var NewItem: Record Item; NewAmountType: Option "Net Change","Balance at Date")
@@ -358,14 +350,6 @@ page 515 "Item Avail. by Location Lines"
         OnAfterSetLines(Item, AmountType);
     end;
 
-#if not CLEAN18
-    [Obsolete('Replaced by GetItem().', '18.0')]
-    procedure Get(var ItemOut: Record Item)
-    begin
-        GetItem(ItemOut);
-    end;
-#endif
-
     procedure GetItem(var ItemOut: Record Item)
     begin
         ItemOut.Copy(Item);
@@ -385,7 +369,7 @@ page 515 "Item Avail. by Location Lines"
 
     local procedure ShowItemAvailLineList(What: Integer)
     begin
-        SetItemFilter;
+        SetItemFilter();
         ItemAvailFormsMgt.ShowItemAvailLineList(Item, What);
     end;
 
@@ -393,7 +377,7 @@ page 515 "Item Avail. by Location Lines"
     var
         DummyQtyAvailable: Decimal;
     begin
-        SetItemFilter;
+        SetItemFilter();
         ItemAvailFormsMgt.CalcAvailQuantities(
           Item, AmountType = AmountType::"Balance at Date",
           GrossRequirement, PlannedOrderRcpt, ScheduledRcpt,

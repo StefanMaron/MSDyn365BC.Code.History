@@ -78,14 +78,14 @@ codeunit 144024 "Test Suggest Vendor Payments"
         CreateRefPaymentExportLinesFromJournal(BankAccountNo, VendorNo, PurchaseHeader."Document Type"::"Credit Memo", 100, '');
 
         // Exercise
-        RunSuggestBankPayments(true, false, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate));
+        RunSuggestBankPayments(true, false, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate()));
         Commit();
 
         // Verify
         RefPmtExported.FindSet();
         Assert.RecordCount(RefPmtExported, 2);
         Assert.AreEqual(-90, RefPmtExported.Amount, 'Credit Memo amount with discount');
-        RefPmtExported.Next;
+        RefPmtExported.Next();
         Assert.AreEqual(900, RefPmtExported.Amount, 'Invoice amount with discount');
     end;
 
@@ -152,7 +152,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         Commit();
 
         // [WHEN] Run Suggest Bank Payment report on 20-06-19 with option 'Find Payment Discount' = Yes, 'Find Payment Discount Tolerance' = No
-        RunSuggestBankPayments(true, false, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate));
+        RunSuggestBankPayments(true, false, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate()));
 
         // [THEN] Suggested amount is equal to 900
         RefPmtExported.FindFirst();
@@ -185,12 +185,12 @@ codeunit 144024 "Test Suggest Vendor Payments"
 
         CreateRefPaymentExportLinesFromJournal(
           BankAccountNo, VendorNo, PurchaseHeader."Document Type"::Invoice, -LibraryRandom.RandDecInRange(1000, 2000, 2), '');
-        UpdatePmtDiscDateVLE(VendorLedgerEntry, VendorNo, WorkDate);
+        UpdatePmtDiscDateVLE(VendorLedgerEntry, VendorNo, WorkDate());
         VendorLedgerEntry.TestField("Original Pmt. Disc. Possible");
         Commit();
 
         // [WHEN] Run Suggest Bank Payment report on 25-06-19 with options 'Find Payment Discount' = Yes, 'Find Payment Discount Tolerance' = No
-        RunSuggestBankPayments(true, false, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate));
+        RunSuggestBankPayments(true, false, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate()));
 
         // [THEN] Suggested amount is equal to 1000
         RefPmtExported.FindFirst();
@@ -223,12 +223,12 @@ codeunit 144024 "Test Suggest Vendor Payments"
 
         CreateRefPaymentExportLinesFromJournal(
           BankAccountNo, VendorNo, PurchaseHeader."Document Type"::Invoice, -LibraryRandom.RandDecInRange(1000, 2000, 2), '');
-        UpdatePmtDiscDateVLE(VendorLedgerEntry, VendorNo, WorkDate);
+        UpdatePmtDiscDateVLE(VendorLedgerEntry, VendorNo, WorkDate());
         VendorLedgerEntry.TestField("Original Pmt. Disc. Possible");
         Commit();
 
         // [WHEN] Run Suggest Bank Payment report on 25-06-19 with options 'Find Payment Discount' = Yes, 'Find Payment Discount Tolerance' = Yes
-        RunSuggestBankPayments(true, true, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate));
+        RunSuggestBankPayments(true, true, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate()));
 
         // [THEN] Suggested amount is equal to 900
         RefPmtExported.FindFirst();
@@ -261,12 +261,12 @@ codeunit 144024 "Test Suggest Vendor Payments"
 
         CreateRefPaymentExportLinesFromJournal(
           BankAccountNo, VendorNo, PurchaseHeader."Document Type"::Invoice, -LibraryRandom.RandDecInRange(1000, 2000, 2), '');
-        UpdatePmtDiscDateVLE(VendorLedgerEntry, VendorNo, WorkDate - 1);
+        UpdatePmtDiscDateVLE(VendorLedgerEntry, VendorNo, WorkDate() - 1);
         VendorLedgerEntry.TestField("Original Pmt. Disc. Possible");
         Commit();
 
         // [WHEN] Run Suggest Bank Payment report on 30-06-19 with options 'Find Payment Discount' = Yes, 'Find Payment Discount Tolerance' = No
-        RunSuggestBankPayments(true, false, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate));
+        RunSuggestBankPayments(true, false, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate()));
 
         // [THEN] Suggested amount is equal to 1000
         RefPmtExported.FindFirst();
@@ -299,12 +299,12 @@ codeunit 144024 "Test Suggest Vendor Payments"
 
         CreateRefPaymentExportLinesFromJournal(
           BankAccountNo, VendorNo, PurchaseHeader."Document Type"::Invoice, -LibraryRandom.RandDecInRange(1000, 2000, 2), '');
-        UpdatePmtDiscDateVLE(VendorLedgerEntry, VendorNo, WorkDate - 1);
+        UpdatePmtDiscDateVLE(VendorLedgerEntry, VendorNo, WorkDate() - 1);
         VendorLedgerEntry.TestField("Original Pmt. Disc. Possible");
         Commit();
 
         // [WHEN] Run Suggest Bank Payment report on 30-06-19 with options 'Find Payment Discount' = Yes, 'Find Payment Discount Tolerance' = Yes
-        RunSuggestBankPayments(true, true, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate));
+        RunSuggestBankPayments(true, true, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate()));
 
         // [THEN] Suggested amount is equal to 1000
         RefPmtExported.FindFirst();

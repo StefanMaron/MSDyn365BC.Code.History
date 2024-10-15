@@ -48,7 +48,7 @@ codeunit 5405 "Feature Map Currency Symbol" implements "Feature Data Update"
         TempDocumentEntry.Reset();
         TempDocumentEntry.DeleteAll();
         if FindCurrencySymbolFieldMapping(IntegrationFieldMapping) then
-            InsertDocumentEntry(Database::"Integration Field Mapping", IntegrationFieldMapping.TableCaption, 1);
+            InsertDocumentEntry(Database::"Integration Field Mapping", IntegrationFieldMapping.TableCaption(), 1);
     end;
 
     local procedure UpdateCurrencySymbolFieldMapping()

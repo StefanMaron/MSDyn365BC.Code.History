@@ -10,17 +10,17 @@ page 738 "VAT Return Period Card"
         {
             group("Period Info")
             {
-                field("Start Date"; "Start Date")
+                field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the start date of the VAT return period.';
                 }
-                field("End Date"; "End Date")
+                field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the end date of the VAT return period.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the due date for the VAT return period.';
@@ -30,7 +30,7 @@ page 738 "VAT Return Period Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the VAT return period.';
                 }
-                field("Received Date"; "Received Date")
+                field("Received Date"; Rec."Received Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT return period received date.';
@@ -38,7 +38,7 @@ page 738 "VAT Return Period Card"
             }
             group("VAT Return Info")
             {
-                field("VAT Return No."; "VAT Return No.")
+                field("VAT Return No."; Rec."VAT Return No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'No.';
@@ -46,7 +46,7 @@ page 738 "VAT Return Period Card"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownVATReturn;
+                        DrillDownVATReturn();
                     end;
                 }
                 field(VATReturnStatus; VATReturnStatus)
@@ -58,7 +58,7 @@ page 738 "VAT Return Period Card"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownVATReturn;
+                        DrillDownVATReturn();
                     end;
                 }
             }
@@ -74,10 +74,6 @@ page 738 "VAT Return Period Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Receive Submitted VAT Returns';
                 Image = RefreshLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Receive the VAT returns that have been submitted.';
                 Visible = IsReceiveSubmittedEnabled;
 
@@ -94,10 +90,6 @@ page 738 "VAT Return Period Card"
                 Caption = 'Create VAT Return';
                 Enabled = CreateVATReturnEnabled;
                 Image = RefreshLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Create a new VAT return from this VAT return period.';
 
                 trigger OnAction()
@@ -126,16 +118,30 @@ page 738 "VAT Return Period Card"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Receive Submitted VAT Returns_Promoted"; "Receive Submitted VAT Returns")
+                {
+                }
+                actionref("Create VAT Return_Promoted"; "Create VAT Return")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        InitPageControllers;
+        InitPageControllers();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        InitPageControllers;
+        InitPageControllers();
     end;
 
     trigger OnOpenPage()

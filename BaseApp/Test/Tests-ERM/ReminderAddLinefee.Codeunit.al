@@ -23,7 +23,6 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderLineMustExistErr: Label 'The Reminder Line does not exists. Filters: %1.';
         ReminderLineMustNotExistErr: Label 'The Reminder Line should not exists. Filters: %1.';
         MustMatchErr: Label 'Field %1 of %2 did not contain correct value.';
-        ConstRmdTextPos: Option Beginning,Ending;
         MinDocumentValue: Decimal;
         MaxDocumentValue: Decimal;
         MustNotMatchErr: Label 'Field %1 of %2 must not match the expected value.';
@@ -91,24 +90,24 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [THEN] All sub records are renamed as well
         ReminderLevel.SetRange("Reminder Terms Code", NewReminderTermsCode);
-        Assert.AreEqual(2, ReminderLevel.Count, StrSubstNo(CountMismatchErr, ReminderLevel.TableCaption));
+        Assert.AreEqual(2, ReminderLevel.Count, StrSubstNo(CountMismatchErr, ReminderLevel.TableCaption()));
 
         CurrencyForReminderLvl.SetRange("Reminder Terms Code", NewReminderTermsCode);
         for Level := 1 to 2 do begin
             CurrencyForReminderLvl.SetRange("No.", Level);
-            Assert.AreEqual(3, CurrencyForReminderLvl.Count, StrSubstNo(CountMismatchErr, CurrencyForReminderLvl.TableCaption));
+            Assert.AreEqual(3, CurrencyForReminderLvl.Count, StrSubstNo(CountMismatchErr, CurrencyForReminderLvl.TableCaption()));
         end;
 
         ReminderText.SetRange("Reminder Terms Code", NewReminderTermsCode);
         for Level := 1 to 2 do begin
             ReminderText.SetRange("Reminder Level", Level);
-            Assert.AreEqual(2, ReminderText.Count, StrSubstNo(CountMismatchErr, ReminderText.TableCaption));
+            Assert.AreEqual(2, ReminderText.Count, StrSubstNo(CountMismatchErr, ReminderText.TableCaption()));
         end;
 
         AdditionalFeeSetup.SetRange("Reminder Terms Code", NewReminderTermsCode);
         for Level := 1 to 2 do begin
             AdditionalFeeSetup.SetRange("Reminder Level No.", Level);
-            Assert.AreEqual(10, AdditionalFeeSetup.Count, StrSubstNo(CountMismatchErr, AdditionalFeeSetup.TableCaption));
+            Assert.AreEqual(10, AdditionalFeeSetup.Count, StrSubstNo(CountMismatchErr, AdditionalFeeSetup.TableCaption()));
         end;
     end;
 
@@ -130,17 +129,17 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
 
         // [GIVEN] A posted sales invoice (I_a) for Customer A
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] I_a is overdue
         // [WHEN] "Create Reminders" action is invoked
-        RunCreateReminderReport(CustNo, WorkDate, CustLedgEntry);
+        RunCreateReminderReport(CustNo, WorkDate(), CustLedgEntry);
 
         // [THEN] A Reminder is created for customer A with Reminder Terms Code R_a
         ReminderHeader.SetRange("Customer No.", CustNo);
         ReminderHeader.FindLast();
         Assert.AreEqual(ReminderTermCode, ReminderHeader."Reminder Terms Code",
-          StrSubstNo(MustMatchErr, ReminderHeader.FieldCaption("Reminder Terms Code"), ReminderHeader.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderHeader.FieldCaption("Reminder Terms Code"), ReminderHeader.TableCaption()));
 
         // [THEN] The reminder have a line for Invoice I_a
         with ReminderLine do
@@ -171,19 +170,19 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateStandardReminderTermSetupWithCust(CustNoB, ReminderTermCodeB, true);
 
         // [GIVEN] A sales invoice is posted for each customer (I_a and I_b)
-        InvoiceA := PostSalesInvoice(CustNoA, CalcDate('<-10D>', WorkDate));
-        InvoiceB := PostSalesInvoice(CustNoB, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNoA, CalcDate('<-10D>', WorkDate()));
+        InvoiceB := PostSalesInvoice(CustNoB, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] I_a and I_b are overdue
         // [WHEN] "Create Reminders" action is invoked
-        RunCreateReminderReport(CustNoA, WorkDate, CustLedgEntry);
-        RunCreateReminderReport(CustNoB, WorkDate, CustLedgEntry);
+        RunCreateReminderReport(CustNoA, WorkDate(), CustLedgEntry);
+        RunCreateReminderReport(CustNoB, WorkDate(), CustLedgEntry);
 
         // [THEN] A Reminder is created for customer A with Reminder Terms Code R_a
         ReminderHeader.SetRange("Customer No.", CustNoA);
         ReminderHeader.FindLast();
         Assert.AreEqual(ReminderTermCodeA, ReminderHeader."Reminder Terms Code",
-          StrSubstNo(MustMatchErr, ReminderHeader.FieldCaption("Reminder Terms Code"), ReminderHeader.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderHeader.FieldCaption("Reminder Terms Code"), ReminderHeader.TableCaption()));
 
         // [THEN] The reminder have a line for Invoice I_a
         with ReminderLine do
@@ -193,7 +192,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderHeader.SetRange("Customer No.", CustNoB);
         ReminderHeader.FindLast();
         Assert.AreEqual(ReminderTermCodeB, ReminderHeader."Reminder Terms Code",
-          StrSubstNo(MustMatchErr, ReminderHeader.FieldCaption("Reminder Terms Code"), ReminderHeader.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderHeader.FieldCaption("Reminder Terms Code"), ReminderHeader.TableCaption()));
 
         // [THEN] The reminder have a line for Invoice I_b
         with ReminderLine do
@@ -220,11 +219,11 @@ codeunit 134997 "Reminder - Add. Line fee"
         Customer.Modify();
 
         // [GIVEN] A posted sales invoice (I_a) for Customer A with empty Reminder Terms Code
-        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] I_a is overdue
         // [WHEN] "Create Reminders" action is invoked
-        RunCreateReminderReport(CustNo, WorkDate, CustLedgEntry);
+        RunCreateReminderReport(CustNo, WorkDate(), CustLedgEntry);
 
         // [THEN] No reminders are created
         ReminderHeader.SetRange("Customer No.", CustNo);
@@ -247,14 +246,14 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
 
         // [GIVEN] A posted sales invoice (I_a) for Customer A
-        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] I_a is overdue
         // [GIVEN] "Create Reminders" action is invoked for customer A
-        RunCreateReminderReport(CustNo, WorkDate, CustLedgEntry);
+        RunCreateReminderReport(CustNo, WorkDate(), CustLedgEntry);
 
         // [WHEN] "Create Reminders" action is invoked again for all customers
-        RunCreateReminderReport('', WorkDate, CustLedgEntry);
+        RunCreateReminderReport('', WorkDate(), CustLedgEntry);
 
         // [THEN] A Confirm dialog is shown indicating a problem
     end;
@@ -278,10 +277,10 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] A sales invoice (A) is posted for the customer
         // [GIVEN] The invoice due date + Reminder grace period < TODAY
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-5D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-5D>', WorkDate()));
 
         // [WHEN] A reminder is created for the customer
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] Invoice A is added to the reminder
         with ReminderLine do
@@ -312,10 +311,10 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] A sales invoice (A) is posted for the customer
         // [GIVEN] The invoice due date + Reminder grace period < TODAY
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-5D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-5D>', WorkDate()));
 
         // [WHEN] A reminder is created for the customer
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] Invoice A is added to the reminder
         with ReminderLine do
@@ -326,7 +325,7 @@ codeunit 134997 "Reminder - Add. Line fee"
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
         ReminderLevel.Get(ReminderTermCode, 1);
         Assert.AreEqual(ReminderLevel."Add. Fee per Line Description", ReminderLine.Description,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -353,16 +352,16 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateReminderTermsLevel(ReminderTermCode, 5, 4, '', 0, 0, false, 2);
 
         // [GIVEN] A sales invoice (A) is posted for the customer
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] The first reminder is issued for invoice A with Line Fee
-        FirstReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate));
+        FirstReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate()));
         IssueReminder(FirstReminderNo, 0, false);
 
         // [GIVEN] The invoice and Line Fee is NOT paid
         // [GIVEN] The invoice due date + 2nd reminder grace period < TODAY
         // [WHEN] A 2nd reminder is created for the customer
-        SecondReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        SecondReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] A reminder line is added for invoice A
         // [THEN] A reminder line of type Customer Ledger Entry is added refering to the first reminder
@@ -400,16 +399,16 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderLevel.Get(ReminderTermCode, 2);
 
         // [GIVEN] A sales invoice (A) is posted for the customer
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] The first reminder is issued for invoice A with Line Fee
-        FirstReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate));
+        FirstReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate()));
         IssueReminder(FirstReminderNo, 0, false);
 
         // [GIVEN] The invoice and Line Fee is NOT paid
         // [GIVEN] The invoice due date + 2nd reminder grace period < TODAY
         // [WHEN] A 2nd reminder is created for the customer
-        SecondReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        SecondReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] A reminder line is added for invoice A
         // [THEN] A reminder line of type Customer Ledger Entry is added refering to the first reminder
@@ -420,7 +419,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, SecondReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
         Assert.AreEqual(ReminderLevel."Add. Fee per Line Amount (LCY)", ReminderLine.Amount,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -447,18 +446,18 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateReminderTermsLevel(ReminderTermCode, 5, 4, '', 0, 0, false, 2);
 
         // [GIVEN] Two sales invoices (A and B) are posted for the customer
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
-        InvoiceB := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
+        InvoiceB := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] The first reminder (R1) is issued for invoice A and B with Line Fee X
-        FirstReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate));
+        FirstReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate()));
         FirstIssuedReminderNo := IssueReminder(FirstReminderNo, 0, false);
 
         // [GIVEN] The invoices and Line Fees are NOT paid
         // [GIVEN] The invoice due date + 2nd reminder grace period < TODAY
         // [WHEN] A 2nd reminder is created for the customer with Apply Line Fee on Invoices
         CustLedgEntryLineFeeOn.SetRange("Document Type", CustLedgEntryLineFeeOn."Document Type"::Invoice);
-        SecondReminderNo := CreateReminderAndSuggestLines(CustNo, WorkDate, CustLedgEntryLineFeeOn);
+        SecondReminderNo := CreateReminderAndSuggestLines(CustNo, WorkDate(), CustLedgEntryLineFeeOn);
 
         // [THEN] A reminder line is added for invoice A
         with ReminderLine do
@@ -503,10 +502,10 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderLevel.Get(ReminderTermCode, 2);
 
         // [GIVEN] A sales invoice (A) is posted for the customer
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-15D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-15D>', WorkDate()));
 
         // [GIVEN] The first reminder (R1) is issued for invoice A with Line Fee X but where the user deleted the Line Fee before issuing
-        FirstReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-8D>', WorkDate));
+        FirstReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-8D>', WorkDate()));
         with ReminderLine do begin
             GetReminderLines(ReminderLine, FirstReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
             Delete(true);
@@ -516,7 +515,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] The invoice is NOT paid
         // [GIVEN] The invoice due date + 2nd reminder grace period < TODAY
         // [WHEN] A 2nd reminder (R2) is created for the customer
-        SecondReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        SecondReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] A reminder line is added for invoice A
         with ReminderLine do
@@ -526,7 +525,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, SecondReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
         Assert.AreEqual(ReminderLevel."Add. Fee per Line Amount (LCY)", ReminderLine.Amount,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -554,11 +553,11 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderLevel.Modify(true);
 
         // [GIVEN] A sales invoice (A) is posted for the customer
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] The invoice due date + Reminder grace period < TODAY
         // [WHEN] A reminder is created for the customer
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] A Line Fee line is added with amount = X and description = Dx' where the invoice A No. is substituted into the description
         with ReminderLine do
@@ -566,7 +565,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Assert.AreEqual(
           StrSubstNo('Something %1', InvoiceA),
           ReminderLine.Description,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -589,11 +588,11 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] Reminder terms set up without additional fee and with Line Fee = X, where X > 0
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
-        AddReminderText(ReminderTermCode, 1, ConstRmdTextPos::Ending, 'Total due: %7');
+        AddReminderText(ReminderTermCode, 1, "Reminder Text Position"::Ending, 'Total due: %7');
 
         // [GIVEN] A reminder with over due invoice (A) and Line Fee for invoice A
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
         with ReminderLine2 do
             VerifyReminderLineExists(ReminderLine2, ReminderNo, Type::"Customer Ledger Entry", "Document Type"::Invoice, InvoiceA);
         AmountA := ReminderLine2."Remaining Amount" + ReminderLine2.Amount + ReminderLine2."VAT Amount";
@@ -618,7 +617,7 @@ codeunit 134997 "Reminder - Add. Line fee"
           AmountX + AmountA,
           TextAmount,
           1,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -641,11 +640,11 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] Reminder terms set up without additional fee and with Line Fee = X, where X > 0
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
-        AddReminderText(ReminderTermCode, 1, ConstRmdTextPos::Ending, 'Total due: %7');
+        AddReminderText(ReminderTermCode, 1, "Reminder Text Position"::Ending, 'Total due: %7');
 
         // [GIVEN] A reminder with over due invoice (A) and Line Fee for invoice A
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
         with ReminderLine2 do
             VerifyReminderLineExists(ReminderLine2, ReminderNo, Type::"Customer Ledger Entry", "Document Type"::Invoice, InvoiceA);
         AmountA := ReminderLine2."Remaining Amount" + ReminderLine2.Amount + ReminderLine2."VAT Amount";
@@ -673,7 +672,7 @@ codeunit 134997 "Reminder - Add. Line fee"
           AmountY + AmountA,
           TextAmount,
           1,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -700,16 +699,16 @@ codeunit 134997 "Reminder - Add. Line fee"
         GLAccountNo := CustomerPostingGroup."Add. Fee per Line Account";
 
         // [GIVEN] An overdue sales invoice for a customer with reminder terms R
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [WHEN] A reminder for the customer is created
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate()));
 
         // [THEN] The G/L account of the Line Fee Reminder line is M
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
         Assert.AreEqual(GLAccountNo, ReminderLine."No.",
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("No."), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("No."), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -738,7 +737,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [WHEN] A reminder for the customer is created
         ReminderNo :=
           CreateReminderAndSuggestLinesLineFeeOnAll(
-            CustNo, CalcDate('<' + Format(LibraryRandom.RandIntInRange(10, 100)) + 'D>', WorkDate));
+            CustNo, CalcDate('<' + Format(LibraryRandom.RandIntInRange(10, 100)) + 'D>', WorkDate()));
         CustLedgerEntry.SetRange("Customer No.", CustNo);
         CustLedgerEntry.FindLast();
 
@@ -746,7 +745,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee", "Document Type"::" ", CustLedgerEntry."Document No.");
         Assert.AreEqual(GLAccountNo, ReminderLine."No.",
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("No."), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("No."), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -782,29 +781,29 @@ codeunit 134997 "Reminder - Add. Line fee"
         CustomerPostingGroup.ModifyAll("Add. Fee per Line Account", GLAccountNo);
 
         // [GIVEN] An overdue sales invoice for a customer with reminder terms R
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [WHEN] A reminder for the customer is created
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate()));
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
 
         // [THEN] The G/L account of the Line Fee Reminder line is M
         Assert.AreEqual(
-          GLAccountNo, ReminderLine."No.", StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("No."), ReminderLine.TableCaption));
+          GLAccountNo, ReminderLine."No.", StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("No."), ReminderLine.TableCaption()));
 
         // [THEN] VAT posting groups are transfered to the Reminder line
         Assert.AreEqual(GLAccount."Gen. Prod. Posting Group", ReminderLine."Gen. Prod. Posting Group",
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("Gen. Prod. Posting Group"), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("Gen. Prod. Posting Group"), ReminderLine.TableCaption()));
         Assert.AreEqual(GLAccount."VAT Prod. Posting Group", ReminderLine."VAT Prod. Posting Group",
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("VAT Prod. Posting Group"), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("VAT Prod. Posting Group"), ReminderLine.TableCaption()));
 
         // [THEN] The VAT percentage is that of the VAT Posting Group
         VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", ReminderLine."VAT Prod. Posting Group");
         Assert.AreEqual(VATPostingSetup."VAT %", ReminderLine."VAT %",
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("VAT %"), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("VAT %"), ReminderLine.TableCaption()));
         Assert.AreNotEqual(0, ReminderLine."VAT %",
-          StrSubstNo(MustNotMatchErr, ReminderLine.FieldCaption("VAT %"), ReminderLine.TableCaption));
+          StrSubstNo(MustNotMatchErr, ReminderLine.FieldCaption("VAT %"), ReminderLine.TableCaption()));
 
         // Clean up
         CustomerPostingGroup.ModifyAll("Add. Fee per Line Account", OldGLAccountNo);
@@ -828,11 +827,11 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
 
         // [GIVEN] A over due sales invoice for a customer with reminder terms R
-        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] A reminder for the customer is created with Q Reminder Lines
         CustLedgEntryLineFeeOn.Reset();
-        ReminderNo := CreateReminderAndSuggestLines(CustNo, WorkDate, CustLedgEntryLineFeeOn);
+        ReminderNo := CreateReminderAndSuggestLines(CustNo, WorkDate(), CustLedgEntryLineFeeOn);
         ReminderLine.SetRange("Reminder No.", ReminderNo);
         NumberOfLines := ReminderLine.Count();
 
@@ -862,21 +861,21 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
 
         // [GIVEN] A over due sales invoice for a customer with reminder terms R
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [WHEN] A reminder for the customer is created
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
         ReminderHeader.Get(ReminderNo);
 
         // [THEN] The posting date of the Line Fee is equal to the Reminder document date
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
         Assert.AreEqual(ReminderHeader."Posting Date", ReminderLine."Posting Date",
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("Posting Date"), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("Posting Date"), ReminderLine.TableCaption()));
 
         // [THEN] The Due Date of the Line Fee is equal to the due date of the reminder due date
         Assert.AreEqual(ReminderHeader."Due Date", ReminderLine."Due Date",
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("Due Date"), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption("Due Date"), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -900,17 +899,17 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] An overdue Credit Memo for the customer
         MaxDocumentValue := 1000;
-        CreditMemoB := PostCreditMemo(CustNo, CalcDate('<-14D>', WorkDate));
+        CreditMemoB := PostCreditMemo(CustNo, CalcDate('<-14D>', WorkDate()));
 
         // [GIVEN] An overdue Invoice for the customer
         MinDocumentValue := 1001;
         MaxDocumentValue := 100000;
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] A reminder is created for the customer
         // [WHEN] A suggest lines is invoked with Document Type for Line Fee set to Credit Memo
         CustLedgEntryLineFeeOn.SetRange("Document Type", CustLedgEntryLineFeeOn."Document Type"::"Credit Memo");
-        ReminderNo := CreateReminderAndSuggestLines(CustNo, WorkDate, CustLedgEntryLineFeeOn);
+        ReminderNo := CreateReminderAndSuggestLines(CustNo, WorkDate(), CustLedgEntryLineFeeOn);
 
         // [THEN] A reminder line is created for the Credit Memo
         with ReminderLine do
@@ -946,7 +945,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] Currency G with exchange rate
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-1Y>', WorkDate), 2, 1);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-1Y>', WorkDate()), 2, 1);
 
         // [GIVEN] A Reminder term (R) with level 1 setup for currency G with Line Fee amount = X, where X > 0.
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
@@ -959,11 +958,11 @@ codeunit 134997 "Reminder - Add. Line fee"
         Customer.Modify(true);
 
         // [GIVEN] A sales invoice (I_a) is posted for customer C with currency G
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] Invoice I_a is overdue
         // [WHEN] A reminder is created for customer C with currency G
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] A Reminder line is created for Invoice I_a
         with ReminderLine do
@@ -973,7 +972,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
         Assert.AreEqual(FeeAmountX, ReminderLine.Amount,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -997,8 +996,8 @@ codeunit 134997 "Reminder - Add. Line fee"
         Initialize(false);
 
         // [GIVEN] Currency G and H with fixed exchange rates
-        CurrencyCodeG := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-1Y>', WorkDate), 2, 1);
-        CurrencyCodeH := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-1Y>', WorkDate), 3, 1);
+        CurrencyCodeG := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-1Y>', WorkDate()), 2, 1);
+        CurrencyCodeH := LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-1Y>', WorkDate()), 3, 1);
 
         // [GIVEN] A Reminder term (R) with level 1 setup for currency G with Line Fee amount = X, where X > 0 and Line Fee Amount Y for LCY.
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
@@ -1013,12 +1012,12 @@ codeunit 134997 "Reminder - Add. Line fee"
         Customer.Modify(true);
 
         // [GIVEN] A sales invoice (I_a) is posted for customer C with currency H
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] Invoice I_a is overdue
         // [WHEN] A reminder is created for customer C with currency H
         ReminderLine.DeleteAll();
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] A Reminder line is created for Invoice I_a
         with ReminderLine do
@@ -1028,7 +1027,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
         Assert.AreNearlyEqual(3 * FeeAmountY, ReminderLine.Amount, 1,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -1053,10 +1052,10 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] A sales invoice (A) is posted for the customer
         // [GIVEN] The invoice due date + Reminder grace period < TODAY
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-5D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-5D>', WorkDate()));
 
         // [WHEN] A reminder is created for the customer
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] Invoice A is added to the reminder
         with ReminderLine do
@@ -1064,12 +1063,12 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [THEN] Interest is NOT calculated for invoice A
         Assert.AreEqual(0.0, ReminderLine.Amount,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
 
         // [THEN] The reminder header have Post Interest = Yes
         ReminderHeader.Get(ReminderNo);
         Assert.AreEqual(true, ReminderHeader."Post Interest",
-          StrSubstNo(MustMatchErr, ReminderHeader.FieldCaption("Post Interest"), ReminderHeader.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderHeader.FieldCaption("Post Interest"), ReminderHeader.TableCaption()));
     end;
 
     [Test]
@@ -1095,7 +1094,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] A sales invoice (A) is posted for the customer
         // [GIVEN] The invoice due date + Reminder grace period < TODAY
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-5D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-5D>', WorkDate()));
 
         // [GIVEN] Reminder Terms N is changed to Post Interest = No
         ReminderTerms.Get(ReminderTermCode);
@@ -1103,7 +1102,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderTerms.Modify(true);
 
         // [WHEN] A reminder is created for the customer
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] Invoice A is added to the reminder
         with ReminderLine do
@@ -1111,12 +1110,12 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [THEN] Interest is calculated for invoice A
         Assert.AreNotEqual(0.0, ReminderLine.Amount,
-          StrSubstNo(MustNotMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+          StrSubstNo(MustNotMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
 
         // [THEN] The reminder header have Post Interest = No
         ReminderHeader.Get(ReminderNo);
         Assert.AreEqual(false, ReminderHeader."Post Interest",
-          StrSubstNo(MustMatchErr, ReminderHeader.FieldCaption("Post Interest"), ReminderHeader.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderHeader.FieldCaption("Post Interest"), ReminderHeader.TableCaption()));
     end;
 
     [Test]
@@ -1140,10 +1139,10 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] A sales invoice (A) is posted for the customer
         // [GIVEN] The invoice due date + Reminder grace period < TODAY
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-5D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-5D>', WorkDate()));
 
         // [WHEN] A reminder is created for the customer
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] Invoice A is added to the reminder
         with ReminderLine do
@@ -1151,12 +1150,12 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [THEN] Interest is calculated for invoice A
         Assert.AreNotEqual(0.0, ReminderLine.Amount,
-          StrSubstNo(MustNotMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+          StrSubstNo(MustNotMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
 
         // [THEN] The reminder header have Post Interest = Yes
         ReminderHeader.Get(ReminderNo);
         Assert.AreEqual(true, ReminderHeader."Post Interest",
-          StrSubstNo(MustMatchErr, ReminderHeader.FieldCaption("Post Interest"), ReminderHeader.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderHeader.FieldCaption("Post Interest"), ReminderHeader.TableCaption()));
     end;
 
     [Test]
@@ -1182,15 +1181,15 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [GIVEN] Additional Fee (LCY) on Reminder Level is 0
         ReminderLevel.Get(ReminderTermCode, 1);
         Assert.AreEqual(0, ReminderLevel."Additional Fee (LCY)",
-          StrSubstNo(MustMatchErr, ReminderLevel.FieldCaption("Additional Fee (LCY)"), ReminderLevel.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLevel.FieldCaption("Additional Fee (LCY)"), ReminderLevel.TableCaption()));
 
         // [GIVEN] A sales invoice (A) is posted for the customer
         // [GIVEN] The invoice due date + Reminder grace period < TODAY
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-5D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-5D>', WorkDate()));
         FindOpenCustomerLedgerEntriesExclVAT(CustLedgerEntry, InvoiceA, CustNo);
 
         // [WHEN] A reminder is created for the customer
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] Invoice A is added to the reminder
         with ReminderLine do
@@ -1200,7 +1199,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"G/L Account", "Gen. Journal Document Type"::" ", '');
         Assert.AreNearlyEqual(CustLedgerEntry."Remaining Amount" * 0.1, ReminderLine.Amount, 1,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -1224,16 +1223,16 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] An overdue Credit Memo for the customer
         MaxDocumentValue := 1000;
-        CreditMemoB := PostCreditMemo(CustNo, CalcDate('<-14D>', WorkDate));
+        CreditMemoB := PostCreditMemo(CustNo, CalcDate('<-14D>', WorkDate()));
 
         // [GIVEN] An overdue Invoice for the customer
         MinDocumentValue := 1001;
         MaxDocumentValue := 100000;
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [WHEN] A new reminder is created via the Create Reminders report for the customer with Document Type for Line Fee set to Credit Memo
         CustLedgEntryLineFeeOn.SetRange("Document Type", CustLedgEntryLineFeeOn."Document Type"::"Credit Memo");
-        ReminderNo := RunCreateReminderReport(CustNo, WorkDate, CustLedgEntryLineFeeOn);
+        ReminderNo := RunCreateReminderReport(CustNo, WorkDate(), CustLedgEntryLineFeeOn);
 
         // [THEN] A reminder line is created for the Credit Memo
         with ReminderLine do
@@ -1268,8 +1267,8 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
         LibraryERM.CreateReminderHeader(ReminderHeader);
         ReminderHeader.Validate("Customer No.", CustNo);
-        ReminderHeader.Validate("Posting Date", WorkDate);
-        ReminderHeader.Validate("Document Date", WorkDate);
+        ReminderHeader.Validate("Posting Date", WorkDate());
+        ReminderHeader.Validate("Document Date", WorkDate());
         ReminderHeader.Modify(true);
 
         // [GIVEN] User added a Reminder line
@@ -1288,7 +1287,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [THEN] The line type is changed
         // [THEN] All other fields on the line is cleared
-        Assert.AreEqual(0, ReminderLine.Amount, StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+        Assert.AreEqual(0, ReminderLine.Amount, StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -1308,7 +1307,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee",
               "Document Type"::Invoice, '');
-        ReminderLine.Validate("Posting Date", CalcDate('<+2D>', WorkDate));
+        ReminderLine.Validate("Posting Date", CalcDate('<+2D>', WorkDate()));
         ReminderLine.Modify(true);
 
         // [THEN] The date is saved
@@ -1331,7 +1330,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee",
               "Document Type"::Invoice, '');
-        ReminderLine.Validate("Due Date", CalcDate('<+2D>', WorkDate));
+        ReminderLine.Validate("Due Date", CalcDate('<+2D>', WorkDate()));
         ReminderLine.Modify(true);
 
         // [THEN] The date is saved
@@ -1445,7 +1444,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [THEN] The line description is changed to the name of the G/L account
         ReminderLine.Get(ReminderLine."Reminder No.", ReminderLine."Line No.");
         Assert.AreEqual(GLAccount.Name, ReminderLine.Description,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -1485,7 +1484,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [THEN] The line description is not changed
         ReminderLine.Get(ReminderLine."Reminder No.", ReminderLine."Line No.");
         Assert.AreEqual(DescriptionText, ReminderLine.Description,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -1511,7 +1510,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderLevel.Modify(true);
 
         // [GIVEN] A overdue sales invoice exists
-        InvoiceA := PostSalesInvoice(ReminderHeader."Customer No.", CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(ReminderHeader."Customer No.", CalcDate('<-10D>', WorkDate()));
 
         // [WHEN] User tries to change the Applies To field to another overdue invoice that does not have a Line Fee applied to it
         with ReminderLine do
@@ -1524,7 +1523,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [THEN] The line description is updated with the new Document No.
         Assert.AreEqual(
           StrSubstNo('Line Fee %1', InvoiceA), ReminderLine.Description,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -1544,7 +1543,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderHeader.Get(ReminderNo);
 
         // [GIVEN] An NOT overdue invoice for the same customer
-        InvoiceA := PostSalesInvoice(ReminderHeader."Customer No.", CalcDate('<+10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(ReminderHeader."Customer No.", CalcDate('<+10D>', WorkDate()));
 
         // [WHEN] User tries to change the Applies To field to another invoice that is not overdue
         with ReminderLine do
@@ -1576,12 +1575,12 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderTermCode := CreateReminderTerms(true, false, false);
         CreateReminderTermsLevel(ReminderTermCode, 1, 1, '', 0, LibraryRandom.RandDecInRange(1, 100, 2), false, 1);
         CustNoA := CreateCustomerWithReminderAndPaymentTerms(ReminderTermCode, PaymentTermsCode);
-        PostSalesInvoice(CustNoA, CalcDate('<-10D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNoA, CalcDate('<-6D>', WorkDate));
+        PostSalesInvoice(CustNoA, CalcDate('<-10D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNoA, CalcDate('<-6D>', WorkDate()));
 
         // [GIVEN] A posted invoice (overdue) for another customer
         CustNoB := CreateCustomerWithReminderAndPaymentTerms(ReminderTermCode, PaymentTermsCode);
-        InvoiceB := PostSalesInvoice(CustNoB, CalcDate('<-10D>', WorkDate));
+        InvoiceB := PostSalesInvoice(CustNoB, CalcDate('<-10D>', WorkDate()));
 
         // [WHEN] User tries to change the Applies To field to another invoice that does not belong to the customer of the Reminder
         with ReminderLine do
@@ -1611,10 +1610,10 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
 
         // [GIVEN] An overdue sales invoice (I_a) for customer C
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] A reminder (R_1) is created for customer C with Reminder Term R without a reminder line for I_a
-        CreateReminderHeader(ReminderHeader, CustNo, WorkDate);
+        CreateReminderHeader(ReminderHeader, CustNo, WorkDate());
 
         // [GIVEN] A Reminder Line with type Line Fee is added for invoice I_a with amount X
         CreateReminderLineOfTypeLineFee(ReminderLine, ReminderHeader."No.", ReminderLine."Applies-to Document Type"::Invoice, InvoiceA);
@@ -1623,7 +1622,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         IssueReminder(ReminderHeader."No.", 0, false);
 
         // [GIVEN] A reminder (R_2) is created for customer C without lines
-        CreateReminderHeader(ReminderHeader, CustNo, WorkDate);
+        CreateReminderHeader(ReminderHeader, CustNo, WorkDate());
 
         // [GIVEN] A Reminder Line of type Line Fee is added to R_2
         // [WHEN] The user attempts to apply the Line Fee to invoice I_A
@@ -1663,10 +1662,10 @@ codeunit 134997 "Reminder - Add. Line fee"
         GLAccount.Get(ReminderLine."No.");
         Assert.AreEqual(
           GLAccount.Name, ReminderLine.Description,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption()));
 
         // [THEN] The amount of the Reminder Line is set to zero
-        Assert.AreEqual(0, ReminderLine.Amount, StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+        Assert.AreEqual(0, ReminderLine.Amount, StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -1695,10 +1694,10 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [THEN] The description of the Reminder Line is cleared
         Assert.AreEqual(
-          '', ReminderLine.Description, StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption));
+          '', ReminderLine.Description, StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption()));
 
         // [THEN] The amount of the Reminder Line is set to zero
-        Assert.AreEqual(0, ReminderLine.Amount, StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+        Assert.AreEqual(0, ReminderLine.Amount, StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -1721,8 +1720,8 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateReminderTermsLevel(ReminderTermCode, 5, 5, '', 0, 0, false, 2);
 
         // [GIVEN] A reminder with an overdue Invoice (I_a) and Line Fee (X) for the invoice
-        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [WHEN] User tries to change the "No. of Reminders" to 2 for the Line Fee line for invoice I_A
         with ReminderLine do
@@ -1733,10 +1732,10 @@ codeunit 134997 "Reminder - Add. Line fee"
         GLAccount.Get(ReminderLine."No.");
         Assert.AreEqual(
           GLAccount.Name, ReminderLine.Description,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Description), ReminderLine.TableCaption()));
 
         // [THEN] The amount of the Reminder Line is set to zero
-        Assert.AreEqual(0, ReminderLine.Amount, StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+        Assert.AreEqual(0, ReminderLine.Amount, StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -1786,8 +1785,8 @@ codeunit 134997 "Reminder - Add. Line fee"
         LineFeeX := ReminderLevel."Add. Fee per Line Amount (LCY)";
 
         // [GIVEN] A reminder with Reminder Term R with a overdue sales invoice and a Line Fee X
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [GIVEN] No additional fee or interest on the reminder
         // [WHEN] The Reminder is issued
@@ -1796,16 +1795,16 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [THEN] A Customer Ledger Entry is posted with amount = X
         FindOpenCustomerLedgerEntriesExclVAT(CustLedgerEntry, IssuedReminderNo, CustNo);
         Assert.AreNearlyEqual(LineFeeX, CustLedgerEntry.Amount, 1,
-          StrSubstNo(MustMatchErr, CustLedgerEntry.FieldCaption(Amount), CustLedgerEntry.TableCaption));
+          StrSubstNo(MustMatchErr, CustLedgerEntry.FieldCaption(Amount), CustLedgerEntry.TableCaption()));
 
         // [THEN] The Applies-to Doc is saved in the Issued Reminder Line table
         IssuedReminderLine.SetRange("Reminder No.", IssuedReminderNo);
         IssuedReminderLine.SetRange(Type, IssuedReminderLine.Type::"Line Fee");
         IssuedReminderLine.FindFirst();
         Assert.AreEqual(InvoiceA, IssuedReminderLine."Applies-To Document No.",
-          StrSubstNo(MustMatchErr, IssuedReminderLine.FieldCaption("Applies-To Document No."), IssuedReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, IssuedReminderLine.FieldCaption("Applies-To Document No."), IssuedReminderLine.TableCaption()));
         Assert.AreEqual(IssuedReminderLine."Applies-To Document Type"::Invoice, IssuedReminderLine."Applies-To Document Type",
-          StrSubstNo(MustMatchErr, IssuedReminderLine.FieldCaption("Applies-To Document Type"), IssuedReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, IssuedReminderLine.FieldCaption("Applies-To Document Type"), IssuedReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -1832,8 +1831,8 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderTerms.Modify(true);
 
         // [GIVEN] A reminder with Reminder Term R with a over due sales invoice and a Line Fee X
-        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [GIVEN] No additional fee or interest on the reminder
         // [WHEN] The Reminder is issued
@@ -1869,10 +1868,10 @@ codeunit 134997 "Reminder - Add. Line fee"
         LineFeeX := ReminderLevel."Add. Fee per Line Amount (LCY)";
 
         // [GIVEN] A reminder with 3 overdue sales invoices and a Line Fees for all invoices (X_1, X_2 and X_3)
-        PostSalesInvoice(CustNo, CalcDate('<-12D>', WorkDate));
-        PostSalesInvoice(CustNo, CalcDate('<-11D>', WorkDate));
-        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        PostSalesInvoice(CustNo, CalcDate('<-12D>', WorkDate()));
+        PostSalesInvoice(CustNo, CalcDate('<-11D>', WorkDate()));
+        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [GIVEN] No additional fee or interest on the reminder
         // [WHEN] The Reminder is issued
@@ -1881,7 +1880,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [THEN] A Customer Ledger Entry is posted with amount = X_1+X_2+X_3
         FindOpenCustomerLedgerEntriesExclVAT(CustLedgerEntry, IssuedReminderNo, CustNo);
         Assert.AreNearlyEqual(LineFeeX * 3, CustLedgerEntry.Amount, 1,
-          StrSubstNo(MustMatchErr, CustLedgerEntry.FieldCaption(Amount), CustLedgerEntry.TableCaption));
+          StrSubstNo(MustMatchErr, CustLedgerEntry.FieldCaption(Amount), CustLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -1908,10 +1907,10 @@ codeunit 134997 "Reminder - Add. Line fee"
         LineFeeX := ReminderLevel."Add. Fee per Line Amount (LCY)";
 
         // [GIVEN] A reminder with 3 overdue sales invoices and a Line Fees on two of them (X_1 and X_2)
-        PostSalesInvoice(CustNo, CalcDate('<-12D>', WorkDate));
-        PostSalesInvoice(CustNo, CalcDate('<-11D>', WorkDate));
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        PostSalesInvoice(CustNo, CalcDate('<-12D>', WorkDate()));
+        PostSalesInvoice(CustNo, CalcDate('<-11D>', WorkDate()));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
         ReminderLine.Delete(true);
@@ -1923,7 +1922,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [THEN] A Customer Ledger Entry is posted with amount = X_1+X_2
         FindOpenCustomerLedgerEntriesExclVAT(CustLedgerEntry, IssuedReminderNo, CustNo);
         Assert.AreNearlyEqual(LineFeeX * 2, CustLedgerEntry.Amount, 1,
-          StrSubstNo(MustMatchErr, CustLedgerEntry.FieldCaption(Amount), CustLedgerEntry.TableCaption));
+          StrSubstNo(MustMatchErr, CustLedgerEntry.FieldCaption(Amount), CustLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -1951,8 +1950,8 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [GIVEN] A reminder with 2 overdue sales invoices and a Line Fee for all the invoices (X_1 and X_2)
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
-        PostSalesInvoice(CustNo, CalcDate('<-12D>', WorkDate));
-        PostSalesInvoice(CustNo, CalcDate('<-11D>', WorkDate));
+        PostSalesInvoice(CustNo, CalcDate('<-12D>', WorkDate()));
+        PostSalesInvoice(CustNo, CalcDate('<-11D>', WorkDate()));
         Customer.Get(CustNo);
 
         // [GIVEN] Customer Posting Group have G/L account A for Additional fees and G/L account B for Line Fees without VAT
@@ -1967,7 +1966,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderTerms.Get(ReminderTermCode);
         ReminderTerms.Validate("Post Additional Fee", true);
         ReminderTerms.Modify(true);
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [WHEN] The Reminder is issued
         IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
@@ -1978,7 +1977,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [THEN] The reminder is posted to Customer Ledger Entries with amount Y+X_1+X_2
         FindOpenCustomerLedgerEntriesExclVAT(CustLedgerEntry, IssuedReminderNo, CustNo);
         Assert.AreNearlyEqual(LineFeeX * 2 + AmountY, CustLedgerEntry.Amount, 1,
-          StrSubstNo(MustMatchErr, CustLedgerEntry.FieldCaption(Amount), CustLedgerEntry.TableCaption));
+          StrSubstNo(MustMatchErr, CustLedgerEntry.FieldCaption(Amount), CustLedgerEntry.TableCaption()));
 
         // [THEN] A G/L entry is posted to G/L account A with amount Y
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Reminder);
@@ -1986,15 +1985,15 @@ codeunit 134997 "Reminder - Add. Line fee"
         GLEntry.SetRange("G/L Account No.", GLAccountA);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(-AmountY, GLEntry.Amount, 1,
-          StrSubstNo(MustMatchErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption));
+          StrSubstNo(MustMatchErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption()));
 
         // [THEN] Two G/L entry is posted to G/L account B with amount X_1+X_2
         GLEntry.SetRange("G/L Account No.", GLAccountB);
         GLEntry.FindSet();
         repeat
             Assert.AreNearlyEqual(-LineFeeX, GLEntry.Amount, 1,
-              StrSubstNo(MustMatchErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption));
-        until GLEntry.Next = 0;
+              StrSubstNo(MustMatchErr, GLEntry.FieldCaption(Amount), GLEntry.TableCaption()));
+        until GLEntry.Next() = 0;
     end;
 
     [Test]
@@ -2024,17 +2023,17 @@ codeunit 134997 "Reminder - Add. Line fee"
         CreateReminderTermsLevel(ReminderTermCode, 3, 3, '', 0, AmountY, false, 2);
 
         // [GIVEN] An overdue invoice (I_a) for customer (C)
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] The 1st reminder (R_1) is issued for invoice I_a, but the user deleted the Line Fee before issuing it
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-5D>', WorkDate));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-5D>', WorkDate()));
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, ReminderNo, Type::"Line Fee", "Document Type"::Invoice, InvoiceA);
         ReminderLine.Delete(true);
         IssueReminder(ReminderNo, 0, false);
 
         // [GIVEN] A 2nd reminder (R_2) is created for invoice I_a and Line Fee of Y is suggested for the invoice
-        SecondReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        SecondReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [GIVEN] The reminder does not have additional fee or interests
         // [WHEN] The reminder is issued
@@ -2043,7 +2042,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         // [THEN] A Customer Ledger Entry is posted for the Reminder R_2 with amount = Y
         FindOpenCustomerLedgerEntriesExclVAT(CustLedgerEntry, SecondIssuedReminderNo, CustNo);
         Assert.AreNearlyEqual(AmountY, CustLedgerEntry.Amount, 1,
-          StrSubstNo(MustMatchErr, CustLedgerEntry.FieldCaption(Amount), CustLedgerEntry.TableCaption));
+          StrSubstNo(MustMatchErr, CustLedgerEntry.FieldCaption(Amount), CustLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -2175,7 +2174,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderHeader.Get(ReminderNo);
 
         // [GIVEN] An invoice that is NOT overdue
-        InvoiceA := PostSalesInvoice(ReminderHeader."Customer No.", WorkDate);
+        InvoiceA := PostSalesInvoice(ReminderHeader."Customer No.", WorkDate());
 
         // [GIVEN] The user changes the Applies To for the Line Fee to a Invoice that is not overdue
         with ReminderLine do
@@ -2188,7 +2187,7 @@ codeunit 134997 "Reminder - Add. Line fee"
 
         // [THEN] An error is thrown indicating that the invoice have to be overdue
         Assert.ExpectedError(StrSubstNo(EntryNotOverdueErr,
-            ReminderLine.FieldCaption("Document No."), InvoiceA, CustLedgerEntry.TableCaption));
+            ReminderLine.FieldCaption("Document No."), InvoiceA, CustLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -2218,13 +2217,13 @@ codeunit 134997 "Reminder - Add. Line fee"
         CustNoM := CreateCustomerWithReminderAndPaymentTerms(ReminderTermCode, PaymentTermsCode);
 
         // [GIVEN] A invoice I_a that is overdue for customer N
-        InvoiceA := PostSalesInvoice(CustNoN, CalcDate('<-10D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNoN, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] A invoice I_b that is overdue for customer M
-        InvoiceB := PostSalesInvoice(CustNoM, CalcDate('<-10D>', WorkDate));
+        InvoiceB := PostSalesInvoice(CustNoM, CalcDate('<-10D>', WorkDate()));
 
         // [GIVEN] A reminder with a overdue sales invoice I_b and a Line Fee for customer M
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNoM, WorkDate);
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNoM, WorkDate());
 
         // [GIVEN] The user is able to overwrite, and changes the Applies To for the Line Fee to a Invoice I_a
         with ReminderLine do
@@ -2308,8 +2307,8 @@ codeunit 134997 "Reminder - Add. Line fee"
         CustomerPostingGroup.ModifyAll("Add. Fee per Line Account", GLAccountNo);
 
         // [GIVEN] A reminder with a overdue sales invoice and a Line Fee (X) to G/L account M
-        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate));
+        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate()));
 
         // [WHEN] The Reminder is issued
         IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
@@ -2320,9 +2319,9 @@ codeunit 134997 "Reminder - Add. Line fee"
         VATEntry.SetRange("Document No.", IssuedReminderNo);
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(-ReminderLevel."Add. Fee per Line Amount (LCY)", VATEntry.Base, 0.02,
-          StrSubstNo(MustMatchErr, VATEntry.FieldCaption(Base), VATEntry.TableCaption));
+          StrSubstNo(MustMatchErr, VATEntry.FieldCaption(Base), VATEntry.TableCaption()));
         Assert.AreNearlyEqual(-ReminderLevel."Add. Fee per Line Amount (LCY)" * VATPostingSetup."VAT %" / 100, VATEntry.Amount, 0.02,
-          StrSubstNo(MustMatchErr, VATEntry.FieldCaption(Amount), VATEntry.TableCaption));
+          StrSubstNo(MustMatchErr, VATEntry.FieldCaption(Amount), VATEntry.TableCaption()));
         VATEntry.TestField("VAT Registration No.", Customer."VAT Registration No.");
     end;
 
@@ -2359,13 +2358,13 @@ codeunit 134997 "Reminder - Add. Line fee"
         Customer.Modify(true);
 
         // [GIVEN] An Issued Reminder (IR_1) with reminder for Invoice I_a and Line Fee X for I_a
-        PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate));
+        PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate()));
         IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [GIVEN] IR_1 is overdue
         // [WHEN] A Finance Charge is created and lines are suggested (i.e. interest rate is calculated)
-        FinanceChrgNo := CreateFinChrgAndSuggestLines(CustNo, WorkDate);
+        FinanceChrgNo := CreateFinChrgAndSuggestLines(CustNo, WorkDate());
 
         // [THEN] The interest is calculated only on Z
         FinanceChrgMemoLine.SetRange("Finance Charge Memo No.", FinanceChrgNo);
@@ -2373,7 +2372,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         FinanceChrgMemoLine.SetRange("Document No.", IssuedReminderNo);
         FinanceChrgMemoLine.FindFirst();
         Assert.AreNearlyEqual(AmountZ * 0.02 / 30 * 20, FinanceChrgMemoLine.Amount, 1,
-          StrSubstNo(MustMatchErr, FinanceChrgMemoLine.FieldCaption(Amount), FinanceChrgMemoLine.TableCaption));
+          StrSubstNo(MustMatchErr, FinanceChrgMemoLine.FieldCaption(Amount), FinanceChrgMemoLine.TableCaption()));
     end;
 
     [Test]
@@ -2403,20 +2402,20 @@ codeunit 134997 "Reminder - Add. Line fee"
         Customer.Modify(true);
 
         // [GIVEN] An Issued Reminder (IR_1) with reminder for Invoice I_a and Line Fee X for I_a
-        PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate));
+        PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate()));
         IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [GIVEN] IR_1 is overdue
         // [WHEN] A Finance Charge is created and lines are suggested (i.e. interest rate is calculated)
-        FinanceChrgNo := CreateFinChrgAndSuggestLines(CustNo, WorkDate);
+        FinanceChrgNo := CreateFinChrgAndSuggestLines(CustNo, WorkDate());
 
         // [THEN] No lines is added for IR_1 as only Line Fees is issued
         FinanceChrgMemoLine.SetRange("Finance Charge Memo No.", FinanceChrgNo);
         FinanceChrgMemoLine.SetRange("Document Type", FinanceChrgMemoLine."Document Type"::Reminder);
         FinanceChrgMemoLine.SetRange("Document No.", IssuedReminderNo);
         Assert.AreEqual(0, FinanceChrgMemoLine.Count,
-          StrSubstNo(MustMatchErr, 'Row Count', FinanceChrgMemoLine.TableCaption));
+          StrSubstNo(MustMatchErr, 'Row Count', FinanceChrgMemoLine.TableCaption()));
     end;
 
     [Test]
@@ -2454,30 +2453,30 @@ codeunit 134997 "Reminder - Add. Line fee"
         Customer.Modify(true);
 
         // [GIVEN] An Issued Reminder (IR_1) with reminder for Invoice I_a and Line Fee X for I_a
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate()));
         IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [GIVEN] IR_1 is overdue
         // [WHEN] A 2nd Reminder is created with R (and interest is calculated)
-        SecondReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        SecondReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] The interest on I_a is calculated
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, SecondReminderNo, Type::"Customer Ledger Entry", "Document Type"::Invoice, InvoiceA);
         Assert.AreNearlyEqual(ReminderLine."Remaining Amount" * 0.02, ReminderLine.Amount, ReminderLine."Remaining Amount" / 1000,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
 
         // [THEN] The interest is calculated for IR_1 based only on Z
         with ReminderLine do
             VerifyReminderLineExists(
               ReminderLine, SecondReminderNo, Type::"Customer Ledger Entry", "Document Type"::Reminder, IssuedReminderNo);
         Assert.AreNearlyEqual(AmountZ * 0.02 / 30 * 20, ReminderLine.Amount, 1,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
 
         // [THEN] The remaining amount of IR_1 is not equal to Z (i.e. it includes the Line Fee)
         Assert.AreNotEqual(ReminderLine."Remaining Amount", AmountZ,
-          StrSubstNo(MustNotMatchErr, ReminderLine.FieldCaption("Remaining Amount"), ReminderLine.TableCaption));
+          StrSubstNo(MustNotMatchErr, ReminderLine.FieldCaption("Remaining Amount"), ReminderLine.TableCaption()));
     end;
 
     [Test]
@@ -2515,13 +2514,13 @@ codeunit 134997 "Reminder - Add. Line fee"
         Customer.Modify(true);
 
         // [GIVEN] An Issued Reminder (IR_1) with reminder for Invoice I_a and Line Fee X for I_a
-        PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate));
+        PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate()));
         IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [GIVEN] IR_1 is overdue
         // [WHEN] A Finance Charge is created and lines are suggested (i.e. interest rate is calculated)
-        FinanceChrgNo := CreateFinChrgAndSuggestLines(CustNo, WorkDate);
+        FinanceChrgNo := CreateFinChrgAndSuggestLines(CustNo, WorkDate());
 
         // [THEN] The interest is calculated on Z+X
         FinanceChrgMemoLine.SetRange("Finance Charge Memo No.", FinanceChrgNo);
@@ -2529,7 +2528,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         FinanceChrgMemoLine.SetRange("Document No.", IssuedReminderNo);
         FinanceChrgMemoLine.FindFirst();
         Assert.AreNearlyEqual((AmountZ + AmountX) * 0.02 / 30 * 20, FinanceChrgMemoLine.Amount, 1,
-          StrSubstNo(MustMatchErr, FinanceChrgMemoLine.FieldCaption(Amount), FinanceChrgMemoLine.TableCaption));
+          StrSubstNo(MustMatchErr, FinanceChrgMemoLine.FieldCaption(Amount), FinanceChrgMemoLine.TableCaption()));
     end;
 
     [Test]
@@ -2569,30 +2568,30 @@ codeunit 134997 "Reminder - Add. Line fee"
         Customer.Modify(true);
 
         // [GIVEN] An Issued Reminder (IR_1) with reminder for Invoice I_a and Line Fee X for I_a
-        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate));
-        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate));
+        InvoiceA := PostSalesInvoice(CustNo, CalcDate('<-30D>', WorkDate()));
+        ReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-20D>', WorkDate()));
         IssuedReminderNo := IssueReminder(ReminderNo, 0, false);
 
         // [GIVEN] IR_1 is overdue
         // [WHEN] A 2nd Reminder is created with R (and interest is calculated)
-        SecondReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate);
+        SecondReminderNo := CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, WorkDate());
 
         // [THEN] The interest on I_a is calculated
         with ReminderLine do
             VerifyReminderLineExists(ReminderLine, SecondReminderNo, Type::"Customer Ledger Entry", "Document Type"::Invoice, InvoiceA);
         Assert.AreNearlyEqual(ReminderLine."Remaining Amount" * 0.02, ReminderLine.Amount, ReminderLine."Remaining Amount" / 1000,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
 
         // [THEN] The interest is calculated for IR_1 based on X+Z
         with ReminderLine do
             VerifyReminderLineExists(
               ReminderLine, SecondReminderNo, Type::"Customer Ledger Entry", "Document Type"::Reminder, IssuedReminderNo);
         Assert.AreNearlyEqual((AmountZ + AmountX) * 0.02 / 30 * 20, ReminderLine.Amount, 1,
-          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption));
+          StrSubstNo(MustMatchErr, ReminderLine.FieldCaption(Amount), ReminderLine.TableCaption()));
 
         // [THEN] The remaining amount of IR_1 is not equal to Z (i.e. it includes the Line Fee)
         Assert.AreNotEqual(ReminderLine."Remaining Amount", AmountZ,
-          StrSubstNo(MustNotMatchErr, ReminderLine.FieldCaption("Remaining Amount"), ReminderLine.TableCaption));
+          StrSubstNo(MustNotMatchErr, ReminderLine.FieldCaption("Remaining Amount"), ReminderLine.TableCaption()));
     end;
 
     [HandlerFunctions('IssueRemindersRequestPageHandler')]
@@ -2625,6 +2624,7 @@ codeunit 134997 "Reminder - Add. Line fee"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
         ReminderHeader: Record "Reminder Header";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Reminder - Add. Line fee");
         BindActiveDirectoryMockEvents;
@@ -2640,7 +2640,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Reminder - Add. Line fee");
 
         SetGLSetupInvoiceRounding();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         CustomerPostingGroup.FindFirst();
         CustomerPostingGroup.ModifyAll("Add. Fee per Line Account", CustomerPostingGroup."Additional Fee Account");
         IsInitialized := true;
@@ -2661,7 +2661,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         CurrencyForReminderLevel: Record "Currency for Reminder Level";
     begin
         with CurrencyForReminderLevel do begin
-            Init;
+            Init();
             Validate("Reminder Terms Code", ReminderTermsCode);
             Validate("No.", Level);
             Validate("Currency Code", CurrencyCode);
@@ -2742,8 +2742,8 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderTermCode: Code[10];
     begin
         CreateStandardReminderTermSetupWithCust(CustNo, ReminderTermCode, true);
-        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate));
-        exit(CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate)));
+        PostSalesInvoice(CustNo, CalcDate('<-10D>', WorkDate()));
+        exit(CreateReminderAndSuggestLinesLineFeeOnAll(CustNo, CalcDate('<-6D>', WorkDate())));
     end;
 
     local procedure SuggestReminderLines(ReminderNo: Code[20]; var CustLedgEntryLineFeeOn: Record "Cust. Ledger Entry")
@@ -2847,7 +2847,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         AdditionalFeeSetup: Record "Additional Fee Setup";
     begin
         with AdditionalFeeSetup do begin
-            Init;
+            Init();
             "Reminder Terms Code" := ReminderTermsCode;
             "Reminder Level No." := Level;
             "Charge Per Line" := PerLine;
@@ -2906,7 +2906,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderLevel.Modify(true);
 
         with AdditionalFeeSetup do begin
-            Init;
+            Init();
             "Reminder Terms Code" := ReminderTermCode;
             "Reminder Level No." := 1;
             "Charge Per Line" := false;
@@ -2946,14 +2946,14 @@ codeunit 134997 "Reminder - Add. Line fee"
         ReminderTermCode: Code[10];
     begin
         CreateStandardReminderTermSetupWithCust(CustomerNo, ReminderTermCode, true);
-        PostSalesInvoice(CustomerNo, WorkDate - 10);
-        RunCreateReminderReport(CustomerNo, WorkDate, CustLedgerEntry);
+        PostSalesInvoice(CustomerNo, WorkDate() - 10);
+        RunCreateReminderReport(CustomerNo, WorkDate(), CustLedgerEntry);
         ReminderHeader.SetRange("Customer No.", CustomerNo);
         ReminderHeader.FindFirst();
         ReminderNo := ReminderHeader."No.";
     end;
 
-    local procedure AddReminderText(ReminderTermCode: Code[10]; Level: Integer; Position: Option; Text: Text[100])
+    local procedure AddReminderText(ReminderTermCode: Code[10]; Level: Integer; Position: Enum "Reminder Text Position"; Text: Text[100])
     var
         ReminderText: Record "Reminder Text";
         NextLineNo: Integer;
@@ -3013,7 +3013,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         if VATEntry.FindSet() then
             repeat
                 Amount += VATEntry.Amount;
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
         exit(-Amount);
     end;
 
@@ -3036,7 +3036,7 @@ codeunit 134997 "Reminder - Add. Line fee"
         VATPostingSetup.SetRange("VAT %", 0);
         VATPostingSetup.FindFirst();
         GLAccountA := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Sale); // Sale
-        VATPostingSetup.Next;
+        VATPostingSetup.Next();
         GLAccountB := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Sale); // Sale
         UpdateDefaultVATProdGroup(GLAccountA);
         UpdateDefaultVATProdGroup(GLAccountB);
@@ -3084,7 +3084,7 @@ codeunit 134997 "Reminder - Add. Line fee"
                 ReminderLine.SetRange("Document No.", DocumentNo);
         end;
 
-        exit(ReminderLine.FindSet);
+        exit(ReminderLine.FindSet());
     end;
 
     local procedure VerifyReminderLineExists(var ReminderLine: Record "Reminder Line"; ReminderHeaderNo: Code[20]; Type: Enum "Reminder Source Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])

@@ -5,20 +5,21 @@ codeunit 5645 "FA Reclass. Jnl.-B.Transfer"
     trigger OnRun()
     begin
         FAReclassJnlBatch.Copy(Rec);
-        Code;
+        Code();
         Copy(FAReclassJnlBatch);
     end;
 
     var
-        Text000: Label 'Do you want to reclassify the journals?';
-        Text001: Label 'The journals were successfully reclassified.';
-        Text002: Label 'It was not possible to reclassify all of the journals. ';
-        Text003: Label 'The journals that were not successfully reclassified are now marked.';
         FAReclassJnlTempl: Record "FA Reclass. Journal Template";
         FAReclassJnlBatch: Record "FA Reclass. Journal Batch";
         FAReclassJnlLine: Record "FA Reclass. Journal Line";
         FAReclassTransferBatch: Codeunit "FA Reclass. Transfer Batch";
         JournalWithErrors: Boolean;
+
+        Text000: Label 'Do you want to reclassify the journals?';
+        Text001: Label 'The journals were successfully reclassified.';
+        Text002: Label 'It was not possible to reclassify all of the journals. ';
+        Text003: Label 'The journals that were not successfully reclassified are now marked.';
 
     local procedure "Code"()
     begin
@@ -51,7 +52,7 @@ codeunit 5645 "FA Reclass. Jnl.-B.Transfer"
                   Text003);
 
             if not Find('=><') then begin
-                Reset;
+                Reset();
                 FilterGroup := 2;
                 SetRange("Journal Template Name", "Journal Template Name");
                 FilterGroup := 0;

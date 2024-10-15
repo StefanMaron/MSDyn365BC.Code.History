@@ -12,12 +12,12 @@ page 5106 "Team Salespeople"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the salesperson you want to register as part of the team.';
                 }
-                field("Salesperson Name"; "Salesperson Name")
+                field("Salesperson Name"; Rec."Salesperson Name")
                 {
                     ApplicationArea = Suite;
                     DrillDown = false;

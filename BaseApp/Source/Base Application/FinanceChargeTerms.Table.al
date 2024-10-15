@@ -125,7 +125,8 @@ table 5 "Finance Charge Terms"
     var
         FinChrgText: Record "Finance Charge Text";
         CurrForFinChrgTerms: Record "Currency for Fin. Charge Terms";
-        InterestRateNotificationMsg: Label 'This interest rate will only be used if no relevant interest rate per date has been entered.';
         FinChrgInterestRate: Record "Finance Charge Interest Rate";
+
+        InterestRateNotificationMsg: Label 'This interest rate will only be used if no relevant interest rate per date has been entered.';
 }
 

@@ -24,7 +24,7 @@ page 8901 "Finance Manager Role Center"
                 action("Account Schedules")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Account Schedules';
+                    Caption = 'Financial Reporting';
                     RunObject = page "Account Schedule Names";
                 }
                 action("Analyses by Dimensions")
@@ -306,7 +306,7 @@ page 8901 "Finance Manager Role Center"
                         action("Account Schedule")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Account Schedule';
+                            Caption = 'Financial Report';
                             RunObject = report "Account Schedule";
                         }
                         action("Trial Balance")
@@ -1773,7 +1773,7 @@ page 8901 "Finance Manager Role Center"
                 }
                 action("Phys. Invt. Counting Periods")
                 {
-                    ApplicationArea = Warehouse, Basic, Suite;
+                    ApplicationArea = Basic, Suite, Warehouse;
                     Caption = 'Physical Inventory Counting Periods';
                     RunObject = page "Phys. Invt. Counting Periods";
                 }
@@ -1969,7 +1969,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Analysis View Card")
                     {
-                        ApplicationArea = InventoryAnalysis, Dimensions;
+                        ApplicationArea = Dimensions, InventoryAnalysis;
                         Caption = 'Inventory Analysis by Dimensions';
                         RunObject = page "Analysis View List Inventory";
                     }

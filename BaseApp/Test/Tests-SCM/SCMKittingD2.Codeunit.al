@@ -53,7 +53,7 @@ codeunit 137091 "SCM Kitting - D2"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         MfgSetup.Get();
-        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
+        WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()); // to avoid Due Date Before Work Date message.
         StdCostLevel := 2;
         LibraryAssembly.UpdateAssemblySetup(
           AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header", LibraryUtility.GetGlobalNoSeriesCode);
@@ -85,7 +85,7 @@ codeunit 137091 "SCM Kitting - D2"
         // Validate.
         VerifyOrderLines(AssemblyHeader."No.", false);
         Assert.AreEqual(StrSubstNo(ErrorDeleteItem, Item."No."), GetLastErrorText, 'Unexpected error message when deleting item.');
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -110,10 +110,10 @@ codeunit 137091 "SCM Kitting - D2"
             repeat
                 AssemblyLine.Validate(Quantity, -AssemblyLine.Quantity);
                 AssemblyHeader.Modify(true);
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
         Commit(); // added as ASSERTERROR rolls back all changes made as yet- and therefore asm header cannot be verified.
         asserterror AssemblyHeader.Validate(Quantity, -AssemblyHeader.Quantity);
-        ClearLastError;
+        ClearLastError();
 
         // Validate.
         VerifyOrderLines(AssemblyHeader."No.", true);
@@ -1230,7 +1230,7 @@ codeunit 137091 "SCM Kitting - D2"
                     TempAssemblyLine := AssemblyLine;
                     TempAssemblyLine.Insert();
                 end;
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
 
         // Validate.
         VerifyExplodedLines(TempAssemblyLine, AssemblyHeader."No.");
@@ -1287,8 +1287,8 @@ codeunit 137091 "SCM Kitting - D2"
                       StrSubstNo(ErrorItemIsNotBOM, AssemblyLine."No."), GetLastErrorText, 'Wrong BOM explosion message.')
                 else
                     Assert.IsTrue(StrPos(GetLastErrorText, ErrorLineType) > 0, 'Actual:' + GetLastErrorText + '; Expected:' + ErrorLineType);
-                ClearLastError;
-            until AssemblyLine.Next = 0;
+                ClearLastError();
+            until AssemblyLine.Next() = 0;
     end;
 
     [Test]
@@ -1347,14 +1347,14 @@ codeunit 137091 "SCM Kitting - D2"
 
         // Validate.
         Assert.AreEqual(StrSubstNo(ErrorItemIsNotBOM, SalesLine."No."), GetLastErrorText, 'Unexpected message for BOM explosion.');
-        ClearLastError;
+        ClearLastError();
 
         // Exercise.
         asserterror SalesExplodeBOM.Run(SalesLine1);
 
         // Validate.
         Assert.IsTrue(StrPos(GetLastErrorText, ErrorLineType) > 0, 'Actual:' + GetLastErrorText + '; Expected:' + ErrorLineType);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -1414,12 +1414,12 @@ codeunit 137091 "SCM Kitting - D2"
         Assert.AreEqual(StrSubstNo(ErrorItemIsNotBOM, PurchaseLine."No."), GetLastErrorText, 'Actual:' + GetLastErrorText);
 
         // Exercise.
-        ClearLastError;
+        ClearLastError();
         asserterror PurchExplodeBOM.Run(PurchaseLine1);
 
         // Validate.
         Assert.IsTrue(StrPos(GetLastErrorText, ErrorLineType) > 0, 'Actual:' + GetLastErrorText + '; Expected:' + ErrorLineType);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Normal]
@@ -1655,7 +1655,7 @@ codeunit 137091 "SCM Kitting - D2"
                 if not CustomLines then
                     Assert.AreEqual(1, BOMComponent.Count, 'Asm. line for ' + AssemblyLine."No." + ' not found.');
                 VerifyOrderLine(AssemblyLine);
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
 
         if not CustomLines then begin
             BOMComponent.Reset();
@@ -1745,7 +1745,7 @@ codeunit 137091 "SCM Kitting - D2"
                     Assert.AreNearlyEqual(TempAssemblyLine."Quantity per" * TempBOMComponent."Quantity per", AssemblyLine."Quantity per",
                       LibraryERM.GetAmountRoundingPrecision, 'Wrong qty per in exploded line for ' + TempAssemblyLine."No.");
                 VerifyOrderLine(AssemblyLine);
-            until AssemblyLine.Next = 0
+            until AssemblyLine.Next() = 0
     end;
 
     [Normal]
@@ -1770,7 +1770,7 @@ codeunit 137091 "SCM Kitting - D2"
             Assert.AreNearlyEqual(TempBOMComponent."Quantity per" * TempSalesLine.Quantity, SalesLine.Quantity,
               LibraryERM.GetAmountRoundingPrecision, 'Wrong qty in exploded line for ' + SalesLine."No.");
             TempBOMComponent.Delete(true);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
 
         TempBOMComponent.Reset();
         TempBOMComponent.SetRange(Type, TempBOMComponent.Type::Item);
@@ -1799,7 +1799,7 @@ codeunit 137091 "SCM Kitting - D2"
             Assert.AreNearlyEqual(TempBOMComponent."Quantity per" * TempPurchaseLine.Quantity, PurchaseLine.Quantity,
               LibraryERM.GetAmountRoundingPrecision, 'Wrong qty in exploded line for ' + PurchaseLine."No.");
             TempBOMComponent.Delete(true);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
 
         TempBOMComponent.Reset();
         TempBOMComponent.SetRange(Type, TempBOMComponent.Type::Item);
@@ -1838,7 +1838,7 @@ codeunit 137091 "SCM Kitting - D2"
             repeat
                 TempBOMComponent := BOMComponent;
                 TempBOMComponent.Insert();
-            until BOMComponent.Next = 0;
+            until BOMComponent.Next() = 0;
     end;
 
     [Normal]
@@ -1859,7 +1859,7 @@ codeunit 137091 "SCM Kitting - D2"
                 TempBOMComponent.SetRange("Unit of Measure Code", BOMComponent."Unit of Measure Code");
                 TempBOMComponent.SetRange("Variant Code", BOMComponent."Variant Code");
                 Assert.AreEqual(1, TempBOMComponent.Count, 'Assembly list was altered at comp.' + BOMComponent."No." + '!');
-            until BOMComponent.Next = 0;
+            until BOMComponent.Next() = 0;
     end;
 
     [Normal]
@@ -1874,7 +1874,7 @@ codeunit 137091 "SCM Kitting - D2"
         if AssemblyLine.FindSet() then
             repeat
                 Assert.AreEqual(LocationCode, AssemblyLine."Location Code", 'Wrong location code on line.');
-            until AssemblyLine.Next = 0;
+            until AssemblyLine.Next() = 0;
     end;
 
     [StrMenuHandler]

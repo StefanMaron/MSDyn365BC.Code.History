@@ -12,7 +12,7 @@ page 7505 "Item Attr. Value Translations"
         {
             repeater(Group)
             {
-                field("Language Code"; "Language Code")
+                field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     LookupPageID = Languages;
@@ -33,7 +33,7 @@ page 7505 "Item Attr. Value Translations"
 
     trigger OnAfterGetCurrRecord()
     begin
-        UpdateWindowCaption
+        UpdateWindowCaption();
     end;
 
     var

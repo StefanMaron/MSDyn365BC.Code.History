@@ -15,6 +15,7 @@ report 99003805 "Reg. Abs. (from Work Center)"
             begin
                 Date := StartingDate;
                 repeat
+                    AbsenceChange.Init();
                     AbsenceChange."Capacity Type" := AbsenceChange."Capacity Type"::"Work Center";
                     AbsenceChange."No." := "No.";
                     AbsenceChange."Starting Time" := StartingTime;
@@ -22,7 +23,7 @@ report 99003805 "Reg. Abs. (from Work Center)"
                     AbsenceChange.Date := Date;
                     AbsenceChange.Description := Description;
                     AbsenceChange.Capacity := Capacity2;
-                    AbsenceChange.UpdateDatetime;
+                    AbsenceChange.UpdateDatetime();
                     if not AbsenceChange.Insert() then
                         if Overwrite then
                             AbsenceChange.Modify();

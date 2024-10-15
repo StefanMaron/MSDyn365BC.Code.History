@@ -15,7 +15,7 @@ report 5974 "Contract Quotes to Be Signed"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Service_Contract_Header__TABLECAPTION__________ServContractFilter; TableCaption + ': ' + ServContractFilter)
@@ -214,7 +214,7 @@ report 5974 "Contract Quotes to Be Signed"
 
     trigger OnPreReport()
     begin
-        ServContractFilter := "Service Contract Header".GetFilters;
+        ServContractFilter := "Service Contract Header".GetFilters();
     end;
 
     var

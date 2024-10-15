@@ -139,7 +139,7 @@ codeunit 134816 "ERM CA Reporting"
         asserterror LibraryCostAccounting.DeleteCostBudgetRegEntriesFrom(LastClosedEntryNo);
         Assert.AreEqual(
           StrSubstNo(DeleteClosedEntryError, LastClosedEntryNo), GetLastErrorText, StrSubstNo(UnexpectedErrorMessage, GetLastErrorText));
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -160,7 +160,7 @@ codeunit 134816 "ERM CA Reporting"
         asserterror LibraryCostAccounting.DeleteCostRegisterEntriesFrom(LastClosedEntryNo);
         Assert.AreEqual(
           StrSubstNo(DeleteClosedEntryError, LastClosedEntryNo), GetLastErrorText, StrSubstNo(UnexpectedErrorMessage, GetLastErrorText));
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -335,7 +335,7 @@ codeunit 134816 "ERM CA Reporting"
     begin
         // Setup:
         Initialize();
-        YearEndDate := CalcDate('<CY - 2Y>', WorkDate);
+        YearEndDate := CalcDate('<CY - 2Y>', WorkDate());
         LibraryVariableStorage.Enqueue(YearEndDate);
 
         // Create a cost entry in the specified date
@@ -385,7 +385,7 @@ codeunit 134816 "ERM CA Reporting"
         Initialize();
 
         // Setup
-        YearEndingDate := LibraryUtility.GenerateRandomDate(CalcDate('<-CY>', WorkDate), CalcDate('<CY-1D>', WorkDate));
+        YearEndingDate := LibraryUtility.GenerateRandomDate(CalcDate('<-CY>', WorkDate()), CalcDate('<CY-1D>', WorkDate()));
 
         // Post-Setup
         LibraryVariableStorage.Enqueue(YearEndingDate);
@@ -409,7 +409,7 @@ codeunit 134816 "ERM CA Reporting"
 
         // Setup
         YearEndingDate := CalcDate('<CY>', Today);
-        OldWorkDate := WorkDate;
+        OldWorkDate := WorkDate();
         WorkDate := CalcDate('<1M>', YearEndingDate);
 
         // Post-Setup
@@ -453,7 +453,7 @@ codeunit 134816 "ERM CA Reporting"
         CostBudgetRegister.Get(LastClosedEntryNo);
         asserterror CostBudgetRegister.Validate(Closed, false);
         Assert.IsTrue(StrPos(ClosedEntryError, GetLastErrorText) > 0, StrSubstNo(UnexpectedErrorMessage, GetLastErrorText));
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -475,7 +475,7 @@ codeunit 134816 "ERM CA Reporting"
         CostRegister.Get(LastClosedEntryNo);
         asserterror CostRegister.Validate(Closed, false);
         Assert.IsTrue(StrPos(ClosedEntryError, GetLastErrorText) > 0, StrSubstNo(UnexpectedErrorMessage, GetLastErrorText));
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -491,7 +491,7 @@ codeunit 134816 "ERM CA Reporting"
         LibraryCostAccounting.CreateCostBudgetEntry(CostBudgetEntry, CostBudgetName.Name);
 
         CostBudgetEntry.SetRange("Budget Name", CostBudgetName.Name);
-        CostBudgetEntry.SetRange(Date, WorkDate);
+        CostBudgetEntry.SetRange(Date, WorkDate());
 
         REPORT.Run(REPORT::"Transfer Budget to Actual", false, false, CostBudgetEntry);
 
@@ -612,7 +612,7 @@ codeunit 134816 "ERM CA Reporting"
         repeat
             CostBudgetRegister.TestField(Closed, true);
             UpToEntry := UpToEntry - 1;
-            CostBudgetRegister.Next;
+            CostBudgetRegister.Next();
         until UpToEntry = 0;
     end;
 
@@ -624,7 +624,7 @@ codeunit 134816 "ERM CA Reporting"
         repeat
             CostRegister.TestField(Closed, true);
             UpToEntry := UpToEntry - 1;
-            CostRegister.Next;
+            CostRegister.Next();
         until UpToEntry = 0;
     end;
 
@@ -642,7 +642,7 @@ codeunit 134816 "ERM CA Reporting"
     [Scope('OnPrem')]
     procedure RPHandlerAllocBudgetCosts(var AllocCostsReqPage: TestRequestPage "Cost Allocation")
     begin
-        LibraryCostAccounting.AllocateCostsFromTo(AllocCostsReqPage, 1, 99, WorkDate, '', GlobalCostBudget);
+        LibraryCostAccounting.AllocateCostsFromTo(AllocCostsReqPage, 1, 99, WorkDate(), '', GlobalCostBudget);
         AllocCostsReqPage.OK.Invoke;
     end;
 
@@ -650,7 +650,7 @@ codeunit 134816 "ERM CA Reporting"
     [Scope('OnPrem')]
     procedure RPHandlerAllocCosts(var AllocCostsReqPage: TestRequestPage "Cost Allocation")
     begin
-        LibraryCostAccounting.AllocateCostsFromTo(AllocCostsReqPage, 1, 99, WorkDate, '', '');
+        LibraryCostAccounting.AllocateCostsFromTo(AllocCostsReqPage, 1, 99, WorkDate(), '', '');
         AllocCostsReqPage.OK.Invoke;
     end;
 

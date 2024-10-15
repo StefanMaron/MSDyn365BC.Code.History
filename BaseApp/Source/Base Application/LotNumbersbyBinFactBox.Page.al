@@ -12,29 +12,29 @@ page 9126 "Lot Numbers by Bin FactBox"
             repeater(Control7)
             {
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the item that exists as lot numbers in the bin.';
                     Visible = false;
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the zone that is assigned to the bin where the lot number exists.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin where the lot number exists.';
                 }
-                field("Lot No."; "Lot No.")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the lot number that exists in the bin.';
                 }
-                field("Qty. (Base)"; "Qty. (Base)")
+                field("Qty. (Base)"; Rec."Qty. (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how many items with the lot number exist in the bin.';
@@ -49,7 +49,7 @@ page 9126 "Lot Numbers by Bin FactBox"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        FillTempTable;
+        FillTempTable();
         exit(Find(Which));
     end;
 
@@ -62,12 +62,12 @@ page 9126 "Lot Numbers by Bin FactBox"
         LotNosByBinCode.SetRange(Location_Code, GetRangeMin("Location Code"));
         LotNosByBinCode.SetFilter(Lot_No, '<>%1', '');
         OnFillTempTableOnAfterLotNosByBinCodeSetFilters(LotNosByBinCode);
-        LotNosByBinCode.Open;
+        LotNosByBinCode.Open();
 
         DeleteAll();
 
-        while LotNosByBinCode.Read do begin
-            Init;
+        while LotNosByBinCode.Read() do begin
+            Init();
             "Item No." := LotNosByBinCode.Item_No;
             "Variant Code" := LotNosByBinCode.Variant_Code;
             "Zone Code" := LotNosByBinCode.Zone_Code;
@@ -75,12 +75,12 @@ page 9126 "Lot Numbers by Bin FactBox"
             "Location Code" := LotNosByBinCode.Location_Code;
             "Lot No." := LotNosByBinCode.Lot_No;
             OnFillTempTableOnAfterPopulateLotNosByBinCodeFields(Rec, LotNosByBinCode);
-            if Find then begin
+            if Find() then begin
                 "Qty. (Base)" += LotNosByBinCode.Sum_Qty_Base;
-                Modify;
+                Modify();
             end else begin
                 "Qty. (Base)" := LotNosByBinCode.Sum_Qty_Base;
-                Insert;
+                Insert();
             end;
         end;
     end;

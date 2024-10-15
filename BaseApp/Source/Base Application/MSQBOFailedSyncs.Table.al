@@ -4,6 +4,7 @@ table 7827 "MS-QBO Failed Syncs"
     ObsoleteReason = 'replacing burntIn Extension tables with V2 Extension';
     ObsoleteState = Removed;
     ObsoleteTag = '18.0';
+    ReplicateData = false;
 
     fields
     {

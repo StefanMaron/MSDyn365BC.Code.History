@@ -91,10 +91,9 @@ table 31 "Item Picture Buffer"
         if ZipFileName <> '' then begin
             ServerFileOpened := ServerFile.Open(ZipFileName);
             ServerFile.CreateInStream(InStream)
-        end else begin
+        end else
             if not UploadIntoStream(SelectZIPFileMsg, '', 'Zip Files|*.zip', ZipFileName, InStream) then
                 Error('');
-        end;
 
         DataCompression.OpenZipArchive(InStream, false);
         DataCompression.GetEntryList(EntryList);
@@ -104,7 +103,7 @@ table 31 "Item Picture Buffer"
         TotalCount := 0;
         DeleteAll();
         foreach EntryListKey in EntryList do begin
-            Init;
+            Init();
             "File Name" :=
                 CopyStr(FileMgt.GetFileNameWithoutExtension(EntryListKey), 1, MaxStrLen("File Name"));
             "File Extension" :=
@@ -127,15 +126,15 @@ table 31 "Item Picture Buffer"
                         end else
                             "Import Status" := "Import Status"::Pending;
                     end;
-                Insert;
+                Insert();
             end;
         end;
 
-        DataCompression.CloseZipArchive;
-        Window.Close;
+        DataCompression.CloseZipArchive();
+        Window.Close();
 
         if ServerFileOpened then
-            ServerFile.Close;
+            ServerFile.Close();
 
         exit(ZipFileName);
     end;
@@ -161,11 +160,11 @@ table 31 "Item Picture Buffer"
                         Item.Picture.Insert(ImageID);
                         Item.Modify();
                         "Import Status" := "Import Status"::Completed;
-                        Modify;
+                        Modify();
                     end;
             until Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure ShouldImport(ReplaceMode: Boolean; PictureExists: Boolean): Boolean

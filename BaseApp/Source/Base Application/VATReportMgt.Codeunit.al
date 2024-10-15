@@ -24,21 +24,21 @@ codeunit 737 "VAT Report Mgt."
         VATReportSetup: Record "VAT Report Setup";
         ManualInsertNotification: Notification;
     begin
-        if not VATReportSetup.Get then
+        if not VATReportSetup.Get() then
             exit;
 
         if VATReportSetup."Manual Receive Period CU ID" = 0 then
             exit;
 
-        if not IsManualInsertNotificationEnabled then
+        if not IsManualInsertNotificationEnabled() then
             exit;
 
-        ManualInsertNotification.Id := GetManualInsertNotificationGUID;
-        ManualInsertNotification.Recall;
+        ManualInsertNotification.Id := GetManualInsertNotificationGUID();
+        ManualInsertNotification.Recall();
         ManualInsertNotification.Message := ManualInsertNotificationMsg;
         ManualInsertNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         ManualInsertNotification.AddAction(DontShowAgainTxt, CODEUNIT::"VAT Report Mgt.", 'DontShowAgainManualInsertNotification');
-        ManualInsertNotification.Send;
+        ManualInsertNotification.Send();
     end;
 
     [Scope('OnPrem')]
@@ -46,16 +46,16 @@ codeunit 737 "VAT Report Mgt."
     var
         MyNotifications: Record "My Notifications";
     begin
-        if not MyNotifications.Disable(GetManualInsertNotificationGUID) then
+        if not MyNotifications.Disable(GetManualInsertNotificationGUID()) then
             MyNotifications.InsertDefault(
-              GetManualInsertNotificationGUID, ManualInsertNotificationNameTxt, ManualInsertNotificationDescriptionTxt, false);
+              GetManualInsertNotificationGUID(), ManualInsertNotificationNameTxt, ManualInsertNotificationDescriptionTxt, false);
     end;
 
     local procedure IsManualInsertNotificationEnabled(): Boolean
     var
         MyNotifications: Record "My Notifications";
     begin
-        exit(MyNotifications.IsEnabled(GetManualInsertNotificationGUID));
+        exit(MyNotifications.IsEnabled(GetManualInsertNotificationGUID()));
     end;
 
     local procedure GetManualInsertNotificationGUID(): Guid
@@ -229,7 +229,7 @@ codeunit 737 "VAT Report Mgt."
         JobErrorNotification.Message := StrSubstNo(FailedJobNotificationMsg, JobQueueLogEntry."Start Date/Time");
         JobErrorNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         JobErrorNotification.AddAction(OpenJobCardMsg, CODEUNIT::"VAT Report Mgt.", 'OpenVATReturnPeriodJobCard');
-        JobErrorNotification.Send;
+        JobErrorNotification.Send();
     end;
 
     [Scope('OnPrem')]
@@ -253,7 +253,7 @@ codeunit 737 "VAT Report Mgt."
         VATReportSetup: Record "VAT Report Setup";
         VATReturnPeriod: Record "VAT Return Period";
     begin
-        if VATReportSetup.Get then
+        if VATReportSetup.Get() then
             if (Rec."VAT Report Version" <> '') and (Rec."VAT Report Version" = VATReportSetup."Report Version") then
                 if PAGE.RunModal(0, VATReturnPeriod) = ACTION::LookupOK then
                     UpdateVATReturn(Rec, VATReturnPeriod);

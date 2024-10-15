@@ -15,22 +15,22 @@ page 13400 "Intrastat - File Setup"
             group(General)
             {
                 Caption = 'General';
-                field("Custom Code"; "Custom Code")
+                field("Custom Code"; Rec."Custom Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a custom code for the Intrastat file setup information.';
                 }
-                field("Company Serial No."; "Company Serial No.")
+                field("Company Serial No."; Rec."Company Serial No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a company serial number for the Intrastat file setup information.';
                 }
-                field("Last Transfer Date"; "Last Transfer Date")
+                field("Last Transfer Date"; Rec."Last Transfer Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a last transfer date for the Intrastat file setup information.';
                 }
-                field("File No."; "File No.")
+                field("File No."; Rec."File No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a file number for the Intrastat file setup information.';
@@ -45,10 +45,10 @@ page 13400 "Intrastat - File Setup"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
     end;
 }

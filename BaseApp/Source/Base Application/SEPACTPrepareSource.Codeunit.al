@@ -44,7 +44,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
         if RefPmtExp.FindSet() then
             repeat
                 with TempGenJnlLine do begin
-                    Init;
+                    Init();
                     "Journal Template Name" := '';
                     "Journal Batch Name" := '';
                     case RefPmtExp."Document Type" of
@@ -74,7 +74,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
 #endif
                     "Message to Recipient" := RefPmtExp."External Document No.";
 
-                    Insert;
+                    Insert();
                 end;
             until RefPmtExp.Next() = 0;
 

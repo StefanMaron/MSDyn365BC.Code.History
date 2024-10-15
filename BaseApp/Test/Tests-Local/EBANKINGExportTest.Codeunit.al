@@ -124,16 +124,16 @@ codeunit 144009 "E-BANKING Export Test"
     begin
         RefPaymentExported.DeleteAll(true);
 
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         SuggestBankPayments.SetTableView(Vendor);
-        SuggestBankPayments.InitializeRequest(CalcDate('<1M>', WorkDate), false, 0);
+        SuggestBankPayments.InitializeRequest(CalcDate('<1M>', WorkDate()), false, 0);
         SuggestBankPayments.UseRequestPage := false;
         SuggestBankPayments.RunModal();
 
         RefPaymentExported.SetRange("Vendor No.", Vendor."No.");
         RefPaymentExported.ModifyAll("Payment Account", DomesticBankAccount."No.");
 
-        DomesticBankAccount.SetRecFilter;
+        DomesticBankAccount.SetRecFilter();
         ExportRefPaymentLMP.InitializeRequest(true);
         ExportRefPaymentLMP.SetTableView(DomesticBankAccount);
         ExportRefPaymentLMP.UseRequestPage := false;
@@ -149,9 +149,9 @@ codeunit 144009 "E-BANKING Export Test"
     begin
         RefPaymentExported.DeleteAll(true);
 
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         SuggestBankPayments.SetTableView(Vendor);
-        SuggestBankPayments.InitializeRequest(CalcDate('<1M>', WorkDate), false, 0);
+        SuggestBankPayments.InitializeRequest(CalcDate('<1M>', WorkDate()), false, 0);
         SuggestBankPayments.UseRequestPage := false;
         SuggestBankPayments.RunModal();
 
@@ -160,7 +160,7 @@ codeunit 144009 "E-BANKING Export Test"
         RefPaymentExported.ModifyAll("Foreign Payment Method", ForeignBankRefFileSetup."Default Payment Method");
         RefPaymentExported.ModifyAll("Foreign Banks Service Fee", ForeignBankRefFileSetup."Default Service Fee Code");
 
-        ForeignBankAccount.SetRecFilter;
+        ForeignBankAccount.SetRecFilter();
         ExportRefPaymentLUM.InitializeRequest(true);
         ExportRefPaymentLUM.SetTableView(ForeignBankAccount);
         ExportRefPaymentLUM.UseRequestPage := false;
@@ -198,7 +198,7 @@ codeunit 144009 "E-BANKING Export Test"
         Assert.AreEqual(300, StrLen(Str), 'Footer should be 300 chars long');
         Assert.IsTrue(FileReader.Read(Str) = 0, 'The file should only have 3 lines');
 
-        FileReader.Close;
+        FileReader.Close();
     end;
 
     local procedure ValidateForeignPaymentFile(Vendor: Record Vendor; FileName: Text)
@@ -225,7 +225,7 @@ codeunit 144009 "E-BANKING Export Test"
         Assert.IsTrue(FileReader.Read(Str) > 0, 'Fotter line should exist');
         Assert.IsTrue(FileReader.Read(Str) = 0, 'The file should only have 3 lines');
 
-        FileReader.Close;
+        FileReader.Close();
     end;
 
     local procedure Setup()

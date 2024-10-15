@@ -10,6 +10,7 @@ codeunit 7204 "CDS Setup Defaults"
         CRMProductName: Codeunit "CRM Product Name";
         JobQueueCategoryLbl: Label 'BCI INTEG', Locked = true;
         OptionJobQueueCategoryLbl: Label 'BCI OPTION', Locked = true;
+        CustomerContactJobQueueCategoryLbl: Label 'BCI CUST', Locked = true;
         CustomerTableMappingNameTxt: Label 'CUSTOMER', Locked = true;
         VendorTableMappingNameTxt: Label 'VENDOR', Locked = true;
         JobQueueEntryNameTok: Label ' %1 - %2 synchronization job.', Comment = '%1 = The Integration Table Name to synchronized (ex. CUSTOMER), %2 = CRM product name';
@@ -1035,6 +1036,8 @@ codeunit 7204 "CDS Setup Defaults"
         JobQueueEntry."Inactivity Timeout Period" := InactivityTimeoutPeriod;
         if IsOption then
             JobQueueEntry."Job Queue Category Code" := OptionJobQueueCategoryLbl;
+        if IntegrationTableMapping."Table ID" in [Database::Customer, Database::Vendor, Database::Contact] then
+            JobQueueEntry."Job Queue Category Code" := CustomerContactJobQueueCategoryLbl;
         if ShouldRecreateJobQueueEntry then
             Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry)
         else
@@ -1049,7 +1052,7 @@ codeunit 7204 "CDS Setup Defaults"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-        JobQueueEntry.SetRange("Object ID to Run", 5351); // codeunit 5351 "CRM Customer-Contact Link" is not available if CLEAN18
+        JobQueueEntry.SetRange("Object ID to Run", 5351); // codeunit 5351 "CRM Customer-Contact Link" is not available
         JobQueueEntry.DeleteTasks();
     end;
 

@@ -16,31 +16,31 @@ page 249 "VAT Registration Log"
         {
             repeater(Group)
             {
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the country/region of the address.';
                 }
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT registration number that you entered in the VAT Registration No. field on a customer, vendor, or contact card.';
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the account type of the customer or vendor whose VAT registration number is verified.';
                     Visible = false;
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -52,45 +52,45 @@ page 249 "VAT Registration Log"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the verification action.';
                 }
-                field("Verified Date"; "Verified Date")
+                field("Verified Date"; Rec."Verified Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies when the VAT registration number was verified.';
                 }
-                field("Verified Name"; "Verified Name")
+                field("Verified Name"; Rec."Verified Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the name of the customer, vendor, or contact whose VAT registration number was verified.';
                     Visible = false;
                 }
-                field("Verified Address"; "Verified Address")
+                field("Verified Address"; Rec."Verified Address")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the address of the customer, vendor, or contact whose VAT registration number was verified.';
                     Visible = false;
                 }
-                field("Verified Street"; "Verified Street")
+                field("Verified Street"; Rec."Verified Street")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the street of the customer, vendor, or contact whose VAT registration number was verified. ';
                     Visible = false;
                 }
-                field("Verified Postcode"; "Verified Postcode")
+                field("Verified Postcode"; Rec."Verified Postcode")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postcode of the customer, vendor, or contact whose VAT registration number was verified. ';
                     Visible = false;
                 }
-                field("Verified City"; "Verified City")
+                field("Verified City"; Rec."Verified City")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the customer, vendor, or contact whose VAT registration number was verified. ';
                     Visible = false;
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -102,7 +102,7 @@ page 249 "VAT Registration Log"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Request Identifier"; "Request Identifier")
+                field("Request Identifier"; Rec."Request Identifier")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the request identifier of the VAT registration number validation service.';
@@ -126,9 +126,6 @@ page 249 "VAT Registration Log"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Verify VAT Registration No.';
                 Image = Start;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 RunObject = Codeunit "VAT Lookup Ext. Data Hndl";
                 ToolTip = 'Verify a Tax registration number. If the number is verified the status field contains the value Valid.';
             }
@@ -138,15 +135,26 @@ page 249 "VAT Registration Log"
                 Caption = 'Validation Details';
                 Enabled = DetailsExist;
                 Image = List;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Open the list of fields that have been processed by the VAT registration no. validation service.';
 
                 trigger OnAction()
                 begin
                     Rec.OpenModifyDetails();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Verify VAT Registration No._Promoted"; "Verify VAT Registration No.")
+                {
+                }
+                actionref(ValidationDetails_Promoted; ValidationDetails)
+                {
+                }
             }
         }
     }

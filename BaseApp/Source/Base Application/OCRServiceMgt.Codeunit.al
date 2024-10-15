@@ -85,13 +85,13 @@ codeunit 1294 "OCR Service Mgt."
     begin
         with OCRServiceSetup do begin
             if not HasCredentials(OCRServiceSetup) then
-                if Confirm(StrSubstNo(GetCredentialsQstText), true) then begin
+                if Confirm(StrSubstNo(GetCredentialsQstText()), true) then begin
                     Commit();
                     PAGE.RunModal(PAGE::"OCR Service Setup", OCRServiceSetup);
                 end;
 
             if not HasCredentials(OCRServiceSetup) then
-                Error(GetCredentialsErrText);
+                Error(GetCredentialsErrText());
         end;
     end;
 
@@ -99,7 +99,7 @@ codeunit 1294 "OCR Service Mgt."
     begin
         with OCRServiceSetup do
             exit(
-              Get and
+              Get() and
               HasPassword("Password Key") and
               HasPassword("Authorization Key") and
               ("User Name" <> ''));
@@ -114,7 +114,7 @@ codeunit 1294 "OCR Service Mgt."
     var
         OCRServiceSetup: Record "OCR Service Setup";
     begin
-        exit(StrSubstNo(MissingCredentialsQst, GetCredentialsErrText, OCRServiceSetup.TableCaption));
+        exit(StrSubstNo(MissingCredentialsQst, GetCredentialsErrText(), OCRServiceSetup.TableCaption()));
     end;
 
     [Scope('OnPrem')]
@@ -151,7 +151,7 @@ codeunit 1294 "OCR Service Mgt."
     begin
         GetOcrServiceSetup(false);
         HttpWebRequestMgt.Initialize(StrSubstNo('%1/authentication/rest/authenticate', OCRServiceSetup."Service URL"));
-        HttpWebRequestMgt.DisableUI;
+        HttpWebRequestMgt.DisableUI();
         RsoAddHeaders(HttpWebRequestMgt);
         HttpWebRequestMgt.SetMethod(MethodPostTok);
         HttpWebRequestMgt.AddBodyAsText(
@@ -246,7 +246,7 @@ codeunit 1294 "OCR Service Mgt."
         GetOcrServiceSetup(true);
 
         HttpWebRequestMgt.Initialize(StrSubstNo('%1/%2', OCRServiceSetup."Service URL", PathQuery));
-        HttpWebRequestMgt.DisableUI;
+        HttpWebRequestMgt.DisableUI();
         RsoAddCookie(HttpWebRequestMgt);
         RsoAddHeaders(HttpWebRequestMgt);
         HttpWebRequestMgt.SetMethod(MethodGetTok);
@@ -283,7 +283,7 @@ codeunit 1294 "OCR Service Mgt."
         GetOcrServiceSetup(true);
 
         HttpWebRequestMgt.Initialize(StrSubstNo('%1/%2', OCRServiceSetup."Service URL", PathQuery));
-        HttpWebRequestMgt.DisableUI;
+        HttpWebRequestMgt.DisableUI();
         RsoAddCookie(HttpWebRequestMgt);
         RsoAddHeaders(HttpWebRequestMgt);
         HttpWebRequestMgt.SetMethod(RequestAction);
@@ -306,7 +306,7 @@ codeunit 1294 "OCR Service Mgt."
 
         RequestUrl := StrSubstNo('%1/%2', OCRServiceSetup."Service URL", PathQuery);
         HttpWebRequestMgt.Initialize(RequestUrl);
-        HttpWebRequestMgt.DisableUI;
+        HttpWebRequestMgt.DisableUI();
         RsoAddCookie(HttpWebRequestMgt);
         RsoAddHeaders(HttpWebRequestMgt);
         HttpWebRequestMgt.SetMethod(RequestAction);
@@ -333,10 +333,10 @@ codeunit 1294 "OCR Service Mgt."
     local procedure RsoAddCookie(var HttpWebRequestMgt: Codeunit "Http Web Request Mgt.")
     begin
         if IsNull(AuthCookie) then
-            if not Authenticate then
+            if not Authenticate() then
                 Error(GetLastErrorText);
         if AuthCookie.Expired then
-            if not Authenticate then
+            if not Authenticate() then
                 Error(GetLastErrorText);
 
         HttpWebRequestMgt.SetCookie(AuthCookie);
@@ -346,7 +346,7 @@ codeunit 1294 "OCR Service Mgt."
     var
         SystemWebHttpUtility: DotNet HttpUtility;
     begin
-        SystemWebHttpUtility := SystemWebHttpUtility.HttpUtility;
+        SystemWebHttpUtility := SystemWebHttpUtility.HttpUtility();
         exit(SystemWebHttpUtility.UrlEncode(InText));
     end;
 
@@ -373,7 +373,7 @@ codeunit 1294 "OCR Service Mgt."
         if OCRServiceSetup."Service URL" <> '' then
             exit;
         if VerifyEnable then
-            OCRServiceSetup.CheckEnabled;
+            OCRServiceSetup.CheckEnabled();
         OCRServiceSetup.TestField("User Name");
         OCRServiceSetup.TestField("Service URL");
     end;
@@ -452,7 +452,7 @@ codeunit 1294 "OCR Service Mgt."
         ResponseStr: InStream;
         ResponseText: Text;
     begin
-        if not TempBlob.HasValue then begin
+        if not TempBlob.HasValue() then begin
             Session.LogMessage('00008KH', NoFileContentTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             LogActivityFailedNoError(OCRServiceSetup.RecordId, UploadFileMsg, NoFileContentErr);
             LogActivityFailed(LoggingRecordId, UploadFileMsg, NoFileContentErr); // throws error
@@ -462,7 +462,7 @@ codeunit 1294 "OCR Service Mgt."
 
         HttpWebRequestMgt.Initialize(HttpRequestURL);
         HttpWebRequestMgt.SetTraceLogEnabled(false); // Activity Log will log for us
-        HttpWebRequestMgt.DisableUI;
+        HttpWebRequestMgt.DisableUI();
         RsoAddCookie(HttpWebRequestMgt);
         RsoAddHeaders(HttpWebRequestMgt);
         if HttpRequestReturnType <> '' then
@@ -487,7 +487,7 @@ codeunit 1294 "OCR Service Mgt."
             Session.LogMessage('00008KI', UploadFileSucceedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             LogActivitySucceeded(OCRServiceSetup.RecordId, UploadFileMsg, '');
             LogActivitySucceeded(LoggingRecordId, UploadFileMsg, '');
-            if GuiAllowed and (not OfficeMgt.IsAvailable) then
+            if GuiAllowed and (not OfficeMgt.IsAvailable()) then
                 Message(UploadSuccessMsg);
             exit(true);
         end;
@@ -500,7 +500,7 @@ codeunit 1294 "OCR Service Mgt."
     [Scope('OnPrem')]
     procedure UploadAttachment(var TempBlob: Codeunit "Temp Blob"; FileName: Text; ExternalReference: Text[50]; Template: Code[20]; RelatedRecordId: RecordID): Boolean
     begin
-        if not TempBlob.HasValue then begin
+        if not TempBlob.HasValue() then begin
             Session.LogMessage('00008LA', NoFileContentTxt, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
             Error(NoFileContentErr);
         end;
@@ -524,7 +524,7 @@ codeunit 1294 "OCR Service Mgt."
 
         DocumentId := GetOCRServiceDocumentReference(IncomingDocument);
         CorrectOCRFile(IncomingDocument, TempBlob);
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             Error(NoFileContentErr);
 
         if not StartUpload(1) then
@@ -707,7 +707,7 @@ codeunit 1294 "OCR Service Mgt."
 
                     CountDownloaded += DownloadDocument(ExternalBatchId, DocId);
 
-                    if CountDownloaded > GetMaxDocDownloadCount then begin
+                    if CountDownloaded > GetMaxDocDownloadCount() then begin
                         Session.LogMessage('00008KL', StrSubstNo(DocumentsDownloadedTxt, CountDownloaded, CountProcessed), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
                         LogActivitySucceeded(OCRServiceSetup.RecordId, GetNewDocumentsMsg, StrSubstNo(NewDocumentsTotalMsg, CountDownloaded, CountProcessed));
                         exit(CountDownloaded);
@@ -725,7 +725,7 @@ codeunit 1294 "OCR Service Mgt."
         if ExternalBatchFilter <> '' then
             GetDocumentStatus(ExternalBatchFilter)
         else
-            GetDocumentsExcludeProcessed;
+            GetDocumentsExcludeProcessed();
 
         exit(CountDownloaded);
     end;
@@ -963,7 +963,7 @@ codeunit 1294 "OCR Service Mgt."
             IncomingDocument.AddAttachmentFromStream(
               IncomingDocumentAttachment, AttachmentName, GetExtensionFromContentType(AttachmentName, ContentType), ImageInStr);
         end;
-        IncomingDocument.CheckNotCreated;
+        IncomingDocument.CheckNotCreated();
         IncomingDocumentAttachment.SetRange("External Document Reference");
         IncomingDocument.AddAttachmentFromStream(IncomingDocumentAttachment, AttachmentName, 'xml', ResponseStr);
         IncomingDocumentAttachment."Generated from OCR" := true;
@@ -1042,7 +1042,7 @@ codeunit 1294 "OCR Service Mgt."
                     Validate("Vendor No.", Vendor."No.");
             end;
 
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1069,7 +1069,7 @@ codeunit 1294 "OCR Service Mgt."
         ActivityLog: Record "Activity Log";
     begin
         ActivityMessage := GetLastErrorText + ' ' + ActivityMessage;
-        ClearLastError;
+        ClearLastError();
 
         ActivityLog.LogActivity(RelatedRecordID, ActivityLog.Status::Failed, LoggingConstTxt,
           ActivityDescription, ActivityMessage);
@@ -1089,7 +1089,7 @@ codeunit 1294 "OCR Service Mgt."
         OCRServiceSetup: Record "OCR Service Setup";
         RecRef: RecordRef;
     begin
-        if not OCRServiceSetup.Get then begin
+        if not OCRServiceSetup.Get() then begin
             OCRServiceSetup.Init();
             OCRServiceSetup.Insert(true);
         end;
@@ -1101,7 +1101,7 @@ codeunit 1294 "OCR Service Mgt."
             ServiceConnection.Status := ServiceConnection.Status::Disabled;
         with OCRServiceSetup do
             ServiceConnection.InsertServiceConnection(
-              ServiceConnection, RecRef.RecordId, TableCaption, "Service URL", PAGE::"OCR Service Setup");
+              ServiceConnection, RecRef.RecordId, TableCaption(), "Service URL", PAGE::"OCR Service Setup");
     end;
 
     local procedure GetMaxDocDownloadCount(): Integer
@@ -1215,11 +1215,11 @@ codeunit 1294 "OCR Service Mgt."
     procedure SetupConnection(var OCRServiceSetup: Record "OCR Service Setup"): Boolean
     begin
         if not HasCredentials(OCRServiceSetup) then
-            Error(GetCredentialsErrText);
-        if not Authenticate then
+            Error(GetCredentialsErrText());
+        if not Authenticate() then
             Error(ConnectionFailedErr);
         UpdateOrganizationInfo(OCRServiceSetup);
-        UpdateOcrDocumentTemplates;
+        UpdateOcrDocumentTemplates();
         exit(true);
     end;
 
@@ -1237,7 +1237,7 @@ codeunit 1294 "OCR Service Mgt."
 
     procedure OcrServiceIsEnable(): Boolean
     begin
-        if not OCRServiceSetup.Get then
+        if not OCRServiceSetup.Get() then
             exit(false);
 
         if

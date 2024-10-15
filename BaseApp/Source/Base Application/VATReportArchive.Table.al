@@ -53,9 +53,10 @@ table 747 "VAT Report Archive"
     }
 
     var
+        DataCompression: Codeunit "Data Compression";
+
         NoSubmissionMessageAvailableErr: Label 'The submission message of the report is not available.';
         NoResponseMessageAvailableErr: Label 'The response message of the report is not available.';
-        DataCompression: Codeunit "Data Compression";
 
     procedure ArchiveSubmissionMessage(VATReportTypeValue: Option; VATReportNoValue: Code[20]; TempBlobSubmissionMessage: Codeunit "Temp Blob"): Boolean
     var
@@ -63,7 +64,7 @@ table 747 "VAT Report Archive"
     begin
         if VATReportNoValue = '' then
             exit(false);
-        if not TempBlobSubmissionMessage.HasValue then
+        if not TempBlobSubmissionMessage.HasValue() then
             exit(false);
         if VATReportArchive.Get(VATReportTypeValue, VATReportNoValue) then
             exit(false);
@@ -84,7 +85,7 @@ table 747 "VAT Report Archive"
     begin
         if not VATReportArchive.Get(VATReportTypeValue, VATReportNoValue) then
             exit(false);
-        if not TempBlobResponseMessage.HasValue then
+        if not TempBlobResponseMessage.HasValue() then
             exit(false);
 
         VATReportArchive."Response Received Date" := CurrentDateTime;
@@ -106,7 +107,7 @@ table 747 "VAT Report Archive"
         if not VATReportArchive.Get(VATReportTypeValue, VATReportNoValue) then
             Error(NoSubmissionMessageAvailableErr);
 
-        if not VATReportArchive."Submission Message BLOB".HasValue then
+        if not VATReportArchive."Submission Message BLOB".HasValue() then
             Error(NoSubmissionMessageAvailableErr);
 
         VATReportArchive.CalcFields("Submission Message BLOB");
@@ -128,7 +129,7 @@ table 747 "VAT Report Archive"
         if not VATReportArchive.Get(VATReportTypeValue, VATReportNoValue) then
             Error(NoResponseMessageAvailableErr);
 
-        if not VATReportArchive."Response Message BLOB".HasValue then
+        if not VATReportArchive."Response Message BLOB".HasValue() then
             Error(NoResponseMessageAvailableErr);
 
         VATReportArchive.CalcFields("Response Message BLOB");
@@ -146,7 +147,7 @@ table 747 "VAT Report Archive"
         ZipOutStream: OutStream;
         ToFile: Text;
     begin
-        DataCompression.CreateZipArchive;
+        DataCompression.CreateZipArchive();
         TempBlob.CreateInStream(ServerFileInStream);
         DataCompression.AddEntry(ServerFileInStream, ZipFileName);
         ZipTempBlob.CreateOutStream(ZipOutStream);
