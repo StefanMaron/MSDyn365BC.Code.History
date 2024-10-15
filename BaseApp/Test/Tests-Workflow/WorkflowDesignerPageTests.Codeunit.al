@@ -17,9 +17,10 @@ codeunit 134313 "Workflow Designer Page Tests"
         NextStepTxt: Label '<(Optional) Select Next Step>';
         DueDateFormulaErr: Label 'Due Date Formula must be a positive value.';
         LibraryRandom: Codeunit "Library - Random";
+        ResponseDeletedLbl: Label 'Response are Deleted.';
 
     [Test]
-    [HandlerFunctions('WhenModalPageHandler')]
+    [HandlerFunctions('WhenModalPageHandler,UIConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestInsertOfEventInNewWorkflow()
     var
@@ -73,7 +74,7 @@ codeunit 134313 "Workflow Designer Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('WhenModalPageHandler')]
+    [HandlerFunctions('WhenModalPageHandler,UIConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestInsertOfEventInExistingWorkflowAtTheEnd()
     var
@@ -153,7 +154,7 @@ codeunit 134313 "Workflow Designer Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('WhenModalPageHandlerLookupValidation')]
+    [HandlerFunctions('WhenModalPageHandlerLookupValidation,UIConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestInsertOfEventByTypingPartOfValue()
     var
@@ -234,7 +235,7 @@ codeunit 134313 "Workflow Designer Page Tests"
     end;
 
     [Test]
-    [HandlerFunctions('WhenModalPageHandlerCombinationValidationPartialValue')]
+    [HandlerFunctions('WhenModalPageHandlerCombinationValidationPartialValue,UIConfirmHandler')]
     [Scope('OnPrem')]
     procedure TestEventEventSupportedCombinationOnTypingPartOfValue()
     var
@@ -754,6 +755,103 @@ codeunit 134313 "Workflow Designer Page Tests"
         // Verify: in handler.
     end;
 
+    [Test]
+    [HandlerFunctions('WhenModalPageHandler,UIConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure TestResponseIsDeletedWhenDescriptionChanged()
+    var
+        Workflow: Record Workflow;
+        WorkflowStep: Record "Workflow Step";
+        WorkflowEvent: Record "Workflow Event";
+        WorkflowPage: TestPage Workflow;
+    begin
+        // [SCENARIO 431848] When Event is changed and response of old When event has been deleted
+
+        Initialize();
+        SetApplicationArea;
+
+        // [GIVEN] Create Workflow
+        LibraryWorkflow.CreateWorkflow(Workflow);
+        WorkflowPage.OpenEdit;
+        WorkflowPage.GotoKey(Workflow.Code);
+
+        // [THEN] Create event
+        CreateAnyEvent(WorkflowEvent);
+        LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+
+
+        // [VERIFY] Event created
+        WorkflowStep.SetRange("Workflow Code", Workflow.Code);
+        WorkflowStep.FindFirst();
+
+        WorkflowStep.TestField("Function Name", WorkflowEvent."Function Name");
+        WorkflowStep.TestField("Previous Workflow Step ID", 0);
+        WorkflowStep.TestField("Entry Point", false);
+        WorkflowPage.WorkflowSubpage."Event Description".AssertEquals(WorkflowEvent.Description);
+
+        // [THEN] Change event
+        CreateAnyEvent(WorkflowEvent);
+        LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
+
+        WorkflowPage.WorkflowSubpage.First;
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+
+        // [VERIFY] Event changed, Response Deleted
+        WorkflowStep.Get(WorkflowStep."Workflow Code", WorkflowStep.ID);
+        WorkflowStep.TestField("Function Name", WorkflowEvent."Function Name");
+        WorkflowPage.WorkflowSubpage."Event Description".AssertEquals(WorkflowEvent.Description);
+        WorkflowPage.WorkflowSubpage."Response Description".AssertEquals(SelectResponseTxt);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhenModalPageHandler,UIConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure TestResponseIsNotDeletedWhenDescriptionNotChanged()
+    var
+        Workflow: Record Workflow;
+        WorkflowStep: Record "Workflow Step";
+        WorkflowEvent: Record "Workflow Event";
+        WorkflowPage: TestPage Workflow;
+        ResponseTxtBefore: Text;
+        ResponseTxtAfter: Text;
+    begin
+        // [SCENARIO 431818] When Event is not change and Response will not be deleted
+        Initialize();
+        SetApplicationArea;
+
+        // [GIEVN] Create Workflow
+        LibraryWorkflow.CreateWorkflow(Workflow);
+        WorkflowPage.OpenEdit;
+        WorkflowPage.GotoKey(Workflow.Code);
+
+        // [THEN] Create event
+        CreateAnyEvent(WorkflowEvent);
+        LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+
+        // [VERIFY] Event created
+        WorkflowStep.SetRange("Workflow Code", Workflow.Code);
+        WorkflowStep.FindFirst();
+
+        WorkflowStep.TestField("Function Name", WorkflowEvent."Function Name");
+        WorkflowStep.TestField("Previous Workflow Step ID", 0);
+        WorkflowStep.TestField("Entry Point", false);
+        WorkflowPage.WorkflowSubpage."Event Description".AssertEquals(WorkflowEvent.Description);
+        ResponseTxtBefore := WorkflowPage.WorkflowSubpage."Response Description".Value;
+
+        // [THEN ] Try to Change event
+        CreateAnyEvent(WorkflowEvent);
+        LibraryVariableStorage.Enqueue(WorkflowEvent.Description);
+        WorkflowPage.WorkflowSubpage.First;
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+
+        // [VERIFY] Verify Event Not changed
+        WorkflowStep.Get(WorkflowStep."Workflow Code", WorkflowStep.ID);
+        ResponseTxtAfter := WorkflowPage.WorkflowSubpage."Response Description".Value;
+        Assert.AreEqual(ResponseTxtBefore, ResponseTxtAfter, ResponseDeletedLbl);
+    end;
+
     local procedure Initialize()
     var
         WorkflowEvent: Record "Workflow Event";
@@ -884,6 +982,20 @@ codeunit 134313 "Workflow Designer Page Tests"
     procedure ThenModalPageHandlerOK(var WorkflowStepResponses: TestPage "Workflow Step Responses")
     begin
         WorkflowStepResponses.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure UIConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure UIConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 
     local procedure CreateAnyEventWorkflowStep(var WorkflowStep: Record "Workflow Step"; Workflow: Record Workflow; PreviousStepID: Integer)
