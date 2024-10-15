@@ -1071,6 +1071,7 @@
                                 PAGE.RunModal(PAGE::"Sales Statistics", Rec)
                             else
                                 PAGE.RunModal(PAGE::"Sales Stats.", Rec);
+                            CurrPage.SalesLines.Page.ForceTotalsCalculation();
                         end
                     end;
                 }

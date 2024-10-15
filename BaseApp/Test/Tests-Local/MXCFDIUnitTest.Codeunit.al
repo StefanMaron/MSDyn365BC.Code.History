@@ -1970,7 +1970,9 @@ codeunit 144000 "MX CFDI Unit Test"
         DataTypeManagement.GetRecordRef(CustomerDocumentHeaderVariant, CustDocRecRef);
         Field.SetRange(TableNo, DATABASE::"Document Header");
         FilterStr :=
-            StrSubstNo('<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8', 3, 10048, 10049, 10051, 10052, 10053, 10054, 10055);
+            StrSubstNo(
+                '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9&<>%10&<>%11',
+                3, 10048, 10049, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058);
         Field.SetFilter("No.", FilterStr);
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();
@@ -2038,7 +2040,9 @@ codeunit 144000 "MX CFDI Unit Test"
         DocHeaderRecRef.GetTable(TempDocumentHeader);
         Field.SetRange(TableNo, DATABASE::"Document Header");
         FilterStr :=
-            StrSubstNo('<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8', 3, 10048, 10049, 10051, 10052, 10053, 10054, 10055);
+            StrSubstNo(
+                '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9&<>%10&<>%11',
+                3, 10048, 10049, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058);
         Field.SetFilter("No.", FilterStr);
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();

@@ -1,9 +1,12 @@
-report 10480 "Electronic Carta Porte MX"
+﻿report 10480 "Electronic Carta Porte MX"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ElectronicCartaPorteMX.rdlc';
     Caption = 'Electronic Carta Porte Mexico';
-    Permissions = TableData "Sales Invoice Line" = rimd;
+    Permissions = TableData "Sales Shipment Header" = rimd,
+                  TableData "Sales Shipment Line" = rimd,
+                  TableData "Transfer Shipment Header" = rimd,
+                  TableData "Transfer Shipment Line" = rimd;
 
     dataset
     {
@@ -60,10 +63,16 @@ report 10480 "Electronic Carta Porte MX"
             column(TransitDistance; Format("Transit Distance") + 'km')
             {
             }
-            column(LocationFromAddress; LocationFrom.Address)
+            column(LocationFromAddress; LocationFrom.GetSATAddress())
             {
             }
-            column(LocationToAddress; LocationTo.Address)
+            column(LocationToAddress; LocationFrom.GetSATAddress())
+            {
+            }
+            column(IDUbicacionOrigen; LocationFrom."ID Ubicacion")
+            {
+            }
+            column(IDUbicacionDestino; LocationTo."ID Ubicacion")
             {
             }
             column(VehicleLicencePlate; FixedAssetVehicle."Vehicle Licence Plate")
@@ -266,21 +275,21 @@ report 10480 "Electronic Carta Porte MX"
                         begin
                             SalesShipmentHeader.Get("No.");
                             SalesShipmentHeader.CalcFields("Original String", "Digital Stamp PAC", "Digital Stamp SAT", "QR Code");
-                            Clear(OriginalStringBigText);
+                            Clear(OriginalStringTextUnbounded);
                             TempBlob.FromRecord(SalesShipmentHeader, SalesShipmentHeader.FieldNo("Original String"));
                             Clear(InStreamStamp);
                             TempBlob.CreateInStream(InStreamStamp);
-                            InStreamStamp.Read(OriginalStringBigText);
+                            InStreamStamp.Read(OriginalStringTextUnbounded);
                             TempBlob.FromRecord(SalesShipmentHeader, SalesShipmentHeader.FieldNo("Digital Stamp SAT"));
-                            Clear(DigitalSignatureBigText);
+                            Clear(DigitalSignatureTextUnbounded);
                             Clear(InStreamStamp);
                             TempBlob.CreateInStream(InStreamStamp);
-                            InStreamStamp.Read(DigitalSignatureBigText);
+                            InStreamStamp.Read(DigitalSignatureTextUnbounded);
                             TempBlob.FromRecord(SalesShipmentHeader, SalesShipmentHeader.FieldNo("Digital Stamp PAC"));
-                            Clear(DigitalSignaturePACBigText);
+                            Clear(DigitalSignaturePACTextUnbounded);
                             Clear(InStreamStamp);
                             TempBlob.CreateInStream(InStreamStamp);
-                            InStreamStamp.Read(DigitalSignaturePACBigText);
+                            InStreamStamp.Read(DigitalSignaturePACTextUnbounded);
 
                             TempSalesShipmentHeader := SalesShipmentHeader;
                         end;
@@ -288,21 +297,21 @@ report 10480 "Electronic Carta Porte MX"
                         begin
                             TransferShipmentHeader.Get("No.");
                             TransferShipmentHeader.CalcFields("Original String", "Digital Stamp PAC", "Digital Stamp SAT", "QR Code");
-                            Clear(OriginalStringBigText);
+                            Clear(OriginalStringTextUnbounded);
                             TempBlob.FromRecord(TransferShipmentHeader, TransferShipmentHeader.FieldNo("Original String"));
                             Clear(InStreamStamp);
                             TempBlob.CreateInStream(InStreamStamp);
-                            InStreamStamp.Read(OriginalStringBigText);
+                            InStreamStamp.Read(OriginalStringTextUnbounded);
                             TempBlob.FromRecord(TransferShipmentHeader, TransferShipmentHeader.FieldNo("Digital Stamp SAT"));
-                            Clear(DigitalSignatureBigText);
+                            Clear(DigitalSignatureTextUnbounded);
                             Clear(InStreamStamp);
                             TempBlob.CreateInStream(InStreamStamp);
-                            InStreamStamp.Read(DigitalSignatureBigText);
+                            InStreamStamp.Read(DigitalSignatureTextUnbounded);
                             TempBlob.FromRecord(TransferShipmentHeader, TransferShipmentHeader.FieldNo("Digital Stamp PAC"));
-                            Clear(DigitalSignaturePACBigText);
+                            Clear(DigitalSignaturePACTextUnbounded);
                             Clear(InStreamStamp);
                             TempBlob.CreateInStream(InStreamStamp);
-                            InStreamStamp.Read(DigitalSignaturePACBigText);
+                            InStreamStamp.Read(DigitalSignaturePACTextUnbounded);
 
                             TempSalesShipmentHeader."QR Code" := TransferShipmentHeader."QR Code";
                             TempSalesShipmentHeader."Certificate Serial No." := TransferShipmentHeader."Certificate Serial No.";
@@ -311,9 +320,9 @@ report 10480 "Electronic Carta Porte MX"
                         end;
                 end;
 
-                OriginalStringBase64Text := Convert.ToBase64String(Encoding.UTF8.GetBytes(OriginalStringBigText));
-                DigitalSignatureBase64Text := Convert.ToBase64String(Encoding.UTF8.GetBytes(DigitalSignatureBigText));
-                DigitalSignaturePACBase64Text := Convert.ToBase64String(Encoding.UTF8.GetBytes(DigitalSignaturePACBigText));
+                OriginalStringBase64Text := Convert.ToBase64String(Encoding.UTF8.GetBytes(OriginalStringTextUnbounded));
+                DigitalSignatureBase64Text := Convert.ToBase64String(Encoding.UTF8.GetBytes(DigitalSignatureTextUnbounded));
+                DigitalSignaturePACBase64Text := Convert.ToBase64String(Encoding.UTF8.GetBytes(DigitalSignaturePACTextUnbounded));
 
                 if "Foreign Trade" then begin
                     LocationFrom.Get("Transit-from Location");
@@ -374,9 +383,9 @@ report 10480 "Electronic Carta Porte MX"
         FixedAssetTrailer2: Record "Fixed Asset";
         EInvoiceMgt: Codeunit "E-Invoice Mgt.";
         TempBlob: Codeunit "Temp Blob";
-        OriginalStringBigText: BigText;
-        DigitalSignatureBigText: BigText;
-        DigitalSignaturePACBigText: BigText;
+        OriginalStringTextUnbounded: Text;
+        DigitalSignatureTextUnbounded: Text;
+        DigitalSignaturePACTextUnbounded: Text;
         PageCaptionLbl: Label 'Page:';
         CompanyInformation_RFCNoLbl: Label 'Company RFC';
         FolioTextCaptionLbl: Label 'Folio:';
