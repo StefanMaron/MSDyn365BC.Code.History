@@ -85,14 +85,16 @@ codeunit 9090 "Postcode Service Manager"
     var
         PostcodeServiceConfig: Record "Postcode Service Config";
         IsSerConf: Boolean;
+        PostCodeServiceKey: Text;
     begin
         if not PostcodeServiceConfig.FindFirst then
             exit(false);
 
-        if PostcodeServiceConfig.GetServiceKey = DisabledTok then
+        PostCodeServiceKey := PostcodeServiceConfig.GetServiceKey();
+        if PostCodeServiceKey = DisabledTok then
             exit(false);
 
-        IsServiceConfigured(PostcodeServiceConfig.GetServiceKey, IsSerConf);
+        IsServiceConfigured(PostCodeServiceKey, IsSerConf);
         exit(IsSerConf);
     end;
 

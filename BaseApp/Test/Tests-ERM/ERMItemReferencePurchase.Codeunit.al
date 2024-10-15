@@ -54,6 +54,7 @@ codeunit 134464 "ERM Item Reference Purchase"
         ItemReference: Record "Item Reference";
         JobQueueLogEntry: Record "Job Queue Log Entry";
         FeatureDataUpdateStatus: Record "Feature Data Update Status";
+        FeatureManagamentFacade: Codeunit "Feature Management Facade";
         FeatureItemReference: Codeunit "Feature - Item Reference";
         ItemReferenceManagement: Codeunit "Item Reference Management";
         Counter: Integer;
@@ -65,6 +66,7 @@ codeunit 134464 "ERM Item Reference Purchase"
         Assert.RecordCount(ItemReference, 0);
 
         // [WHEN] Run the data update task
+        if FeatureManagamentFacade.IsEnabled(ItemReferenceManagement.GetFeatureKey()) then;
         FeatureDataUpdateStatus.Get(ItemReferenceManagement.GetFeatureKey(), CompanyName());
         Codeunit.Run(Codeunit::"Update Feature Data", FeatureDataUpdateStatus);
 

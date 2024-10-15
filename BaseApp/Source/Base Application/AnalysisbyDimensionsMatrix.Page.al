@@ -1504,6 +1504,7 @@ page 9249 "Analysis by Dimensions Matrix"
         ColumnDimCode := ColumnDimCodeLocal;
         CopyArray(ColumnCaptions, NewMATRIX_ColumnCaptions, 1);
         MATRIX_PrimKeyFirstCol := NewPrimKeyFirstCol;
+        RoundingFactorFormatString := MatrixMgt.GetFormatString(AnalysisByDimParameters."Rounding Factor", false);
     end;
 
     local procedure FormatLine()

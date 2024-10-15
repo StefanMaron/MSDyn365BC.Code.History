@@ -14,24 +14,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Payment Terms Reporting - NamedType DocumentTypeMustBeInvErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4099448693 - NamedType 1510339870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect average number of days to make payment]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ERM Payment Terms Reporting - NamedType IncorrectAvgNumToMakePmtErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4099448693 - NamedType 818685512" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect percent of payments paid in days]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ERM Payment Terms Reporting - NamedType IncorrectPctOfPmtsPaidInDaysErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3726053622 - NamedType 2028687089" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>
@@ -93,24 +75,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test UK Postcode Config - NamedType DisabledTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1259307711 - NamedType 3698842649" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Lookup Text]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test UK Postcode Pages - NamedType LookupTextTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1259307711 - NamedType 570028732" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Retrieved field value is incorrect.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit Test UK Postcode Pages - NamedType RetrievedInvalidValueTok)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1633055909 - NamedType 1226722529" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

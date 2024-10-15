@@ -16,6 +16,7 @@ codeunit 9081 "Check Gen. Jnl. Line. Backgr."
     end;
 
     var
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         DocumentOutOfBalanceErr: Label 'Document No. %1 is out of balance by %2', Comment = '%1 - document number, %2 = amount';
 
     procedure RunCheck(Args: Dictionary of [Text, Text]; var TempErrorMessage: Record "Error Message" temporary)
@@ -23,7 +24,6 @@ codeunit 9081 "Check Gen. Jnl. Line. Backgr."
         GenJnlLine: Record "Gen. Journal Line";
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
         ErrorHandlingParameters: Record "Error Handling Parameters";
-        JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
     begin
         ErrorHandlingParameters.FromArgs(Args);
 
@@ -39,12 +39,11 @@ codeunit 9081 "Check Gen. Jnl. Line. Backgr."
                     CheckDocument(GenJnlLine, ErrorHandlingParameters."Document No.", ErrorHandlingParameters."Posting Date", TempErrorMessage);
             end;
 
-        if JournalErrorsMgt.GetDeletedGenJnlLine(TempGenJnlLine, false) then begin
-            TempGenJnlLine.FindSet();
+        BackgroundErrorHandlingMgt.GetDeletedDocumentsFromArgs(Args, TempGenJnlLine);
+        if TempGenJnlLine.FindSet() then
             repeat
                 CheckDocument(GenJnlLine, TempGenJnlLine."Document No.", TempGenJnlLine."Posting Date", TempErrorMessage);
             until TempGenJnlLine.Next() = 0;
-        end;
     end;
 
     local procedure CheckDocument(var GenJnlLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; PostingDate: Date; var TempErrorMessage: Record "Error Message" temporary)

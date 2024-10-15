@@ -17,7 +17,7 @@ enum 15 "G/L Account Category"
     }
     value(3; Equity)
     {
-        Caption = 'Total';
+        Caption = 'Equity';
     }
     value(4; "Income")
     {

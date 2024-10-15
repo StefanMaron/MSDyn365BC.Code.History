@@ -12,7 +12,7 @@ codeunit 5616 "Depreciation Calculation"
         Text000: Label '%1 %2 = %3 in %4 %5 = %6';
         DeprBookCodeErr: Label ' in depreciation book code %1', Comment = '%1=value for code, e.g. COMAPNY';
 
-    procedure DeprDays(StartingDate: Date; EndingDate: Date; Year365Days: Boolean; UseAccountingPeriod: Boolean): Integer
+    procedure DeprDays(StartingDate: Date; EndingDate: Date; Year365Days: Boolean; UseAccountingPeriod: Boolean) NumbefOfDeprDays: Integer
     var
         StartingDay: Integer;
         EndingDay: Integer;
@@ -53,8 +53,10 @@ codeunit 5616 "Depreciation Calculation"
         if Date2DMY(EndingDate + 1, 1) = 1 then
             EndingDay := 30;
 
-        exit(1 + EndingDay - StartingDay + 30 * (EndingMonth - StartingMonth) +
-          360 * (EndingYear - StartingYear));
+        NumbefOfDeprDays := 1 + EndingDay - StartingDay + 30 * (EndingMonth - StartingMonth) +
+          360 * (EndingYear - StartingYear);
+
+        OnAfterDeprDays(StartingDate, EndingDate, NumbefOfDeprDays);
     end;
 
     procedure ToMorrow(ThisDate: Date; Year365Days: Boolean; UseAccountingPeriod: Boolean): Date
@@ -604,6 +606,11 @@ codeunit 5616 "Depreciation Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcDepreciation(DeprBookCode: Code[10]; var Depreciation: Decimal; BookValue: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeprDays(StartingDate: Date; EndingDate: Date; var NumberOfDeprDays: Integer)
     begin
     end;
 

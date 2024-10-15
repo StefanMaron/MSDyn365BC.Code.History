@@ -99,6 +99,8 @@ codeunit 99000810 "Calculate Planning Route Line"
 
     local procedure CreatePlanningCapNeed(NeedDate: Date; StartingTime: Time; EndingTime: Time; NeedQty: Decimal; TimeType: Enum "Routing Time Type"; Direction: Option Forward,Backward)
     begin
+        OnBeforeCreatePlanningCapNeed(PlanningRoutingLine, TimeType, NeedQty);
+
         ProdOrderCapNeed.Init();
         ProdOrderCapNeed."Worksheet Template Name" := ReqLine."Worksheet Template Name";
         ProdOrderCapNeed."Worksheet Batch Name" := ReqLine."Journal Batch Name";
@@ -1498,5 +1500,9 @@ codeunit 99000810 "Calculate Planning Route Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePlanningCapNeed(PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; var NeedQty: Decimal)
+    begin
+    end;
 }
 

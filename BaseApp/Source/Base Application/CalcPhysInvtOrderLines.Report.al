@@ -1,4 +1,4 @@
-report 5880 "Calc. Phys. Invt. Order Lines"
+﻿report 5880 "Calc. Phys. Invt. Order Lines"
 {
     Caption = 'Calc. Phys. Invt. Order Lines';
     ProcessingOnly = true;
@@ -106,6 +106,8 @@ report 5880 "Calc. Phys. Invt. Order Lines"
                 PhysInvtOrderHeader.TestField("No.");
                 PhysInvtOrderHeader.TestField(Status, PhysInvtOrderHeader.Status::Open);
 
+                OnBeforeOnPreDataItemItem(PhysInvtOrderHeader, Item);
+
                 PhysInvtOrderHeader.LockTable();
                 PhysInvtOrderLine.LockTable();
 
@@ -158,6 +160,11 @@ report 5880 "Calc. Phys. Invt. Order Lines"
         actions
         {
         }
+
+        trigger OnOpenPage()
+        begin
+            OnAfterOpenPage(PhysInvtOrderHeader, Item);
+        end;
     }
 
     labels
@@ -196,6 +203,8 @@ report 5880 "Calc. Phys. Invt. Order Lines"
     procedure SetPhysInvtOrderHeader(NewPhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
         PhysInvtOrderHeader := NewPhysInvtOrderHeader;
+
+        OnAfterSetPhysInvtOrderHeader(PhysInvtOrderHeader, Item);
     end;
 
     procedure InitializeRequest(ZeroQty2: Boolean; CalcQtyExpected2: Boolean)
@@ -250,6 +259,21 @@ report 5880 "Calc. Phys. Invt. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateNewPhysInvtOrderLineOnAfterCalcQtyAndLastItemLedgExpected(QtyExpected: Decimal; LastItemLedgEntryNo: Integer; ItemLedgerEntry: Record "Item Ledger Entry"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var InsertLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenPage(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPhysInvtOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreDataItemItem(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var Item: Record Item)
     begin
     end;
 }

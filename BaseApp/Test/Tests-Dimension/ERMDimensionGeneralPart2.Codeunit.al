@@ -22,6 +22,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryRandom: Codeunit "Library - Random";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         DeleteDimensionError: Label 'Dimension code must not be exist.';
         DimensionSetEntryError: Label 'The %1 must exist.';
@@ -44,6 +45,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         ExcelControlVisibilityErr: Label 'Wrong Excel control visibility';
         GLBudgetFilterControlId: Integer;
         CostBudgetFilterControlId: Integer;
+        FormatStrTxt: Label '<Precision,%1><Standard Format,0>';
 
     [Test]
     [Scope('OnPrem')]
@@ -2545,6 +2547,79 @@ codeunit 134480 "ERM Dimension General Part 2"
         AnalysisbyDimensions.BudgetFilter.AssertEquals(GLBudgetName.Name);
     end;
 
+    [Test]
+    [HandlerFunctions('AnalysisByDimensionMatrixEnqueTotalPageHandler')]
+    [Scope('OnPrem')]
+    procedure AnalysisByDimensionMatrixDecimalPlacesRoundingFactorNone()
+    var
+        AnalysisView: Record "Analysis View";
+        DimensionValue: Record "Dimension Value";
+        GLAccountNo: Code[20];
+        Amount: Decimal;
+        DecimalPlaces: Text[5];
+    begin
+        // [FEATURE] [Analysis by Dimensions] [UI]
+        // [SCENARIO 375411] Amount Decimal Places in General Ledger Setup affects Decimal Places displayed in Analysis by Dimension Matrix page when Rounding Factor = None.
+        Initialize();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+
+        // [GIVEN] "Amount Decimal Places" is set to 5:5 in General Ledger Setup.
+        DecimalPlaces := StrSubstNo('%1:%1', LibraryRandom.RandIntInRange(3, 5));
+        SetAmountDecimalPlaces(DecimalPlaces);
+
+        // [GIVEN] Analysis View for G/L Account and "Dimension 1 Code" = Dimension "Dim".
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        AnalysisView.Get(CreateAnalysisViewWithCertainDimension(GLAccountNo, DimensionCategory::"Dimension 1"));
+
+        // [GIVEN] Dimension Value "DV" for Dimension "Dim".
+        LibraryDimension.CreateDimensionValue(DimensionValue, AnalysisView."Dimension 1 Code");
+
+        // [GIVEN] Posted Entry for G/L Account with Amount having 2 decimals places.
+        Amount := CreateAndPostJournalLineWithDimension(DimensionValue, GLAccountNo, WorkDate());
+
+        // [WHEN] Open Analysis by Dimension Matrix page using dimension filter "DV" and Rounding Factor = None.
+        OpenAnalysisByDimensionMatrixWithLineDimCode(
+            AnalysisView.Code, false, false, RoundingFactorOption, Format(LineDimOptionRef::"G/L Account"),
+            ClosingDateOptions::Include, ShowAmounts::"Actual Amounts", DimensionValue.Code);
+
+        // [THEN] Analysis By Dimension Matrix Amount displays 5 decimal places.
+        Assert.AreEqual(Format(Amount, 0, StrSubstNo(FormatStrTxt, DecimalPlaces)), LibraryVariableStorage.DequeueText(), '');
+        LibrarySetupStorage.Restore();
+    end;
+
+    [Test]
+    [HandlerFunctions('AnalysisByDimensionMatrixEnqueTotalPageHandler')]
+    [Scope('OnPrem')]
+    procedure AnalysisByDimensionMatrixDecimalPlacesRoundingFactorOne()
+    var
+        AnalysisView: Record "Analysis View";
+        DimensionValue: Record "Dimension Value";
+        GLAccountNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Analysis by Dimensions] [UI]
+        // [SCENARIO 375411] Analysis by Dimension Matrix page shows zero decimal places when Rounding Factor = 1.
+        Initialize();
+
+        // [GIVEN] Analysis View for G/L Account and "Dimension 1 Code" = Dimension "Dim".
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        AnalysisView.Get(CreateAnalysisViewWithCertainDimension(GLAccountNo, DimensionCategory::"Dimension 1"));
+
+        // [GIVEN] Dimension Value "DV" for Dimension "Dim".
+        LibraryDimension.CreateDimensionValue(DimensionValue, AnalysisView."Dimension 1 Code");
+
+        // [GIVEN] Posted Entry for G/L Account with Amount having 2 decimal places.
+        Amount := CreateAndPostJournalLineWithDimension(DimensionValue, GLAccountNo, WorkDate());
+
+        // [WHEN] Open Analysis by Dimension Matrix page using dimension filter "DV" and Rounding Factor = 1.
+        OpenAnalysisByDimensionMatrixWithLineDimCode(
+            AnalysisView.Code, false, false, Format(1), Format(LineDimOptionRef::"G/L Account"),
+            ClosingDateOptions::Include, ShowAmounts::"Actual Amounts", DimensionValue.Code);
+
+        // [THEN] Analysis By Dimension Matrix Amount displays zero decimal places.
+        Assert.AreEqual(Format(Amount, 0, StrSubstNo(FormatStrTxt, Format(0))), LibraryVariableStorage.DequeueText(), '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3187,6 +3262,15 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryERM.ClearGenJournalLines(GenJournalBatch)
     end;
 
+    local procedure SetAmountDecimalPlaces(DecimalPlaces: Text[5])
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Amount Decimal Places", DecimalPlaces);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
     local procedure SetFiltersWithItemOnSalesAnalysisDimensionsPage(var SalesAnalysisByDimensions: TestPage "Sales Analysis by Dimensions"; LineDimCode: Text[30]; ColumnDimCode: Text[30]; ItemFilter: Text[50])
     begin
         SalesAnalysisByDimensions.LineDimCode.SetValue(LineDimCode);
@@ -3398,6 +3482,13 @@ codeunit 134480 "ERM Dimension General Part 2"
     procedure AnalysisByDimensionMatrixPageHandler(var AnalysisbyDimensionsMatrix: TestPage "Analysis by Dimensions Matrix")
     begin
         AnalysisbyDimensionsMatrix.TotalAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure AnalysisByDimensionMatrixEnqueTotalPageHandler(var AnalysisbyDimensionsMatrix: TestPage "Analysis by Dimensions Matrix")
+    begin
+        LibraryVariableStorage.Enqueue(AnalysisbyDimensionsMatrix.TotalAmount.Value());
     end;
 
     [ModalPageHandler]

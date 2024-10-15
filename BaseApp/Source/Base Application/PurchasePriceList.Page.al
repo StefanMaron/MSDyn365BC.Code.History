@@ -147,11 +147,54 @@ page 7018 "Purchase Price List"
                     }
                 }
             }
-            part(Lines; "Price List Lines")
+            part(Lines; "Purchase Price List Lines")
             {
                 ApplicationArea = Basic, Suite;
                 Editable = PriceListIsEditable;
                 SubPageLink = "Price List Code" = FIELD(Code);
+            }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action(SuggestLines)
+            {
+                ApplicationArea = Basic, Suite;
+                Enabled = PriceListIsEditable;
+                Ellipsis = true;
+                Image = SuggestItemPrice;
+                Promoted = true;
+                PromotedCategory = Process;
+                Caption = 'Suggest Lines';
+                ToolTip = 'Creates the purchase price list lines based on the unit cost in the product cards, like item or resource. Change the price list status to ''Draft'' to run this action.';
+
+                trigger OnAction()
+                var
+                    PriceListManagement: Codeunit "Price List Management";
+                begin
+                    PriceListManagement.AddLines(Rec);
+                end;
+            }
+            action(CopyLines)
+            {
+                ApplicationArea = Basic, Suite;
+                Enabled = PriceListIsEditable;
+                Ellipsis = true;
+                Image = CopyWorksheet;
+                Promoted = true;
+                PromotedCategory = Process;
+                Caption = 'Copy Lines';
+                ToolTip = 'Copies the lines from the existing price list. New prices can be adjusted by a factor and rounded differently. Change the price list status to ''Draft'' to run this action.';
+
+                trigger OnAction()
+                var
+                    PriceListManagement: Codeunit "Price List Management";
+                begin
+                    PriceListManagement.CopyLines(Rec);
+                end;
             }
         }
     }

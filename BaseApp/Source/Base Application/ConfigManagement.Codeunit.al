@@ -606,6 +606,8 @@ codeunit 8616 "Config. Management"
                 exit(PAGE::"Sales Prices");
             DATABASE::"Purchase Price":
                 exit(PAGE::"Purchase Prices");
+            DATABASE::"Price List Line":
+                exit(Page::"Price List Line Review");
             DATABASE::"VAT Entry":
                 exit(PAGE::"VAT Entries");
             DATABASE::"FA Ledger Entry":

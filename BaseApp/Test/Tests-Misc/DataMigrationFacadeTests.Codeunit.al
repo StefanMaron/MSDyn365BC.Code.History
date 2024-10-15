@@ -23,6 +23,7 @@ codeunit 135022 "Data Migration Facade Tests"
         InternalGLAccountNotSetErr: Label 'Internal G/L Account is not set. Create it first.';
         InternalGeneralPostingSetupNotSetErr: Label 'Internal General Posting Setup is not set. Create it first.';
         TaxAreaCodeDoesNotExistErr: Label 'The field Tax Area Code of table Customer contains a value (123) that cannot be found in the related table (Tax Area).';
+        ExtendedPriceCalculationEnabled: Boolean;
 
     [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandler')]
@@ -570,6 +571,96 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.ExpectedError(TaxAreaCodeDoesNotExistErr);
 
         UnbindSubscription(DataMigrationFacadeTests);
+    end;
+
+    [Test]
+    //[HandlerFunctions('ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure TestCreateUpdateItemsPriceDiscount()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        ExRateDataMigrationFacade: Codeunit "Ex. Rate Data Migration Facade";
+        ItemDataMigrationFacade: Codeunit "Item Data Migration Facade";
+        LocalDataMigrationFacadeTests: Codeunit "Data Migration Facade Tests";
+    begin
+        // [SCENARIO] Price list line with header is created once
+        Initialize();
+        PriceListHeader.DeleteAll();
+        PriceListLine.DeleteAll();
+        // [GIVEN] ExtendedPriceCalculation is enabled
+        ExtendedPriceCalculationEnabled := true;
+        if not BindSubscription(DataMigrationFacadeTests) then;
+
+        // [GIVEN] Item 'ITEM1'
+        ItemDataMigrationFacade.CreateItemIfNeeded('ITEM1', 'Description', 'Description2', "Item Type"::Inventory.AsInteger());
+        // [GIVEN] The Currency Exchange Rate 'DKK'
+        ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('DKK', WorkDate, 0.2, 0.2);
+        // [GIVEN] Customer Price Group 'CPG'
+        ItemDataMigrationFacade.CreateCustomerPriceGroupIfNeeded('CPG', 'Customer Price Group', true);
+
+        // [WHEN] CreateSalesPriceIfNeeded
+        Assert.IsTrue(
+            ItemDataMigrationFacade.CreateSalesPriceIfNeeded(1, 'CPG', 'ITEM1', 10, 'DKK', WorkDate, '', 5, ''),
+            'Sales Price was expected to have been created');
+
+        // [THEN] Price List Line with header created, where "Amount Type" 'Price'
+        Assert.IsTrue(PriceListLine.FindLast(), 'Price List Line for Price not found');
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
+        PriceListLine.TestField("Source Type", PriceListLine."Source Type"::"Customer Price Group");
+        PriceListLine.TestField("Source No.", 'CPG');
+        PriceListLine.TestField("Currency Code", 'DKK');
+        PriceListLine.TestField("Starting Date", WorkDate);
+        PriceListLine.TestField("Asset Type", "Price Asset Type"::Item);
+        PriceListLine.TestField("Asset No.", 'ITEM1');
+        PriceListLine.TestField("Variant Code", '');
+        PriceListLine.TestField("Unit of Measure Code", '');
+        PriceListLine.TestField("Minimum Quantity", 5);
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListLine.TestField("Unit Price", 10);
+        PriceListLine.TestField("Line Discount %", 0);
+        VerifyPriceListHeader(PriceListLine);
+
+        // [THEN] Creation of the same price line, with another price should fail
+        Assert.IsFalse(
+            ItemDataMigrationFacade.CreateSalesPriceIfNeeded(1, 'CPG', 'ITEM1', 11, 'DKK', WorkDate, '', 5, ''),
+            'Sales Price was not expected to have been created');
+
+        // [GIVEN] Customer Discount Group 'CDG'
+        Assert.IsTrue(
+            ItemDataMigrationFacade.CreateCustDiscGroupIfNeeded('CDG', 'Customer Discount Group'),
+            'Customer Discount Group was expected to be created');
+        // [GIVEN] Item Discount Group 'IDG'
+        Assert.IsTrue(
+            ItemDataMigrationFacade.CreateItemDiscGroupIfNeeded('IDG', 'Item Discount Group'),
+            'Item Discount Group was expected to be created');
+
+        // [WHEN] CreateSalesLineDiscountIfNeeded
+        Assert.IsTrue(
+            ItemDataMigrationFacade.CreateSalesLineDiscountIfNeeded(1, 'CDG', 1, 'IDG', 0.2),
+            'Sales Line Discount was expected to have been created');
+
+        // [THEN] Price List Line with header created, where "Amount Type" 'Discount'
+        Assert.IsTrue(PriceListLine.FindLast(), 'Price List Line for Price not found');
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
+        PriceListLine.TestField("Source Type", PriceListLine."Source Type"::"Customer Disc. Group");
+        PriceListLine.TestField("Source No.", 'CDG');
+        PriceListLine.TestField("Currency Code", '');
+        PriceListLine.TestField("Starting Date", 0D);
+        PriceListLine.TestField("Asset Type", "Price Asset Type"::"Item Discount Group");
+        PriceListLine.TestField("Asset No.", 'IDG');
+        PriceListLine.TestField("Variant Code", '');
+        PriceListLine.TestField("Unit of Measure Code", '');
+        PriceListLine.TestField("Minimum Quantity", 0);
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Discount);
+        PriceListLine.TestField("Unit Price", 0);
+        PriceListLine.TestField("Line Discount %", 0.2);
+        VerifyPriceListHeader(PriceListLine);
+
+        // [THEN] Creation of the same discount line, with another discount should fail
+        Assert.IsFalse(
+            ItemDataMigrationFacade.CreateSalesLineDiscountIfNeeded(1, 'CDG', 1, 'IDG', 0.3),
+            'Sales Line Discount was not expected to have been created');
     end;
 
     [Test]
@@ -1471,6 +1562,7 @@ codeunit 135022 "Data Migration Facade Tests"
         Customer: Record Customer;
         Currency: Record Currency;
         Language: Record Language;
+        ItemDiscountGroup: Record "Item Discount Group";
         ItemJournalTemplate: Record "Item Journal Template";
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1482,6 +1574,7 @@ codeunit 135022 "Data Migration Facade Tests"
     begin
         Clear(DataMigrationFacadeTests);
         Clear(LibraryVariableStorage);
+        ExtendedPriceCalculationEnabled := false;
 
         GLAccount.DeleteAll();
         CustomerPostingGroup.DeleteAll();
@@ -1495,6 +1588,7 @@ codeunit 135022 "Data Migration Facade Tests"
         GenJournalLine.DeleteAll();
         CustomerDiscountGroup.DeleteAll();
         CustomerPriceGroup.DeleteAll();
+        ItemDiscountGroup.DeleteAll();
         ItemJournalTemplate.DeleteAll();
         GeneralLedgerSetup.DeleteAll();
         GenJournalBatch.DeleteAll();
@@ -1531,6 +1625,21 @@ codeunit 135022 "Data Migration Facade Tests"
         GLAccount.Init();
         GLAccount."No." := AccountNo;
         GLAccount.Insert();
+    end;
+
+    local procedure VerifyPriceListHeader(PriceListLine: Record "Price List Line")
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        PriceListHeader.Get(PriceListLine."Price List Code");
+        PriceListHeader.TestField("Source Group", "Price Source Group"::Customer);
+        PriceListHeader.TestField("Price Type", "Price Type"::Sale);
+        PriceListHeader.TestField("Amount Type", PriceListLine."Amount Type");
+        PriceListHeader.TestField("Source Type", PriceListLine."Source Type");
+        PriceListHeader.TestField("Source ID", PriceListLine."Source ID");
+        PriceListHeader.TestField("Currency Code", PriceListLine."Currency Code");
+        PriceListHeader.TestField("Starting Date", PriceListLine."Starting Date");
+        PriceListHeader.TestField("Ending Date", PriceListLine."Ending Date");
     end;
 
     [ConfirmHandler]
@@ -1699,6 +1808,12 @@ codeunit 135022 "Data Migration Facade Tests"
     procedure OnMigrateGLAccount(var Sender: Codeunit "GL Acc. Data Migration Facade"; RecordIdToMigrate: RecordID)
     begin
         LibraryVariableStorage.Enqueue('Migrate G/L Account');
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Price Calculation Mgt.", 'OnIsExtendedPriceCalculationEnabled', '', false, false)]
+    local procedure OnIsExtendedPriceCalculationEnabled(var Result: Boolean);
+    begin
+        Result := ExtendedPriceCalculationEnabled;
     end;
 }
 

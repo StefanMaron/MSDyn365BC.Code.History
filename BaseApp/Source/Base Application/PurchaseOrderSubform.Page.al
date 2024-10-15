@@ -1410,7 +1410,13 @@
     var
         SalesHeader: Record "Sales Header";
         SalesOrder: Page "Sales Order";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenSalesOrderForm(Rec, SalesHeader, SalesOrder, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Sales Order No.");
         SalesHeader.SetRange("No.", "Sales Order No.");
         SalesOrder.SetTableView(SalesHeader);
@@ -1642,6 +1648,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnItemReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenSalesOrderForm(var PurchaseLine: Record "Purchase Line"; var SalesHeader: Record "Sales Header"; var SalesOrder: Page "Sales Order"; var IsHandled: Boolean)
     begin
     end;
 }

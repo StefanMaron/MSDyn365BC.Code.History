@@ -18,8 +18,8 @@ page 1313 "Dynamics CRM Admin Credentials"
             field(Email; Email)
             {
                 ApplicationArea = Basic, Suite;
-                ExtendedDatatype = EMail;
-                ToolTip = 'Specifies the email address that is associated with the account.';
+                Caption = 'User name';
+                ToolTip = 'Specifies the user name that is associated with the account.';
             }
             field(Password; Password)
             {

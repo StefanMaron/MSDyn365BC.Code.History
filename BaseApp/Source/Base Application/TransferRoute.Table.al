@@ -62,7 +62,13 @@ table 5742 "Transfer Route"
     procedure GetTransferRoute(TransferFromCode: Code[10]; TransferToCode: Code[10]; var InTransitCode: Code[10]; var ShippingAgentCode: Code[10]; var ShippingAgentServiceCode: Code[10])
     var
         HasGotRecord: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetTransferRoute(Rec, TransferFromCode, TransferToCode, InTransitCode, ShippingAgentCode, ShippingAgentServiceCode, IsHandled);
+        If IsHandled then
+            exit;
+
         if ("Transfer-from Code" <> TransferFromCode) or
            ("Transfer-to Code" <> TransferToCode)
         then
@@ -161,7 +167,13 @@ table 5742 "Transfer Route"
     var
         PlannedReceiptDate: Date;
         PlannedShipmentDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcShipmentDate(Rec, ReceiptDate, InboundWhseTime, TransferToCode, ShippingAgentCode, ShippingAgentServiceCode, ShippingTime, TransferFromCode, ShipmentDate, OutboundWhseTime, IsHandled);
+        if IsHandled then
+            exit;
+
         if ReceiptDate <> 0D then begin
             // The calculation will run through the following steps:
             // ShipmentDate <- PlannedShipmentDate <- PlannedReceiptDate <- ReceiptDate
@@ -260,6 +272,16 @@ table 5742 "Transfer Route"
             else
                 Evaluate(ShippingTime, '');
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcShipmentDate(var TransferRoute: Record "Transfer Route"; var ReceiptDate: Date; var InboundWhseTime: DateFormula; var TransferToCode: Code[10]; var ShippingAgentCode: Code[10]; var ShippingAgentServiceCode: Code[10]; var ShippingTime: DateFormula; var TransferFromCode: Code[10]; var ShipmentDate: Date; var OutboundWhseTime: DateFormula; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFromCode: Code[10]; TransferToCode: Code[10]; var InTransitCode: Code[10]; var ShippingAgentCode: Code[10]; var ShippingAgentServiceCode: Code[10]; var IsHandled: Boolean)
+    begin
     end;
 }
 

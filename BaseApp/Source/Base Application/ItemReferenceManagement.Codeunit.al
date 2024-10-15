@@ -1,4 +1,4 @@
-codeunit 5720 "Item Reference Management"
+﻿codeunit 5720 "Item Reference Management"
 {
 
     trigger OnRun()
@@ -617,7 +617,7 @@ codeunit 5720 "Item Reference Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPurchaseReferenceNoLookUpOnAfterSetFilters(ItemReference: Record "Item Reference"; PurchaseLine: Record "Purchase Line")
+    local procedure OnPurchaseReferenceNoLookUpOnAfterSetFilters(var ItemReference: Record "Item Reference"; PurchaseLine: Record "Purchase Line")
     begin
     end;
 

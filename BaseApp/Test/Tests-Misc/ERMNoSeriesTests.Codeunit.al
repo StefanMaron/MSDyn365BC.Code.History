@@ -212,6 +212,32 @@ codeunit 134370 "ERM No. Series Tests"
         NoSeriesLines."Last No. Used".AssertEquals(LastNoUsed);
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestInsertFromExternalWithGaps()
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        Initialize;
+        CreateNewNumberSeries('TEST', 1, FALSE, NoSeriesLine);
+        // Simulate that NoSeriesLine was inserted programmatically without triggering creation of Sequence
+        NoSeriesLine."Allow Gaps in Nos." := true;
+        NoSeriesLine."Sequence Name" := Format(CreateGuid);
+        NoSeriesLine."Sequence Name" := CopyStr(NoSeriesLine."Sequence Name", 2, StrLen(NoSeriesLine."Sequence Name") - 2);
+        NoSeriesLine.Modify();
+
+        Assert.AreEqual('', NoSeriesLine.GetLastNoUsed, 'lastUsedNo function before taking a number');
+
+        // test
+        Assert.AreEqual(StartingNumberTxt, NoSeriesManagement.GetNextNo(NoSeriesLine."Series Code", TODAY, TRUE), 'Gaps diff');
+        Assert.AreEqual(INCSTR(StartingNumberTxt), NoSeriesManagement.GetNextNo(NoSeriesLine."Series Code", TODAY, TRUE), 'Gaps diff');
+
+        // clean up
+        DeleteNumberSeries('TEST');
+    end;
+
+
     local procedure CreateNewNumberSeries(NewName: Code[20]; IncrementBy: Integer; AllowGaps: Boolean; var NoSeriesLine: Record "No. Series Line")
     var
         NoSeries: Record "No. Series";

@@ -1,4 +1,4 @@
-codeunit 396 NoSeriesManagement
+﻿codeunit 396 NoSeriesManagement
 {
     Permissions = TableData "No. Series Line" = rimd;
 
@@ -73,6 +73,8 @@ codeunit 396 NoSeriesManagement
             NewNoSeriesCode := NoSeries.Code;
         end else
             TestManual(DefaultNoSeriesCode);
+
+        OnAfterInitSeries(NoSeries, DefaultNoSeriesCode, NewDate, NewNo);
     end;
 
     procedure SetDefaultSeries(var NewNoSeriesCode: Code[20]; NoSeriesCode: Code[20])
@@ -139,8 +141,15 @@ codeunit 396 NoSeriesManagement
         NoSeries.MarkedOnly := true;
     end;
 
-    procedure GetNextNo(NoSeriesCode: Code[20]; SeriesDate: Date; ModifySeries: Boolean): Code[20]
+    procedure GetNextNo(NoSeriesCode: Code[20]; SeriesDate: Date; ModifySeries: Boolean) Result: Code[20]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(DoGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, false));
     end;
 
@@ -487,6 +496,11 @@ codeunit 396 NoSeriesManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetNextNo(var NoSeriesCode: Code[20]; var SeriesDate: Date; var ModifySeries: Boolean; Result: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDoGetNextNo(var NoSeriesCode: Code[20]; var SeriesDate: Date; var ModifySeries: Boolean; var NoErrorsOrWarnings: Boolean)
     begin
     end;
@@ -516,6 +530,11 @@ codeunit 396 NoSeriesManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnNoSeriesLineFilterOnBeforeFindLast(var NoSeriesLine: Record "No. Series Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitSeries(var NoSeries: Record "No. Series"; DefaultNoSeriesCode: Code[20]; NewDate: Date; var NewNo: Code[20])
     begin
     end;
 }

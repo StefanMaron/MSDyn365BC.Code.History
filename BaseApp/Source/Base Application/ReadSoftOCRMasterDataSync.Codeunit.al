@@ -6,6 +6,10 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
     end;
 
     var
+        OCRServiceSetup: Record "OCR Service Setup";
+        OCRServiceMgt: Codeunit "OCR Service Mgt.";
+        XmlOptions: XmlWriteOptions;
+        WindowDialog: Dialog;
         SyncVendorsUriTxt: Label 'masterdata/rest/%1/suppliers', Locked = true;
         SyncVendorBankAccountsUriTxt: Label 'masterdata/rest/%1/supplierbankaccounts', Locked = true;
         SyncModifiedVendorsMsg: Label 'Send updated vendors to the OCR service.';
@@ -20,10 +24,6 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         MaxPortionSizeTxt: Label '3000', Locked = true;
         MethodPutTok: Label 'PUT', Locked = true;
         MethodPostTok: Label 'POST', Locked = true;
-        OCRServiceSetup: Record "OCR Service Setup";
-        OCRServiceMgt: Codeunit "OCR Service Mgt.";
-        XmlOptions: XmlWriteOptions;
-        Window: Dialog;
         WindowUpdateDateTime: DateTime;
         OrganizationId: Text;
         PackageNo: Integer;
@@ -32,6 +32,17 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         OCRServiceMasterDataSyncSucceededTxt: Label 'Successfully synchronized %1 entities with OCR service.', Locked = true;
         OCRServiceMasterDataSyncFailedTxt: Label 'Failed to synchronize %1 entities with OCR service.', Locked = true;
         TelemetryCategoryTok: Label 'AL OCR Service', Locked = true;
+        UpdateResultTagTxt: Label 'UpdateResult', Locked = true;
+        ServiceErrorTagTxt: Label 'ServiceError', Locked = true;
+        AdjustedBodyTxt: Label '<root>%1</root>', Locked = true;
+        RequestTemplateTxt: label '<%1 xmlns:i="http://www.w3.org/2001/XMLSchema-instance">%2</%3>', Locked = true;
+        CannotLoadXmlDocumentTxt: Label 'Cannot load XML document. Request type: %1, Reponse body: %2', Locked = true;
+        CannotGetRootNodeTxt: Label 'Cannot get root node. Request type: %1, Response body: %2', Locked = true;
+        CannotFindChildNodesTxt: Label 'Cannot find child nodes. Request type: %1, Response body: %2', Locked = true;
+        ChildNodeCountTxt: Label 'There are multiple child elements. Request type: %1, Child count: %2, Response body: %3', Locked = true;
+        ServiceErrorDetailsTxt: Label 'ServiceError response was parsed. Request type: %1, Response number: %2, Code: %3, Message: %4', Locked = true;
+        ServiceErrorCannotParseTxt: Label 'Cannot parse ServiceError response. Request type: %1, Response number: %2, Response body: %3', Locked = true;
+        UpdateResultCannotParseTxt: Label 'Cannot parse UpdateResult response. Request type: %1, Response number: %2, Response body: %3', Locked = true;
         XmlNameSpace: Text;
         CRLF: Text[2];
         CR: Text[1];
@@ -70,7 +81,7 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
 
     procedure ResetLastSyncTime()
     begin
-        if not IsSyncEnabled then
+        if not IsSyncEnabled() then
             exit;
         OCRServiceSetup.Get();
         if OCRServiceSetup."Master Data Last Sync" = 0DT then
@@ -81,8 +92,6 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
     end;
 
     procedure IsSyncEnabled(): Boolean
-    var
-        OCRServiceSetup: Record "OCR Service Setup";
     begin
         if not OCRServiceSetup.Get() then
             exit(false);
@@ -99,64 +108,102 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         exit(true);
     end;
 
-    local procedure CheckSyncResponse(var ResponseBody: Text; ActivityDescription: Text): Boolean
+    local procedure CheckSyncResponse(ResponseBody: Text; RequestType: Text; ActivityDescription: Text): Boolean
     var
         XmlDoc: XmlDocument;
-        XmlRoot: XmlElement;
+        RootXmlElement: XmlElement;
+        XmlNodeList: XmlNodeList;
         XmlNode: XmlNode;
+        AdjustedBody: Text;
+        Count: Integer;
+        Number: Integer;
+    begin
+        AdjustedBody := StrSubstNo(AdjustedBodyTxt, ResponseBody);
+        if not TryLoadXml(AdjustedBody, XmlDoc) then begin
+            ClearLastError();
+            Session.LogMessage('0000DOD', StrSubstNo(CannotLoadXmlDocumentTxt, RequestType, ResponseBody), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            exit(false);
+        end;
+        if not XmlDoc.GetRoot(RootXmlElement) then begin
+            Session.LogMessage('0000DOE', StrSubstNo(CannotGetRootNodeTxt, RequestType, ResponseBody), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            exit(false);
+        end;
+        XmlNodeList := RootXmlElement.GetChildNodes();
+        Count := XmlNodeList.Count();
+        if Count = 0 then begin
+            Session.LogMessage('0000DOF', StrSubstNo(CannotFindChildNodesTxt, RequestType, ResponseBody), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            exit(false);
+        end;
+        if Count > 1 then
+            Session.LogMessage('0000DOG', StrSubstNo(ChildNodeCountTxt, RequestType, Count, ResponseBody), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        foreach XmlNode in XmlNodeList do begin
+            Number += 1;
+            case XmlNode.AsXmlElement().Name() of
+                UpdateResultTagTxt:
+                    ParseUpdateResult(XmlNode, RequestType, Number, ResponseBody, ActivityDescription);
+                ServiceErrorTagTxt:
+                    ParseServiceError(XmlNode, RequestType, Number, ResponseBody, ActivityDescription);
+            end;
+        end;
+        exit(true);
+    end;
+
+    [TryFunction]
+    local procedure TryLoadXml(XmlText: Text; var XmlDoc: XmlDocument)
+    begin
+        XmlDocument.ReadFrom(XmlText, XmlDoc);
+    end;
+
+    local procedure ParseUpdateResult(var UpdateResultXmlNode: XmlNode; RequestType: Text; Number: Integer; ResponseBody: Text; ActivityDescription: Text)
+    var
+        ChildXmlNode: XmlNode;
         NoOfCreated: Integer;
         NoOfUpdated: Integer;
         NoOfDeleted: Integer;
+        ElementCount: Integer;
+    begin
+        if UpdateResultXmlNode.SelectSingleNode('Created', ChildXmlNode) then
+            if ChildXmlNode.IsXmlElement() then
+                if Evaluate(NoOfCreated, ChildXmlNode.AsXmlElement().InnerText(), 9) then
+                    ElementCount += 1;
+        if UpdateResultXmlNode.SelectSingleNode('Updated', ChildXmlNode) then
+            if ChildXmlNode.IsXmlElement() then
+                if Evaluate(NoOfUpdated, ChildXmlNode.AsXmlElement().InnerText(), 9) then
+                    ElementCount += 1;
+        if UpdateResultXmlNode.SelectSingleNode('Deleted', ChildXmlNode) then
+            if ChildXmlNode.IsXmlElement() then
+                if Evaluate(NoOfDeleted, ChildXmlNode.AsXmlElement().InnerText(), 9) then
+                    ElementCount += 1;
+        if ElementCount = 0 then
+            Session.LogMessage('0000DOI', StrSubstNo(UpdateResultCannotParseTxt, RequestType, Number, ResponseBody), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        OCRServiceMgt.LogActivitySucceeded(
+          OCRServiceSetup.RecordId, ActivityDescription, StrSubstNo(SyncSuccessfulDetailedMsg, NoOfCreated, NoOfUpdated, NoOfDeleted));
+    end;
+
+    local procedure ParseServiceError(var ServiceErrorXmlNode: XmlNode; RequestType: Text; Number: Integer; ResponseBody: Text; ActivityDescription: Text)
+    var
+        ChildXmlNode: XmlNode;
         ErrorCode: Text;
         ErrorMessage: Text;
     begin
-        if not XmlDocument.ReadFrom(ResponseBody, XmlDoc) then begin
-            OCRServiceMgt.LogActivityFailed(OCRServiceSetup.RecordId, ActivityDescription, InvalidResponseMsg);
-            exit(false);
-        end;
-        if not XmlDoc.GetRoot(XmlRoot) then begin
-            OCRServiceMgt.LogActivityFailed(OCRServiceSetup.RecordId, ActivityDescription, InvalidResponseMsg);
-            exit(false);
-        end;
-        case XmlRoot.Name() of
-            'UpdateResult':
-                begin
-                    if XmlRoot.SelectSingleNode('Created', XmlNode) then
-                        if XmlNode.IsXmlElement() then
-                            if Evaluate(NoOfCreated, XmlNode.AsXmlElement().InnerText(), 9) then;
-                    if XmlRoot.SelectSingleNode('Updated', XmlNode) then
-                        if XmlNode.IsXmlElement() then
-                            if Evaluate(NoOfUpdated, XmlNode.AsXmlElement().InnerText(), 9) then;
-                    if XmlRoot.SelectSingleNode('Deleted', XmlNode) then
-                        if XmlNode.IsXmlElement() then
-                            if Evaluate(NoOfDeleted, XmlNode.AsXmlElement().InnerText(), 9) then;
-                    OCRServiceMgt.LogActivitySucceeded(
-                      OCRServiceSetup.RecordId, ActivityDescription, StrSubstNo(SyncSuccessfulDetailedMsg, NoOfCreated, NoOfUpdated, NoOfDeleted));
-                    exit(true);
-                end;
-            'ServiceError':
-                begin
-                    if XmlRoot.SelectSingleNode('Code', XmlNode) then
-                        if XmlNode.IsXmlElement() then
-                            ErrorCode := XmlNode.AsXmlElement().InnerText();
-                    if XmlRoot.SelectSingleNode('Message', XmlNode) then
-                        if XmlNode.IsXmlElement() then
-                            ErrorMessage := XmlNode.AsXmlElement().InnerText();
-                    OCRServiceMgt.LogActivityFailed(
-                      OCRServiceSetup.RecordId, ActivityDescription, StrSubstNo(SyncFailedDetailedMsg, ErrorCode, ErrorMessage));
-                    exit(false);
-                end;
-            else begin
-                    OCRServiceMgt.LogActivityFailed(OCRServiceSetup.RecordId, ActivityDescription, InvalidResponseMsg);
-                    exit(false);
-                end;
-        end;
+        if ServiceErrorXmlNode.SelectSingleNode('Code', ChildXmlNode) then
+            if ChildXmlNode.IsXmlElement() then
+                ErrorCode := ChildXmlNode.AsXmlElement().InnerText();
+        if ServiceErrorXmlNode.SelectSingleNode('Message', ChildXmlNode) then
+            if ChildXmlNode.IsXmlElement() then
+                ErrorMessage := ChildXmlNode.AsXmlElement().InnerText();
+        if (ErrorCode <> '') or (ErrorMessage <> '') then
+            Session.LogMessage('0000DOL', StrSubstNo(ServiceErrorDetailsTxt, RequestType, Number, ErrorCode, ErrorMessage), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok)
+        else
+            Session.LogMessage('0000DOM', StrSubstNo(ServiceErrorCannotParseTxt, RequestType, Number, ResponseBody), Verbosity::Normal, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+        OCRServiceMgt.LogActivityFailed(
+          OCRServiceSetup.RecordId, ActivityDescription, StrSubstNo(SyncFailedDetailedMsg, ErrorCode, ErrorMessage));
     end;
 
     local procedure SyncVendors(StartDateTime: DateTime; EndDateTime: DateTime): Boolean
     var
-        TempBlobListModifiedVendor: Codeunit "Temp Blob List";
-        TempBlobListBankAccount: Codeunit "Temp Blob List";
+        ModifiedVendorTempBlobList: Codeunit "Temp Blob List";
+        BankAccountTempBlobList: Codeunit "Temp Blob List";
         ModifiedVendorCount: Integer;
         BankAccountCount: Integer;
         ModifyVendorPackageCount: Integer;
@@ -170,16 +217,16 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         else
             ModifiedVendorFirstPortionAction := MethodPutTok;
 
-        GetModifiedVendors(TempBlobListModifiedVendor, StartDateTime, EndDateTime);
-        GetVendorBankAccounts(TempBlobListBankAccount, StartDateTime, EndDateTime);
+        GetModifiedVendors(ModifiedVendorTempBlobList, StartDateTime, EndDateTime);
+        GetVendorBankAccounts(BankAccountTempBlobList, StartDateTime, EndDateTime);
 
-        ModifiedVendorCount := TempBlobListModifiedVendor.Count();
-        BankAccountCount := TempBlobListBankAccount.Count();
+        ModifiedVendorCount := ModifiedVendorTempBlobList.Count();
+        BankAccountCount := BankAccountTempBlobList.Count();
 
         if (ModifiedVendorCount > 0) or (StartDateTime = 0DT) then
             ModifyVendorPackageCount := (ModifiedVendorCount div MaxPortionSize()) + 1;
         if BankAccountCount > 0 then
-            BankAccountPackageCount := (TempBlobListBankAccount.Count() div MaxPortionSize()) + 1;
+            BankAccountPackageCount := (BankAccountTempBlobList.Count() div MaxPortionSize()) + 1;
         TotalPackageCount := ModifyVendorPackageCount + BankAccountPackageCount;
 
         if TotalPackageCount = 0 then
@@ -190,13 +237,13 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         OpenWindow(TotalPackageCount);
 
         Success := SyncMasterDataEntities(
-            TempBlobListModifiedVendor, VendorsUri, ModifiedVendorFirstPortionAction, MethodPostTok,
-            'Suppliers', SyncModifiedVendorsMsg, MaxPortionSize);
+            ModifiedVendorTempBlobList, VendorsUri(), ModifiedVendorFirstPortionAction, MethodPostTok,
+            'Suppliers', SyncModifiedVendorsMsg, MaxPortionSize());
 
         if Success then
             Success := SyncMasterDataEntities(
-                TempBlobListBankAccount, VendorBankAccountsUri, MethodPutTok, MethodPutTok,
-                'SupplierBankAccounts', SyncBankAccountsMsg, MaxPortionSize);
+                BankAccountTempBlobList, VendorBankAccountsUri(), MethodPutTok, MethodPutTok,
+                'SupplierBankAccounts', SyncBankAccountsMsg, MaxPortionSize());
 
         CloseWindow();
 
@@ -236,10 +283,8 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
                 OCRServiceMgt.LogActivityFailed(OCRServiceSetup.RecordId, ActivityDescription, SyncFailedSimpleMsg);
                 exit(false);
             end;
-            if not CheckSyncResponse(ResponseBody, ActivityDescription) then begin
-                LogTelemetryFailedMasterDataSync(RootNodeName);
-                exit(false);
-            end;
+            if not CheckSyncResponse(ResponseBody, RootNodeName, ActivityDescription) then
+                OCRServiceMgt.LogActivityFailed(OCRServiceSetup.RecordId, ActivityDescription, InvalidResponseMsg);
             if LastPortion then
                 break;
             RequestAction := NextPortionAction;
@@ -304,7 +349,7 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
             Data += GetFromBuffer(TempBlob);
         end;
 
-        Data := StrSubstNo('<%1 xmlns:i="http://www.w3.org/2001/XMLSchema-instance">%2</%3>', RootNodeName, Data, RootNodeName);
+        Data := StrSubstNo(RequestTemplateTxt, RootNodeName, Data, RootNodeName);
         exit(Data);
     end;
 
@@ -408,7 +453,7 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         Data: Text;
         Line: Text;
     begin
-        if not TempBlob.HasValue then
+        if not TempBlob.HasValue() then
             exit;
         TempBlob.CreateInStream(InStream);
         while InStream.ReadText(Line) > 0 do
@@ -448,8 +493,8 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         PackageNo := 0;
         PackageCount := Count;
         WindowUpdateDateTime := CurrentDateTime;
-        Window.Open(MasterDataSyncMsg);
-        Window.Update(1, '');
+        WindowDialog.Open(MasterDataSyncMsg);
+        WindowDialog.Update(1, '');
     end;
 
     local procedure UpdateWindow()
@@ -457,13 +502,13 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         PackageNo += 1;
         if CurrentDateTime - WindowUpdateDateTime >= 300 then begin
             WindowUpdateDateTime := CurrentDateTime;
-            Window.Update(1, StrSubstNo(SendingPackageMsg, PackageNo, PackageCount));
+            WindowDialog.Update(1, StrSubstNo(SendingPackageMsg, PackageNo, PackageCount));
         end;
     end;
 
     local procedure CloseWindow()
     begin
-        Window.Close;
+        WindowDialog.Close();
     end;
 
     [IntegrationEvent(false, false)]

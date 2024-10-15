@@ -57,6 +57,7 @@ codeunit 134658 "Edit Posted Documents"
         // [FEATURE] [Sales Shipment]
         // [SCENARIO 308913] New values for editable fields are not set in case Stan presses Cancel on "Posted Sales Shipment - Update" modal page.
         Initialize();
+        CreateAndPostSalesOrder();
         PrepareValuesForEditableFieldsPostedSalesShipment(SalesShptHeader);
 
         // [GIVEN] Opened "Posted Sales Shipment - Update" page.
@@ -90,6 +91,7 @@ codeunit 134658 "Edit Posted Documents"
         // [FEATURE] [Sales Shipment]
         // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Sales Shipment - Update" modal page.
         Initialize();
+        CreateAndPostSalesOrder();
         PrepareValuesForEditableFieldsPostedSalesShipment(SalesShptHeader);
 
         // [GIVEN] Opened "Posted Sales Shipment - Update" page.
@@ -123,6 +125,7 @@ codeunit 134658 "Edit Posted Documents"
         // [FEATURE] [Sales Shipment]
         // [SCENARIO 358316] "Package Tracking No." updated when only its value is changed
         Initialize();
+        CreateAndPostSalesOrder();
         PrepareValuesForEditableFieldsPostedSalesShipment(SalesShptHeader);
 
         // [GIVEN] Opened "Posted Sales Shipment - Update" page.
@@ -263,6 +266,7 @@ codeunit 134658 "Edit Posted Documents"
         // [FEATURE] [Return Shipment]
         // [SCENARIO 308913] New values for editable fields are not set in case Stan presses Cancel on "Posted Return Shpt. - Update" modal page.
         Initialize();
+        CreateAndPostPurchaseReturnOrder();
         PrepareValuesForEditableFieldsPostedReturnShipment(ReturnShptHeader);
 
         // [GIVEN] Opened "Posted Return Shpt. - Update" page.
@@ -292,6 +296,7 @@ codeunit 134658 "Edit Posted Documents"
         // [FEATURE] [Return Shipment]
         // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Return Shpt. - Update" modal page.
         Initialize();
+        CreateAndPostPurchaseReturnOrder();
         PrepareValuesForEditableFieldsPostedReturnShipment(ReturnShptHeader);
 
         // [GIVEN] Opened "Posted Return Shpt. - Update" page.
@@ -348,6 +353,7 @@ codeunit 134658 "Edit Posted Documents"
         // [FEATURE] [Return Receipt]
         // [SCENARIO 308913] New values for editable fields are not set in case Stan presses Cancel on "Posted Return Receipt - Update" modal page.
         Initialize();
+        CreateAndPostSalesReturnOrder();
         PrepareValuesForEditableFieldsPostedReturnReceipt(ReturnRcptHeader);
 
         // [GIVEN] Opened "Posted Return Receipt - Update" page.
@@ -379,6 +385,7 @@ codeunit 134658 "Edit Posted Documents"
         // [FEATURE] [Return Receipt]
         // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Return Receipt - Update" modal page.
         Initialize();
+        CreateAndPostSalesReturnOrder();
         PrepareValuesForEditableFieldsPostedReturnReceipt(ReturnRcptHeader);
 
         // [GIVEN] Opened "Posted Return Receipt - Update" page.
@@ -462,26 +469,26 @@ codeunit 134658 "Edit Posted Documents"
     [Scope('OnPrem')]
     procedure PostedSalesCreditMemoUpdateSetValuesOK()
     var
-        SalesShptHeader: Record "Sales Cr.Memo Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PostedSalesCrediMemo: TestPage "Posted Sales Credit Memo";
     begin
         // [FEATURE] [Sales Credit Memo]
         // [SCENARIO 328798] New values for editable fields are set in case Stan presses OK on "Posted Sales Credit Memo - Update" modal page.
         Initialize();
-        PrepareValuesForEditableFieldsPostedSalesCrMemo(SalesShptHeader);
+        PrepareValuesForEditableFieldsPostedSalesCrMemo(SalesCrMemoHeader);
 
         // [GIVEN] Opened "Posted Sales Credit Memo - Update" page.
         // [GIVEN] New values are set for editable fields.
-        EnqueValuesForEditableFieldsPostedSalesCrMemo(SalesShptHeader);
+        EnqueValuesForEditableFieldsPostedSalesCrMemo(SalesCrMemoHeader);
         PostedSalesCrediMemo.OpenView();
         PostedSalesCrediMemo."Update Document".Invoke();
 
         // [WHEN] Press OK on the page.
 
         // [THEN] Values of these fields in Sales Credit Memo Header were changed.
-        SalesShptHeader.TestField("Shipping Agent Code", PostedSalesCrediMemo."Shipping Agent Code".Value);
-        SalesShptHeader.TestField("Shipping Agent Service Code", PostedSalesCrediMemo."Shipping Agent Service Code".Value);
-        SalesShptHeader.TestField("Package Tracking No.", PostedSalesCrediMemo."Package Tracking No.".Value);
+        SalesCrMemoHeader.TestField("Shipping Agent Code", PostedSalesCrediMemo."Shipping Agent Code".Value);
+        SalesCrMemoHeader.TestField("Shipping Agent Service Code", PostedSalesCrediMemo."Shipping Agent Service Code".Value);
+        SalesCrMemoHeader.TestField("Package Tracking No.", PostedSalesCrediMemo."Package Tracking No.".Value);
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -510,6 +517,33 @@ codeunit 134658 "Edit Posted Documents"
         PurchaseHeader.Validate("Sell-to Customer No.", CustomerNo);
         PurchaseHeader.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreateAndPostSalesOrder()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    local procedure CreateAndPostSalesReturnOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo(),
+            LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate());
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    local procedure CreateAndPostPurchaseReturnOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
     local procedure EnqueValuesForEditableFieldsPostedSalesShipment(SalesShptHeader: Record "Sales Shipment Header")

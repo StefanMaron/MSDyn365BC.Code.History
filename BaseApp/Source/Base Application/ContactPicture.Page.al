@@ -1,4 +1,4 @@
-page 5104 "Contact Picture"
+﻿page 5104 "Contact Picture"
 {
     Caption = 'Contact Picture';
     DeleteAllowed = false;
@@ -39,7 +39,7 @@ page 5104 "Contact Picture"
                 begin
                     TestField("No.");
                     TestField(Name);
-
+                    OnTakePictureOnBeforeAddPicture(Rec);
                     Camera.AddPicture(Rec, Rec.FieldNo(Image));
                 end;
             }
@@ -148,6 +148,11 @@ page 5104 "Contact Picture"
 
     [IntegrationEvent(false, false)]
     local procedure OnImportPictureOnBeforeStoreFile(var Contact: Record Contact; FileName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTakePictureOnBeforeAddPicture(var Contact: Record Contact)
     begin
     end;
 }

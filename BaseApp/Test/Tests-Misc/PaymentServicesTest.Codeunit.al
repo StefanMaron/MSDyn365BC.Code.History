@@ -1647,7 +1647,7 @@ codeunit 134425 "Payment Services Test"
         BodyLinkIsSet();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure TestBodyLinkIsSet()

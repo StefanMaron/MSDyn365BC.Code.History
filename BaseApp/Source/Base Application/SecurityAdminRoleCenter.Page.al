@@ -21,6 +21,10 @@ page 9024 "Security Admin Role Center"
             {
                 ApplicationArea = Suite;
             }
+            part("Emails"; "Email Activities")
+            {
+                ApplicationArea = Basic, Suite;
+            }
             part(ApprovalsActivities; "Approvals Activities")
             {
                 ApplicationArea = Suite;

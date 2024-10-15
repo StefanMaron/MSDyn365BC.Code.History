@@ -4,6 +4,9 @@
 			"path": "."
 		},
 		{
+			"path": "..\\Tests\\Azure AI"
+		},
+		{
 			"path": "..\\Tests\\Bank"
 		},
 		{
@@ -25,6 +28,9 @@
 			"path": "..\\Tests\\DotNet"
 		},
 		{
+			"path": "..\\Tests\\DotNet-Internal"
+		},
+		{
 			"path": "..\\Tests\\ERM"
 		},
 		{
@@ -40,10 +46,16 @@
 			"path": "..\\Tests\\Integration"
 		},
 		{
+			"path": "..\\Tests\\Integration-Internal"
+		},
+		{
 			"path": "..\\Tests\\Invoicing"
 		},
 		{
 			"path": "..\\Tests\\Job"
+		},
+		{
+			"path": "..\\Tests\\Local"
 		},
 		{
 			"path": "..\\Tests\\Marketing"
@@ -58,7 +70,13 @@
 			"path": "..\\Tests\\MOCKSERVICETESTS"
 		},
 		{
+			"path": "..\\Tests\\Monitor Sensitive Fields"
+		},
+		{
 			"path": "..\\Tests\\NATIVEINVOICINGTEST"
+		},
+		{
+			"path": "..\\Tests\\Performance-Internal"
 		},
 		{
 			"path": "..\\Tests\\Permissions"
@@ -88,6 +106,9 @@
 			"path": "..\\Tests\\SINGLESERVER"
 		},
 		{
+			"path": "..\\Tests\\SINGLESERVER-Internal"
+		},
+		{
 			"path": "..\\Tests\\SMB"
 		},
 		{
@@ -96,6 +117,12 @@
 		{
 			"path": "..\\Tests\\TestLibraries"
 		},
+		{
+			"path": "..\\Tests\\TestRunner-Internal"
+		},
+		{
+			"path": "..\\Tests\\Upgrade"
+		}
 		{
 			"path": "..\\Tests\\User"
 		},
@@ -106,11 +133,8 @@
 			"path": "..\\Tests\\Workflow"
 		},
 		{
-			"path": "C:\\git\\nav\\App\\Apps\\W1\\APIV1\\app"
+			"path": "..\\Tests\\BCPT-SampleTests"
 		},
-		{
-			"path": "C:\\Enlist\\main\\App\\Views\\es\\DemoTool"
-		}
 	],
 	"settings": {}
 }
