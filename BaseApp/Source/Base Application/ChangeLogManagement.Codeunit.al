@@ -23,7 +23,14 @@ codeunit 423 "Change Log Management"
         MonitorSensitiveFieldSetupRead: Boolean;
 
     procedure GetDatabaseTableTriggerSetup(TableID: Integer; var LogInsert: Boolean; var LogModify: Boolean; var LogDelete: Boolean; var LogRename: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDatabaseTableTriggerSetup(TableID, LogInsert, LogModify, LogDelete, LogRename, IsHandled);
+        if IsHandled then
+            exit;
+
         if CompanyName = '' then
             exit;
 
@@ -131,7 +138,7 @@ codeunit 423 "Change Log Management"
             end;
     end;
 
-    local procedure IsFieldLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion): Boolean
+    local procedure IsFieldLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion) IsActive: Boolean
     begin
         if FieldNumber = 0 then
             exit(true);
@@ -159,6 +166,8 @@ codeunit 423 "Change Log Management"
                 TypeOfChange::Deletion:
                     exit("Log Deletion");
             end;
+
+        OnAfterIsFieldLogActive(TableNumber, FieldNumber, TypeOfChange, TempChangeLogSetupField, IsActive);
     end;
 
     local procedure IsAlwaysLoggedTable(TableID: Integer) AlwaysLogTable: Boolean
@@ -255,6 +264,7 @@ codeunit 423 "Change Log Management"
             end;
         end;
 
+        OnInsertLogEntryOnBeforeChangeLogEntryValidateChangedRecordSystemId(ChangeLogEntry, RecRef, FldRef);
         ChangeLogEntry.Validate("Changed Record SystemId", RecRef.Field(RecRef.SystemIdNo).Value);
         MonitorSensitiveFieldData.HandleMonitorSensitiveFields(ChangeLogEntry, TempChangeLogSetupField, RecRef, FldRef, IsAlwaysLoggedTable(RecRef.Number), FieldMonitoringSetup."Monitor Status");
 
@@ -508,6 +518,21 @@ codeunit 423 "Change Log Management"
     local procedure OnBeforeInsertChangeLogEntryByValue(ChangeLogEntry: Record "Change Log Entry"; AlwaysLog: Boolean; var Handled: Boolean)
     begin
         OnBeforeInsertChangeLogEntry(ChangeLogEntry, AlwaysLog, Handled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDatabaseTableTriggerSetup(TableID: Integer; var LogInsert: Boolean; var LogModify: Boolean; var LogDelete: Boolean; var LogRename: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsFieldLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion,,Mandatory,Secured,Reporting,"Data Approval"; TempChangeLogSetupField: Record "Change Log Setup (Field)" temporary; var IsActive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertLogEntryOnBeforeChangeLogEntryValidateChangedRecordSystemId(var ChangeLogEntry: Record "Change Log Entry"; RecRef: RecordRef; FldRef: FieldRef)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

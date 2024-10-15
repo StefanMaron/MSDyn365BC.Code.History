@@ -590,6 +590,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Journal - NamedType ReversalError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1562764938 - NamedType 3747952407" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There is a reclassification salvage amount that must be posted first. Open the FA Journal page, and then post the relevant reclassification entry.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Journal - NamedType SalvageValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1562764938 - NamedType 4256950164" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Template must exits in %1.]]></Val>

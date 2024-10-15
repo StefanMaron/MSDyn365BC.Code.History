@@ -420,9 +420,13 @@
             trigger OnValidate()
             var
                 AllObjWithCaption: Record AllObjWithCaption;
+                EnvironmentInfo: Codeunit "Environment Information";
                 InvoicePostingInterface: Interface "Invoice Posting";
             begin
                 if "Invoice Posting Setup" <> "Sales Invoice Posting"::"Invoice Posting (Default)" then begin
+                    if EnvironmentInfo.IsProduction() then
+                        error(InvoicePostingNotAllowedErr);
+
                     AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Codeunit, "Invoice Posting Setup".AsInteger());
                     InvoicePostingInterface := "Invoice Posting Setup";
                     InvoicePostingInterface.Check(Database::"Sales Header");
@@ -577,6 +581,7 @@
     var
         Text001: Label 'Job Queue Priority must be zero or positive.';
         ProductCoupledErr: Label 'You must choose a record that is not coupled to a product in %1.', Comment = '%1 - Dynamics 365 Sales product name';
+        InvoicePostingNotAllowedErr: Label 'Use of alternative invoice posting interfaces in production environment is currently not allowed.';
         RecordHasBeenRead: Boolean;
 
     procedure GetRecordOnce()

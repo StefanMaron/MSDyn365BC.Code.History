@@ -919,6 +919,26 @@ codeunit 132590 "Type Helper Unit Tests"
         Assert.AreEqual(-1, TypeHelper.GetOptionNo('aaa', ''), GetOptionNoErr);
     end;
 
+    [Test]
+    procedure EvaluateDecimalWithCurrencySignAndParentheses()
+    var
+        TypeHelper: Codeunit "Type Helper";
+        InputValue: Text;
+        Result: Variant;
+    begin
+        // [FEATURE] [UT] 
+        // [SCENARIO 414170] Evalute decimal value with currency sign and parenthesess
+        // [GIVEN] String "($123.45)"
+        InputValue := '($123.45)';
+
+        // [WHEN] Invoke "Type Helper".Evaluate
+        Result := 0.0;
+        TypeHelper.Evaluate(Result, InputValue, '', 'en-US');
+
+        // [THEN] Result = -123.45
+        Assert.AreEqual(-123.45, Result, 'Wrong value.');
+    end;
+
     local procedure GenerateDateString(var String: Text; var Day: Integer; var Month: Integer; var Year: Integer; TimeShift: Text)
     begin
         Day := LibraryRandom.RandIntInRange(1, 28);

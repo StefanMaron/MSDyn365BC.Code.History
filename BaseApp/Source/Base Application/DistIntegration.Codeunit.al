@@ -712,7 +712,7 @@ codeunit 5702 "Dist. Integration"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeProcessSalesLine(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeProcessSalesLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

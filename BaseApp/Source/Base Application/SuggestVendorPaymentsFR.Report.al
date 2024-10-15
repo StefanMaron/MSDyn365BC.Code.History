@@ -378,7 +378,7 @@ report 10862 "Suggest Vendor Payments FR"
                                 NextDocNo := CopyStr(GenPayHead."No." + '/' + Format(LastLineNo), 1, MaxStrLen(NextDocNo));
                                 TempPaymentPostBuffer."Applies-to ID" := NextDocNo;
                             end else begin
-                                NextDocNo := NoSeriesMgt.GetNextNo(PaymentClass."Line No. Series", PostingDate, false);
+                                NextDocNo := NoSeriesMgt.GetNextNo(PaymentClass."Line No. Series", PostingDate, true);
                                 TempPaymentPostBuffer."Applies-to ID" := GenPayHead."No." + '/' + NextDocNo;
                             end;
                             TempPaymentPostBuffer."Document No." := NextDocNo;
@@ -429,7 +429,7 @@ report 10862 "Suggest Vendor Payments FR"
                             NextDocNo := CopyStr(GenPayHead."No." + '/' + Format("Line No."), 1, MaxStrLen(NextDocNo));
                             "Applies-to ID" := NextDocNo;
                         end else begin
-                            NextDocNo := NoSeriesMgt.GetNextNo(PaymentClass."Line No. Series", PostingDate, false);
+                            NextDocNo := NoSeriesMgt.GetNextNo(PaymentClass."Line No. Series", PostingDate, true);
                             "Applies-to ID" := GenPayHead."No." + '/' + NextDocNo;
                         end;
                     end else begin

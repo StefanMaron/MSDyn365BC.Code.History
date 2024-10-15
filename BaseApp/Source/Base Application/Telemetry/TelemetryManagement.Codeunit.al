@@ -50,6 +50,8 @@ codeunit 1350 "Telemetry Management"
         Session.LogMessage('0000ADZ', TelemetryJobCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DailyTelemetryCategoryTxt);
     end;
 
+#if not CLEAN20
+    [Obsolete('Calendar events are not used for sending telemetry anymore. Subscibe to OnSendDailyTelemetry event instead.', '20.0')]
     procedure ScheduleCalEventsForTelemetryAsync(TelemetryCodeunitRecID: RecordID; CalEventsCodeunit: Integer; ExecutionDelayInSeconds: Integer)
     var
         ClientTypeManagement: Codeunit "Client Type Management";
@@ -63,6 +65,7 @@ codeunit 1350 "Telemetry Management"
                   CurrentDateTime + (ExecutionDelayInSeconds * 1000), TelemetryCodeunitRecID);
     end;
 
+    [Obsolete('Calendar events are not used for sending telemetry anymore. Subscibe to OnSendDailyTelemetry event instead.', '20.0')]
     procedure DoesTelemetryCalendarEventExist(EventDate: Date; Description: Text[100]; CodeunitID: Integer): Boolean
     var
         CalendarEvent: Record "Calendar Event";
@@ -84,10 +87,12 @@ codeunit 1350 "Telemetry Management"
         exit(not DoNotScheduleTask and TASKSCHEDULER.CanCreateTask);
     end;
 
+    [Obsolete('Calendar events are not used for sending telemetry anymore. Subscibe to OnSendDailyTelemetry event instead.', '20.0')]
     [IntegrationEvent(false, false)]
     procedure OnBeforeTelemetryScheduleTask(var DoNotScheduleTask: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnSendDailyTelemetry()

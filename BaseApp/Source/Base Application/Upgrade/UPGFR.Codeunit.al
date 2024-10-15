@@ -7,7 +7,12 @@ codeunit 104101 "UPG.FR"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+         
         UpgradeDetailedCVLedgerEntries;
     end;
 

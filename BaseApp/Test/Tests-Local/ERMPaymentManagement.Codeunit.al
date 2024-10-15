@@ -1348,6 +1348,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentHeader: array[2] of Record "Payment Header";
         PaymentStatus: Record "Payment Status";
         GenJournalLine: Record "Gen. Journal Line";
+        PaymentLine: Record "Payment Line";
         SummarizePer: Option " ",Customer,"Due date";
     begin
         // [SCENARIO 316414] Deleting Payment Slip doesn't lead to empty "Applies-to ID" of wrong Customer Ledger Entry, when entries suggested using Summarize per Customer.
@@ -1381,6 +1382,9 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] "P1" suggested payment summarized per Customer "C1", "P2" suggested payment summarized per Customer "C2".
         SuggestCustomerPaymentLines(Customer[1]."No.", SummarizePer::Customer, PaymentHeader[1]);
         SuggestCustomerPaymentLines(Customer[2]."No.", SummarizePer::Customer, PaymentHeader[2]);
+        PaymentLine.SetRange("No.", PaymentHeader[2]."No.");
+        PaymentLine.FindFirst();
+        VerifyLastNoUsedInNoSeries(PaymentClass."Line No. Series", PaymentLine."Document No."); // TFS 409091. Last No used is updated
 
         // [WHEN] Paymen Slip "P2" is deleted.
         PaymentHeader[2].Delete(true);
@@ -1406,6 +1410,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentHeader: array[2] of Record "Payment Header";
         PaymentStatus: Record "Payment Status";
         GenJournalLine: Record "Gen. Journal Line";
+        PaymentLine: Record "Payment Line";
         SummarizePer: Option " ",Customer,"Due date";
     begin
         // [SCENARIO 316414] Deleting Payment Slip doesn't lead to empty "Applies-to ID" of wrong Customer Ledger Entry, when entries suggested using Summarize per Due date.
@@ -1439,6 +1444,9 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] "P1" suggested payment summarized per Due date, "P2" suggested payment summarized per Due date.
         SuggestCustomerPaymentLines(Customer[1]."No.", SummarizePer::"Due date", PaymentHeader[1]);
         SuggestCustomerPaymentLines(Customer[2]."No.", SummarizePer::"Due date", PaymentHeader[2]);
+        PaymentLine.SetRange("No.", PaymentHeader[2]."No.");
+        PaymentLine.FindFirst();
+        VerifyLastNoUsedInNoSeries(PaymentClass."Line No. Series", PaymentLine."Document No."); // TFS 409091. Last No used is updated
 
         // [WHEN] Paymen Slip "P2" is deleted.
         PaymentHeader[2].Delete(true);
@@ -1464,6 +1472,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentHeader: array[2] of Record "Payment Header";
         PaymentStatus: Record "Payment Status";
         GenJournalLine: Record "Gen. Journal Line";
+        PaymentLine: Record "Payment Line";
         SummarizePer: Option " ",Customer,"Due date";
     begin
         // [SCENARIO 316414] Deleting Payment Slip doesn't lead to empty "Applies-to ID" of wrong Customer Ledger Entry, when entries suggested without summarization.
@@ -1497,6 +1506,9 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] "P1" and "P2" suggested payment without summarization.
         SuggestCustomerPaymentLines(Customer[1]."No.", SummarizePer::" ", PaymentHeader[1]);
         SuggestCustomerPaymentLines(Customer[2]."No.", SummarizePer::" ", PaymentHeader[2]);
+        PaymentLine.SetRange("No.", PaymentHeader[2]."No.");
+        PaymentLine.FindFirst();
+        VerifyLastNoUsedInNoSeries(PaymentClass."Line No. Series", PaymentLine."Document No."); // TFS 409091. Last No used is updated
 
         // [WHEN] Paymen Slip "P2" is deleted.
         PaymentHeader[2].Delete(true);
@@ -1522,6 +1534,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentHeader: array[2] of Record "Payment Header";
         PaymentStatus: Record "Payment Status";
         GenJournalLine: Record "Gen. Journal Line";
+        PaymentLine: Record "Payment Line";
         SummarizePer: Option " ",Vendor,"Due date";
     begin
         // [SCENARIO 316414] Deleting Payment Slip doesn't lead to empty "Applies-to ID" of wrong Vendor Ledger Entry, when entries suggested using Summarize per Vendor.
@@ -1555,6 +1568,9 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] "P1" suggested payment summarized per Vendor "C1", "P2" suggested payment summarized per Vendor "C2".
         SuggestVendorPaymentLines(Vendor[1]."No.", SummarizePer::Vendor, PaymentHeader[1]);
         SuggestVendorPaymentLines(Vendor[2]."No.", SummarizePer::Vendor, PaymentHeader[2]);
+        PaymentLine.SetRange("No.", PaymentHeader[2]."No.");
+        PaymentLine.FindFirst();
+        VerifyLastNoUsedInNoSeries(PaymentClass."Line No. Series", PaymentLine."Document No."); // TFS 409091. Last No used is updated
 
         // [WHEN] Paymen Slip "P2" is deleted.
         PaymentHeader[2].Delete(true);
@@ -1580,6 +1596,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentHeader: array[2] of Record "Payment Header";
         PaymentStatus: Record "Payment Status";
         GenJournalLine: Record "Gen. Journal Line";
+        PaymentLine: Record "Payment Line";
         SummarizePer: Option " ",Customer,"Due date";
     begin
         // [SCENARIO 316414] Deleting Payment Slip doesn't lead to empty "Applies-to ID" of wrong Vendor Ledger Entry, when entries suggested using Summarize per Due date.
@@ -1613,6 +1630,9 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] "P1" suggested payment summarized per Due date, "P2" suggested payment summarized per Due date.
         SuggestVendorPaymentLines(Vendor[1]."No.", SummarizePer::"Due date", PaymentHeader[1]);
         SuggestVendorPaymentLines(Vendor[2]."No.", SummarizePer::"Due date", PaymentHeader[2]);
+        PaymentLine.SetRange("No.", PaymentHeader[2]."No.");
+        PaymentLine.FindFirst();
+        VerifyLastNoUsedInNoSeries(PaymentClass."Line No. Series", PaymentLine."Document No."); // TFS 409091. Last No used is updated
 
         // [WHEN] Paymen Slip "P2" is deleted.
         PaymentHeader[2].Delete(true);
@@ -1638,6 +1658,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentHeader: array[2] of Record "Payment Header";
         PaymentStatus: Record "Payment Status";
         GenJournalLine: Record "Gen. Journal Line";
+        PaymentLine: Record "Payment Line";
         SummarizePer: Option " ",Customer,"Due date";
     begin
         // [SCENARIO 316414] Deleting Payment Slip doesn't lead to empty "Applies-to ID" of wrong Vendor Ledger Entry, when entries suggested without summarization.
@@ -1671,6 +1692,9 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] "P1" and "P2" suggested payment without summarization.
         SuggestVendorPaymentLines(Vendor[1]."No.", SummarizePer::" ", PaymentHeader[1]);
         SuggestVendorPaymentLines(Vendor[2]."No.", SummarizePer::" ", PaymentHeader[2]);
+        PaymentLine.SetRange("No.", PaymentHeader[2]."No.");
+        PaymentLine.FindFirst();
+        VerifyLastNoUsedInNoSeries(PaymentClass."Line No. Series", PaymentLine."Document No."); // TFS 409091. Last No used is updated
 
         // [WHEN] Paymen Slip "P2" is deleted.
         PaymentHeader[2].Delete(true);
@@ -3010,6 +3034,15 @@ codeunit 144049 "ERM Payment Management"
         PaymentLine.SetRange("No.", PaymentHeader."No.");
         PaymentLine.FindFirst;
         PaymentLine.TestField("Currency Factor", RateFactor);
+    end;
+
+    local procedure VerifyLastNoUsedInNoSeries(NoSeriesCode: Code[20]; LastNoUsed: Code[20])
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.FindFirst();
+        NoSeriesLine.TestField("Last No. Used", LastNoUsed);
     end;
 
     [ModalPageHandler]

@@ -88,7 +88,7 @@ table 7021 "Price Line Filters"
         }
         field(11; "Source Group"; Enum "Price Source Group")
         {
-            Caption = 'Applies-to Group';
+            Caption = 'Assign-to Group';
             DataClassification = SystemMetadata;
         }
         field(12; "Price Line Filter"; Text[2048])
