@@ -623,7 +623,19 @@
         if IsHandled then
             exit;
 
-        UOMMgt.ValidateQtyIsBalanced(Quantity, "Qty. (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Qty. Shipped", "Qty. Shipped (Base)");
+        UOMMgt.ValidateQtyIsBalanced(Quantity, CalcQtyBase("Qty. (Base)", Quantity), "Qty. to Ship",
+            CalcQtyBase("Qty. to Ship (Base)", "Qty. to Ship"), "Qty. Shipped", CalcQtyBase("Qty. Shipped (Base)", "Qty. Shipped"));
+    end;
+
+    local procedure CalcQtyBase(QtyToRound: Decimal; Qty: Decimal): Decimal
+    begin
+        if QtyToRound = 0 then
+            exit(0);
+
+        if "Qty. per Unit of Measure" = 1 then
+            exit(QtyToRound);
+
+        exit(Qty * "Qty. per Unit of Measure");
     end;
 
     procedure CheckBin(DeductCubage: Decimal; DeductWeight: Decimal)
