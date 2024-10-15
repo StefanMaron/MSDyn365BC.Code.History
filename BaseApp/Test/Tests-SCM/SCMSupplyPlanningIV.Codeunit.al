@@ -3360,6 +3360,64 @@ codeunit 137077 "SCM Supply Planning -IV"
         PurchaseLine.TestField("Direct Unit Cost", RequisitionLine."Direct Unit Cost");
     end;
 
+    [Test]
+    [HandlerFunctions('CarryOutActionMsgReqWkshtRequestPageHandler')]
+    procedure ExpectedReceiptDateBlankOnPurchaseHeaderPlannedInReqWksht()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        CarryOutActionMsgReq: Report "Carry Out Action Msg. - Req.";
+    begin
+        // [FEATURE] [Purchase] [Requisition Worksheet]
+        // [SCENARIO 438980] "Expected Receipt Date" is blank on purchase order header created from requisition worksheet.
+        Initialize();
+
+        CreateFRQItem(Item);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+
+        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate(), WorkDate());
+        AcceptActionMessage(RequisitionLine, Item."No.");
+
+        Commit();
+        CarryOutActionMsgReq.SetReqWkshLine(RequisitionLine);
+        CarryOutActionMsgReq.UseRequestPage(true);
+        CarryOutActionMsgReq.Run();
+
+        FindPurchLine(PurchaseLine, Item."No.");
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseHeader.TestField("Expected Receipt Date", 0D);
+    end;
+
+    [Test]
+    procedure ExpectedReceiptDateBlankOnPurchaseHeaderPlannedInPlanWksht()
+    var
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Planning Worksheet]
+        // [SCENARIO 438980] "Expected Receipt Date" is blank on purchase order header created from planning worksheet.
+        Initialize();
+
+        CreateFRQItem(Item);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+
+        Item.SetRecFilter;
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
+        AcceptActionMessage(RequisitionLine, Item."No.");
+
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        FindPurchLine(PurchaseLine, Item."No.");
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseHeader.TestField("Expected Receipt Date", 0D);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -4762,6 +4820,12 @@ codeunit 137077 "SCM Supply Planning -IV"
         CalculatePlanPlanWksh.NoPlanningResiliency.SetValue(LibraryVariableStorage.DequeueBoolean);
         CalculatePlanPlanWksh.Item.SetFilter("No.", LibraryVariableStorage.DequeueText);
         CalculatePlanPlanWksh.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure CarryOutActionMsgReqWkshtRequestPageHandler(var CarryOutActionMsgReq: TestRequestPage "Carry Out Action Msg. - Req.")
+    begin
+        CarryOutActionMsgReq.OK.Invoke();
     end;
 
     [ModalPageHandler]

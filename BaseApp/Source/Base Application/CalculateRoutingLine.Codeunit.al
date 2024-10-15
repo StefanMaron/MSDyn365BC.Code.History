@@ -1314,6 +1314,8 @@ codeunit 99000774 "Calculate Routing Line"
                   Round(AvailCap *
                     CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code") *
                     100 / CalendarEntry.Efficiency / ConCurrCap, 1, '>');
+                if CalendarEntry.Capacity = CalendarEntry."Absence Capacity" then
+                    AvailCap := 0;
 
                 ShouldProcessLastProdOrderCapNeed := AvailCap > 0;
                 OnFinitelyLoadCapBackOnAfterCalcShouldProcessLastProdOrderCapNeed(
@@ -1442,6 +1444,8 @@ codeunit 99000774 "Calculate Routing Line"
                   Round(AvailCap *
                     CalendarMgt.TimeFactor(Workcenter."Unit of Measure Code") *
                     100 / CalendarEntry.Efficiency / ConCurrCap, 1, '>');
+                if CalendarEntry.Capacity = CalendarEntry."Absence Capacity" then
+                    AvailCap := 0;
 
                 if AvailCap > 0 then begin
                     ProdStartingDateTime := CreateDateTime(CalendarEntry.Date, StartTime);
