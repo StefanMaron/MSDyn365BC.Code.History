@@ -11,6 +11,7 @@ codeunit 10753 "SII Job Upload Pending Docs."
         FeatureTelemetry.LogUsage('0000LN5', SIIFeatureNameTok, 'UploadPendingDocuments started');
         UploadPendingDocuments();
         FeatureTelemetry.LogUsage('0000LN6', SIIFeatureNameTok, 'UploadPendingDocuments finished');
+        SIIJobManagement.TriggerNextHandlePendingJobQueueEntry();
     end;
 
     var

@@ -8,11 +8,17 @@ table 687 "Payment Practice Header"
         }
         field(2; "Starting Date"; Date)
         {
-
+            trigger OnValidate()
+            begin
+                ValidateDates();
+            end;
         }
         field(3; "Ending Date"; Date)
         {
-
+            trigger OnValidate()
+            begin
+                ValidateDates();
+            end;
         }
         field(4; "Aggregation Type"; Enum "Paym. Prac. Aggregation Type")
         {
@@ -105,6 +111,7 @@ table 687 "Payment Practice Header"
     var
         ConfirmManagement: Codeunit "Confirm Management";
         ClearHeaderQst: Label 'Changing %1 will delete existing lines. Do you want to continue?', Comment = '%1 = Field name';
+        DateValidationErr: Label 'Starting Date must be less than or equal to Ending Date.';
 
     procedure UpdateNo(): Integer
     var
@@ -139,5 +146,12 @@ table 687 "Payment Practice Header"
     local procedure ValidateFieldChange(PaymentPracticeLinesAggregator: Interface PaymentPracticeLinesAggregator)
     begin
         PaymentPracticeLinesAggregator.ValidateHeader(Rec);
+    end;
+
+    local procedure ValidateDates()
+    begin
+        if (Rec."Starting Date" <> 0D) and (Rec."Ending Date" <> 0D) then
+            if Rec."Starting Date" > Rec."Ending Date" then
+                Error(DateValidationErr);
     end;
 }
