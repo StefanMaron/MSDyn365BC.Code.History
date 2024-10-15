@@ -1,6 +1,6 @@
 codeunit 10130 "Bank Reconciliation Mgt."
 {
-#if not CLEAN20
+#if not CLEAN21
     Permissions = TableData "Bank Rec. Header" = r;
 #endif
 
@@ -12,11 +12,11 @@ codeunit 10130 "Bank Reconciliation Mgt."
     var
         BankAccount: Record "Bank Account";
         BankAccReconciliation2: Record "Bank Acc. Reconciliation";
-#if not CLEAN20
+#if not CLEAN21
         BankRecHeader: Record "Bank Rec. Header";
 #endif
         BankAccReconciliationCard: Page "Bank Acc. Reconciliation";
-#if not CLEAN20
+#if not CLEAN21
         BankRecWorksheet: Page "Bank Rec. Worksheet";
 #endif
     begin
@@ -33,7 +33,7 @@ codeunit 10130 "Bank Reconciliation Mgt."
                 BankAccReconciliationCard.SetSharedTempTable(BankAccReconciliation);
             BankAccReconciliationCard.SetRecord(BankAccReconciliation2);
             BankAccReconciliationCard.Run();
-#if not CLEAN20
+#if not CLEAN21
         end else begin
             BankRecHeader.InsertRec(BankAccount."No.");
             if ShareTable then
@@ -47,11 +47,11 @@ codeunit 10130 "Bank Reconciliation Mgt."
     procedure Edit(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; ShareTable: Boolean)
     var
         BankAccReconciliation2: Record "Bank Acc. Reconciliation";
-#if not CLEAN20
+#if not CLEAN21
         BankRecHeader: Record "Bank Rec. Header";
 #endif
         BankAccReconciliationCard: Page "Bank Acc. Reconciliation";
-#if not CLEAN20
+#if not CLEAN21
         BankRecWorksheet: Page "Bank Rec. Worksheet";
 #endif
         BankAccountNo: Code[20];
@@ -69,7 +69,7 @@ codeunit 10130 "Bank Reconciliation Mgt."
             BankAccReconciliationCard.Run();
         end;
 
-#if not CLEAN20
+#if not CLEAN21
         if (not AutoMatchSelected()) and BankRecHeader.Get(BankAccountNo, StatementNo) then begin
             if ShareTable then
                 BankRecWorksheet.SetSharedTempTable(BankAccReconciliation);
@@ -82,7 +82,7 @@ codeunit 10130 "Bank Reconciliation Mgt."
     procedure Delete(BankAccReconciliation: Record "Bank Acc. Reconciliation")
     var
         BankAccReconciliation2: Record "Bank Acc. Reconciliation";
-#if not CLEAN20
+#if not CLEAN21
         BankRecHeader: Record "Bank Rec. Header";
 #endif
         BankAccountNo: Code[20];
@@ -96,7 +96,7 @@ codeunit 10130 "Bank Reconciliation Mgt."
         if AutoMatchSelected() and BankAccReconciliation2.Get(StatementType, BankAccountNo, StatementNo) then
             BankAccReconciliation2.Delete(true);
 
-#if not CLEAN20
+#if not CLEAN21
         if (not AutoMatchSelected()) and BankRecHeader.Get(BankAccountNo, StatementNo) then
             BankRecHeader.Delete(true);
 #endif
@@ -108,7 +108,7 @@ codeunit 10130 "Bank Reconciliation Mgt."
     begin
         if AutoMatchSelected() then
             BankAccReconciliation2.GetTempCopy(BankAccReconciliation)
-#if not CLEAN20
+#if not CLEAN21
         else
             BankAccReconciliation2.GetTempCopyFromBankRecHeader(BankAccReconciliation);
 #endif
@@ -117,7 +117,7 @@ codeunit 10130 "Bank Reconciliation Mgt."
     procedure Post(BankAccReconciliation: Record "Bank Acc. Reconciliation"; AutoMatchCodeunitID: Integer; LocalCodeunitID: Integer)
     var
         BankAccReconciliation2: Record "Bank Acc. Reconciliation";
-#if not CLEAN20
+#if not CLEAN21
         BankRecHeader: Record "Bank Rec. Header";
 #endif
         BankAccountNo: Code[20];
@@ -131,7 +131,7 @@ codeunit 10130 "Bank Reconciliation Mgt."
         if AutoMatchSelected() and BankAccReconciliation2.Get(StatementType, BankAccountNo, StatementNo) then
             CODEUNIT.Run(AutoMatchCodeunitID, BankAccReconciliation2);
 
-#if not CLEAN20
+#if not CLEAN21
         if (not AutoMatchSelected()) and BankRecHeader.Get(BankAccountNo, StatementNo) then
             CODEUNIT.Run(LocalCodeunitID, BankRecHeader);
 #endif

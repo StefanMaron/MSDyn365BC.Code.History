@@ -444,13 +444,33 @@
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
     end;
 
+#if not CLEAN22
+    [Obsolete('Replaced by PurchHeaderRemitTo with dictionaries.', '22.0')]
     procedure PurchHeaderRemitTo(var AddrArray: array[8] of Text[100]; var PurchHeader: Record "Purchase Header"): Boolean
+    var
+        RemitAddress: Record "Remit Address";
+    begin
+        if PurchHeader."Remit-to Code" <> '' then begin
+            RemitAddress.Reset();
+            RemitAddress.SetRange("Vendor No.", PurchHeader."Pay-to Vendor No.");
+            RemitAddress.SetRange(Code, PurchHeader."Remit-to Code");
+            if RemitAddress.IsEmpty() then
+                exit(false);
+
+            RemitAddress.FindFirst();
+            VendorRemitToAddress(RemitAddress, AddrArray);
+        end;
+        exit(true);
+    end;
+#endif
+
+    procedure PurchHeaderRemitTo(var RemitAddressBuffer: Record "Remit Address Buffer"; var PurchHeader: Record "Purchase Header"): Boolean
     var
         RemitAddress: Record "Remit Address";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePurchHeaderRemitTo(AddrArray, PurchHeader, IsHandled);
+        OnBeforePurchHeaderRemitToAddress(RemitAddressBuffer, PurchHeader, IsHandled);
         if IsHandled then
             exit(false);
 
@@ -462,7 +482,7 @@
                 exit(false);
 
             RemitAddress.FindFirst();
-            VendorRemitToAddress(AddrArray, RemitAddress);
+            VendorRemitToAddress(RemitAddress, RemitAddressBuffer);
         end;
         exit(true);
     end;
@@ -762,13 +782,33 @@
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
     end;
 
+#if not CLEAN22
+    [Obsolete('Replaced by PurchInvRemitTo with dictionaries.', '22.0')]
     procedure PurchInvRemitTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header"): Boolean
+    var
+        RemitAddress: Record "Remit Address";
+    begin
+        if PurchInvHeader."Remit-to Code" <> '' then begin
+            RemitAddress.Reset();
+            RemitAddress.SetRange("Vendor No.", PurchInvHeader."Pay-to Vendor No.");
+            RemitAddress.SetRange(Code, PurchInvHeader."Remit-to Code");
+            if RemitAddress.IsEmpty() then
+                exit(false);
+
+            RemitAddress.FindFirst();
+            VendorRemitToAddress(RemitAddress, AddrArray);
+        end;
+        exit(true);
+    end;
+#endif
+
+    procedure PurchInvRemitTo(var RemitAddressBuffer: Record "Remit Address Buffer"; var PurchInvHeader: Record "Purch. Inv. Header"): Boolean
     var
         RemitAddress: Record "Remit Address";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePurchInvRemitTo(AddrArray, PurchInvHeader, IsHandled);
+        OnBeforePurchInvRemitToAddress(RemitAddressBuffer, PurchInvHeader, IsHandled);
         if IsHandled then
             exit(false);
 
@@ -780,7 +820,7 @@
                 exit(false);
 
             RemitAddress.FindFirst();
-            VendorRemitToAddress(AddrArray, RemitAddress);
+            VendorRemitToAddress(RemitAddress, RemitAddressBuffer);
         end;
         exit(true);
     end;
@@ -1522,11 +1562,39 @@
               AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
     end;
 
+#if not CLEAN22
+    [Obsolete('Replaced by VendorRemitToAddress.', '22.0')]
     procedure VendorRemitToAddress(var AddrArray: array[8] of Text[100]; var RemitAddress: Record "Remit Address")
     begin
-        if RemitAddress.Code <> '' then
-            with RemitAddress do
-                FormatAddr(AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+        VendorRemitToAddress(RemitAddress, AddrArray);
+    end;
+#endif
+
+    internal procedure VendorRemitToAddress(var RemitAddress: Record "Remit Address"; var ArrayAddress: array[8] of Text[100])
+    var
+        RemitAddressBuffer: Record "Remit Address Buffer";
+    begin
+        VendorRemitToAddress(RemitAddress, RemitAddressBuffer);
+        ArrayAddress[1] := RemitAddressBuffer.Name;
+        ArrayAddress[2] := RemitAddressBuffer.Address;
+        ArrayAddress[3] := RemitAddressBuffer."Address 2";
+        ArrayAddress[4] := RemitAddressBuffer.City;
+        ArrayAddress[5] := RemitAddressBuffer.County;
+        ArrayAddress[6] := RemitAddressBuffer."Post Code";
+        ArrayAddress[7] := RemitAddressBuffer."Country/Region Code";
+        ArrayAddress[8] := RemitAddressBuffer.Contact;
+    end;
+
+    procedure VendorRemitToAddress(var RemitAddress: Record "Remit Address"; var RemitAddressBuffer: Record "Remit Address Buffer")
+    begin
+        RemitAddressBuffer.Name := RemitAddress.Name;
+        RemitAddressBuffer.Address := RemitAddress.Address;
+        RemitAddressBuffer."Address 2" := RemitAddress."Address 2";
+        RemitAddressBuffer.City := RemitAddress.City;
+        RemitAddressBuffer.County := RemitAddress.County;
+        RemitAddressBuffer."Post Code" := RemitAddress."Post Code";
+        RemitAddressBuffer."Country/Region Code" := RemitAddress."Country/Region Code";
+        RemitAddressBuffer.Contact := RemitAddress.Contact;
     end;
 
     procedure UseCounty(CountryCode: Code[10]): Boolean
@@ -1769,8 +1837,16 @@
     begin
     end;
 
+#if not CLEAN22
+    [Obsolete('Replaced by OnBeforePurchInvRemitToAddress.', '22.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchInvRemitTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchInvRemitToAddress(var RemitAddressBuffer: Record "Remit Address Buffer"; var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1904,8 +1980,16 @@
     begin
     end;
 
+#if not CLEAN22
+    [Obsolete('Replaced by OnBeforePurchHeaderRemitToAddress.', '22.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchHeaderRemitTo(var AddrArray: array[8] of Text[100]; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchHeaderRemitToAddress(var RemitAddressBuffer: Record "Remit Address Buffer"; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

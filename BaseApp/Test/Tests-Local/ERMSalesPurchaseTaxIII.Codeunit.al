@@ -1792,6 +1792,100 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         SalesInvoiceHeader.Get(DocNo);
     end;
 
+    [Test]
+    procedure PurchaseOrderWithLineDiscountAnd100PctPrepmtPartialPosting()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxDetail: Record "Tax Detail";
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchaseInvoiceHeader: Record "Purch. Inv. Header";
+        TaxAreaCode: Code[20];
+        TaxJurisdictionCode: Code[10];
+        TaxGroupCode: Code[20];
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 449207] Purchase order with line discount and 100 % prepayment partial posting
+        Initialize();
+
+        // [GIVEN] Sales tax setup with 0 % tax rate
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
+        TaxJurisdictionCode := LibraryERMTax.CreateTaxJurisdiction_US();
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode);
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, 0);
+
+        // [GIVEN] Partially posted purchase order with 100 % prepayment and line discount
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreatePurchaseHeader(PurchaseHeader, LibraryPurchase.CreateVendorWithBusPostingGroups(GeneralPostingSetup."Gen. Bus. Posting Group", ''), TaxAreaCode, 100, false);
+        CreatePurchaseLineItem(PurchaseHeader, CreateItemNo(GeneralPostingSetup."Gen. Prod. Posting Group"), TaxGroupCode, 5917.55);
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate(Quantity, 4);
+        PurchaseLine.Validate("Line Discount %", 5);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine.Validate("Qty. to Receive", 2);
+        PurchaseLine.Modify(true);
+
+        PurchaseHeader.Validate("Vendor Invoice No.", 'C1INV1');
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        PurchaseHeader.Validate("Vendor Invoice No.", 'C1INV2');
+        PurchaseHeader.Modify(true);
+        // [WHEN] Finally posting purchase order
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Purchase order successfully posted
+        PurchaseInvoiceHeader.Get(DocNo);
+    end;
+
+    [Test]
+    procedure PurchaseOrderWith50PctInvoiceDiscountAnd100PctPrepmtPosting()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxDetail: Record "Tax Detail";
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchaseInvoiceHeader: Record "Purch. Inv. Header";
+        TaxAreaCode: Code[20];
+        TaxJurisdictionCode: Code[10];
+        TaxGroupCode: Code[20];
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 449207] Purchase order with 50% invoice discount and 100 % prepayment posting
+        Initialize();
+
+        // [GIVEN] Sales tax setup with 0 % tax rate
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
+        TaxJurisdictionCode := LibraryERMTax.CreateTaxJurisdiction_US();
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode);
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, 0);
+
+        // [GIVEN] 100% prepaid purchase order with 50% invoice discount
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreatePurchaseHeader(PurchaseHeader, LibraryPurchase.CreateVendorWithBusPostingGroups(GeneralPostingSetup."Gen. Bus. Posting Group", ''), TaxAreaCode, 100, false);
+        CreatePurchaseLineItem(PurchaseHeader, CreateItemNo(GeneralPostingSetup."Gen. Prod. Posting Group"), TaxGroupCode, 1000);
+        PurchaseHeader.Validate("Invoice Discount Value", 500);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        PurchaseHeader.Validate("Vendor Invoice No.", 'C2INV1');
+        PurchaseHeader.Modify(true);
+        // [WHEN] Posting purchase order
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Purchase order successfully posted
+        PurchaseInvoiceHeader.Get(DocNo);
+    end;
+
     local procedure Initialize()
     var
         TaxSetup: Record "Tax Setup";

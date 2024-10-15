@@ -150,7 +150,7 @@ table 271 "Bank Account Ledger Entry"
         field(56; "Statement No."; Code[20])
         {
             Caption = 'Statement No.';
-#if not CLEAN20
+#if not CLEAN21
             TableRelation = IF ("Statement Status" = FILTER("Bank Acc. Entry Applied" | "Check Entry Applied")) "Bank Rec. Header"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."))
             ELSE
             IF ("Statement Status" = CONST(Closed)) "Posted Bank Rec. Header"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."));
@@ -164,7 +164,7 @@ table 271 "Bank Account Ledger Entry"
         field(57; "Statement Line No."; Integer)
         {
             Caption = 'Statement Line No.';
-#if not CLEAN20
+#if not CLEAN21
             TableRelation = IF ("Statement Status" = FILTER("Bank Acc. Entry Applied" | "Check Entry Applied")) "Bank Rec. Line"."Line No." WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                                                                                                "Statement No." = FIELD("Statement No."))
             ELSE

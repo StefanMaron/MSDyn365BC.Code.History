@@ -61,7 +61,7 @@ codeunit 134255 "Delete Bank Reconciliation"
     end;
 
     [Test]
-    [HandlerFunctions('BankAccReconciliationPageHandler,SuggestCheckLedgerEntriesLinesHandler')]
+    [HandlerFunctions('BankAccReconciliationPageHandler,SuggestBankLedgerEntriesLinesHandler')]
     procedure ReapplyBankAndCheckLedgerEntries()
     var
         BankAccountReconciliation: Record "Bank Acc. Reconciliation";
@@ -231,14 +231,6 @@ codeunit 134255 "Delete Bank Reconciliation"
 
     [RequestPageHandler]
     procedure SuggestBankLedgerEntriesLinesHandler(var SuggestBankAccReconLines: TestRequestPage "Suggest Bank Acc. Recon. Lines")
-    begin
-        SuggestBankAccReconLines.StartingDate.SetValue(LedgerEntryDate);
-        SuggestBankAccReconLines.EndingDate.SetValue(LedgerEntryDate);
-        SuggestBankAccReconLines.OK().Invoke();
-    end;
-
-    [RequestPageHandler]
-    procedure SuggestCheckLedgerEntriesLinesHandler(var SuggestBankAccReconLines: TestRequestPage "Suggest Bank Acc. Recon. Lines")
     begin
         SuggestBankAccReconLines.StartingDate.SetValue(LedgerEntryDate);
         SuggestBankAccReconLines.EndingDate.SetValue(LedgerEntryDate);

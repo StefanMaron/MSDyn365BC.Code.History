@@ -4111,6 +4111,46 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         VerifyPurchaseLinesAmounts(PurchaseHeader."No.", PurchaseHeader."Document Type", UnitPrice, UnitPrice);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyFixedAssetJournalsAcceptingManualNumbers()
+    var
+        DepreciationBook: Record "Depreciation Book";
+        FixedAsset: Record "Fixed Asset";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FAJournalLine: Record "FA Journal Line";
+        FAJournalTemplate: Record "FA Journal Template";
+        FAJournalBatch: Record "FA Journal Batch";
+    begin
+        // [SCENARIO 452446] Fixed Asset Journal not accepting Manual numbers after enabling it
+        Initialize();
+
+        // [GIVEN] Create FA Journal Batch, No. Series
+        LibraryFixedAsset.FindFAJournalTemplate(FAJournalTemplate);
+        LibraryFixedAsset.CreateFAJournalBatch(FAJournalBatch, FAJournalTemplate.Name);
+        FAJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
+        FAJournalBatch.Modify(true);
+
+        // [GIVEN] Create Fixed Asset, Depreciation Book
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
+        DepreciationBook."G/L Integration - Acq. Cost" := false;
+        DepreciationBook.Modify();
+
+        // [GIVEN] Create FA Journal Line
+        CreateFAJournalLine(
+          FAJournalLine, FAJournalBatch, FAJournalLine."FA Posting Type"::"Acquisition Cost", FixedAsset."No.",
+          DepreciationBook.Code, LibraryRandom.RandDec(1000, 2));
+
+        // [WHEN] Assign any document number
+        FAJournalLine."Document No." := LibraryUtility.GenerateGUID();
+        FAJournalLine.Modify();
+
+        // [THEN] Post FA Journal Line without any error
+        LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -6390,6 +6430,20 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
 
         for I := 1 to ArrayLen(ExpectedAmountArray) do
             ExpectedAmountArray[I] := Round(ExpectedAmountArray[I]);
+    end;
+
+    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FAJournalBatch: Record "FA Journal Batch"; FAPostingType: Enum "FA Journal Line FA Posting Type"; FANo: Code[20]; DepreciationBookCode: Code[10]; Amount: Decimal)
+    begin
+        LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
+        FAJournalLine.Validate("Document Type", FAJournalLine."Document Type"::" ");
+        FAJournalLine.Validate("Document No.", FAJournalLine."Journal Batch Name" + Format(FAJournalLine."Line No."));
+        FAJournalLine.Validate("Posting Date", WorkDate());
+        FAJournalLine.Validate("FA Posting Date", WorkDate());
+        FAJournalLine.Validate("FA Posting Type", FAPostingType);
+        FAJournalLine.Validate("FA No.", FANo);
+        FAJournalLine.Validate(Amount, Amount);
+        FAJournalLine.Validate("Depreciation Book Code", DepreciationBookCode);
+        FAJournalLine.Modify(true);
     end;
 
     [ConfirmHandler]

@@ -945,6 +945,12 @@ page 42 "Sales Order"
                     Importance = Additional;
                     ToolTip = 'Specifies whether the order will be included when you use the Combine Shipments function.';
                 }
+                field("Completely Shipped"; "Completely Shipped")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether all the items on the order have been shipped or, in the case of inbound items, completely received.';
+                }
             }
             group("Foreign Trade")
             {

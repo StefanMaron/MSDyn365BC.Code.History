@@ -30,8 +30,7 @@
                       Text000,
                       FieldCaption("Account Type"), FieldCaption("Bal. Account Type"));
 
-                if ("Account Type" = "Account Type"::Employee) and ("Currency Code" <> '') then
-                    Error(OnlyLocalCurrencyForEmployeeErr);
+                CheckCurrencyForEmployee();
 
                 Validate("Account No.", '');
                 OnValidateAccountTypeOnBeforeCheckKeepDescription(Rec, xRec, CurrFieldNo);
@@ -426,9 +425,10 @@
                        ("Posting Date" <> xRec."Posting Date") or
                        (CurrFieldNo = FieldNo("Currency Code")) or
                        ("Currency Factor" = 0)
-                    then
-                        "Currency Factor" :=
-                          CurrExchRate.ExchangeRate("Posting Date", "Currency Code");
+                    then begin
+                        OnValidateCurrencyCodeOnBeforeUpdateCurrencyFactor(Rec, CurrExchRate);
+                        "Currency Factor" := CurrExchRate.ExchangeRate("Posting Date", "Currency Code");
+                    end;
                 end else
                     "Currency Factor" := 0;
                 Validate("Currency Factor");
@@ -687,6 +687,8 @@
                 end;
                 SetJournalLineFieldsFromApplication();
 
+                OnLookupAppliestoDocNoOnAfterSetJournalLineFieldsFromApplication(Rec);
+
                 if xRec.Amount <> 0 then
                     if not PaymentToleranceMgt.PmtTolGenJnl(Rec) then
                         exit;
@@ -778,8 +780,10 @@
                 end;
 
                 if ("Applies-to Doc. No." <> xRec."Applies-to Doc. No.") and (Amount <> 0) then begin
-                    if xRec."Applies-to Doc. No." <> '' then
+                    if xRec."Applies-to Doc. No." <> '' then begin
                         PaymentToleranceMgt.DelPmtTolApllnDocNo(Rec, xRec."Applies-to Doc. No.");
+                        OnValidateAppliesToDocNoOnAfterDelPmtToApplnDocNo(Rec, xRec);
+                    end;
                     SetApplyToAmount();
                     PaymentToleranceMgt.PmtTolGenJnl(Rec);
                     xRec.ClearAppliedGenJnlLine();
@@ -823,7 +827,14 @@
             TableRelation = Job;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnValidateJobNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Job No." = xRec."Job No." then
                     exit;
 
@@ -975,7 +986,7 @@
 
             trigger OnValidate()
             begin
-                if ("Applies-to ID" <> xRec."Applies-to ID") and (xRec."Applies-to ID" <> '') then
+                if ("Applies-to ID" <> xRec."Applies-to ID") and (xRec."Applies-to ID" <> '') and HasNoMultipleLine() then
                     ClearCustVendApplnEntry();
                 SetJournalLineFieldsFromApplication();
             end;
@@ -2146,6 +2157,7 @@
                     exit;
                 end;
 
+                OnValidateJobTaskNoOnBeforeJobTaskIsSet(Rec);
                 if JobTaskIsSet() then begin
                     CreateTempJobJnlLine();
                     CopyDimensionsFromJobTaskLine();
@@ -2980,16 +2992,20 @@
 
         TestField("Check Printed", false);
 
-        ClearCustVendApplnEntry();
-        ClearAppliedGenJnlLine();
-        DeletePaymentFileErrors();
-        ClearDataExchangeEntries(false);
+        IsHandled := false;
+        OnDeleteOnBeforeClearCustVendApplnEntry(Rec, GenJournalBatch, GenJnlAlloc, IsHandled);
+        if not IsHandled then begin
+            ClearCustVendApplnEntry();
+            ClearAppliedGenJnlLine();
+            DeletePaymentFileErrors();
+            ClearDataExchangeEntries(false);
 
-        GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
-        GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
-        GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
-        if not GenJnlAlloc.IsEmpty() then
-            GenJnlAlloc.DeleteAll();
+            GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
+            GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
+            GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
+            if not GenJnlAlloc.IsEmpty() then
+                GenJnlAlloc.DeleteAll();
+        end;
 
         DeferralUtilities.DeferralCodeOnDelete(
             DeferralDocType::"G/L".AsInteger(),
@@ -3034,7 +3050,7 @@
         if not IsHandled then
             TestField("Check Printed", false);
 
-        if ("Applies-to ID" = '') and (xRec."Applies-to ID" <> '') then
+        if ("Applies-to ID" = '') and (xRec."Applies-to ID" <> '') and HasNoMultipleLine() then
             ClearCustVendApplnEntry();
     end;
 
@@ -3211,7 +3227,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetUpNewLine(GenJnlTemplate, GenJnlBatch, GenJnlLine, LastGenJnlLine, GLSetupRead, Balance, BottomLine, IsHandled);
+        OnBeforeSetUpNewLine(GenJnlTemplate, GenJnlBatch, GenJnlLine, LastGenJnlLine, GLSetupRead, Balance, BottomLine, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -3448,6 +3464,7 @@
         TempFirstDocNo: Code[20];
         First: Boolean;
         IsHandled: Boolean;
+        PrevPostingDate: Date;
     begin
         IsHandled := false;
         OnBeforeRenumberDocNoOnLines(DocNo, GenJnlLine2, IsHandled);
@@ -3476,11 +3493,14 @@
                     if "Document No." = FirstDocNo then
                         exit;
                     if not First and
-                        (("Document No." <> PrevDocNo) or (("Bal. Account No." <> '') and ("Document No." = ''))) and
+                        (("Document No." <> PrevDocNo) or
+                          ("Posting Date" <> PrevPostingDate) or
+                        (("Bal. Account No." <> '') and ("Document No." = ''))) and
                         not LastGenJnlLine.EmptyLine()
                     then
                         DocNo := IncStr(DocNo);
                     PrevDocNo := "Document No.";
+                    PrevPostingDate := "Posting Date";
                     if "Document No." <> '' then begin
                         if "Applies-to ID" = "Document No." then
                             RenumberAppliesToID(GenJnlLine2, "Document No.", DocNo);
@@ -4475,6 +4495,7 @@
                     VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
                     VendLedgEntry.SetRange("Vendor No.", "Account No.");
                     VendLedgEntry.SetRange(Open, true);
+                    OnSetApplyToAmountOnAfterVendLedgEntrySetFilters(Rec, VendLedgEntry);
                     if VendLedgEntry.FindFirst() then
                         if VendLedgEntry."Amount to Apply" = 0 then begin
                             VendLedgEntry.CalcFields("Remaining Amount");
@@ -5045,7 +5066,13 @@
     var
         DataExchField: Record "Data Exch. Field";
         GenJournalLine: Record "Gen. Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeClearDataExchangeEntries(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Data Exch. Entry No." = 0 then
             exit;
 
@@ -6023,6 +6050,7 @@
         Prepayment := true;
         "Due Date" := PurchHeader."Prepayment Due Date";
         "Payment Terms Code" := PurchHeader."Payment Terms Code";
+        "Payment Method Code" := PurchHeader."Payment Method Code"; 
         if UsePmtDisc then begin
             "Pmt. Discount Date" := PurchHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := PurchHeader."Prepmt. Payment Discount %";
@@ -6123,6 +6151,7 @@
         Prepayment := true;
         "Due Date" := SalesHeader."Prepayment Due Date";
         "Payment Terms Code" := SalesHeader."Prepmt. Payment Terms Code";
+        "Payment Method Code" := SalesHeader."Payment Method Code"; 
         if UsePmtDisc then begin
             "Pmt. Discount Date" := SalesHeader."Prepmt. Pmt. Discount Date";
             "Payment Discount %" := SalesHeader."Prepmt. Payment Discount %";
@@ -6302,6 +6331,19 @@
             EmplLedgEntry.CalcFields("Remaining Amount");
             SetAmountWithRemaining(false, EmplLedgEntry."Amount to Apply", EmplLedgEntry."Remaining Amount", 0.0);
         end;
+    end;
+
+    local procedure CheckCurrencyForEmployee()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckCurrencyForEmployee(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ("Account Type" = "Account Type"::Employee) and ("Currency Code" <> '') then
+            Error(OnlyLocalCurrencyForEmployeeErr);
     end;
 
     procedure CheckModifyCurrencyCode(AccountType: Enum "Gen. Journal Account Type"; CustVendLedgEntryCurrencyCode: Code[10])
@@ -7173,6 +7215,20 @@
                 Error(Text016, FieldCaption("Bal. Account Type"));
     end;
 
+    local procedure HasNoMultipleLine(): Boolean
+    var
+        GenJnlLine2: Record "Gen. Journal Line";
+    begin
+        GenJnlLine2.SetRange("Journal Template Name", "Journal Template Name");
+        GenJnlLine2.SetRange("Journal Batch Name", "Journal Batch Name");
+        GenJnlLine2.SetRange("Document No.", "Document No.");
+        GenJnlLine2.SetRange("Account No.", xRec."Account No.");
+        GenJnlLine2.SetRange("Applies-to ID", xRec."Applies-to ID");
+        GenJnlLine2.SetFilter("Line No.", '<>%1', "Line No.");
+        If GenJnlLine2.Count = 0 then
+            exit(true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAccountNoOnValidateOnBeforeCreateDim(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
@@ -7440,7 +7496,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetUpNewLine(var GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var GLSetupRead: Boolean; Balance: Decimal; BottomLine: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSetUpNewLine(var GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var GLSetupRead: Boolean; Balance: Decimal; BottomLine: Boolean; var IsHandled: Boolean; var Rec: Record "Gen. Journal Line")
     begin
     end;
 
@@ -7579,7 +7635,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeBlankJobNo(GenJournalLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeBlankJobNo(var GenJournalLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -7905,6 +7961,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSetApplyToAmountOnAfterCustLedgEntrySetFilters(GenJournalLine: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetApplyToAmountOnAfterVendLedgEntrySetFilters(GenJournalLine: Record "Gen. Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
@@ -8481,6 +8542,13 @@
             exit("VAT Amount");
 
         LCYCurrency.InitRoundingPrecision();
+
+        "VAT Difference" :=
+            "VAT Amount" -
+            Round(
+                Amount * "VAT %" / (100 + "VAT %"),
+                LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection());
+
         if "VAT Difference" = 0 then
             VATAmountLCY := Round("Amount (LCY)" * "VAT %" / (100 + "VAT %"), LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection())
         else
@@ -8765,5 +8833,44 @@
     local procedure OnAfterLookupShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCurrencyCodeOnBeforeUpdateCurrencyFactor(var GenJournalLine: Record "Gen. Journal Line"; CurrExchRate: Record "Currency Exchange Rate")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeClearCustVendApplnEntry(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; GenJnlAlloc: Record "Gen. Jnl. Allocation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliestoDocNoOnAfterSetJournalLineFieldsFromApplication(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAppliesToDocNoOnAfterDelPmtToApplnDocNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateJobTaskNoOnBeforeJobTaskIsSet(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearDataExchangeEntries(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCurrencyForEmployee(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateJobNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+}

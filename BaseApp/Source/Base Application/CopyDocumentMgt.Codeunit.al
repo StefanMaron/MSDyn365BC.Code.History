@@ -423,7 +423,7 @@
                 until FromSalesLine.Next() = 0;
         end;
 
-        OnAfterCopySalesDocSalesLine(ToSalesLine);
+        OnAfterCopySalesDocSalesLine(ToSalesLine, TransferOldExtLines);
     end;
 
     local procedure ConvertToSalesDocumentTypeFrom(SalesDocType: Enum "Sales Document Type") SalesDocTypeFrom: Enum "Sales Document Type From"
@@ -551,7 +551,7 @@
                     end;
                 until FromSalesLineArchive.Next() = 0;
         end;
-        OnAfterCopySalesDocSalesLineArchive(FromSalesHeaderArchive, ToSalesHeader, ToSalesLine);
+        OnAfterCopySalesDocSalesLineArchive(FromSalesHeaderArchive, ToSalesHeader, ToSalesLine, TransferOldExtLines);
     end;
 
     procedure CopySalesDocUpdateHeader(FromDocType: Enum "Sales Document Type From"; FromDocNo: Code[20]; var ToSalesHeader: Record "Sales Header"; FromSalesHeader: Record "Sales Header"; FromSalesShptHeader: Record "Sales Shipment Header"; FromSalesInvHeader: Record "Sales Invoice Header"; FromReturnRcptHeader: Record "Return Receipt Header"; FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; FromSalesHeaderArchive: Record "Sales Header Archive"; var ReleaseDocument: Boolean);
@@ -688,13 +688,18 @@
     end;
 
     local procedure CopySalesHeaderFromPostedInvoice(FromSalesInvHeader: Record "Sales Invoice Header"; var ToSalesHeader: Record "Sales Header"; var OldSalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeCopySalesHeaderFromPostedInvoice(ToSalesHeader, FromSalesInvHeader);
-        FromSalesInvHeader.CalcFields("Work Description");
-        ToSalesHeader.Validate("Sell-to Customer No.", FromSalesInvHeader."Sell-to Customer No.");
-        OnCopySalesDocOnBeforeTransferPostedInvoiceFields(ToSalesHeader, FromSalesInvHeader, CopyJobData);
-        ToSalesHeader.TransferFields(FromSalesInvHeader, false);
-        OnCopySalesDocOnAfterTransferPostedInvoiceFields(ToSalesHeader, FromSalesInvHeader, OldSalesHeader);
+        IsHandled := false;
+        OnBeforeCopySalesHeaderFromPostedInvoice(ToSalesHeader, FromSalesInvHeader, IsHandled);
+        if not IsHandled then begin
+            FromSalesInvHeader.CalcFields("Work Description");
+            ToSalesHeader.Validate("Sell-to Customer No.", FromSalesInvHeader."Sell-to Customer No.");
+            OnCopySalesDocOnBeforeTransferPostedInvoiceFields(ToSalesHeader, FromSalesInvHeader, CopyJobData);
+            ToSalesHeader.TransferFields(FromSalesInvHeader, false);
+            OnCopySalesDocOnAfterTransferPostedInvoiceFields(ToSalesHeader, FromSalesInvHeader, OldSalesHeader);
+        end;
     end;
 
     local procedure CopySalesHeaderFromPostedReturnReceipt(FromReturnRcptHeader: Record "Return Receipt Header"; var ToSalesHeader: Record "Sales Header"; var OldSalesHeader: Record "Sales Header")
@@ -1719,7 +1724,7 @@
         OnAfterUpdateSalesLine(
           ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine,
           CopyThisLine, RecalculateAmount, FromSalesDocType.AsInteger(), CopyPostedDeferral,
-          ExactCostRevMandatory, MoveNegLines);
+          ExactCostRevMandatory, MoveNegLines, RecalculateLines);
     end;
 
     local procedure RecalculateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean)
@@ -1801,7 +1806,8 @@
         end else begin
             Item.Get(ToSalesLine."No.");
             if (Item."Assembly Policy" = Item."Assembly Policy"::"Assemble-to-Order") and
-               (Item."Replenishment System" = Item."Replenishment System"::Assembly)
+               (Item."Replenishment System" = Item."Replenishment System"::Assembly) and
+               ToSalesLine.IsAsmToOrderAllowed()
             then begin
                 ToSalesLine.Validate("Qty. to Assemble to Order", ToSalesLine.Quantity);
                 ToSalesLine.Modify();
@@ -3604,7 +3610,7 @@
                           TempSalesLineBuf, OrgQtyBase,
                           FromSalesHeader."Prices Including VAT", ToSalesHeader."Prices Including VAT");
 
-                    OnSplitPstdSalesLinesPerILETransferFields(FromSalesHeader, FromSalesLine, TempSalesLineBuf, ToSalesHeader);
+                    OnSplitPstdSalesLinesPerILETransferFields(FromSalesHeader, FromSalesLine, TempSalesLineBuf, ToSalesHeader, ItemLedgEntry);
                     TempSalesLineBuf.Insert();
                     if OneRecord then
                         AddSalesDocLine(TempDocSalesLine, TempSalesLineBuf."Line No.", FromSalesLine."Document No.", FromSalesLine."Line No.")
@@ -3615,6 +3621,7 @@
 
             if (FromSalesLine."Quantity (Base)" <> 0) and FillExactCostRevLink then
                 MissingExCostRevLink := true;
+            OnSplitPstdSalesLinesPerILEOnBeforeCheckUnappliedLines(ToSalesHeader, SkippedLine, MissingExCostRevLink);
             CheckUnappliedLines(SkippedLine, MissingExCostRevLink);
         end;
         exit(true);
@@ -3679,7 +3686,7 @@
                         UpdateSalesLineQtyBaseFromReversibleQtyBase(FromSalesLine, SalesLineBuf[i], ReversibleQtyBase);
 
                         // Fill buffer with exact cost reversing link
-                        InsertTempItemTrkgEntry(
+                        InsertTempReservationEntry(
                           ItemLedgEntry, TempItemTrkgEntry, -Abs(ReversibleQtyBase),
                           SalesLineBuf[i]."Line No.", NextItemTrkgEntryNo, true);
                         Tracked := true;
@@ -4293,8 +4300,7 @@
                     FromPurchLine."Appl.-to Item Entry" := 0;
                     FromPurchLine."Copied From Posted Doc." := true;
 
-                    OnCopyPurchReturnShptLinesToDocOnAfterTransferFields(
-                      FromPurchLine, FromPurchHeader, ToPurchHeader, FromReturnShptHeader);
+                    OnCopyPurchReturnShptLinesToDocOnAfterTransferFields(FromPurchLine, FromPurchHeader, ToPurchHeader, FromReturnShptHeader, FromReturnShptLine);
 
                     CheckUpdateOldDocumentNoFromReturnShptLine(FromReturnShptLine, OldDocNo, InsertDocNoLine);
 
@@ -4544,6 +4550,7 @@
             if (FromPurchLine."Quantity (Base)" <> 0) and FillExactCostRevLink then
                 MissingExCostRevLink := true;
         end;
+        OnSplitPstdPurchLinesPerILEOnBeforeCheckUnappliedLines(ToPurchHeader, SkippedLine, MissingExCostRevLink);
         CheckUnappliedLines(SkippedLine, MissingExCostRevLink);
 
         exit(true);
@@ -4640,11 +4647,11 @@
                         FromPurchLine."Quantity (Base)" := FromPurchLine."Quantity (Base)" - RemainingQtyBase;
                         // Fill buffer with exact cost reversing link for remaining quantity
                         if "Document Type" in ["Document Type"::"Purchase Return Shipment", "Document Type"::"Purchase Credit Memo"] then
-                            InsertTempItemTrkgEntry(
+                            InsertTempReservationEntry(
                               ItemLedgEntry, TempItemTrkgEntry, -Abs(RemainingQtyBase),
                               PurchLineBuf[i]."Line No.", NextItemTrkgEntryNo, true)
                         else
-                            InsertTempItemTrkgEntry(
+                            InsertTempReservationEntry(
                               ItemLedgEntry, TempItemTrkgEntry, Abs(RemainingQtyBase),
                               PurchLineBuf[i]."Line No.", NextItemTrkgEntryNo, true);
                         Tracked := true;
@@ -4825,23 +4832,22 @@
         exit(false);
     end;
 
-    local procedure InsertTempItemTrkgEntry(ItemLedgEntry: Record "Item Ledger Entry"; var TempItemTrkgEntry: Record "Reservation Entry"; QtyBase: Decimal; DocLineNo: Integer; var NextEntryNo: Integer; FillExactCostRevLink: Boolean)
+    local procedure InsertTempReservationEntry(ItemLedgEntry: Record "Item Ledger Entry"; var TempReservationEntry: Record "Reservation Entry"; QtyBase: Decimal; DocLineNo: Integer; var NextEntryNo: Integer; FillExactCostRevLink: Boolean)
     begin
         if QtyBase = 0 then
             exit;
 
-        with ItemLedgEntry do begin
-            TempItemTrkgEntry.Init();
-            TempItemTrkgEntry."Entry No." := NextEntryNo;
-            NextEntryNo := NextEntryNo + 1;
-            if not FillExactCostRevLink then
-                TempItemTrkgEntry."Reservation Status" := TempItemTrkgEntry."Reservation Status"::Prospect;
-            TempItemTrkgEntry."Source ID" := "Document No.";
-            TempItemTrkgEntry."Source Ref. No." := DocLineNo;
-            TempItemTrkgEntry."Item Ledger Entry No." := "Entry No.";
-            TempItemTrkgEntry."Quantity (Base)" := QtyBase;
-            TempItemTrkgEntry.Insert();
-        end;
+        TempReservationEntry.Init();
+        TempReservationEntry."Entry No." := NextEntryNo;
+        NextEntryNo := NextEntryNo + 1;
+        if not FillExactCostRevLink then
+            TempReservationEntry."Reservation Status" := TempReservationEntry."Reservation Status"::Prospect;
+        TempReservationEntry."Source ID" := ItemLedgEntry."Document No.";
+        TempReservationEntry."Source Ref. No." := DocLineNo;
+        TempReservationEntry."Item Ledger Entry No." := ItemLedgEntry."Entry No.";
+        TempReservationEntry."Quantity (Base)" := QtyBase;
+        OnInsertTempReservationEntryOnBeforeInsert(TempReservationEntry, ItemLedgEntry);
+        TempReservationEntry.Insert();
     end;
 
     procedure GetLastToSalesLineNo(ToSalesHeader: Record "Sales Header"): Decimal
@@ -6397,9 +6403,6 @@
             SetSalespersonPurchaserCode("Salesperson Code");
             Area := OldSalesHeader.Area;
             "Exit Point" := OldSalesHeader."Exit Point";
-            "Transaction Specification" := OldSalesHeader."Transaction Specification";
-            "Transaction Type" := OldSalesHeader."Transaction Type";
-            "Transport Method" := OldSalesHeader."Transport Method";
         end
     end;
 
@@ -6425,9 +6428,6 @@
             SetSalespersonPurchaserCode("Purchaser Code");
             Area := OldPurchHeader.Area;
             "Entry Point" := OldPurchHeader."Entry Point";
-            "Transaction Specification" := OldPurchHeader."Transaction Specification";
-            "Transaction Type" := OldPurchHeader."Transaction Type";
-            "Transport Method" := OldPurchHeader."Transport Method";
         end;
 
         OnAfterCopyFieldsFromOldPurchHeaderProcedure(ToPurchHeader, OldPurchHeader);
@@ -6625,6 +6625,8 @@
             if ToDocType = SalesCommentLine."Document Type"::"Return Order".AsInteger() then
                 StartDate := FromDeferralHeader."Start Date"
         end;
+
+        OnAfterCopyDeferrals(DeferralDocType, FromDocType, FromDocNo, FromLineNo, ToDocType, ToDocNo, ToLineNo, StartDate);
     end;
 
     local procedure CopyPostedDeferrals(DeferralDocType: Enum "Deferral Document Type"; FromDocType: Integer;
@@ -6682,6 +6684,8 @@
                 DeferralHeader.Modify();
             end;
         end;
+
+        OnAfterCopyPostedDeferrals(DeferralDocType, FromDocType, FromDocNo, FromLineNo, ToDocType, ToDocNo, ToLineNo, StartDate);
     end;
 
     local procedure IsDeferralToBeCopied(DeferralDocType: Enum "Deferral Document Type"; ToDocType: Option;
@@ -7727,21 +7731,21 @@
     begin
         IsHandled := false;
         OnBeforeCopyPurchLineExtText(ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, DocLineNo, NextLineNo, IsHandled, RecalculateLines, CopyExtText);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            if (ToPurchHeader."Language Code" <> FromPurchHeader."Language Code") or RecalculateLines or CopyExtText then
+                if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then begin
+                    TransferExtendedText.InsertPurchExtText(ToPurchLine);
+                    ToPurchLine2.SetRange("Document Type", ToPurchLine."Document Type");
+                    ToPurchLine2.SetRange("Document No.", ToPurchLine."Document No.");
+                    ToPurchLine2.FindLast();
+                    NextLineNo := ToPurchLine2."Line No.";
+                    exit;
+                end;
 
-        if (ToPurchHeader."Language Code" <> FromPurchHeader."Language Code") or RecalculateLines or CopyExtText then
-            if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then begin
-                TransferExtendedText.InsertPurchExtText(ToPurchLine);
-                ToPurchLine2.SetRange("Document Type", ToPurchLine."Document Type");
-                ToPurchLine2.SetRange("Document No.", ToPurchLine."Document No.");
-                ToPurchLine2.FindLast();
-                NextLineNo := ToPurchLine2."Line No.";
-                exit;
-            end;
-
-        ToPurchLine."Attached to Line No." :=
-          TransferOldExtLines.TransferExtendedText(DocLineNo, NextLineNo, FromPurchLine."Attached to Line No.");
+            ToPurchLine."Attached to Line No." :=
+              TransferOldExtLines.TransferExtendedText(DocLineNo, NextLineNo, FromPurchLine."Attached to Line No.");
+        end;
+        OnAfterCopyPurchLineExtText(ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, DocLineNo, NextLineNo, TransferOldExtLines, RecalculateLines);
     end;
 
     procedure CopyPurchaseLinesToDoc(FromDocType: Option; ToPurchaseHeader: Record "Purchase Header"; var FromPurchRcptLine: Record "Purch. Rcpt. Line"; var FromPurchInvLine: Record "Purch. Inv. Line"; var FromReturnShipmentLine: Record "Return Shipment Line"; var FromPurchCrMemoLine: Record "Purch. Cr. Memo Line"; var LinesNotCopied: Integer; var MissingExCostRevLink: Boolean)
@@ -8325,12 +8329,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyPurchLineExtText(ToPurchaseHeader: Record "Purchase Header"; var ToPurchaseLine: Record "Purchase Line"; FromPurchaseHeader: Record "Purchase Header"; FromPurchaseLine: Record "Purchase Line"; DocLineNo: Integer; var NextLineNo: Integer; var TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines"; RecalculateLines: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopySalesDocInvLine(FromSalesInvoiceHeader: Record "Sales Invoice Header"; ToSalesHeader: Record "Sales Header"; var FromSalesInvoiceLine: Record "Sales Invoice Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopySalesDocSalesLineArchive(FromSalesHeaderArchive: Record "Sales Header Archive"; var ToSalesHeader: Record "Sales Header"; ToSalesLine: Record "Sales Line")
+    local procedure OnAfterCopySalesDocSalesLineArchive(FromSalesHeaderArchive: Record "Sales Header Archive"; var ToSalesHeader: Record "Sales Header"; ToSalesLine: Record "Sales Line"; var TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines")
     begin
     end;
 
@@ -8415,7 +8424,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopySalesHeaderFromPostedInvoice(var ToSalesHeader: Record "Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header");
+    local procedure OnBeforeCopySalesHeaderFromPostedInvoice(var ToSalesHeader: Record "Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean);
     begin
     end;
 
@@ -8570,7 +8579,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromSalesDocType: Option; var CopyPostedDeferral: Boolean; ExactCostRevMandatory: Boolean; MoveNegLines: Boolean)
+    local procedure OnAfterUpdateSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromSalesDocType: Option; var CopyPostedDeferral: Boolean; ExactCostRevMandatory: Boolean; MoveNegLines: Boolean; RecalculateLines: Boolean)
     begin
     end;
 
@@ -9147,7 +9156,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyPurchReturnShptLinesToDocOnAfterTransferFields(var FromPurchaseLine: Record "Purchase Line"; var FromPurchaseHeader: Record "Purchase Header"; var ToPurchaseHeader: Record "Purchase Header"; var FromReturnShipmentHeader: Record "Return Shipment Header")
+    local procedure OnCopyPurchReturnShptLinesToDocOnAfterTransferFields(var FromPurchaseLine: Record "Purchase Line"; var FromPurchaseHeader: Record "Purchase Header"; var ToPurchaseHeader: Record "Purchase Header"; var FromReturnShipmentHeader: Record "Return Shipment Header"; var FromReturnShipmentLine: Record "Return Shipment Line")
     begin
     end;
 
@@ -9547,7 +9556,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSplitPstdSalesLinesPerILETransferFields(var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var TempSalesLineBuf: Record "Sales Line" temporary; var ToSalesHeader: Record "Sales Header")
+    local procedure OnSplitPstdSalesLinesPerILETransferFields(var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var TempSalesLineBuf: Record "Sales Line" temporary; var ToSalesHeader: Record "Sales Header"; ItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -9558,6 +9567,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSplitPstdSalesLinesPerILEOnAfterAssignShipmentLineNo(var ItemLedgerEntry: Record "Item Ledger Entry"; var TempSalesLine: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitPstdPurchLinesPerILEOnBeforeCheckUnappliedLines(PurchaseHeader: Record "Purchase Header"; SkippedLine: Boolean; MissingExCostRevLink: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitPstdSalesLinesPerILEOnBeforeCheckUnappliedLines(SalesHeader: Record "Sales Header"; SkippedLine: Boolean; MissingExCostRevLink: Boolean)
     begin
     end;
 
@@ -9742,7 +9761,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopySalesDocSalesLine(var ToSalesLine: Record "Sales Line")
+    local procedure OnAfterCopySalesDocSalesLine(var ToSalesLine: Record "Sales Line"; var TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines")
     begin
     end;
 
@@ -9918,6 +9937,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyArchSalesLineOnBeforeTransferExtendedText(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; FromSalesHeaderArchive: Record "Sales Header Archive"; FromSalesLineArchive: Record "Sales Line Archive"; RecalculateLines: Boolean; var NextLineNo: Integer; var TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyPostedDeferrals(DeferralDocType: Enum "Deferral Document Type"; FromDocType: Integer; FromDocNo: Code[20]; FromLineNo: Integer; ToDocType: Integer; ToDocNo: Code[20]; ToLineNo: Integer; var StartDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyDeferrals(DeferralDocType: Enum "Deferral Document Type"; FromDocType: Integer; FromDocNo: Code[20]; FromLineNo: Integer; ToDocType: Integer; ToDocNo: Code[20]; ToLineNo: Integer; var StartDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTempReservationEntryOnBeforeInsert(var TempReservationEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 }

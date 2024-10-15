@@ -290,7 +290,7 @@ page 404 "Check Preview"
                     else begin
                         Vend.Get(GenJnlLine."Account No.");
                         RemitAddress.Get(GenJnlLine."Remit-to Code", GenJnlLine."Account No.");
-                        FormatAddr.VendorRemitToAddress(CheckToAddr, RemitAddress);
+                        FormatAddr.VendorRemitToAddress(RemitAddress, CheckToAddr);
                     end;
                     ChkTransMgt.SetCheckPrintParams(
                       Vend."Check Date Format",

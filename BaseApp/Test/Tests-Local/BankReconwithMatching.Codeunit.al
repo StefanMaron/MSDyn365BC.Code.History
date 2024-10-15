@@ -1,12 +1,14 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 codeunit 141050 "Bank Recon. with Matching"
 {
     ObsoleteReason = 'Replaced by Standardized bank deposits and reconciliations feature.';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
-#if not CLEAN20
+    ObsoleteTag = '21.0';
+#if not CLEAN21
     Permissions = TableData "Bank Rec. Header" = r;
 #endif
+#pragma warning restore AS0074
     Subtype = Test;
     TestPermissions = Disabled;
 

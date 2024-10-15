@@ -1,4 +1,5 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 report 10406 "Bank Rec. Process Lines"
 {
     Caption = 'Bank Rec. Process Lines';
@@ -7,7 +8,8 @@ report 10406 "Bank Rec. Process Lines"
     ProcessingOnly = true;
     ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0074
 
     dataset
     {

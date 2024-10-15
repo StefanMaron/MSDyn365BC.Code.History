@@ -1,4 +1,5 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 report 10402 "Deposit Test Report"
 {
     DefaultLayout = RDLC;
@@ -8,7 +9,8 @@ report 10402 "Deposit Test Report"
     UsageCategory = ReportsAndAnalysis;
     ObsoleteReason = 'Replaced by new Bank Deposits extension';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0074
 
     dataset
     {

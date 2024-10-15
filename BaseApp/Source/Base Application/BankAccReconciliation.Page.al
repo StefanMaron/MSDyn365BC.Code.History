@@ -5,6 +5,7 @@ page 379 "Bank Acc. Reconciliation"
     SaveValues = false;
     SourceTable = "Bank Acc. Reconciliation";
     SourceTableView = WHERE("Statement Type" = CONST("Bank Reconciliation"));
+    RefreshOnActivate = true;
 
     layout
     {
@@ -19,8 +20,17 @@ page 379 "Bank Acc. Reconciliation"
                     Caption = 'Bank Account No.';
                     ToolTip = 'Specifies the number of the bank account that you want to reconcile with the bank''s statement.';
                     trigger OnValidate()
+                    var
+                        BankAccReconciliationLine: record "Bank Acc. Reconciliation Line";
                     begin
-                        CreateEmptyListNotification();
+                        if BankAccReconciliationLine.BankStatementLinesListIsEmpty("Statement No.", "Statement Type", "Bank Account No.") then
+                            CreateEmptyListNotification();
+
+                        if AreThereOtherBankAccReconOpenedForThisBankAccountNo() then
+                            if not Dialog.Confirm(IgnoreExistingBankAccReconciliationAndContinueQst) then
+                                CurrPage.Close();
+
+                        CurrPage.ApplyBankLedgerEntries.Page.AssignBankAccReconciliation(Rec);
                     end;
                 }
                 field(StatementNo; "Statement No.")
@@ -457,11 +467,12 @@ page 379 "Bank Acc. Reconciliation"
 
     trigger OnAfterGetCurrRecord()
     begin
+        UpdateBankAccountLedgerEntrySubpage(Rec."Statement Date");
         if UpdatedBankAccountLESystemId <> Rec.SystemId then begin
-            UpdateBankAccountLedgerEntrySubpage(Rec."Statement Date");
             UpdatedBankAccountLESubpageStementDate := Rec."Statement Date";
             UpdatedBankAccountLESystemId := Rec.SystemId;
         end;
+        CurrPage.ApplyBankLedgerEntries.Page.AssignBankAccReconciliation(Rec);
     end;
 
     local procedure GetImportBankStatementNotificatoinId(): Guid
@@ -560,6 +571,17 @@ page 379 "Bank Acc. Reconciliation"
         CurrPage.ApplyBankLedgerEntries.Page.Update();
     end;
 
+    local procedure AreThereOtherBankAccReconOpenedForThisBankAccountNo(): Boolean
+    var
+        BankAccountReconciliation: Record "Bank Acc. Reconciliation";
+    begin
+        BankAccountReconciliation.SetRange("Bank Account No.", "Bank Account No.");
+        if BankAccountReconciliation.IsEmpty() then
+            exit(false);
+
+        exit(true);
+    end;
+
     var
         SuggestBankAccStatement: Report "Suggest Bank Acc. Recon. Lines";
         TransferToGLJnl: Report "Trans. Bank Rec. to Gen. Jnl.";
@@ -571,4 +593,5 @@ page 379 "Bank Acc. Reconciliation"
         NoBankAccReconcilliationLineWithDiffSellectedErr: Label 'Select the bank statement lines that have differences to transfer to the general journal.';
         UpdatedBankAccountLESubpageStementDate: Date;
         UpdatedBankAccountLESystemId: Guid;
+        IgnoreExistingBankAccReconciliationAndContinueQst: Label 'There is already an ongoing reconciliation for this account. Do you want to continue and create a new one?”';
 }

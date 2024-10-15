@@ -1,9 +1,11 @@
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
 codeunit 144015 "Bank Account Reconciliation"
 {
     ObsoleteReason = 'Replaced by Standardized bank deposits and reconciliations feature.';
     ObsoleteState = Pending;
-    ObsoleteTag = '20.0';
+    ObsoleteTag = '21.0';
+#pragma warning restore AS0074
     // Test cases of Bank Account Reconciliations.
     // 1. Verify Bank Account Reconciliation Details on Bank Reconciliations Test Report, while executing the Adjustments on Bank Account Reconciliations.
     // 2. Verify last No used on Number series, Create and Post Bank Account Reconciliations with Adjustment Lines.

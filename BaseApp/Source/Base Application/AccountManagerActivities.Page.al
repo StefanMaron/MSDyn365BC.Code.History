@@ -126,7 +126,8 @@
                     ToolTip = 'Specifies that the bank reconciliations are ready to post.';
                     Visible = NOT BankReconWithAutoMatch;
                 }
-#if not CLEAN20
+#pragma warning disable AS0074
+#if not CLEAN21
                 field("Deposits to Post"; Rec."Deposits to Post")
                 {
                     ApplicationArea = Basic, Suite;
@@ -135,9 +136,10 @@
                     Visible = not BankDepositFeatureEnabled;
                     ObsoleteReason = 'Replaced by Bank Deposits';
                     ObsoleteState = Pending;
-                    ObsoleteTag = '20.0';
+                    ObsoleteTag = '21.0';
                 }
 #endif
+#pragma warning restore AS0074
 
                 actions
                 {
