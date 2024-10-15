@@ -258,6 +258,7 @@
             var
                 Item: Record Item;
                 ConfirmManagement: Codeunit "Confirm Management";
+                PriceCalculation: Interface "Price Calculation";
                 IsHandled: Boolean;
             begin
                 TestStatusOpen;
@@ -308,9 +309,12 @@
                 end;
                 "Bin Code" := '';
 
-                if Type = Type::Item then
-                    if "Location Code" <> xRec."Location Code" then
-                        PlanPriceCalcByField(FieldNo("Location Code"));
+                GetPurchHeader();
+                GetPriceCalculationHandler(PurchHeader, PriceCalculation);
+                if not ("Copied From Posted Doc." and IsCreditDocType()) then 
+                    PriceCalculation.ApplyPrice(FieldNo("Location Code"));
+                GetLineWithPrice(PriceCalculation);
+                Validate("Direct Unit Cost");
 
                 if "Location Code" = '' then begin
                     if InvtSetup.Get then
@@ -327,8 +331,6 @@
 
                 if "Document Type" = "Document Type"::"Return Order" then
                     ValidateReturnReasonCode(FieldNo("Location Code"));
-
-                UpdateDirectUnitCostByField(FieldNo("Location Code"));
             end;
         }
         field(8; "Posting Group"; Code[20])
