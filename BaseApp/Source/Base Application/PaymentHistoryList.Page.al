@@ -152,8 +152,10 @@ page 11000007 "Payment History List"
 
                     trigger OnAction()
                     begin
+                        FeatureTelemetry.LogUptake('1000HT3', NLTeleBankingTok, Enum::"Feature Uptake Status"::"Used");
                         ExportToPaymentFile;
                         CurrPage.Update();
+                        FeatureTelemetry.LogUsage('1000HT2', NLTeleBankingTok, 'NL Telebanking Payment History Exported');
                     end;
                 }
                 action(PrintDocket)
@@ -229,6 +231,8 @@ page 11000007 "Payment History List"
 
     var
         SentProtocol: Record "Export Protocol";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        NLTeleBankingTok: Label 'NL Telebanking', Locked = true;
         [InDataSet]
         "Our BankVisible": Boolean;
 

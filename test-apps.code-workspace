@@ -163,6 +163,9 @@
       "path": "./salesandinventoryforecast/test/Sales and Inventory Forecast Tests"
     },
     {
+      "path": "./simplifiedbankstatementimport/test/Simplified Bank Statement Import Test"
+    },
+    {
       "path": "./NLDigitalTaxDeclaration/Test/Digital Tax Declaration for the Netherlands Tests"
     },
     {

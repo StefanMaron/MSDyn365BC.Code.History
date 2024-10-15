@@ -1280,7 +1280,7 @@ codeunit 7312 "Create Pick"
             TempWhseActivLine.SetRange("Action Type");
             OnCreateWhseDocumentOnAfterSetFiltersAfterLoop(TempWhseActivLine);
             if not TempWhseActivLine.Find('-') then begin
-                OnAfterCreateWhseDocument(FirstWhseDocNo, LastWhseDocNo);
+                OnAfterCreateWhseDocument(FirstWhseDocNo, LastWhseDocNo, CreatePickParameters);
                 exit;
             end;
 
@@ -3204,7 +3204,7 @@ codeunit 7312 "Create Pick"
         exit(ItemTrackingMgt.StrictExpirationPosting(ItemNo) and WhseItemTrackingSetup.TrackingRequired());
     end;
 
-    local procedure AddToFilterText(var TextVar: Text[250]; Separator: Code[1]; Comparator: Code[2]; Addendum: Code[20])
+    procedure AddToFilterText(var TextVar: Text[250]; Separator: Code[1]; Comparator: Code[2]; Addendum: Code[20])
     begin
         if TextVar = '' then
             TextVar := Comparator + '''' + Addendum + ''''
@@ -3561,7 +3561,7 @@ codeunit 7312 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateWhseDocument(var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20])
+    local procedure OnAfterCreateWhseDocument(var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20]; CreatePickParameters: Record "Create Pick Parameters")
     begin
     end;
 

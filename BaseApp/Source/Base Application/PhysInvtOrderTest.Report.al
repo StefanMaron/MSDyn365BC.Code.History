@@ -245,6 +245,7 @@ report 5877 "Phys. Invt. Order - Test"
 
                     trigger OnAfterGetRecord()
                     begin
+                        OnBeforePhysInvtOrderLineOnAfterGetRecord("Phys. Invt. Order Line", ErrorCounter, ErrorText);
                         LineIsEmpty := EmptyLine;
                         if not LineIsEmpty then begin
                             if not "Qty. Exp. Calculated" then
@@ -396,6 +397,11 @@ report 5877 "Phys. Invt. Order - Test"
     begin
         ErrorCounter := ErrorCounter + 1;
         ErrorText[ErrorCounter] := Text;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePhysInvtOrderLineOnAfterGetRecord(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var ErrorCounter: Integer; var ErrorText: array[99] of Text[250])
+    begin
     end;
 }
 

@@ -207,6 +207,7 @@ page 11411 "Elec. Tax Declaration Card"
                         EnvironmentInfo: Codeunit "Environment Information";
                         UseReqWindow: Boolean;
                     begin
+                        FeatureTelemetry.LogUptake('1000HS8', NLElecVATICPTok, Enum::"Feature Uptake Status"::"Used");
                         ElecTaxDeclarationHeader := Rec;
                         ElecTaxDeclarationHeader.SetRecFilter();
                         ElecTaxDeclarationSetup.Get();
@@ -216,6 +217,7 @@ page 11411 "Elec. Tax Declaration Card"
                             UseReqWindow := EnvironmentInfo.IsSaaS();
                         REPORT.RunModal(
                           REPORT::"Submit Elec. Tax Declaration", UseReqWindow, false, ElecTaxDeclarationHeader);
+                        FeatureTelemetry.LogUsage('1000HS9', NLElecVATICPTok, 'NL Elec. VAT and ICP Declarations Sent to the Tax Authorities');
                     end;
                 }
             }
@@ -247,6 +249,8 @@ page 11411 "Elec. Tax Declaration Card"
     end;
 
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        NLElecVATICPTok: Label 'NL Submit Elec. VAT & ICP Declarations', Locked = true;
         Text000: Label '%1 and %2 must be filled before the declaration can be created.';
         [InDataSet]
         "Declaration TypeEditable": Boolean;

@@ -69,9 +69,8 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         FillParameterValueEncoded(HTMLText, 'DocumentNo', SalesHeader."No.");
         FillParameterValueEncoded(HTMLText, 'DateLbl', SalesHeader.FieldCaption("Due Date"));
         FillParameterValueEncoded(HTMLText, 'Date', Format(SalesHeader."Due Date"));
-        FillParameterValueEncoded(HTMLText, 'TotalAmountLbl', StrSubstNo(TotalTxt, SalesHeader.GetCurrencySymbol));
-        SalesHeader.CalcFields("Amount Including VAT");
-        FillParameterValueEncoded(HTMLText, 'TotalAmount', Format(SalesHeader."Amount Including VAT"));
+        FillParameterValueEncoded(HTMLText, 'TotalAmountLbl', StrSubstNo(TotalTxt, SalesHeader.GetCurrencySymbol()));
+        FillParameterValueEncoded(HTMLText, 'TotalAmount', Format(CalcAndGetAmountIncludingVAT(SalesHeader)));
 
         FillSalesDraftInvoicePaymentServices(HTMLText, PaymentServicesSectionHTMLText, PaymentServiceRowHTMLText, SalesHeader);
     end;
@@ -119,9 +118,8 @@ codeunit 2114 "O365 HTML Templ. Mgt."
         FillParameterValueEncoded(HTMLText, 'DocumentNo', SalesHeader."No.");
         FillParameterValueEncoded(HTMLText, 'DateLbl', ValidUntilTxt);
         FillParameterValueEncoded(HTMLText, 'Date', Format(SalesHeader."Quote Valid Until Date"));
-        FillParameterValueEncoded(HTMLText, 'TotalAmountLbl', StrSubstNo(TotalTxt, SalesHeader.GetCurrencySymbol));
-        SalesHeader.CalcFields("Amount Including VAT");
-        FillParameterValueEncoded(HTMLText, 'TotalAmount', Format(SalesHeader."Amount Including VAT"));
+        FillParameterValueEncoded(HTMLText, 'TotalAmountLbl', StrSubstNo(TotalTxt, SalesHeader.GetCurrencySymbol()));
+        FillParameterValueEncoded(HTMLText, 'TotalAmount', Format(CalcAndGetAmountIncludingVAT(SalesHeader)));
     end;
 
     local procedure GetCompanyInfo()
@@ -131,6 +129,13 @@ codeunit 2114 "O365 HTML Templ. Mgt."
 
         CompanyInformation.Get();
         CompanyInfoRead := true;
+    end;
+
+    local procedure CalcAndGetAmountIncludingVAT(var SalesHeader: Record "Sales Header") AmountIncludingVAT: Decimal
+    begin
+        SalesHeader.CalcFields("Amount Including VAT");
+        AmountIncludingVAT := SalesHeader."Amount Including VAT";
+        OnAfterCalcAndGetAmountIncludingVAT(SalesHeader, AmountIncludingVAT);
     end;
 
     local procedure GetCompanyLogoScaledDimensions(var TempBlob: Codeunit "Temp Blob"; var ScaledWidth: Integer; var ScaledHeight: Integer; ScaleToWidth: Integer; ScaleToHeight: Integer)
@@ -514,6 +519,11 @@ codeunit 2114 "O365 HTML Templ. Mgt."
     begin
         Result := SalesInvoiceHeader.CalcFields(Cancelled);
         OnAfterIsSalesInvoiceCanceled(SalesInvoiceHeader, Result);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcAndGetAmountIncludingVAT(var SalesHeader: Record "Sales Header"; var AmountIncludingVAT: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

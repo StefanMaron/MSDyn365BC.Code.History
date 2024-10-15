@@ -2028,6 +2028,7 @@
         BalanceAsCustomer := 0;
         LinkedCustomerNo := GetLinkedCustomer();
         if Customer.Get(LinkedCustomerNo) then begin
+            OnGetBalanceAsCustomerOnBeforeCalcBalance(Customer);
             Customer.CalcFields("Balance (LCY)");
             BalanceAsCustomer := Customer."Balance (LCY)";
         end;
@@ -2671,6 +2672,12 @@
     local procedure OnUpdateVendorBankAccountsOnBeforeConfirm(var Vendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBalanceAsCustomerOnBeforeCalcBalance(var Customer: Record Customer)
+    begin
+    end;
+
 #if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [Scope('OnPrem')]

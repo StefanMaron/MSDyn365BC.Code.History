@@ -81,6 +81,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         StreamWriter: DotNet StreamWriter;
         UTF8Encoding: DotNet UTF8Encoding;
         ServerTempFileName: Text;
+        IsHandled: Boolean;
     begin
         XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8"?><Document></Document>', XMLDomDoc);
         XMLRootElement := XMLDomDoc.DocumentElement;
@@ -99,7 +100,10 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         StreamWriter.Close;
 
         ReportChecksum.GenerateChecksum("Payment History", ServerTempFileName, ExportProtocolCode);
-        FileMgt.DownloadHandler(ServerTempFileName, '', '', '', ExportFileName);
+        IsHandled := false;
+        OnExportSEPAFileOnBeforeFileMgtDownloadHandler(ServerTempFileName, ExportFileName, IsHandled);
+        if not IsHandled then
+            FileMgt.DownloadHandler(ServerTempFileName, '', '', '', ExportFileName);
 
         Clear(XMLDomDoc);
     end;
@@ -469,6 +473,11 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeXMLDomDocSave(var XMLDomDoc: DotNet XmlDocument)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportSEPAFileOnBeforeFileMgtDownloadHandler(ServerTempFileName: Text; ExportFileName: Text[250]; var IsHandled: Boolean)
     begin
     end;
 }

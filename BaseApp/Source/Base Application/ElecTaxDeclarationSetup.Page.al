@@ -178,6 +178,7 @@ page 11410 "Elec. Tax Declaration Setup"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
+        FeatureTelemetry.LogUptake('1000HS7', NLElecVATICPTok, Enum::"Feature Uptake Status"::"Set up");
         AfterGetCurrentRecord;
     end;
 
@@ -185,6 +186,7 @@ page 11410 "Elec. Tax Declaration Setup"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
+        FeatureTelemetry.LogUptake('1000HS6', NLElecVATICPTok, Enum::"Feature Uptake Status"::Discovered);
         IsSoftwareAsAService := EnvironmentInfo.IsSaaS;
 
         Reset;
@@ -198,6 +200,8 @@ page 11410 "Elec. Tax Declaration Setup"
     end;
 
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        NLElecVATICPTok: Label 'NL Submit Elec. VAT & ICP Declarations', Locked = true;
         [InDataSet]
         "Tax Payer Contact NameEnable": Boolean;
         [InDataSet]

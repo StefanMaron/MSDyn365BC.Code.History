@@ -134,7 +134,7 @@ page 2141 "O365 Sales Quote"
                     begin
                         if PAGE.RunModal(PAGE::"O365 Tax Area List", TaxArea) = ACTION::LookupOK then begin
                             Validate("Tax Area Code", TaxArea.Code);
-                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
+                            TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
                             CurrPage.Update();
                         end;
                     end;
@@ -488,7 +488,7 @@ page 2141 "O365 Sales Quote"
         TaxAreaDescription := '';
         if "Tax Area Code" <> '' then
             if TaxArea.Get("Tax Area Code") then
-                TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
+                TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -548,7 +548,7 @@ page 2141 "O365 Sales Quote"
         ChangeDiscountTxt: Label 'Change discount';
         DeleteQst: Label 'Are you sure that you want to discard the estimate?';
         AddAttachmentTxt: Label 'Add attachment';
-        TaxAreaDescription: Text[50];
+        TaxAreaDescription: Text[100];
 
     local procedure LookupCustomerName(Text: Text): Boolean
     var
@@ -615,4 +615,3 @@ page 2141 "O365 Sales Quote"
             NoOfAttachmentsValueTxt := StrSubstNo(NoOfAttachmentsTxt, NoOfAttachments);
     end;
 }
-

@@ -2515,6 +2515,21 @@
         IntrastatJnlBatch.Validate("Statistics Period", '2201'); // YYMM
     end;
 
+    [Test]
+    [HandlerFunctions('IntrastatMakeDiskTaxAuthVerifyExportFormat2022RPH')]
+    [Scope('OnPrem')]
+    procedure ExportFormat2022IsDefaultForIntrastatExport()
+    var
+        IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
+    begin
+        // [SCENARIO 438115] Export format "2022" is default for the Intrastat export
+
+        Initialize();
+        Commit();
+        IntrastatMakeDiskTaxAuth.Run();
+        // Verification done in the IntrastatMakeDiskTaxAuthVerifyExportFormat2022RPH
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -3528,6 +3543,14 @@
     [Scope('OnPrem')]
     procedure MessageHandlerEmpty(Msg: Text[1024])
     begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure IntrastatMakeDiskTaxAuthVerifyExportFormat2022RPH(var IntrastatMakeDiskTaxAuth: TestRequestPage "Intrastat - Make Disk Tax Auth")
+    begin
+        IntrastatMakeDiskTaxAuth.ExportFormatField.AssertEquals('2022');
+        IntrastatMakeDiskTaxAuth.Cancel.Invoke();
     end;
 }
 

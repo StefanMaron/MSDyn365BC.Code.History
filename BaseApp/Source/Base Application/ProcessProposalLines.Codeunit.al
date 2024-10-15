@@ -632,12 +632,12 @@ codeunit 11000000 "Process Proposal Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckProposalLines(ProposalLine: Record "Proposal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckProposalLines(var ProposalLine: Record "Proposal Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeProcessProposalLines(ProposalLine: Record "Proposal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeProcessProposalLines(var ProposalLine: Record "Proposal Line"; var IsHandled: Boolean)
     begin
     end;
 

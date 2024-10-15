@@ -55,6 +55,7 @@ codeunit 56 "Sales - Calc Discount By Type"
         DiscountNotificationMgt: Codeunit "Discount Notification Mgt.";
         InvDiscBaseAmount: Decimal;
     begin
+        OnBeforeApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader);
         with SalesHeader do begin
 
             SalesSetup.Get();
@@ -237,6 +238,11 @@ codeunit 56 "Sales - Calc Discount By Type"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApplyDefaultInvoiceDiscount(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; InvoiceDiscountAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyInvDiscBasedOnAmt(InvoiceDiscountAmount: Decimal; var SalesHeader: Record "Sales Header")
     begin
     end;
 

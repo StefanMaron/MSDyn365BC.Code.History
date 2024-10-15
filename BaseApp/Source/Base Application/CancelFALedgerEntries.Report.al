@@ -334,6 +334,7 @@ report 5688 "Cancel FA Ledger Entries"
                 JournalType := JournalType::FAJnlType
         end else
             JournalType := JournalType::SkipType;
+        OnAfterSetJournalType(FALedgEntry, CancelChoices, "Fixed Asset", DeprBookCode, JournalType);
     end;
 
     procedure InitializeRequest(DeprBookCodeFrom: Code[10]; StartingDateFrom: Date; EndingDateFrom: Date; UseNewPostingDateFrom: Boolean; NewPostingDateFrom: Date; DocumentNoFrom: Code[20]; PostingDescriptionFrom: Text[100]; BalAccountFrom: Boolean)
@@ -363,6 +364,11 @@ report 5688 "Cancel FA Ledger Entries"
         if NewPostingDate <> 0D then
             exit(NewPostingDate);
         exit(FAPostingDate);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetJournalType(FALedgerEntry: Record "FA Ledger Entry"; CancelChoices: array[9] of Boolean; "Fixed Asset": Record "Fixed Asset"; DeprBookCode: Code[10]; var JournalType: Option)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

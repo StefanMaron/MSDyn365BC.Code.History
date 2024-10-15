@@ -387,8 +387,16 @@ page 11000000 "Telebank - Bank Overview"
         }
     }
 
+    trigger OnOpenPage()
+    begin
+        FeatureTelemetry.LogUptake('1000HT0', NLTeleBankingTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
+
     var
         BankAcct: Record "Bank Account";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        NLTeleBankingTok: Label 'NL Telebanking', Locked = true;
 
     [Scope('OnPrem')]
     procedure OpenPayment()

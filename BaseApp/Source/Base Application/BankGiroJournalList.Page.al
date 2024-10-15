@@ -70,9 +70,14 @@ page 11402 "Bank/Giro Journal List"
                 trigger OnAction()
                 begin
                     CODEUNIT.Run(CODEUNIT::"Import Protocol Management");
+                    FeatureTelemetry.LogUsage('1000HT4', NLImportandRecBankStatmentTok, 'NL Electronic Bank Statements Imported');
                 end;
             }
         }
     }
+
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        NLImportandRecBankStatmentTok: Label 'NL Import and Reconcile Bank Statements', Locked = true;
 }
 

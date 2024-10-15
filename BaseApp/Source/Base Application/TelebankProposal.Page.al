@@ -651,6 +651,7 @@ page 11000001 "Telebank Proposal"
                 var
                     TrMode: Record "Transaction Mode";
                 begin
+                    FeatureTelemetry.LogUptake('1000HT1', NLTeleBankingTok, Enum::"Feature Uptake Status"::"Set up");
                     TrMode.SetRange("Our Bank", BankAccFilter);
                     REPORT.RunModal(REPORT::"Get Proposal Entries", true, true, TrMode);
                     if Find('+') then;
@@ -852,6 +853,8 @@ page 11000001 "Telebank Proposal"
         Text1000004: Label 'Warning';
         BankAccount: Record "Bank Account";
         ProcessingLines: Codeunit "Process Proposal Lines";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        NLTeleBankingTok: Label 'NL Telebanking', Locked = true;
         Text1000005: Label 'Current Line,All Lines';
         ShortcutDimCode: array[8] of Code[20];
         BankAccFilter: Code[80];
