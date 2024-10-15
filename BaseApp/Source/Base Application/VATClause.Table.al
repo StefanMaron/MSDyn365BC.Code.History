@@ -115,6 +115,119 @@ table 560 "VAT Clause"
         OnAfterGetDescription(Rec, DocumentType, LanguageCode)
     end;
 
+    procedure GetDescriptionText(RecRelatedVariant: Variant) Result: Text
+    var
+        DocumentType: Enum "VAT Clause Document Type";
+        LanguageCode: Code[10];
+    begin
+        Result := GetDescriptionByExtendedText(RecRelatedVariant);
+        if Result <> '' then
+            exit(Result);
+
+        if GetDocumentTypeAndLanguageCode(RecRelatedVariant, DocumentType, LanguageCode) then
+            exit(Description + ' ' + "Description 2");
+
+        if TryFindDescriptionByDocumentType(DocumentType, LanguageCode) then begin
+            TranslateDescription(LanguageCode);
+            exit(Description + ' ' + "Description 2");
+        end;
+
+        OnAfterGetDescription(Rec, DocumentType, LanguageCode);
+        exit(Description + ' ' + "Description 2");
+    end;
+
+    local procedure GetDescriptionByExtendedText(RecRelatedVariant: Variant) Result: Text
+    var
+        ExtendedTextHeader: Record "Extended Text Header";
+        TempExtendedTextLine: Record "Extended Text Line" temporary;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        DataTypeManagement: Codeunit "Data Type Management";
+        TransferExtendedText: Codeunit "Transfer Extended Text";
+        RecRef: RecordRef;
+        LanguageCode: Code[10];
+        DocDate: Date;
+        IsHandled: Boolean;
+    begin
+        if not DataTypeManagement.GetRecordRef(RecRelatedVariant, RecRef) then
+            exit;
+
+        ExtendedTextHeader.SetRange("Table Name", ExtendedTextHeader."Table Name"::"VAT Clause");
+        ExtendedTextHeader.SetRange("No.", Code);
+
+        IsHandled := false;
+        OnFilterExtendedTextHeaderFromDoc(RecRelatedVariant, ExtendedTextHeader, IsHandled);
+        if not IsHandled then
+            case RecRef.Number of
+                DATABASE::"Sales Header":
+                    begin
+                        RecRef.SetTable(SalesHeader);
+                        case SalesHeader."Document Type" of
+                            SalesHeader."Document Type"::"Blanket Order":
+                                ExtendedTextHeader.SetRange("Sales Blanket Order", true);
+                            SalesHeader."Document Type"::"Credit Memo":
+                                ExtendedTextHeader.SetRange("Sales Credit Memo", true);
+                            SalesHeader."Document Type"::Invoice:
+                                ExtendedTextHeader.SetRange("Sales Invoice", true);
+                            SalesHeader."Document Type"::Order:
+                                ExtendedTextHeader.SetRange("Sales Order", true);
+                            SalesHeader."Document Type"::Quote:
+                                ExtendedTextHeader.SetRange("Sales Quote", true);
+                            SalesHeader."Document Type"::"Return Order":
+                                ExtendedTextHeader.SetRange("Sales Return Order", true);
+                        end;
+                        LanguageCode := SalesHeader."Language Code";
+                        DocDate := SalesHeader."Document Date";
+                    end;
+                DATABASE::"Sales Invoice Header":
+                    begin
+                        RecRef.SetTable(SalesInvoiceHeader);
+                        ExtendedTextHeader.SetRange("Sales Invoice", true);
+                        LanguageCode := SalesInvoiceHeader."Language Code";
+                        DocDate := SalesInvoiceHeader."Document Date";
+                    end;
+                DATABASE::"Sales Cr.Memo Header":
+                    begin
+                        RecRef.SetTable(SalesCrMemoHeader);
+                        ExtendedTextHeader.SetRange("Sales Credit Memo", true);
+                        LanguageCode := SalesCrMemoHeader."Language Code";
+                        DocDate := SalesCrMemoHeader."Document Date";
+                    end;
+                DATABASE::"Issued Fin. Charge Memo Header":
+                    begin
+                        RecRef.SetTable(IssuedFinChargeMemoHeader);
+                        ExtendedTextHeader.SetRange("Finance Charge Memo", true);
+                        LanguageCode := IssuedFinChargeMemoHeader."Language Code";
+                        DocDate := IssuedFinChargeMemoHeader."Document Date";
+                    end;
+                DATABASE::"Issued Reminder Header":
+                    begin
+                        RecRef.SetTable(IssuedReminderHeader);
+                        ExtendedTextHeader.SetRange(Reminder, true);
+                        LanguageCode := IssuedReminderHeader."Language Code";
+                        DocDate := IssuedReminderHeader."Document Date";
+                    end;
+                else
+                    exit;
+            end;
+
+        if not TransferExtendedText.ReadExtTextLines(ExtendedTextHeader, DocDate, LanguageCode) then
+            exit;
+
+        TransferExtendedText.GetTempExtTextLine(TempExtendedTextLine);
+        if not TempExtendedTextLine.FindSet() then
+            exit;
+
+        repeat
+            if Result <> '' then
+                Result += ' ';
+            Result += TempExtendedTextLine.Text;
+        until TempExtendedTextLine.Next() = 0;
+    end;
+
     local procedure GetDocumentTypeAndLanguageCode(RecRelatedVariant: Variant; var DocumentType: Enum "VAT Clause Document Type"; var LanguageCode: Code[10]): Boolean
     var
         SalesHeader: Record "Sales Header";
@@ -191,6 +304,11 @@ table 560 "VAT Clause"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDocumentTypeAndLanguageCode(VATClause: Record "VAT Clause"; RecRelatedVariant: Variant; var DocumentType: Enum "VAT Clause Document Type"; var LanguageCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFilterExtendedTextHeaderFromDoc(RecRelatedVariant: Variant; var ExtendedTextHeader: Record "Extended Text Header"; var IsHandled: Boolean)
     begin
     end;
 }

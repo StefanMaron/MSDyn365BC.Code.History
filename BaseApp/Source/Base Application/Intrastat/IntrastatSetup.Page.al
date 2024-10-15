@@ -122,17 +122,20 @@ page 328 "Intrastat Setup"
 
     trigger OnOpenPage()
     begin
+        FeatureTelemetry.LogUptake('0000FAS', IntrastatTok, Enum::"Feature Uptake Status"::Discovered);
         Rec.Init();
         if not Rec.Get() then
             Rec.Insert(true);
     end;
 
     local procedure SetupCompleted()
-    var
-        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         if Rec."Intrastat Contact No." <> '' then
-            FeatureTelemetry.LogUptake('0000FAD', 'Intrastat', Enum::"Feature Uptake Status"::"Set up");
+            FeatureTelemetry.LogUptake('0000FAD', IntrastatTok, Enum::"Feature Uptake Status"::"Set up");
     end;
+
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        IntrastatTok: Label 'Intrastat', Locked = true;
 }
 

@@ -926,6 +926,204 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceCalculationBuffer.TestField("Document Date", ResJournalLine."Time Sheet Date");
     end;
 
+    [Test]
+    procedure T040_SalesLineJobAddsJobSources()
+    var
+        Customer: Record Customer;
+        Job: Record Job;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+    begin
+        // [FEATURE] [Sales] [Job] [UT]
+        Initialize();
+        // [GIVEN] Customer 'A', Job 'J' 
+        LibrarySales.CreateCustomer(Customer);
+        LibraryJob.CreateJob(Job, Customer."No.");
+
+        // [GIVEN] Invoice for customer 'A'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] with one line, where "Type" is 'Item', "No." is 'X', "Job no." 'J'
+        LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
+        SalesLine.Type := SalesLine.Type::Item;
+        SalesLine."No." := LibraryInventory.CreateItemNo();
+        SalesLine."Job No." := Job."No.";
+        SalesLine.Modify(true);
+
+        // [WHEN] SetLine()
+        SalesLinePrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
+
+        // [THEN] List of sources contains 'All Jobs', Job 'J'
+        VerifyJobSources(Job, SalesLinePrice, 1, 1, 0);
+    end;
+
+    [Test]
+    procedure T041_SalesLineJobTaskAddsJobTaskSources()
+    var
+        Customer: Record Customer;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+    begin
+        // [FEATURE] [Sales] [Job] [UT]
+        Initialize();
+        // [GIVEN] Customer 'A', Job 'J', Job Task 'JT' 
+        LibrarySales.CreateCustomer(Customer);
+        LibraryJob.CreateJob(Job, Customer."No.");
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Invoice for customer 'A'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] with one line, where "Type" is 'Item', "No." is 'X', "Job no." 'J', "Job Task No." 'JT'
+        LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
+        SalesLine.Type := SalesLine.Type::Item;
+        SalesLine."No." := LibraryInventory.CreateItemNo();
+        SalesLine."Job No." := Job."No.";
+        SalesLine."Job Task No." := JobTask."Job Task No.";
+        SalesLine.Modify(true);
+
+        // [WHEN] SetLine()
+        SalesLinePrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
+
+        // [THEN] List of sources contains 'All Jobs', Job 'J', Job Task 'JT'
+        VerifyJobSources(JobTask, SalesLinePrice, 1, 1, 1);
+    end;
+
+    [Test]
+    procedure T042_SalesLineNoJobDoesNotAddsJobSources()
+    var
+        Customer: Record Customer;
+        Job: Record Job;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+    begin
+        // [FEATURE] [Sales] [Job] [UT]
+        Initialize();
+        // [GIVEN] Customer 'A'
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Invoice for customer 'A'
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] with one line, where "Type" is 'Item', "No." is 'X', "Job no." <blank>
+        LibrarySales.CreateSalesLineSimple(SalesLine, SalesHeader);
+        SalesLine.Type := SalesLine.Type::Item;
+        SalesLine."No." := LibraryInventory.CreateItemNo();
+        SalesLine."Job No." := '';
+        SalesLine.Modify(true);
+
+        // [WHEN] SetLine()
+        SalesLinePrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
+
+        // [THEN] List of sources does not contain 'All Jobs', Job, Job Task
+        Clear(Job);
+        VerifyJobSources(Job, SalesLinePrice, 0, 0, 0);
+    end;
+
+    [Test]
+    procedure T045_PurchLineJobAddsJobSources()
+    var
+        Vendor: Record Vendor;
+        Job: Record Job;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLinePrice: Codeunit "Purchase Line - Price";
+    begin
+        // [FEATURE] [Purchase] [Job] [UT]
+        Initialize();
+        // [GIVEN] Vendor 'A', Job 'J' 
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Invoice for Vendor 'A'
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] with one line, where "Type" is 'Item', "No." is 'X', "Job no." 'J'
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Type := PurchaseLine.Type::Item;
+        PurchaseLine."No." := LibraryInventory.CreateItemNo();
+        PurchaseLine."Job No." := Job."No.";
+        PurchaseLine.Modify(true);
+
+        // [WHEN] SetLine()
+        PurchaseLinePrice.SetLine("Price Type"::Purchase, PurchaseHeader, PurchaseLine);
+
+        // [THEN] List of sources contains 'All Jobs', Job 'J'
+        VerifyJobSources(Job, PurchaseLinePrice, 1, 1, 0);
+    end;
+
+    [Test]
+    procedure T046_PurchLineJobTaskAddsJobTaskSources()
+    var
+        Vendor: Record Vendor;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLinePrice: Codeunit "Purchase Line - Price";
+    begin
+        // [FEATURE] [Purchase] [Job] [UT]
+        Initialize();
+        // [GIVEN] Vendor 'A', Job 'J', Job Task 'JT' 
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Invoice for Vendor 'A'
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] with one line, where "Type" is 'Item', "No." is 'X', "Job no." 'J', "Job Task No." 'JT'
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Type := PurchaseLine.Type::Item;
+        PurchaseLine."No." := LibraryInventory.CreateItemNo();
+        PurchaseLine."Job No." := Job."No.";
+        PurchaseLine."Job Task No." := JobTask."Job Task No.";
+        PurchaseLine.Modify(true);
+
+        // [WHEN] SetLine()
+        PurchaseLinePrice.SetLine("Price Type"::Purchase, PurchaseHeader, PurchaseLine);
+
+        // [THEN] List of sources contains 'All Jobs', Job 'J', Job Task 'JT'
+        VerifyJobSources(JobTask, PurchaseLinePrice, 1, 1, 1);
+    end;
+
+    [Test]
+    procedure T047_PurchLineNoJobDoesNotAddsJobSources()
+    var
+        Vendor: Record Vendor;
+        Job: Record Job;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLinePrice: Codeunit "Purchase Line - Price";
+    begin
+        // [FEATURE] [Purchase] [Job] [UT]
+        Initialize();
+        // [GIVEN] Vendor 'A'
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Invoice for Vendor 'A'
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] with one line, where "Type" is 'Item', "No." is 'X', "Job no." <blank>
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Type := PurchaseLine.Type::Item;
+        PurchaseLine."No." := LibraryInventory.CreateItemNo();
+        PurchaseLine."Job No." := '';
+        PurchaseLine.Modify(true);
+
+        // [WHEN] SetLine()
+        PurchaseLinePrice.SetLine("Price Type"::Purchase, PurchaseHeader, PurchaseLine);
+
+        // [THEN] List of sources does not contain 'All Jobs', Job, Job Task
+        Clear(Job);
+        VerifyJobSources(Job, PurchaseLinePrice, 0, 0, 0);
+    end;
+
 #if not CLEAN19
     [Test]
     procedure T050_ApplyDiscountSalesLineCalculateDiscIfAllowLineDiscFalseV15()
@@ -1310,7 +1508,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::Customer, Customer."No.");
         LibraryPriceCalculation.CreatePriceListLine(
             PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Discount, "Price Asset Type"::Item, Item."No.");
-        PriceListLine[1].Status := PriceListLine[1].Status::Active;
+        PriceListLine[1].Status := "Price Status"::Active;
         PriceListLine[1].Modify();
         // [GIVEN] Job 'J', where "Bill-to Customer No." is 'C', Item 'I' "Unit Price" is 'X', Discount is '0%' for Customer 'C'
         LibraryJob.CreateJob(Job, Customer."No.");
@@ -1354,7 +1552,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::Customer, Customer."No.");
         LibraryPriceCalculation.CreatePriceListLine(
             PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
-        PriceListLine[1].Status := PriceListLine[1].Status::Active;
+        PriceListLine[1].Status := "Price Status"::Active;
         PriceListLine[1].Modify();
         // [GIVEN] Job 'J', where "Bill-to Customer No." is 'C', Item 'I' "Unit Price" is 0.00, Discount is '1%' for Customer 'C'
         LibraryJob.CreateJob(Job, Customer."No.");
@@ -1399,7 +1597,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] 1st line, where "Minimum Quantity" is 0, "Direct Unit Cost" is 1000
         LibraryPriceCalculation.CreatePriceListLine(
             PriceListLine[1], PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"G/L Account", GLAccountNo);
-        PriceListLine[1].Status := PriceListLine[1].Status::Active;
+        PriceListLine[1].Status := "Price Status"::Active;
         PriceListLine[1].Modify();
         // [GIVEN] 2nd line, where "Minimum Quantity" is 2, "Direct Unit Cost" is 999
         LibraryPriceCalculation.CreatePriceListLine(
@@ -1450,7 +1648,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] 1st line, where "Minimum Quantity" is 0, "Direct Unit Cost" is 1000
         LibraryPriceCalculation.CreatePriceListLine(
             PriceListLine[1], PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
-        PriceListLine[1].Status := PriceListLine[1].Status::Active;
+        PriceListLine[1].Status := "Price Status"::Active;
         PriceListLine[1].Modify();
         // [GIVEN] 2nd line, where "Minimum Quantity" is 2, "Direct Unit Cost" is 999
         LibraryPriceCalculation.CreatePriceListLine(
@@ -1504,7 +1702,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryPriceCalculation.CreatePriceListLine(
             PriceListLine[1], PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Resource, Resource."No.");
         PriceListLine[1]."Unit Cost" := PriceListLine[1]."Direct Unit Cost" + 10;
-        PriceListLine[1].Status := PriceListLine[1].Status::Active;
+        PriceListLine[1].Status := "Price Status"::Active;
         PriceListLine[1].Modify();
         // [GIVEN] 2nd line, where "Minimum Quantity" is 2, "Direct Unit Cost" is 999, "Unit Cost" is 1019
         LibraryPriceCalculation.CreatePriceListLine(
@@ -3145,7 +3343,7 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
-    procedure T240_SalesLineGetsCustomerSourcesForResource()
+    procedure T230_SalesLineGetsCustomerSourcesForResource()
     var
         Campaign: Array[5] of Record Campaign;
         Contact: Record Contact;
@@ -3174,16 +3372,222 @@ codeunit 134159 "Test Price Calculation - V16"
         // [WHEN] SetLine()
         SalesLinePrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
 
-        // [THEN] List of sources contains: All Jobs, All Customers, Customer 'A', 'CPG', 'CDG', Contact 'C', Campaign 'HdrCmp'
+        // [THEN] List of sources on the level 0 contains: All Customers, Customer 'A', 'CPG', 'CDG', Contact 'C', Campaign 'HdrCmp'
         GetSources(SalesLinePrice, TempPriceSource);
-        VerifySaleResourceSources(TempPriceSource, Customer, Contact);
+        VerifySaleResourceSources(TempPriceSource, Customer, Contact, 0);
         TempPriceSource.SetRange("Source Type", "Price Source Type"::Campaign);
         TempPriceSource.SetRange("Source No.", Campaign[1]."No.");
         Assert.RecordCount(TempPriceSource, 1);
+        // [THEN] All Jobs is not in the list
+        TempPriceSource.Reset();
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Jobs");
+        Assert.IsTrue(TempPriceSource.IsEmpty(), 'Found All Jobs source in the list');
     end;
 
     [Test]
-    procedure T241_ServiceLineGetsCustomerSourcesForResource()
+    procedure T231_SalesLineGetsCustomerSourcesForResourceWithJob()
+    var
+        Campaign: Array[5] of Record Campaign;
+        Contact: Record Contact;
+        Customer: Record Customer;
+        CustomerDiscountGroup: Record "Customer Discount Group";
+        CustomerPriceGroup: Record "Customer Price Group";
+        Job: Record Job;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TempPriceSource: Record "Price Source" temporary;
+        SalesLinePrice: Codeunit "Sales Line - Price";
+    begin
+        // [FEATURE] [Sales] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Job 'J'
+        LibraryJob.CreateJob(Job);
+        // [GIVEN] Customer 'A' has one activated Campaign 'CustCmp', "Primary Contact No." is 'C'
+        // [GIVEN] Contact 'C' has one activated Campaign 'ContCmp'
+        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, False);
+        // [GIVEN] Customer 'A', where "Customer Discount Group" is 'CDG', "Customer Price Group" is 'CPG'
+        SetGroupsOnCustomer(Customer, CustomerDiscountGroup, CustomerPriceGroup);
+
+        // [GIVEN] Invoice for customer 'A' with 'Campaign No.' = 'HdrCmp'.
+        // [GIVEN] Invoice has one line with "Type" = 'Resource' and "No." = 'X'.
+        CreateSalesInvoiceWithResource(SalesHeader, SalesLine, Customer."No.");
+        SalesHeader.Validate("Campaign No.", Campaign[1]."No.");
+        SalesHeader.Modify(true);
+        // [GIVEN] "Job No." is 'J' in the line
+        SalesLine.Validate("Job No.", Job."No.");
+        SalesLine.Modify();
+
+        // [WHEN] SetLine()
+        SalesLinePrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
+
+        // [THEN] List of sources on the level 0 contains: All Customers, Customer 'A', 'CPG', 'CDG', Contact 'C', Campaign 'HdrCmp'
+        GetSources(SalesLinePrice, TempPriceSource);
+        VerifySaleResourceSources(TempPriceSource, Customer, Contact, 0);
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::Campaign);
+        TempPriceSource.SetRange("Source No.", Campaign[1]."No.");
+        Assert.RecordCount(TempPriceSource, 1);
+        // [THEN] All Jobs is on the level 1, 'Job' on Level 2.
+        TempPriceSource.Reset();
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Jobs");
+        TempPriceSource.FindFirst();
+        TempPriceSource.TestField(Level, 1);
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::Job);
+        TempPriceSource.SetRange("Source No.", Job."No.");
+        TempPriceSource.FindFirst();
+        TempPriceSource.TestField(Level, 2);
+    end;
+
+    [Test]
+    procedure T232_SalesLineGetsCustomerPriceForResourceOverJobPrice()
+    var
+        Customer: Record Customer;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Customer 'A' 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Invoice for customer 'A', where is one line with "Type" = 'Resource' and "No." = 'R', "Job No." is blank
+        CreateSalesInvoiceWithResource(SalesHeader, SalesLine, Customer."No.");
+
+        // [GIVEN] Sales Price line for 'R' assigned to 'All Customers', "Unit Price" is 100
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Resource, SalesLine."No.");
+        PriceListLine[1].Status := "Price Status"::Active;
+        PriceListLine[1].Modify();
+        // [GIVEN] Sales Price line for 'R' assigned to 'All Jobs', "Unit Price" is 99
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader[2], "Price Amount Type"::Price, "Price Asset Type"::Resource, SalesLine."No.");
+        PriceListLine[2].Validate("Unit Price", PriceListLine[1]."Unit Price" - 1);
+        PriceListLine[2].Status := "Price Status"::Active;
+        PriceListLine[2].Modify();
+
+        // [WHEN] Set Quantity to 1
+        SalesLine.Validate(Quantity, 1);
+
+        // [THEN] "Unit Price" is 100 (from All Customers price)
+        SalesLine.TestField("Unit Price", PriceListLine[1]."Unit Price");
+    end;
+
+    [Test]
+    procedure T233_SalesLineGetsResourceCardPriceIfNoAllCustomers()
+    var
+        Customer: Record Customer;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Customer 'A' 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Invoice for customer 'A', where is one line with "Type" = 'Resource' and "No." = 'R', "Job No." is blank
+        CreateSalesInvoiceWithResource(SalesHeader, SalesLine, Customer."No.");
+        Resource.Get(SalesLine."No.");
+
+        // [GIVEN] Sales Price line for 'R' assigned to 'All Jobs', "Unit Price" is 100
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader[2], "Price Amount Type"::Price, "Price Asset Type"::Resource, SalesLine."No.");
+        PriceListLine[2].Status := "Price Status"::Active;
+        PriceListLine[2].Modify();
+
+        // [WHEN] Set Quantity to 1
+        SalesLine.Validate(Quantity, 1);
+
+        // [THEN] "Unit Price" is 50 (from resource card)
+        SalesLine.TestField("Unit Price", Resource."Unit Price");
+    end;
+
+    [Test]
+    procedure T234_SalesLineGetsAllJobsPriceForResourceIfJobDefined()
+    var
+        Customer: Record Customer;
+        Job: Record Job;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Customer 'A' 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Job 'J'
+        LibraryJob.CreateJob(Job);
+        // [GIVEN] Invoice for customer 'A', where is one line with "Type" = 'Resource' and "No." = 'R', "Job No." is 'J'
+        CreateSalesInvoiceWithResource(SalesHeader, SalesLine, Customer."No.");
+        SalesLine.Validate("Job No.", Job."No.");
+        SalesLine.Modify();
+
+        // [GIVEN] Sales Price line for 'R' assigned to 'All Customers', "Unit Price" is 99
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Resource, SalesLine."No.");
+        PriceListLine[1].Status := "Price Status"::Active;
+        PriceListLine[1].Modify();
+        // [GIVEN] Sales Price line for 'R' assigned to 'All Jobs', "Unit Price" is 100
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader[2], "Price Amount Type"::Price, "Price Asset Type"::Resource, SalesLine."No.");
+        PriceListLine[2].Validate("Unit Price", PriceListLine[1]."Unit Price" + 1);
+        PriceListLine[2].Status := "Price Status"::Active;
+        PriceListLine[2].Modify();
+
+        // [WHEN] Set Quantity to 1
+        SalesLine.Validate(Quantity, 1);
+
+        // [THEN] "Unit Price" is 100 (from All Jobs price)
+        SalesLine.TestField("Unit Price", PriceListLine[2]."Unit Price");
+    end;
+
+    [Test]
+    procedure T235_SalesLineGetsAllCustomersPriceForResourceIfJobPrice()
+    var
+        Customer: Record Customer;
+        Job: Record Job;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Customer 'A' 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Job 'J'
+        LibraryJob.CreateJob(Job);
+        // [GIVEN] Invoice for customer 'A', where is one line with "Type" = 'Resource' and "No." = 'R', "Job No." is 'J'
+        CreateSalesInvoiceWithResource(SalesHeader, SalesLine, Customer."No.");
+        SalesLine.Validate("Job No.", Job."No.");
+        SalesLine.Modify();
+
+        // [GIVEN] Sales Price line for 'R' assigned to 'All Customers', "Unit Price" is 99
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Resource, SalesLine."No.");
+        PriceListLine[1].Status := "Price Status"::Active;
+        PriceListLine[1].Modify();
+
+        // [WHEN] Set Quantity to 1
+        SalesLine.Validate(Quantity, 1);
+
+        // [THEN] "Unit Price" is 99 (from All Customers price)
+        SalesLine.TestField("Unit Price", PriceListLine[1]."Unit Price");
+    end;
+
+    [Test]
+    procedure T236_ServiceLineGetsCustomerSourcesForResource()
     var
         Campaign: Array[5] of Record Campaign;
         Contact: Record Contact;
@@ -3213,20 +3617,184 @@ codeunit 134159 "Test Price Calculation - V16"
 
         // [THEN] List of sources contains: All Customers, Customer 'A', 'CPG', 'CDG', Contact 'C', but no Campaign
         GetSources(ServiceLinePrice, TempPriceSource);
-        VerifySaleResourceSources(TempPriceSource, Customer, Contact);
+        VerifySaleResourceSources(TempPriceSource, Customer, Contact, 0);
         TempPriceSource.SetRange("Source Type", "Price Source Type"::Campaign);
         Assert.RecordIsEmpty(TempPriceSource);
+        // [THEN] All Jobs is not in the list.
+        TempPriceSource.Reset();
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Jobs");
+        Assert.IsTrue(TempPriceSource.IsEmpty(), 'Found All Jobs source in the list for sales');
 
         // [WHEN] SetLine(Purchase)
         ServiceLinePrice.SetLine("Price Type"::Purchase, ServiceHeader, ServiceLine);
-        // [THEN] List of sources contains: All Vendors
+        // [THEN] List of sources at level 0 contains: All Vendors
         GetSources(ServiceLinePrice, TempPriceSource);
         TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Vendors");
+        TempPriceSource.SetRange(Level, 0);
         Assert.RecordIsNotEmpty(TempPriceSource);
+        // [THEN] All Jobs is not in the list.
+        TempPriceSource.Reset();
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Jobs");
+        Assert.IsTrue(TempPriceSource.IsEmpty(), 'Found All Jobs source in the list for purch');
     end;
 
     [Test]
-    procedure T242_PurchaseLineGetsVendorSourcesForResource()
+    procedure T237_ServiceLineGetsCustomerPriceForResourceOverJobPrice()
+    var
+        Customer: Record Customer;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // [FEATURE] [Service] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Customer 'A' 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Service Invoice for customer 'A', where is one line with "Type" = 'Resource' and "No." = 'R', "Job No." is blank
+        CreateServiceDocumentWithResource(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] Sales Price line for 'R' assigned to 'All Customers', "Unit Price" is 100
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Resource, ServiceLine."No.");
+        PriceListLine[1].Status := "Price Status"::Active;
+        PriceListLine[1].Modify();
+        // [GIVEN] Sales Price line for 'R' assigned to 'All Jobs', "Unit Price" is 99
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader[2], "Price Amount Type"::Price, "Price Asset Type"::Resource, ServiceLine."No.");
+        PriceListLine[2].Validate("Unit Price", PriceListLine[1]."Unit Price" - 1);
+        PriceListLine[2].Status := "Price Status"::Active;
+        PriceListLine[2].Modify();
+
+        // [WHEN] Set Quantity to 1
+        ServiceLine.Validate(Quantity, 1);
+
+        // [THEN] "Unit Price" is 100 (from All Customers price)
+        ServiceLine.TestField("Unit Price", PriceListLine[1]."Unit Price");
+    end;
+
+    [Test]
+    procedure T238_ServiceLineGetsPriceFromResourceCardIfNoAllCustomers()
+    var
+        Customer: Record Customer;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // [FEATURE] [Service] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Customer 'A' 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Invoice for customer 'A', where is one line with "Type" = 'Resource' and "No." = 'R', "Job No." is blank
+        CreateServiceDocumentWithResource(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice, Customer."No.");
+        Resource.Get(ServiceLine."No.");
+
+        // [GIVEN] Service Price line for 'R' assigned to 'All Jobs', "Unit Price" is 100
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader[2], "Price Amount Type"::Price, "Price Asset Type"::Resource, ServiceLine."No.");
+        PriceListLine[2].Status := "Price Status"::Active;
+        PriceListLine[2].Modify();
+
+        // [WHEN] Set Quantity to 1
+        ServiceLine.Validate(Quantity, 1);
+
+        // [THEN] "Unit Price" is 50 (from resource card)
+        ServiceLine.TestField("Unit Price", Resource."Unit Price");
+    end;
+
+    [Test]
+    procedure T239_ServiceLineGetsAllJobsPriceForResourceIfJobDefined()
+    var
+        Customer: Record Customer;
+        Job: Record Job;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // [FEATURE] [Service] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Customer 'A' 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Job 'J'
+        LibraryJob.CreateJob(Job);
+        Job.SetHideValidationDialog(true);
+        Job.Validate("Bill-to Customer No.", Customer."No.");
+        Job.Modify();
+        // [GIVEN] Invoice for customer 'A', where is one line with "Type" = 'Resource' and "No." = 'R', "Job No." is 'J'
+        CreateServiceDocumentWithResource(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice, Customer."No.");
+        ServiceLine.Validate("Job No.", Job."No.");
+        ServiceLine.Modify();
+
+        // [GIVEN] Service Price line for 'R' assigned to 'All Customers', "Unit Price" is 99
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Resource, ServiceLine."No.");
+        PriceListLine[1].Status := "Price Status"::Active;
+        PriceListLine[1].Modify();
+        // [GIVEN] Service Price line for 'R' assigned to 'All Jobs', "Unit Price" is 100
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader[2], "Price Amount Type"::Price, "Price Asset Type"::Resource, ServiceLine."No.");
+        PriceListLine[2].Validate("Unit Price", PriceListLine[1]."Unit Price" + 1);
+        PriceListLine[2].Status := "Price Status"::Active;
+        PriceListLine[2].Modify();
+
+        // [WHEN] Set Quantity to 1
+        ServiceLine.Validate(Quantity, 1);
+
+        // [THEN] "Unit Price" is 100 (from All Jobs price)
+        ServiceLine.TestField("Unit Price", PriceListLine[2]."Unit Price");
+    end;
+
+    [Test]
+    procedure T240_ServiceLineGetsAllCustomersPriceForResourceIfJobPrice()
+    var
+        Customer: Record Customer;
+        Job: Record Job;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // [FEATURE] [Service] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Customer 'A' 
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Job 'J'
+        LibraryJob.CreateJob(Job);
+        Job.SetHideValidationDialog(true);
+        Job.Validate("Bill-to Customer No.", Customer."No.");
+        Job.Modify();
+        // [GIVEN] Invoice for customer 'A', where is one line with "Type" = 'Resource' and "No." = 'R', "Job No." is 'J'
+        CreateServiceDocumentWithResource(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice, Customer."No.");
+        ServiceLine.Validate("Job No.", Job."No.");
+        ServiceLine.Modify();
+
+        // [GIVEN] Service Price line for 'R' assigned to 'All Customers', "Unit Price" is 99
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Resource, ServiceLine."No.");
+        PriceListLine[1].Status := "Price Status"::Active;
+        PriceListLine[1].Modify();
+
+        // [WHEN] Set Quantity to 1
+        ServiceLine.Validate(Quantity, 1);
+
+        // [THEN] "Unit Price" is 99 (from All Customers price)
+        ServiceLine.TestField("Unit Price", PriceListLine[1]."Unit Price");
+    end;
+
+    [Test]
+    procedure T241_PurchaseLineGetsVendorSourcesForResource()
     var
         Campaign: Record Campaign;
         Contact: Record Contact;
@@ -3256,12 +3824,131 @@ codeunit 134159 "Test Price Calculation - V16"
         // [WHEN] SetLine()
         PurchaseLinePrice.SetLine("Price Type"::Sale, PurchaseHeader, PurchaseLine);
 
-        // [THEN] List of sources contains: All Vendors, Vendor 'V', Contact 'C', Campaign 'HdrCmp', No 'All Jobs'
+        // [THEN] List of sources at the level 0 contains: All Vendors, Vendor 'V', Contact 'C', Campaign 'HdrCmp'
         GetSources(PurchaseLinePrice, TempPriceSource);
-        VerifyPurchaseResourceSources(TempPriceSource, Vendor, Contact);
+        VerifyPurchaseResourceSources(TempPriceSource, Vendor, Contact, 0);
         TempPriceSource.SetRange("Source Type", "Price Source Type"::Campaign);
         TempPriceSource.SetRange("Source No.", Campaign."No.");
         Assert.RecordCount(TempPriceSource, 1);
+        // [THEN] All Jobs is not in the list.
+        TempPriceSource.Reset();
+        TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Jobs");
+        Assert.IsTrue(TempPriceSource.IsEmpty(), 'Found All Jobs source in the list');
+    end;
+
+    [Test]
+    procedure T242_PurchaseLineGetsPriceFromResourceCardIfNoAllVendors()
+    var
+        Vendor: Record Vendor;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        Resource: Record Resource;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Vendor 'A' 
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Invoice for Vendor 'A', where is one line with "Type" = 'Resource' and "No." = 'R', "Job No." is blank
+        CreatePurchaseInvoiceWithResource(PurchaseHeader, PurchaseLine, Vendor."No.");
+        Resource.Get(PurchaseLine."No.");
+
+        // [GIVEN] Purchase Price line for 'R' assigned to 'All Jobs', "Direct Unit Cost" is 100
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::"All Jobs", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader[2], "Price Amount Type"::Price, "Price Asset Type"::Resource, PurchaseLine."No.");
+        PriceListLine[2].Status := "Price Status"::Active;
+        PriceListLine[2].Modify();
+
+        // [WHEN] Set Quantity to 1
+        PurchaseLine.Validate(Quantity, 1);
+
+        // [THEN] "Direct Unit Cost" is 50 (from Resource card price)
+        PurchaseLine.TestField("Direct Unit Cost", Resource."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T243_PurchaseLineGetsAllJobsPriceForItemIfJobDefined()
+    var
+        Vendor: Record Vendor;
+        Job: Record Job;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Vendor 'A' 
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Job 'J'
+        LibraryJob.CreateJob(Job);
+        // [GIVEN] Invoice for Vendor 'A', where is one line with "Type" = 'Item' and "No." = 'I', "Job No." is 'J'
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(),
+            LibraryRandom.RandDecInRange(10, 20, 2));
+        PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Modify();
+
+        // [GIVEN] Purchase Price line for 'I' assigned to 'All Vendors', "Direct Unit Cost" is 99
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Item, PurchaseLine."No.");
+        PriceListLine[1].Status := "Price Status"::Active;
+        PriceListLine[1].Modify();
+        // [GIVEN] Purchase Price line for 'I' assigned to 'All Jobs', "Direct Unit Cost" is 100
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Purchase, "Price Source Type"::"All Jobs", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[2], PriceListHeader[2], "Price Amount Type"::Price, "Price Asset Type"::Item, PurchaseLine."No.");
+        PriceListLine[2].Validate("Direct Unit Cost", PriceListLine[1]."Direct Unit Cost" + 1);
+        PriceListLine[2].Status := "Price Status"::Active;
+        PriceListLine[2].Modify();
+
+        // [WHEN] Set Quantity to 1
+        PurchaseLine.Validate(Quantity, 1);
+
+        // [THEN] "Direct Unit Cost" is 100 (from All Jobs price)
+        PurchaseLine.TestField("Direct Unit Cost", PriceListLine[2]."Direct Unit Cost");
+    end;
+
+    [Test]
+    procedure T244_PurchaseLineGetsAllVendorsPriceForGLAccountIfNoJobPrice()
+    var
+        Job: Record Job;
+        Vendor: Record Vendor;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Resource] [UT]
+        Initialize();
+        // [GIVEN] Vendor 'A' 
+        LibraryPurchase.CreateVendor(Vendor);
+        // [GIVEN] Job 'J'
+        LibraryJob.CreateJob(Job);
+        // [GIVEN] Invoice for Vendor 'A', where is one line with "Type" = 'G/L Account' and "No." = 'A', "Job No." is 'J'
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(),
+            LibraryRandom.RandDecInRange(10, 20, 2));
+        PurchaseLine.Validate("Job No.", Job."No.");
+        PurchaseLine.Modify();
+
+        // [GIVEN] Purchase Price line for 'A' assigned to 'All Vendors', "Direct Unit Cost" is 99
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine[1], PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::"G/L Account", PurchaseLine."No.");
+        PriceListLine[1].Status := "Price Status"::Active;
+        PriceListLine[1].Modify();
+
+        // [WHEN] Set Quantity to 1
+        PurchaseLine.Validate(Quantity, 1);
+
+        // [THEN] "Direct Unit Cost" is 99 (from All Vendors price)
+        PurchaseLine.TestField("Direct Unit Cost", PriceListLine[1]."Direct Unit Cost");
     end;
 
     [Test]
@@ -3336,7 +4023,7 @@ codeunit 134159 "Test Price Calculation - V16"
             PriceListLine[1], '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Resource, Resource."No.");
         PriceListLine[1]."Minimum Quantity" := MinQty;
         PriceListLine[1]."Unit Price" := Resource."Unit Price" / 2;
-        PriceListLine[1].Status := PriceListLine[1].Status::Active;
+        PriceListLine[1].Status := "Price Status"::Active;
         PriceListLine[1].Modify();
         // [GIVEN] Purchase Price list line for "All Vendors" for Resource 'X', where "Minimum Quantity" is 10, "Unit Cost" is 11
         LibraryPriceCalculation.CreatePurchPriceLine(
@@ -4477,6 +5164,20 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine.Modify();
     end;
 
+    local procedure CreatePurchaseInvoiceWithResource(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20])
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        ResourceNo: Code[20];
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(5, 10, 2));
+        ResourceNo := CreateResource(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        UpdateVATBusPostingGroupOnVendor(VendorNo, VATPostingSetup."VAT Bus. Posting Group");
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, ResourceNo, LibraryRandom.RandDecInRange(10, 20, 2));
+    end;
+
     local procedure CreateSalesInvoiceWithResource(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20])
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -4665,6 +5366,15 @@ codeunit 134159 "Test Price Calculation - V16"
         ResPriceList.Run();
     end;
 
+    local procedure UpdateVATBusPostingGroupOnVendor(VendorNo: Code[20]; VATBusPostingGroup: Code[20])
+    var
+        Vendor: Record Vendor;
+    begin
+        Vendor.Get(VendorNo);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Vendor.Modify(true);
+    end;
+
     local procedure UpdateVATBusPostingGroupOnCustomer(CustomerNo: Code[20]; VATBusPostingGroup: Code[20])
     var
         Customer: Record Customer;
@@ -4704,6 +5414,12 @@ codeunit 134159 "Test Price Calculation - V16"
 
     local procedure VerifyPurchaseResourceSources(var TempPriceSource: Record "Price Source" temporary; Vendor: Record Vendor; Contact: Record Contact)
     begin
+        VerifyPurchaseResourceSources(TempPriceSource, Vendor, Contact, 0)
+    end;
+
+    local procedure VerifyPurchaseResourceSources(var TempPriceSource: Record "Price Source" temporary; Vendor: Record Vendor; Contact: Record Contact; ExpectedLevel: Integer)
+    begin
+        TempPriceSource.SetRange(Level, ExpectedLevel);
         TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Vendors");
         Assert.RecordCount(TempPriceSource, 1);
         TempPriceSource.SetRange("Source Type", "Price Source Type"::Vendor);
@@ -4716,6 +5432,12 @@ codeunit 134159 "Test Price Calculation - V16"
 
     local procedure VerifySaleResourceSources(var TempPriceSource: Record "Price Source" temporary; Customer: Record Customer; Contact: Record Contact)
     begin
+        VerifySaleResourceSources(TempPriceSource, Customer, Contact, 0);
+    end;
+
+    local procedure VerifySaleResourceSources(var TempPriceSource: Record "Price Source" temporary; Customer: Record Customer; Contact: Record Contact; ExpectedLevel: Integer)
+    begin
+        TempPriceSource.SetRange(Level, ExpectedLevel);
         TempPriceSource.SetRange("Source Type", "Price Source Type"::"All Customers");
         Assert.RecordCount(TempPriceSource, 1);
         TempPriceSource.SetRange("Source Type", "Price Source Type"::Customer);
@@ -4767,6 +5489,54 @@ codeunit 134159 "Test Price Calculation - V16"
         CreateStandardCostWorksheet(StandardCostWorksheetPage, Resource."No.", StandardCost, NewStandardCost);
         Commit();  // Commit Required due to Run Modal.
         StandardCostWorksheetPage."&Implement Standard Cost Changes".Invoke;
+    end;
+
+    local procedure VerifyJobSources(var Job: Record Job; var SalesLinePrice: Codeunit "Sales Line - Price"; AllJobsCounter: Integer; JobCounter: Integer; JobTaskCounter: Integer)
+    var
+        JobTask: Record "Job Task";
+    begin
+        JobTask."Job No." := Job."No.";
+        VerifyJobSources(JobTask, SalesLinePrice, AllJobsCounter, JobCounter, JobTaskCounter);
+    end;
+
+    local procedure VerifyJobSources(var JobTask: Record "Job Task"; var SalesLinePrice: Codeunit "Sales Line - Price"; AllJobsCounter: Integer; JobCounter: Integer; JobTaskCounter: Integer)
+    var
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+    begin
+        SalesLinePrice.CopyToBuffer(PriceCalculationBufferMgt);
+        VerifyJobSources(JobTask, PriceCalculationBufferMgt, AllJobsCounter, JobCounter, JobTaskCounter);
+    end;
+
+    local procedure VerifyJobSources(var Job: Record Job; var PurchaseLinePrice: Codeunit "Purchase Line - Price"; AllJobsCounter: Integer; JobCounter: Integer; JobTaskCounter: Integer)
+    var
+        JobTask: Record "Job Task";
+    begin
+        JobTask."Job No." := Job."No.";
+        VerifyJobSources(JobTask, PurchaseLinePrice, AllJobsCounter, JobCounter, JobTaskCounter);
+    end;
+
+    local procedure VerifyJobSources(var JobTask: Record "Job Task"; var PurchaseLinePrice: Codeunit "Purchase Line - Price"; AllJobsCounter: Integer; JobCounter: Integer; JobTaskCounter: Integer)
+    var
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+    begin
+        PurchaseLinePrice.CopyToBuffer(PriceCalculationBufferMgt);
+        VerifyJobSources(JobTask, PriceCalculationBufferMgt, AllJobsCounter, JobCounter, JobTaskCounter);
+    end;
+
+    local procedure VerifyJobSources(var JobTask: Record "Job Task"; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; AllJobsCounter: Integer; JobCounter: Integer; JobTaskCounter: Integer)
+    var
+        TempPriceSource: Record "Price Source" temporary;
+    begin
+        PriceCalculationBufferMgt.GetSources(TempPriceSource);
+        TempPriceSource.SetRange("Source Type", TempPriceSource."Source Type"::"All Jobs");
+        Assert.RecordCount(TempPriceSource, AllJobsCounter);
+        TempPriceSource.SetRange("Source Type", TempPriceSource."Source Type"::Job);
+        TempPriceSource.SetRange("Source No.", JobTask."Job No.");
+        Assert.RecordCount(TempPriceSource, JobCounter);
+        TempPriceSource.SetRange("Source Type", TempPriceSource."Source Type"::"Job Task");
+        TempPriceSource.SetRange("Source No.", JobTask."Job Task No.");
+        TempPriceSource.SetRange("Parent Source No.", JobTask."Job No.");
+        Assert.RecordCount(TempPriceSource, JobTaskCounter);
     end;
 
     [RequestPageHandler]

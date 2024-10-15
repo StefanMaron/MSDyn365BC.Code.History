@@ -352,7 +352,7 @@ report 5690 "Index Fixed Assets"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertJournalLine(FixedAsset, IndexAmount, IsHandled);
+        OnBeforeInsertJournalLine(FixedAsset, IndexAmount, IsHandled, i, DeprBookCode);
         if IsHandled then
             exit;
 
@@ -383,8 +383,8 @@ report 5690 "Index Fixed Assets"
         IndexChoices[2] := IndexChoice;
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertJournalLine(FixedAsset: Record "Fixed Asset"; IndexAmount: Decimal; var IsHandled: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeInsertJournalLine(FixedAsset: Record "Fixed Asset"; IndexAmount: Decimal; var IsHandled: Boolean; i: Integer; DeprBookCode: Code[10])
     begin
     end;
 }

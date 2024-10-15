@@ -584,6 +584,7 @@ codeunit 950 "Time Sheet Management"
         TimeSheetHeaderArchive.Reset();
         TimeSheetHeaderArchive.SetCurrentKey("Resource No.", "Starting Date");
         TimeSheetHeaderArchive.SetRange("Resource No.", TimeSheetHeaderArchive."Resource No.");
+        OnFindTimeSheetArchiveOnAfterSetFilters(TimeSheetHeaderArchive);
         case Which of
             Which::Prev:
                 TimeSheetHeaderArchive.Next(-1);
@@ -1109,6 +1110,11 @@ codeunit 950 "Time Sheet Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnFillJobPlanningBufferOnBeforeJobPlanningLineBufferInsert(JobPlanningLine: Record "Job Planning Line"; var JobPlanningLineBuffer: Record "Job Planning Line" temporary);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindTimeSheetArchiveOnAfterSetFilters(var TimeSheetHeaderArchive: Record "Time Sheet Header Archive")
     begin
     end;
 
