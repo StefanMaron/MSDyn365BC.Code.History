@@ -72,7 +72,13 @@ table 27 Item
             trigger OnValidate()
             var
                 UnitOfMeasure: Record "Unit of Measure";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBaseUnitOfMeasure(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 UpdateUnitOfMeasureId;
 
                 if "Base Unit of Measure" <> xRec."Base Unit of Measure" then begin
@@ -3611,6 +3617,11 @@ table 27 Item
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateStandardCost(var Item: Record Item; xItem: Record Item; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBaseUnitOfMeasure(var Item: Record Item; xItem: Record Item; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

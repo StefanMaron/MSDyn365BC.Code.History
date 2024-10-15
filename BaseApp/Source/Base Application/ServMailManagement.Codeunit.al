@@ -28,16 +28,22 @@ codeunit 5916 ServMailManagement
         EmailSendErr: Label 'The email to %1 with subject %2 has not been sent.', Comment = '%1 - To address, %2 - Email subject';
 
     local procedure InitTempEmailItem(var TempEmailItem: Record "Email Item" temporary; ServiceEmailQueue: Record "Service Email Queue")
+    var
+        ServerFile: File;
+        InStream: Instream;
     begin
-        with ServiceEmailQueue do begin
-            TempEmailItem.Initialize;
-            TempEmailItem."Attachment File Path" := "Attachment Filename";
-            TempEmailItem.SetBodyText("Body Line");
-            TempEmailItem."Send to" := "To Address";
-            TempEmailItem."Send CC" := "Copy-to Address";
-            TempEmailItem.Subject := "Subject Line";
-            TempEmailItem.Insert();
+        TempEmailItem.Initialize;
+        if File.Exists(ServiceEmailQueue."Attachment Filename") then begin
+            ServerFile.Open(ServiceEmailQueue."Attachment Filename");
+            ServerFile.CreateInStream(InStream);
+            TempEmailItem.AddAttachment(InStream, '');
+            ServerFile.Close();
         end;
+        TempEmailItem.SetBodyText(ServiceEmailQueue."Body Line");
+        TempEmailItem."Send to" := ServiceEmailQueue."To Address";
+        TempEmailItem."Send CC" := ServiceEmailQueue."Copy-to Address";
+        TempEmailItem.Subject := ServiceEmailQueue."Subject Line";
+        TempEmailItem.Insert();
     end;
 }
 

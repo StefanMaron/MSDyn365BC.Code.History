@@ -155,6 +155,8 @@
                         UpdateCustomerID;
                     "Account Type"::"Bank Account":
                         UpdateBankAccountID;
+                    "Account Type"::Vendor:
+                        UpdateVendorID;
                 end;
             end;
         }
@@ -2707,6 +2709,16 @@
                 UpdateBalanceAccountNo();
             end;
         }
+        field(8009; "Vendor Id"; Guid)
+        {
+            Caption = 'Vendor Id';
+            TableRelation = Vendor.SystemId;
+
+            trigger OnValidate()
+            begin
+                UpdateVendorNo;
+            end;
+        }
     }
 
     keys
@@ -3077,8 +3089,10 @@
             exit;
 
         if (LastDocNo = '') or ("Document No." <> LastDocNo) then
-            if "Document No." <> NoSeriesMgtInstance.GetNextNo(NoSeriesCode, "Posting Date", false) then
+            if "Document No." <> NoSeriesMgtInstance.GetNextNo(NoSeriesCode, "Posting Date", false) then begin
                 NoSeriesMgtInstance.TestManualWithDocumentNo(NoSeriesCode, "Document No.");  // allow use of manual document numbers.
+                NoSeriesMgtInstance.ClearNoSeriesLine();
+            end;
     end;
 
     procedure RenumberDocumentNo()
@@ -3130,7 +3144,13 @@
         PrevDocNo: Code[20];
         FirstDocNo: Code[20];
         First: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRenumberDocNoOnLines(DocNo, GenJnlLine2, IsHandled);
+        if IsHandled then
+            exit;
+
         FirstDocNo := DocNo;
         with GenJnlLine2 do begin
             SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.");
@@ -6903,6 +6923,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRenumberDocNoOnLines(var DocNo: Code[20]; var GenJnlLine2: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetAmountWithCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
@@ -7304,6 +7329,24 @@
         "Customer Id" := Customer.SystemId;
     end;
 
+    procedure UpdateVendorID()
+    var
+        Vendor: Record Vendor;
+    begin
+        if "Account Type" <> "Account Type"::Vendor then
+            exit;
+
+        if "Account No." = '' then begin
+            Clear("Vendor Id");
+            exit;
+        end;
+
+        if not Vendor.Get("Account No.") then
+            exit;
+
+        "Vendor Id" := Vendor.SystemId;
+    end;
+
     local procedure UpdateCustomerNo()
     var
         Customer: Record Customer;
@@ -7317,10 +7360,25 @@
         "Account No." := Customer."No.";
     end;
 
+    local procedure UpdateVendorNo()
+    var
+        Vendor: Record Vendor;
+    begin
+        if IsNullGuid("Vendor Id") then
+            exit;
+
+        if not Vendor.GetBySystemId("Vendor Id") then
+            exit;
+
+        "Account No." := Vendor."No.";
+    end;
+
     procedure UpdateAppliesToInvoiceID()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
+        PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
     begin
         if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::Invoice then
             exit;
@@ -7330,24 +7388,50 @@
             exit;
         end;
 
-        if not SalesInvoiceHeader.Get("Applies-to Doc. No.") then
-            exit;
+        case "Account Type" of
+            "Account Type"::Customer:
+                begin
+                    if not SalesInvoiceHeader.Get("Applies-to Doc. No.") then
+                        exit;
 
-        "Applies-to Invoice Id" := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
+                    "Applies-to Invoice Id" := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
+                end;
+            "Account Type"::Vendor:
+                begin
+                    if not PurchInvHeader.Get("Applies-to Doc. No.") then
+                        exit;
+
+                    "Applies-to Invoice Id" := PurchInvAggregator.GetPurchaseInvoiceHeaderId(PurchInvHeader);
+                end;
+        end;
     end;
 
     local procedure UpdateAppliesToInvoiceNo()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        PurchInvheader: Record "Purch. Inv. Header";
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
+        PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
     begin
         if IsNullGuid("Applies-to Invoice Id") then
             exit;
 
-        if not SalesInvoiceAggregator.GetSalesInvoiceHeaderFromId(Format("Applies-to Invoice Id"), SalesInvoiceHeader) then
-            Error(InvoiceForGivenIDDoesNotExistErr);
+        case "Account Type" of
+            "Account Type"::Customer:
+                begin
+                    if not SalesInvoiceAggregator.GetSalesInvoiceHeaderFromId(Format("Applies-to Invoice Id"), SalesInvoiceHeader) then
+                        Error(InvoiceForGivenIDDoesNotExistErr);
 
-        "Applies-to Doc. No." := SalesInvoiceHeader."No.";
+                    "Applies-to Doc. No." := SalesInvoiceHeader."No.";
+                end;
+            "Account Type"::Vendor:
+                begin
+                    if not PurchInvAggregator.GetPurchaseInvoiceHeaderFromId(Format("Applies-to Invoice Id"), PurchInvheader) then
+                        Error(InvoiceForGivenIDDoesNotExistErr);
+
+                    "Applies-to Doc. No." := PurchInvheader."No.";
+                end;
+        end;
     end;
 
     procedure UpdateGraphContactId()

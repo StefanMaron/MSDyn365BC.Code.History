@@ -1005,6 +1005,7 @@ page 232 "Apply Customer Entries"
                                             ApplnDate, "Currency Code", ApplnCurrencyCode, "Amount to Apply");
                                     end;
 
+                                    OnCalcApplnAmountOnCalcTypeGenJnlLineOnApplnTypeToDocNoOnBeforeSetAppliedAmount(Rec, ApplnDate, ApplnCurrencyCode);
                                     if "Amount to Apply" <> 0 then
                                         AppliedAmount := Round("Amount to Apply", AmountRoundingPrecision)
                                     else
@@ -1051,6 +1052,7 @@ page 232 "Apply Customer Entries"
                                           CurrExchRate.ExchangeAmtFCYToFCY(
                                             ApplnDate, "Currency Code", ApplnCurrencyCode, "Remaining Amount");
 
+                                    OnCalcApplnAmountOnCalcTypeSalesHeaderOnApplnTypeToDocNoOnBeforeSetAppliedAmount(Rec, ApplnDate, ApplnCurrencyCode);
                                     AppliedAmount := Round("Remaining Amount", AmountRoundingPrecision);
 
                                     if not DifferentCurrenciesInAppln then
@@ -1455,6 +1457,16 @@ page 232 "Apply Customer Entries"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSetApplyingCustLedgEntry(var ApplyingCustLedgEntry: Record "Cust. Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcApplnAmountOnCalcTypeGenJnlLineOnApplnTypeToDocNoOnBeforeSetAppliedAmount(var AppliedCustLedgEntry: Record "Cust. Ledger Entry"; ApplnDate: Date; ApplnCurrencyCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcApplnAmountOnCalcTypeSalesHeaderOnApplnTypeToDocNoOnBeforeSetAppliedAmount(var AppliedCustLedgEntry: Record "Cust. Ledger Entry"; ApplnDate: Date; ApplnCurrencyCode: Code[10])
     begin
     end;
 

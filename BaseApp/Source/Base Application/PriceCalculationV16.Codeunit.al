@@ -53,6 +53,7 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         TempPriceListLine: Record "Price List Line" temporary;
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
         AmountType: Enum "Price Amount Type";
+        FoundLines: Boolean;
         FoundPrice: Boolean;
     begin
         if not HasAccess(CurrLineWithPrice.GetPriceType(), AmountType::Price) then
@@ -60,11 +61,12 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         CurrLineWithPrice.Verify();
         if not CurrLineWithPrice.CopyToBuffer(PriceCalculationBufferMgt) then
             exit;
-        if FindLines(AmountType::Price, TempPriceListLine, PriceCalculationBufferMgt, false) then
+        FoundLines := FindLines(AmountType::Price, TempPriceListLine, PriceCalculationBufferMgt, false);
+        if FoundLines then
             FoundPrice := CalcBestAmount(AmountType::Price, PriceCalculationBufferMgt, TempPriceListLine);
         if not FoundPrice then
             PriceCalculationBufferMgt.FillBestLine(AmountType::Price, TempPriceListLine);
-        if CurrLineWithPrice.IsPriceUpdateNeeded(AmountType::Price, FoundPrice, CalledByFieldNo) then
+        if CurrLineWithPrice.IsPriceUpdateNeeded(AmountType::Price, FoundLines, CalledByFieldNo) then
             CurrLineWithPrice.SetPrice(AmountType::Price, TempPriceListLine);
         CurrLineWithPrice.Update(AmountType::Price);
     end;
@@ -153,17 +155,17 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
     var
         AmountType: enum "Price Amount Type";
     begin
-        Pick(AmountType::Discount);
+        Pick(AmountType::Discount, true);
     end;
 
     procedure PickPrice()
     var
         AmountType: enum "Price Amount Type";
     begin
-        Pick(AmountType::Price);
+        Pick(AmountType::Price, true);
     end;
 
-    local procedure Pick(AmountType: enum "Price Amount Type")
+    local procedure Pick(AmountType: enum "Price Amount Type"; ShowAll: Boolean)
     var
         TempPriceListLine: Record "Price List Line" temporary;
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
@@ -174,12 +176,13 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         CurrLineWithPrice.Verify();
         if not CurrLineWithPrice.CopyToBuffer(PriceCalculationBufferMgt) then
             exit;
-        if FindLines(AmountType, TempPriceListLine, PriceCalculationBufferMgt, false) then begin
+        if FindLines(AmountType, TempPriceListLine, PriceCalculationBufferMgt, ShowAll) then begin
             GetPriceLine.SetForLookup(CurrLineWithPrice, AmountType, TempPriceListLine);
             if GetPriceLine.RunModal() = ACTION::LookupOK then begin
                 GetPriceLine.GetRecord(TempPriceListLine);
                 if not PriceCalculationBufferMgt.IsInMinQty(TempPriceListLine) then
                     Error(PickedWrongMinQtyErr);
+                PriceCalculationBufferMgt.VerifySelectedLine(TempPriceListLine);
                 PriceCalculationBufferMgt.ConvertAmount(AmountType, TempPriceListLine);
                 CurrLineWithPrice.SetPrice(AmountType, TempPriceListLine);
                 CurrLineWithPrice.Update(AmountType);

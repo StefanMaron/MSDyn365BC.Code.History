@@ -35,7 +35,7 @@ page 21 "Customer Card"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.Update(true);
                     end;
                 }
                 field("Name 2"; "Name 2")
@@ -86,7 +86,7 @@ page 21 "Customer Card"
 
                     trigger OnValidate()
                     begin
-                        StyleTxt := SetStyle;
+                        SetCreditLimitStyle();
                     end;
                 }
                 field(Blocked; Blocked)
@@ -124,7 +124,7 @@ page 21 "Customer Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the preferred method of sending documents to this customer, so that you do not have to select a sending option every time that you post and send a document to the customer. Sales documents to this customer will be sent using the specified sending profile and will override the default document sending profile.';
                 }
-                field(TotalSales2; GetTotalSales)
+                field(TotalSales2; Totals)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Total Sales';
@@ -346,6 +346,7 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
+                    Visible = false;
                     ToolTip = 'Specifies how many copies of an invoice for the customer will be printed at a time.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Functionality was used by reports 204-207 that are now obsolete';
@@ -568,7 +569,7 @@ page 21 "Customer Card"
                     DrillDown = false;
                     ToolTip = 'Specifies a customizable calendar for shipment planning that holds the customer''s working days and holidays.';
                 }
-                field("Customized Calendar"; format(CalendarMgmt.CustomizedChangesExist(Rec)))
+                field("Customized Calendar"; format(HasCustomBaseCalendar))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customized Calendar';
@@ -688,7 +689,7 @@ page 21 "Customer Card"
                 group("Sales This Year")
                 {
                     Caption = 'Sales This Year';
-                    field(AmountOnPostedInvoices; GetAmountOnPostedInvoices)
+                    field(AmountOnPostedInvoices; AmountOnPostedInvoices)
                     {
                         ApplicationArea = Basic, Suite;
                         CaptionClass = StrSubstNo(PostedInvoicesMsg, Format(NoPostedInvoices));
@@ -699,7 +700,7 @@ page 21 "Customer Card"
                             CustomerMgt.DrillDownOnPostedInvoices("No.")
                         end;
                     }
-                    field(AmountOnCrMemo; GetAmountOnCrMemo)
+                    field(AmountOnCrMemo; AmountOnPostedCrMemos)
                     {
                         ApplicationArea = Basic, Suite;
                         CaptionClass = StrSubstNo(CreditMemosMsg, Format(NoPostedCrMemos));
@@ -710,7 +711,7 @@ page 21 "Customer Card"
                             CustomerMgt.DrillDownOnPostedCrMemo("No.")
                         end;
                     }
-                    field(AmountOnOutstandingInvoices; GetAmountOnOutstandingInvoices)
+                    field(AmountOnOutstandingInvoices; AmountOnOutstandingInvoices)
                     {
                         ApplicationArea = Basic, Suite;
                         CaptionClass = StrSubstNo(OutstandingInvoicesMsg, Format(NoOutstandingInvoices));
@@ -721,7 +722,7 @@ page 21 "Customer Card"
                             CustomerMgt.DrillDownOnUnpostedInvoices("No.")
                         end;
                     }
-                    field(AmountOnOutstandingCrMemos; GetAmountOnOutstandingCrMemos)
+                    field(AmountOnOutstandingCrMemos; AmountOnOutstandingCrMemos)
                     {
                         ApplicationArea = Basic, Suite;
                         CaptionClass = StrSubstNo(OutstandingCrMemosMsg, Format(NoOutstandingCrMemos));
@@ -1879,6 +1880,7 @@ page 21 "Customer Card"
                     begin
                         if ApprovalsMgmt.CheckCustomerApprovalsWorkflowEnabled(Rec) then
                             ApprovalsMgmt.OnSendCustomerForApproval(Rec);
+                        SetWorkFlowEnabled();
                     end;
                 }
                 action(CancelApprovalRequest)
@@ -1949,6 +1951,7 @@ page 21 "Customer Card"
                     trigger OnAction()
                     begin
                         PAGE.RunModal(PAGE::"Cust. Approval WF Setup Wizard");
+                        SetWorkFlowEnabled();
                     end;
                 }
                 action(ManageApprovalWorkflows)
@@ -1963,7 +1966,8 @@ page 21 "Customer Card"
                     var
                         WorkflowManagement: Codeunit "Workflow Management";
                     begin
-                        WorkflowManagement.NavigateToWorkflows(DATABASE::Customer, EventFilter);
+                        WorkflowManagement.NavigateToWorkflows(DATABASE::Customer, WorkFlowEventFilter);
+                        SetWorkFlowEnabled();
                     end;
                 }
             }
@@ -2166,60 +2170,42 @@ page 21 "Customer Card"
     var
         WorkflowStepInstance: Record "Workflow Step Instance";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
-        WorkflowManagement: Codeunit "Workflow Management";
-        WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
-        CustomerCardCalculation: Codeunit "Customer Card Calculations";
-        Args: Dictionary of [Text, Text];
     begin
-        CreateCustomerFromTemplate;
+        if NewMode then
+            CreateCustomerFromTemplate
+        else
+            if FoundationOnly then
+                StartBackgroundCalculations();
         ActivateFields;
-        StyleTxt := SetStyle;
-        WorkflowStepInstance.SetRange("Record ID", RecordId);
-        ShowWorkflowStatus := not WorkflowStepInstance.IsEmpty();
-        if ShowWorkflowStatus then
-            CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
+        SetCreditLimitStyle();
+
         if CRMIntegrationEnabled or CDSIntegrationEnabled then begin
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
             if "No." <> xRec."No." then
                 CRMIntegrationManagement.SendResultNotification(Rec);
         end;
-        OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecordId);
-        OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
-
-        if FoundationOnly and ("No." <> '') then begin
-            OnBeforeGetSalesPricesAndSalesLineDisc(LoadOnDemand);
-            BalanceExhausted := 10000 <= CalcCreditLimitLCYExpendedPct;
-
-            if (BackgroundTaskId <> 0) then
-                CurrPage.CancelBackgroundTask(BackgroundTaskId);
-
-            DaysPastDueDate := 0;
-            ExpectedMoneyOwed := 0;
-            AvgDaysToPay := 0;
-            TotalMoneyOwed := 0;
-            AttentionToPaidDay := false;
-
-            Args.Add(CustomerCardCalculation.GetCustomerNoLabel(), "No.");
-            CurrPage.EnqueueBackgroundTask(BackgroundTaskId, Codeunit::"Customer Card Calculations", Args);
-
-            Session.LogMessage('0000D4Q', StrSubstNo(PageBckGrndTaskStartedTxt, "No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CustomerCardServiceCategoryTxt);
-        end;
-
-        CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
-
-        EventFilter := WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode + '|' +
-          WorkflowEventHandling.RunWorkflowOnCustomerChangedCode;
-
-        EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer, EventFilter);
 
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+        if AnyWorkflowExists then begin
+            CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
+            WorkflowStepInstance.SetRange("Record ID", RecordId);
+            ShowWorkflowStatus := not WorkflowStepInstance.IsEmpty();
+            if ShowWorkflowStatus then
+                CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
+            OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
+            if OpenApprovalEntriesExist then
+                OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecordId)
+            else
+                OpenApprovalEntriesExistCurrUser := false;
+        end;
     end;
 
     trigger OnInit()
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
+        PrevCountryCode := '*';
         FoundationOnly := ApplicationAreaMgmtFacade.IsFoundationEnabled;
 
         ContactEditable := true;
@@ -2247,6 +2233,8 @@ page 21 "Customer Card"
         EnvironmentInfo: Codeunit "Environment Information";
         ItemReferenceMgt: Codeunit "Item Reference Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        WorkflowEventHandling: Codeunit "Workflow Event Handling";
+        OfficeManagement: Codeunit "Office Management";
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
@@ -2255,11 +2243,57 @@ page 21 "Customer Card"
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field39=1(0)');
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
 
+        OnBeforeGetSalesPricesAndSalesLineDisc(LoadOnDemand);
         SetNoFieldVisible();
+
         IsSaaS := EnvironmentInfo.IsSaaS();
+        IsOfficeAddin := OfficeManagement.IsAvailable;
         ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        WorkFlowEventFilter :=
+            WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode + '|' +
+            WorkflowEventHandling.RunWorkflowOnCustomerChangedCode;
+        SetWorkFlowEnabled();
         OnAfterOnOpenPage(Rec, xRec);
     end;
+
+    local procedure StartBackgroundCalculations()
+    var
+        CustomerCardCalculations: Codeunit "Customer Card Calculations";
+        Args: Dictionary of [Text, Text];
+    begin
+        if (BackgroundTaskId <> 0) then
+            CurrPage.CancelBackgroundTask(BackgroundTaskId);
+
+        DaysPastDueDate := 0;
+        ExpectedMoneyOwed := 0;
+        AvgDaysToPay := 0;
+        TotalMoneyOwed := 0;
+        AttentionToPaidDay := false;
+        AmountOnPostedInvoices := 0;
+        AmountOnPostedCrMemos := 0;
+        AmountOnOutstandingInvoices := 0;
+        AmountOnOutstandingCrMemos := 0;
+        Totals := 0;
+        AdjmtCostLCY := 0;
+        AdjCustProfit := 0;
+        AdjProfitPct := 0;
+        CustInvDiscAmountLCY := 0;
+        CustPaymentsLCY := 0;
+        CustSalesLCY := 0;
+        CustProfit := 0;
+        NoPostedInvoices := 0;
+        NoPostedCrMemos := 0;
+        NoOutstandingInvoices := 0;
+        NoOutstandingCrMemos := 0;
+
+        Args.Add(CustomerCardCalculations.GetCustomerNoLabel(), "No.");
+        Args.Add(CustomerCardCalculations.GetWorkDateLabel(), Format(WorkDate()));
+
+        CurrPage.EnqueueBackgroundTask(BackgroundTaskId, Codeunit::"Customer Card Calculations", Args);
+
+        Session.LogMessage('0000D4Q', StrSubstNo(PageBckGrndTaskStartedTxt, "No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CustomerCardServiceCategoryTxt);
+    end;
+
 
     trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
     var
@@ -2279,6 +2313,54 @@ page 21 "Customer Card"
             if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetAvgDaysToPayLabel(), DictionaryValue) then
                 Evaluate(AvgDaysToPay, DictionaryValue);
 
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetAmountOnPostedInvoicesLabel(), DictionaryValue) then
+                Evaluate(AmountOnPostedInvoices, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetAmountOnPostedCrMemosLabel(), DictionaryValue) then
+                Evaluate(AmountOnPostedCrMemos, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetAmountOnOutstandingInvoicesLabel(), DictionaryValue) then
+                Evaluate(AmountOnOutstandingInvoices, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetAmountOnOutstandingCrMemosLabel(), DictionaryValue) then
+                Evaluate(AmountOnOutstandingCrMemos, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetTotalsLabel(), DictionaryValue) then
+                Evaluate(Totals, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetAdjmtCostLCYLabel(), DictionaryValue) then
+                Evaluate(AdjmtCostLCY, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetAdjCustProfitLabel(), DictionaryValue) then
+                Evaluate(AdjCustProfit, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetAdjProfitPctLabel(), DictionaryValue) then
+                Evaluate(AdjProfitPct, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetCustInvDiscAmountLCYLabel(), DictionaryValue) then
+                Evaluate(CustInvDiscAmountLCY, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetCustPaymentsLCYLabel(), DictionaryValue) then
+                Evaluate(CustPaymentsLCY, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetCustSalesLCYLabel(), DictionaryValue) then
+                Evaluate(CustSalesLCY, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetCustProfitLabel(), DictionaryValue) then
+                Evaluate(CustProfit, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetNoPostedInvoicesLabel(), DictionaryValue) then
+                Evaluate(NoPostedInvoices, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetNoPostedCrMemosLabel(), DictionaryValue) then
+                Evaluate(NoPostedCrMemos, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetNoOutstandingInvoicesLabel(), DictionaryValue) then
+                Evaluate(NoOutstandingInvoices, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetNoOutstandingCrMemosLabel(), DictionaryValue) then
+                Evaluate(NoOutstandingCrMemos, DictionaryValue);
+
             AttentionToPaidDay := DaysPastDueDate > 0;
             TotalMoneyOwed := "Balance (LCY)" + ExpectedMoneyOwed;
 
@@ -2295,10 +2377,6 @@ page 21 "Customer Card"
         StyleTxt: Text;
         [InDataSet]
         ContactEditable: Boolean;
-        [InDataSet]
-        SocialListeningSetupVisible: Boolean;
-        [InDataSet]
-        SocialListeningVisible: Boolean;
         [InDataSet]
         ShowCharts: Boolean;
         CRMIntegrationEnabled: Boolean;
@@ -2345,8 +2423,9 @@ page 21 "Customer Card"
         FoundationOnly: Boolean;
         CanCancelApprovalForRecord: Boolean;
         EnabledApprovalWorkflowsExist: Boolean;
+        AnyWorkflowExists: Boolean;
         NewMode: Boolean;
-        EventFilter: Text;
+        WorkFlowEventFilter: Text;
         CaptionTxt: Text;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
@@ -2356,6 +2435,7 @@ page 21 "Customer Card"
         ItemReferenceVisible: Boolean;
         StatementFileNameTxt: Label 'Statement', Comment = 'Shortened form of ''Customer Statement''';
         LoadOnDemand: Boolean;
+        PrevCountryCode: Code[10];
         BackgroundTaskId: Integer;
 
     [TryFunction]
@@ -2364,73 +2444,44 @@ page 21 "Customer Card"
         ReturnValue := DictionaryToLookIn.Get(KeyToSearchFor);
     end;
 
-    local procedure GetTotalSales(): Decimal
+    local procedure SetWorkFlowEnabled()
+    var
+        WorkflowManagement: Codeunit "Workflow Management";
     begin
-        NoPostedInvoices := 0;
-        NoPostedCrMemos := 0;
-        NoOutstandingInvoices := 0;
-        NoOutstandingCrMemos := 0;
-        Totals := 0;
-
-        AmountOnPostedInvoices := CustomerMgt.CalcAmountsOnPostedInvoices("No.", NoPostedInvoices);
-        AmountOnPostedCrMemos := CustomerMgt.CalcAmountsOnPostedCrMemos("No.", NoPostedCrMemos);
-
-        AmountOnOutstandingInvoices := CustomerMgt.CalculateAmountsOnUnpostedInvoices("No.", NoOutstandingInvoices);
-        AmountOnOutstandingCrMemos := CustomerMgt.CalculateAmountsOnUnpostedCrMemos("No.", NoOutstandingCrMemos);
-
-        Totals := AmountOnPostedInvoices + AmountOnPostedCrMemos + AmountOnOutstandingInvoices + AmountOnOutstandingCrMemos;
-
-        CustomerMgt.CalculateStatistic(
-          Rec,
-          AdjmtCostLCY, AdjCustProfit, AdjProfitPct,
-          CustInvDiscAmountLCY, CustPaymentsLCY, CustSalesLCY,
-          CustProfit);
-        exit(Totals)
-    end;
-
-    local procedure GetAmountOnPostedInvoices(): Decimal
-    begin
-        exit(AmountOnPostedInvoices)
-    end;
-
-    local procedure GetAmountOnCrMemo(): Decimal
-    begin
-        exit(AmountOnPostedCrMemos)
-    end;
-
-    local procedure GetAmountOnOutstandingInvoices(): Decimal
-    begin
-        exit(AmountOnOutstandingInvoices)
-    end;
-
-    local procedure GetAmountOnOutstandingCrMemos(): Decimal
-    begin
-        exit(AmountOnOutstandingCrMemos)
+        AnyWorkflowExists := WorkflowManagement.AnyWorkflowExists();
+        EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer, WorkFlowEventFilter);
     end;
 
     local procedure ActivateFields()
-    var
-        OfficeManagement: Codeunit "Office Management";
     begin
-        SetSocialListeningFactboxVisibility;
         ContactEditable := "Primary Contact No." = '';
-        IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
-        ShowCharts := "No." <> '';
-        IsOfficeAddin := OfficeManagement.IsAvailable;
+        if "Country/Region Code" <> PrevCountryCode then
+            IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+        PrevCountryCode := "Country/Region Code";
         OnAfterActivateFields(Rec);
+    end;
+
+    local procedure SetCreditLimitStyle()
+    begin
+        StyleTxt := '';
+        BalanceExhausted := false;
+        if "Credit Limit (LCY)" > 0 then
+            BalanceExhausted := "Balance (LCY)" >= "Credit Limit (LCY)";
+        if BalanceExhausted then
+            StyleTxt := 'Unfavorable';
+    end;
+
+    local procedure HasCustomBaseCalendar(): Boolean
+    begin
+        if "Base Calendar Code" = '' then
+            exit(false)
+        else
+            exit(CalendarMgmt.CustomizedChangesExist(Rec));
     end;
 
     local procedure ContactOnAfterValidate()
     begin
         ActivateFields;
-    end;
-
-    [Obsolete('Microsoft Social Engagement has been discontinued.', '17.0')]
-    local procedure SetSocialListeningFactboxVisibility()
-    var
-        SocialListeningMgt: Codeunit "Social Listening Management";
-    begin
-        SocialListeningMgt.GetCustFactboxVisibility(Rec, SocialListeningSetupVisible, SocialListeningVisible);
     end;
 
     local procedure SetNoFieldVisible()

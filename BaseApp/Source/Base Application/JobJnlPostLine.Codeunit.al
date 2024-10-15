@@ -598,7 +598,7 @@ codeunit 1012 "Job Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterRunCode(var JobJournalLine: Record "Job Journal Line"; JobLedgEntryNo: Integer; var JobRegister: Record "Job Register")
+    local procedure OnAfterRunCode(var JobJournalLine: Record "Job Journal Line"; var JobLedgEntryNo: Integer; var JobRegister: Record "Job Register")
     begin
     end;
 
