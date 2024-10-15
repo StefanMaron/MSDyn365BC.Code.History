@@ -4,6 +4,9 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Intercompany.DataExchange;
 
+using System.Telemetry;
+using Microsoft.Intercompany.GLAccount;
+
 codeunit 535 "IC Sync. Completed JR"
 {
     Permissions = tabledata "IC Outgoing Notification" = md,
@@ -32,16 +35,20 @@ codeunit 535 "IC Sync. Completed JR"
 
     local procedure CleanSyncronizedData(var ICOutgoingNotification: Record "IC Outgoing Notification")
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         Success: Boolean;
     begin
         OnCleanupTransactionData(ICOutgoingNotification, Success);
         if not Success then begin
+            FeatureTelemetry.LogError('0000MVC', ICMapping.GetFeatureTelemetryName(), CleanSyncronizedDataEventNameTok, GetLastErrorText(), GetLastErrorCallStack());
             ICOutgoingNotification.Status := ICOutgoingNotification.Status::"Scheduled for deletion failed";
             ICOutgoingNotification.SetErrorMessage(GetLastErrorText());
             ICOutgoingNotification.Modify();
             ClearLastError();
             exit;
         end;
+        FeatureTelemetry.LogUsage('0000MVD', ICMapping.GetFeatureTelemetryName(), CleanSyncronizedDataEventNameTok);
         Commit();
     end;
 
@@ -114,4 +121,7 @@ codeunit 535 "IC Sync. Completed JR"
         CleanupICOutgoingNotification(ICOutgoingNotification);
         Success := true;
     end;
+
+    var
+        CleanSyncronizedDataEventNameTok: Label 'IC Crossenvironment Clean Syncronized Data', Locked = true;
 }
