@@ -458,6 +458,12 @@ page 118 "General Ledger Setup"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies if your company uses electronic invoices in Mexico, and if you are using the web services of your authorized service provider, PAC, in a test environment or a production environment.';
                 }
+                field("Disable CFDI Payment Details"; Rec."Disable CFDI Payment Details")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies if tax information is disabled in payment reports to Mexican SAT authorities.';
+                }
+
             }
             group("Payroll Transaction Import")
             {

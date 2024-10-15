@@ -48,6 +48,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         MandatoryDimErr: Label 'Select a %1 for the %2 %3 for %4 %5.';
         RemitAdvFileNotFoundTxt: Label 'Remittance Advice file has not been found';
         ForceDocBalanceFalseQst: Label 'Warning:  Transactions cannot be financially voided when Force Doc. Balance is set to No';
+        CheckTransmittedErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty', Locked = true;
 
     [Test]
     [HandlerFunctions('ExportElectronicPaymentsXMLRequestPageHandler')]
@@ -500,19 +501,21 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         ExportPaymentJournal(PaymentJournal, GenJournalLine);
         Vendor.Get(GenJournalLine."Account No.");
 
-        // [WHEN] Post the General Journal Line and open up the Generate EFT Files Page
-        LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
+        // TFS ID 435431: To ensure that its EFT File is generated before posting of journal Line.
         GenerateEFTFiles.Trap;
         PaymentJournal.GenerateEFT.Invoke;
         PaymentJournal.Close();
 
-        // [THEN] Iterate through each line in the repeater to make sure there is 1 record
         if GenerateEFTFiles.GenerateEFTFileLines.First then
             repeat
                 Count += 1;
             until not GenerateEFTFiles.GenerateEFTFileLines.Next;
 
+        GenerateEFTFiles.GenerateEFTFile.Invoke();
+        // [WHEN] Post the General Journal Line and open up the Generate EFT Files Page
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Iterate through each line in the repeater to make sure there is 1 record
         Assert.AreEqual(Count, 1, NoOfRecordsErr);
 
         // [THEN] One check ledger entry has been created
@@ -531,6 +534,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
+        GenerateEFTFiles: TestPage "Generate EFT Files";
         ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         PaymentJournal: TestPage "Payment Journal";
@@ -554,6 +558,13 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         GenJournalLine2.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine2.SetRange("Line No.", GenJournalLine."Line No.");
         GenJournalLine2.FindFirst();
+
+        // TFS ID 435431: To ensure that its EFT File is generated before posting of journal Line.
+        GenerateEFTFiles.Trap;
+        PaymentJournal.GenerateEFT.Invoke;
+        PaymentJournal.Close();
+
+        GenerateEFTFiles.GenerateEFTFile.Invoke();
 
         // [WHEN] Post the payment journal line
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1343,6 +1354,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         VendorBankAccount: Record "Vendor Bank Account";
+        EFTExport: Record "EFT Export";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         BankAccountNo: Code[20];
         LastSequenceNo: Integer;
@@ -1359,6 +1371,11 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         VerifyGenJnlLineFields(GenJournalLine, 0, false, false);
         // [GIVEN] Perform journal "Export" action
         MockExportPayment(GenJournalLine, LastSequenceNo + 1);
+
+        // TFS ID 435431: To ensure that its EFT File is generated before posting of journal Line.
+        FindEFTExportByGenJournalLine(EFTExport, GenJournalLine);
+        ProcessAndGenerateEFTFile(EFTExport, BankAccountNo);
+
         // [GIVEN] Post the payment journal 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         GenJournalLine.Find();
@@ -1403,6 +1420,10 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         ExportPaymentJournalViaAction(GenJournalLine, GenJournalBatch, BankAccountNo);
         VerifyGenJnlLineFields(GenJournalLine, LastSequenceNo + 1, true, false);
         FindEFTExport(EFTExport, GenJournalLine);
+
+        // TFS ID 435431: To ensure that its EFT File is generated before posting of journal Line.
+        ProcessAndGenerateEFTFile(EFTExport, BankAccountNo);
+
         // [GIVEN] Post the payment journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -2030,6 +2051,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         BankAccount: Record "Bank Account";
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         CheckLedgerEntry: Record "Check Ledger Entry";
+        EFTExport: Record "EFT Export";
         TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
     begin
         // [FEATURE] [Check] [Currency]
@@ -2055,6 +2077,10 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CheckLedgerEntry.FindFirst();
         CheckLedgerEntry.TestField(Amount, GenJournalLine.Amount);
         CheckLedgerEntry.TestField("Entry Status", CheckLedgerEntry."Entry Status"::Exported);
+
+        // TFS ID 435431: To ensure that its EFT File is generated before posting of journal Line.
+        FindEFTExportByGenJournalLine(EFTExport, GenJournalLine);
+        ProcessAndGenerateEFTFile(EFTExport, BankAccount."No.");
 
         // [GIVEN] Post the payment
         // [GIVEN] The check status = Posted and linked bank ledger entry has Amount = -1000, Amount LCY = -900
@@ -2396,6 +2422,58 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
+    procedure TestEFTGenJnlLineOnPost()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorBankAccount: Record "Vendor Bank Account";
+        EFTExport: Record "EFT Export";
+        TempEFTExportWorkset: Record "EFT Export Workset" temporary;
+        BankAccount: Record "Bank Account";
+        Vendor: Record Vendor;
+        PaymentJournal: TestPage "Payment Journal";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        ExpectedErrMsg: Text;
+    begin
+        // [SCENARIO 435431] To check if system is throwing an error if a journal is getting posted without generating EFT file where sequence no. is non zero
+        // [GIVEN] Create and Export Electronic Payment Journal.
+        Initialize();
+
+        TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
+        CreateExportReportSelection(Layout::RDLC);
+        CreateElectronicPaymentJournal(GenJournalLine);
+
+        // [GIVEN] Export Payment journal Line
+        PaymentJournal.OpenEdit();
+        ExportPaymentJournal(PaymentJournal, GenJournalLine);
+        Vendor.Get(GenJournalLine."Account No.");
+
+        // [WHEN] Post the General Journal Line
+        asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Then System should throw an error that "Check transmitted" should be true if journal line has "EFT Export Sequence No." as non zero
+        ExpectedErrMsg := StrSubstNo(
+            CheckTransmittedErr,
+            GenJournalLine.FieldCaption("Check Transmitted"),
+            GenJournalLine.TableCaption(),
+            GenJournalLine.FieldCaption("Journal Template Name"),
+            GenJournalLine."Journal Template Name",
+            GenJournalLine.FieldCaption("Journal Batch Name"),
+            GenJournalLine."Journal Batch Name",
+            GenJournalLine.FieldCaption("Line No."),
+            GenJournalLine."Line No.");
+
+        Assert.ExpectedError(ExpectedErrMsg);
+        Assert.ExpectedErrorCode('TestField');
+    end;
+
     local procedure Initialize()
     var
         EFTExport: Record "EFT Export";
@@ -2416,17 +2494,17 @@ codeunit 142083 "ERM Electronic Funds Transfer"
 
     local procedure CreateDataExchangeColumnDefFieldMappingForDateColumn(var DataExchColumnDef: Record "Data Exch. Column Def"; TableID: Integer; FieldNo: Integer)
     var
-      DataExchFieldMapping : Record "Data Exch. Field Mapping";
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
     begin
-      DataExchColumnDef.Name := StrSubstNo('%1 Date',LibraryUtility.GenerateGUID());
-      DataExchColumnDef.Modify();
+        DataExchColumnDef.Name := StrSubstNo('%1 Date', LibraryUtility.GenerateGUID());
+        DataExchColumnDef.Modify();
 
-      DataExchFieldMapping."Data Exch. Def Code" := DataExchColumnDef."Data Exch. Def Code";
-      DataExchFieldMapping."Data Exch. Line Def Code" := DataExchColumnDef."Data Exch. Line Def Code";
-      DataExchFieldMapping."Column No." := DataExchColumnDef."Column No.";
-      DataExchFieldMapping."Table ID" := TableID;
-      DataExchFieldMapping."Field ID" := FieldNo;
-      if not  DataExchFieldMapping.Insert() then;
+        DataExchFieldMapping."Data Exch. Def Code" := DataExchColumnDef."Data Exch. Def Code";
+        DataExchFieldMapping."Data Exch. Line Def Code" := DataExchColumnDef."Data Exch. Line Def Code";
+        DataExchFieldMapping."Column No." := DataExchColumnDef."Column No.";
+        DataExchFieldMapping."Table ID" := TableID;
+        DataExchFieldMapping."Field ID" := FieldNo;
+        if not DataExchFieldMapping.Insert() then;
     end;
 
     local procedure CreateAndExportPaymentJournal(DocumentType: Option; BalAccountType: Option; AccountNo: Code[20]; Amount: Decimal; TransactionCode: Code[3]; CompanyEntryDescription: Code[10]; ReportDirectRun: Boolean; CustomerBankAccountCode: Code[20])
@@ -3093,6 +3171,11 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         EFTExport."Line No." := GenJournalLine."Line No.";
         EFTExport."Sequence No." := SequenceNo;
         EFTExport."Bank Payment Type" := GenJournalLine."Bank Payment Type";
+        EFTExport."Account Type" := GenJournalLine."Account Type";
+        EFTExport."Account No." := GenJournalLine."Account No.";
+        EFTExport."Bal. Account Type" := GenJournalLine."Bal. Account Type";
+        EFTExport."Bal. Account No." := GenJournalLine."Bal. Account No.";
+        EFTExport."Bank Account No." := GenJournalLine."Bal. Account No.";
         EFTExport.Insert();
     end;
 
@@ -3665,7 +3748,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
 
         if AddFieldMapping then
             CreateDataExchangeColumnDefFieldMappingForDateColumn(
-                DataExchColumnDef,DATABASE::"ACH RB Header",ACHRBHeader.FieldNo("File Creation Date"));
+                DataExchColumnDef, DATABASE::"ACH RB Header", ACHRBHeader.FieldNo("File Creation Date"));
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
@@ -3680,7 +3763,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
 
         if AddFieldMapping then
             CreateDataExchangeColumnDefFieldMappingForDateColumn(
-                DataExchColumnDef,DATABASE::"ACH RB Detail",ACHRBDetail.FieldNo("Payment Date"));
+                DataExchColumnDef, DATABASE::"ACH RB Detail", ACHRBDetail.FieldNo("Payment Date"));
     end;
 
     local procedure InsertEntryDetailSequenceNo(DataExchDef: Record "Data Exch. Def")
@@ -3844,6 +3927,15 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         LibraryXPathXMLReader.Initialize(FileName, '');
         foreach DocumentNo in DocumentNos do
             LibraryXPathXMLReader.VerifyNodeCountWithValueByXPath('//DataItems/DataItem/Columns/Column', DocumentNo, 0);
+    end;
+
+    local procedure FindEFTExportByGenJournalLine(var EFTExport: Record "EFT Export"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+        EFTExport.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        EFTExport.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        EFTExport.SetRange("Line No.", GenJournalLine."Line No.");
+        EFTExport.SetRange("Sequence No.", GenJournalLine."EFT Export Sequence No.");
+        EFTExport.FindFirst();
     end;
 
     [ConfirmHandler]
