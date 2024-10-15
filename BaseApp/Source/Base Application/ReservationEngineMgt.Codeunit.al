@@ -1006,7 +1006,14 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     local procedure SetKeyAndFilters(var ReservEntry: Record "Reservation Entry")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetKeyAndFilters(ReservEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if ReservEntry.IsEmpty() then
             exit;
 
@@ -1425,6 +1432,11 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnSetItemTracking2OnBeforeShouldRaiseCannotStateItemTrackingError(TempReservEntry2: Record "Reservation Entry"; var TrackingSpecification2: Record "Tracking Specification"; var ShouldRaiseError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetKeyAndFilters(var ReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 }

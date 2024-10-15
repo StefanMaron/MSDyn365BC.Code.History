@@ -607,7 +607,7 @@ table 7200 "CDS Connection Setup"
         CDSConnEnabledTxt: Label 'Dataverse connection has been enabled.', Locked = true;
         BusinessEventsDisabledTxt: Label 'Business events have been disabled.', Locked = true;
         BusinessEventsEnabledTxt: Label 'Business events have been enabled.', Locked = true;
-        CRMConnEnabledErr: Label 'To set up the connection with Dataverse, you must first disable the existing connection with Dynamics 365 Sales. Read more about it in this help topic: https://docs.microsoft.com/en-us/dynamics365/business-central/admin-upgrade-sales-to-cds';
+        CRMConnEnabledErr: Label 'To set up the connection with Dataverse, you must first disable the existing connection with Dynamics 365 Sales. Read more about it in this help topic: https://go.microsoft.com/fwlink/?linkid=2206514';
         CRMConnEnabledTelemetryErr: Label 'User is trying to set up the connection with Dataverse, while the existing connection with Dynamics 365 Sales is enabled.', Locked = true;
         CannotDisableCDSErr: Label 'To disable the connection with Dataverse, you must first disable the existing connection with Dynamics 365 Sales.';
         TransferringConnectionValuesFromCRMConnectionsetupTxt: Label 'Transferring connection string values from Dynamics 365 sales connection setup to Dataverse connection setup', Locked = true;

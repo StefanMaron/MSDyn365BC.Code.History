@@ -189,7 +189,10 @@ page 7208 "CDS Full Synch. Review"
                 InitialSynchRecommendation := CouplingCriteriaSelectedTxt
         end;
 
-        InitialSynchRecommendationStyle := GetInitialSynchRecommendationStyleExpression(Format("Initial Synch Recommendation"));
+        if InitialSynchRecommendation = CouplingCriteriaSelectedTxt then
+            InitialSynchRecommendationStyle := 'Favorable'
+        else
+            InitialSynchRecommendationStyle := GetInitialSynchRecommendationStyleExpression(Format("Initial Synch Recommendation"));
         GetCDSPageId();
         GetBCPageId();
         GetCDSPageName();

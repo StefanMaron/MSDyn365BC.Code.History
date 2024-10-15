@@ -566,7 +566,7 @@ page 138 "Posted Purchase Invoice"
                         ShowCaption = false;
                         Visible = true;
 
-                        field("Remit-to Name"; RemitToAddress[1])
+                        field("Remit-to Name"; RemitAddressBuffer.Name)
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Name';
@@ -575,7 +575,7 @@ page 138 "Posted Purchase Invoice"
                             QuickEntry = false;
                             ToolTip = 'Specifies the name of the company at the address that this invoice was remitted to.';
                         }
-                        field("Remit-to Address"; RemitToAddress[2])
+                        field("Remit-to Address"; RemitAddressBuffer.Address)
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Address';
@@ -584,7 +584,7 @@ page 138 "Posted Purchase Invoice"
                             QuickEntry = false;
                             ToolTip = 'Specifies the address that this invoice was remitted to.';
                         }
-                        field("Remit-to Address 2"; RemitToAddress[3])
+                        field("Remit-to Address 2"; RemitAddressBuffer."Address 2")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Address 2';
@@ -593,7 +593,7 @@ page 138 "Posted Purchase Invoice"
                             QuickEntry = false;
                             ToolTip = 'Specifies additional address information.';
                         }
-                        field("Remit-to City"; RemitToAddress[4])
+                        field("Remit-to City"; RemitAddressBuffer.City)
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'City';
@@ -606,7 +606,7 @@ page 138 "Posted Purchase Invoice"
                         {
                             ShowCaption = false;
                             Visible = IsRemitToCountyVisible;
-                            field("Remit-to County"; RemitToAddress[5])
+                            field("Remit-to County"; RemitAddressBuffer.County)
                             {
                                 ApplicationArea = Basic, Suite;
                                 Caption = 'County';
@@ -616,7 +616,7 @@ page 138 "Posted Purchase Invoice"
                                 ToolTip = 'Specifies the state, province or county of the address.';
                             }
                         }
-                        field("Remit-to Post Code"; RemitToAddress[6])
+                        field("Remit-to Post Code"; RemitAddressBuffer."Post Code")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Post Code';
@@ -625,7 +625,7 @@ page 138 "Posted Purchase Invoice"
                             QuickEntry = false;
                             ToolTip = 'Specifies the postal code that this invoice was remitted to.';
                         }
-                        field("Remit-to Country/Region Code"; RemitToAddress[7])
+                        field("Remit-to Country/Region Code"; RemitAddressBuffer."Country/Region Code")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Country/Region';
@@ -634,7 +634,7 @@ page 138 "Posted Purchase Invoice"
                             QuickEntry = false;
                             ToolTip = 'Specifies the country/region code that this invoice was remitted to.';
                         }
-                        field("Remit-to Contact"; RemitToAddress[8])
+                        field("Remit-to Contact"; RemitAddressBuffer.Contact)
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Contact';
@@ -1099,8 +1099,8 @@ page 138 "Posted Purchase Invoice"
         PurchInvHeader: Record "Purch. Inv. Header";
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
+        RemitAddressBuffer: Record "Remit Address Buffer";
         FormatAddress: Codeunit "Format Address";
-        RemitToAddress: array[8] of Text[100];
         HasIncomingDocument: Boolean;
         IsOfficeAddin: Boolean;
         IsBuyFromCountyVisible: Boolean;
@@ -1123,7 +1123,7 @@ page 138 "Posted Purchase Invoice"
         RemitAddress.SetRange(Code, "Remit-to Code");
         if not RemitAddress.IsEmpty() then begin
             RemitAddress.FindFirst();
-            FormatAddress.VendorRemitToAddress(RemitToAddress, RemitAddress);
+            FormatAddress.VendorRemitToAddress(RemitAddress, RemitAddressBuffer);
             IsRemitToCountyVisible := FormatAddress.UseCounty(RemitAddress."Country/Region Code");
         end;
     end;

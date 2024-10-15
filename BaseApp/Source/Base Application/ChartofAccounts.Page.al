@@ -60,7 +60,6 @@ page 16 "Chart of Accounts"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the category of the G/L account.';
-                    Visible = false;
                 }
                 field("Account Subcategory Descript."; Rec."Account Subcategory Descript.")
                 {

@@ -340,7 +340,7 @@
 
     local procedure LookupDocNo()
     begin
-        OnBeforeLookupDocNo(SalesHeader);
+        OnBeforeLookupDocNo(SalesHeader, FromDocType, FromDocNo);
 
         case FromDocType of
             FromDocType::Quote,
@@ -511,7 +511,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupDocNo(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeLookupDocNo(var SalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From"; var FromDocNo: Code[20])
     begin
     end;
 

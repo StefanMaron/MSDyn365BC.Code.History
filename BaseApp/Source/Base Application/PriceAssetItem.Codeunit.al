@@ -26,7 +26,7 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
     begin
         PriceAsset."Table Id" := Database::Item;
         if PriceAsset."Variant Code" = '' then begin
-        if Item.Get(PriceAsset."Asset No.") then begin
+            if Item.Get(PriceAsset."Asset No.") then begin
                 PriceAsset."Asset ID" := Item.SystemId;
                 FillAdditionalFields(PriceAsset);
             end else
@@ -37,9 +37,9 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
             then begin
                 PriceAsset."Table Id" := Database::"Item Variant";
                 PriceAsset."Asset ID" := ItemVariant.SystemId;
-            FillAdditionalFields(PriceAsset);
-        end else
-            PriceAsset.InitAsset();
+                FillAdditionalFields(PriceAsset);
+            end else
+                PriceAsset.InitAsset();
     end;
 
     procedure IsLookupOK(var PriceAsset: Record "Price Asset"): Boolean
@@ -124,6 +124,7 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
         PriceListLine.SetRange("Asset Type", PriceAsset."Asset Type");
         PriceListLine.SetRange("Asset No.", PriceAsset."Asset No.");
         PriceListLine.SetFilter("Variant Code", '%1|%2', PriceAsset."Variant Code", '');
+        OnAfterFilterPriceLines(PriceAsset, PriceListLine, Result);
     end;
 
     procedure PutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
@@ -191,6 +192,11 @@ codeunit 7041 "Price Asset - Item" implements "Price Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillBestLine(PriceCalculationBuffer: Record "Price Calculation Buffer"; AmountType: Enum "Price Amount Type"; var PriceListLine: Record "Price List Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterPriceLines(PriceAsset: Record "Price Asset"; var PriceListLine: Record "Price List Line"; var Result: Boolean)
     begin
     end;
 

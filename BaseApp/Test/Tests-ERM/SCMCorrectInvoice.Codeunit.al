@@ -29,6 +29,9 @@ codeunit 137019 "SCM Correct Invoice"
         IsInitialized: Boolean;
         CancelledDocExistsErr: Label 'Cancelled document exists.';
         CannotAssignNumbersAutoErr: Label 'It is not possible to assign numbers automatically. If you want the program to assign numbers automatically, please activate Default Nos.';
+        DocumentNoErr: Label 'Document No. are not equal.';
+        TransactionTypeErr: Label 'Transaction Type are not equal';
+        TransportMethodErr: Label 'Transport Method are not equal';
 
     [Test]
     [Scope('OnPrem')]
@@ -1021,6 +1024,105 @@ codeunit 137019 "SCM Correct Invoice"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SalesCreditMemoPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostCorrectiveCreditMemoWithDefaultNoSetToFalseOnNoSeries()
+    var
+        Item: Record Item;
+        Cust: Record Customer;
+        SalesInvHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesHeader: Record "Sales Header";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        NoSeriesLine2: Record "No. Series Line";
+        SalesRecvSetup: Record "Sales & Receivables Setup";
+        GLSetup: Record "General Ledger Setup";
+        VatBusPostingGrp: Record "VAT Business Posting Group";
+        NoSerMgmt: Codeunit NoSeriesManagement;
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+        PostingNo: code[20];
+    begin
+        // [SCENARIO 450213] For Corrective Credit Memo if no. series from "Posted Credit Memo Nos." in Sales Setup is not "Default Nos" 
+        // than system will not pick "Posted Invoice Nos" no. series from sales setup
+        Initialize();
+
+        // [GIVEN] Create  and Post sales Invoice
+        CreateAndPostSalesInvForNewItemAndCust(Item, Cust, 1, 1, SalesInvHeader);
+
+        // [GIVEN] Create No. Series "Y" with "Default Nos" = No and no. series line setup
+        LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+
+        // [GIVEN] Update No. series on Sales Setup and Journal Templ. Name Mandatory to false on GL Setup
+        SalesRecvSetup.Get();
+        SalesRecvSetup."Posted Credit Memo Nos." := NoSeries.Code;
+        SalesRecvSetup.Modify();
+        GLSetup.Get();
+        GLSetup."Journal Templ. Name Mandatory" := false;
+        GLSetup.Modify();
+
+        // [THEN] Create Corrective Credit memo 
+        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.GotoRecord(SalesInvHeader);
+        PostedSalesInvoice.CreateCreditMemo.Invoke();
+
+        // [THEN] Save Posting no to verify after credit memo posting.
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
+        SalesHeader.SetFilter("Applies-to Doc. No.", SalesInvHeader."No.");
+        SalesHeader.SetRange("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::Invoice);
+        SalesHeader.FindFirst();
+        if SalesHeader."Posting No. Series" = '' then
+            PostingNo := NoSeriesLine."Starting No."
+        else
+            PostingNo := NoSerMgmt.DoGetNextNo(SalesHeader."Posting No. Series", SalesHeader."Posting Date", false, false);
+
+        // [THEN] Post credit memo
+        Codeunit.Run(Codeunit::"Sales-Post", SalesHeader);
+
+        // [VERIFY] Verify No. Series on Posted Sales Credit Memo.
+        SalesCrMemoHeader.SetFilter("Sell-to Customer No.", Cust."No.");
+        SalesCrMemoHeader.FindFirst();
+        Assert.AreEqual(PostingNo, SalesCrMemoHeader."No.", DocumentNoErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyTransportAndTransactionTransferredInSalesCreditMemoHeader()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        SalesInvHeaderNo: Code[20];
+    begin
+        // [SCENARIO 452722]  Fields “Transaction Type” and “Transport Method” are not transferred to Sales Credit Memo Header
+        Initialize();
+
+        // [GIVEN] Create Sales Header with Transaction Type & Transport Method
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader."Transaction Specification" := LibraryUtility.GenerateGUID();
+        SalesHeader."Transaction Type" := LibraryUtility.GenerateGUID();
+        SalesHeader."Transport Method" := LibraryUtility.GenerateGUID();
+        SalesHeader.Modify();
+
+        // [GIVEN] Create Sales Line
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+
+        // [GIVEN] Post the Sales Invoice
+        SalesInvHeaderNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvHeader.Get(SalesInvHeaderNo);
+
+        // [WHEN] Create Corrective Credit Memo for Sales Invoice
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvHeader, SalesHeader2);
+
+        // [THEN] Verify Transaction Type & Transport Method are transferred to Credit Memo
+        Assert.AreEqual(SalesHeader."Transaction Type", SalesHeader2."Transaction Type", TransactionTypeErr);
+        Assert.AreEqual(SalesHeader."Transport Method", SalesHeader2."Transport Method", TransportMethodErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1355,6 +1457,19 @@ codeunit 137019 "SCM Correct Invoice"
                 end;
         end;
         ItemTrackingLines.OK().Invoke();
+    end;
+
+    [PageHandler]
+    procedure SalesCreditMemoPageHandler(var SalesCreditMemo: TestPage "Sales Credit Memo")
+    begin
+        SalesCreditMemo.Close();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

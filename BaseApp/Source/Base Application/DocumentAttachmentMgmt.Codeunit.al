@@ -1021,6 +1021,9 @@ codeunit 1173 "Document Attachment Mgmt"
 
                 if not ToDocumentAttachment.Insert(true) then;
 
+                ToDocumentAttachment."Attached Date" := FromDocumentAttachment."Attached Date";
+                ToDocumentAttachment.Modify();
+
             until FromDocumentAttachment.Next() = 0;
 
         // Copies attachments for header and then calls CopyAttachmentsForPostedDocsLines to copy attachments for lines.
