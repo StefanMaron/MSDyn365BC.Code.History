@@ -1,4 +1,4 @@
-table 39 "Purchase Line"
+﻿table 39 "Purchase Line"
 {
     Caption = 'Purchase Line';
     DrillDownPageID = "Purchase Lines";
@@ -3807,7 +3807,10 @@ table 39 "Purchase Line"
         if PurchHeader."Language Code" <> '' then
             GetItemTranslation;
 
-        "Unit of Measure Code" := Item."Purch. Unit of Measure";
+        if Item."Purch. Unit of Measure" <> '' then
+            "Unit of Measure Code" := Item."Purch. Unit of Measure"
+        else
+            "Unit of Measure Code" := Item."Base Unit of Measure";
         InitDeferralCode;
         OnAfterAssignItemValues(Rec, Item, CurrFieldNo);
     end;
@@ -5634,7 +5637,7 @@ table 39 "Purchase Line"
         if ("Qty. to Invoice" <> 0) and ("Prepmt. Amt. Inv." <> 0) then begin
             GetPurchHeader;
             if ("Prepayment %" = 100) and not IsFinalInvoice then
-                "Prepmt Amt to Deduct" := GetLineAmountToHandle("Qty. to Invoice")
+                "Prepmt Amt to Deduct" := GetLineAmountToHandle("Qty. to Invoice") - "Inv. Disc. Amount to Invoice"
             else
                 "Prepmt Amt to Deduct" :=
                   Round(
@@ -5690,9 +5693,9 @@ table 39 "Purchase Line"
         else
             DocType := DocType::Invoice;
 
-        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and ("Inv. Discount Amount" = 0) then
+        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) then
             if PurchasePostPrepayments.PrepmtAmount(Rec, DocType) <= 0 then
-                exit("Prepmt Amt to Deduct");
+                exit("Prepmt Amt to Deduct" + "Inv. Disc. Amount to Invoice");
         exit(GetLineAmountToHandle(QtyToHandle));
     end;
 

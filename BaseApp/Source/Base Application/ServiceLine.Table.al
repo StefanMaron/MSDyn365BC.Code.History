@@ -1164,15 +1164,21 @@ table 5902 "Service Line"
             Caption = 'Line Amount';
 
             trigger OnValidate()
+            var
+                ServAmountsMgt: Codeunit "Serv-Amounts Mgt.";
+                LineDiscountAmountExpected: Decimal;
             begin
                 TestField(Type);
                 TestField(Quantity);
                 TestField("Unit Price");
                 Currency.Initialize("Currency Code");
                 "Line Amount" := Round("Line Amount", Currency."Amount Rounding Precision");
-                Validate(
-                  "Line Discount Amount",
-                  Round(CalcChargeableQty * "Unit Price", Currency."Amount Rounding Precision") - "Line Amount");
+                LineDiscountAmountExpected := Round(CalcChargeableQty * "Unit Price", Currency."Amount Rounding Precision") - "Line Amount";
+                if ServAmountsMgt.AmountsDifferByMoreThanRoundingPrecision(LineDiscountAmountExpected, "Line Discount Amount", Currency."Amount Rounding Precision") then
+                    Validate("Line Discount Amount", LineDiscountAmountExpected);
+                GetServHeader();
+                if ServHeader."Tax Area Code" = '' then
+                    UpdateVATAmounts;
             end;
         }
         field(104; "VAT Difference"; Decimal)
@@ -2932,6 +2938,7 @@ table 5902 "Service Line"
     procedure UpdateAmounts()
     var
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
+        ExpectedLineAmount: Decimal;
     begin
         if GuiAllowed and (CurrFieldNo <> 0) then
             ConfirmAdjPriceLineChange;
@@ -2940,14 +2947,11 @@ table 5902 "Service Line"
 
         if "Line Amount" <> xRec."Line Amount" then
             "VAT Difference" := 0;
-        if "Line Amount" <>
-           Round(
-             CalcChargeableQty * "Unit Price",
-             Currency."Amount Rounding Precision") - "Line Discount Amount"
-        then begin
-            "Line Amount" :=
-              Round(CalcChargeableQty * "Unit Price",
-                Currency."Amount Rounding Precision") - "Line Discount Amount";
+        ExpectedLineAmount := Round(
+                     CalcChargeableQty * "Unit Price",
+                     Currency."Amount Rounding Precision") - "Line Discount Amount";
+        if "Line Amount" <> ExpectedLineAmount then begin
+            "Line Amount" := ExpectedLineAmount;
             "VAT Difference" := 0;
         end;
         if ServHeader."Tax Area Code" = '' then
@@ -3331,7 +3335,10 @@ table 5902 "Service Line"
         "Item Category Code" := Item."Item Category Code";
         "Variant Code" := '';
         Nonstock := Item."Created From Nonstock Item";
-        "Unit of Measure Code" := Item."Sales Unit of Measure";
+        if Item."Sales Unit of Measure" <> '' then
+            "Unit of Measure Code" := Item."Sales Unit of Measure"
+        else
+            "Unit of Measure Code" := Item."Base Unit of Measure";
 
         if ServHeader."Language Code" <> '' then
             GetItemTranslation;
