@@ -1714,6 +1714,59 @@ codeunit 137055 "SCM Warehouse Pick"
         // [THEN] No error is thrown
     end;
 
+    [Test]
+    [HandlerFunctions('CreateWhsePutAwayPickHandler,MessageHandler')]
+    procedure InventoryPickDocumentShouldBeCreatedWhenSalesOrderContainInventoriableAndNonInventoriableItem()
+    var
+        Bin: Record Bin;
+        Location: Record Location;
+        Customer: Record Customer;
+        ItemInventory, ItemNonInventory : Record Item;
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [SCENARIO 494571] Inventory Pick Document should be created for Inventory item when Sales Order contain inventoriable and Non-inventoriable item.
+        Initialize();
+
+        // [GIVEN] Create a warehouse location.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, true, false);
+
+        // [GIVEN] Create a bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, '', '', '');
+
+        // [GIVEN] Create a customer with shipping advice.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Shipping Advice", Customer."Shipping Advice"::Complete);
+        Customer.Modify(true);
+
+        // [GIVEN] Create an inventory item.
+        LibraryInventory.CreateItem(ItemInventory);
+
+        // [GIVEN] Post inventory for an inventoriable item.
+        UpdateItemInventory(ItemInventory."No.", Location.Code, Bin.Code, LibraryRandom.RandInt(100));
+
+        // [GIVEN] Create a non-inventory item.
+        LibraryInventory.CreateNonInventoryTypeItem(ItemNonInventory);
+
+        // [GIVEN] Create a sales order for both items and release the document.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        CreateSalesLine(SalesHeader, ItemNonInventory."No.", Location.Code, 1);
+        CreateSalesLine(SalesHeader, ItemInventory."No.", Location.Code, 1);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Create an inventory put-away document.
+        Commit();
+        SalesHeader.CreateInvtPutAwayPick();
+
+        // [VERIFY] Verify the warehouse activity line is created for inventoriable item.
+        WarehouseActivityLine.SetRange("Item No.", ItemInventory."No.");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+
+        // [VERIFY] Verify the warehouse activity line is not created for non-inventoriable item.
+        WarehouseActivityLine.SetRange("Item No.", ItemNonInventory."No.");
+        Assert.RecordCount(WarehouseActivityLine, 0);
+    end;
+
     local procedure Initialize()
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";

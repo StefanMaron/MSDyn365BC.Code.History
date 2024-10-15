@@ -2040,7 +2040,7 @@ codeunit 6620 "Copy Document Mgt."
 
         ToPurchLine.ValidateIncludeInDT;
         IsHandled := false;
-        OnCopyPurchDocLineOnBeforeCopyThisLine(ToPurchLine, FromPurchLine, MoveNegLines, FromPurchDocType, LinesNotCopied, CopyThisLine, Result, IsHandled, ToPurchHeader, RecalculateLines);
+        OnCopyPurchDocLineOnBeforeCopyThisLine(ToPurchLine, FromPurchLine, MoveNegLines, FromPurchDocType, LinesNotCopied, CopyThisLine, Result, IsHandled, ToPurchHeader, RecalculateLines, NextLineNo);
         if IsHandled then
             exit(Result);
 
@@ -6794,14 +6794,19 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     local procedure CheckFromPurchaseHeader(PurchaseHeaderFrom: Record "Purchase Header"; PurchaseHeaderTo: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
-        with PurchaseHeaderTo do begin
-            PurchaseHeaderFrom.TestField("Buy-from Vendor No.", "Buy-from Vendor No.");
-            PurchaseHeaderFrom.TestField("Pay-to Vendor No.", "Pay-to Vendor No.");
-            PurchaseHeaderFrom.TestField("Vendor Posting Group", "Vendor Posting Group");
-            PurchaseHeaderFrom.TestField("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
-            PurchaseHeaderFrom.TestField("Currency Code", "Currency Code");
-        end;
+        IsHandled := false;
+        OnBeforeCheckFromPurchaseHeader(PurchaseHeaderFrom, PurchaseHeaderTo, IsHandled);
+        if not IsHandled then
+            with PurchaseHeaderTo do begin
+                PurchaseHeaderFrom.TestField("Buy-from Vendor No.", "Buy-from Vendor No.");
+                PurchaseHeaderFrom.TestField("Pay-to Vendor No.", "Pay-to Vendor No.");
+                PurchaseHeaderFrom.TestField("Vendor Posting Group", "Vendor Posting Group");
+                PurchaseHeaderFrom.TestField("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
+                PurchaseHeaderFrom.TestField("Currency Code", "Currency Code");
+            end;
 
         OnAfterCheckFromPurchaseHeader(PurchaseHeaderFrom, PurchaseHeaderTo);
     end;
@@ -10162,7 +10167,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyPurchDocLineOnBeforeCopyThisLine(var ToPurchLine: Record "Purchase Line"; var FromPurchLine: Record "Purchase Line"; MoveNegLines: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; var LinesNotCopied: Integer; var CopyThisLine: Boolean; var Result: Boolean; var IsHandled: Boolean; ToPurchaseHeader: Record "Purchase Header"; var RecalculateLines: Boolean)
+    local procedure OnCopyPurchDocLineOnBeforeCopyThisLine(var ToPurchLine: Record "Purchase Line"; var FromPurchLine: Record "Purchase Line"; MoveNegLines: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; var LinesNotCopied: Integer; var CopyThisLine: Boolean; var Result: Boolean; var IsHandled: Boolean; ToPurchaseHeader: Record "Purchase Header"; var RecalculateLines: Boolean; var NextLineNo: Integer)
     begin
     end;
 
@@ -10593,6 +10598,11 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetVendor(var FromPurchLine: Record "Purchase Line"; var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckFromPurchaseHeader(PurchaseHeaderFrom: Record "Purchase Header"; PurchaseHeaderTo: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

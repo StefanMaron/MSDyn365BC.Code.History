@@ -314,6 +314,7 @@ table 846 "Cash Flow Worksheet Line"
         CFDiscountDate: Date;
         CheckCrMemo: Boolean;
         ApplyCFPaymentTerm: Boolean;
+        IsHandled: Boolean;
     begin
         if "Document Date" = 0D then
             "Document Date" := WorkDate();
@@ -341,7 +342,10 @@ table 846 "Cash Flow Worksheet Line"
         then
             ApplyCFPaymentTerm := true;
 
-        OnCalculateCFAmountAndCFDateOnAfterAssignApplyCFPaymentTerm(Rec, ApplyCFPaymentTerm);
+        IsHandled := false;
+        OnCalculateCFAmountAndCFDateOnAfterAssignApplyCFPaymentTerm(Rec, ApplyCFPaymentTerm, CheckCrMemo, IsHandled);
+        if IsHandled then
+            exit;
 
         if not ApplyCFPaymentTerm then begin
             if not CashFlowForecast."Consider Discount" then
@@ -591,7 +595,7 @@ table 846 "Cash Flow Worksheet Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateCFAmountAndCFDateOnAfterAssignApplyCFPaymentTerm(CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var ApplyCFPaymentTerm: Boolean)
+    local procedure OnCalculateCFAmountAndCFDateOnAfterAssignApplyCFPaymentTerm(CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var ApplyCFPaymentTerm: Boolean; var CheckCrMemo: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -125,8 +125,8 @@ codeunit 1173 "Document Attachment Mgmt"
             DocumentAttachment.SetRange("Line No.", LineNo);
         end;
 
-        if RecRef.Number = Database::"VAT Report Header" then begin
-            FieldRef := RecRef.Field(2);
+        if TableHasVATReportConfigCodePrimaryKey(RecRef.Number(), FieldNo) then begin
+            FieldRef := RecRef.Field(FieldNo);
             VATRepConfigType := FieldRef.Value();
             DocumentAttachment.SetRange("VAT Report Config. Code", VATRepConfigType);
         end;
@@ -281,6 +281,18 @@ codeunit 1173 "Document Attachment Mgmt"
         Result := false;
         OnAfterTableHasLineNumberPrimaryKey(TableNo, Result, FieldNo);
         exit(Result);
+    end;
+
+    internal procedure TableHasVATReportConfigCodePrimaryKey(TableNo: Integer; var FieldNo: Integer): Boolean
+    begin
+        if TableNo in
+            [Database::"VAT Report Header"]
+        then begin
+            FieldNo := 2;
+            exit(true);
+        end;
+
+        exit(false);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterDeleteEvent', '', false, false)]
@@ -1460,12 +1472,12 @@ codeunit 1173 "Document Attachment Mgmt"
         exit('2E0AD887-8F86-4AD4-ADE9-846002434BFA');
     end;
 
-    PROCEDURE ShowDocumentAttachments(Notification: Notification);
-    VAR
+    procedure ShowDocumentAttachments(Notification: Notification);
+    var
         DocumentAttachment: Record "Document Attachment";
         TableId: Integer;
         DocumentNo: Code[20];
-    BEGIN
+    begin
         Evaluate(TableId, Notification.GetData(DocumentAttachment.FieldName("Table ID")));
         Evaluate(DocumentAttachment."Document Type", Notification.GetData(DocumentAttachment.FieldName("Document Type")));
         Evaluate(DocumentNo, Notification.GetData(DocumentAttachment.FieldName("No.")));
@@ -1474,7 +1486,7 @@ codeunit 1173 "Document Attachment Mgmt"
         DocumentAttachment.SetRange("Document Type", DocumentAttachment."Document Type");
         DocumentAttachment.SetRange("No.", DocumentNo);
         Page.RunModal(Page::"Document Attachment Details", DocumentAttachment);
-    END;
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDocumentAttachmentFiltersForRecRef(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef)

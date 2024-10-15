@@ -390,7 +390,7 @@ table 5875 "Phys. Invt. Order Header"
         IsHandled := false;
         OnBeforeGetNoSeriesCode(Rec, InvtSetup, NoSeriesCode, IsHandled);
         if IsHandled then
-            exit;
+            exit(NoSeriesCode);
 
         NoSeriesCode := InvtSetup."Phys. Invt. Order Nos.";
         OnAfterGetNoSeriesCode(Rec, NoSeriesCode);

@@ -2299,6 +2299,7 @@ codeunit 104000 "Upgrade - BaseApp"
         CustomerTempl."VAT Bus. Posting Group" := CustomerTemplate."VAT Bus. Posting Group";
         CustomerTempl."Contact Type" := CustomerTemplate."Contact Type";
         CustomerTempl."Allow Line Disc." := CustomerTemplate."Allow Line Disc.";
+        OnUpdateNewCustomerTemplateFromConversionTemplateOnBeforeModify(CustomerTempl, CustomerTemplate);
         CustomerTempl.Modify();
     end;
 
@@ -3822,6 +3823,11 @@ codeunit 104000 "Upgrade - BaseApp"
         DataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATSetupAllowVATDateTag());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateNewCustomerTemplateFromConversionTemplateOnBeforeModify(var CustomerTempl: Record "Customer Templ."; CustomerTemplate: Record "Customer Template")
+    begin
     end;
 
 }

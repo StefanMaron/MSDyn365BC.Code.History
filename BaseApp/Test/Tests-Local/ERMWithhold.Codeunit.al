@@ -104,6 +104,7 @@ codeunit 144090 "ERM Withhold"
         DialogErr: Label 'Dialog';
         LibraryApplicationArea: Codeunit "Library - Application Area";
         MultiApplyErr: Label 'To calculate taxes correctly, the payment must be applied to only one document.';
+        WithHoldingAmountZeroErr: Label 'Withholding Amount should be 0 in Vendor Bill Line.';
 
     [Test]
     [HandlerFunctions('ContributionCodesINPSModalPageHandler')]
@@ -2190,6 +2191,50 @@ codeunit 144090 "ERM Withhold"
         VerifyValueOnWithholdTaxesContributionCardPage(WithhTaxesContributionCard);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidateWithHoldingTaxAmountZeroInVendorBillLine()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorBillHeader: Record "Vendor Bill Header";
+        VendorBillLine: Record "Vendor Bill Line";
+        DocumentNo: code[20];
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [SCENARIO 492285] Withholding Tax Amount keeps showing in Vendor Bill Card even after removing it manually from Sale Invoice.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        CreateVendorWithPaymentMethodAndWithHoldCodeWithLine(Vendor);
+
+        // [GIVEN] Create Purchase Invoice.
+        CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, Vendor."No.");
+
+        // [GIVEN] Open Purchase Invoice and click on "With&hold Taxes-Soc. Sec." action.
+        OpenPurchaseInvoiceAndPerformWithHoldTaxesSocialSecurity(PurchaseInvoice, PurchaseHeader);
+
+        // [GIVEN] Calculate Withhold Taxes Contribution.
+        CalculateWithholdTaxesContributionOnPurchInvoicewithBaseExcludeAmount(
+            PurchaseInvoice,
+            PurchaseHeader."No.",
+            PurchaseLine."Line Amount");
+
+        // [THEN] Post the Purchase Invoice document.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Create Vendor Bill and click on "Suggest Vendor Bills"  action.
+        CreateVendorBill(VendorBillHeader, CreateBillPostingGroup(Vendor."Payment Method Code"), DocumentNo);
+
+        // [THEN] Find Purchase Line.
+        VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
+        VendorBillLine.FindFirst();
+
+        // [VERIFY] Verify: Withholding Tax Amount 0 in Vendor Bill Line.
+        Assert.AreEqual(0, VendorBillLine."Withholding Tax Amount", WithHoldingAmountZeroErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -3105,6 +3150,115 @@ codeunit 144090 "ERM Withhold"
         Evaluate(PayableAmt, PayableAmttxt);
         Assert.AreNotEqual(0, PayableAmt, '');
         WithhTaxesContributionCard.OK.Invoke();
+    end;
+
+    local procedure CreateVendorWithPaymentMethodAndWithHoldCodeWithLine(var Vendor: Record Vendor)
+    var
+        PaymentMethod: Record "Payment Method";
+    begin
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod.Validate("Bill Code", CreateBill());
+        PaymentMethod.Modify(true);
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        Vendor.Validate("Withholding Tax Code", CreateWithholdCodeWithLine());
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20])
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::"G/L Account",
+            LibraryERM.CreateGLAccountWithSalesSetup(),
+            LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
+        PurchaseLine.Modify(true);
+        PurchaseHeader.Validate("Check Total", PurchaseLine."Amount Including VAT");
+        PurchaseHeader.Modify(true);
+    end;
+
+    local procedure OpenPurchaseInvoiceAndPerformWithHoldTaxesSocialSecurity(var PurchaseInvoice: TestPage "Purchase Invoice"; PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseInvoice.OpenEdit();
+        PurchaseInvoice.GoToRecord(PurchaseHeader);
+        PurchaseInvoice."With&hold Taxes-Soc. Sec.".Invoke();
+    end;
+
+    local procedure CalculateWithholdTaxesContributionOnPurchInvoicewithBaseExcludeAmount(var PurchaseInvoice: TestPage "Purchase Invoice"; No: Code[20]; LineAmount: Decimal)
+    var
+        WithhTaxesContributionCard: TestPage "Withh. Taxes-Contribution Card";
+    begin
+        PurchaseInvoice.Trap;
+        WithhTaxesContributionCard.OpenEdit;
+        WithhTaxesContributionCard.Filter.SetFilter("No.", No);
+        WithhTaxesContributionCard.TotalAmount.SetValue(LineAmount);
+        WithhTaxesContributionCard."Base - Excluded Amount".SetValue(LineAmount);
+        WithhTaxesContributionCard.Close();
+    end;
+
+    local procedure CreateBillPostingGroup(PaymentMethodCode: Code[10]): Code[20]
+    var
+        BankAccount: Record "Bank Account";
+        BillPostingGroup: Record "Bill Posting Group";
+    begin
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, BankAccount."No.", PaymentMethodCode);
+        BillPostingGroup.Validate("Bills For Collection Acc. No.", LibraryERM.CreateGLAccountNo());
+        BillPostingGroup.Validate("Bills For Discount Acc. No.", BillPostingGroup."Bills For Collection Acc. No.");
+        BillPostingGroup.Modify(true);
+
+        exit(BillPostingGroup."No.");
+    end;
+
+    local procedure CreateVendorBill(var VendorBillHeader: Record "Vendor Bill Header"; No: Code[20]; DocumentNo: Code[20])
+    var
+        BillPostingGroup: Record "Bill Posting Group";
+    begin
+        FindBillPostingGroup(BillPostingGroup, No);
+        LibraryITLocalization.CreateVendorBillHeader(VendorBillHeader);
+        VendorBillHeader.Validate("Bank Account No.", BillPostingGroup."No.");
+        VendorBillHeader.Validate("Payment Method Code", BillPostingGroup."Payment Method");
+        VendorBillHeader.Modify(true);
+        RunSuggestVendorBills(VendorBillHeader, DocumentNo);
+    end;
+
+    local procedure CreateBill(): Code[20]
+    var
+        Bill: Record Bill;
+    begin
+        LibraryITLocalization.CreateBill(Bill);
+        Bill.Validate("Allow Issue", true);
+        Bill.Validate("Bills for Coll. Temp. Acc. No.", LibraryERM.CreateGLAccountNo());
+        Bill.Validate("List No.", LibraryERM.CreateNoSeriesSalesCode);
+        Bill.Validate("Temporary Bill No.", Bill."List No.");
+        Bill.Validate("Final Bill No.", Bill."List No.");
+        Bill.Validate("Vendor Bill List", Bill."List No.");
+        Bill.Validate("Vendor Bill No.", Bill."List No.");
+        Bill.Modify(true);
+
+        exit(Bill.Code);
+    end;
+
+    local procedure FindBillPostingGroup(var BillPostingGroup: Record "Bill Posting Group"; No: Code[20])
+    begin
+        BillPostingGroup.SetRange("No.", No);
+        BillPostingGroup.FindFirst();
+    end;
+
+    local procedure RunSuggestVendorBills(VendorBillHeader: Record "Vendor Bill Header"; DocumentNo: Code[20])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SuggestVendorBills: Report "Suggest Vendor Bills";
+    begin
+        Clear(SuggestVendorBills);
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        SuggestVendorBills.InitValues(VendorBillHeader);
+        SuggestVendorBills.SetTableView(VendorLedgerEntry);
+        SuggestVendorBills.UseRequestPage(false);
+        SuggestVendorBills.Run();
     end;
 
     [ModalPageHandler]

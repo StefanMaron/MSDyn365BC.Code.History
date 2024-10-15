@@ -673,6 +673,7 @@ table 290 "VAT Amount Line"
                    (PrevVATAmountLine."Use Tax" <> "Use Tax")
                 then
                     PrevVATAmountLine.Init();
+                OnUpdateLinesOnAfterInitPrevVATAmountLine(PrevVATAmountLine);
 
                 VATBaseDiscountPerc := GetVATBaseDiscountPerc(VATBaseDiscountPercHeader);
                 if PricesIncludingVAT then
@@ -1075,6 +1076,11 @@ table 290 "VAT Amount Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetVATBaseDiscountPerc(var VATAmountLine: Record "VAT Amount Line"; VATBaseDiscountPerc: Decimal; var NewVATBaseDiscountPerc: decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateLinesOnAfterInitPrevVATAmountLine(var PrevVATAmountLine: Record "VAT Amount Line")
     begin
     end;
 }

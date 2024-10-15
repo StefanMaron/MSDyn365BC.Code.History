@@ -355,7 +355,7 @@ table 12182 "Vendor Bill Line"
                         GetCurrencyAmtRoundingPrecision(VendBillWithhTax."Currency Code"));
         end;
 
-        if "Withholding Tax Amount" = 0 then
+        if ("Withholding Tax Amount" = 0) or (VendBillWithhTax."Withholding Tax Amount" = 0) then
             "Withholding Tax Amount" := VendBillWithhTax."Withholding Tax Amount";
 
         "Social Security Amount" := VendBillWithhTax."Total Social Security Amount";

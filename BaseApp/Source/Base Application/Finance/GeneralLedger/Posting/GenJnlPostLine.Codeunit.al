@@ -1280,6 +1280,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 Cust.TestField("Customer Posting Group");
                 "Posting Group" := Cust."Customer Posting Group";
             end;
+	    
+            OnPostCustOnBeforeGetCustomerPostingGroup(GenJnlLine);	    
             GetCustomerPostingGroup(GenJnlLine, CustPostingGr);
             ReceivablesAccount := GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr);
             OnPostCustOnAfterAssignReceivablesAccount(GenJnlLine, CustPostingGr, ReceivablesAccount);
@@ -1379,7 +1381,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 RemainingAmount := RemainingAmount - TempDtldCVLedgEntryBuf.Amount;
                 RemainingAmountLCY := RemainingAmountLCY - TempDtldCVLedgEntryBuf."Amount (LCY)";
                 CVLedgEntryBuf.CopyFromCustLedgEntry(CustLedgEntry);
-                TempDtldCVLedgEntryBuf.InsertDtldCVLedgEntry(TempDtldCVLedgEntryBuf, CVLedgEntryBuf, true);
+                
+                IsHandled := false;
+                OnPostCustOnBeforeInsertDtldCVLedgEntry(GenJnlLine, TempDtldCVLedgEntryBuf, CVLedgEntryBuf, CustLedgEntry, IsHandled);
+                if not IsHandled then
+                    TempDtldCVLedgEntryBuf.InsertDtldCVLedgEntry(TempDtldCVLedgEntryBuf, CVLedgEntryBuf, true);
                 CVLedgEntryBuf.Open := CVLedgEntryBuf."Remaining Amount" <> 0;
                 CVLedgEntryBuf.Positive := CVLedgEntryBuf."Remaining Amount" > 0;
                 OnPostCustOnAfterCopyCVLedgEntryBuf(CVLedgEntryBuf, GenJnlLine, Cust, CustLedgEntry, TempDtldCVLedgEntryBuf);
@@ -1663,7 +1669,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             // Post application
             ApplyEmplLedgEntry(CVLedgEntryBuf, TempDtldCVLedgEntryBuf, GenJnlLine, Employee);
 
-            // Post vendor entry
+            // Post employee entry
             EmployeeLedgerEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
             EmployeeLedgerEntry."Amount to Apply" := 0;
             EmployeeLedgerEntry."Applies-to Doc. No." := '';
@@ -1795,7 +1801,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 end;
             end;
 
-            BankAccPostingGr.TestField("G/L Account No.");
+            IsHandled := false;
+            OnPostBankAccOnCheckingBankAccPostingGrGLAccountNo(GenJnlLine, BankAccPostingGr, IsHandled);
+            if not IsHandled then
+                BankAccPostingGr.TestField("G/L Account No.");
+
             IsHandled := false;
             OnPostBankAccOnBeforeCreateGLEntryBalAcc(GenJnlLine, BankAccPostingGr, BankAcc, NextEntryNo, IsHandled);
             if not IsHandled then
@@ -2206,7 +2216,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
         If not IsHandled then begin
             if GLAccNo <> '' then begin
                 GLAcc.Get(GLAccNo);
-                GLAcc.TestField(Blocked, false);
+
+                IsHandled := false;
+                OnInitGLEntryOnBeforeCheckGLAccountBlocked(GenJnlLine, GLAcc, IsHandled);
+                if not IsHandled then
+                    GLAcc.TestField(Blocked, false);
                 GLAcc.TestField("Account Type", GLAcc."Account Type"::Posting);
 
                 // Check the Value Posting field on the G/L Account if it is not checked already in Codeunit 11
@@ -2556,7 +2570,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             GenJnlLine, NewCVLedgEntryBuf, DtldCVLedgEntryBuf,
             DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance", PmtTol, PmtTolLCY, PmtTolAddCurr, 0, 0, 0);
 
-        OnAfterCalcPmtTolerance(DtldCVLedgEntryBuf, OldCVLedgEntryBuf2, PmtTol, PmtTolLCY);
+        OnAfterCalcPmtTolerance(DtldCVLedgEntryBuf, OldCVLedgEntryBuf2, PmtTol, PmtTolLCY, GenJnlLine);
     end;
 
     local procedure CalcPmtDisc(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenJnlLine: Record "Gen. Journal Line"; PmtTolAmtToBeApplied: Decimal; ApplnRoundingPrecision: Decimal; NextTransactionNo: Integer; FirstNewVATEntryNo: Integer)
@@ -2622,7 +2636,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 GenJnlLine, NewCVLedgEntryBuf, DtldCVLedgEntryBuf,
                 DtldCVLedgEntryBuf."Entry Type"::"Payment Discount", PmtDisc, PmtDiscLCY, PmtDiscAddCurr, 0, 0, 0);
 
-            OnCalcPmtDiscOnAfterCalcPmtDisc(DtldCVLedgEntryBuf, OldCVLedgEntryBuf2, PmtDisc, PmtDiscLCY);
+            OnCalcPmtDiscOnAfterCalcPmtDisc(DtldCVLedgEntryBuf, OldCVLedgEntryBuf2, PmtDisc, PmtDiscLCY, GenJnlLine);
         end;
     end;
 
@@ -2848,7 +2862,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
           GenJnlLine, NewCVLedgEntryBuf, DtldCVLedgEntryBuf,
           DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance", PmtDiscTol, PmtDiscTolLCY, PmtDiscTolAddCurr, 0, 0, 0);
 
-        OnAfterCalcPmtDiscToleranceProc(DtldCVLedgEntryBuf, OldCVLedgEntryBuf, PmtDiscTol, PmtDiscTolLCY);
+        OnAfterCalcPmtDiscToleranceProc(DtldCVLedgEntryBuf, OldCVLedgEntryBuf, PmtDiscTol, PmtDiscTolLCY, GenJnlLine);
     end;
 
     local procedure CalcPmtDiscVATBases(VATEntry2: Record "VAT Entry"; var VATBase: Decimal; var VATBaseAddCurr: Decimal; var NonDeductibleVATBase: Decimal; var NonDeductibleVATBaseAddCurr: Decimal)
@@ -3718,6 +3732,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             "Source Currency Code" := CustLedgEntryPostApply."Currency Code";
             "Applies-to ID" := CustLedgEntryPostApply."Applies-to ID";
 
+            OnCustPostApplyCustLedgEntryOnBeforeRunCheck(GenJnlLine, CustLedgEntryPostApply, CustLedgEntry);
             GenJnlCheckLine.RunCheck(GenJnlLine);
 
             if NextEntryNo = 0 then
@@ -3746,6 +3761,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
               "Original Amount", "Original Amt. (LCY)");
             OnCustPostApplyCustLedgEntryOnBeforeCopyFromCustLedgEntry(GenJnlLine, CVLedgEntryBuf, CustLedgEntry);
             CVLedgEntryBuf.CopyFromCustLedgEntry(CustLedgEntry);
+            OnCustPostApplyCustLedgEntryOnBeforeApplyCustLedgEntry(CustLedgEntry);
             ApplyCustLedgEntry(CVLedgEntryBuf, TempDtldCVLedgEntryBuf, GenJnlLine, Cust);
             OnCustPostApplyCustLedgEntryOnAfterApplyCustLedgEntry(GenJnlLine, TempDtldCVLedgEntryBuf);
             CustLedgEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
@@ -3753,6 +3769,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 CustLedgEntry."Document Type to Close" := CVLedgEntryBuf."Document Type to Close";
                 CustLedgEntry."Document No. to Close" := CVLedgEntryBuf."Document No. to Close";
             end;
+            OnCustPostApplyCustLedgEntryOnBeforeModifyCustLedgEntry(CustLedgEntry, CVLedgEntryBuf);	    
             CustLedgEntry.Modify();
 
             if (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Dishonored) or
@@ -3909,6 +3926,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
         SaveEntryNo: Integer;
         IsHandled: Boolean;
     begin
+        OnBeforePostDtldCustLedgEntries(GenJnlLine, DtldCVLedgEntryBuf, CustPostingGr, LedgEntryInserted);
+
         if GenJnlLine."Account Type" <> GenJnlLine."Account Type"::Customer then
             exit;
 
@@ -3917,15 +3936,20 @@ codeunit 12 "Gen. Jnl.-Post Line"
         else
             DtldCustLedgEntryNoOffset := 0;
 
+        OnPostDtldCustLedgEntriesOnAfterSetDtldCustLedgEntryNoOffset(GenJnlLine, DtldCVLedgEntryBuf, CustPostingGr, LedgEntryInserted, NextEntryNo);
+
         MultiplePostingGroups := CheckCustMultiplePostingGroups(DtldCVLedgEntryBuf);
 
         DtldCVLedgEntryBuf.Reset();
         OnAfterSetDtldCustLedgEntryNoOffset(DtldCVLedgEntryBuf);
         if DtldCVLedgEntryBuf.FindSet() then begin
-            if LedgEntryInserted then begin
-                SaveEntryNo := NextEntryNo;
-                IncrNextEntryNo();
-            end;
+            IsHandled := false;
+            OnPostDtldCustLedgEntriesOnBeforeNextEntryNo(GenJnlLine, DtldCVLedgEntryBuf, CustPostingGr, LedgEntryInserted, NextEntryNo, SaveEntryNo, IsHandled);
+            if not IsHandled then
+                if LedgEntryInserted then begin
+                    SaveEntryNo := NextEntryNo;
+                    IncrNextEntryNo();
+                end;
             repeat
                 InsertDtldCustLedgEntry(GenJnlLine, DtldCVLedgEntryBuf, DtldCustLedgEntry, DtldCustLedgEntryNoOffset);
                 IsHandled := false;
@@ -4788,6 +4812,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
         else
             DtldVendLedgEntryNoOffset := 0;
 
+        OnPostDtldVendLedgEntriesOnAfterSetDtldVendLedgEntryNoOffset(GenJournalLine);
+
         MultiplePostingGroups := CheckVendMultiplePostingGroups(DetailedCVLedgEntryBuffer);
 
         DetailedCVLedgEntryBuffer.Reset();
@@ -5240,14 +5266,17 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     LastConnectionNo := VATEntry2."Sales Tax Connection No.";
                 end;
 
-                VATPart :=
-                  VATEntry2.GetUnrealizedVATPart(
-                    Round(SettledAmount / VendLedgEntry2.GetAdjustedCurrencyFactor()),
-                    PaidAmount,
-                    TotalOriginalAmtLCY,
-                    TotalUnrealVATAmountFirst,
-                    TotalUnrealVATAmountLast,
-                    VendLedgEntry2.Open);
+                IsHandled := false;
+                OnVendUnrealizedVATOnBeforeGetUnrealizedVATPart(GenJnlLine, VendLedgEntry2, PaidAmount, TotalUnrealVATAmountFirst, TotalUnrealVATAmountLast, SettledAmount, VATEntry2, VATPart, IsHandled);
+                if not IsHandled then
+	                VATPart :=
+	                  VATEntry2.GetUnrealizedVATPart(
+	                    Round(SettledAmount / VendLedgEntry2.GetAdjustedCurrencyFactor()),
+	                    PaidAmount,
+	                    TotalOriginalAmtLCY,
+	                    TotalUnrealVATAmountFirst,
+	                    TotalUnrealVATAmountLast,
+	                    VendLedgEntry2.Open);
 
                 OnVendUnrealizedVATOnAfterVATPartCalculation(
                   GenJnlLine, VendLedgEntry2, PaidAmount, TotalUnrealVATAmountFirst, TotalUnrealVATAmountLast, SettledAmount, VATEntry2);
@@ -5448,27 +5477,31 @@ codeunit 12 "Gen. Jnl.-Post Line"
             CalcCurrencyApplnRounding(
               NewCVLedgEntryBuf, OldCVLedgEntryBuf2, DtldCVLedgEntryBuf, GenJnlLine, ApplnRoundingPrecision);
 
-        FindAmtForAppln(
-          NewCVLedgEntryBuf, OldCVLedgEntryBuf, OldCVLedgEntryBuf2,
-          AppliedAmount, AppliedAmountLCY, OldAppliedAmount, ApplnRoundingPrecision);
+        IsHandled := false;
+        OnPostApplyOnAfterCalcCurrencyApplnRounding(GenJnlLine, NewCVLedgEntryBuf, NewCVLedgEntryBuf2, OldCVLedgEntryBuf, OldCVLedgEntryBuf2, DtldCVLedgEntryBuf, AppliedAmount, PmtTolAmtToBeApplied, IsHandled);
+        if not IsHandled then begin
+            FindAmtForAppln(
+              NewCVLedgEntryBuf, OldCVLedgEntryBuf, OldCVLedgEntryBuf2,
+              AppliedAmount, AppliedAmountLCY, OldAppliedAmount, ApplnRoundingPrecision);
 
-        CalcCurrencyUnrealizedGainLoss(
-          OldCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine, -OldAppliedAmount, OldRemainingAmtBeforeAppln);
+            CalcCurrencyUnrealizedGainLoss(
+              OldCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine, -OldAppliedAmount, OldRemainingAmtBeforeAppln);
 
-        CalcCurrencyRealizedGainLoss(
-          NewCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine, AppliedAmount, AppliedAmountLCY);
+            CalcCurrencyRealizedGainLoss(
+              NewCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine, AppliedAmount, AppliedAmountLCY);
 
-        CalcCurrencyRealizedGainLoss(
-          OldCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine, -OldAppliedAmount, -AppliedAmountLCY);
+            CalcCurrencyRealizedGainLoss(
+              OldCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine, -OldAppliedAmount, -AppliedAmountLCY);
 
-        CalcApplication(
-          NewCVLedgEntryBuf, OldCVLedgEntryBuf, DtldCVLedgEntryBuf,
-          GenJnlLine, AppliedAmount, AppliedAmountLCY, OldAppliedAmount,
-          NewCVLedgEntryBuf2, OldCVLedgEntryBuf3, AllApplied);
+            CalcApplication(
+              NewCVLedgEntryBuf, OldCVLedgEntryBuf, DtldCVLedgEntryBuf,
+              GenJnlLine, AppliedAmount, AppliedAmountLCY, OldAppliedAmount,
+              NewCVLedgEntryBuf2, OldCVLedgEntryBuf3, AllApplied);
 
-        PaymentToleranceMgt.CalcRemainingPmtDisc(NewCVLedgEntryBuf, OldCVLedgEntryBuf, OldCVLedgEntryBuf2, GLSetup);
+            PaymentToleranceMgt.CalcRemainingPmtDisc(NewCVLedgEntryBuf, OldCVLedgEntryBuf, OldCVLedgEntryBuf2, GLSetup);
 
-        CalcAmtLCYAdjustment(OldCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine);
+            CalcAmtLCYAdjustment(OldCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine);
+        end;
 
         OnAfterPostApply(GenJnlLine, DtldCVLedgEntryBuf, OldCVLedgEntryBuf, NewCVLedgEntryBuf, NewCVLedgEntryBuf2);
     end;
@@ -5526,6 +5559,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DetailedCustLedgEntry2.Reset();
         DetailedCustLedgEntry2.FindLast();
         NextDtldLedgEntryNo := DetailedCustLedgEntry2."Entry No." + 1;
+        OnUnapplyCustLedgEntryOnAfterGetNextDtldLedgEntryNo(GenJournalLine);
+
         if DetailedCustLedgEntry."Transaction No." = 0 then begin
             DetailedCustLedgEntry2.SetCurrentKey("Application No.", "Customer No.", "Entry Type");
             DetailedCustLedgEntry2.SetRange("Application No.", DetailedCustLedgEntry."Application No.");
@@ -5575,50 +5610,55 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DetailedCustLedgEntry2.FindSet();
         TempDimensionPostingBuffer.DeleteAll();
         repeat
-            DetailedCustLedgEntry2.TestField(Unapplied, false);
-            InsertDtldCustLedgEntryUnapply(
-                GenJournalLineToPost, NewDetailedCustLedgEntry, DetailedCustLedgEntry2, NextDtldLedgEntryNo, CustomerPostingGroup);
-
-            DetailedCVLedgEntryBuffer.Init();
-            DetailedCVLedgEntryBuffer.TransferFields(NewDetailedCustLedgEntry);
-            OnUnapplyCustLedgEntryOnAfterFillDtldCVLedgEntryBuf(GenJournalLineToPost, DetailedCVLedgEntryBuffer);
-            if CustomerPostingGroup.Code <> DetailedCustLedgEntry2."Posting Group" then
-                CustomerPostingGroup.Get(DetailedCustLedgEntry2."Posting Group");
-            SetAddCurrForUnapplication(DetailedCVLedgEntryBuffer);
-            CurrencyLCY.InitRoundingPrecision();
-
-            if (DetailedCustLedgEntry2."Transaction No." <> 0) and IsVATExcluded(DetailedCustLedgEntry2."Entry Type") then begin
-                UnapplyExcludedVAT(
-                  TempVATEntry2, DetailedCustLedgEntry2."Transaction No.", DetailedCustLedgEntry2."VAT Bus. Posting Group",
-                  DetailedCustLedgEntry2."VAT Prod. Posting Group", DetailedCustLedgEntry2."Gen. Prod. Posting Group");
-                DetailedCVLedgEntryBuffer."VAT Amount (LCY)" :=
-                  CalcVATAmountFromVATEntry(DetailedCVLedgEntryBuffer."Amount (LCY)", TempVATEntry2, CurrencyLCY);
-            end;
             IsHandled := false;
-            OnOnUnapplyCustLedgEntryOnBeforeUpdateTotalAmounts(IsHandled, GenJournalLineToPost, DetailedCVLedgEntryBuffer);
+            OnOnUnapplyCustLedgEntryOnBeforeProcessDetailedCustLedgEntry2InLoop(DetailedCustLedgEntry2, IsHandled);
             if not IsHandled then begin
-                UpdateTotalAmounts(TempDimensionPostingBuffer, GenJournalLineToPost."Dimension Set ID", DetailedCVLedgEntryBuffer);
-                OnUnapplyCustLedgEntryOnAfterUpdateTotals(GenJournalLineToPost, DetailedCVLedgEntryBuffer);
+                CheckDetailedCustLedgEntryUnapply(DetailedCustLedgEntry2);
+                InsertDtldCustLedgEntryUnapply(
+                    GenJournalLineToPost, NewDetailedCustLedgEntry, DetailedCustLedgEntry2, NextDtldLedgEntryNo, CustomerPostingGroup);
 
-                if not (DetailedCVLedgEntryBuffer."Entry Type" in [
-                                                            DetailedCVLedgEntryBuffer."Entry Type"::"Initial Entry",
-                                                            DetailedCVLedgEntryBuffer."Entry Type"::Application])
-                then
-                    CollectAdjustment(AdjAmount,
-                      -DetailedCVLedgEntryBuffer."Amount (LCY)", -DetailedCVLedgEntryBuffer."Additional-Currency Amount");
+                DetailedCVLedgEntryBuffer.Init();
+                DetailedCVLedgEntryBuffer.TransferFields(NewDetailedCustLedgEntry);
+                OnUnapplyCustLedgEntryOnAfterFillDtldCVLedgEntryBuf(GenJournalLineToPost, DetailedCVLedgEntryBuffer);
+                if CustomerPostingGroup.Code <> DetailedCustLedgEntry2."Posting Group" then
+                    CustomerPostingGroup.Get(DetailedCustLedgEntry2."Posting Group");
+                SetAddCurrForUnapplication(DetailedCVLedgEntryBuffer);
+                CurrencyLCY.InitRoundingPrecision();
+
+                if (DetailedCustLedgEntry2."Transaction No." <> 0) and IsVATExcluded(DetailedCustLedgEntry2."Entry Type") then begin
+                    UnapplyExcludedVAT(
+                      TempVATEntry2, DetailedCustLedgEntry2."Transaction No.", DetailedCustLedgEntry2."VAT Bus. Posting Group",
+                      DetailedCustLedgEntry2."VAT Prod. Posting Group", DetailedCustLedgEntry2."Gen. Prod. Posting Group");
+                    DetailedCVLedgEntryBuffer."VAT Amount (LCY)" :=
+                      CalcVATAmountFromVATEntry(DetailedCVLedgEntryBuffer."Amount (LCY)", TempVATEntry2, CurrencyLCY);
+                end;
+                IsHandled := false;
+                OnOnUnapplyCustLedgEntryOnBeforeUpdateTotalAmounts(IsHandled, GenJournalLineToPost, DetailedCVLedgEntryBuffer);
+                if not IsHandled then begin
+                    UpdateTotalAmounts(TempDimensionPostingBuffer, GenJournalLineToPost."Dimension Set ID", DetailedCVLedgEntryBuffer);
+                    OnUnapplyCustLedgEntryOnAfterUpdateTotals(GenJournalLineToPost, DetailedCVLedgEntryBuffer);
+
+                    if not (DetailedCVLedgEntryBuffer."Entry Type" in [
+                                                                DetailedCVLedgEntryBuffer."Entry Type"::"Initial Entry",
+                                                                DetailedCVLedgEntryBuffer."Entry Type"::Application])
+                    then
+                        CollectAdjustment(AdjAmount,
+                          -DetailedCVLedgEntryBuffer."Amount (LCY)", -DetailedCVLedgEntryBuffer."Additional-Currency Amount");
+                end;
+
+                PostDtldCustLedgEntryUnapply(
+                  GenJournalLineToPost, DetailedCVLedgEntryBuffer, CustomerPostingGroup, DetailedCustLedgEntry2."Transaction No.");
+
+                OnUnapplyCustLedgEntryOnBeforeUpdateDetailedCustLedgEntry(DetailedCustLedgEntry2, DetailedCVLedgEntryBuffer);
+
+                DetailedCustLedgEntry2.Unapplied := true;
+                DetailedCustLedgEntry2."Unapplied by Entry No." := NewDetailedCustLedgEntry."Entry No.";
+                DetailedCustLedgEntry2.Modify();
+
+                OnUnapplyCustLedgEntryOnBeforeUpdateCustLedgEntry(DetailedCustLedgEntry2, DetailedCVLedgEntryBuffer);
+            	UpdateCustLedgEntry(DetailedCustLedgEntry2, UnAppliedBill);
+                OnUnapplyCustLedgEntryOnAfterUpdateCustLedgEntry(GenJournalLine, DetailedCustLedgEntry2, NewDetailedCustLedgEntry, CustomerPostingGroup, GlobalGLEntry);
             end;
-
-            PostDtldCustLedgEntryUnapply(
-              GenJournalLineToPost, DetailedCVLedgEntryBuffer, CustomerPostingGroup, DetailedCustLedgEntry2."Transaction No.");
-
-            OnUnapplyCustLedgEntryOnBeforeUpdateDetailedCustLedgEntry(DetailedCustLedgEntry2, DetailedCVLedgEntryBuffer);
-
-            DetailedCustLedgEntry2.Unapplied := true;
-            DetailedCustLedgEntry2."Unapplied by Entry No." := NewDetailedCustLedgEntry."Entry No.";
-            DetailedCustLedgEntry2.Modify();
-
-            OnUnapplyCustLedgEntryOnBeforeUpdateCustLedgEntry(DetailedCustLedgEntry2, DetailedCVLedgEntryBuffer);
-            UpdateCustLedgEntry(DetailedCustLedgEntry2, UnAppliedBill);
         until DetailedCustLedgEntry2.Next() = 0;
 
         IsHandled := false;
@@ -5633,7 +5673,22 @@ codeunit 12 "Gen. Jnl.-Post Line"
             DetailedCustLedgEntry.SetZeroTransNo(NextTransactionNo);
         CheckPostUnrealizedVAT(GenJournalLineToPost, true);
 
+        OnUnapplyCustLedgEntryOnBeforeFinishPosting(GenJournalLine, GlobalGLEntry, CustomerPostingGroup);
         FinishPosting(GenJournalLineToPost);
+    end;
+
+    local procedure CheckDetailedCustLedgEntryUnapply(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        DetailedCustLedgEntry.TestField(Unapplied, false);
+
+        if DetailedCustLedgEntry."Posting Group" = '' then begin
+            CustLedgerEntry.ReadIsolation := IsolationLevel::ReadCommitted;
+            CustLedgerEntry.Get(DetailedCustLedgEntry."Cust. Ledger Entry No.");
+            DetailedCustLedgEntry."Posting Group" := CustLedgerEntry."Customer Posting Group";
+            DetailedCustLedgEntry.Modify();
+        end;
     end;
 
     procedure UnapplyVendLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
@@ -5736,7 +5791,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DetailedVendorLedgEntry2.FindSet();
         TempDimensionPostingBuffer.DeleteAll();
         repeat
-            DetailedVendorLedgEntry2.TestField(Unapplied, false);
+            CheckDetailedVendLedgEntryUnapply(DetailedVendorLedgEntry2);
             InsertDtldVendLedgEntryUnapply(GenJournalLineToPost, NewDetailedVendorLedgEntry, DetailedVendorLedgEntry2, NextDtldLedgEntryNo);
 
             DetailedCVLedgEntryBuffer.Init();
@@ -5794,6 +5849,20 @@ codeunit 12 "Gen. Jnl.-Post Line"
         FinishPosting(GenJournalLineToPost);
 
         OnAfterUnapplyVendLedgEntry(GenJournalLine, DetailedVendorLedgEntry);
+    end;
+
+    local procedure CheckDetailedVendLedgEntryUnapply(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        DetailedVendorLedgEntry.TestField(Unapplied, false);
+
+        if DetailedVendorLedgEntry."Posting Group" = '' then begin
+            VendorLedgerEntry.ReadIsolation := IsolationLevel::ReadCommitted;
+            VendorLedgerEntry.Get(DetailedVendorLedgEntry."Vendor Ledger Entry No.");
+            DetailedVendorLedgEntry."Posting Group" := VendorLedgerEntry."Vendor Posting Group";
+            DetailedVendorLedgEntry.Modify();
+        end;
     end;
 
     procedure UnapplyEmplLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry")
@@ -7824,6 +7893,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 if DeferralPostingBuffer.FindSet() then begin
                     DeferralTemplate.Get(DeferralPostingBuffer."Deferral Code");
                     repeat
+                        OnPostDeferralPostBufferOnAfterFindDeferalPostingBuffer(GenJournalLine, DeferralPostingBuffer, NonDeductibleVATPct);
                         PostDate := DeferralPostingBuffer."Posting Date";
                         IsHandled := false;
                         OnPostDeferralPostBufferOnAfterSetPostDate(DeferralPostingBuffer, IsHandled);
@@ -8718,7 +8788,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcPmtDiscOnAfterCalcPmtDisc(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var PmtDisc: Decimal; var PmtDiscLCY: Decimal)
+    local procedure OnCalcPmtDiscOnAfterCalcPmtDisc(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var PmtDisc: Decimal; var PmtDiscLCY: Decimal; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -8918,12 +8988,12 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcPmtDiscToleranceProc(DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var PmtDiscTol: Decimal; var PmtDiscTolLCY: Decimal)
+    local procedure OnAfterCalcPmtDiscToleranceProc(DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var PmtDiscTol: Decimal; var PmtDiscTolLCY: Decimal; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcPmtTolerance(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var PmtTol: Decimal; var PmtTolLCY: Decimal)
+    local procedure OnAfterCalcPmtTolerance(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var PmtTol: Decimal; var PmtTolLCY: Decimal; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -10429,6 +10499,96 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertGLEntryOnBeforeUpdateCheckAmounts(GeneralLedgerSetup: Record "General Ledger Setup"; var GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAmount2: Decimal; var BalanceCheckAddCurrAmount: Decimal; var BalanceCheckAddCurrAmount2: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDeferralPostBufferOnAfterFindDeferalPostingBuffer(GenJournalLine: Record "Gen. Journal Line"; var DeferralPostingBuffer: Record "Deferral Posting Buffer"; var NonDeductibleVATPct: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnapplyCustLedgEntryOnAfterUpdateCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var NewDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerPostingGroup: Record "Customer Posting Group"; var GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostCustOnBeforeGetCustomerPostingGroup(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnapplyCustLedgEntryOnBeforeFinishPosting(var GenJournalLine: Record "Gen. Journal Line"; GLEntry: Record "G/L Entry"; CustomerPostingGroup: Record "Customer Posting Group");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostCustOnBeforeInsertDtldCVLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var TempDetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDtldCustLedgEntriesOnBeforeNextEntryNo(var GenJournalLine: Record "Gen. Journal Line"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; CustomerPostingGroup: Record "Customer Posting Group"; LedgEntryInserted: Boolean; var NextEntryNo: Integer; var SavedEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostBankAccOnCheckingBankAccPostingGrGLAccountNo(var GenJournalLine: Record "Gen. Journal Line"; BankAccPostingGr: Record "Bank Account Posting Group"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostDtldCustLedgEntries(var GenJournalLine: Record "Gen. Journal Line"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; CustomerPostingGroup: Record "Customer Posting Group"; LedgEntryInserted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustPostApplyCustLedgEntryOnBeforeRunCheck(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntryPostApply: Record "Cust. Ledger Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitGLEntryOnBeforeCheckGLAccountBlocked(GenJournalLine: Record "Gen. Journal Line"; GLAccount: Record "G/L Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnapplyCustLedgEntryOnAfterGetNextDtldLedgEntryNo(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDtldCustLedgEntriesOnAfterSetDtldCustLedgEntryNoOffset(var GenJournalLine: Record "Gen. Journal Line"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; CustomerPostingGroup: Record "Customer Posting Group"; LedgEntryInserted: Boolean; var NextEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostApplyOnAfterCalcCurrencyApplnRounding(GenJournalLine: Record "Gen. Journal Line"; var NewCVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; var NewCVLedgerEntryBuffer2: Record "CV Ledger Entry Buffer"; var OldCVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; var OldCVLedgerEntryBuffer2: Record "CV Ledger Entry Buffer"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var AppliedAmount: Decimal; var PmtTolAmtToBeApplied: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustPostApplyCustLedgEntryOnBeforeApplyCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustPostApplyCustLedgEntryOnBeforeModifyCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnUnapplyCustLedgEntryOnBeforeProcessDetailedCustLedgEntry2InLoop(DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDtldVendLedgEntriesOnAfterSetDtldVendLedgEntryNoOffset(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVendUnrealizedVATOnBeforeGetUnrealizedVATPart(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; PaidAmount: Decimal; TotalUnrealVATAmountFirst: Decimal; TotalUnrealVATAmountLast: Decimal; SettledAmount: Decimal; VATEntry2: Record "VAT Entry"; var VATPart: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

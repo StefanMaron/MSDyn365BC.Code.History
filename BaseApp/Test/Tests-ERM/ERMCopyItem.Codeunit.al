@@ -1459,6 +1459,166 @@ codeunit 134462 "ERM Copy Item"
         Assert.AreEqual(SalesOrder."Sell-to Customer Name".Value, Customer.Name, CustomerNameErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPurchaseOrderCreationWhenRecurringPurchaseLinesIsAutoInsert()
+    var
+        Vendor: Record Vendor;
+        PurchaseLine: Record "Purchase Line";
+        StandardPurchaseLine: Record "Standard Purchase Line";
+        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+        VendorCard: TestPage "Vendor Card";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 492853] The error message Purchase Header does not exist appears not allowing user to create a Purchase document from Vendor Card if the Vendor has an Automatic Recurring Purchase line.
+        Initialize();
+
+        // [GIVEN] Enable the new sales price feature.
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Creation of Recurring Purchase Lines & Vendor with Std. Purchaser Code where Insert Rec. Lines On Orders = Automatic.
+        CreateStandardPurchaseLinesWithGLForVendor(StandardPurchaseLine, StandardVendorPurchaseCode, "Purchase Line Type"::"G/L Account");
+        StandardVendorPurchaseCode.Validate("Insert Rec. Lines On Orders", StandardVendorPurchaseCode."Insert Rec. Lines On Orders"::Automatic);
+        StandardVendorPurchaseCode.Modify(true);
+
+        // [GIVEN] Open the vendor card.
+        Vendor.Get(StandardVendorPurchaseCode."Vendor No.");
+        VendorCard.OpenEdit();
+        VendorCard.GotoRecord(Vendor);
+
+        // [GIVEN] Create a new purchase order.
+        PurchaseOrder.Trap();
+        VendorCard.NewPurchaseOrder.Invoke();
+
+        // [WHEN] Validate a field.
+        PurchaseOrder."Vendor Order No.".SetValue('');
+
+        // [VERIFY] Verify the purchase line is successfully inserted.
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", PurchaseOrder."No.".Value());
+        Assert.RecordIsNotEmpty(PurchaseLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPurchaseInvoiceCreationWhenRecurringPurchaseLinesIsAutoInsert()
+    var
+        Vendor: Record Vendor;
+        PurchaseLine: Record "Purchase Line";
+        StandardPurchaseLine: Record "Standard Purchase Line";
+        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+        VendorCard: TestPage "Vendor Card";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+    begin
+        // [SCENARIO 492853] The error message Purchase Header does not exist appears not allowing user to create a Purchase document from Vendor Card if the Vendor has an Automatic Recurring Purchase line.
+        Initialize();
+
+        // [GIVEN] Enable the new sales price feature.
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Creation of Recurring Purchase Lines & Vendor with Std. Purchaser Code where Insert Rec. Lines On Orders = Automatic.
+        CreateStandardPurchaseLinesWithGLForVendor(StandardPurchaseLine, StandardVendorPurchaseCode, "Purchase Line Type"::"G/L Account");
+        StandardVendorPurchaseCode.Validate("Insert Rec. Lines On Invoices", StandardVendorPurchaseCode."Insert Rec. Lines On Invoices"::Automatic);
+        StandardVendorPurchaseCode.Modify(true);
+
+        // [GIVEN] Open the vendor card.
+        Vendor.Get(StandardVendorPurchaseCode."Vendor No.");
+        VendorCard.OpenEdit();
+        VendorCard.GotoRecord(Vendor);
+
+        // [GIVEN] Create a new purchase invoice.
+        PurchaseInvoice.Trap();
+        VendorCard.NewPurchaseInvoice.Invoke();
+
+        // [WHEN] Validate a field.
+        PurchaseInvoice."Vendor Invoice No.".SetValue('');
+
+        // [VERIFY] Verify the purchase line is successfully inserted.
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
+        PurchaseLine.SetRange("Document No.", PurchaseInvoice."No.".Value());
+        Assert.RecordIsNotEmpty(PurchaseLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPurchaseCrMemoCreationWhenRecurringPurchaseLinesIsAutoInsert()
+    var
+        Vendor: Record Vendor;
+        PurchaseLine: Record "Purchase Line";
+        StandardPurchaseLine: Record "Standard Purchase Line";
+        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+        VendorCard: TestPage "Vendor Card";
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+    begin
+        // [SCENARIO 492853] The error message Purchase Header does not exist appears not allowing user to create a Purchase document from Vendor Card if the Vendor has an Automatic Recurring Purchase line.
+        Initialize();
+
+        // [GIVEN] Enable the new sales price feature.
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Creation of Recurring Purchase Lines & Vendor with Std. Purchaser Code where Insert Rec. Lines On Orders = Automatic.
+        CreateStandardPurchaseLinesWithGLForVendor(StandardPurchaseLine, StandardVendorPurchaseCode, "Purchase Line Type"::"G/L Account");
+        StandardVendorPurchaseCode.Validate("Insert Rec. Lines On Cr. Memos", StandardVendorPurchaseCode."Insert Rec. Lines On Invoices"::Automatic);
+        StandardVendorPurchaseCode.Modify(true);
+
+        // [GIVEN] Open the vendor card.
+        Vendor.Get(StandardVendorPurchaseCode."Vendor No.");
+        VendorCard.OpenEdit();
+        VendorCard.GotoRecord(Vendor);
+
+        // [GIVEN] Create a new purchase cr memo.
+        PurchaseCreditMemo.Trap();
+        VendorCard.NewPurchaseCrMemo.Invoke();
+
+        // [WHEN] Validate a field.
+        PurchaseCreditMemo."Vendor Cr. Memo No.".SetValue('');
+
+        // [VERIFY] Verify the purchase line is successfully inserted.
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
+        PurchaseLine.SetRange("Document No.", PurchaseCreditMemo."No.".Value());
+        Assert.RecordIsNotEmpty(PurchaseLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyPurchaseQuoteCreationWhenRecurringPurchaseLinesIsAutoInsert()
+    var
+        Vendor: Record Vendor;
+        PurchaseLine: Record "Purchase Line";
+        StandardPurchaseLine: Record "Standard Purchase Line";
+        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+        VendorCard: TestPage "Vendor Card";
+        PurchaseQuote: TestPage "Purchase Quote";
+    begin
+        // [SCENARIO 492853] The error message Purchase Header does not exist appears not allowing user to create a Purchase document from Vendor Card if the Vendor has an Automatic Recurring Purchase line.
+        Initialize();
+
+        // [GIVEN] Enable the new sales price feature.
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // [GIVEN] Creation of Recurring Purchase Lines & Vendor with Std. Purchaser Code where Insert Rec. Lines On Orders = Automatic.
+        CreateStandardPurchaseLinesWithGLForVendor(StandardPurchaseLine, StandardVendorPurchaseCode, "Purchase Line Type"::"G/L Account");
+        StandardVendorPurchaseCode.Validate("Insert Rec. Lines On Quotes", StandardVendorPurchaseCode."Insert Rec. Lines On Invoices"::Automatic);
+        StandardVendorPurchaseCode.Modify(true);
+
+        // [GIVEN] Open the vendor card.
+        Vendor.Get(StandardVendorPurchaseCode."Vendor No.");
+        VendorCard.OpenEdit();
+        VendorCard.GotoRecord(Vendor);
+
+        // [GIVEN] Create a new purchase quote.
+        PurchaseQuote.Trap();
+        VendorCard.NewPurchaseQuote.Invoke();
+
+        // [WHEN] Validate a field.
+        PurchaseQuote."Vendor Order No.".SetValue('');
+
+        // [VERIFY] Verify the purchase line is successfully inserted.
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Quote);
+        PurchaseLine.SetRange("Document No.", PurchaseQuote."No.".Value());
+        Assert.RecordIsNotEmpty(PurchaseLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1879,6 +2039,26 @@ codeunit 134462 "ERM Copy Item"
             NewPriceListLine.TestField("Line Discount %", PriceListLine[i]."Line Discount %");
             Assert.IsTrue(NewPriceListLine.Next() = 0, 'found another line for line #' + format(i));
         end;
+    end;
+
+    local procedure CreateStandardPurchaseLinesWithGLForVendor(
+        var StandardPurchaseLine: Record "Standard Purchase Line";
+        var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+        PurchaseLineType: Enum "Purchase Line Type")
+    var
+        Vendor: Record Vendor;
+        StandardPurchaseCode: Record "Standard Purchase Code";
+    begin
+        LibraryPurchase.CreateStandardPurchaseCode(StandardPurchaseCode);
+
+        LibraryPurchase.CreateStandardPurchaseLine(StandardPurchaseLine, StandardPurchaseCode.Code);
+        StandardPurchaseLine.Validate(Type, PurchaseLineType);
+        StandardPurchaseLine.Validate("No.", LibraryERM.CreateGLAccountWithPurchSetup());
+        StandardPurchaseLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        StandardPurchaseLine.Modify();
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateVendorPurchaseCode(StandardVendorPurchaseCode, Vendor."No.", StandardPurchaseCode.Code);
     end;
 
     [ModalPageHandler]

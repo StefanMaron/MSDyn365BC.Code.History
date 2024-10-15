@@ -1808,6 +1808,11 @@ page 52 "Purchase Credit Memo"
             Rec.SetBuyFromVendorFromFilter();
     end;
 
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        CurrPage.Update(false);
+    end;
+
     trigger OnOpenPage()
     var
         OfficeMgt: Codeunit "Office Management";

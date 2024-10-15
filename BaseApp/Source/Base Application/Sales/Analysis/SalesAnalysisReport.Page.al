@@ -116,7 +116,7 @@ page 7117 "Sales Analysis Report"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        AnalysisReportMgt.LookupSourceNo(Rec, CurrentSourceTypeFilter.AsInteger(), CurrentSourceTypeNoFilter);
+                        AnalysisReportMgt.DoLookupSourceNo(Rec, CurrentSourceTypeFilter, CurrentSourceTypeNoFilter);
                         CurrPage.Update(false);
                     end;
 

@@ -2160,12 +2160,15 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         Item: Record Item;
         Vendor: Record Vendor;
         PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PurchaseHeader: Record "Purchase Header";
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         GeneralLedgerSetup: Record "General Ledger Setup";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
         // [SCENARIO 480238] Hole in the Numbering of Purchase Credit Memos
         Initialize();
@@ -2187,10 +2190,25 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         GeneralLedgerSetup."Journal Templ. Name Mandatory" := false;
         GeneralLedgerSetup.Modify();
 
-        // [THEN] Find Posted Purchase Invoice & Create Corrective Credit Memo.
+        // [GIVEN] Find Posted Purchase Invoice & Create Corrective Credit Memo.
         PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
         PostedPurchaseInvoice.CreateCreditMemo.Invoke();
+
+        // [GIVEN] Find Purchase Invoice Line.
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.FindFirst();
+
+        // [GIVEN] Find Purchase Credit Memo & Validate Check Total.
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+        PurchaseHeader.Validate("Check Total", PurchInvLine."Amount Including VAT");
+        PurchaseHeader.Modify();
+
+        // [THEN] Find & Post Purchase Credit Memo.
+        PurchaseCreditMemo.OpenEdit();
+        PurchaseCreditMemo.GoToRecord(PurchaseHeader);
+        PurchaseCreditMemo.Post.Invoke();
 
         // [VERIFY] Verify Purchase Credit Memo is not posted.
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", Vendor."No.");
@@ -2894,7 +2912,6 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     procedure PurchaseCreditMemoPageHandler(var PurchaseCreditMemo: TestPage "Purchase Credit Memo")
     begin
         PurchaseCreditMemo."Vendor Cr. Memo No.".SetValue(LibraryRandom.RandInt(100));
-        PurchaseCreditMemo.Post.Invoke();
     end;
 }
 

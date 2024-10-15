@@ -14,10 +14,11 @@ codeunit 139624 "E-Doc Processsing Test"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         EDocProcessingTest: Codeunit "E-Doc Processsing Test";
         IsInitialized: Boolean;
-        EnableOnCheck, EnableOnCreate, EnableOnCreateBatch : Boolean;
+        EnableOnCheck, EnableOnCreate, EnableOnCreateBatch, IsAsync2 : Boolean;
         ThrowRuntimeError, ThrowLoggedError : Boolean;
         IncorrectValueErr: Label 'Incorrect value found';
         DocumentSendingProfileWithWorkflowErr: Label 'Workflow %1 defined for %2 in Document Sending Profile %3 is not found.', Comment = '%1 - The workflow code, %2 - Enum value set in Electronic Document, %3 - Document Sending Profile Code';
+        EDocEmptyErr: Label 'The E-Document table is empty.';
 
     [Test]
     procedure CreateEDocumentBeforeAfterEventsSuccessful()
@@ -517,13 +518,68 @@ codeunit 139624 "E-Doc Processsing Test"
     [Test]
     procedure InterfaceCreateBatchRecurrentE2ESuccess()
     var
+        EDocument: Record "E-Document";
         EDocumentService: Record "E-Document Service";
+        EDocumentServiceStatus: Record "E-Document Service Status";
+        EDocumentServicePage: TestPage "E-Document Service";
         DocNoA: Code[20];
     begin
         // [FEATURE] [E-Document] [Processing] 
         // [SCENARIO] Post two documents for activating batch. Validate first edocument, before second is posted, then validate both.
 
         // [GIVEN] Edocument service using 'Threshold' batch mode
+        Initialize();
+        BindSubscription(EDocProcessingTest);
+        EDocProcessingTest.EnableOnCreateBatchEvent();
+
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        EDocumentService.FindLast();
+        EDocumentService."Use Batch Processing" := true;
+        EDocumentService."Batch Mode" := EDocumentService."Batch Mode"::Recurrent;
+        EDocumentService.Modify();
+
+        EDocumentServicePage.OpenView();
+        EDocumentServicePage.Filter.SetFilter(Code, EDocumentService.Code);
+        EDocumentServicePage.Close();
+
+        // [WHEN] Posting document is going to succeed
+        DocNoA := LibraryEDoc.PostSalesDocument();
+        EDocument.FindLast();
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(EDocument.RecordId);
+        EDocumentServiceStatus.FindLast();
+
+        Assert.AreEqual(EDocument."Entry No", EDocumentServiceStatus."E-Document Entry No", IncorrectValueErr);
+        Assert.AreEqual(EDocumentService.Code, EDocumentServiceStatus."E-Document Service Code", IncorrectValueErr);
+        Assert.AreEqual(EDocumentServiceStatus.Status::"Pending Batch", EDocumentServiceStatus.Status, IncorrectValueErr);
+        Assert.AreEqual(EDocument.Status::"In Progress", EDocument.Status, IncorrectValueErr);
+
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(EDocumentService.RecordId);
+
+        EDocumentServiceStatus.FindLast();
+        EDocument.FindLast();
+
+        Assert.AreEqual(EDocument."Entry No", EDocumentServiceStatus."E-Document Entry No", IncorrectValueErr);
+        Assert.AreEqual(EDocumentService.Code, EDocumentServiceStatus."E-Document Service Code", IncorrectValueErr);
+        Assert.AreEqual(EDocumentServiceStatus.Status::Sent, EDocumentServiceStatus.Status, IncorrectValueErr);
+        Assert.AreEqual(EDocument.Status::Processed, EDocument.Status, IncorrectValueErr);
+
+        UnbindSubscription(EDocProcessingTest);
+    end;
+
+
+    [Test]
+    procedure InterfaceCreateBatchRecurrentE2EFailure()
+    var
+        EDocument: Record "E-Document";
+        EDocumentService: Record "E-Document Service";
+        EDocumentServiceStatus: Record "E-Document Service Status";
+        EDocumentServicePage: TestPage "E-Document Service";
+    begin
+        // [FEATURE] [E-Document] [Processing] 
+        // [SCENARIO] Post document. Nothhing is exported to temp blob so sending fails 
+
+        // [GIVEN] Edocument service using 'Recurrent' batch mode
         Initialize();
         BindSubscription(EDocProcessingTest);
 
@@ -534,34 +590,110 @@ codeunit 139624 "E-Doc Processsing Test"
         EDocumentService."Batch Mode" := EDocumentService."Batch Mode"::Recurrent;
         EDocumentService.Modify();
 
+        EDocumentServicePage.OpenView();
+        EDocumentServicePage.Filter.SetFilter(Code, EDocumentService.Code);
+        EDocumentServicePage.Close();
+
         // [WHEN] Posting document is going to succeed
-        DocNoA := LibraryEDoc.PostSalesDocument();
-        // LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(EDocumentService.RecordId);
-        // TODO: Fix when recurrent is finished
+        LibraryEDoc.PostSalesDocument();
+        EDocument.FindLast();
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(EDocument.RecordId);
+        EDocumentServiceStatus.FindLast();
 
-        // EDocument.FindLast();
-        // EDocumentPage.OpenView();
-        // EDocumentPage.Last();
+        Assert.AreEqual(EDocument."Entry No", EDocumentServiceStatus."E-Document Entry No", IncorrectValueErr);
+        Assert.AreEqual(EDocumentService.Code, EDocumentServiceStatus."E-Document Service Code", IncorrectValueErr);
+        Assert.AreEqual(EDocumentServiceStatus.Status::"Pending Batch", EDocumentServiceStatus.Status, IncorrectValueErr);
+        Assert.AreEqual(EDocument.Status::"In Progress", EDocument.Status, IncorrectValueErr);
 
-        // // [THEN] E-Document has correct status
-        // Assert.AreEqual(Format(EDocument.Status::"In Progress"), EDocumentPage."Electronic Document Status".Value(), IncorrectValueErr);
-        // Assert.AreEqual(Format(EDocument.Direction::Outgoing), EDocumentPage.Direction.Value(), IncorrectValueErr);
-        // Assert.AreEqual(DocNoA, EDocumentPage."Document No.".Value(), IncorrectValueErr);
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(EDocumentService.RecordId);
 
-        // // [THEN] E-Document Service Status has correct error status
-        // Assert.AreEqual(EDocumentService.Code, EDocumentPage.EdocoumentServiceStatus."E-Document Service Code".Value(), IncorrectValueErr);
-        // Assert.AreEqual(Format(Enum::"E-Document Service Status"::"Pending Batch"), EDocumentPage.EdocoumentServiceStatus.Status.Value(), IncorrectValueErr);
-        // Assert.AreEqual('1', EDocumentPage.EdocoumentServiceStatus.Logs.Value(), IncorrectValueErr);
+        EDocumentServiceStatus.FindLast();
+        EDocument.FindLast();
 
-        // // [THEN] E-Document Errors and Warnings has correct status
-        // Assert.AreEqual('', EDocumentPage.ErrorMessagesPart."Message Type".Value(), IncorrectValueErr);
-        // Assert.AreEqual('', EDocumentPage.ErrorMessagesPart.Description.Value(), IncorrectValueErr);
-
-        // EDocument.Reset();
-        // Assert.AreEqual(1, EDocument.Count(), IncorrectValueErr);
-        // EDocumentPage.Close();
+        Assert.AreEqual(EDocument."Entry No", EDocumentServiceStatus."E-Document Entry No", IncorrectValueErr);
+        Assert.AreEqual(EDocumentService.Code, EDocumentServiceStatus."E-Document Service Code", IncorrectValueErr);
+        Assert.AreEqual(EDocumentServiceStatus.Status::"Sending Error", EDocumentServiceStatus.Status, IncorrectValueErr);
+        Assert.AreEqual(EDocument.Status::Error, EDocument.Status, IncorrectValueErr);
 
         UnbindSubscription(EDocProcessingTest);
+    end;
+
+    [Test]
+    procedure InterfaceOnSendAsync()
+    var
+        EDocument: Record "E-Document";
+        EDocumentService: Record "E-Document Service";
+        EDocumentServiceStatus: Record "E-Document Service Status";
+        JobQueueEntry: Record "Job Queue Entry";
+        EDocumentServicePage: TestPage "E-Document Service";
+    begin
+        // [FEATURE] [E-Document] [Processing] 
+        // [SCENARIO] Post document to async service. Check that document is pending response after posting and after get response job is run it is sent
+
+        // [GIVEN] Edocument service using 'Recurrent' batch mode
+        Initialize();
+        BindSubscription(EDocProcessingTest);
+        EDocProcessingTest.EnableOnCreateEvent();
+        EDocProcessingTest.SetIsAsync();
+
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        EDocumentService.FindLast();
+        EDocumentServicePage.OpenView();
+        EDocumentServicePage.Filter.SetFilter(Code, EDocumentService.Code);
+        EDocumentServicePage.Close();
+
+        // [WHEN] Posting document is going to succeed
+        LibraryEDoc.PostSalesDocument();
+        EDocument.FindLast();
+        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(EDocument.RecordId);
+        EDocumentServiceStatus.FindLast();
+
+        Assert.AreEqual(EDocument."Entry No", EDocumentServiceStatus."E-Document Entry No", IncorrectValueErr);
+        Assert.AreEqual(EDocumentService.Code, EDocumentServiceStatus."E-Document Service Code", IncorrectValueErr);
+        Assert.AreEqual(EDocumentServiceStatus.Status::"Pending Response", EDocumentServiceStatus.Status, IncorrectValueErr);
+        Assert.AreEqual(EDocument.Status::"In Progress", EDocument.Status, IncorrectValueErr);
+
+        // [WHEN] Executing Get Response succesfully 
+        JobQueueEntry.FindJobQueueEntry(JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"E-Document Get Response");
+        LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
+
+        // [THEN] Status is Sent on service, and document is processed
+        EDocumentServiceStatus.FindLast();
+        EDocument.FindLast();
+        Assert.AreEqual(EDocument."Entry No", EDocumentServiceStatus."E-Document Entry No", IncorrectValueErr);
+        Assert.AreEqual(EDocumentService.Code, EDocumentServiceStatus."E-Document Service Code", IncorrectValueErr);
+        Assert.AreEqual(EDocumentServiceStatus.Status::Sent, EDocumentServiceStatus.Status, IncorrectValueErr);
+        Assert.AreEqual(EDocument.Status::Processed, EDocument.Status, IncorrectValueErr);
+
+        UnbindSubscription(EDocProcessingTest);
+    end;
+
+    [Test]
+    procedure PostDocumentNoDefaultOrElectronicProfile()
+    var
+        EDocument: Record "E-Document";
+        DocumentSendingProfile: Record "Document Sending Profile";
+    begin
+        // [FEATURE] [E-Document] [Processing] 
+        // [SCENARIO] Post document without having default or Electronic sending profile
+        Initialize();
+        // [GIVEN] No default document sending profile
+        DocumentSendingProfile.Reset();
+        DocumentSendingProfile.DeleteAll();
+
+        // [THEN] No e-Document is created
+        asserterror LibraryEDoc.CreateEDocumentFromSales(EDocument);
+        Assert.AreEqual(EDocEmptyErr, GetLastErrorText(), IncorrectValueErr);
+
+        // [GIVEN] Default document sending profile is not electronic
+        DocumentSendingProfile.GetDefault(DocumentSendingProfile);
+        DocumentSendingProfile."Electronic Service Flow" := 'NON-WORKFLOW';
+        DocumentSendingProfile.Modify();
+
+        // [THEN] No e-Document is created
+        asserterror LibraryEDoc.CreateEDocumentFromSales(EDocument);
+        Assert.AreEqual(EDocEmptyErr, GetLastErrorText(), IncorrectValueErr);
     end;
 
     internal procedure EnableOnCreateEvent()
@@ -589,6 +721,11 @@ codeunit 139624 "E-Doc Processsing Test"
         ThrowLoggedError := true;
     end;
 
+    internal procedure SetIsAsync()
+    begin
+        IsAsync2 := true;
+    end;
+
     local procedure Initialize()
     var
         TransformationRule: Record "Transformation Rule";
@@ -602,6 +739,7 @@ codeunit 139624 "E-Doc Processsing Test"
         EnableOnCreate := false;
         EnableOnCreateBatch := false;
         ThrowRuntimeError := false;
+        IsAsync2 := false;
         DocumentSendingProfile.DeleteAll();
         TransformationRule.DeleteAll();
         TransformationRule.CreateDefaultTransformations();
@@ -618,23 +756,6 @@ codeunit 139624 "E-Doc Processsing Test"
     begin
         NewLibraryVariableStorage := LibraryVariableStorage;
     end;
-
-
-    // [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', false, false)]
-    // local procedure ManuallyRunJobQueueTask(var JobQueueEntry: Record "Job Queue Entry"; var DoNotScheduleTask: Boolean)
-    // begin
-    //     DoNotScheduleTask := true; // Scheduling tasks are not possible while executing tests
-    //     // Only execute the job queue if it is scheduled to start today
-    //     // Avoid executing again jobs that already failed or succeeded
-    //     if DT2Date(JobQueueEntry."Earliest Start Date/Time") = Today then
-    //         if not (JobQueueEntry.Status in [JobQueueEntry.Status::Error, JobQueueEntry.Status::Finished]) then begin
-    //             JobQueueEntry.Validate(Status, JobQueueEntry.Status::Ready);
-    //             JobQueueEntry.Modify();
-    //             CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
-    //         end;
-    // end;
-
-
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"E-Doc. Export", 'OnAfterCreateEDocument', '', false, false)]
     local procedure OnAfterCreateEDocument(var EDocument: Record "E-Document")
@@ -699,5 +820,17 @@ codeunit 139624 "E-Doc Processsing Test"
         TempBlob.CreateOutStream(OutStream);
         OutStream.WriteText('TEST');
         LibraryVariableStorage.Enqueue(TempBlob.Length());
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"E-Doc. Integration Mock", 'OnSend', '', false, false)]
+    local procedure OnSend(var EDocument: Record "E-Document"; var TempBlob: Codeunit "Temp Blob"; var IsAsync: Boolean; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage)
+    begin
+        IsAsync := IsAsync2;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"E-Doc. Integration Mock", 'OnGetResponse', '', false, false)]
+    local procedure OnGetResponse(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage; var Success: Boolean)
+    begin
+        Success := true;
     end;
 }

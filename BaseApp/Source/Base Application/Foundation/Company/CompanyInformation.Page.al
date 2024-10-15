@@ -868,8 +868,10 @@ page 1 "Company Information"
         BankBranchNoOrAccountNoMissing: Boolean;
         BankAcctPostingGroup: Code[20];
         CountyVisible: Boolean;
-        SystemIndicatorChanged: Boolean;
         CompanyBadgeRefreshPageTxt: Label 'The Company Badge settings have changed. Refresh the browser (Ctrl+F5) to update the badge.';
+
+    protected var
+        SystemIndicatorChanged: Boolean;
 
     local procedure UpdateSystemIndicator()
     var

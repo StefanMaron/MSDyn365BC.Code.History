@@ -47,6 +47,8 @@ codeunit 136208 "Marketing Interaction"
         SegmentSendContactEmailFaxMissingErr: Label 'Make sure that the %1 field is specified for either contact no. %2 or the contact alternative address.', Comment = '%1 - Email or Fax No. field caption, %2 - Contact No.';
         NoOfInteractionEntriesMustMatchErr: Label 'No. of Interaction Entries must match.';
         LoggedSegemntEntriesCreateMsg: Label 'Logged Segment entry was created';
+        AttachmentFileShouldNotBeBlankErr: Label 'Attachment File should not be blank.';
+        TxtFileExt: Label 'txt';
 
     [Test]
     [Scope('OnPrem')]
@@ -2969,6 +2971,46 @@ codeunit 136208 "Marketing Interaction"
         VerifyAttachmentExistOnPostedInteractionLog(SegmentHeader."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('CreateInteractionModalPageHandler')]
+    procedure AttachmentShouldNotBeEmptyWhenCreateInteractionFromContact()
+    var
+        Contact: Record Contact;
+        MarketingSetup: Record "Marketing Setup";
+        ContactCard: TestPage "Contact Card";
+        NewDirName: Text;
+        InteractionTemplateCode: Code[10];
+        AttachmentNo: Integer;
+    begin
+        // [SCENARIO 492204] Attachment from Interaction Log entries are empty
+        Initialize();
+
+        // [GIVEN] Create Contact
+        LibraryMarketing.CreateCompanyContact(Contact);
+
+        // [GIVEN] Change the Attachment Storage Type to "Disk File" and attachment address
+        RelocateAttachments(MarketingSetup."Attachment Storage Type"::"Disk File", CreateOrClearTempDirectory(NewDirName));
+        MarketingSetup.Get();
+
+        // [GIVEN] Create Attachment
+        AttachmentNo := CreateAttachmentFileOnDirectory(MarketingSetup."Attachment Storage Location", TxtFileExt);
+
+        // [GIVEN] Create Interaction Template
+        InteractionTemplateCode := CreateInteractionTemplateWithLanguageAndAttachment('', AttachmentNo);
+
+        // [GIVEN] Enqueue Interaction Template Code
+        LibraryVariableStorage.Enqueue(InteractionTemplateCode);
+
+        // [WHEN] Open Contact Card and create Interaction.
+        ContactCard.OpenEdit();
+        ContactCard.GoToRecord(Contact);
+        ContactCard."Create &Interaction".Invoke();
+
+        // [VERIFY] Verify Attachment File is not blank on created Interaction.
+        VerifyAttachmentFileIsNotBlankOnInteractionLogEntry(Contact."No.");
+    end;
+
     local procedure Initialize()
     var
         LibrarySales: Codeunit "Library - Sales";
@@ -4173,6 +4215,87 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
         until InteractionLogEntry.Next() = 0;
     end;
 
+    local procedure RelocateAttachments(StorageType: Enum "Setup Attachment Storage Type"; Path: Text)
+    var
+        MarketingSetup: Record "Marketing Setup";
+    begin
+        MarketingSetup.Get();
+        MarketingSetup.Validate("Attachment Storage Type", StorageType);
+        MarketingSetup.Validate("Attachment Storage Location", CopyStr(Path, 1, 250) + '\');
+        MarketingSetup.Modify(true);
+    end;
+
+    local procedure CreateInteractionTemplateWithLanguageAndAttachment(LanguageCode: Code[10]; AttachmentNo: Integer): Code[10]
+    var
+        InteractionTemplate: Record "Interaction Template";
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+    begin
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+
+        InteractionTmplLanguage.Init();
+        InteractionTmplLanguage.Validate("Interaction Template Code", InteractionTemplate.Code);
+        InteractionTmplLanguage.Validate("Language Code", LanguageCode);
+        InteractionTmplLanguage.Validate("Attachment No.", AttachmentNo);
+        InteractionTmplLanguage.Insert(true);
+
+        InteractionTemplate.Validate("Language Code (Default)", InteractionTmplLanguage."Language Code");
+        InteractionTemplate.Modify(true);
+
+        exit(InteractionTemplate.Code);
+    end;
+
+    local procedure CreateOrClearTempDirectory(var NewDirName: Text): Text
+    var
+        Directory: DotNet Directory;
+    begin
+        if NewDirName = '' then
+            NewDirName := TemporaryPath + LibraryUtility.GenerateGUID();
+
+        if Directory.Exists(NewDirName) then begin
+            Directory.Delete(NewDirName, true);
+            Directory.CreateDirectory(NewDirName);
+        end else
+            Directory.CreateDirectory(NewDirName);
+
+        exit(NewDirName);
+    end;
+
+    local procedure CreateAttachmentFileOnDirectory(ServerFileAdd: Text; FileExtension: Text[250]): Integer
+    var
+        Attachment: Record Attachment;
+        ExportFile: File;
+        OStream: OutStream;
+        FileAddress: Text;
+    begin
+        LibraryMarketing.CreateAttachment(Attachment);
+        Attachment.Validate("File Extension", FileExtension);
+        Attachment."Attachment File".CreateOutStream(OStream);
+        OStream.WriteText(LibraryUtility.GenerateRandomText(10));
+        Attachment.Modify();
+
+        FileAddress := ServerFileAdd + Format(Attachment."No.") + '.' + Attachment."File Extension";
+
+        ExportFile.WriteMode := true;
+        ExportFile.TextMode := true;
+        ExportFile.Create(FileAddress);
+        ExportFile.CreateOutStream(OStream);
+        ExportFile.Close();
+
+        exit(Attachment."No.");
+    end;
+
+    local procedure VerifyAttachmentFileIsNotBlankOnInteractionLogEntry(ContactNo: Code[20])
+    var
+        Attachment: Record Attachment;
+        InteractionLogEntry: Record "Interaction Log Entry";
+    begin
+        InteractionLogEntry.SetRange("Contact No.", ContactNo);
+        InteractionLogEntry.FindFirst();
+
+        Attachment.Get(InteractionLogEntry."Attachment No.");
+        Assert.AreNotEqual('', Format(Attachment."Attachment File"), AttachmentFileShouldNotBeBlankErr);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
     local procedure OnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
     var
@@ -4189,6 +4312,16 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
     [Scope('OnPrem')]
     procedure SendNotificationHandler(var Notification: Notification): Boolean
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateInteractionModalPageHandler(var CreateInteraction: TestPage "Create Interaction")
+    begin
+        CreateInteraction."Interaction Template Code".SetValue(LibraryVariableStorage.DequeueText());
+        CreateInteraction.NextInteraction.Invoke();
+        CreateInteraction.NextInteraction.Invoke();
+        CreateInteraction.Finish.Invoke();
     end;
 }
 

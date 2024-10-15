@@ -224,7 +224,7 @@ codeunit 12153 SubcontractingPricesMgt
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetSubcPriceForReqLineOnAfterSetFilters(SubcontractorPrices: Record "Subcontractor Prices"; var ReqLine: Record "Requisition Line")
+    local procedure OnGetSubcPriceForReqLineOnAfterSetFilters(var SubcontractorPrices: Record "Subcontractor Prices"; var ReqLine: Record "Requisition Line")
     begin
     end;
 

@@ -896,7 +896,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnRun(var TransferHeader2: Record "Transfer Header"; HideValidationDialog: Boolean; SuppressCommit: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeOnRun(var TransferHeader2: Record "Transfer Header"; var HideValidationDialog: Boolean; SuppressCommit: Boolean; var IsHandled: Boolean)
     begin
     end;
 

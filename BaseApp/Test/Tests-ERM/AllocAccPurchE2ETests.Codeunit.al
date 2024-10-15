@@ -376,6 +376,9 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
         PurchaseInvoice.PurchLines."Line Amount".SetValue(NewAmount);
         PurchaseInvoice.PurchLines.First();
 
+        // [GIVEN] Update Check Total on Purchase Invoice
+        UpdateCheckTotal(AllocationAccount."No.", PurchaseInvoice, PurchaseHeader, NewAmount);
+
         // [THEN] Manual overrides are deleted
         Assert.IsTrue(AllocAccManualOverride.IsEmpty(), 'The manual override was not deleted');
 
@@ -745,30 +748,76 @@ codeunit 134831 "Alloc. Acc. Purch. E2E Tests"
     local procedure CreatePurchaseInvoiceWithInheritFromParent(GLAccountNo: Code[20]; SelectedAlloctationAccountNo: Code[20]; var PurchaseInvoice: TestPage "Purchase Invoice"; var PurchaseHeader: Record "Purchase Header")
     var
         DummyPurchaseLine: Record "Purchase Line";
+        FirstLineTotal, LineAmount : Decimal;
     begin
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GoToRecord(PurchaseHeader);
+        Evaluate(FirstLineTotal, PurchaseInvoice.PurchLines."Total Amount Incl. VAT".Value);
         PurchaseInvoice.PurchLines.New();
         PurchaseInvoice.PurchLines.Type.SetValue(DummyPurchaseLine.Type::"G/L Account");
         PurchaseInvoice.PurchLines."No.".SetValue(GLAccountNo);
         PurchaseInvoice.PurchLines.Quantity.SetValue(1);
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(GetLineAmountToForceRounding());
         PurchaseInvoice.PurchLines."Allocation Account No.".SetValue(SelectedAlloctationAccountNo);
+        Evaluate(LineAmount, PurchaseInvoice.PurchLines."Line Amount".Value);
+        PurchaseInvoice."Check Total".SetValue(FirstLineTotal + ReturnTotalForAllocationAccount(SelectedAlloctationAccountNo, LineAmount));
     end;
 
     local procedure CreatePurchaseInvoice(AccountNo: Code[20]; var PurchaseInvoice: TestPage "Purchase Invoice"; var PurchaseHeader: Record "Purchase Header")
     var
         DummyPurchaseLine: Record "Purchase Line";
+        FirstLineTotal, LineAmount : Decimal;
     begin
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GoToRecord(PurchaseHeader);
+        Evaluate(FirstLineTotal, PurchaseInvoice.PurchLines."Total Amount Incl. VAT".Value);
         PurchaseInvoice.PurchLines.New();
         PurchaseInvoice.PurchLines.Type.SetValue(DummyPurchaseLine.Type::"Allocation Account");
         PurchaseInvoice.PurchLines."No.".SetValue(AccountNo);
         PurchaseInvoice.PurchLines.Quantity.SetValue(1);
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(GetLineAmountToForceRounding());
+        Evaluate(LineAmount, PurchaseInvoice.PurchLines."Line Amount".Value);
+        PurchaseInvoice."Check Total".SetValue(FirstLineTotal + ReturnTotalForAllocationAccount(AccountNo, LineAmount));
+    end;
+
+    local procedure UpdateCheckTotal(AccountNo: Code[20]; var PurchaseInvoice: TestPage "Purchase Invoice"; var PurchaseHeader: Record "Purchase Header"; LineAmount: Decimal)
+    var
+        DummyPurchaseLine: Record "Purchase Line";
+        FirstLineTotal: Decimal;
+    begin
+        DummyPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        DummyPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        DummyPurchaseLine.SetRange(Type, DummyPurchaseLine.Type::Item);
+        if DummyPurchaseLine.FindFirst() then
+            FirstLineTotal := DummyPurchaseLine."Amount Including VAT";
+        PurchaseInvoice."Check Total".SetValue(FirstLineTotal + ReturnTotalForAllocationAccount(AccountNo, LineAmount));
+    end;
+
+    local procedure ReturnTotalForAllocationAccount(AccountNo: Code[20]; Amount: Decimal) AmountWithVAT: Decimal
+    var
+        AllocAccountDistribution: Record "Alloc. Account Distribution";
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VatPercent: Decimal;
+    begin
+        AllocAccountDistribution.SetRange("Allocation Account No.", AccountNo);
+        if AllocAccountDistribution.FindSet() then
+            repeat
+                if AllocAccountDistribution."Destination Account Type" = AllocAccountDistribution."Destination Account Type"::"G/L Account" then
+                    AccountNo := AllocAccountDistribution."Destination Account Number"
+                else
+                    AccountNo := AllocAccountDistribution."Breakdown Account Number";
+                if GLAccount.Get(AccountNo) then begin
+                    VatPercent := 0;
+                    if VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group") then
+                        VatPercent := VATPostingSetup."VAT %";
+
+                    AmountWithVAT += Round(AllocAccountDistribution.Percent / 100 * Amount * (1 + VatPercent / 100), 0.00001);
+                end;
+            until AllocAccountDistribution.Next() = 0;
+        AmountWithVAT := Round(AmountWithVAT, 0.01, '<');
     end;
 
     local procedure GetLineAmountToForceRounding(): Decimal

@@ -846,7 +846,13 @@ page 5600 "Fixed Asset Card"
     protected procedure SetDefaultDepreciationBook()
     var
         FASetup: Record "FA Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetDefaultDepreciationBook(Rec, FADepreciationBook, Simple, FADepreciationBookOld, ShowAddMoreDeprBooksLbl, AllowEditDepBookCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if FADepreciationBook."Depreciation Book Code" = '' then begin
             FASetup.Get();
             FADepreciationBook.Validate("Depreciation Book Code", FASetup."Default Depr. Book");
@@ -863,6 +869,7 @@ page 5600 "Fixed Asset Card"
         UpdateAllowed: Boolean;
         UpdateConfirmed: Boolean;
         IsDifferentFAPostingGr: Boolean;
+        IsHandled: Boolean;
     begin
         if FASubclass.Get(Rec."FA Subclass Code") then;
         UpdateAllowed := true;
@@ -883,16 +890,19 @@ page 5600 "Fixed Asset Card"
                     true)
         end;
 
-        if UpdateConfirmed and UpdateAllowed then begin
-            Rec.Validate("FA Posting Group", FASubclass."Default FA Posting Group");
-            if IsDifferentFAPostingGr then begin
-                FADepreciationBook.Validate("FA Posting Group", FASubclass."Default FA Posting Group");
-                if Simple then
-                    SaveSimpleDepreciationBook(Rec."No.")
-                else
-                    UpdateDepreciationBook(Rec."No.");
+        IsHandled := false;
+        OnSetDefaultPostingGroupOnBeforeValidateFAPostingGroup(Rec, FADepreciationBook, FASubclass, UpdateConfirmed, UpdateAllowed, Simple, IsHandled);
+        if not IsHandled then
+            if UpdateConfirmed and UpdateAllowed then begin
+                Rec.Validate("FA Posting Group", FASubclass."Default FA Posting Group");
+                if IsDifferentFAPostingGr then begin
+                    FADepreciationBook.Validate("FA Posting Group", FASubclass."Default FA Posting Group");
+                    if Simple then
+                        SaveSimpleDepreciationBook(Rec."No.")
+                    else
+                        UpdateDepreciationBook(Rec."No.");
+                end;
             end;
-        end;
         if not UpdateAllowed and IsDifferentFAPostingGr then
             Message(
                 FAPostingGroupChangeDeniedMsg,
@@ -956,5 +966,15 @@ page 5600 "Fixed Asset Card"
     local procedure OnBeforeOnValidateFASubclassCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetDefaultPostingGroupOnBeforeValidateFAPostingGroup(var FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; FASubClass: Record "FA Subclass"; var UpdateConfirmed: Boolean; var UpdateAllowed: Boolean; var Simple: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetDefaultDepreciationBook(var FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; var Simple: Boolean; var FADepreciationBookOld: Record "FA Depreciation Book"; var ShowAddMoreDeprBooksLbl: Boolean; var AllowEditDepBookCode: Boolean; var IsHandled: Boolean)
+    begin
+    end;    
 }
 

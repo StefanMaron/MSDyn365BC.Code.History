@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Bank.DirectDebit;
 
 using Microsoft.Bank.Payment;
+using Microsoft.Bank.BankAccount;
 using Microsoft.Foundation.Company;
 
 xmlport 1010 "SEPA DD pain.008.001.02"
@@ -87,9 +88,12 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                         {
                             textelement(OrgId)
                             {
-                                textelement(Othr)
+                                tableelement(BankAccountOthr; "Bank Account")
                                 {
-                                    fieldelement(Id; CompanyInformation."VAT Registration No.")
+                                    LinkFields = "No." = field("Sender Bank Account Code");
+                                    LinkTable = PaymentExportDataGroup;
+                                    XmlName = 'Othr';
+                                    fieldelement(Id; BankAccountOthr.CUC)
                                     {
                                     }
                                 }
@@ -462,4 +466,3 @@ xmlport 1010 "SEPA DD pain.008.001.02"
         PaymentExportDataGroup.Insert();
     end;
 }
-

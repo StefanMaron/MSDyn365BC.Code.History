@@ -432,6 +432,7 @@ codeunit 410 "Update Analysis View"
         TempAnalysisViewEntry."Dimension 3 Value Code" := UpdAnalysisViewEntryBuffer.DimValue3;
         TempAnalysisViewEntry."Dimension 4 Value Code" := UpdAnalysisViewEntryBuffer.DimValue4;
         TempAnalysisViewEntry."Entry No." := UpdAnalysisViewEntryBuffer.EntryNo;
+        OnUpdateAnalysisViewEntryOnAfterTempAnalysisViewEntryAssignment(TempAnalysisViewEntry, AnalysisView, GLEntry, UpdAnalysisViewEntryBuffer);
 
         if TempAnalysisViewEntry.Find() then begin
             TempAnalysisViewEntry.Amount += UpdAnalysisViewEntryBuffer.Amount;
@@ -776,6 +777,11 @@ codeunit 410 "Update Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAllOnAfterFilterAnalysisView2(var AnalysisView: Record "Analysis View"; DirectlyFromPosting: Boolean; LastBudgetEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAnalysisViewEntryOnAfterTempAnalysisViewEntryAssignment(var TempAnalysisViewEntry: Record "Analysis View Entry" temporary; var AnalysisView: Record "Analysis View"; var GLEntry: Record "G/L Entry"; var UpdAnalysisViewEntryBuffer: Record "Upd Analysis View Entry Buffer")
     begin
     end;
 }

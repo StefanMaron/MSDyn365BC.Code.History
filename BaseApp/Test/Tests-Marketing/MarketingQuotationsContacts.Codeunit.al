@@ -23,6 +23,8 @@ codeunit 136204 "Marketing Quotations Contacts"
         UnknownError: Label 'Unknown error.';
         CustomerTemplateCode2: Code[20];
         SalesQuoteMustBeInProgressErr: Label '%1 must be equal to ''%2''  in Opportunity: No.=%3. Current value is ''%4''.', Comment = '%1=Opportunity Status;%2=Status Value;%3=Opportunity No.;%4=Status Value.';
+        SellToContactMissMatchErr: Label 'Sell-To Contact No. on created Quote must be %1.', Comment = '%1- Contact No.';
+        SalesDocumentTypeMissMatchErr: Label 'Sales Document Type must be Quote on Opportunity %1.', Comment = '%1- Opportunity No';
 
     [Test]
     [HandlerFunctions('CreateOpportModalFormHandler,SalesQuoteFormHandler')]
@@ -578,6 +580,46 @@ codeunit 136204 "Marketing Quotations Contacts"
         FindSalesDocument(SalesHeader, CustomerTemplate.Code, Contact."No.", SalesHeader."Document Type"::Quote);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,SalesQuoteNoCustomerPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreatingSalesQuoteOpportunityForPersonAndNoCustomer()
+    var
+        SalesHeader: Record "Sales Header";
+        Contact: Record Contact;
+        Opportunity: Record Opportunity;
+    begin
+        // [SCENARIO 491477] Sales Quote should be assigned to the Opportunity for a Contact of type Person where company no. is blank and customer is also not created for the contact.
+        Initialize();
+
+        // [GIVEN] The Customer with Contact 'C' of type Person.
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        // [GIVEN] The Company No. on contact must be blank.
+        Contact.Validate("Company No.", '');
+        Contact.Modify();
+
+        // [GIVEN] Create Opportunity for the Contact and initiate first stage.
+        LibraryMarketing.CreateOpportunity(Opportunity, Contact."No.");
+        Opportunity.StartActivateFirstStage();
+        Opportunity.Get(Opportunity."No.");
+
+        // [WHEN] Create Sales Quote for the Opportunity.
+        Opportunity.CreateQuote();
+
+        // [THEN] The Sales Document Type on Opportunity should be updated as Quote.
+        Assert.AreEqual(Format(Opportunity."Sales Document Type"), Format(Enum::"Sales Document Type"::Quote), StrSubstNo(SalesDocumentTypeMissMatchErr, Opportunity."No."));
+
+        // [THEN] The Sales Quote Dcoument should be created with the Sales Document No. of Oppurtunity.
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
+        SalesHeader.SetRange("No.", Opportunity."Sales Document No.");
+        Assert.RecordIsNotEmpty(SalesHeader);
+
+        // [THEN] The created Sales Quote Document should have same Sell-To Contact No. as Oppurtunity.
+        SalesHeader.FindFirst();
+        Assert.AreEqual(SalesHeader."Sell-to Contact No.", Opportunity."Contact No.", StrSubstNo(SellToContactMissMatchErr, Opportunity."Contact No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -807,6 +849,13 @@ codeunit 136204 "Marketing Quotations Contacts"
         SalesHeader.Validate("Sell-to Customer Templ. Code", CustomerTemplateCode2);
         SalesHeader.Modify(true);
         CreateSalesLine(SalesHeader);
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure SalesQuoteNoCustomerPageHandler(var SalesQuote: Page "Sales Quote")
+    begin
+        SalesQuote.Close();
     end;
 
     [ConfirmHandler]

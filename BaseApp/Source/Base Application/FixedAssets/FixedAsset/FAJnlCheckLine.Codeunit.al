@@ -568,7 +568,13 @@ codeunit 5631 "FA Jnl.-Check Line"
     var
         MainAssetComponent: Record "Main Asset Component";
         ComponentFADeprBook: Record "FA Depreciation Book";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckMainAsset(GenJnlLine, FAJnlLine, DeprBook, FA, IsHandled);
+        if IsHandled then
+            exit;
+
         if GenJnlLine."FA Posting Type" <> GenJnlLine."FA Posting Type"::Disposal then
             exit;
         if FA."Main Asset/Component" <> FA."Main Asset/Component"::"Main Asset" then
@@ -664,6 +670,11 @@ codeunit 5631 "FA Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckConsistencyFAJnlPosting(var FAJnlLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckMainAsset(GenJournalLine: Record "Gen. Journal Line"; FAJournalLine: Record "FA Journal Line"; DepreciationBook: Record "Depreciation Book"; FixedAsset: Record "Fixed Asset"; var IsHandled: Boolean)
     begin
     end;
 }

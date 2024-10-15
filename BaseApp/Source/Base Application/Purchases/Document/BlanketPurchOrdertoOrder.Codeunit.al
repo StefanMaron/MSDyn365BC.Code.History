@@ -19,6 +19,7 @@ codeunit 97 "Blanket Purch. Order to Order"
         RecordLinkManagement: Codeunit "Record Link Management";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         ShouldRedistributeInvoiceAmount: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeRun(Rec, SkipCommit);
 
@@ -45,63 +46,66 @@ codeunit 97 "Blanket Purch. Order to Order"
         OnRunOnAfterPurchBlanketOrderLineSetFilters(PurchBlanketOrderLine);
         if PurchBlanketOrderLine.FindSet() then
             repeat
-                if (PurchBlanketOrderLine.Type = PurchBlanketOrderLine.Type::" ") or
-                   (PurchBlanketOrderLine."Qty. to Receive" <> 0)
-                then begin
-                    CalcQuantityOnOrders();
+                IsHandled := false;
+                OnRunOnBeforePurchBlanketOrderLineLoop(Rec, PurchBlanketOrderLine, IsHandled);
+                if not IsHandled then
+                    if (PurchBlanketOrderLine.Type = PurchBlanketOrderLine.Type::" ") or
+                       (PurchBlanketOrderLine."Qty. to Receive" <> 0)
+                    then begin
+                        CalcQuantityOnOrders();
 
-                    CheckBlanketOrderLineQuantity();
+                        CheckBlanketOrderLineQuantity();
 
-                    PurchOrderLine := PurchBlanketOrderLine;
-                    OnRunOnAfterInitPurchOrderLineFromBlanketOrderLine(PurchOrderLine, PurchBlanketOrderLine);
-                    ResetQuantityFields(PurchOrderLine);
-                    PurchOrderLine."Document Type" := PurchOrderHeader."Document Type";
-                    PurchOrderLine."Document No." := PurchOrderHeader."No.";
-                    PurchOrderLine."Blanket Order No." := Rec."No.";
-                    PurchOrderLine."Blanket Order Line No." := PurchBlanketOrderLine."Line No.";
+                        PurchOrderLine := PurchBlanketOrderLine;
+                        OnRunOnAfterInitPurchOrderLineFromBlanketOrderLine(PurchOrderLine, PurchBlanketOrderLine);
+                        ResetQuantityFields(PurchOrderLine);
+                        PurchOrderLine."Document Type" := PurchOrderHeader."Document Type";
+                        PurchOrderLine."Document No." := PurchOrderHeader."No.";
+                        PurchOrderLine."Blanket Order No." := Rec."No.";
+                        PurchOrderLine."Blanket Order Line No." := PurchBlanketOrderLine."Line No.";
 
-                    if (PurchOrderLine."No." <> '') and (PurchOrderLine.Type <> PurchOrderLine.Type::" ") then begin
-                        PurchOrderLine.Amount := 0;
-                        PurchOrderLine."Amount Including VAT" := 0;
-                        PurchOrderLineValidateQuantity(PurchOrderLine, PurchBlanketOrderLine);
-                        if PurchBlanketOrderLine."Expected Receipt Date" <> 0D then
-                            PurchOrderLine.Validate("Expected Receipt Date", PurchBlanketOrderLine."Expected Receipt Date")
-                        else
-                            PurchOrderLine.Validate("Order Date", PurchOrderHeader."Order Date");
-                        UpdatePurchOrderLineDirectUnitCost();
-                        PurchOrderLineValidateLineDiscountPct(PurchOrderLine, PurchBlanketOrderLine);
-                        if PurchOrderLine.Quantity <> 0 then
-                            PurchOrderLine.Validate("Inv. Discount Amount", PurchBlanketOrderLine."Inv. Discount Amount");
-                        PurchBlanketOrderLine.CalcFields("Reserved Qty. (Base)");
-                        OnRunOnAfterCalcReservedQtyBase(Rec, PurchBlanketOrderLine, PurchOrderHeader, PurchOrderLine);
-                        if PurchBlanketOrderLine."Reserved Qty. (Base)" <> 0 then
-                            PurchLineReserve.TransferPurchLineToPurchLine(
-                              PurchBlanketOrderLine, PurchOrderLine, -PurchBlanketOrderLine."Qty. to Receive (Base)");
+                        if (PurchOrderLine."No." <> '') and (PurchOrderLine.Type <> PurchOrderLine.Type::" ") then begin
+                            PurchOrderLine.Amount := 0;
+                            PurchOrderLine."Amount Including VAT" := 0;
+                            PurchOrderLineValidateQuantity(PurchOrderLine, PurchBlanketOrderLine);
+                            if PurchBlanketOrderLine."Expected Receipt Date" <> 0D then
+                                PurchOrderLine.Validate("Expected Receipt Date", PurchBlanketOrderLine."Expected Receipt Date")
+                            else
+                                PurchOrderLine.Validate("Order Date", PurchOrderHeader."Order Date");
+                            UpdatePurchOrderLineDirectUnitCost();
+                            PurchOrderLineValidateLineDiscountPct(PurchOrderLine, PurchBlanketOrderLine);
+                            if PurchOrderLine.Quantity <> 0 then
+                                PurchOrderLine.Validate("Inv. Discount Amount", PurchBlanketOrderLine."Inv. Discount Amount");
+                            PurchBlanketOrderLine.CalcFields("Reserved Qty. (Base)");
+                            OnRunOnAfterCalcReservedQtyBase(Rec, PurchBlanketOrderLine, PurchOrderHeader, PurchOrderLine);
+                            if PurchBlanketOrderLine."Reserved Qty. (Base)" <> 0 then
+                                PurchLineReserve.TransferPurchLineToPurchLine(
+                                  PurchBlanketOrderLine, PurchOrderLine, -PurchBlanketOrderLine."Qty. to Receive (Base)");
+                        end;
+
+                        if Vend."Prepayment %" <> 0 then
+                            PurchOrderLine."Prepayment %" := Vend."Prepayment %";
+                        PrepmtMgt.SetPurchPrepaymentPct(PurchOrderLine, PurchOrderHeader."Posting Date");
+                        PurchOrderLine.Validate("Prepayment %");
+
+                        PurchOrderLine."Shortcut Dimension 1 Code" := PurchBlanketOrderLine."Shortcut Dimension 1 Code";
+                        PurchOrderLine."Shortcut Dimension 2 Code" := PurchBlanketOrderLine."Shortcut Dimension 2 Code";
+                        PurchOrderLine."Dimension Set ID" := PurchBlanketOrderLine."Dimension Set ID";
+                        PurchOrderLine.DefaultDeferralCode();
+                        if IsPurchOrderLineToBeInserted(PurchOrderLine) then begin
+                            OnBeforeInsertPurchOrderLine(PurchOrderLine, PurchOrderHeader, PurchBlanketOrderLine, Rec);
+                            PurchOrderLine.Insert();
+                            OnAfterPurchOrderLineInsert(PurchOrderLine, PurchBlanketOrderLine);
+                        end;
+
+                        OnRunOnBeforeCheckModifyPurchBlanketOrderLine(PurchOrderLine, PurchBlanketOrderLine, PurchLine);
+                        if PurchBlanketOrderLine."Qty. to Receive" <> 0 then begin
+                            PurchBlanketOrderLine.Validate("Qty. to Receive", 0);
+                            PurchBlanketOrderLine.Modify();
+                        end;
+
+                        OnRunOnAfterPurchBlanketOrderLineLoop(PurchOrderLine, PurchLine, PurchBlanketOrderLine);
                     end;
-
-                    if Vend."Prepayment %" <> 0 then
-                        PurchOrderLine."Prepayment %" := Vend."Prepayment %";
-                    PrepmtMgt.SetPurchPrepaymentPct(PurchOrderLine, PurchOrderHeader."Posting Date");
-                    PurchOrderLine.Validate("Prepayment %");
-
-                    PurchOrderLine."Shortcut Dimension 1 Code" := PurchBlanketOrderLine."Shortcut Dimension 1 Code";
-                    PurchOrderLine."Shortcut Dimension 2 Code" := PurchBlanketOrderLine."Shortcut Dimension 2 Code";
-                    PurchOrderLine."Dimension Set ID" := PurchBlanketOrderLine."Dimension Set ID";
-                    PurchOrderLine.DefaultDeferralCode();
-                    if IsPurchOrderLineToBeInserted(PurchOrderLine) then begin
-                        OnBeforeInsertPurchOrderLine(PurchOrderLine, PurchOrderHeader, PurchBlanketOrderLine, Rec);
-                        PurchOrderLine.Insert();
-                        OnAfterPurchOrderLineInsert(PurchOrderLine, PurchBlanketOrderLine);
-                    end;
-
-                    OnRunOnBeforeCheckModifyPurchBlanketOrderLine(PurchOrderLine, PurchBlanketOrderLine, PurchLine);
-                    if PurchBlanketOrderLine."Qty. to Receive" <> 0 then begin
-                        PurchBlanketOrderLine.Validate("Qty. to Receive", 0);
-                        PurchBlanketOrderLine.Modify();
-                    end;
-
-                    OnRunOnAfterPurchBlanketOrderLineLoop(PurchOrderLine, PurchLine, PurchBlanketOrderLine);
-                end;
             until PurchBlanketOrderLine.Next() = 0;
 
         OnAfterInsertAllPurchOrderLines(Rec, PurchOrderHeader, SkipCommit);
@@ -121,6 +125,7 @@ codeunit 97 "Blanket Purch. Order to Order"
         if not (ShouldRedistributeInvoiceAmount or PurchSetup."Calc. Inv. Discount") then
             PurchCalcDiscByType.ResetRecalculateInvoiceDisc(PurchOrderHeader);
 
+        OnRunOnBeforeCommit(Rec, PurchOrderHeader);
         if not SkipCommit then
             Commit();
 
@@ -214,8 +219,12 @@ codeunit 97 "Blanket Purch. Order to Order"
     local procedure CreatePurchHeader(PurchHeader: Record "Purchase Header"; PrepmtPercent: Decimal)
     var
         StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+        IsHandled: Boolean;
     begin
-        OnBeforeCreatePurchHeader(PurchHeader);
+        IsHandled := false;
+        OnBeforeCreatePurchHeader(PurchHeader, PrepmtPercent, IsHandled);
+        if IsHandled then
+            exit;
 
         with PurchHeader do begin
             PurchOrderHeader := PurchHeader;
@@ -355,7 +364,7 @@ codeunit 97 "Blanket Purch. Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePurchHeader(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeCreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; PrepmtPercent: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -436,6 +445,16 @@ codeunit 97 "Blanket Purch. Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePurchHeaderOnAfterPurchOrderHeaderInsert(PurchHeader: Record "Purchase Header"; var PurchOrderHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCommit(var PurchaseHeader: Record "Purchase Header"; var PurchHeaderOrder: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforePurchBlanketOrderLineLoop(var PurchaseHeader: Record "Purchase Header"; PurchLineBlanketOrder: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -2462,6 +2462,15 @@
       <Cmt Name="Dev"><![CDATA[%1=FIELDCAPTION("Withholding Tax Amount"),%2=TABLECAPTION("Purch. Withh. Contribution")]D;]A;(LookupHint=Codeunit ERM Withhold - NamedType WHTAmtZeroTestFieldErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1767273905 - NamedType 2490085658" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Withholding Amount should be 0 in Vendor Bill Line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Withhold - NamedType WithHoldingAmountZeroErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1767273905 - NamedType 570072890" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Withholding_Tax__Withholding_Tax_Amount_]]></Val>

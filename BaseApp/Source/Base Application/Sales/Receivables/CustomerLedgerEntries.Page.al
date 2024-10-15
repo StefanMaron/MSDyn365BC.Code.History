@@ -173,6 +173,14 @@ page 25 "Customer Ledger Entries"
                     ToolTip = 'Specifies the total of the ledger entries that represent credits, expressed in LCY.';
                     Visible = DebitCreditVisible;
                 }
+                field(RunningBalanceLCY; CalcRunningCustBalance.GetCustomerBalanceLCY(Rec))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Running Balance (LCY)';
+                    ToolTip = 'Specifies the running balance in LCY.';
+                    AutoFormatType = 1;
+                    Visible = false;
+                }
                 field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -699,6 +707,7 @@ page 25 "Customer Ledger Entries"
                         ReversalEntry.CheckReverseDocumentType(Rec."Entry No.", Rec."Document Type");
                         ReversePaymentRecJournal.ErrorIfEntryIsNotReversable(Rec);
                         ReversalEntry.ReverseTransaction(Rec."Transaction No.");
+                        Clear(CalcRunningCustBalance);
                     end;
                 }
                 group(IncomingDocument)
@@ -927,6 +936,7 @@ page 25 "Customer Ledger Entries"
     end;
 
     var
+        CalcRunningCustBalance: Codeunit "Calc. Running Cust. Balance";
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
         HasIncomingDocument: Boolean;
@@ -974,4 +984,3 @@ page 25 "Customer Ledger Entries"
         ChangeLogEntry.SetRange("Primary Key Field 1 Value", Format(Rec."Entry No.", 0, 9));
     end;
 }
-

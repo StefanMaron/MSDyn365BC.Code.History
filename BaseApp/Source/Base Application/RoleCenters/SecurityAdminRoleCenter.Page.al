@@ -239,6 +239,18 @@ page 9024 "Security Admin Role Center"
                     ToolTip = 'View or edit apps.';
                 }
             }
+            group("Business Events")
+            {
+                Caption = 'Business Events';
+
+                action("Subscriptions")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Subscriptions';
+                    RunObject = Page "EE Subscription List";
+                    ToolTip = 'View your current Business Event Subscriptions.';
+                }
+            }
             group("Data Privacy")
             {
                 Caption = 'Data Privacy';

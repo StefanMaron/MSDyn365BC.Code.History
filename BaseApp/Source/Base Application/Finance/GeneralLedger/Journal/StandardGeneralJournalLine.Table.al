@@ -1492,6 +1492,7 @@ table 751 "Standard General Journal Line"
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         IsHandled: Boolean;
+        OldDimSetID: Integer;
     begin
         IsHandled := false;
         OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo);
@@ -1500,11 +1501,12 @@ table 751 "Standard General Journal Line"
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
+        OldDimSetID := Rec."Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
-        OnAfterCreateDim(Rec, CurrFieldNo);
+        OnAfterCreateDim(Rec, CurrFieldNo, xRec, OldDimSetID, DefaultDimSource);
     end;
 
     local procedure GetDefaultICPartnerGLAccNo(): Code[20]
@@ -1888,7 +1890,7 @@ table 751 "Standard General Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDim(var StandardGenJournalLine: Record "Standard General Journal Line"; CallingFieldNo: Integer);
+    local procedure OnAfterCreateDim(var StandardGenJournalLine: Record "Standard General Journal Line"; CallingFieldNo: Integer; xStandardGeneralJournalLine: Record "Standard General Journal Line"; OldDimSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]);
     begin
     end;
 
