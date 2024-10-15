@@ -15,7 +15,6 @@ report 10710 "Make 349 Declaration"
             begin
                 if not Evaluate(NumFiscalYear, FiscalYear) then
                     Error(Text1100000);
-                FiscalYear2 := CopyStr(FiscalYear, 3, 2);
 
                 case true of
                     Period in [1 .. 12]:
@@ -193,7 +192,6 @@ report 10710 "Make 349 Declaration"
                     Clear(Amount);
                     Clear(AccPrevDeclAmount);
                     Clear(AccOrigDeclAmount);
-                    PrevDeclAmount := 0;
                     AccumPrevDeclAmount := 0;
                     AccumOrigDeclAmount := 0;
                     AmountEUService := 0;
@@ -316,17 +314,20 @@ report 10710 "Make 349 Declaration"
                                         AlreadyExported := false;
 
                                         if CustVendWarning349_2.FindSet() then begin
-                                            InitVATEntry(VATEntry, CustVendWarning349_2."VAT Entry No.");
-                                            if "VAT Registration No." <> '' then
-                                                SummarizeBaseAmount(VATEntry, Abs(CustVendWarning349_2."Previous Declared Amount"), AccPrevDeclAmount);
-                                            repeat
-                                                if "VAT Registration No." <> '' then begin
+                                            if "VAT Registration No." <> '' then begin
+                                                InitVATEntry(VATEntry, CustVendWarning349_2."VAT Entry No.");
+                                                if CustVendWarning349_2."Previous Declared Amount" <> 0 then    // if decalaration period was updated, then count Previous Declared Amount only once
+                                                    AccPrevDeclAmount[MapDeliveryOperationCode(VATEntry."Delivery Operation Code")] := Abs(CustVendWarning349_2."Previous Declared Amount");
+                                                repeat
+                                                    InitVATEntry(VATEntry, CustVendWarning349_2."VAT Entry No.");
+                                                    if CustVendWarning349_2."Previous Declared Amount" = 0 then
+                                                        AccPrevDeclAmount[MapDeliveryOperationCode(VATEntry."Delivery Operation Code")] += Abs(VATEntry.Base);
                                                     AccOrigDeclAmount[MapDeliveryOperationCode(VATEntry."Delivery Operation Code")] +=
                                                       CustVendWarning349_2."Original Declared Amount";
                                                     CustVendWarning349_2.Exported := true;
                                                     CustVendWarning349_2.Modify();
-                                                end;
-                                            until CustVendWarning349_2.Next() = 0;
+                                                until CustVendWarning349_2.Next() = 0;
+                                            end;
                                         end else
                                             AlreadyExported := true;
 
@@ -337,15 +338,18 @@ report 10710 "Make 349 Declaration"
                                         CustVendWarning349_2.Reset();
                                         FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, true);
                                         if CustVendWarning349_2.FindSet() then begin
-                                            if "VAT Registration No." <> '' then
-                                                AccumPrevDeclAmountEUService := GetPrevDeclaredAmount(CustVendWarning349_2);
-                                            repeat
-                                                if "VAT Registration No." <> '' then begin
+                                            if "VAT Registration No." <> '' then begin
+                                                if CustVendWarning349_2."Previous Declared Amount" <> 0 then    // if decalaration period was updated, then count Previous Declared Amount only once
+                                                    AccumPrevDeclAmountEUService := Abs(CustVendWarning349_2."Previous Declared Amount");
+                                                repeat
+                                                    InitVATEntry(VATEntry, CustVendWarning349_2."VAT Entry No.");
+                                                    if CustVendWarning349_2."Previous Declared Amount" = 0 then
+                                                        AccumPrevDeclAmountEUService += Abs(VATEntry.Base);
                                                     AccumOrigDeclAmountEUService += CustVendWarning349_2."Original Declared Amount";
                                                     CustVendWarning349_2.Exported := true;
                                                     CustVendWarning349_2.Modify();
-                                                end;
-                                            until CustVendWarning349_2.Next() = 0;
+                                                until CustVendWarning349_2.Next() = 0;
+                                            end;
                                         end else
                                             EUServiceAlreadyExported := true;
 
@@ -354,15 +358,18 @@ report 10710 "Make 349 Declaration"
                                         FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", true);
                                         if CustVendWarning349_2.FindSet() then begin
-                                            if "VAT Registration No." <> '' then
-                                                AccumPrevDeclAmountTri := GetPrevDeclaredAmount(CustVendWarning349_2);
-                                            repeat
-                                                if "VAT Registration No." <> '' then begin
+                                            if "VAT Registration No." <> '' then begin
+                                                if CustVendWarning349_2."Previous Declared Amount" <> 0 then    // if decalaration period was updated, then count Previous Declared Amount only once
+                                                    AccumPrevDeclAmountTri := Abs(CustVendWarning349_2."Previous Declared Amount");
+                                                repeat
+                                                    InitVATEntry(VATEntry, CustVendWarning349_2."VAT Entry No.");
+                                                    if CustVendWarning349_2."Previous Declared Amount" = 0 then
+                                                        AccumPrevDeclAmountTri += Abs(VATEntry.Base);
                                                     AccumOrigDeclAmountTri += CustVendWarning349_2."Original Declared Amount";
                                                     CustVendWarning349_2.Exported := true;
                                                     CustVendWarning349_2.Modify();
-                                                end;
-                                            until CustVendWarning349_2.Next() = 0;
+                                                until CustVendWarning349_2.Next() = 0;
+                                            end;
                                         end else
                                             ThirdPartyAlreadyExported := true;
 
@@ -470,6 +477,7 @@ report 10710 "Make 349 Declaration"
 
                 trigger OnAfterGetRecord()
                 var
+                    VATEntry: Record "VAT Entry";
                     CorrectedInvPostingDate: Date;
                 begin
                     while (Vendor."VAT Registration No." = PreVATRegNo) or (Vendor."VAT Registration No." = '') do
@@ -481,7 +489,6 @@ report 10710 "Make 349 Declaration"
                     CustVendVatRegNo := CombineEUCountryAndVATRegNo(CustVendCountry, "VAT Registration No.");
                     AmountOpTri := 0;
                     NormalAmount := 0;
-                    PrevDeclAmount := 0;
                     AccumPrevDeclAmount := 0;
                     AccumOrigDeclAmount := 0;
                     AmountEUService := 0;
@@ -596,15 +603,18 @@ report 10710 "Make 349 Declaration"
                                         AlreadyExported := false;
 
                                         if CustVendWarning349_2.FindSet() then begin
-                                            if "VAT Registration No." <> '' then
-                                                AccumPrevDeclAmount := GetPrevDeclaredAmount(CustVendWarning349_2);
-                                            repeat
-                                                if "VAT Registration No." <> '' then begin
+                                            if "VAT Registration No." <> '' then begin
+                                                if CustVendWarning349_2."Previous Declared Amount" <> 0 then    // if decalaration period was updated, then count Previous Declared Amount only once
+                                                    AccumPrevDeclAmount := Abs(CustVendWarning349_2."Previous Declared Amount");
+                                                repeat
+                                                    InitVATEntry(VATEntry, CustVendWarning349_2."VAT Entry No.");
+                                                    if CustVendWarning349_2."Previous Declared Amount" = 0 then
+                                                        AccumPrevDeclAmount += Abs(VATEntry.Base);
                                                     AccumOrigDeclAmount += CustVendWarning349_2."Original Declared Amount";
                                                     CustVendWarning349_2.Exported := true;
                                                     CustVendWarning349_2.Modify();
-                                                end;
-                                            until CustVendWarning349_2.Next() = 0;
+                                                until CustVendWarning349_2.Next() = 0;
+                                            end;
                                         end else
                                             AlreadyExported := true;
 
@@ -615,15 +625,18 @@ report 10710 "Make 349 Declaration"
                                         CustVendWarning349_2.Reset();
                                         FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, true);
                                         if CustVendWarning349_2.FindSet() then begin
-                                            if "VAT Registration No." <> '' then
-                                                AccumPrevDeclAmountEUService := GetPrevDeclaredAmount(CustVendWarning349_2);
-                                            repeat
-                                                if "VAT Registration No." <> '' then begin
+                                            if "VAT Registration No." <> '' then begin
+                                                if CustVendWarning349_2."Previous Declared Amount" <> 0 then    // if decalaration period was updated, then count Previous Declared Amount only once
+                                                    AccumPrevDeclAmountEUService := Abs(CustVendWarning349_2."Previous Declared Amount");
+                                                repeat
+                                                    InitVATEntry(VATEntry, CustVendWarning349_2."VAT Entry No.");
+                                                    if CustVendWarning349_2."Previous Declared Amount" = 0 then
+                                                        AccumPrevDeclAmountEUService += Abs(VATEntry.Base);
                                                     AccumOrigDeclAmountEUService += CustVendWarning349_2."Original Declared Amount";
                                                     CustVendWarning349_2.Exported := true;
                                                     CustVendWarning349_2.Modify();
-                                                end;
-                                            until CustVendWarning349_2.Next() = 0;
+                                                until CustVendWarning349_2.Next() = 0;
+                                            end;
                                         end else
                                             EUServiceAlreadyExported := true;
 
@@ -632,15 +645,18 @@ report 10710 "Make 349 Declaration"
                                         FilterCustVendWarnings(CustVendWarning349_2, CustVendWarning349, false, false);
                                         CustVendWarning349_2.SetRange("EU 3-Party Trade", true);
                                         if CustVendWarning349_2.FindSet() then begin
-                                            if "VAT Registration No." <> '' then
-                                                AccumPrevDeclAmountTri := GetPrevDeclaredAmount(CustVendWarning349_2);
-                                            repeat
-                                                if "VAT Registration No." <> '' then begin
+                                            if "VAT Registration No." <> '' then begin
+                                                if CustVendWarning349_2."Previous Declared Amount" <> 0 then    // if decalaration period was updated, then count Previous Declared Amount only once
+                                                    AccumPrevDeclAmountTri := Abs(CustVendWarning349_2."Previous Declared Amount");
+                                                repeat
+                                                    InitVATEntry(VATEntry, CustVendWarning349_2."VAT Entry No.");
+                                                    if CustVendWarning349_2."Previous Declared Amount" = 0 then
+                                                        AccumPrevDeclAmountTri += Abs(VATEntry.Base);
                                                     AccumOrigDeclAmountTri += CustVendWarning349_2."Original Declared Amount";
                                                     CustVendWarning349_2.Exported := true;
                                                     CustVendWarning349_2.Modify();
-                                                end;
-                                            until CustVendWarning349_2.Next() = 0;
+                                                until CustVendWarning349_2.Next() = 0;
+                                            end;
                                         end else
                                             ThirdPartyAlreadyExported := true;
 
@@ -898,8 +914,6 @@ report 10710 "Make 349 Declaration"
         CompanyInfo.Get();
         VatRegNo := CopyStr(DelChr(CompanyInfo."VAT Registration No.", '=', '.-/'), 1, 9);
         NoOperations := 0;
-        NoOfRectShips := 0;
-        NoOfRectReciv := 0;
         OperationCode[Idx::E] := 'E';
         OperationCode[Idx::M] := 'M';
         OperationCode[Idx::H] := 'H';
@@ -1068,7 +1082,6 @@ report 10710 "Make 349 Declaration"
         CVWarning349: Page "Customer/Vendor Warnings 349";
         FiscalYear: Code[4];
         RectFiscalYear: Code[4];
-        FiscalYear2: Code[2];
         ContactTelephone: Code[9];
         CountryCode: Code[10];
         OperationCode: array[3] of Code[1];
@@ -1078,7 +1091,6 @@ report 10710 "Make 349 Declaration"
         TotalAmtReciv: Decimal;
         AmountOpTri: Decimal;
         TotalCorreAmt: Decimal;
-        PrevDeclAmount: Decimal;
         AccumPrevDeclAmount: Decimal;
         AccumOrigDeclAmount: Decimal;
         AmountToIncludein349: Decimal;
@@ -1099,8 +1111,6 @@ report 10710 "Make 349 Declaration"
         PreVATRegNo: Text[20];
         ToFile: Text[1024];
         NumFiscalYear: Integer;
-        NoOfRectShips: Integer;
-        NoOfRectReciv: Integer;
         NoOperations: Integer;
         Period: Option "0A","01","02","03","04","05","06","07","08","09","10","11","12","1T","2T","3T","4T";
         DeclarationMediaType: Option "Physical support",Telematic;
@@ -1696,17 +1706,6 @@ report 10710 "Make 349 Declaration"
 
         PeriodInt := Period;
         exit(Format(PeriodInt, 2, '<Integer,2><Filler Character,0>'));
-    end;
-
-    local procedure GetPrevDeclaredAmount(var CustomerVendorWarning349: Record "Customer/Vendor Warning 349"): Decimal
-    var
-        VATEntry: Record "VAT Entry";
-    begin
-        if CustomerVendorWarning349."Previous Declared Amount" <> 0 then
-            exit(Abs(CustomerVendorWarning349."Previous Declared Amount"));
-
-        InitVATEntry(VATEntry, CustomerVendorWarning349."VAT Entry No.");
-        exit(Abs(VATEntry.Base));
     end;
 
     local procedure FilterVATInvPurchEntries(var VATEntry: Record "VAT Entry"; BillToPayNo: Code[20]; FromDate: Date; ToDate: Date; EUService: Boolean; GenProdPostingGroupFilter: Text)
