@@ -848,7 +848,6 @@ table 273 "Bank Acc. Reconciliation"
         until Next() = 0;
     end;
 
-#pragma warning disable AS0074
 #if not CLEAN21
     [Obsolete('NA Bank Rec. Header deprecated in favor of W1 bank reconciliation. Remove references to "Bank Rec. Header" and use GetTempCopy instead', '21.0')]
     procedure GetTempCopyFromBankRecHeader(var BankAccReconciliation: Record "Bank Acc. Reconciliation")
@@ -876,7 +875,6 @@ table 273 "Bank Acc. Reconciliation"
         until BankRecHeader.Next() = 0;
     end;
 #endif
-#pragma warning restore AS0074
 
     procedure InsertRec(StatementType: Option; BankAccountNo: Code[20])
     begin

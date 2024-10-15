@@ -2332,6 +2332,129 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentSummarizedWithAllDifferentRemitAddress()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RemitAddress: array[3] of Record "Remit Address";
+        Amount: array[3] of Decimal;
+        VendorNo: Code[20];
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO] Suggest Payment with Summarized option enable when working with three invoices with different remit addresses.
+        Initialize();
+
+        // [GIVEN] A Vendor with three different remit addresses
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreateRemitToAddress(RemitAddress[1], VendorNo);
+        LibraryPurchase.CreateRemitToAddress(RemitAddress[2], VendorNo);
+        LibraryPurchase.CreateRemitToAddress(RemitAddress[3], VendorNo);
+
+        // [GIVEN] Three posted Vendor invoices with remit address of "RA 1" = Code1, "RA 2" = Code2 and "RA 3" = Code3
+        PostInvoiceWithProvidedVendorAndRemitAddress(VendorNo, BankAccountNo, Amount[1], RemitAddress[1].Code);
+        PostInvoiceWithProvidedVendorAndRemitAddress(VendorNo, BankAccountNo, Amount[2], RemitAddress[2].Code);
+        PostInvoiceWithProvidedVendorAndRemitAddress(VendorNo, BankAccountNo, Amount[3], RemitAddress[3].Code);
+
+        // [GIVEN] Payment Journal Batch with Template
+        PreparePaymentJournalBatch(GenJournalBatch, BankAccountNo);
+
+        // [WHEN] Suggest Vendor Payment for Vendor creates three payment journal lines
+        SuggestVendorPayment(
+          GenJournalBatch, VendorNo, WorkDate(), false,
+          GenJournalLine."Bal. Account Type"::"Bank Account",
+          GenJournalBatch."Bal. Account No.", "Bank Payment Type"::" ", true);
+
+        // [THEN] First Payment journal line created with amount from "RA 1"
+        VerifySuggestedLineWithAmount(GenJournalBatch."Journal Template Name", GenJournalBatch.Name, Amount[1]);
+
+        // [THEN] Second Payment journal line created with amount from "RA 2"
+        VerifySuggestedLineWithAmount(GenJournalBatch."Journal Template Name", GenJournalBatch.Name, Amount[2]);
+
+        // [THEN] Third Payment journal line created with amount from "RA 3"
+        VerifySuggestedLineWithAmount(GenJournalBatch."Journal Template Name", GenJournalBatch.Name, Amount[2]);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentSummarizedWithSameRemitAddress()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RemitAddress: Record "Remit Address";
+        Amount: array[3] of Decimal;
+        VendorNo: Code[20];
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO] Suggest Payment with Summarized option enable when working with three invoices with same remit addresses.
+        Initialize();
+
+        // [GIVEN] A Vendor with one remit addresses
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreateRemitToAddress(RemitAddress, VendorNo);
+
+        // [GIVEN] Three posted Vendor invoices with the same remit address
+        PostInvoiceWithProvidedVendorAndRemitAddress(VendorNo, BankAccountNo, Amount[1], RemitAddress.Code);
+        PostInvoiceWithProvidedVendorAndRemitAddress(VendorNo, BankAccountNo, Amount[2], RemitAddress.Code);
+        PostInvoiceWithProvidedVendorAndRemitAddress(VendorNo, BankAccountNo, Amount[3], RemitAddress.Code);
+
+        // [GIVEN] Payment Journal Batch with Template
+        PreparePaymentJournalBatch(GenJournalBatch, BankAccountNo);
+
+        // [WHEN] Suggest Vendor Payment for Vendor creates one payment journal lines
+        SuggestVendorPayment(
+          GenJournalBatch, VendorNo, WorkDate(), false,
+          GenJournalLine."Bal. Account Type"::"Bank Account",
+          GenJournalBatch."Bal. Account No.", "Bank Payment Type"::" ", true);
+
+        // [THEN] First Payment journal line created with summarize amount from "RA 1", "RA 2" and "RA 3"
+        VerifySuggestedLineWithAmount(GenJournalBatch."Journal Template Name", GenJournalBatch.Name, Amount[1] + Amount[2] + Amount[3]);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentSummarizedWithMultipleRemitAddress()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RemitAddress: array[2] of Record "Remit Address";
+        Amount: array[3] of Decimal;
+        VendorNo: Code[20];
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO] Suggest Payment with Summarized option enable when working with three invoices. Only some share the same remit address.
+        Initialize();
+
+        // [GIVEN] A Vendor with two different remit addresses
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        LibraryPurchase.CreateRemitToAddress(RemitAddress[1], VendorNo);
+        LibraryPurchase.CreateRemitToAddress(RemitAddress[2], VendorNo);
+
+        // [GIVEN] Three posted Vendor invoices with remit address of "RA 1" = Code1, "RA 2" = Code2 and "RA 3" = Code1
+        PostInvoiceWithProvidedVendorAndRemitAddress(VendorNo, BankAccountNo, Amount[1], RemitAddress[1].Code);
+        PostInvoiceWithProvidedVendorAndRemitAddress(VendorNo, BankAccountNo, Amount[2], RemitAddress[2].Code);
+        PostInvoiceWithProvidedVendorAndRemitAddress(VendorNo, BankAccountNo, Amount[3], RemitAddress[1].Code);
+
+        // [GIVEN] Payment Journal Batch with Template
+        PreparePaymentJournalBatch(GenJournalBatch, BankAccountNo);
+
+        // [WHEN] Suggest Vendor Payment for Vendor creates two payment journal lines
+        SuggestVendorPayment(
+          GenJournalBatch, VendorNo, WorkDate(), false,
+          GenJournalLine."Bal. Account Type"::"Bank Account",
+          GenJournalBatch."Bal. Account No.", "Bank Payment Type"::" ", true);
+
+        // [THEN] First Payment journal line created with summarize amount from "RA 1" and "RA 3"
+        VerifySuggestedLineWithAmount(GenJournalBatch."Journal Template Name", GenJournalBatch.Name, Amount[1] + Amount[3]);
+
+        // [THEN] Second Payment journal line created with amount from "RA 2"
+        VerifySuggestedLineWithAmount(GenJournalBatch."Journal Template Name", GenJournalBatch.Name, Amount[2]);
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
@@ -3406,6 +3529,23 @@ codeunit 134076 "ERM Suggest Vendor Payment"
             GenJournalTemplate := FromGenJournalTemplate;
             GenJournalTemplate.Insert();
         until FromGenJournalTemplate.Next() = 0;
+    end;
+
+    local procedure PostInvoiceWithProvidedVendorAndRemitAddress(var VendorNo: Code[20]; var BankAccountNo: Code[20]; var Amount: Decimal; RemitAddressNo: Code[10])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        BankAccountNo := LibraryERM.CreateBankAccountNo;
+        LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::General);
+        Amount := LibraryRandom.RandDec(1000, 2);
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo,
+          GenJournalLine."Bal. Account Type"::"Bank Account", BankAccountNo, -Amount);
+        GenJournalLine.Validate("Remit-to Code", RemitAddressNo);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     [MessageHandler]

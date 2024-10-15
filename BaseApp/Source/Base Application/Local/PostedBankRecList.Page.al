@@ -48,7 +48,6 @@ page 10129 "Posted Bank Rec. List"
             }
         }
     }
-#pragma warning disable AS0074
 #if not CLEAN21
     actions
     {
@@ -73,6 +72,5 @@ page 10129 "Posted Bank Rec. List"
         }
     }
 #endif
-#pragma warning restore AS0074
 }
 

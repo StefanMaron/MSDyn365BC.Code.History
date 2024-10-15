@@ -1,7 +1,6 @@
 ﻿table 10121 "Bank Rec. Line"
 {
     Caption = 'Bank Rec. Line';
-#pragma warning disable AS0074
 #if not CLEAN21
     DrillDownPageID = "Bank Rec. Lines";
     LookupPageID = "Bank Rec. Lines";
@@ -14,7 +13,6 @@
     ObsoleteState = Removed;
     ObsoleteTag = '24.0';
 #endif
-#pragma warning restore AS0074
 
     fields
     {

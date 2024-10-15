@@ -648,7 +648,6 @@
                     RunObject = Page "Posted General Journal";
                     ToolTip = 'Open the list of posted general journal lines.';
                 }
-#pragma warning disable AS0074
 #if not CLEAN21
                 action(Deposits)
                 {
@@ -663,7 +662,6 @@
                     ObsoleteTag = '21.0';
                 }
 #endif
-#pragma warning restore AS0074
             }
             group("Cash Management")
             {

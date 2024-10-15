@@ -24,7 +24,7 @@ codeunit 87 "Blanket Sales Order to Order"
         ShouldRedistributeInvoiceAmount := SalesCalcDiscountByType.ShouldRedistributeInvoiceDiscountAmount(Rec);
 
         Cust.Get("Sell-to Customer No.");
-        Cust.CheckBlockedCustOnDocs(Cust, "Document Type"::Order, true, false);
+        CheckBlockedCustomer(Rec, Cust);
 
         ValidateSalesPersonOnSalesHeader(Rec, true, false);
 
@@ -51,6 +51,7 @@ codeunit 87 "Blanket Sales Order to Order"
                     SalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
                     SalesLine.SetRange("Blanket Order No.", BlanketOrderSalesLine."Document No.");
                     SalesLine.SetRange("Blanket Order Line No.", BlanketOrderSalesLine."Line No.");
+                    OnRunOnAfterSalesLineSetFilters(SalesLine);
                     QuantityOnOrders := 0;
                     if SalesLine.FindSet() then
                         repeat
@@ -196,6 +197,18 @@ codeunit 87 "Blanket Sales Order to Order"
             exit;
 
         SalesOrderLine.Validate(Quantity, BlanketOrderSalesLine."Qty. to Ship");
+    end;
+
+    local procedure CheckBlockedCustomer(var SalesHeader: Record "Sales Header"; var Customer: Record Customer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBlockedCustomer(SalesHeader, Customer, HideValidationDialog, IsHandled);
+        if IsHandled then
+            exit;
+
+        Customer.CheckBlockedCustOnDocs(Customer, SalesHeader."Document Type"::Order, true, false);
     end;
 
     local procedure CheckBlanketOrderLineQuantity()
@@ -401,6 +414,11 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBlockedCustomer(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; HideValidationDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var SalesHeader: Record "Sales Header"; var HideValidationDialog: Boolean)
     begin
     end;
@@ -492,6 +510,11 @@ codeunit 87 "Blanket Sales Order to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterSalesOrderLineValidateShipmentDate(BlanketOrderSalesLine: Record "Sales Line"; var SalesOrderLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterSalesLineSetFilters(var SalesLine: Record "Sales Line")
     begin
     end;
 

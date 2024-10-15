@@ -2,7 +2,6 @@
 {
     Caption = 'Deposit Header';
     DataCaptionFields = "No.";
-#pragma warning disable AS0074
 #if not CLEAN21
     LookupPageID = "Deposit List";
 #endif
@@ -14,7 +13,6 @@
     ObsoleteState = Removed;
     ObsoleteTag = '24.0';
 #endif
-#pragma warning restore AS0074
 
     fields
     {

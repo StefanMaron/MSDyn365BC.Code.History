@@ -70,7 +70,6 @@
             {
                 Caption = 'Deposits';
                 Visible = not BankDepositFeatureEnabled;
-#pragma warning disable AS0074
 #if not CLEAN21
                 field("Deposits to Post"; Rec."Deposits to Post")
                 {
@@ -83,7 +82,6 @@
                     ObsoleteTag = '21.0';
                 }
 #endif
-#pragma warning restore AS0074
                 actions
                 {
                     action("New Deposit")

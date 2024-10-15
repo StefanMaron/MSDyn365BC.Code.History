@@ -2998,8 +2998,13 @@
     procedure TestNoOpenEntriesExist(CurrentFieldName: Text[100])
     var
         ItemLedgEntry: Record "Item Ledger Entry";
+        IsHandled: Boolean;
     begin
-        OnBeforeTestNoOpenEntriesExist(Rec, ItemLedgEntry, CurrentFieldName);
+        IsHandled := false;
+        OnBeforeTestNoOpenEntriesExist(Rec, ItemLedgEntry, CurrentFieldName, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemLedgEntry.SetCurrentKey("Item No.", Open);
         ItemLedgEntry.SetRange("Item No.", "No.");
         ItemLedgEntry.SetRange(Open, true);
@@ -3684,6 +3689,7 @@
         "Last DateTime Modified" := CurrentDateTime;
         "Last Date Modified" := DT2Date("Last DateTime Modified");
         "Last Time Modified" := DT2Time("Last DateTime Modified");
+        OnAfterSetLastDateTimeModified(Rec);
     end;
 
     procedure SetLastDateTimeFilter(DateFilter: DateTime)
@@ -3973,6 +3979,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLastDateTimeModified(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var Item: Record Item; var xItem: Record Item; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -4018,7 +4029,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestNoOpenEntriesExist(Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; CurrentFieldName: Text[100])
+    local procedure OnBeforeTestNoOpenEntriesExist(Item: Record Item; var ItemLedgerEntry: Record "Item Ledger Entry"; CurrentFieldName: Text[100]; var IsHandled: Boolean)
     begin
     end;
 

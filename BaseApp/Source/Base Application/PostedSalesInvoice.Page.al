@@ -505,6 +505,26 @@ page 132 "Posted Sales Invoice"
                         ApplicationArea = BasicMX;
                         ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
                     }
+                    field(Control1310005; Rec."Foreign Trade")
+                    {
+                        ApplicationArea = BasicMX;
+                        ToolTip = 'Specifies whether the goods or merchandise that are transported enter or leave the national territory.';
+                    }
+                    field("Transit-to Location"; Rec."Transit-to Location")
+                    {
+                        ApplicationArea = BasicMX;
+                        ToolTip = 'Specifies the location that the goods or merchandise are moved to.';
+                    }
+                    field("SAT International Trade Term"; Rec."SAT International Trade Term")
+                    {
+                        ApplicationArea = BasicMX;
+                        ToolTip = 'Specifies an international commercial terms code that are used in international sale contracts according to the SAT internatoinal trade terms definition.';
+                    }
+                    field("Exchange Rate USD"; Rec."Exchange Rate USD")
+                    {
+                        ApplicationArea = BasicMX;
+                        ToolTip = 'Specifies the exchange rate for USD currency that is used to report foreing trade electronic invoices to Mexican SAT authorities.';
+                    }
                     field("CFDI Cancellation Reason Code"; Rec."CFDI Cancellation Reason Code")
                     {
                         ApplicationArea = BasicMX;

@@ -143,7 +143,13 @@ table 737 "VAT Return Period"
         end;
     end;
 
-    [Scope('OnPrem')]
+    internal procedure FindVATPeriodByDate(VATReportingDate: Date): Boolean
+    begin
+        Rec.SetFilter("End Date", '>=%1', VATReportingDate);
+        Rec.SetFilter("Start Date", '<=%1', VATReportingDate);
+        exit(Rec.FindFirst());
+    end;
+
     procedure FindVATReturnPeriod(var VATReturnPeriod: Record "VAT Return Period"; StartDate: Date; EndDate: Date): Boolean
     begin
         VATReturnPeriod.SetRange("Start Date", StartDate);

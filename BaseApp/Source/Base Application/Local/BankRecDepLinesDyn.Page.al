@@ -1,4 +1,3 @@
-#pragma warning disable AS0074
 #if not CLEAN21
 page 36722 "Bank Rec. Dep. Lines - Dyn."
 {
@@ -12,7 +11,6 @@ page 36722 "Bank Rec. Dep. Lines - Dyn."
     ObsoleteReason = 'Deprecated in favor of W1 Bank Reconciliation';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
-#pragma warning restore AS0074
 
     layout
     {

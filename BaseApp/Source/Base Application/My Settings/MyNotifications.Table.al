@@ -118,18 +118,20 @@ table 1518 "My Notifications"
 
     procedure InsertDefault(NotificationId: Guid; NotificationName: Text[128]; DescriptionText: Text; DefaultState: Boolean)
     begin
-        if InitRecord(NotificationId, NotificationName, DescriptionText) then begin
-            Enabled := DefaultState;
-            Insert();
-        end;
+        if Rec.WritePermission then
+            if InitRecord(NotificationId, NotificationName, DescriptionText) then begin
+                Enabled := DefaultState;
+                Insert();
+            end;
     end;
 
     procedure InsertDefaultWithTableNum(NotificationId: Guid; NotificationName: Text[128]; DescriptionText: Text; TableNum: Integer)
     begin
-        if InitRecord(NotificationId, NotificationName, DescriptionText) then begin
-            "Apply to Table Id" := TableNum;
-            Insert();
-        end;
+        if Rec.WritePermission then
+            if InitRecord(NotificationId, NotificationName, DescriptionText) then begin
+                "Apply to Table Id" := TableNum;
+                Insert();
+            end;
     end;
 
     procedure InsertDefaultWithTableNumAndFilter(NotificationId: Guid; NotificationName: Text[128]; DescriptionText: Text; TableNum: Integer; Filters: Text)
@@ -137,15 +139,17 @@ table 1518 "My Notifications"
         FiltersOutStream: OutStream;
         NewRecord: Boolean;
     begin
-        NewRecord := InitRecord(NotificationId, NotificationName, DescriptionText);
-        if "Apply to Table Id" = 0 then begin
-            "Apply to Table Id" := TableNum;
-            "Apply to Table Filter".CreateOutStream(FiltersOutStream);
-            FiltersOutStream.Write(GetXmlFromTableView(TableNum, Filters));
-            if NewRecord then
-                Insert()
-            else
-                Modify();
+        if Rec.WritePermission then begin
+            NewRecord := InitRecord(NotificationId, NotificationName, DescriptionText);
+            if "Apply to Table Id" = 0 then begin
+                "Apply to Table Id" := TableNum;
+                "Apply to Table Filter".CreateOutStream(FiltersOutStream);
+                FiltersOutStream.Write(GetXmlFromTableView(TableNum, Filters));
+                if NewRecord then
+                    Insert()
+                else
+                    Modify();
+            end;
         end;
     end;
 
@@ -153,11 +157,13 @@ table 1518 "My Notifications"
     var
         InStream: InStream;
     begin
-        CalcFields(Description);
-        if not Description.HasValue() then
-            exit;
-        Description.CreateInStream(InStream, TextEncoding::UTF8);
-        InStream.Read(Ret);
+        if Rec.ReadPermission then begin
+            CalcFields(Description);
+            if not Description.HasValue() then
+                exit;
+            Description.CreateInStream(InStream, TextEncoding::UTF8);
+            InStream.Read(Ret);
+        end;
     end;
 
     local procedure GetFilteredRecord(var RecordRef: RecordRef; Filters: Text)
@@ -277,10 +283,11 @@ table 1518 "My Notifications"
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        if NotificationId = InstructionMgt.GetClosingUnpostedDocumentNotificationId() then begin
-            InstructionMgt.InsertDefaultUnpostedDoucumentNotification();
-            Get(UserId, NotificationId);
-        end;
+        if Rec.WritePermission then
+            if NotificationId = InstructionMgt.GetClosingUnpostedDocumentNotificationId() then begin
+                InstructionMgt.InsertDefaultUnpostedDoucumentNotification();
+                Get(UserId, NotificationId);
+            end;
     end;
 
     procedure IsEnabledForRecord(NotificationId: Guid; "Record": Variant): Boolean

@@ -38,8 +38,11 @@ codeunit 1350 "Telemetry Management"
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Telemetry Management");
         JobQueueEntry.SetRange("Recurring Job", true);
-        if not JobQueueEntry.IsEmpty() then
+        if JobQueueEntry.FindFirst() then begin
+            if JobQueueEntry.Status in [JobQueueEntry.Status::"On Hold", JobQueueEntry.Status::Error] then
+                JobQueueEntry.Restart();
             exit;
+        end;
 
         JobQueueEntry.InitRecurringJob(24 * 60); // one day
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;

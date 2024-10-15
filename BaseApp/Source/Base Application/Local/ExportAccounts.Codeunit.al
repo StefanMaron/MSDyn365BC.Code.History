@@ -233,11 +233,11 @@ codeunit 27000 "Export Accounts"
                     TempXMLBuffer.AddAttribute('SaldoFin', FormatDecimal(GLAccountBalanceFin."Balance at Date"));
 
                     repeat
-                        TempErrorMessage.LogIfEmpty(GLEntry, GLEntry.FieldNo("Source Code"), TempErrorMessage."Message Type"::Warning);
+                        TempErrorMessage.LogIfEmpty(GLEntry, GLEntry.FieldNo(Description), TempErrorMessage."Message Type"::Warning);
                         TempXMLBuffer.AddGroupElement('DetalleAux');
                         TempXMLBuffer.AddAttribute('Fecha', Format(GLEntry."Posting Date", 0, 9));
                         TempXMLBuffer.AddAttribute('NumUnIdenPol', Format(GLEntry."Transaction No."));
-                        TempXMLBuffer.AddAttribute('Concepto', GLEntry."Source Code");
+                        TempXMLBuffer.AddAttribute('Concepto', GLEntry.Description);
                         TempXMLBuffer.AddAttribute('Debe', FormatDecimal(GLEntry."Debit Amount"));
                         TempXMLBuffer.AddAttribute('Haber', FormatDecimal(GLEntry."Credit Amount"));
                         TempXMLBuffer.GetParent();

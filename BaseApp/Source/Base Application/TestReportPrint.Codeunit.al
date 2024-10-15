@@ -156,8 +156,7 @@ codeunit 228 "Test Report-Print"
         PurchHeader := NewPurchHeader;
         PurchHeader.SetRecFilter();
         CalcPurchDiscount(PurchHeader);
-        ReportSelection.PrintWithDialogWithCheckForVend(
-          ReportSelection.Usage::"P.Test", PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
+        ReportSelection.PrintWithCheckForVend(ReportSelection.Usage::"P.Test", PurchHeader, PurchHeader.FieldNo("Buy-from Vendor No."));
     end;
 
     procedure PrintPurchHeaderPrepmt(NewPurchHeader: Record "Purchase Header")
@@ -166,8 +165,7 @@ codeunit 228 "Test Report-Print"
     begin
         PurchHeader := NewPurchHeader;
         PurchHeader.SetRecFilter();
-        ReportSelection.PrintWithDialogWithCheckForVend(
-          ReportSelection.Usage::"P.Test Prepmt.", PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
+        ReportSelection.PrintWithCheckForVend(ReportSelection.Usage::"P.Test Prepmt.", PurchHeader, PurchHeader.FieldNo("Buy-from Vendor No."));
     end;
 
     procedure PrintBankAccRecon(NewBankAccRecon: Record "Bank Acc. Reconciliation")
@@ -273,7 +271,6 @@ codeunit 228 "Test Report-Print"
         REPORT.Run(JobJnlTemplate."Test Report ID", true, false, JobJnlLine);
     end;
 
-#pragma warning disable AS0074
 #if not CLEAN21
     [Obsolete('NA Bank Rec. Header deprecated in favor of W1 bank reconciliation. Use reports for "Bank Acc. Reconciliation" like PrintBankAccRecon', '21.0')]
     procedure PrintBankRec(NewBankRecHdr: Record "Bank Rec. Header")
@@ -286,7 +283,6 @@ codeunit 228 "Test Report-Print"
         REPORT.Run(ReportSelection."Report ID", true, false, BankRecHdr);
     end;
 #endif
-#pragma warning restore AS0074
 
     local procedure CalcSalesDiscount(var SalesHeader: Record "Sales Header")
     var

@@ -597,7 +597,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateRecurringAmt(GenJnlLine2, Updated, IsHandled);
+        OnBeforeUpdateRecurringAmt(GenJnlLine2, Updated, IsHandled, GLEntry, GLAcc, GenJnlAlloc);
         if IsHandled then
             exit(Updated);
 
@@ -1892,7 +1892,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateRecurringAmt(var GenJnlLine2: Record "Gen. Journal Line"; var Updated: Boolean; var IsHandled: Boolean);
+    local procedure OnBeforeUpdateRecurringAmt(var GenJnlLine2: Record "Gen. Journal Line"; var Updated: Boolean; var IsHandled: Boolean; var GLEntry: Record "G/L Entry"; var GLAccount: Record "G/L Account"; var GenJnlAllocation: Record "Gen. Jnl. Allocation")
     begin
     end;
 
@@ -2032,7 +2032,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateCurrencyBalanceForRecurringLine(var GenJnlLine: Record "Gen. Journal Line"; CurrencyBalance: Decimal; LastCurrencyCode: Code[10]; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateCurrencyBalanceForRecurringLine(var GenJnlLine: Record "Gen. Journal Line"; var CurrencyBalance: Decimal; var LastCurrencyCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

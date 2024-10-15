@@ -1001,6 +1001,16 @@ page 43 "Sales Invoice"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the unit of measurement of the weight of the goods and / or merchandise that are moved in this transport.';
                 }
+                field("SAT International Trade Term"; Rec."SAT International Trade Term")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies an international commercial terms code that are used in international sale contracts according to the SAT internatoinal trade terms definition.';
+                }
+                field("Exchange Rate USD"; Rec."Exchange Rate USD")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the exchange rate for USD currency that is used to report foreing trade electronic invoices to Mexican SAT authorities.';
+                }
             }
         }
         area(factboxes)
@@ -1223,6 +1233,23 @@ page 43 "Sales Invoice"
                                   "Document No." = FIELD("No."),
                                   "Customer No." = FIELD("Bill-to Customer No.");
                     ToolTip = 'View or add CFDI relation documents for the record.';
+                }
+            }
+            group(History)
+            {
+                Caption = 'History';
+                action(PageInteractionLogEntries)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Interaction Log E&ntries';
+                    Image = InteractionLog;
+                    ShortCutKey = 'Ctrl+F7';
+                    ToolTip = 'View a list of interaction log entries related to this document.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.ShowInteractionLogEntries();
+                    end;
                 }
             }
         }

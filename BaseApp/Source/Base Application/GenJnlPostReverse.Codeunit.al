@@ -548,12 +548,14 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
                         ReversedVATEntry.Get(VATEntry."Reversed Entry No.");
                         ReversedVATEntry."Reversed by Entry No." := 0;
                         ReversedVATEntry.Reversed := false;
+                        OnReverseVATOnBeforeReversedVATEntryModify(ReversedVATEntry, VATEntry);
                         ReversedVATEntry.Modify();
                         VATEntry."Reversed Entry No." := "Entry No.";
                         "Reversed by Entry No." := VATEntry."Entry No.";
                     end;
                     VATEntry."Reversed by Entry No." := "Entry No.";
                     VATEntry.Reversed := true;
+                    OnReverseVATOnBeforeVATEntryModify(VATEntry);
                     VATEntry.Modify();
                     OnReverseVATEntryOnBeforeInsert(NewVATEntry, VATEntry, GenJnlPostLine);
                     Insert();
@@ -886,6 +888,16 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
     [IntegrationEvent(false, false)]
     local procedure OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry(var NewCustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseVATOnBeforeVATEntryModify(var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseVATOnBeforeReversedVATEntryModify(var ReversedVATEntry: Record "VAT Entry"; var VATEntry: Record "VAT Entry")
     begin
     end;
 

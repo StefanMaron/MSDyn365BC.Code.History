@@ -1,4 +1,3 @@
-#pragma warning disable AS0074
 #if not CLEAN21
 codeunit 141050 "Bank Recon. with Matching"
 {
@@ -8,7 +7,6 @@ codeunit 141050 "Bank Recon. with Matching"
 #if not CLEAN21
     Permissions = TableData "Bank Rec. Header" = r;
 #endif
-#pragma warning restore AS0074
     Subtype = Test;
     TestPermissions = Disabled;
 

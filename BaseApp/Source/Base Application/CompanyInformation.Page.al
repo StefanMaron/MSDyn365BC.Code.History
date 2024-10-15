@@ -355,6 +355,7 @@ Page 1 "Company Information"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how dates based on calendar and calendar-related documents are calculated.';
                 }
+#if not CLEAN22
                 group(ElectronicDocument)
                 {
                     Caption = 'Electronic Document';
@@ -362,13 +363,22 @@ Page 1 "Company Information"
                     {
                         ApplicationArea = BasicMX;
                         ToolTip = 'Specifies the type of permission provided by SecretarпїЅa de Comunicaciones y Transportes which must correspond to the type of motor transport used for the transfer of goods or merchandise.';
+                        ObsoleteReason = 'Moved to Fixed Asset page';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
+                        Visible = false;
                     }
                     field("SCT Permission Number"; Rec."SCT Permission Number")
                     {
                         ApplicationArea = BasicMX;
                         ToolTip = 'Specifies the permission number as defined by the SecretarпїЅa de Comunicaciones y Transportes that must correspond to the type of motor transport that is used for the transfer of goods or merchandise.';
+                        ObsoleteReason = 'Moved to Fixed Asset page';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
+                        Visible = false;
                     }
                 }
+#endif
             }
             group(Tax)
             {
@@ -892,4 +902,3 @@ Page 1 "Company Information"
         SessionSetting.RequestSessionUpdate(false);
     end;
 }
-

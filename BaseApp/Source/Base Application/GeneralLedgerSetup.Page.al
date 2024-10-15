@@ -220,7 +220,6 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you are posting US or CA sales tax and do not want to have to set up posting groups on G/L accounts.';
                 }
-#pragma warning disable AS0074
 #if not CLEAN21
                 field("Bank Recon. with Auto. Match"; Rec."Bank Recon. with Auto. Match")
                 {
@@ -238,7 +237,6 @@ page 118 "General Ledger Setup"
                     end;
                 }
 #endif
-#pragma warning restore AS0074
                 field("Show Amounts"; Rec."Show Amounts")
                 {
                     ApplicationArea = Basic, Suite;
@@ -525,6 +523,11 @@ page 118 "General Ledger Setup"
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies if tax information is disabled in payment reports to Mexican SAT authorities.';
+                }
+                field("USD Currency Code"; "USD Currency Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the code for USD currency that is used to calculate exchange rate to report foreing trade electronic invoices to Mexican SAT authorities.';
                 }
 
             }
