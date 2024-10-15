@@ -135,5 +135,14 @@ table 15000000 "Remittance Agreement"
         exit(
           Confirm(WarningQst, false, FieldName));
     end;
+
+    [Scope('OnPrem')]
+    procedure GetPaymentFileName(): Text[250]
+    begin
+        if "Payment File Name" = '' then
+            exit(Code + '.txt')
+        else
+            exit("Payment File Name");
+    end;
 }
 

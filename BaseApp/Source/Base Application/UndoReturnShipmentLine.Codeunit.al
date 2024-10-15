@@ -284,7 +284,13 @@ codeunit 5814 "Undo Return Shipment Line"
     procedure UpdateOrderLine(ReturnShptLine: Record "Return Shipment Line")
     var
         PurchLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateOrderLine(ReturnShptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReturnShptLine do begin
             PurchLine.Get(PurchLine."Document Type"::"Return Order", "Return Order No.", "Return Order Line No.");
             OnUpdateOrderLineOnBeforeUpdatePurchLine(ReturnShptLine);
@@ -357,6 +363,11 @@ codeunit 5814 "Undo Return Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReturnShptLineModify(var ReturnShptLine: Record "Return Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateOrderLine(var ReturnShptLine: Record "Return Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -399,7 +399,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Transaction Type" = RIMD,
                   tabledata "Transport Method" = RIMD,
                   tabledata "Untracked Planning Element" = D,
-                  tabledata "User Group Member" = RIMD,
+                  tabledata "User Group Member" = Rimd,
                   tabledata "User Group Plan" = d,
                   tabledata "User Security Status" = D,
                   tabledata "User Setup" = RIMD,

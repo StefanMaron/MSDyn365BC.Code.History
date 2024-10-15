@@ -9,7 +9,13 @@ codeunit 5407 "Prod. Order Status Management"
     trigger OnRun()
     var
         ChangeStatusForm: Page "Change Status on Prod. Order";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(ChangeStatusForm, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ChangeStatusForm.Set(Rec);
         if ChangeStatusForm.RunModal = ACTION::Yes then begin
             OnRunOnAfterChangeStatusFormRun(Rec);
@@ -61,11 +67,12 @@ codeunit 5407 "Prod. Order Status Management"
 
     procedure ChangeProdOrderStatus(ProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
     var
+        SuppressCommit: Boolean;
         IsHandled: Boolean;
     begin
         SetPostingInfo(NewStatus, NewPostingDate, NewUpdateUnitCost);
         IsHandled := false;
-        OnBeforeChangeStatusOnProdOrder(ProdOrder, NewStatus.AsInteger(), IsHandled);
+        OnBeforeChangeStatusOnProdOrder(ProdOrder, NewStatus.AsInteger(), IsHandled, NewPostingDate, NewUpdateUnitCost);
         if IsHandled then
             exit;
         if NewStatus = NewStatus::Finished then begin
@@ -84,9 +91,11 @@ codeunit 5407 "Prod. Order Status Management"
             FlushProdOrder(ProdOrder, NewStatus, NewPostingDate);
             WhseProdRelease.Release(ProdOrder);
         end;
-        OnAfterChangeStatusOnProdOrder(ProdOrder, ToProdOrder, NewStatus, NewPostingDate, NewUpdateUnitCost);
+        SuppressCommit := false;
+        OnAfterChangeStatusOnProdOrder(ProdOrder, ToProdOrder, NewStatus, NewPostingDate, NewUpdateUnitCost, SuppressCommit);
 
-        Commit();
+        if not SuppressCommit then
+            Commit();
 
         Clear(InvtAdjmt);
     end;
@@ -308,6 +317,7 @@ codeunit 5407 "Prod. Order Status Management"
                     ToProdOrderComp := FromProdOrderComp;
                     ToProdOrderComp.Status := ToProdOrder.Status;
                     ToProdOrderComp."Prod. Order No." := ToProdOrder."No.";
+                    OnTransProdOrderCompOnBeforeToProdOrderCompInsert(FromProdOrderComp, ToProdOrderComp);
                     ToProdOrderComp.Insert();
                     OnTransProdOrderCompOnAfterToProdOrderCompInsert(FromProdOrderComp, ToProdOrderComp);
                     if NewStatus = NewStatus::Finished then begin
@@ -500,7 +510,13 @@ codeunit 5407 "Prod. Order Status Management"
         QtyToPost: Decimal;
         NoOfRecords: Integer;
         LineCount: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFlushProdOrder(ProdOrder, NewStatus, PostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
         if IsStatusSimulatedOrPlanned(NewStatus) then
             exit;
 
@@ -571,6 +587,7 @@ codeunit 5407 "Prod. Order Status Management"
                     if QtyToPost <> 0 then begin
                         InitItemJnlLineFromProdOrderComp(ItemJnlLine, ProdOrder, ProdOrderLine, ProdOrderComp, PostingDate, QtyToPost);
                         ItemJnlLine."Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
+                        OnFlushProdOrderOnBeforeCopyItemTracking(ItemJnlLine, ProdOrderComp, Item);
                         if Item."Item Tracking Code" <> '' then
                             ItemTrackingMgt.CopyItemTracking(RowID1, ItemJnlLine.RowID1, false);
                         PostFlushItemJnlLine(ItemJnlLine);
@@ -631,6 +648,7 @@ codeunit 5407 "Prod. Order Status Management"
                     OutputQtyBase := ActualOutputAndScrapQtyBase;
                     PutawayQtyBaseToCalc := 0;
                 end;
+            OnFlushProdOrderProcessProdOrderRtngLineOnAfterCalcOutputQty(ProdOrderLine, ProdOrderRtngLine, OutputQty, OutputQtyBase);
 
             repeat
                 IsLastOperation := ProdOrderRtngLine."Next Operation No." = '';
@@ -1086,7 +1104,7 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterChangeStatusOnProdOrder(var ProdOrder: Record "Production Order"; var ToProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
+    local procedure OnAfterChangeStatusOnProdOrder(var ProdOrder: Record "Production Order"; var ToProdOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; NewPostingDate: Date; NewUpdateUnitCost: Boolean; var SuppressCommit: Boolean)
     begin
     end;
 
@@ -1096,12 +1114,22 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeChangeStatusOnProdOrder(var ProductionOrder: Record "Production Order"; NewStatus: Option Quote,Planned,"Firm Planned",Released,Finished; var IsHandled: Boolean)
+    local procedure OnBeforeChangeStatusOnProdOrder(var ProductionOrder: Record "Production Order"; NewStatus: Option Quote,Planned,"Firm Planned",Released,Finished; var IsHandled: Boolean; NewPostingDate: Date; NewUpdateUnitCost: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBeforeFinishProdOrder(var ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var ChangeStatusOnProdOrderPage: Page "Change Status on Prod. Order"; var ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFlushProdOrder(var ProductionOrder: Record "Production Order"; NewStatus: Enum "Production Order Status"; PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 
@@ -1191,6 +1219,16 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFlushProdOrderOnBeforeCopyItemTracking(var ItemJournalLine: Record "Item Journal Line"; ProdOrderComponent: Record "Prod. Order Component"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFlushProdOrderProcessProdOrderRtngLineOnAfterCalcOutputQty(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var OutputQty: Decimal; var OutputQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFlushProdOrderProcessProdOrderRtngLine(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
@@ -1207,6 +1245,11 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransProdOrderCompOnAfterToProdOrderCompInsert(var FromProdOrderComp: Record "Prod. Order Component"; var ToProdOrderComp: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransProdOrderCompOnBeforeToProdOrderCompInsert(var FromProdOrderComp: Record "Prod. Order Component"; var ToProdOrderComp: Record "Prod. Order Component")
     begin
     end;
 

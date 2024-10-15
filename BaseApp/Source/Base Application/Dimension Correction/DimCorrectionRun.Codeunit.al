@@ -108,7 +108,7 @@ codeunit 2581 "Dim Correction Run"
         end;
     end;
 
-    local procedure UpdateGLEntry(var GLEntry: Record "G/L Entry"; DimensionCorrectionEntryNo: Integer; var TempDimCorrectionSetBuffer: Record "Dim Correction Set Buffer" temporary; var TempInvalidatedDimCorrection: Record "Invalidated Dim Correction" temporary): Boolean
+    local procedure UpdateGLEntry(var GLEntry: Record "G/L Entry"; DimensionCorrectionEntryNo: Integer; var TempDimCorrectionSetBuffer: Record "Dim Correction Set Buffer" temporary; var TempInvalidatedDimCorrection: Record "Invalidated Dim Correction" temporary) Result: Boolean
     var
         InvalidatedDimCorrection: Record "Invalidated Dim Correction";
         DimCorrectionSetBuffer: Record "Dim Correction Set Buffer";
@@ -148,7 +148,8 @@ codeunit 2581 "Dim Correction Run"
         GLEntry."Last Dim. Correction Node" := TempInvalidatedDimCorrection."Node Id";
         GLEntry.Modify(true);
 
-        exit(true);
+        Result := true;
+        OnAfterUpdateGLEntry(GLEntry, TempDimCorrectionSetBuffer, Result, DimensionCorrectionEntryNo, TempInvalidatedDimCorrection);
     end;
 
     var
@@ -159,4 +160,9 @@ codeunit 2581 "Dim Correction Run"
         CompletedChangeLedgerEntriesLbl: Label 'Completed Change Ledger Entries, Dimension Correction Entry No.: %1.', Locked = true, Comment = '%1 Dimension Correction Entry No.';
         CommitedLedgerEntriesUpdateTelemetryLbl: Label 'Commited G/L Entries update. Dimension Correction Entry No.: %1, Time from last commit: %2. Number of entries iterated: %3.', Locked = true, Comment = '%1 Dimension Correction Entry No., %2 - Time passed between commits, %3 Number';
         DimensionCorrectionTok: Label 'DimensionCorrection', Locked = true;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateGLEntry(var GLEntry: Record "G/L Entry"; var TempDimCorrectionSetBuffer: Record "Dim Correction Set Buffer"; var Result: Boolean; DimensionCorrectionEntryNo: Integer;var TempInvalidatedDimCorrection: Record "Invalidated Dim Correction" temporary)
+    begin
+    end;
 }

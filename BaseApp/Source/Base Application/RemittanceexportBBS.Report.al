@@ -232,7 +232,7 @@ report 15000060 "Remittance - export (BBS)"
                         trigger OnValidate()
                         begin
                             RemAgreement.Get(RemAgreementCode);
-                            CurrentFilename := RemAgreement."Payment File Name"
+                            CurrentFilename := RemAgreement.GetPaymentFileName();
                         end;
                     }
                     field(CurrentRemark; CurrentRemark)
@@ -269,7 +269,7 @@ report 15000060 "Remittance - export (BBS)"
             // Selected the contract specified in the first line of the journal
             RemAgreement.Get(CurrentGenJournalLine."Remittance Agreement Code");
             RemAgreementCode := RemAgreement.Code;
-            CurrentFilename := RemAgreement."Payment File Name"
+            CurrentFilename := RemAgreement.GetPaymentFileName();
         end;
     }
 

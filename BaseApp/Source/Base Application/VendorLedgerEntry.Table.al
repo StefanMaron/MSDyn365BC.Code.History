@@ -708,11 +708,17 @@ table 25 "Vendor Ledger Entry"
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
-    procedure ShowDoc(): Boolean
+    procedure ShowDoc() Result: Boolean
     var
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDoc(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case "Document Type" of
             "Document Type"::Invoice:
                 if PurchInvHeader.Get("Document No.") then begin
@@ -1022,6 +1028,11 @@ table 25 "Vendor Ledger Entry"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeDrillDownOnOverdueEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var DrillDownPageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

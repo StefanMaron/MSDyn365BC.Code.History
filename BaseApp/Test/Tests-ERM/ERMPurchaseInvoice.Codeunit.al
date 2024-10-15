@@ -1105,6 +1105,48 @@ codeunit 134328 "ERM Purchase Invoice"
     end;
 
     [Test]
+    [HandlerFunctions('GetReceiptLinesPageHandler,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure TotalsShouldBeRecalculatedByPriceInclVAT()
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        Price: Decimal;
+        AmountIncVAT: Decimal;
+    begin
+        // [FEATURE] [Totals] [UI]
+        // [SCENARIO 401966] Changing "Price Incl VAT" forces the totals calculation.
+        Initialize();
+
+        // [GIVEN] Create and Receive Purchase Order 'PO', where "Price Incl VAT" is 'No'
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateAndReceivePurchaseDocument(Vendor."No.", Vendor."No.");
+        // [GIVEN] Create Purchase Invoice 'PI' and do "Get Receipt Lines" to get line from 'PO'.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseInvoice.PurchLines.GetReceiptLines.Invoke;
+        Evaluate(AmountIncVAT, PurchaseInvoice.PurchLines."Total Amount Incl. VAT".Value());
+
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
+        Price := PurchaseLine."Direct Unit Cost";
+
+        // [WHEN] In 'PI' Change "Price Incl VAT" to Yes, but do not confirm recalculation of prices
+        PurchaseInvoice."Prices Including VAT".SetValue(true);
+
+        // [THEN] Price on the line is changed, totals are not updated on the page.
+        PurchaseLine.Find();
+        Assert.AreNotEqual(Price, PurchaseLine."Direct Unit Cost", 'price is not changed');
+        Assert.AreEqual(AmountIncVAT, PurchaseLine."Amount Including VAT", 'total is changed.');
+        PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AssertEquals(PurchaseLine."Amount Including VAT");
+    end;
+
+    [Test]
     [HandlerFunctions('QuantityOnGetReceiptLinesPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure GetReceiptLinesAfterPartialPosting()
@@ -3991,6 +4033,20 @@ codeunit 134328 "ERM Purchase Invoice"
     procedure ConfirmHandlerYesNo(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := LibraryVariableStorage.DequeueBoolean;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

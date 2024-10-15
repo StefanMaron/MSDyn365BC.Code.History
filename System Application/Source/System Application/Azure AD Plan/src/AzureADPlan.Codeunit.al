@@ -102,6 +102,7 @@ codeunit 9016 "Azure AD Plan"
         AzureAdPlanImpl.UpdateUserPlans(UserSecurityId, true, true, false);
     end;
 
+#if not CLEAN18
     /// <summary>
     /// Updates license plans for a user.
     /// </summary>
@@ -117,6 +118,7 @@ codeunit 9016 "Azure AD Plan"
     begin
         AzureAdPlanImpl.UpdateUserPlans(UserSecurityId, AppendPermissionsOnNewPlan, RemovePermissionsOnDeletePlan, false);
     end;
+#endif
 
     /// <summary>
     /// Updates license plans for a user.

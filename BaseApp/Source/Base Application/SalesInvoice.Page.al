@@ -71,8 +71,7 @@ page 43 "Sales Invoice"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if LookupSellToCustomerName() then
-                            CurrPage.Update();
+                        exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
                 field("Posting Description"; "Posting Description")
@@ -360,6 +359,7 @@ page 43 "Sales Invoice"
 
                     trigger OnValidate()
                     begin
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
                         CurrPage.Update();
                     end;
                 }

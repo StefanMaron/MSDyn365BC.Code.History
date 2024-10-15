@@ -41,7 +41,6 @@ codeunit 392 "Reminder-Make"
                 ReminderLine.DeleteAll();
             end;
 
-        Cust.TestField("Reminder Terms Code");
         GetReminderTerms();
         if HeaderExists then
             RetVal := MakeReminder(ReminderHeader."Currency Code")
@@ -82,10 +81,14 @@ codeunit 392 "Reminder-Make"
         if IsHandled then
             exit;
 
-        if ReminderHeader."Reminder Terms Code" <> '' then
-            ReminderTerms.Get(ReminderHeader."Reminder Terms Code")
-        else
+        if Cust."Reminder Terms Code" = '' then
+            ReminderHeader.TestField("Reminder Terms Code");
+
+        if ReminderHeader."Reminder Terms Code" = '' then begin
+            Cust.TestField("Reminder Terms Code");
             ReminderTerms.Get(Cust."Reminder Terms Code");
+        end else
+            ReminderTerms.Get(ReminderHeader."Reminder Terms Code")
     end;
 
     procedure Set(Cust2: Record Customer; var CustLedgEntry2: Record "Cust. Ledger Entry"; ReminderHeaderReq2: Record "Reminder Header"; OverdueEntriesOnly2: Boolean; IncludeEntriesOnHold2: Boolean; var CustLedgEntryLinefeeOn: Record "Cust. Ledger Entry")
@@ -125,6 +128,7 @@ codeunit 392 "Reminder-Make"
         OpenEntriesNotDueTranslated: Text[100];
         OpenEntriesOnHoldTranslated: Text[100];
         IsHandled: Boolean;
+        IsGracePeriodExpired: Boolean;
     begin
         IsHandled := false;
         OnBeforeMakeReminder(ReminderHeader, CurrencyCode, RetVal, IsHandled);
@@ -180,7 +184,9 @@ codeunit 392 "Reminder-Make"
                     if CustLedgEntry.FindSet then begin
                         repeat
                             SetReminderLine(LineLevel, ReminderDueDate);
-                            if ReminderDueDate < ReminderHeaderReq."Document Date" then begin
+                            IsGracePeriodExpired :=
+                                IsGracePeriodExpiredForOverdueEntry(ReminderDueDate, ReminderHeaderReq."Document Date", ReminderLevel."Grace Period");
+                            if IsGracePeriodExpired then begin
                                 if (NextLineNo > 0) and not StartLineInserted then
                                     InsertReminderLine(
                                       ReminderHeader."No.", ReminderLine."Line Type"::"Reminder Line", '', NextLineNo);
@@ -211,7 +217,7 @@ codeunit 392 "Reminder-Make"
                 OnMakeReminderOnBeforeCustLedgEntryFindSet(CustLedgEntry, Cust, ReminderHeader, MaxReminderLevel, OverdueEntriesOnly);
                 if CustLedgEntry.FindSet then
                     repeat
-                        AddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilter(ReminderLine, ReminderLevel, LineLevel, ReminderDueDate, NextLineNo, OpenEntriesNotDueTranslated)
+                        AddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilter(ReminderLine, ReminderLevel, LineLevel, ReminderDueDate, NextLineNo, OpenEntriesNotDueTranslated, StartLineInserted)
                     until CustLedgEntry.Next() = 0;
 
                 if IncludeEntriesOnHold then
@@ -230,6 +236,7 @@ codeunit 392 "Reminder-Make"
                             ReminderLine.Insert();
                         until CustLedgEntryOnHoldTEMP.Next() = 0;
                     end;
+                OnMakeReminderOnBeforeReminderHeaderModify(ReminderHeader, ReminderLine, NextLineNo, MaxReminderLevel);
                 ReminderHeader.Modify();
             end;
         end;
@@ -244,12 +251,13 @@ codeunit 392 "Reminder-Make"
         exit(true);
     end;
 
-    local procedure AddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilter(var ReminderLine: Record "Reminder Line"; var ReminderLevel: Record "Reminder Level"; LineLevel: Integer; ReminderDueDate: Date; var NextLineNo: Integer; OpenEntriesNotDueTranslated: Text[100])
+    local procedure AddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilter(var ReminderLine: Record "Reminder Line"; var ReminderLevel: Record "Reminder Level"; LineLevel: Integer; ReminderDueDate: Date; var NextLineNo: Integer; OpenEntriesNotDueTranslated: Text[100]; var StartLineInserted: Boolean)
     var
         IsHandled: Boolean;
+        IsGracePeriodExpired: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilter(CustLedgEntry, ReminderHeaderReq, ReminderHeader, IsHandled);
+        OnBeforeAddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilter(CustLedgEntry, ReminderHeaderReq, ReminderHeader, IsHandled, ReminderLine, NextLineNo, StartLineInserted);
         if IsHandled then
             exit;
 
@@ -257,9 +265,11 @@ codeunit 392 "Reminder-Make"
            (CustLedgEntry."Document Type" in [CustLedgEntry."Document Type"::Payment, CustLedgEntry."Document Type"::Refund])
         then begin
             SetReminderLine(LineLevel, ReminderDueDate);
-            if (CalcDate(ReminderLevel."Grace Period", ReminderDueDate) >= ReminderHeaderReq."Document Date") and
-               (LineLevel = 1)
-            then begin
+            IsGracePeriodExpired :=
+                IsGracePeriodExpiredForOverdueEntry(ReminderDueDate, ReminderHeaderReq."Document Date", ReminderLevel."Grace Period");
+            if (not IsGracePeriodExpired) and (LineLevel = 1) then begin
+                OnAddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilterOnBeforeCheckAmountsNotDueLineInserted(
+                    ReminderHeader, ReminderLine, AmountsNotDueLineInserted);
                 if not AmountsNotDueLineInserted then begin
                     InsertReminderLine(ReminderHeader."No.", ReminderLine."Line Type"::"Not Due", '', NextLineNo);
                     InsertReminderLine(
@@ -319,6 +329,7 @@ codeunit 392 "Reminder-Make"
         LineLevel: Integer;
         MarkEntry: Boolean;
         IsHandled: Boolean;
+        IsGracePeriodExpired: Boolean;
     begin
         IsHandled := false;
         OnBeforeMarkReminderCandidate(CustLedgEntry, IsHandled);
@@ -326,19 +337,19 @@ codeunit 392 "Reminder-Make"
             exit;
 
         SetReminderLine(LineLevel, ReminderDueDate);
+        IsGracePeriodExpired :=
+            IsGracePeriodExpiredForOverdueEntry(ReminderDueDate, ReminderHeaderReq."Document Date", ReminderLevel."Grace Period");
         MarkEntry := false;
-        if (CalcDate(ReminderLevel."Grace Period", ReminderDueDate) < ReminderHeaderReq."Document Date") and
+        if IsGracePeriodExpired and
            ((LineLevel <= ReminderTerms."Max. No. of Reminders") or (ReminderTerms."Max. No. of Reminders" = 0))
         then begin
             MarkEntry := true;
             CustLedgEntry.CalcFields("Remaining Amount");
             CustAmount += CustLedgEntry."Remaining Amount";
-            if CustLedgEntry.Positive and
-               (CalcDate(ReminderLevel."Grace Period", ReminderDueDate) < ReminderHeaderReq."Document Date")
-            then
+            if CustLedgEntry.Positive and IsGracePeriodExpired then
                 MakeDoc := true;
         end else
-            if (CalcDate(ReminderLevel."Grace Period", ReminderDueDate) >= ReminderHeaderReq."Document Date") and
+            if not IsGracePeriodExpired and
                (not OverdueEntriesOnly or
                 (CustLedgEntry."Document Type" in [CustLedgEntry."Document Type"::Payment, CustLedgEntry."Document Type"::Refund]))
             then
@@ -349,7 +360,7 @@ codeunit 392 "Reminder-Make"
             ReminderLevel.Mark(true);
             if (ReminderLevel."No." > MaxReminderLevel) and
                (CustLedgEntry."Document Type" <> CustLedgEntry."Document Type"::"Credit Memo") and
-               (CalcDate(ReminderLevel."Grace Period", ReminderDueDate) < ReminderHeaderReq."Document Date")
+               IsGracePeriodExpired
             then
                 MaxReminderLevel := ReminderLevel."No.";
             if MaxLineLevel < LineLevel then
@@ -360,7 +371,13 @@ codeunit 392 "Reminder-Make"
     local procedure InsertReminderLine(ReminderNo: Code[20]; LineType: Enum "Reminder Line Type"; Description: Text[100]; var NextLineNo: Integer)
     var
         ReminderLine: Record "Reminder Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertReminderLine(ReminderNo, LineType, Description, NextLineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         InitReminderLine(ReminderLine, ReminderNo, LineType, Description, NextLineNo);
         ReminderLine.Insert();
     end;
@@ -374,6 +391,8 @@ codeunit 392 "Reminder-Make"
         ReminderLine."Line No." := NextLineNo;
         ReminderLine."Line Type" := LineType;
         ReminderLine.Description := Description;
+
+        OnAfterInitReminderLine(ReminderHeader, ReminderLine, LineType, Description);
     end;
 
     local procedure CustAmountLCY(CurrencyCode: Code[10]; Amount: Decimal): Decimal
@@ -581,6 +600,11 @@ codeunit 392 "Reminder-Make"
         OnAfterCheckCustomerIsBlocked(Customer, Result);
     end;
 
+    local procedure IsGracePeriodExpiredForOverdueEntry(DueDate: Date; ReminderDocumentDate: Date; GracePeriod: DateFormula): Boolean
+    begin
+        exit(CalcDate(GracePeriod, DueDate) < ReminderDocumentDate);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCode(var RetVal: Boolean)
     begin
@@ -588,6 +612,11 @@ codeunit 392 "Reminder-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterCustLedgEntryReminderLevel(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderLevel: Record "Reminder Level"; ReminderTerms: Record "Reminder Terms"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitReminderLine(var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; LineType: Enum "Reminder Line Type"; Description: Text)
     begin
     end;
 
@@ -607,7 +636,12 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilter(var CustLedgEntry: Record "Cust. Ledger Entry"; ReminderHeaderReq: Record "Reminder Header"; ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean)
+    local procedure OnAddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilterOnBeforeCheckAmountsNotDueLineInserted(ReminderHeader: Record "Reminder Header"; ReminderLine: Record "Reminder Line"; var AmountsNotDueLineInserted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilter(var CustLedgEntry: Record "Cust. Ledger Entry"; ReminderHeaderReq: Record "Reminder Header"; ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean; var ReminderLine: Record "Reminder Line"; var NextLineNo: Integer; var StartLineInserted: Boolean)
     begin
     end;
 
@@ -630,6 +664,11 @@ codeunit 392 "Reminder-Make"
 #endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindAndMarkReminderCandidates(var ReminderLevel: Record "Reminder Level"; ReminderHeaderReq: Record "Reminder Header"; ReminderTerms: Record "Reminder Terms"; var ReminderEntry: Record "Reminder/Fin. Charge Entry"; var CustLedgEntry: Record "Cust. Ledger Entry"; var TempCustLedgEntryOnHold: Record "Cust. Ledger Entry"; var CustLedgEntryLastIssuedReminderLevelFilter: Text; var CustAmount: Decimal; var MakeDoc: Boolean; var MaxReminderLevel: Integer; var MaxLineLevel: Integer; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertReminderLine(ReminderNo: Code[20]; LineType: Enum "Reminder Line Type"; Description: Text[100]; var NextLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -680,6 +719,11 @@ codeunit 392 "Reminder-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeReminderOnBeforeOnHoldReminderLineInsert(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header"; ReminderLevel: Record "Reminder Level"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgEntryOnHoldTEMP: Record "Cust. Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeReminderOnBeforeReminderHeaderModify(var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; var NextLineNo: Integer; MaxReminderLevel: Integer)
     begin
     end;
 
