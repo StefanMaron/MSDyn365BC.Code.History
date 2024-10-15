@@ -28,10 +28,11 @@ report 9000 "Add/Subtract Permission Set"
                     TenantPermission.SetRange("Role ID", "Role ID");
                     if TenantPermission.FindSet() then
                         repeat
-                            if DestinationAggregatePermissionSet.Scope = DestinationAggregatePermissionSet.Scope::System then
-                                IncludeExcludeTenantPermissionInPermission(TenantPermission)
-                            else
-                                IncludeExcludeTenantPermission(TenantPermission);
+                            if TenantPermission.Type <> TenantPermission.Type::Exclude then // This report does not suppport exclude permissions.
+                                if DestinationAggregatePermissionSet.Scope = DestinationAggregatePermissionSet.Scope::System then
+                                    IncludeExcludeTenantPermissionInPermission(TenantPermission)
+                                else
+                                    IncludeExcludeTenantPermission(TenantPermission);
                         until TenantPermission.Next() = 0;
                 end;
             end;

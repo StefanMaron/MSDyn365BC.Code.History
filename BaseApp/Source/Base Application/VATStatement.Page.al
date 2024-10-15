@@ -101,6 +101,11 @@ page 317 "VAT Statement"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the VAT statement line shows the VAT amounts or the base amounts on which the VAT is calculated.';
                 }
+                field("Incl. Non Deductible VAT"; "Incl. Non Deductible VAT")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you want to add the non-deductible VAT to the deductible VAT amount.';
+                }
                 field("Row Totaling"; "Row Totaling")
                 {
                     ApplicationArea = Basic, Suite;

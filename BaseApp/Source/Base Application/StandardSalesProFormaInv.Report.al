@@ -261,7 +261,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
                     Location: Record Location;
                     AutoFormatType: Enum "Auto Format";
                 begin
-                    Item.Get("No.");
+                    GetItemForRec("No.");
                     OnBeforeLineOnAfterGetRecord(Header, Line);
 
                     if IsShipment() then
@@ -451,6 +451,18 @@ report 1302 "Standard Sales - Pro Forma Inv"
         exit(DocumentTitleLbl);
     end;
 
+    local procedure GetItemForRec(ItemNo: Code[20])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetItemForRec(ItemNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        Item.Get(ItemNo);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterLineOnPreDataItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
@@ -458,6 +470,11 @@ report 1302 "Standard Sales - Pro Forma Inv"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDocumentCaption(SalesHeader: Record "Sales Header"; var DocCaption: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetItemForRec(ItemNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

@@ -120,18 +120,31 @@ codeunit 5478 "Graph Mgt - Journal Lines"
     end;
 
     procedure UpdateIds()
+    begin
+        UpdateIds(false);
+    end;
+
+    procedure UpdateIds(WithCommit: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
+        APIDataUpgrade: Codeunit "API Data Upgrade";
+        RecordCount: Integer;
     begin
         with GenJournalLine do begin
             SetRange("Account Type", "Account Type"::"G/L Account");
 
-            if FindSet() then
+            if FindSet() then begin
                 repeat
                     UpdateAccountID;
                     UpdateJournalBatchID;
                     Modify(false);
+                    if WithCommit then
+                        APIDataUpgrade.CountRecordsAndCommit(RecordCount);
                 until Next() = 0;
+
+                if WithCommit then
+                    Commit();
+            end;
         end;
     end;
 }

@@ -133,7 +133,7 @@ codeunit 392 "Reminder-Make"
         IsGracePeriodExpired: Boolean;
     begin
         IsHandled := false;
-        OnBeforeMakeReminder(ReminderHeader, CurrencyCode, RetVal, IsHandled);
+        OnBeforeMakeReminder(ReminderHeader, CurrencyCode, RetVal, IsHandled, ReminderHeaderReq, OverdueEntriesOnly, IncludeEntriesOnHold, HeaderExists, Cust);
         if IsHandled then
             exit;
 
@@ -315,14 +315,16 @@ codeunit 392 "Reminder-Make"
             FilterCustLedgEntries(ReminderLevel);
             if CustLedgEntry.FindSet() then
                 repeat
-                    OnFindAndMarkReminderCandidatesOnBeforeCustLedgEntryLoop(CustLedgEntry, ReminderHeaderReq);
-                    if CustLedgEntry."On Hold" = '' then
-                        MarkReminderCandidate(CustLedgEntry, ReminderLevel, CustAmount, MakeDoc, MaxReminderLevel, MaxLineLevel)
-                    else // The customer ledger entry is on hold
-                        if IncludeEntriesOnHold then begin
-                            CustLedgEntryOnHoldTEMP := CustLedgEntry;
-                            CustLedgEntryOnHoldTEMP.Insert();
-                        end;
+                    IsHandled := false;
+                    OnFindAndMarkReminderCandidatesOnBeforeCustLedgEntryLoop(CustLedgEntry, ReminderHeaderReq, IsHandled);
+                    if not IsHandled then
+                        if CustLedgEntry."On Hold" = '' then
+                            MarkReminderCandidate(CustLedgEntry, ReminderLevel, CustAmount, MakeDoc, MaxReminderLevel, MaxLineLevel)
+                        else // The customer ledger entry is on hold
+                            if IncludeEntriesOnHold then begin
+                                CustLedgEntryOnHoldTEMP := CustLedgEntry;
+                                CustLedgEntryOnHoldTEMP.Insert();
+                            end;
                 until CustLedgEntry.Next() = 0;
         until ReminderLevel.Next(-1) = 0;
     end;
@@ -480,6 +482,7 @@ codeunit 392 "Reminder-Make"
             ReminderEntry.SetRange("Customer Entry No.", CustLedgEntry."Entry No.");
             ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
             ReminderEntry.SetRange("Reminder Level", CustLedgEntry."Last Issued Reminder Level");
+            OnSetReminderLineOnAfterSetFilters(ReminderEntry);
             if ReminderEntry.FindLast() then begin
                 ReminderDueDate2 := ReminderEntry."Due Date";
                 LineLevel2 := ReminderEntry."Reminder Level" + 1;
@@ -683,7 +686,7 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeMakeReminder(var ReminderHeader: Record "Reminder Header"; CurrencyCode: Code[10]; var RetVal: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeMakeReminder(var ReminderHeader: Record "Reminder Header"; CurrencyCode: Code[10]; var RetVal: Boolean; var IsHandled: Boolean; ReminderHeaderReq: Record "Reminder Header"; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; HeaderExists: Boolean; Customer: Record Customer)
     begin
     end;
 
@@ -718,7 +721,7 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindAndMarkReminderCandidatesOnBeforeCustLedgEntryLoop(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderHeader: Record "Reminder Header")
+    local procedure OnFindAndMarkReminderCandidatesOnBeforeCustLedgEntryLoop(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -739,6 +742,11 @@ codeunit 392 "Reminder-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeReminderOnBeforeReminderHeaderModify(var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; var NextLineNo: Integer; MaxReminderLevel: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetReminderLineOnAfterSetFilters(var ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry")
     begin
     end;
 

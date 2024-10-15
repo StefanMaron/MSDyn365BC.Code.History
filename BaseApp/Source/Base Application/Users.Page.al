@@ -494,15 +494,23 @@ page 9800 Users
 
     trigger OnOpenPage()
     var
+        MyNotification: Record "My Notifications";
         UserSelection: Codeunit "User Selection";
+        UserManagement: Codeunit "User Management";
     begin
         NoUserExists := IsEmpty;
         UserSelection.HideExternalUsers(Rec);
+        if UserWithWebServiceKeyExist then begin
+            Usermanagement.BasicAuthUsedNotificationDefault(true);
+            if MyNotification.IsEnabled(UserManagement.BasicAuthUsedNotificationId()) then
+                UserManagement.BasicAuthUsedNotificationShow(BasicAuthUsedNotification);
+        end;
     end;
 
     var
         IdentityManagement: Codeunit "Identity Management";
         UserCard: Page "User Card";
+        BasicAuthUsedNotification: Notification;
         WindowsUserName: Text[208];
         Text001Err: Label 'The account %1 is not a valid Windows account.', Comment = '%1=user name';
         Text002Err: Label 'The account %1 already exists.', Comment = '%1=user name';
@@ -549,6 +557,29 @@ page 9800 Users
     procedure GetSelectionFilter(var User: Record User)
     begin
         CurrPage.SetSelectionFilter(User);
+    end;
+
+    local procedure UserWithWebServiceKeyExist(): Boolean
+    var
+        User: Record User;
+        WebServiceKey: Text[80];
+        UserWithWebServiceKeyFound: Boolean;
+    begin
+        if User.Count() > MaxNumberOfUsersToScanWebServcieAccessKey() then
+            Exit(false);
+        UserWithWebServiceKeyFound := false;
+        if User.FindSet() then
+            repeat
+                WebServiceKey := IdentityManagement.GetWebServicesKey(USer."User Security ID");
+                if WebServiceKey <> '' then
+                    UserWithWebServiceKeyFound := true;
+            until (User.Next() = 0) or UserWithWebServiceKeyFound;
+        exit(UserWithWebServiceKeyFound);
+    end;
+
+    local procedure MaxNumberOfUsersToScanWebServcieAccessKey(): Integer
+    begin
+        exit(1000);
     end;
 }
 

@@ -69,7 +69,7 @@ table 303 "Finance Charge Memo Line"
                         CustLedgEntry.TestField(Open, false);
                 end;
                 CustLedgEntry.TestField("Customer No.", FinChrgMemoHeader."Customer No.");
-                CustLedgEntry.TestField("On Hold", '');
+                EnsureNotOnHold(CustLedgEntry);
                 if CustLedgEntry."Currency Code" <> FinChrgMemoHeader."Currency Code" then
                     Error(
                       Text000,
@@ -470,6 +470,7 @@ table 303 "Finance Charge Memo Line"
         CumAmount: Decimal;
         InsertedLines: Boolean;
         IsHandled: Boolean;
+        SkipBecauseEntryOnHold: Boolean;
     begin
 #if not CLEAN19
         OnBeforeCalcFinCharge(Rec, FinChrgMemoHeader);
@@ -492,7 +493,9 @@ table 303 "Finance Charge Memo Line"
         FinChrgMemoLine.SetRange("Entry No.", "Entry No.");
         FinChrgMemoLine.DeleteAll();
         CustLedgEntry.Get("Entry No.");
-        if CustLedgEntry."On Hold" <> '' then
+        SkipBecauseEntryOnHold := CustLedgEntry."On Hold" <> '';
+        OnCalcFinChrgOnAfterCalcSkipBecauseEntryOnHold(CustLedgEntry, FinChrgMemoHeader, SkipBecauseEntryOnHold);
+        if SkipBecauseEntryOnHold then
             exit;
 
         CalcFinanceChargeInterestRate(FinanceChargeInterestRate, UseDueDate, UseInterestRate, UseCalcDate);
@@ -526,6 +529,7 @@ table 303 "Finance Charge Memo Line"
                               UseInterestRate, FinanceChargeInterestRate."Interest Period (Days)", BaseAmount);
                     NrOfDays := UseCalcDate - UseDueDate;
 
+                    OnCalcFinChrgOnBeforeCheckNrOfLinesToInsert(FinChrgMemoLine, NrOfDays);
                     if (NrOfLinesToInsert > 0) and
                        (FinChrgTerms."Interest Calculation Method" = FinChrgTerms."Interest Calculation Method"::"Average Daily Balance")
                     then
@@ -539,6 +543,8 @@ table 303 "Finance Charge Memo Line"
                     BaseAmount := "Remaining Amount";
                 end;
         end;
+
+        OnCalcFinChrgOnAfterFinChrgTermsInterestCalculationMethodCase(FinChrgMemoLine, FinChrgTerms, FinChrgMemoHeader);
 
         if InsertedLines then
             BuildMultiDescription(FinChrgTerms."Line Description", UseDueDate, NrOfDays);
@@ -654,7 +660,14 @@ table 303 "Finance Charge Memo Line"
     end;
 
     procedure CalcClosedatDate() ClosedatDate: Date
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcClosedatDate(CustLedgEntry, ClosedatDate, IsHandled);
+        if IsHandled then
+            exit;
+
         if CustLedgEntry2.Get(CustLedgEntry."Closed by Entry No.") then
             if CustLedgEntry2."Document Date" > CustLedgEntry."Closed at Date" then
                 ClosedatDate := CustLedgEntry2."Document Date"
@@ -727,6 +740,18 @@ table 303 "Finance Charge Memo Line"
                   NrOfDays),
                 1,
                 MaxStrLen(Description));
+    end;
+
+    local procedure EnsureNotOnHold(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeEnsureNotOnHold(CustLedgerEntry, FinChrgMemoHeader);
+        if IsHandled then
+            exit;
+
+        CustLedgEntry.TestField("On Hold", '');
     end;
 
     local procedure CumulateDetailedEntries(var CumAmount: Decimal; UseDueDate: Date; UseCalcDate: Date; UseInterestRate: Decimal; UseInterestPeriod: Integer; var BaseAmount: Decimal)
@@ -839,6 +864,8 @@ table 303 "Finance Charge Memo Line"
             UseCalcDate := FinChrgMemoHeader."Document Date";
 
         "Interest Rate" := UseInterestRate;
+
+        OnAfterCalcFinanceChargeInterestRate(Rec, CustLedgEntry, FinChrgTerms, UseCalcDate);
     end;
 
     local procedure CreateMulitplyInterestRateEntries(var ExtraFinChrgMemoLine: Record "Finance Charge Memo Line"; var FinanceChargeInterestRate: Record "Finance Charge Interest Rate"; var UseDueDate: Date; var UseCalcDate: Date; var UseInterestRate: Decimal; var BaseAmount: Decimal; var CumAmount: Decimal) InsertedLines: Boolean
@@ -847,7 +874,13 @@ table 303 "Finance Charge Memo Line"
         NextLineNo: Integer;
         CurrInterestRateStartDate: Date;
         UseInterestPeriod: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateMulitplyInterestRateEntries(Rec, InsertedLines, IsHandled);
+        if IsHandled then
+            exit(InsertedLines);
+
         NrOfDays := 0;
         ExtraFinChrgMemoLine.Reset();
         ExtraFinChrgMemoLine.SetRange("Finance Charge Memo No.", "Finance Charge Memo No.");
@@ -924,6 +957,41 @@ table 303 "Finance Charge Memo Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcFinChrgProcedure(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcFinanceChargeInterestRate(FinanceChargeMemoLine: Record "Finance Charge Memo Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; FinanceChargeTerms: Record "Finance Charge Terms"; var UseCalcDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateMulitplyInterestRateEntries(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; var InsertedLines: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcClosedatDate(CustLedgerEntry: Record "Cust. Ledger Entry"; var ClosedAtDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcFinChrgOnAfterFinChrgTermsInterestCalculationMethodCase(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; FinanceChargeTerms: Record "Finance Charge Terms"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcFinChrgOnAfterCalcSkipBecauseEntryOnHold(CustLedgerEntry: Record "Cust. Ledger Entry"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var SkipBecauseEntryOnHold: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcFinChrgOnBeforeCheckNrOfLinesToInsert(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; NrOfDays: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnsureNotOnHold(var CustLedgerEntry: Record "Cust. Ledger Entry"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
     begin
     end;
 

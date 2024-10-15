@@ -44,6 +44,8 @@
         TaxCurrencyCode := DocumentCurrencyCode;
         TaxCurrencyCodeListID := GetISO4217ListID();
         AccountingCost := '';
+
+        OnAfterGetGeneralInfoProcedure(SalesHeader, ID, IssueDate, InvoiceTypeCode, Note, TaxPointDate, DocumentCurrencyCode, AccountingCost);
     end;
 
     procedure GetGeneralInfoBIS(SalesHeader: Record "Sales Header"; var ID: Text; var IssueDate: Text; var InvoiceTypeCode: Text; var Note: Text; var TaxPointDate: Text; var DocumentCurrencyCode: Text; var AccountingCost: Text)
@@ -907,7 +909,7 @@
             VATPostingSetup.Init();
         with VATAmtLine do begin
             Init;
-            "VAT Identifier" := VATPostingSetup."VAT Identifier";
+            "VAT Identifier" := FORMAT(SalesLine."VAT %");
             "VAT Calculation Type" := SalesLine."VAT Calculation Type";
             "Tax Group Code" := SalesLine."Tax Group Code";
             "Tax Category" := VATPostingSetup."Tax Category";
@@ -946,6 +948,7 @@
 
     procedure GetTaxExemptionReason(var VATProductPostingGroupCategory: Record "VAT Product Posting Group"; var TaxExemptionReasonTxt: Text; TaxCategoryID: Text)
     begin
+        TaxExemptionReasonTxt := '';
         if not (TaxCategoryID in [GetTaxCategoryE(), GetTaxCategoryG(), GetTaxCategoryK(), GetTaxCategoryO(), GetTaxCategoryAE()]) then
             exit;
         if VATProductPostingGroupCategory.Get(TaxCategoryID) then
@@ -1467,6 +1470,12 @@
     local procedure OnAfterGetGeneralInfo(SalesHeader: Record "Sales Header"; var ID: Text; var IssueDate: Text; var InvoiceTypeCode: Text; var Note: Text; var TaxPointDate: Text; var DocumentCurrencyCode: Text; var AccountingCost: Text)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetGeneralInfoProcedure(SalesHeader: Record "Sales Header"; var ID: Text; var IssueDate: Text; var InvoiceTypeCode: Text; var Note: Text; var TaxPointDate: Text; var DocumentCurrencyCode: Text; var AccountingCost: Text)
+    begin
+    end;
+
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetLegalMonetaryInfo(SalesHeader: Record "Sales Header"; var VATAmtLine: Record "VAT Amount Line"; var LineExtensionAmount: Text; var TaxExclusiveAmount: Text; var TaxInclusiveAmount: Text; var AllowanceTotalAmount: Text; var ChargeTotalAmount: Text; var PrepaidAmount: Text; var PayableRoundingAmount: Text; var PayableAmount: Text)

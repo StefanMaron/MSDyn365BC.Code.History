@@ -301,7 +301,7 @@ report 15000001 "Suggest Remittance Payments"
         VendLedgEntry.SetRange("On Hold", '');
         VendLedgEntry.SetFilter("Global Dimension 1 Code", Vendor.GetFilter("Global Dimension 1 Filter"));
         VendLedgEntry.SetFilter("Global Dimension 2 Code", Vendor.GetFilter("Global Dimension 2 Filter"));
-        OnGetVendLedgEntriesOnAfterVendLedgEntrySetFilters(VendLedgEntry);
+        OnGetVendLedgEntriesOnAfterVendLedgEntrySetFilters(VendLedgEntry, Vendor);
         if VendLedgEntry.Find('-') then
             repeat
                 SaveAmount;
@@ -629,7 +629,7 @@ report 15000001 "Suggest Remittance Payments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetVendLedgEntriesOnAfterVendLedgEntrySetFilters(var VendLedgEntry: Record "Vendor Ledger Entry")
+    local procedure OnGetVendLedgEntriesOnAfterVendLedgEntrySetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; var Vendor: Record Vendor)
     begin
     end;
 }

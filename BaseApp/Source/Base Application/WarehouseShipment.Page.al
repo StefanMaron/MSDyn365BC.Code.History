@@ -250,6 +250,7 @@ page 7335 "Warehouse Shipment"
                     var
                         GetSourceDocOutbound: Codeunit "Get Source Doc. Outbound";
                     begin
+                        OnBeforeOnActionUseFilterstoGetSrcDocs(Rec);
                         TestField(Status, Status::Open);
                         GetSourceDocOutbound.GetOutboundDocs(Rec);
                     end;
@@ -457,6 +458,11 @@ page 7335 "Warehouse Shipment"
     local procedure SortingMethodOnAfterValidate()
     begin
         CurrPage.Update();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnActionUseFilterstoGetSrcDocs(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    begin
     end;
 }
 

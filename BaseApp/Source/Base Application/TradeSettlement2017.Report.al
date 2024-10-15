@@ -594,6 +594,7 @@ report 10618 "Trade Settlement 2017"
             periodNo: Integer;
         begin
             CalculatePeriod(WorkDate, periodNo, SettlementYear);
+            Commit();
             SettlementPeriod := periodNo;
             CalculateStartEnd(SettlementPeriod, SettlementYear, StartDate, EndDate);
         end;

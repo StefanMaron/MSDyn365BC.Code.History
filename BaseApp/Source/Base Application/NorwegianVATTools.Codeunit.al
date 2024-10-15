@@ -496,14 +496,14 @@ codeunit 10600 "Norwegian VAT Tools"
         AddTempVATCode(TempVATCode, '3U', OutputVATDescriptionTxt, GetWithdrawalSpecificationCode(), '', '3');
         AddTempVATCode(TempVATCode, '5U', NoOutputVATDescriptionTxt, GetWithdrawalSpecificationCode(), '', '5');
         AddTempVATCode(TempVATCode, '11U', InputVATDeductDomDescrTxt, GetWithdrawalSpecificationCode(), '', '11');
-        AddTempVATCode(TempVATCode, '11T', InputVATDeductDomDescrTxt, GetReversalInputVATSpecificationCode(), '', '11');
+        AddTempVATCode(TempVATCode, '11T', InputVATDeductDomDescrTxt, GetLossesOnClaimsSpecificationCode(), '', '11');
         AddTempVATCode(TempVATCode, '13T', InputVATDeductDomDescrTxt, GetLossesOnClaimsSpecificationCode(), '', '13');
         AddTempVATCode(TempVATCode, '1T', InputVATDeductDomDescrTxt, GetLossesOnClaimsSpecificationCode(), '', '1');
         AddTempVATCode(TempVATCode, '1J', InputVATDeductDomDescrTxt, GetAdjustmentCode(), '', '1');
         AddTempVATCode(TempVATCode, '1TF', InputVATDeductDomDescrTxt, GetReversalInputVATSpecificationCode(), GetRealPropertyTok(), '1');
         AddTempVATCode(TempVATCode, '1TP', InputVATDeductDomDescrTxt, GetReversalInputVATSpecificationCode(), GetPassengerVehicles(), '1');
         AddTempVATCode(TempVATCode, '81TP', ImportOfGoodsDescrTxt, GetReversalInputVATSpecificationCode(), GetPassengerVehicles(), '81');
-        AddTempVATCode(TempVATCode, '12T', InputVATDeductDomDescrTxt, GetReversalInputVATSpecificationCode(), '', '12');
+        AddTempVATCode(TempVATCode, '12T', InputVATDeductDomDescrTxt, GetLossesOnClaimsSpecificationCode(), '', '12');
     end;
 
     local procedure AddTempVATCode(var TempVATCode: Record "VAT Code" temporary; Code: Code[10]; Description: Text[30]; VATSpecificationCode: Code[50]; VATNoteCode: Code[50]; SAFTVATCode: Code[10])

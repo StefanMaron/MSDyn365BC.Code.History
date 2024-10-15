@@ -246,7 +246,7 @@ codeunit 144134 "Remittance - Pages"
     end;
 
     [Test]
-    [HandlerFunctions('PostCodesHandler,RemittanceAccountLookupHandler')]
+    [HandlerFunctions('RemittanceAccountLookupHandler')]
     [Scope('OnPrem')]
     procedure TC60563CreateDomesticVendorUsingRemittance()
     var
@@ -267,7 +267,6 @@ codeunit 144134 "Remittance - Pages"
         // Execute
         VendorCard.OpenNew();
         VendorCard.Name.Value := 'Dom Vend1 REM';
-        LibraryVariableStorage.Enqueue('BERGEN');
         VendorCard."Post Code".Value := '5003';
         VendorCard."Country/Region Code".Value := 'NO';
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);

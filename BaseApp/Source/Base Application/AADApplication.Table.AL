@@ -16,16 +16,27 @@ table 9012 "AAD Application"
             Caption = 'State';
             OptionCaption = 'Enabled,Disabled';
             OptionMembers = Enabled,Disabled;
+            InitValue = Disabled;
             trigger OnValidate()
             var
                 User: Record User;
                 UserPermission: codeunit "User Permissions";
+                ConfirmManagement: Codeunit "Confirm Management";
                 ErrorTxt: Text;
+                ConfirmQuestion: Text;
             begin
                 if xRec.State = state then
                     exit;
-                If not UserExists() then
-                    CreateUserFromAADApplication();
+
+                If not UserExists() and (Rec.State = Rec.State::Enabled) then begin
+                    Rec.TestField(Description);
+                    ConfirmQuestion := StrSubstNo(UserNameCannotbeChangedQst, Rec.Description);
+                    If ConfirmManagement.GetResponseOrDefault(ConfirmQuestion, true) then
+                        CreateUserFromAADApplication()
+                    else
+                        error('');
+                end;
+
                 User.Get("User Id");
                 ErrorTxt := StrSubstNo(NoPermissionToChangeUserErr, SuperPermissionSetTxt, SECURITYPermissionSetTxt);
                 if not UserPermission.CanManageUsersOnTenant(UserSecurityId()) then
@@ -66,12 +77,6 @@ table 9012 "AAD Application"
         field(10; Description; Text[50])
         {
             Caption = 'Description';
-
-            trigger OnValidate()
-            begin
-                if (xRec.Description = '') and (Description <> '') then
-                    CreateUserFromAADApplication();
-            end;
         }
         field(11; "Contact Information"; Text[50])
         {
@@ -85,7 +90,6 @@ table 9012 "AAD Application"
         {
             Caption = 'User Id';
         }
-
     }
 
     keys
@@ -107,6 +111,7 @@ table 9012 "AAD Application"
         NavUserAccountHelper: DotNet NavUserAccountHelper;
         ErrText: Text;
     begin
+        Rec.TestField(Description);
         if UserExists() then begin
             User.Get("User Id");
             User.State := User.State::Enabled;
@@ -123,6 +128,12 @@ table 9012 "AAD Application"
 
         "User Id" := NavUserAccountHelper.CreateApplicationRegistration(Description, "Client Id");
         Modify();
+        if UserExists() then begin
+            User.Get("User Id");
+            User.State := Rec.State;
+            User.Modify();
+            exit;
+        end;
     end;
 
 
@@ -181,6 +192,7 @@ table 9012 "AAD Application"
         NoPermissionToChangeUserErr: Label 'You need to have either %1 or %2 privileges in the user permission set to update the state.', Comment = '%1 = SUPER; %2 = SECURITY';
         SECURITYPermissionSetTxt: Label 'SECURITY', Locked = true;
         SuperPermissionSetTxt: Label 'SECURITY', Locked = true;
+        UserNameCannotbeChangedQst: Label 'A user named %1 will be created. Do you want to continue?', Comment = '%1 a user name eq. xxx yyyyyy';
 }
 
 

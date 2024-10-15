@@ -100,6 +100,7 @@ report 5685 "Copy Fixed Asset"
             FA2."Last Date Modified" := 0D;
             FA2."Main Asset/Component" := FA2."Main Asset/Component"::" ";
             FA2."Component of Main Asset" := '';
+            OnOnPreReportOnBeforeFA2Insert(FA2, FA);
             if UseFANoSeries then
                 FA2.Insert(true)
             else begin
@@ -162,6 +163,11 @@ report 5685 "Copy Fixed Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFixedAssetCopied(var FixedAsset2: Record "Fixed Asset"; var FixedAsset: Record "Fixed Asset")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnPreReportOnBeforeFA2Insert(var FixedAsset2: Record "Fixed Asset"; var FixedAsset: Record "Fixed Asset")
     begin
     end;
 }

@@ -20,6 +20,7 @@
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryJob: Codeunit "Library - Job";
         ERMUpdateCurrencySales: Codeunit "ERM Update Currency - Sales";
         isInitialized: Boolean;
         AmountError: Label '%1 must be %2 in \\%3 %4=%5.';
@@ -984,7 +985,7 @@
         Customer.Modify(true);
 
         // Exercise: Create Job For Customer.
-        CreateJob(TempJob, Customer."No.");
+        LibraryJob.CreateJob(TempJob, Customer."No.");
 
         // Verify: Verify different Currency Field On Job Card.
         TempJob.TestField("Currency Code", '');
@@ -1345,14 +1346,6 @@
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
         BankAccount.Modify(true);
         exit(BankAccount."No.");
-    end;
-
-    local procedure CreateJob(var TempJob: Record Job temporary; BillToCustomerNo: Code[20])
-    begin
-        TempJob.Init();
-        TempJob.Insert();
-        TempJob.Validate("Bill-to Customer No.", BillToCustomerNo);
-        TempJob.Modify();
     end;
 
     local procedure FindSalesInvoiceAmount(DocumentNo: Code[20]) SalesInvoiceAmount: Decimal

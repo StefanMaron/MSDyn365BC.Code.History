@@ -9,7 +9,8 @@ codeunit 9651 "Document Report Mgt."
 #if not CLEAN20
         NotImplementedErr: Label 'This option is not available.';
         UnexpectedHexCharacterRegexErr: Label 'hexadecimal value 0x[0-9a-fA-F]*, is an invalid character', Locked = true;
-        UnexpectedCharInDataErr: Label 'Cannot create the document because it includes garbled text. Make sure the text is readable and then try again.';
+        UnexpectedCharInDataErr: Label 'The report contains characters or spaces that aren''t allowed.';
+        UnexpectedCharInDataDetailedErr: Label 'For example, if you copied the company address from your website, you might have included an extra space. To find the problem, export the report data to an XML file and look for the invalid characters. Original error: %1', Comment = '%1 = the original error that contains the invalid character';
         FileTypeHtmlTxt: Label 'html', Locked = true;
         FileTypeWordTxt: Label 'docx', Locked = true;
         FileTypePdfTxt: Label 'pdf', Locked = true;
@@ -49,6 +50,7 @@ codeunit 9651 "Document Report Mgt."
         CurrentFileType: Text;
         PrinterName: Text;
         IsHandled: Boolean;
+        UnsupportedCharactersErr: ErrorInfo;
     begin
         if ReportAction = ReportAction::Print then
             PrinterName := FileName;
@@ -97,12 +99,18 @@ codeunit 9651 "Document Report Mgt."
         OnBeforeMergeWordDocument;
 
         if not TryXmlMergeWordDocument(InStrWordDoc, InStrXmlData, OutStrWordDoc) then begin
-            if Regex.IsMatch(GetLastErrorText, UnexpectedHexCharacterRegexErr) then
-                Error(UnexpectedCharInDataErr);
+            if Regex.IsMatch(GetLastErrorText(), UnexpectedHexCharacterRegexErr) then begin
+                UnsupportedCharactersErr.ErrorType := UnsupportedCharactersErr.ErrorType::Client;
+                UnsupportedCharactersErr.Message := UnexpectedCharInDataErr;
+                UnsupportedCharactersErr.DetailedMessage := StrSubstNo(UnexpectedCharInDataDetailedErr, GetLastErrorText());
+                UnsupportedCharactersErr.Verbosity := UnsupportedCharactersErr.Verbosity::Error;
+                UnsupportedCharactersErr.DataClassification := UnsupportedCharactersErr.DataClassification::SystemMetadata;
 
-            Error(GetLastErrorText);
+                Error(UnsupportedCharactersErr);
+            end;
+
+            Error(GetLastErrorText());
         end;
-
 
         IsHandled := false;
         OnMergeReportLayoutOnSuppressCommit(ReportID, IsHandled);
