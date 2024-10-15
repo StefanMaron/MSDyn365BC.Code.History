@@ -829,7 +829,7 @@ codeunit 144081 "SCM Subcontracting"
         OptionString: Option Open,Post;
     begin
         // [FEATURE] [Subcontracting] [WIP Item]
-        // [SCENARIO 452922] Verify Post Receive on Subcontracting Transfer Order for WIP Item
+        // [SCENARIO 452923] Verify Post Receive on Subcontracting Transfer Order for WIP Item
         Initialize();
 
         // [GIVEN] Create Subcontracting Location and Subcontracting Order

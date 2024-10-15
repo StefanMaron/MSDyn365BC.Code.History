@@ -16,7 +16,7 @@ page 12184 Bill
                     ApplicationArea = All;
                     ToolTip = 'Specifies a bill code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description for the bill.';

@@ -16,7 +16,7 @@ page 12206 "Fattura Document Type List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document type code that will be exported to the XML file.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the document type. You can enter a maximum of 250 characters, both numbers and letters.';

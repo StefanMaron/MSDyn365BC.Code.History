@@ -25,7 +25,7 @@ page 456 "No. Series"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series type that is associated with the number series code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the number series.';
@@ -323,50 +323,8 @@ page 456 "No. Series"
         end;
     end;
 
-    local procedure UpdateLineActionOnPage()
+    protected procedure UpdateLineActionOnPage()
     begin
         Rec.UpdateLine(StartDate, StartNo, EndNo, LastNoUsed, WarningNo, IncrementByNo, LastDateUsed, AllowGaps);
-        case "No. Series Type" of
-            "No. Series Type"::Normal:
-                begin
-                    NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, Code, 0D);
-                    if not NoSeriesLine.Find('-') then
-                        NoSeriesLine.Init();
-                    StartDate := NoSeriesLine."Starting Date";
-                    StartNo := NoSeriesLine."Starting No.";
-                    EndNo := NoSeriesLine."Ending No.";
-                    LastNoUsed := NoSeriesLine."Last No. Used";
-                    WarningNo := NoSeriesLine."Warning No.";
-                    IncrementByNo := NoSeriesLine."Increment-by No.";
-                    LastDateUsed := NoSeriesLine."Last Date Used"
-                end;
-            "No. Series Type"::Sales:
-                begin
-                    NoSeriesMgt.SetNoSeriesLineSalesFilter(NoSeriesLineSales, Code, 0D);
-                    if not NoSeriesLineSales.Find('-') then
-                        NoSeriesLineSales.Init();
-                    StartDate := NoSeriesLineSales."Starting Date";
-                    StartNo := NoSeriesLineSales."Starting No.";
-                    EndNo := NoSeriesLineSales."Ending No.";
-                    LastNoUsed := NoSeriesLineSales."Last No. Used";
-                    WarningNo := NoSeriesLineSales."Warning No.";
-                    IncrementByNo := NoSeriesLineSales."Increment-by No.";
-                    LastDateUsed := NoSeriesLineSales."Last Date Used"
-                end;
-            "No. Series Type"::Purchase:
-                begin
-                    NoSeriesMgt.SetNoSeriesLinePurchaseFilter(NoSeriesLinePurchase, Code, 0D);
-                    if not NoSeriesLinePurchase.Find('-') then
-                        NoSeriesLinePurchase.Init();
-                    StartDate := NoSeriesLinePurchase."Starting Date";
-                    StartNo := NoSeriesLinePurchase."Starting No.";
-                    EndNo := NoSeriesLinePurchase."Ending No.";
-                    LastNoUsed := NoSeriesLinePurchase."Last No. Used";
-                    WarningNo := NoSeriesLinePurchase."Warning No.";
-                    IncrementByNo := NoSeriesLinePurchase."Increment-by No.";
-                    LastDateUsed := NoSeriesLinePurchase."Last Date Used"
-                end;
-        end;
     end;
 }
-

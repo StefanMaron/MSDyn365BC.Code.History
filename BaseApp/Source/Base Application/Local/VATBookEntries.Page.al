@@ -53,7 +53,7 @@ page 12141 "VAT Book Entries"
                     DrillDown = false;
                     ToolTip = 'Specifies the type of document that is the source of the VAT entry.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -79,7 +79,7 @@ page 12141 "VAT Book Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the entry that the VAT amount is calculated from.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the entry.';

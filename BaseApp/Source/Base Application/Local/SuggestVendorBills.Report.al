@@ -97,9 +97,8 @@
     procedure CreateLine()
     var
         DimMgt: Codeunit DimensionManagement;
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
         Dimension: Code[20];
-        No: array[10] of Code[20];
-        TableID: array[10] of Integer;
     begin
         VendBillLine2.Reset();
         VendBillLine2.SetRange("Vendor Entry No.", "Vendor Ledger Entry"."Entry No.");
@@ -123,12 +122,10 @@
                 VendorBillLine."External Document No." := "Vendor Ledger Entry"."External Document No.";
                 VendorBillLine."Instalment Amount" := Abs("Vendor Ledger Entry".Amount);
                 VendorBillLine."Remaining Amount" := Abs("Vendor Ledger Entry"."Remaining Amount");
-                TableID[1] := DATABASE::Vendor;
-                No[1] := "Vendor Ledger Entry"."Vendor No.";
-                Dimension := '';
+                DimMgt.AddDimSource(DefaultDimSource, Database::Vendor, VendorBillLine."Vendor No.");
                 VendorBillLine."Dimension Set ID" :=
-                  DimMgt.GetDefaultDimID(
-                    TableID, No, '', Dimension, Dimension, 0, 0);
+                    DimMgt.GetRecDefaultDimID(
+                        VendorBillLine, 0, DefaultDimSource, '', Dimension, Dimension, VendorBillLine."Dimension Set ID", DATABASE::Vendor);
                 VendorBillLine."Gross Amount to Pay" := VendorBillLine."Remaining Amount";
                 if VendorBillHeader."Posting Date" <= "Vendor Ledger Entry"."Pmt. Disc. Tolerance Date" then
                     VendorBillLine."Amount to Pay" :=
@@ -147,7 +144,7 @@
         end;
     end;
 
-    [IntegrationEvent(false,false)]
+    [IntegrationEvent(false, false)]
     local procedure OnCreateLineOnBeforeVendorBillLineInsert(var VendorBillLine: Record "Vendor Bill Line"; VendorBillHeader: Record "Vendor Bill Header"; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;

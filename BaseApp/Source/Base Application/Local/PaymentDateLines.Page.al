@@ -46,7 +46,7 @@ page 12171 "Payment Date Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the discount percentage that is applied for early payment of an invoice amount.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = CurrencyCode;
@@ -116,7 +116,7 @@ page 12171 "Payment Date Lines"
         if Find('-') then
             repeat
                 if Type <> Type::"Blanket Order" then
-                    DocType := Type
+                    DocType := Type.AsInteger()
                 else
                     DocType := DocType::"Blanket Order";
 

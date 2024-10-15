@@ -18,7 +18,7 @@ page 12140 "VAT Identifier"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a VAT identifier code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description for the VAT identifier.';

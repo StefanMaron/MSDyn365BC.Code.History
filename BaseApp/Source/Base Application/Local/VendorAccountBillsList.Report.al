@@ -459,7 +459,6 @@ report 12116 "Vendor Account Bills List"
         VendLedgEntry3: Record "Vendor Ledger Entry";
         TempDetailedVendorLedgEntryApplied: Record "Detailed Vendor Ledg. Entry" temporary;
         EndingDate: Date;
-        OnlyOpened: Boolean;
         RemainingAmountLCY: Decimal;
         ClosedByAmountLCY: Decimal;
         TotalClosedByAmntLCY: Decimal;
@@ -483,6 +482,9 @@ report 12116 "Vendor Account Bills List"
         BalanceCaptionLbl: Label 'Balance';
         BalanceCaption_Control1130079Lbl: Label 'Balance';
         BalanceNoteLbl: Label 'Note: The report shows the vendor''s invoiced bills and the resulting balance for each. Because stand-alone payments and opening balances are not included, the report does not reflect the vendor''s total balance.';
+
+    protected var
+        OnlyOpened: Boolean;
 
     local procedure FindAppliedDetailedVendorLedgerEntry(VendorLedgerEntryNo: Integer)
     var

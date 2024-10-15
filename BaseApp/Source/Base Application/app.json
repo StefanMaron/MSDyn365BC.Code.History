@@ -3,7 +3,7 @@
     "name":  "Base Application",
     "publisher":  "Microsoft",
     "description":  "Provides business processes that are typical for small and mid-sized companies, such as sales and purchasing, and customer and vendor management, plus complex processes, such as assembly, manufacturing, service, and directed warehouse management. https://go.microsoft.com/fwlink/?LinkId=2205496",
-    "version":  "21.5.53619.53819",
+    "version":  "22.0.54157.54635",
     "logo":  "ExtensionLogo.png",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -14,7 +14,7 @@
                              "id":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
                              "name":  "System Application",
                              "publisher":  "Microsoft",
-                             "version":  "21.5.0.0"
+                             "version":  "22.0.0.0"
                          }
                      ],
     "internalsVisibleTo":  [
@@ -92,9 +92,14 @@
                                    "id":  "d94a0cee-f211-4941-b609-7c984f85ad03",
                                    "name":  "Tests-Permissions",
                                    "publisher":  "Microsoft"
+                               },
+                               {
+                                   "id":  "6f0b528b-a4de-4ccd-a948-d1350e228e4a",
+                                   "name":  "Tests-SCM",
+                                   "publisher":  "Microsoft"
                                }
                            ],
-    "platform":  "21.0.0.0",
+    "platform":  "22.0.0.0",
     "target":  "OnPrem",
     "resourceExposurePolicy":  {
                                    "allowDebugging":  true,

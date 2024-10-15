@@ -27,7 +27,7 @@ table 12118 "Intra - form Buffer"
             DataClassification = SystemMetadata;
             OptionCaption = 'Receipt,Shipment';
             OptionMembers = Receipt,Shipment;
-        }        
+        }
         field(5; Date; Date)
         {
             Caption = 'Date';

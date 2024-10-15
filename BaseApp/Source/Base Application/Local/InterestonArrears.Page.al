@@ -27,7 +27,7 @@ page 12101 "Interest on Arrears"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage the program should use to calculate interest on arrear.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the interest.';

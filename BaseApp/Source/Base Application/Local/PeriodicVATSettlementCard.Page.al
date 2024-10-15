@@ -29,7 +29,7 @@ page 12123 "Periodic VAT Settlement Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the bank code that is assigned to the bank account that is used for the VAT settlement transaction.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the periodic settlement VAT entry.';

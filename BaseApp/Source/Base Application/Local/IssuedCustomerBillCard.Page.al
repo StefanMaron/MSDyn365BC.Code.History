@@ -41,7 +41,7 @@ page 12180 "Issued Customer Bill Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the issued customer bill list is created.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;

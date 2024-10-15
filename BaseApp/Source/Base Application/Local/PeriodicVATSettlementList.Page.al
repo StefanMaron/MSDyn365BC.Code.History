@@ -87,7 +87,7 @@ page 12121 "Periodic VAT Settlement List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the VAT settlement transaction is posted and sent to the tax authority.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the periodic settlement VAT entry.';

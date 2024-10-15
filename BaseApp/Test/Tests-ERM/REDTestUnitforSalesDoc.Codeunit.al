@@ -1,4 +1,4 @@
-codeunit 134805 "RED Test Unit for Sales Doc"
+﻿codeunit 134805 "RED Test Unit for Sales Doc"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -772,11 +772,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Test]
-#if not CLEAN19
-    [HandlerFunctions('ConfirmMessageHandler,MessageHandler')]
-#else
     [HandlerFunctions('ConfirmMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure TestDeleteArchiveOrderWithDeferral()
     var
@@ -810,11 +806,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DeleteSalesDoc(SalesHeader);
 
         // [WHEN] Remove the archives
-#if not CLEAN19
-        DeleteSalesOrderArchive(DocNo);
-#else
         SaleslineArchive.Delete(true);
-#endif
 
         // [THEN] the archived deferral schedule was deleted
         ValidateDeferralArchiveScheduleDoesNotExist(SalesHeader."Document Type"::Order, DocNo, LineNo);
@@ -2763,19 +2755,6 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         SalesHeaderArchive.SetRange("No.", No);
         SalesHeaderArchive.FindFirst();
     end;
-
-#if not CLEAN19
-    local procedure DeleteSalesOrderArchive(No: Code[20])
-    var
-        SalesHeaderArchive: Record "Sales Header Archive";
-        DeleteSalesOrderVersions: Report "Delete Sales Order Versions";
-    begin
-        FindSalesOrderArchive(SalesHeaderArchive, No);
-        DeleteSalesOrderVersions.UseRequestPage(false);
-        DeleteSalesOrderVersions.SetTableView(SalesHeaderArchive);
-        DeleteSalesOrderVersions.Run();
-    end;
-#endif
 
     local procedure FindSalesReturnOrderArchive(var SalesHeaderArchive: Record "Sales Header Archive"; No: Code[20])
     var

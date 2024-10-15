@@ -1,8 +1,9 @@
-codeunit 396 NoSeriesManagement
+﻿codeunit 396 NoSeriesManagement
 {
-    Permissions = TableData "No. Series Line" = rimd,
-                  TableData "No. Series Line Sales" = rimd,
-                  TableData "No. Series Line Purchase" = rimd;
+    Permissions = tabledata "No. Series Line" = rimd,
+                  tabledata "No. Series Line Sales" = rimd,
+                  tabledata "No. Series Line Purchase" = rimd,
+                  tabledata "No. Series" = r;
 
     trigger OnRun()
     begin

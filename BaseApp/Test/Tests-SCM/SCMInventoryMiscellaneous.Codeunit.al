@@ -35,6 +35,9 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         TransferOrderReceiptErr: Label 'Transfer order should not be completely received.';
         TransferOrderReceiptLineErr: Label 'Transfer line should be completely received.';
         TransferOrderReceiptLineNotErr: Label 'Transfer line is not completely received.';
+        TransferOrderShipBatchPostErr: Label 'Transfer Order is not shipped during batch post';
+        TransferOrderReceiveBatchPostErr: Label 'Transfer Order is not received during batch post';
+        UnexpectedMessage: Label 'Unexpected message: "%1". Expected: "%2"';
         GlobalDocumentNo2: Code[20];
         GlobalQuantity: Decimal;
         GlobalQuantity2: Decimal;
@@ -654,6 +657,229 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('BatchPostTransferOrders')]
+    procedure BatchPostShipTransferOrder()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        TransferLine: Record "Transfer Line";
+        TransferLine2: Record "Transfer Line";
+        TransferHeaderFilter: Text[100];
+        Quantity: Decimal;
+        BatchPostTransferOrders: Report "Batch Post Transfer Orders";
+        TransferFilterLbl: Label '%1|%2', Comment = '%1 = Transfer Header code, %2 = Transfer Header code';
+    begin
+        // [FEATURE] [Transfer Order]
+        // [SCENARIO] Batch Post Tranfser Order without any errors.
+        Initialize();
+
+        // [GIVEN] Create and post Item Journal Line for having item in inventory.
+        Quantity := LibraryRandom.RandDec(100, 0);  // Use Random value for Quantity.
+        CreateItem(Item, Item."Replenishment System"::" ");
+        CreateLocation(Location, false, false, false, false);
+        PostItemJournalLine(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Location.Code, Quantity, false);
+
+        // [GIVEN] Craeate and release Transfer Orders.
+        CreateAndReleaseTransferOrder(TransferLine, Item."No.", Location.Code, false, false, Quantity / 2, false);
+        CreateAndReleaseTransferOrder(TransferLine2, Item."No.", Location.Code, false, false, Quantity / 2, false);
+        TransferHeaderFilter := StrSubstNo(TransferFilterLbl, TransferLine."Document No.", TransferLine2."Document No.");
+
+        // [WHEN] Batch Post Transfer Order - Ship
+        Commit();
+        LibraryVariableStorage.Enqueue(TransferHeaderFilter);
+        LibraryVariableStorage.Enqueue(0);
+        BatchPostTransferOrders.Run();
+
+        // [THEN] All transfer orders are shipped
+        Assert.AreEqual(Quantity, TransferShipmentLineTotalQuantity(TransferHeaderFilter), TransferOrderShipBatchPostErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('BatchPostTransferOrders')]
+    procedure BatchPostDirectTransferTransferOrder()
+    var
+        Quantity: Decimal;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        TransferLine: Record "Transfer Line";
+        TransferLine2: Record "Transfer Line";
+        BatchPostTransferOrders: Report "Batch Post Transfer Orders";
+        TransferHeaderFilter: Text[100];
+        TransferFilterLbl: Label '%1|%2', Comment = '%1 = Transfer Header code, %2 = Transfer Header code';
+    begin
+        // [FEATURE] [Transfer Order]
+        // [SCENARIO] Batch Post Tranfser Order without any errors.
+        Initialize();
+
+        // [GIVEN] Create and post Item Journal Line for having item in inventory.
+        Quantity := LibraryRandom.RandDec(100, 0);  // Use Random value for Quantity.
+        CreateItem(Item, Item."Replenishment System"::" ");
+        CreateLocation(Location, false, false, false, false);
+        PostItemJournalLine(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Location.Code, Quantity, false);
+
+        // [GIVEN] Craeate and release Transfer Orders.
+        CreateAndReleaseTransferOrder(TransferLine, Item."No.", Location.Code, false, false, Quantity / 2, true);
+        CreateAndReleaseTransferOrder(TransferLine2, Item."No.", Location.Code, false, false, Quantity / 2, true);
+        TransferHeaderFilter := StrSubstNo(TransferFilterLbl, TransferLine."Document No.", TransferLine2."Document No.");
+
+        // [WHEN] Batch Post Transfer Order
+        Commit();
+        LibraryVariableStorage.Enqueue(TransferHeaderFilter);
+        LibraryVariableStorage.Enqueue(1);
+        BatchPostTransferOrders.Run();
+
+        // [THEN] if all transfer orders are shipped and received
+        Assert.AreEqual(Quantity, TransferReceiptLineTotalQuantity(TransferHeaderFilter), TransferOrderReceiveBatchPostErr);
+        Assert.AreEqual(Quantity, TransferShipmentLineTotalQuantity(TransferHeaderFilter), TransferOrderShipBatchPostErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('BatchPostTransferOrders')]
+    procedure BatchPostReceiveTransferOrder()
+    var
+        Quantity: Decimal;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        TransferLine: Record "Transfer Line";
+        TransferLine2: Record "Transfer Line";
+        BatchPostTransferOrders: Report "Batch Post Transfer Orders";
+        TransferHeaderFilter: Text[100];
+        TransferFilterLbl: Label '%1|%2', Comment = '%1 = Transfer Header code, %2 = Transfer Header code';
+    begin
+        // [FEATURE] [Transfer Order]
+        // [SCENARIO] Batch Post Tranfser Order without any errors.
+        Initialize();
+
+        // [GIVEN] Create and post Item Journal Line for having item in inventory.
+        Quantity := LibraryRandom.RandDec(100, 0);  // Use Random value for Quantity.
+        CreateItem(Item, Item."Replenishment System"::" ");
+        CreateLocation(Location, false, false, false, false);
+        PostItemJournalLine(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Location.Code, Quantity, false);
+
+        // [GIVEN] Create and release Transfer Orders.
+        CreateAndReleaseTransferOrder(TransferLine, Item."No.", Location.Code, false, false, Quantity / 2, false);
+        CreateAndReleaseTransferOrder(TransferLine2, Item."No.", Location.Code, false, false, Quantity / 2, false);
+        TransferHeaderFilter := StrSubstNo(TransferFilterLbl, TransferLine."Document No.", TransferLine2."Document No.");
+
+        // [WHEN] Batch Post Transfer Order - Ship
+        Commit();
+        LibraryVariableStorage.Enqueue(TransferHeaderFilter);
+        LibraryVariableStorage.Enqueue(0);
+        BatchPostTransferOrders.Run();
+
+        // [WHEN] Batch Post Transfer Order - Receive
+        Commit();
+        LibraryVariableStorage.Enqueue(TransferHeaderFilter);
+        LibraryVariableStorage.Enqueue(1);
+        BatchPostTransferOrders.Run();
+
+        // [THEN] All transfer orders are shipped
+        Assert.AreEqual(Quantity, TransferReceiptLineTotalQuantity(TransferHeaderFilter), TransferOrderShipBatchPostErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('BatchPostTransferOrders,ErrorMessageTransferOrderPageHandler')]
+    procedure BatchPostReceiveTransferOrderWithTwoNotShipped()
+    var
+        Quantity: Decimal;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        TransferLine: Record "Transfer Line";
+        TransferLine2: Record "Transfer Line";
+        TransferLine3: Record "Transfer Line";
+        BatchPostTransferOrders: Report "Batch Post Transfer Orders";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        TransferHeaderFilter: Text[100];
+        TransferFilterLbl: Label '%1|%2|%3', Comment = '%1 = Transfer Header code, %2 = Transfer Header code, %3 = Transfer Header code';
+        ExpectedErrorMsg: Label 'An error or warning occured during operation Batch post Transfer Order record.', Locked = true;
+    begin
+        // [FEATURE] [Transfer Order]
+        // [SCENARIO] Batch Post three Tranfser Orders with option receive and two orders aren't shipped.
+        Initialize();
+
+        // [GIVEN] Create and post Item Journal Line for having item in inventory.
+        Quantity := 15;  // Use Random value for Quantity.
+        CreateItem(Item, Item."Replenishment System"::" ");
+        CreateLocation(Location, false, false, false, false);
+        PostItemJournalLine(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Location.Code, Quantity, false);
+
+        // [GIVEN] Create and release Transfer Orders.
+        CreateAndReleaseTransferOrder(TransferLine, Item."No.", Location.Code, false, false, Quantity / 3, false);
+        CreateAndReleaseTransferOrder(TransferLine2, Item."No.", Location.Code, false, false, Quantity / 3, false);
+        CreateAndReleaseTransferOrder(TransferLine3, Item."No.", Location.Code, false, false, Quantity / 3, false);
+        TransferHeaderFilter := StrSubstNo(TransferFilterLbl, TransferLine."Document No.", TransferLine2."Document No.", TransferLine3."Document No.");
+
+        // [WHEN] Batch Post only one Transfer Order - Ship
+        Commit();
+        LibraryVariableStorage.Enqueue(TransferLine."Document No.");
+        LibraryVariableStorage.Enqueue(0);
+        BatchPostTransferOrders.Run();
+
+        // [WHEN] Batch Post all Transfer Order - Receive
+        Commit();
+        LibraryVariableStorage.Enqueue(TransferHeaderFilter);
+        LibraryVariableStorage.Enqueue(1);
+        BatchPostTransferOrders.Run();
+
+        // [THEN] An error is expected
+        Assert.AreEqual(ExpectedErrorMsg, LibraryVariableStorage.DequeueText(), TransferOrderReceiveBatchPostErr);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('BatchPostTransferOrders,ErrorMessageTransferOrderPageHandler')]
+    procedure BatchPostShipTransferOrderWithNoQuantity()
+    var
+        Quantity: Decimal;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        TransferLine: Record "Transfer Line";
+        TransferLine2: Record "Transfer Line";
+        TransferLine3: Record "Transfer Line";
+        BatchPostTransferOrders: Report "Batch Post Transfer Orders";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        TransferHeaderFilter: Text[100];
+        TransferFilterLbl: Label '%1|%2|%3', Comment = '%1 = Transfer Header code, %2 = Transfer Header code, %3 = Transfer Header code';
+        ExpectedErrorMsg: Label 'An error or warning occured during operation Batch post Transfer Order record.', Locked = true;
+    begin
+        // [FEATURE] [Transfer Order]
+        // [SCENARIO] Batch Post three Tranfser Orders with option ship and one Transfer Order has quantity zero.
+        Initialize();
+
+        // [GIVEN] Create and post Item Journal Line for having item in inventory.
+        Quantity := 10;  // Use Random value for Quantity.
+        CreateItem(Item, Item."Replenishment System"::" ");
+        CreateLocation(Location, false, false, false, false);
+        PostItemJournalLine(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Location.Code, Quantity, false);
+
+        // [GIVEN] Create and release Transfer Orders.
+        CreateTransferOrder(TransferLine, Item."No.", Location.Code, false, false, Quantity / 2, false);
+        CreateTransferOrder(TransferLine2, Item."No.", Location.Code, false, false, 0, false);
+        CreateTransferOrder(TransferLine3, Item."No.", Location.Code, false, false, Quantity / 2, false);
+        TransferHeaderFilter := StrSubstNo(TransferFilterLbl, TransferLine."Document No.", TransferLine2."Document No.", TransferLine3."Document No.");
+
+        // [WHEN] Batch Post all Transfer Orders - Ship
+        Commit();
+        LibraryVariableStorage.Enqueue(TransferHeaderFilter);
+        LibraryVariableStorage.Enqueue(0);
+        BatchPostTransferOrders.Run();
+
+        // [THEN] One Transfer Order has an error
+        Assert.AreEqual(ExpectedErrorMsg, LibraryVariableStorage.DequeueText(), TransferOrderReceiveBatchPostErr);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
     [HandlerFunctions('PickSelectionHandler')]
     [Scope('OnPrem')]
     procedure GetWarehouseDocumentOnPickWorksheet()
@@ -934,7 +1160,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         PostItemJournalLine(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Location.Code, Quantity, false);
 
         // Exercise.
-        CreateAndReleaseTransferOrder(TransferLine, Item."No.", Location.Code, false, false, Quantity);
+        CreateAndReleaseTransferOrder(TransferLine, Item."No.", Location.Code, false, false, Quantity, false);
 
         // Verify: Verify Dimension on Transfer Line.
         VerifyDimensionOnTransferLine(DefaultDimension, TransferLine."Dimension Set ID");
@@ -1610,7 +1836,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
-    local procedure CreateAndReleaseTransferOrder(var TransferLine: Record "Transfer Line"; ItemNo: Code[20]; LocationCode: Code[10]; RequireReceive: Boolean; RequirePutaway: Boolean; Quantity: Decimal)
+    local procedure CreateTransferOrder(var TransferLine: Record "Transfer Line"; ItemNo: Code[20]; LocationCode: Code[10]; RequireReceive: Boolean; RequirePutaway: Boolean; Quantity: Decimal; DirectTransfer: Boolean)
     var
         Location: Record Location;
         Location2: Record Location;
@@ -1619,7 +1845,17 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         CreateLocationWithPostingSetup(Location, false, false, RequireReceive, RequirePutaway);
         LibraryWarehouse.CreateInTransitLocation(Location2);
         LibraryWarehouse.CreateTransferHeader(TransferHeader, LocationCode, Location.Code, Location2.Code);
+        if DirectTransfer then
+            TransferHeader.Validate("Direct Transfer", true);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
+    end;
+
+    local procedure CreateAndReleaseTransferOrder(var TransferLine: Record "Transfer Line"; ItemNo: Code[20]; LocationCode: Code[10]; RequireReceive: Boolean; RequirePutaway: Boolean; Quantity: Decimal; DirectTransfer: Boolean)
+    var
+        TransferHeader: Record "Transfer Header";
+    begin
+        CreateTransferOrder(TransferLine, ItemNo, LocationCode, RequireReceive, RequirePutaway, Quantity, DirectTransfer);
+        TransferHeader.Get(TransferLine."Document No.");
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
     end;
 
@@ -1809,7 +2045,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         Quantity := LibraryRandom.RandInt(100);  // Use Integer Random value for Lot Tracked Item Quantity.
         CreateLocationWithPostingSetup(Location, false, RequirePick, false, false);
         PostItemJournalLine(ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Location.Code, Quantity, Tracking);
-        CreateAndReleaseTransferOrder(TransferLine, ItemNo, Location.Code, RequireReceive, RequirePutaway, Quantity);
+        CreateAndReleaseTransferOrder(TransferLine, ItemNo, Location.Code, RequireReceive, RequirePutaway, Quantity, false);
     end;
 
     local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
@@ -2401,6 +2637,43 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         BinContent.TestField(Quantity, Quantity);
     end;
 
+    local procedure FindTransferToFromPostedShipmentByLocation(LocationCode: Code[10]): Code[20]
+    var
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+    begin
+        TransferShipmentHeader.SetRange("Transfer-from Code", LocationCode);
+        TransferShipmentHeader.FindFirst();
+        exit(TransferShipmentHeader."Transfer-to Code");
+    end;
+    
+    local procedure TransferShipmentLineTotalQuantity(TransferHeaderFilter: Text[100]): Decimal
+    var
+        TransferShipmentLine: Record "Transfer Shipment Line";
+        TotalShipped: Decimal;
+    begin
+        TransferShipmentLine.SetFilter("Transfer Order No.", TransferHeaderFilter);
+        if TransferShipmentLine.FindSet() then
+            repeat
+                TotalShipped += TransferShipmentLine.Quantity;
+            until TransferShipmentLine.Next() = 0;
+
+        exit(TotalShipped);
+    end;
+
+    local procedure TransferReceiptLineTotalQuantity(TransferHeaderFilter: Text[100]): Decimal
+    var
+        TransferReceiptLine: Record "Transfer Receipt Line";
+        TotalReceived: Decimal;
+    begin
+        TransferReceiptLine.SetFilter("Transfer Order No.", TransferHeaderFilter);
+        if TransferReceiptLine.FindSet() then
+            repeat
+                TotalReceived += TransferReceiptLine.Quantity;
+            until TransferReceiptLine.Next() = 0;
+
+        exit(TotalReceived);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure AutomaticReservationConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -2560,6 +2833,26 @@ codeunit 137293 "SCM Inventory Miscellaneous"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure ErrorMessageTransferOrderPageHandler(var TransferOrderNotification: Notification): Boolean;
+    begin
+        LibraryVariableStorage.Enqueue(TransferOrderNotification.Message);
+    end;
+
+    [RequestPageHandler]
+    procedure BatchPostTransferOrders(var BatchPostTransferOrders: TestRequestPage "Batch Post Transfer Orders")
+    var
+        TransferOrderPost: Variant;
+        TransferHeader: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(TransferHeader);
+        BatchPostTransferOrders."Transfer Header".SetFilter("No.", TransferHeader);
+        LibraryVariableStorage.Dequeue(TransferOrderPost);
+        BatchPostTransferOrders.TransferOption.SetValue(TransferOrderPost);
+        BatchPostTransferOrders.OK().Invoke();
     end;
 
     [SendNotificationHandler]

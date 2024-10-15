@@ -30,12 +30,12 @@ page 12155 "Subcontr.Transfer Ord. Subform"
                     ToolTip = 'Specifies if the item is a work in process (WIP) item.';
                     Editable = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a description.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Manufacturing;
                     BlankZero = true;

@@ -28,11 +28,9 @@ table 12203 "Fattura Header"
         {
             Caption = 'Document No.';
         }
-        field(7; "Entry Type"; Option)
+        field(7; "Entry Type"; Enum "Fattura Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = 'Sales,Service';
-            OptionMembers = Sales,Service;
         }
         field(8; "Document Type"; Option)
         {

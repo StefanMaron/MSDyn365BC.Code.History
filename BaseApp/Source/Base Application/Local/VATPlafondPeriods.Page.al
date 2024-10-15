@@ -18,7 +18,7 @@ page 12187 "VAT Plafond Periods"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the year of the VAT plafond amounts.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum amount VAT that can be exempt during the period, based on a plafond arrangement.';

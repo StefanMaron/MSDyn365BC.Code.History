@@ -39,12 +39,12 @@ page 12126 "Annual VAT Communication"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line number.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line type.';

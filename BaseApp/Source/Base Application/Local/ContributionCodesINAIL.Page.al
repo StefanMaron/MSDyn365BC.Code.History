@@ -20,7 +20,7 @@ page 12197 "Contribution Codes-INAIL"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a contribution code that you want the program to attach to the entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of what the code stands for.';

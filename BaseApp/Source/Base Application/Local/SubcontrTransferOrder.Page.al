@@ -75,7 +75,7 @@ page 12154 "Subcontr. Transfer Order"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Manufacturing;
                     Importance = Promoted;

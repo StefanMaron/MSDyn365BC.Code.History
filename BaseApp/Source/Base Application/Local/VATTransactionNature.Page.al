@@ -15,7 +15,7 @@ page 12202 "VAT Transaction Nature"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code that identifies the type.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description.';

@@ -19,7 +19,7 @@ page 12104 "Withhold Codes"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a code for a withhold code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of what the code stands for.';

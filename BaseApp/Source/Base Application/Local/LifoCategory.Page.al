@@ -17,7 +17,7 @@ page 12128 "Lifo Category"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a LIFO category code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description for the LIFO category.';

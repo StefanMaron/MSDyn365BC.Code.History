@@ -23,7 +23,7 @@ page 12212 "Posted Serv. Invoice - Update"
                     Editable = false;
                     ToolTip = 'Specifies the posted invoice number. You cannot change the number because the document has already been posted.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Service;
                     Caption = 'Customer';

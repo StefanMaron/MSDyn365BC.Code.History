@@ -18,7 +18,7 @@ page 12132 "Customs Authority Vendors"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor who you want to identify as representing the customs authorities.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the vendor who you selected in the Vendor No. field.';

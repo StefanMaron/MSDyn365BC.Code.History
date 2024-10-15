@@ -141,9 +141,8 @@ page 12188 "Manual vendor Payment Line"
                 var
                     VendorBillLine: Record "Vendor Bill Line";
                     DimMgt: Codeunit DimensionManagement;
+                    DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
                     Dimension: Code[20];
-                    No: array[10] of Code[20];
-                    TableID: array[10] of Integer;
                     NextLineNo: Integer;
                 begin
                     with VendorBillLine do begin
@@ -176,12 +175,10 @@ page 12188 "Manual vendor Payment Line"
                         "Cumulative Transfers" := true;
                         SetWithholdCode(WithholdingTaxCode);
                         SetSocialSecurityCode(SocialSecurityCode);
-                        TableID[1] := DATABASE::Vendor;
-                        No[1] := VendorNo;
-                        Dimension := '';
+                        DimMgt.AddDimSource(DefaultDimSource, Database::Vendor, VendorNo);
                         "Dimension Set ID" :=
-                          DimMgt.GetDefaultDimID(
-                            TableID, No, '', Dimension, Dimension, 0, 0);
+                            DimMgt.GetRecDefaultDimID(
+                                VendorBillLine, 0, DefaultDimSource, '', Dimension, Dimension, "Dimension Set ID", DATABASE::Vendor);
                         OnInsertLineActionOnBeforeVendorBillLineInsert(VendorBillLine, VendorBillNo, PostingDate, VendorNo, TotalAmount, DocumentType, DocumentNo, DocumentDate);
                         Insert(true)
                     end;

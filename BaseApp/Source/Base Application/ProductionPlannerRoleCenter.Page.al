@@ -642,7 +642,7 @@
                 //PromotedCategory = Process;
                 RunObject = Page "Item Card";
                 RunPageMode = Create;
-                ToolTip = 'View the list of items that you trade in.';
+                ToolTip = 'Create a new item.';
             }
             action("Production &Order")
             {

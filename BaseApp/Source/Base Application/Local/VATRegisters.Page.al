@@ -18,12 +18,12 @@ page 12151 "VAT Registers"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a VAT Register code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description for the VAT register.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the origin of the VAT register.';

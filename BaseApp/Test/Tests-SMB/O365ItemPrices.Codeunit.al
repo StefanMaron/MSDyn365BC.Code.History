@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 codeunit 138019 "O365 Item Prices"
 {
     Subtype = Test;

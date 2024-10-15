@@ -43,7 +43,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [SCENARIO 127727] Phyllis can setup a Deferral template in the system
         Initialize();
-        
+
         // Setup
         DeferralCode := LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
         GoodAccountNumber := LibraryERM.CreateGLAccountNo();
@@ -1668,7 +1668,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
         if isInitialized then
             exit;
-            
+
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test RED Setup Gen. Jnl.");
         GenJnlManagement.SetJournalSimplePageModePreference(true, Page::"General Journal");
 

@@ -414,7 +414,6 @@ table 12137 "Purch. Withh. Contribution"
         SocSecBracketLine: Codeunit "Withholding - Contribution";
         WHTAmtManualEqWHTAmtErr: Label '%1 must not be equal to %2 in %3.', Comment = '%1=FIELDCAPTION("WHT Amount Manual"),%2=FIELDCAPTION("Withholding Tax Amount"),%3=TABLECAPTION("Purch. Withh. Contribution")';
 
-    [Scope('OnPrem')]
     procedure ValorizzaRitenute()
     begin
         if "Payment Date" <> 0D then
@@ -440,7 +439,6 @@ table 12137 "Purch. Withh. Contribution"
         Validate("Withholding Tax Amount", Round("Taxable Base" * "Withholding Tax %" / 100, Curr."Amount Rounding Precision"));
     end;
 
-    [Scope('OnPrem')]
     procedure ValorizzaINPS(GrossAmount: Decimal)
     var
         Assoggettato: Decimal;
@@ -537,7 +535,6 @@ table 12137 "Purch. Withh. Contribution"
             Error(InvalidNonTaxableAmountByTreatyErr, Rec."Total Amount" - Rec."Base - Excluded Amount");
     end;
 
-    [Scope('OnPrem')]
     procedure GetHeader()
     begin
         PurchHeader.Get("Document Type", "No.");
@@ -548,7 +545,6 @@ table 12137 "Purch. Withh. Contribution"
             Curr.Get("Currency Code");
     end;
 
-    [Scope('OnPrem')]
     procedure ValorizzaINAIL(GrossAmountINAIL: Decimal)
     var
         AssoggettatoINAIL: Decimal;

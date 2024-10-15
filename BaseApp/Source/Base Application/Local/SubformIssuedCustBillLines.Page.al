@@ -51,7 +51,7 @@ page 12181 "Subform Issued Cust.Bill Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the transaction date of the source document that generated the customer bill entry.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer''s amount due for payment.';

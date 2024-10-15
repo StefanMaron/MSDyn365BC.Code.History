@@ -15,12 +15,12 @@ page 12201 "Fattura Project Info"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a code that identifies the type of project.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line type.';

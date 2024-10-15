@@ -23,7 +23,7 @@ page 12166 "Posted Service Shpt. - Update"
                     Editable = false;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Service;
                     Editable = false;

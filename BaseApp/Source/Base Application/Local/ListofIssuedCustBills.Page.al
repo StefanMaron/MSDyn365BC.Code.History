@@ -40,7 +40,7 @@ page 12182 "List of Issued Cust. Bills"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that the bill header was issued.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the bank receipt that is applied to the customer bill.';

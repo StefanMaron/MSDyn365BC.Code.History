@@ -15,12 +15,12 @@ page 12200 "Fattura Codes"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a code that identifies the type.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line type.';

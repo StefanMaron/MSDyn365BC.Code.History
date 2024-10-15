@@ -1835,7 +1835,7 @@ codeunit 137280 "SCM Inventory Basic"
             ItemSubstitution."Substitute Type"::Item, Item."No."), 'Item Substitution not found.');
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceWorksheetControlNotVisibleOnPhone()
@@ -2302,6 +2302,36 @@ codeunit 137280 "SCM Inventory Basic"
 
     [Test]
     [HandlerFunctions('MessageHandler')]
+    procedure DeleteItemCreatedFromCatalogItem()
+    var
+        NonstockItemSetup: Record "Nonstock Item Setup";
+        NonstockItem: Record "Nonstock Item";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Nonstock Item] [Item Template] [Item]
+        Initialize();
+
+        // [GIVEN] The Item No. Series has been setup in NonStock Item Setup
+        // [GIVEN] Nonstock Item with Item Template and Vendor Item No.
+        // [GIVEN] Create Item from Nonstock Item via Catalog Item Management
+        NonstockItemSetup.Get();
+        NonstockItemSetup."No. Format" := NonstockItemSetup."No. Format"::"Item No. Series";
+        NonstockItemSetup.Modify();
+        LibraryInventory.CreateNonStockItem(NonstockItem);
+        NonstockItem.Find();
+        Item.Get(NonstockItem."Item No.");
+
+        // [WHEN] Delete the catalog item
+        Item.Delete(true);
+
+        // [THEN] Item with No 2100 has flag "Created From Nonstock Item" cleared
+        NonstockItem.Find();
+        NonstockItem.TestField("Item No.", '');
+        NonstockItem.TestField("Item No. Series", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
     procedure DeleteSalesLineWithItemFromDeletedCatalogItem()
     var
         NonstockItem: Record "Nonstock Item";
@@ -2366,8 +2396,60 @@ codeunit 137280 "SCM Inventory Basic"
         Item.TestField("Lead Time Calculation", Vendor."Lead Time Calculation");
     end;
 
+    [Test]
+    procedure TestSetupItemNoSeriesFormat()
+    var
+        NonstockItemSetup: Record "Nonstock Item Setup";
+    begin
+        // [FEATURE] [Nonstock Item Setup] [Setup Item No. Series Format]
+        Initialize();
+
+        // [GIVEN] The NonStock Item Setup exist
+        NonstockItemSetup.Get();
+
+        // [WHEN] Change No. Format to "Item No. Series"
+        NonstockItemSetup.Validate("No. Format", NonstockItemSetup."No. Format"::"Item No. Series");
+        NonstockItemSetup.Modify();
+        Commit();
+
+        // [THEN] Changing of "No. Format Separator" is not allowed
+        asserterror NonstockItemSetup.Validate("No. Format Separator", ';');
+
+        // [WHEN] Change No. Format to "Item No. Series"
+        NonstockItemSetup.Validate("No. Format", NonstockItemSetup."No. Format"::"Vendor Item No.");
+        NonstockItemSetup.Modify();
+
+        // [THEN] Changing of "No. Format Separator" is allowed
+        NonstockItemSetup.TestField("No. Format Separator", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure CreateItemWithItemNoSeriesFormat()
+    var
+        NonstockItemSetup: Record "Nonstock Item Setup";
+        NonstockItem: Record "Nonstock Item";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Nonstock Items] [Item No. Series Format]
+        Initialize();
+
+        // [GIVEN] The Item No. Series has been setup in NonStock Item Setup
+        NonstockItemSetup.Get();
+        NonstockItemSetup."No. Format" := NonstockItemSetup."No. Format"::"Item No. Series";
+        NonstockItemSetup.Modify();
+
+        // [WHEN] Create Item from Nonstock Item
+        CreateNonStockItem(NonstockItem);
+
+        // [THEN] Item created using Item No Series
+        Item.Get(NonstockItem."Item No.");
+        Item.TestField("No. Series", NonstockItem."Item No. Series");
+    end;
+
     local procedure Initialize()
     var
+        NonstockItemSetup: Record "Nonstock Item Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Basic");
@@ -2384,11 +2466,15 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryTemplates.EnableTemplatesFeature();
+        NonstockItemSetup.DeleteAll();
+        NonstockItemSetup.Init();
+        NonstockItemSetup.Insert();
 
         isInitialized := true;
         Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.Save(DATABASE::"Nonstock Item Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Basic");
     end;
 
@@ -2542,6 +2628,7 @@ codeunit 137280 "SCM Inventory Basic"
         NonstockItem.Modify(true);
         UpdateItemTemplate(NonstockItem."Item Templ. Code");
         CatalogItemManagement.NonstockAutoItem(NonstockItem);
+        NonstockItem.Get(NonstockItem."Entry No.");
     end;
 
     local procedure CreateCustomerWithDefaultDimension(var Customer: Record Customer; var DimensionValue: Record "Dimension Value")

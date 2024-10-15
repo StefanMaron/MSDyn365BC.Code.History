@@ -19,7 +19,7 @@ page 12108 "Contribution Brackets"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a contribution bracket code that you want the program to attach to the entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description for the contribution bracket.';

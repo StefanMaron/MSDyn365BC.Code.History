@@ -255,7 +255,6 @@ table 12116 "Withholding Tax"
         WithholdingTaxCreateQst: Label 'The program will create the withhold entry for entry %1 based on the Withholding Tax Code %2.\Do you want to create the withhold entry?', Comment = 'Parameter 1 - entry number, 2 - withholding tax code';
         WithholdingTaxCreatedMsg: Label 'Withholding tax with entry number %1 has been created.';
 
-    [Scope('OnPrem')]
     procedure ValorizzaRitenute()
     begin
         WithholdCode.Get("Withholding Tax Code");
@@ -330,4 +329,3 @@ table 12116 "Withholding Tax"
     begin
     end;
 }
-

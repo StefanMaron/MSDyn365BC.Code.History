@@ -142,7 +142,7 @@ page 12152 "Subcontracting Order"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the total amount including VAT on the purchase document from the vendor.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Manufacturing;
                     Importance = Promoted;

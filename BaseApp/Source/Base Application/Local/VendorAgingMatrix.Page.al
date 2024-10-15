@@ -18,7 +18,7 @@ page 35463 "Vendor Aging Matrix"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor number.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name.';

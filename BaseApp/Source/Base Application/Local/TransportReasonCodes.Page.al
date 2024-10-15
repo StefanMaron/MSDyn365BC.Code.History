@@ -16,7 +16,7 @@ page 12157 "Transport Reason Codes"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a transport reason code that you want the program to attach to the entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of what the code stands for.';

@@ -1,7 +1,7 @@
 codeunit 114 "Empl. Entry-Edit"
 {
-    Permissions = TableData "Employee Ledger Entry" = m,
-                  TableData "Detailed Employee Ledger Entry" = m;
+    Permissions = TableData "Employee Ledger Entry" = rm,
+                  TableData "Detailed Employee Ledger Entry" = rm;
     TableNo = "Employee Ledger Entry";
 
     trigger OnRun()

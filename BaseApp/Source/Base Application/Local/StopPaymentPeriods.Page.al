@@ -23,7 +23,7 @@ page 12174 "Stop Payment Periods"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the end date of the time period in which payments are not allowed.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the deferring due dates.';

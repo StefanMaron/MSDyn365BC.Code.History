@@ -6,11 +6,9 @@ table 12170 "Payment Lines"
 
     fields
     {
-        field(1; Type; Option)
+        field(1; Type; Enum "Payment Lines Document Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Payment Terms,General Journal,Sales Journal,Purchase Journal,Blanket Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Payment Terms","General Journal","Sales Journal","Purchase Journal","Blanket Order";
         }
         field(2; "Code"; Code[20])
         {
@@ -268,7 +266,7 @@ table 12170 "Payment Lines"
                 PaymentLines.Init();
                 PaymentLines."Sales/Purchase" := PaymentLines."Sales/Purchase"::Sales;
                 if SalesHeader."Document Type" <> SalesHeader."Document Type"::"Blanket Order" then
-                    PaymentLines.Type := SalesHeader."Document Type".AsInteger()
+                    PaymentLines.Type := SalesHeader."Document Type"
                 else
                     PaymentLines.Type := PaymentLines.Type::"Blanket Order";
                 PaymentLines.Code := SalesHeader."No.";
@@ -381,7 +379,7 @@ table 12170 "Payment Lines"
                 PaymentLines.Init();
                 PaymentLines."Sales/Purchase" := PaymentLines."Sales/Purchase"::Purchase;
                 if PurchaseHeader."Document Type" <> PurchaseHeader."Document Type"::"Blanket Order" then
-                    PaymentLines.Type := PurchaseHeader."Document Type".AsInteger()
+                    PaymentLines.Type := PurchaseHeader."Document Type"
                 else
                     PaymentLines.Type := PaymentLines.Type::"Blanket Order";
                 PaymentLines.Code := PurchaseHeader."No.";
@@ -474,7 +472,7 @@ table 12170 "Payment Lines"
             repeat
                 PaymentLines.Init();
                 PaymentLines."Sales/Purchase" := PaymentLines."Sales/Purchase"::Service;
-                PaymentLines.Type := ServiceHeader."Document Type".AsInteger();
+                PaymentLines.Type := ServiceHeader."Document Type";
                 PaymentLines.Code := ServiceHeader."No.";
                 PaymentCounter := PaymentCounter + 10000;
                 PaymentLines."Line No." := PaymentCounter;

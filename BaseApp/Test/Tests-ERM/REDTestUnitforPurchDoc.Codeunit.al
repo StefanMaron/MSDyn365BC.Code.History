@@ -1,4 +1,4 @@
-codeunit 134804 "RED Test Unit for Purch Doc"
+﻿codeunit 134804 "RED Test Unit for Purch Doc"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -737,11 +737,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     end;
 
     [Test]
-#if not CLEAN19
-    [HandlerFunctions('ConfirmMessageHandler,MessageHandler')]
-#else
     [HandlerFunctions('ConfirmMessageHandler')]
-#endif
     [Scope('OnPrem')]
     procedure TestDeleteArchiveOrderWithDeferral()
     var
@@ -776,11 +772,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         DeletePurchDoc(PurchaseHeader);
 
         // [WHEN] Remove the archives
-#if not CLEAN19
-        DeletePurchOrderArchive(DocNo);
-#else
         PurchLineArchive.Delete(true);
-#endif
 
         // [THEN] the archived deferral schedule was deleted
         ValidateDeferralArchiveScheduleDoesNotExist(PurchaseHeader."Document Type"::Order, DocNo, LineNo);
@@ -3070,19 +3062,6 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         PurchaseHeaderArchive.SetRange("No.", No);
         PurchaseHeaderArchive.FindFirst();
     end;
-
-#if not CLEAN19
-    local procedure DeletePurchOrderArchive(No: Code[20])
-    var
-        PurchHeaderArchive: Record "Purchase Header Archive";
-        DeletePurchaseOrderVersions: Report "Delete Purchase Order Versions";
-    begin
-        FindPurchOrderArchive(PurchHeaderArchive, No);
-        DeletePurchaseOrderVersions.UseRequestPage(false);
-        DeletePurchaseOrderVersions.SetTableView(PurchHeaderArchive);
-        DeletePurchaseOrderVersions.Run();
-    end;
-#endif
 
     local procedure FindPurchReturnOrderArchive(var PurchHeaderArchive: Record "Purchase Header Archive"; No: Code[20])
     var

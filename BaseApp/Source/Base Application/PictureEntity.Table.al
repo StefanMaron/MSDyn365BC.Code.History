@@ -65,13 +65,13 @@ table 5468 "Picture Entity"
     [Scope('OnPrem')]
     procedure LoadData(IdFilter: Text)
     var
-        IntegrationRecord: Record "Integration Record";
+        ParentRecordRef: RecordRef;
         MediaID: Guid;
     begin
-        FindIntegrationRecordFromFilter(IntegrationRecord, IdFilter);
-        Id := IntegrationRecord."Integration ID";
+        FindRecordFromFilter(ParentRecordRef, IdFilter);
+        Id := ParentRecordRef.Field(ParentRecordRef.SystemIdNo).Value;
 
-        MediaID := GetMediaID(IntegrationRecord);
+        MediaID := GetMediaID(ParentRecordRef);
         SetValuesFromMediaID(MediaID);
     end;
 
@@ -88,43 +88,43 @@ table 5468 "Picture Entity"
     [Scope('OnPrem')]
     procedure SavePicture()
     var
-        IntegrationRecord: Record "Integration Record";
         Customer: Record Customer;
         Item: Record Item;
         Vendor: Record Vendor;
         Employee: Record Employee;
         Contact: Record Contact;
+        ParentRecordRef: RecordRef;
         ImageInStream: InStream;
         IsHandled: Boolean;
     begin
-        FindIntegrationRecordFromFilter(IntegrationRecord, StrSubstNo('=%1', Id));
+        FindRecordFromFilter(ParentRecordRef, StrSubstNo('=%1', Id));
         Content.CreateInStream(ImageInStream);
 
-        case IntegrationRecord."Table ID" of
+        case ParentRecordRef.Number of
             DATABASE::Item:
                 begin
-                    Item.Get(IntegrationRecord."Record ID");
+                    Item.Get(ParentRecordRef.RecordId);
                     Clear(Item.Picture);
                     Item.Picture.ImportStream(ImageInStream, GetDefaultMediaDescription(Item));
                     Item.Modify(true);
                 end;
             DATABASE::Customer:
                 begin
-                    Customer.Get(IntegrationRecord."Record ID");
+                    Customer.Get(ParentRecordRef.RecordId);
                     Clear(Customer.Image);
                     Customer.Image.ImportStream(ImageInStream, GetDefaultMediaDescription(Customer));
                     Customer.Modify(true);
                 end;
             DATABASE::Vendor:
                 begin
-                    Vendor.Get(IntegrationRecord."Record ID");
+                    Vendor.Get(ParentRecordRef.RecordId);
                     Clear(Vendor.Image);
                     Vendor.Image.ImportStream(ImageInStream, GetDefaultMediaDescription(Vendor));
                     Vendor.Modify(true);
                 end;
             DATABASE::Employee:
                 begin
-                    Employee.Get(IntegrationRecord."Record ID");
+                    Employee.Get(ParentRecordRef.RecordId);
                     Clear(Employee.Image);
                     Employee.Image.ImportStream(
                       ImageInStream, GetDefaultMediaDescription(Employee));
@@ -132,16 +132,16 @@ table 5468 "Picture Entity"
                 end;
             DATABASE::Contact:
                 begin
-                    Contact.Get(IntegrationRecord."Record ID");
+                    Contact.Get(ParentRecordRef.RecordId);
                     Clear(Contact.Image);
                     Contact.Image.ImportStream(ImageInStream, GetDefaultMediaDescription(Contact));
                     Contact.Modify(true);
                 end;
             else begin
-                    OnSavePictureElseCase(IntegrationRecord, IsHandled);
-                    if not IsHandled then
-                        ThrowEntityNotSupportedError(IntegrationRecord."Table ID");
-                end;
+                OnSavePictureElseCase(ParentRecordRef, IsHandled);
+                if not IsHandled then
+                    ThrowEntityNotSupportedError(ParentRecordRef.Number);
+            end;
         end;
 
         LoadData(StrSubstNo('=%1', Id));
@@ -199,57 +199,57 @@ table 5468 "Picture Entity"
 
     procedure DeletePicture()
     var
-        IntegrationRecord: Record "Integration Record";
         Customer: Record Customer;
         Item: Record Item;
         Vendor: Record Vendor;
         Employee: Record Employee;
         Contact: Record Contact;
+        ParentRecordRef: RecordRef;
         IsHandled: Boolean;
     begin
-        FindIntegrationRecordFromFilter(IntegrationRecord, StrSubstNo('=%1', Id));
+        FindRecordFromFilter(ParentRecordRef, StrSubstNo('=%1', Id));
 
-        case IntegrationRecord."Table ID" of
+        case ParentRecordRef.Number of
             DATABASE::Item:
                 begin
-                    Item.Get(IntegrationRecord."Record ID");
+                    Item.Get(ParentRecordRef.RecordId);
                     Clear(Item.Picture);
                     Item.Modify(true);
                 end;
             DATABASE::Customer:
                 begin
-                    Customer.Get(IntegrationRecord."Record ID");
+                    Customer.Get(ParentRecordRef.RecordId);
                     Clear(Customer.Image);
                     Customer.Modify(true);
                 end;
             DATABASE::Vendor:
                 begin
-                    Vendor.Get(IntegrationRecord."Record ID");
+                    Vendor.Get(ParentRecordRef.RecordId);
                     Clear(Vendor.Image);
                     Vendor.Modify(true);
                 end;
             DATABASE::Employee:
                 begin
-                    Employee.Get(IntegrationRecord."Record ID");
+                    Employee.Get(ParentRecordRef.RecordId);
                     Clear(Employee.Image);
                     Employee.Modify(true);
                 end;
             DATABASE::Contact:
                 begin
-                    Contact.Get(IntegrationRecord."Record ID");
+                    Contact.Get(ParentRecordRef.RecordId);
                     Clear(Contact.Image);
                     Contact.Modify(true);
                 end;
             else begin
-                    IsHandled := false;
-                    OnDeletePictureElseCase(IntegrationRecord, IsHandled);
-                    if not IsHandled then
-                        ThrowEntityNotSupportedError(IntegrationRecord."Table ID");
-                end;
+                IsHandled := false;
+                OnDeletePictureElseCase(ParentRecordRef, IsHandled);
+                if not IsHandled then
+                    ThrowEntityNotSupportedError(ParentRecordRef.Number);
+            end;
         end;
 
         Clear(Rec);
-        Id := IntegrationRecord."Integration ID";
+        Id := ParentRecordRef.Field(ParentRecordRef.SystemIdNo).Value;
     end;
 
     procedure DeletePictureWithParentType()
@@ -332,7 +332,7 @@ table 5468 "Picture Entity"
         exit(MediaID);
     end;
 
-    local procedure GetMediaID(var IntegrationRecord: Record "Integration Record"): Guid
+    local procedure GetMediaID(var ParentRecordRef: RecordRef): Guid
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -342,45 +342,45 @@ table 5468 "Picture Entity"
         MediaID: Guid;
         IsHandled: Boolean;
     begin
-        case IntegrationRecord."Table ID" of
+        case ParentRecordRef.Number of
             DATABASE::Item:
                 begin
-                    Item.Get(IntegrationRecord."Record ID");
+                    Item.Get(ParentRecordRef.RecordId);
                     if Item.Picture.Count > 0 then
                         MediaID := Item.Picture.Item(1);
                 end;
             DATABASE::Customer:
                 begin
-                    Customer.Get(IntegrationRecord."Record ID");
+                    Customer.Get(ParentRecordRef.RecordId);
                     MediaID := Customer.Image.MediaId;
                 end;
             DATABASE::Vendor:
                 begin
-                    Vendor.Get(IntegrationRecord."Record ID");
+                    Vendor.Get(ParentRecordRef.RecordId);
                     MediaID := Vendor.Image.MediaId;
                 end;
             DATABASE::Employee:
                 begin
-                    Employee.Get(IntegrationRecord."Record ID");
+                    Employee.Get(ParentRecordRef.RecordId);
                     MediaID := Employee.Image.MediaId;
                 end;
             DATABASE::Contact:
                 begin
-                    Contact.Get(IntegrationRecord."Record ID");
+                    Contact.Get(ParentRecordRef.RecordId);
                     MediaID := Contact.Image.MediaId;
                 end;
             else begin
-                    IsHandled := false;
-                    OnGetMediaIDElseCase(IntegrationRecord, MediaID, IsHandled);
-                    if not IsHandled then
-                        ThrowEntityNotSupportedError(IntegrationRecord."Table ID");
-                end;
+                OnGetMediaIDElseCase(ParentRecordRef, MediaID, IsHandled);
+                IsHandled := false;
+                if not IsHandled then
+                    ThrowEntityNotSupportedError(ParentRecordRef.Number);
+            end;
         end;
 
         exit(MediaID);
     end;
 
-    local procedure GetRecordRefFromFilter(IDFilter: Text; var ParentRecordRef: RecordRef): Boolean
+    procedure GetRecordRefFromFilter(IDFilter: Text; var ParentRecordRef: RecordRef): Boolean
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -451,25 +451,13 @@ table 5468 "Picture Entity"
         Content := TenantMedia.Content;
     end;
 
-    local procedure FindIntegrationRecordFromFilter(var IntegrationRecord: Record "Integration Record"; IDFilter: Text)
-    var
-        IntegrationManagement: Codeunit "Integration Management";
-        ParentRecordRef: RecordRef;
+    local procedure FindRecordFromFilter(var ParentRecordRef: RecordRef; IDFilter: Text)
     begin
         if IDFilter = '' then
             Error(IdNotProvidedErr);
 
-        if IntegrationManagement.GetIntegrationIsEnabledOnTheSystem() then begin
-            IntegrationRecord.SetFilter("Integration ID", IDFilter);
-            if not IntegrationRecord.FindFirst() then
-                Error(RequestedRecordDoesNotExistErr);
-        end else begin
-            if not GetRecordRefFromFilter(IDFilter, ParentRecordRef) then
-                Error(RequestedRecordDoesNotExistErr);
-            IntegrationRecord."Table ID" := ParentRecordRef.Number;
-            IntegrationRecord."Record ID" := ParentRecordRef.RecordId;
-            IntegrationRecord."Integration ID" := ParentRecordRef.Field(ParentRecordRef.SystemIdNo).Value;
-        end;
+        if not GetRecordRefFromFilter(IDFilter, ParentRecordRef) then
+            Error(RequestedRecordDoesNotExistErr);
     end;
 
     local procedure ThrowEntityNotSupportedError(TableID: Integer)
@@ -523,11 +511,11 @@ table 5468 "Picture Entity"
                     MediaDescription := StrSubstNo(MediaExtensionWithNumNameTxt, Contact."No.", Contact.Name, GetDefaultExtension());
                 end;
             else begin
-                    IsHandled := false;
-                    OnGetDefaultMediaDescriptionElseCase(ParentRecordRef, MediaDescription, IsHandled);
-                    if not IsHandled then
-                        exit('');
-                end;
+                IsHandled := false;
+                OnGetDefaultMediaDescriptionElseCase(ParentRecordRef, MediaDescription, IsHandled);
+                if not IsHandled then
+                    exit('');
+            end;
         end;
 
         exit(MediaDescription);
@@ -543,9 +531,8 @@ table 5468 "Picture Entity"
     begin
     end;
 
-    [Obsolete('This event will be removed. Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnDeletePictureElseCase(IntegrationRecord: Record "Integration Record"; var IsHandled: Boolean)
+    local procedure OnDeletePictureElseCase(ParentRecordRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
 
@@ -554,15 +541,13 @@ table 5468 "Picture Entity"
     begin
     end;
 
-    [Obsolete('This event will be removed. Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnGetMediaIDElseCase(IntegrationRecord: Record "Integration Record"; var MediaID: Guid; var IsHandled: Boolean)
+    local procedure OnGetMediaIDElseCase(ParentRecordRef: RecordRef; var MediaID: Guid; var IsHandled: Boolean)
     begin
     end;
 
-    [Obsolete('This event will be removed. Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnSavePictureElseCase(IntegrationRecord: Record "Integration Record"; var IsHandled: Boolean)
+    local procedure OnSavePictureElseCase(ParentRecordRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
 }

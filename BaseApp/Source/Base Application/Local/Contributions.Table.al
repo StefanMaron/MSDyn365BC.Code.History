@@ -293,7 +293,6 @@ table 12117 Contributions
         SocialSecurity: Record Contributions;
         WithholdingSocSecMgt: Codeunit "Withholding - Contribution";
 
-    [Scope('OnPrem')]
     procedure ValorizzaINPS()
     begin
         WithholdingSocSecMgt.SetSocSecLineFilters(
@@ -305,7 +304,6 @@ table 12117 Contributions
         Validate("Non Taxable Amount");
     end;
 
-    [Scope('OnPrem')]
     procedure Navigate()
     var
         NavigateForm: Page Navigate;
@@ -314,7 +312,6 @@ table 12117 Contributions
         NavigateForm.Run();
     end;
 
-    [Scope('OnPrem')]
     procedure ValorizzaINAIL()
     begin
         WithholdingSocSecMgt.SetSocSecLineFilters(

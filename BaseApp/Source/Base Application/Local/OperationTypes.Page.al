@@ -23,7 +23,7 @@ page 12144 "Operation Types"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series type that is associated with the number series code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description.';

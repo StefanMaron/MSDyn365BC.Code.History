@@ -4539,7 +4539,6 @@
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Posting Date"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Posting Description"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("No. Series"));
-        FieldListToExclude.Add(PurchaseHeaderRef.FieldName(Id));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Transaction Specification"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Prepayment No. Series"));
         FieldListToExclude.Add(PurchaseHeaderRef.FieldName("Prepmt. Cr. Memo No. Series"));

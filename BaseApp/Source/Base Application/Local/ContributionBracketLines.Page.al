@@ -13,7 +13,7 @@ page 12109 "Contribution Bracket Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cutoff amount that defines the maximum limit for the bracket.';

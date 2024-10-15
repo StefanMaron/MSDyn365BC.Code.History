@@ -1,4 +1,4 @@
-codeunit 134113 "ERM Test Employee Expense"
+﻿codeunit 134113 "ERM Test Employee Expense"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -204,7 +204,7 @@ codeunit 134113 "ERM Test Employee Expense"
         EmployeeLedgerEntry.SetRange("Employee No.", Employee."No.");
         EmployeeLedgerEntry.FindFirst();
         EmployeeLedgerEntry.CalcFields("Amount (LCY)");
-        EmployeeLedgerEntry.TestField("Source Code"); // TEST
+        EmployeeLedgerEntry.TestField("Source Code");
         Assert.AreEqual(
           1, EmployeeLedgerEntry.Count, 'Error Multiple employee ledger entries were created when posting Gen. Journal Line');
         Assert.AreEqual(

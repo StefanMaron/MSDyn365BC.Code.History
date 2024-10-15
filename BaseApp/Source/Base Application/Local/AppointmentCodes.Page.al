@@ -18,7 +18,7 @@ page 12125 "Appointment Codes"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a number that identifies the company that can submit VAT statements on behalf of other legal entities.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a text description of the appointment code.';

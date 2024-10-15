@@ -477,4 +477,3 @@ table 12182 "Vendor Bill Line"
     end;
 
 }
-

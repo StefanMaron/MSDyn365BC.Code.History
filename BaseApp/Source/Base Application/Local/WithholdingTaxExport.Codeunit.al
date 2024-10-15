@@ -12,7 +12,7 @@ codeunit 12132 "Withholding Tax Export"
         FlatFileManagement: Codeunit "Flat File Management";
         ConstFormat: Option AN,CB,CB12,CF,CN,PI,DA,DT,DN,D4,D6,NP,NU,NUp,Nx,PC,PR,QU,PN,VP;
         ConstRecordType: Option A,B,C,D,E,G,H,Z;
-        FileNameLbl: Label 'Withholding Taxes %1.dcm', Comment = '%1 = Year';
+        FileNameLbl: Label 'WithholdingTaxes%1.dcm', Comment = '%1 = Year';
         NothingToReportMsg: Label 'There were no Withholding Tax entries for the year %1.', Comment = '%1 = Year';
         NoSigningCompanyOfficialErr: Label 'You need to specify a Signing Company Official.';
         VendorMustHaveFiscalCodeOrVatRegNoErr: Label 'Vendor with No. = %1 must have a value in either %2 or %3.', Comment = '%1 = Vendor No., %2 = Fiscal Code, %3 = VAT Reg. No.';
@@ -81,6 +81,12 @@ codeunit 12132 "Withholding Tax Export"
             if FindSet() then begin
                 repeat
                     if not LinesExistForEntryNo("Entry No.") then begin
+                        if ("Non Taxable Amount By Treaty" <> 0) and ("Non-Taxable Income Type" = "Non-Taxable Income Type"::" ") then
+                            TempErrorMessage.LogIfEmpty(WithholdingTax, WithholdingTax.FieldNo("Non-Taxable Income Type"), TempErrorMessage."Message Type"::Error);
+
+                        if "Base - Excluded Amount" <> 0 then
+                            TempErrorMessage.LogMessage(WithholdingTax, FieldNo("Base - Excluded Amount"), TempErrorMessage."Message Type"::Error, StrSubstNo(BaseExcludedAmountTotalErr, "Entry No.", "Base - Excluded Amount"));
+
                         if ReportingYearStart <> 0 then
                             TempErrorMessage.LogIfEmpty(WithholdingTax, FieldNo(Reason), TempErrorMessage."Message Type"::Error);
                         if ("Vendor No." <> TempWithholdingTax."Vendor No.") or
@@ -119,6 +125,7 @@ codeunit 12132 "Withholding Tax Export"
         TempWithholdingTaxByLine: Record "Withholding Tax" temporary;
         IsFirstLine: Boolean;
         EntryNo: Integer;
+        IsBlankNoTaxIncomeType: Boolean;
     begin
         with WithholdingTax do begin
             SetCurrentKey("Vendor No.", Reason);
@@ -143,16 +150,16 @@ codeunit 12132 "Withholding Tax Export"
         if not TempWithholdingTaxByLine.FindSet() then
             exit;
 
-        TempWithholdingTax.Reset();	
+        TempWithholdingTax.Reset();
         if TempWithholdingTax.FindLast() then
             EntryNo := TempWithholdingTax."Entry No.";
-        Clear(TempWithholdingTax);	
         repeat
-            if (TempWithholdingTaxByLine."Vendor No." <> TempWithholdingTax."Vendor No.") or
-               (TempWithholdingTaxByLine.Reason <> TempWithholdingTax.Reason) or
-               ((TempWithholdingTaxByLine."Non-Taxable Income Type" <> TempWithholdingTax."Non-Taxable Income Type") and
-                (TempWithholdingTax."Non-Taxable Income Type" <> TempWithholdingTax."Non-Taxable Income Type"::" "))
-            then begin
+            IsBlankNoTaxIncomeType := TempWithholdingTax."Non-Taxable Income Type" = TempWithholdingTax."Non-Taxable Income Type"::" ";
+
+            TempWithholdingTax.SetRange("Vendor No.", TempWithholdingTaxByLine."Vendor No.");
+            TempWithholdingTax.SetRange(Reason, TempWithholdingTaxByLine.Reason);
+            TempWithholdingTax.SetRange("Non-Taxable Income Type", TempWithholdingTaxByLine."Non-Taxable Income Type");
+            if (not TempWithholdingTax.FindFirst) or IsBlankNoTaxIncomeType then begin
                 TempWithholdingTax.Init();
                 EntryNo += 1;
                 TempWithholdingTax."Entry No." := EntryNo;
@@ -175,6 +182,7 @@ codeunit 12132 "Withholding Tax Export"
             TempWithholdingTax.Modify();
             CalculateContributions(WithholdingTax, TempWithholdingTax."Entry No.", TempContributions);
         until TempWithholdingTaxByLine.Next() = 0;
+        TempWithholdingTax.Reset();
     end;
 
     local procedure CalculateContributions(var WithholdingTax: Record "Withholding Tax"; EntryNo: Integer; var TempContributions: Record Contributions temporary)
@@ -202,16 +210,22 @@ codeunit 12132 "Withholding Tax Export"
     var
         TempWithholdingTaxToExport: Record "Withholding Tax" temporary;
         EntryNumber: Integer;
+        VendorEntryNumber: Integer;
         LastVendorNo: Code[20];
         LastReason: Option;
     begin
         EntryNumber := 0;
+        VendorEntryNumber := 0;
         TempWithholdingTax.SetCurrentKey("Vendor No.", Reason, "Non-Taxable Income Type");
         if TempWithholdingTax.FindSet() then
             repeat
                 TempContributions.Get(TempWithholdingTax."Entry No.");
                 FindWithholdingTaxEntry(TempWithholdingTaxPrevYears, TempWithholdingTax."Vendor No.", TempWithholdingTax.Reason);
                 EntryNumber += 1;
+                if TempWithholdingTax."Vendor No." = LastVendorNo then
+                    VendorEntryNumber += 1
+                else
+                    VendorEntryNumber := 1;
                 if (TempWithholdingTax."Vendor No." <> LastVendorNo) or (TempWithholdingTax.Reason <> LastReason) then begin
                     TempWithholdingTax.SetRange("Vendor No.", TempWithholdingTax."Vendor No.");
                     TempWithholdingTax.SetRange(Reason, TempWithholdingTax.Reason);
@@ -229,7 +243,7 @@ codeunit 12132 "Withholding Tax Export"
                     TempWithholdingTaxToExport."Withholding Tax Amount" := 0;
                     TempWithholdingTaxToExport.Reason := 0;
                 end;
-                CreateRecordH(TempWithholdingTaxToExport, TempWithholdingTaxPrevYears, TempContributions, Year);
+                CreateRecordH(TempWithholdingTaxToExport, TempWithholdingTaxPrevYears, TempContributions, Year, EntryNumber, VendorEntryNumber);
             until TempWithholdingTax.Next() = 0;
     end;
 
@@ -240,7 +254,7 @@ codeunit 12132 "Withholding Tax Export"
     begin
         StartNewRecord(ConstRecordType::A);
 
-        FlatFileManagement.WritePositionalValue(16, 5, ConstFormat::NU, StrSubstNo(CURTxt, ReportingYear mod 100 + 1), false); // A-3
+        FlatFileManagement.WritePositionalValue(16, 5, ConstFormat::NU, StrSubstNo(CURTxt, ReportingYear mod 100), false); // A-3
 
         if VendorTaxRepresentative.Get(CompanyInformation."Tax Representative No.") then begin
             FlatFileManagement.WritePositionalValue(21, 2, ConstFormat::NU, '10', false); // A-4
@@ -424,7 +438,7 @@ codeunit 12132 "Withholding Tax Export"
         FlatFileManagement.WriteBlockValue('DA001011', ConstFormat::AN, CompanyInformation."Office Code");
 
         if VendorWithholdingTax."Fiscal Code" <> '' then
-            FlatFileManagement.WriteBlockValue('DA002001', ConstFormat::CF, VendorWithholdingTax."Contribution Fiscal Code")
+            FlatFileManagement.WriteBlockValue('DA002001', ConstFormat::CF, VendorWithholdingTax."Fiscal Code")
         else
             if VendorWithholdingTax."VAT Registration No." <> '' then
                 FlatFileManagement.WriteBlockValue('DA002001', ConstFormat::CF, VendorWithholdingTax."VAT Registration No.")
@@ -475,7 +489,7 @@ codeunit 12132 "Withholding Tax Export"
         FlatFileManagement.WriteBlockValue('DA003002', ConstFormat::CB, '1');
     end;
 
-    local procedure CreateRecordH(var TempWithholdingTax: Record "Withholding Tax" temporary; var TempWithholdingTaxPrevYears: Record "Withholding Tax" temporary; var TempContributions: Record Contributions temporary; Year: Integer)
+    local procedure CreateRecordH(var TempWithholdingTax: Record "Withholding Tax" temporary; var TempWithholdingTaxPrevYears: Record "Withholding Tax" temporary; var TempContributions: Record Contributions temporary; Year: Integer; EntryNumber: Integer; VendorEntryNumber: Integer)
     var
         VendorWithholdingTax: Record Vendor;
         TaxCode: Code[20];
@@ -492,7 +506,7 @@ codeunit 12132 "Withholding Tax Export"
               StrSubstNo(CompanyMustHaveFiscalCodeOrVatRegNoErr, CompanyInformation.FieldCaption("Fiscal Code"),
                 CompanyInformation.FieldCaption("VAT Registration No.")));
 
-        WritePositionalValueAmount(18, 8, ConstFormat::NU, FlatFileManagement.GetFileCount(), false); // H-3
+        WritePositionalValueAmount(18, 8, ConstFormat::NU, EntryNumber, false); // H-3
 
         TaxCode := VendorWithholdingTax.GetTaxCode();
         if TaxCode <> '' then
@@ -504,29 +518,23 @@ codeunit 12132 "Withholding Tax Export"
                 VendorMustHaveFiscalCodeOrVatRegNoErr, VendorWithholdingTax."No.", VendorWithholdingTax.FieldCaption("Fiscal Code"),
                 VendorWithholdingTax.FieldCaption("VAT Registration No.")));
 
-        WritePositionalValueAmount(42, 5, ConstFormat::NU, FlatFileManagement.GetRecordCount(ConstRecordType::D), false); // H-5
+        WritePositionalValueAmount(42, 5, ConstFormat::NU, VendorEntryNumber, false); // H-5
         FlatFileManagement.WritePositionalValue(47, 17, ConstFormat::NU, '', false); // H-6
         FlatFileManagement.WritePositionalValue(64, 6, ConstFormat::NU, '', false); // H-7
         FlatFileManagement.WritePositionalValue(89, 1, ConstFormat::NU, '', false); // H-11
 
-        if TempWithholdingTax.Reason = 0 then
-            FlatFileManagement.WriteBlankValue(ConstFormat::VP)
-        else
+        if TempWithholdingTax.Reason <> 0 then
             FlatFileManagement.WriteBlockValue('AU001001', ConstFormat::AN, Format(TempWithholdingTax.Reason));
         if TempWithholdingTax.Reason in [TempWithholdingTax.Reason::G, TempWithholdingTax.Reason::H, TempWithholdingTax.Reason::I] then
             FlatFileManagement.WriteBlockValue('AU001002', ConstFormat::DA, Format(TempWithholdingTax.Year - 1));
-        if TempWithholdingTax."Total Amount" = 0 then
-            FlatFileManagement.WriteBlankValue(ConstFormat::VP)
-        else
+        if TempWithholdingTax."Total Amount" <> 0 then
             WriteBlockValueAmount('AU001004', ConstFormat::VP, TempWithholdingTax."Total Amount");
         if VendorWithholdingTax.Resident <> VendorWithholdingTax.Resident::"Non-Resident" then
             WriteBlockValueAmount('AU001005', ConstFormat::VP, TempWithholdingTax."Non Taxable Amount By Treaty");
-        if TempWithholdingTax."Non Taxable Amount By Treaty" + TempWithholdingTax."Base - Excluded Amount" <> 0 then
-            if TempWithholdingTax."Non-Taxable Income Type" = TempWithholdingTax."Non-Taxable Income Type"::" " then
-                TempErrorMessage.LogIfEmpty(
-                  TempWithholdingTax, TempWithholdingTax.FieldNo("Non-Taxable Income Type"), TempErrorMessage."Message Type"::Error)
-            else
-                FlatFileManagement.WriteBlockValue('AU001006', ConstFormat::NP, Format(TempWithholdingTax."Non-Taxable Income Type"));
+        if (TempWithholdingTax."Non Taxable Amount By Treaty" + TempWithholdingTax."Base - Excluded Amount" <> 0) and
+            (TempWithholdingTax."Non-Taxable Income Type" <> TempWithholdingTax."Non-Taxable Income Type"::" ")
+        then
+            FlatFileManagement.WriteBlockValue('AU001006', ConstFormat::NP, Format(TempWithholdingTax."Non-Taxable Income Type"));
         WriteBlockValueAmount('AU001007', ConstFormat::VP,
           TempWithholdingTax."Non Taxable Amount" + TempWithholdingTax."Base - Excluded Amount");
         if TempWithholdingTax."Taxable Base" = 0 then
@@ -559,6 +567,7 @@ codeunit 12132 "Withholding Tax Export"
                 FlatFileManagement.WritePositionalValue(Pos, Len, ConstFormat::NU, Format(FlatFileManagement.GetRecordCount(Index), 0, 1), false);
                 Pos += Len;
             end;
+        FlatFileManagement.WritePositionalValue(Pos, Len, ConstFormat::NU, Format(0, 0, 1), false);
     end;
 
     local procedure EndFile()
@@ -678,4 +687,3 @@ codeunit 12132 "Withholding Tax Export"
         end;
     end;
 }
-

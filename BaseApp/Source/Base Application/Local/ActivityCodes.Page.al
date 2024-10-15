@@ -17,7 +17,7 @@ page 12124 "Activity Codes"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a number that identifies your company''s business, such as 12348, if your company conducts trade.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a text description of the activity code.';

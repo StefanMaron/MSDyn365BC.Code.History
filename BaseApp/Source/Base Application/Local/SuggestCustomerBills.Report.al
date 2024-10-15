@@ -42,7 +42,7 @@ report 12176 "Suggest Customer Bills"
                   "Bank Receipts List No.", "Bank Receipt Issued", "Bank Receipt Temp. No.");
 
                 SetRange(Open, true);
-                SetRange("Payment Method Code", CustBillHeader."Payment Method Code");
+                SetRange("Payment Method Code", CustomerBillHeader."Payment Method Code");
                 SetRange("Document Type", "Document Type"::Invoice);
                 SetRange("Bank Receipts List No.", '');
 
@@ -56,7 +56,7 @@ report 12176 "Suggest Customer Bills"
 
                 CustomerBillLine.LockTable();
                 CustomerBillLine.Reset();
-                CustomerBillLine.SetRange("Customer Bill No.", CustBillHeader."No.");
+                CustomerBillLine.SetRange("Customer Bill No.", CustomerBillHeader."No.");
 
                 if not CustomerBillLine.FindLast() then
                     NextLineNo := 10000
@@ -112,17 +112,17 @@ report 12176 "Suggest Customer Bills"
 
     trigger OnPostReport()
     begin
-        CustBillHeader."Partner Type" := PartnerType;
-        CustBillHeader.Modify();
+        CustomerBillHeader."Partner Type" := PartnerType;
+        CustomerBillHeader.Modify();
     end;
 
     trigger OnPreReport()
     begin
-        BankAcc.Get(CustBillHeader."Bank Account No.");
+        BankAcc.Get(CustomerBillHeader."Bank Account No.");
     end;
 
     var
-        CustBillHeader: Record "Customer Bill Header";
+        CustomerBillHeader: Record "Customer Bill Header";
         CustomerBillLine: Record "Customer Bill Line";
         CustBankAcc: Record "Customer Bank Account";
         BankAcc: Record "Bank Account";
@@ -134,12 +134,11 @@ report 12176 "Suggest Customer Bills"
         PartnerType: Enum "Partner Type";
 
 
-    [Scope('OnPrem')]
-    procedure InitValues(var CustomerBillHeader: Record "Customer Bill Header"; OkIssue: Boolean)
+    procedure InitValues(var NewCustomerBillHeader: Record "Customer Bill Header"; OkIssue: Boolean)
     begin
-        CustBillHeader := CustomerBillHeader;
+        CustomerBillHeader := NewCustomerBillHeader;
         AllowIssue := OkIssue;
-        PartnerType := CustomerBillHeader."Partner Type";
+        PartnerType := NewCustomerBillHeader."Partner Type";
     end;
 
     [Scope('OnPrem')]
@@ -157,7 +156,7 @@ report 12176 "Suggest Customer Bills"
                (TotalPayments + CustLedgEntry."Remaining Amount" <= MaxAmount)
             then begin
                 CustomerBillLine.Init();
-                CustomerBillLine."Customer Bill No." := CustBillHeader."No.";
+                CustomerBillLine."Customer Bill No." := CustomerBillHeader."No.";
                 CustomerBillLine."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + 10000;
                 CustomerBillLine."Customer No." := CustLedgEntry."Customer No.";
@@ -175,7 +174,7 @@ report 12176 "Suggest Customer Bills"
                     CustomerBillLine."Customer Bank Acc. No." := CustLedgEntry."Recipient Bank Account";
                 CustomerBillLine."Customer Entry No." := CustLedgEntry."Entry No.";
                 CustomerBillLine."Direct Debit Mandate ID" := CustLedgEntry."Direct Debit Mandate ID";
-                OnCreateLineOnBeforeInsert(CustomerBillLine, CustLedgEntry, CustBillHeader);
+                OnCreateLineOnBeforeInsert(CustomerBillLine, CustLedgEntry, CustomerBillHeader);
                 CustomerBillLine.Insert();
                 if MaxAmount > 0 then
                     PaymentsCalc();
@@ -184,8 +183,8 @@ report 12176 "Suggest Customer Bills"
 
     local procedure PaymentsCalc()
     begin
-        CustBillHeader.CalcFields("Total Amount");
-        TotalPayments := CustBillHeader."Total Amount";
+        CustomerBillHeader.CalcFields("Total Amount");
+        TotalPayments := CustomerBillHeader."Total Amount";
     end;
 
     [IntegrationEvent(false, false)]

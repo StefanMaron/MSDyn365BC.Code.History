@@ -54,7 +54,7 @@ page 12203 "Self-Billing Documents"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document type that the VAT entry belongs to.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the VAT entry.';
@@ -64,7 +64,7 @@ page 12203 "Self-Billing Documents"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount that the VAT amount (the amount shown in the Amount field) is calculated from.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the VAT entry in LCY.';

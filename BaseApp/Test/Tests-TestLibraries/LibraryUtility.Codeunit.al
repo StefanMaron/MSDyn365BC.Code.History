@@ -524,7 +524,7 @@ codeunit 131000 "Library - Utility"
     begin
         // Create a random string of length <length> containing characters allowed by XML
         for i := 1 to Length do begin
-            Number := LibraryRandom.RandIntInRange(0, 61);
+            Number := LibraryRandom.RandIntInRange(0, 1000) mod 61;
             case Number of
                 0 .. 9:
                     Number += 48; // 0-9

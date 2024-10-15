@@ -12,7 +12,7 @@ page 12116 "Intrastat Jnl. Lines"
             repeater(Control1130000)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line type.';
@@ -50,7 +50,7 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item number that is assigned to the item in inventory.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name.';
@@ -125,7 +125,7 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you must report information about quantity and units of measure for this item.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity.';
@@ -150,7 +150,7 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount in the currency of the source of the transaction.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line amount.';

@@ -29,7 +29,7 @@ page 12102 "Subform Sent Vendor Bill Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the vendor bill line was entered manually.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the bill line.';

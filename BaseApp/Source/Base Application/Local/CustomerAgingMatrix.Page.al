@@ -18,7 +18,7 @@ page 35461 "Customer Aging Matrix"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer number.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name.';

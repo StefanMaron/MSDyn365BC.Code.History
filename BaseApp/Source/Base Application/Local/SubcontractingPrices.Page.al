@@ -212,6 +212,8 @@ page 12156 "Subcontracting Prices"
 
     var
         Vend: Record Vendor;
+
+    protected var
         VendNoFilter: Code[30];
         ItemNoFilter: Code[30];
         WorkCenterFilter: Code[30];

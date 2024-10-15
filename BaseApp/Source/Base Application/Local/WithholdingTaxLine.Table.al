@@ -41,7 +41,9 @@ table 12210 "Withholding Tax Line"
     procedure GetAmountForEntryNo(EntryNo: Integer): Decimal
     begin
         SetRange("Withholding Tax Entry No.", EntryNo);
+        SetFilter("Non-Taxable Income Type", '<>%1', "Non-Taxable Income Type"::" ");
         CalcSums("Base - Excluded Amount");
+        SetRange("Non-Taxable Income Type");
         exit("Base - Excluded Amount");
     end;
 }

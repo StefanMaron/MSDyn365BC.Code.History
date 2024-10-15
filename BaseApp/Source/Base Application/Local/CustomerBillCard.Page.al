@@ -45,7 +45,7 @@ page 12175 "Customer Bill Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the bill is created.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;

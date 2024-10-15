@@ -16,7 +16,7 @@ Page 1 "Company Information"
             group(General)
             {
                 Caption = 'General';
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;

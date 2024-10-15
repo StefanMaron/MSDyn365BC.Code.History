@@ -49,7 +49,7 @@ page 12176 "Subform Customer Bill Line"
                     Editable = false;
                     ToolTip = 'Specifies the transaction date of the source document that generated the customer bill entry.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

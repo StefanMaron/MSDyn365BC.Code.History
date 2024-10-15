@@ -94,12 +94,12 @@ table 12204 "Fattura Line"
         field(50; "Fattura Project Code"; Code[15])
         {
             Caption = 'Fattura Project Code';
-            TableRelation = "Fattura Project Info".Code WHERE (Type = FILTER (Project));
+            TableRelation = "Fattura Project Info".Code WHERE(Type = FILTER(Project));
         }
         field(51; "Fattura Tender Code"; Code[15])
         {
             Caption = 'Fattura Tender Code';
-            TableRelation = "Fattura Project Info".Code WHERE (Type = FILTER (Tender));
+            TableRelation = "Fattura Project Info".Code WHERE(Type = FILTER(Tender));
         }
         field(52; "Customer Purchase Order No."; Text[35])
         {
@@ -128,7 +128,7 @@ table 12204 "Fattura Line"
         SalesLine: Record "Sales Line";
         FatturaDocHelper: Codeunit "Fattura Doc. Helper";
     begin
-        if Type <> FatturaDocHelper.GetOptionCaptionValue(SalesLine.Type::Item) then
+        if Type <> FatturaDocHelper.GetOptionCaptionValue(SalesLine.Type::Item.AsInteger()) then
             exit(false);
 
         if not Item.Get("No.") then

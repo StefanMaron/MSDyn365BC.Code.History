@@ -43,7 +43,7 @@ page 12172 "Posted Payments"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when early payment of an invoice is due in order to get a discount on the amount.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = CurrencyCode;

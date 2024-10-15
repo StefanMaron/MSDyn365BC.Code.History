@@ -23,7 +23,7 @@ page 12213 "Posted Serv. Cr. Memo - Update"
                     Editable = false;
                     ToolTip = 'Specifies the posted credit memo number. You cannot change the number because the document has already been posted.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Service;
                     Caption = 'Customer';

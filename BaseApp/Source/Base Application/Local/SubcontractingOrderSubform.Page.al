@@ -15,7 +15,7 @@
             repeater(Control1130000)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the line type.';
@@ -31,17 +31,6 @@
                         NoOnAfterValidate();
                     end;
                 }
-#if not CLEAN19
-                field("Cross-Reference No."; Rec."Item Reference No.")
-                {
-                    ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the document that is cross-referenced.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '19.0';
-                }
-#endif
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Manufacturing;
@@ -54,7 +43,7 @@
                     ToolTip = 'Specifies the VAT product posting group for the line.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a description.';
@@ -95,7 +84,7 @@
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the warehouse location.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Manufacturing;
                     BlankZero = true;

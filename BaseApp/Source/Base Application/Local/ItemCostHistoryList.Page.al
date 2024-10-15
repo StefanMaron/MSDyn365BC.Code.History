@@ -24,7 +24,7 @@ page 12118 "Item Cost History List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date that is used to determine the LIFO valuation period.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the item that was entered in the Item Card window.';

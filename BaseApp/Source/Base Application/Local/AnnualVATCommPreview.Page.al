@@ -18,7 +18,7 @@ page 12127 "Annual VAT Comm. Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the template.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name.';

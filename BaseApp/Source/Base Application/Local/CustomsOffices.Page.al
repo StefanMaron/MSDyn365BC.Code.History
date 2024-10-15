@@ -18,7 +18,7 @@ page 12119 "Customs Offices"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code that identifies the customs office. For example, use the code 014100 for the Foggia customs office.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the customs office.';

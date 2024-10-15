@@ -10,11 +10,9 @@ table 12198 "Fattura Code"
         {
             Caption = 'Code';
         }
-        field(2; Type; Option)
+        field(2; Type; Enum "Fattura Code Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Payment Method,Payment Terms';
-            OptionMembers = "Payment Method","Payment Terms";
         }
         field(3; Description; Text[250])
         {

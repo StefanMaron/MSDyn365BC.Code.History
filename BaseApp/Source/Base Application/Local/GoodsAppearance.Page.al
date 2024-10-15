@@ -16,7 +16,7 @@ page 12158 "Goods Appearance"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a goods appearance that you want the program to attach to the entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description for the goods appearance.';

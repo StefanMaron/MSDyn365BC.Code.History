@@ -16,7 +16,7 @@ page 12169 "Company Types"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code that defines the company type.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the company type.';

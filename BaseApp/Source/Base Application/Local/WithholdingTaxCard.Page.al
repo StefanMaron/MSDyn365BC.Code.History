@@ -95,23 +95,6 @@ page 12112 "Withholding Tax Card"
                     Editable = false;
                     ToolTip = 'Specifies if the withholding tax amount from this entry has been reported to the tax authority.';
                 }
-#if not CLEAN19
-                field("Non-Taxable Income Type"; Rec."Non-Taxable Income Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    OptionCaption = ' ,,2,,6,,8,9,,,,13,4,14,21,22,23,24';
-                    ToolTip = 'Specifies the type of non-taxable income.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Withholding Tax Lines';
-                    ObsoleteTag = '19.0';
-
-                    trigger OnValidate()
-                    begin
-                        SetBaseExcludedStyleExpr();
-                    end;
-                }
-#endif
             }
             group("Withholding Tax")
             {
@@ -165,6 +148,10 @@ page 12112 "Withholding Tax Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the original purchase that is excluded from the withholding tax calculation based on residency. ';
+                    trigger OnValidate()
+                    begin
+                        SetBaseExcludedStyleExpr();
+                    end;
                 }
                 field("Non Taxable Amount %"; Rec."Non Taxable Amount %")
                 {
@@ -235,6 +222,7 @@ page 12112 "Withholding Tax Card"
     trigger OnAfterGetRecord()
     begin
         if Vendor.Get("Vendor No.") then;
+        SetBaseExcludedStyleExpr();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -245,7 +233,6 @@ page 12112 "Withholding Tax Card"
     trigger OnOpenPage()
     begin
         FeatureTelemetry.LogUptake('1000HQ2', ITTaxTok, Enum::"Feature Uptake Status"::Discovered);
-        SetBaseExcludedStyleExpr();
     end;
 
     var

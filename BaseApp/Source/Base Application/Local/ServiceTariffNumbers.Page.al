@@ -18,7 +18,7 @@ page 12189 "Service Tariff Numbers"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code for the service tariff.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a text description for the service tariff.';

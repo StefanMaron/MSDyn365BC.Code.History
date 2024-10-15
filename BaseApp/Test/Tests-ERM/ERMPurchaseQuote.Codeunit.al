@@ -453,6 +453,7 @@ codeunit 134325 "ERM Purchase Quote"
         Assert.ExpectedError(BlockedResourceErr);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseOrderFromPurchaseQuoteWithTransactionType()
@@ -474,6 +475,7 @@ codeunit 134325 "ERM Purchase Quote"
         // [THEN] Verify that New Purchase Order created from Purchase Quote has Transaction Type on Header and Line
         VerifyTransactionTypeOnOrder(PurchaseHeader, PurchaseHeader."No.");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -535,7 +537,9 @@ codeunit 134325 "ERM Purchase Quote"
 
     local procedure Initialize()
     var
+#if not CLEAN22
         IntrastatSetup: Record "Intrastat Setup";
+#endif
         PurchaseHeader: Record "Purchase Header";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
@@ -549,17 +553,19 @@ codeunit 134325 "ERM Purchase Quote"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Quote");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+#if not CLEAN22
         if not IntrastatSetup.Get() then begin
             IntrastatSetup.Init();
             IntrastatSetup.Insert();
         end;
         LibrarySetupStorage.Save(DATABASE::"Intrastat Setup");
-
+#endif
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Quote");
     end;
 
+#if not CLEAN22
     local procedure VerifyTransactionTypeOnOrder(PurchaseHeader: Record "Purchase Header"; QuoteNo: Code[20])
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -573,6 +579,7 @@ codeunit 134325 "ERM Purchase Quote"
         FindPurchaseLine(PurchaseLine, QuoteNo);
         PurchaseLine.TestField("Transaction Type", IntrastatSetup."Default Trans. - Purchase");
     end;
+#endif
 
     local procedure CreateVendor(): Code[20]
     var

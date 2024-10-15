@@ -920,7 +920,7 @@ codeunit 12184 "Fattura Doc. Helper"
                 CustomerPurchOrderNo := '';
                 Type := CopyStr(Format(LineRecRef.Field(LineTypeFieldNo).Value), 1, MaxStrLen(Type));
                 ShptNo := Format(LineRecRef.Field(ShipmentNoFieldNo).Value);
-                if (Type = GetOptionCaptionValue(SalesLine.Type::Item)) and
+                if (Type = GetOptionCaptionValue(SalesLine.Type::Item.AsInteger())) and
                    (ShptNo <> '')
                 then begin
                     if TempFatturaHeader."Entry Type" = TempFatturaHeader."Entry Type"::Sales then begin
@@ -940,7 +940,7 @@ codeunit 12184 "Fattura Doc. Helper"
                       TempShptFatturaLine, Type, i, ShptNo, ShipmentDate, FatturaProjectCode, FatturaTenderCode,
                       CustomerPurchOrderNo, IsSplitPaymentLine(LineRecRef));
                 end;
-                if Type = GetOptionCaptionValue(SalesLine.Type::"G/L Account") then
+                if Type = GetOptionCaptionValue(SalesLine.Type::"G/L Account".AsInteger()) then
                     InsertShipmentBuffer(
                       TempShptFatturaLine, Type, i, '', TempFatturaHeader."Posting Date", '', '', '', IsSplitPaymentLine(LineRecRef));
                 if TempFatturaHeader."Order No." <> '' then begin
@@ -1055,7 +1055,7 @@ codeunit 12184 "Fattura Doc. Helper"
         MultipleOrders: Boolean;
     begin
         TempShptFatturaLine.Reset();
-        TempShptFatturaLine.SetRange(Type, GetOptionCaptionValue(SalesLine.Type::Item));
+        TempShptFatturaLine.SetRange(Type, GetOptionCaptionValue(SalesLine.Type::Item.AsInteger()));
         if TempShptFatturaLine.FindSet() then begin
             MultipleOrders := TempShptFatturaLine.Count() > 1;
             Clear(TempFatturaLine);

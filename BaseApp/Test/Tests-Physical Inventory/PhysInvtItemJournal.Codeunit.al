@@ -9,10 +9,14 @@ codeunit 137463 "Phys. Invt. Item Journal"
     end;
 
     var
+        LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        Assert: Codeunit Assert;
 
     [Test]
     [HandlerFunctions('YesConfirmHandler')]
@@ -72,15 +76,9 @@ codeunit 137463 "Phys. Invt. Item Journal"
 
         // [GIVEN] Create multiple Item Journal lines with the created items and a random "Document No.""
         ItemJournalLine.DeleteAll();
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, EntryType::"Positive Adjmt.", WorkDate(), Item."No.",
-            LibraryRandom.RandDec(20, 0), '',
-            LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Document No."), Database::"Item Journal Line"));
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, EntryType::"Positive Adjmt.", WorkDate(), Item2."No.",
-            LibraryRandom.RandDec(20, 0), '',
-            LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Document No."), Database::"Item Journal Line"));
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, EntryType::"Positive Adjmt.", WorkDate(), Item2."No.",
-            LibraryRandom.RandDec(20, 0), '',
-            LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Document No."), Database::"Item Journal Line"));
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, EntryType::"Positive Adjmt.", WorkDate(), Item."No.", LibraryRandom.RandDec(20, 0), '');
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, EntryType::"Positive Adjmt.", WorkDate(), Item2."No.", LibraryRandom.RandDec(20, 0), '');
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, EntryType::"Positive Adjmt.", WorkDate(), Item2."No.", LibraryRandom.RandDec(20, 0), '');
 
         // [WHEN] Enable the functionality renumber "Document No." on Item journal
         Commit();
@@ -144,6 +142,85 @@ codeunit 137463 "Phys. Invt. Item Journal"
           30000, IncStr(NewDocNo));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ItemJournalTemplateListModalPageHandler,ItemReferenceList2ItemReferencesModalPageHandler')]
+    procedure ItemReferenceOnValidatePhysInvtJournalItemJournal()
+    var
+        Item: Record Item;
+        ItemReference, AdditionalItemReference : Record "Item Reference";
+        ItemJournalLine: Record "Item Journal Line";
+        PhysInventoryJournal: TestPage "Phys. Inventory Journal";
+    begin
+        // [GIVEN] Empty Physical Journal Line (Item Journal Line) exists
+        CreatePhysInvtJournalLineWithNoItem(ItemJournalLine);
+
+        // [GIVEN] Different item references exist
+        CreateDifferentItemReferencesWithSameReferenceNo(ItemReference);
+
+        // [WHEN] Validate item reference no using existing refernce no
+        PhysInventoryJournal.OpenEdit();
+        PhysInventoryJournal.GoToRecord(ItemJournalLine);
+        PhysInventoryJournal."Item Reference No.".Value(ItemReference."Reference No.");
+        PhysInventoryJournal.Close();
+
+        // [THEN] Info from item reference is copied
+        TestItemJournalLineReferenceFields(ItemJournalLine, ItemReference);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ItemJournalTemplateListModalPageHandler,ItemReferenceList1ItemReferenceModalPageHandler')]
+    procedure ItemReferenceOnLookupPhysInvtJournalItemJournal()
+    var
+        Item: Record Item;
+        ItemReference, AdditionalItemReference : Record "Item Reference";
+        ItemJournalLine: Record "Item Journal Line";
+        PhysInventoryJournal: TestPage "Phys. Inventory Journal";
+    begin
+        // [GIVEN] Empty Physical Journal Line (Item Journal Line) exists
+        CreatePhysInvtJournalLineWithNoItem(ItemJournalLine);
+
+        // [GIVEN] Different item references exist
+        CreateDifferentItemReferencesWithSameReferenceNo(ItemReference);
+
+        // [WHEN] Lookup references
+        PhysInventoryJournal.OpenEdit();
+        PhysInventoryJournal.GoToRecord(ItemJournalLine);
+        PhysInventoryJournal."Item Reference No.".Lookup();
+        PhysInventoryJournal.Close();
+
+        // [THEN] Info from item reference is copied
+        TestItemJournalLineReferenceFields(ItemJournalLine, ItemReference);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemReferenceBarCodeOnValidatePhysInvtJournalItemJournalNonBaseUoM()
+    var
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        // [GIVEN] Empty Physical Journal Line (Item Journal Line) exists
+        CreatePhysInvtJournalLineWithNoItem(ItemJournalLine);
+
+        // [GIVEN] Item Reference for Item exists with non-base UoM code
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 2);
+        LibraryItemReference.CreateItemReference(ItemReference, Item."No.", '', ItemUnitOfMeasure.Code, "Item Reference Type"::"Bar Code", '', LibraryUtility.GenerateRandomCode(ItemReference.FieldNo("Reference No."), Database::"Item Reference"));
+
+        ItemReference.Validate("Unit of Measure", ItemUnitOfMeasure.Code);
+        ItemReference.Modify(true);
+
+        // [WHEN] Validate item reference no using existing refernce no that has non-base unit of measure
+        asserterror ItemJournalLine.Validate("Item Reference No.", ItemReference."Reference No.");
+
+        // [THEN] Verify error
+        Assert.ExpectedError(ItemReference.FieldCaption("Unit of Measure") + ' must not be ' + ItemReference."Unit of Measure" + ' in ' + ItemReference.TableCaption());
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure YesConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -172,5 +249,107 @@ codeunit 137463 "Phys. Invt. Item Journal"
     begin
         ItemJournalLine.Get(TemplateName, BatchName, LineNo);
         ItemJournalLine.TestField("Document No.", DocNo)
+    end;
+
+    local procedure CreatePhysInvtJournalLineWithNoItem(var ItemJournalLine: Record "Item Journal Line")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        EntryType: Enum "Item Ledger Entry Type";
+    begin
+        LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
+        LibraryVariableStorage.Enqueue(ItemJournalTemplate.Name);
+        ItemJournalTemplate.Validate(Type, ItemJournalTemplate.Type::"Phys. Inventory");
+        ItemJournalTemplate.Modify();
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJnlLineWithNoItem(ItemJournalLine, ItemJournalBatch, ItemJournalTemplate.Name, ItemJournalBatch.Name, EntryType::"Positive Adjmt.");
+    end;
+
+    local procedure TestItemJournalLineReferenceFields(var ItemJournalLine: Record "Item Journal Line"; ItemReference: Record "Item Reference")
+    begin
+        ItemJournalLine.SetRecFilter();
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.TestField("Item No.", ItemReference."Item No.");
+        ItemJournalLine.TestField("Description", ItemReference."Description");
+        ItemJournalLine.TestField("Item Reference Type", ItemReference."Reference Type");
+        ItemJournalLine.TestField("Item Reference Type No.", ItemReference."Reference Type No.");
+        ItemJournalLine.TestField("Item Reference Unit of Measure", ItemReference."Unit of Measure");
+    end;
+
+    local procedure CreateDifferentItemReferencesWithSameReferenceNo(var FirstItemReference: Record "Item Reference")
+    var
+        Item: Record Item;
+        AdditionalItemReference: Record "Item Reference";
+    begin
+        FirstItemReference.DeleteAll();
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryItemReference.CreateItemReference(FirstItemReference, Item."No.", "Item Reference Type"::" ", '');
+        FirstItemReference.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(FirstItemReference.Description)));
+        FirstItemReference.Validate("Description 2", LibraryUtility.GenerateRandomText(MaxStrLen(FirstItemReference."Description 2")));
+        FirstItemReference.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryItemReference.CreateItemReferenceWithNo(AdditionalItemReference, FirstItemReference."Reference No.", Item."No.", FirstItemReference."Reference Type"::"Bar Code", '');
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryItemReference.CreateItemReferenceWithNo(AdditionalItemReference, FirstItemReference."Reference No.", Item."No.", FirstItemReference."Reference Type"::Customer, LibrarySales.CreateCustomerNo());
+        LibraryInventory.CreateItem(Item);
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryItemReference.CreateItemReferenceWithNo(AdditionalItemReference, FirstItemReference."Reference No.", Item."No.", FirstItemReference."Reference Type"::Vendor, LibraryPurchase.CreateVendorNo());
+    end;
+
+    [ModalPageHandler]
+    procedure ItemJournalTemplateListModalPageHandler(var ItemJournalTemplate: TestPage "Item Journal Template List");
+    begin
+        ItemJournalTemplate.GoToKey(LibraryVariableStorage.DequeueText());
+        ItemJournalTemplate.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemReferenceList1ItemReferenceModalPageHandler(var ItemReferenceList: TestPage "Item Reference List")
+    var
+        ItemNo: Code[20];
+    begin
+        ItemNo := LibraryVariableStorage.DequeueText();
+        ItemReferenceListContains(ItemReferenceList, ItemNo);
+        ItemReferenceListNotContains(ItemReferenceList, LibraryVariableStorage.DequeueText());
+        ItemReferenceListNotContains(ItemReferenceList, LibraryVariableStorage.DequeueText());
+        ItemReferenceListNotContains(ItemReferenceList, LibraryVariableStorage.DequeueText());
+
+        ItemReferenceList.Filter.SetFilter("Item No.", ItemNo);
+        ItemReferenceList.First(); // Return the item reference for the first item
+        ItemReferenceList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemReferenceList2ItemReferencesModalPageHandler(var ItemReferenceList: TestPage "Item Reference List")
+    var
+        ItemNo: Code[20];
+    begin
+        ItemNo := LibraryVariableStorage.DequeueText();
+        ItemReferenceListContains(ItemReferenceList, ItemNo);
+        ItemReferenceListContains(ItemReferenceList, LibraryVariableStorage.DequeueText());
+        ItemReferenceListNotContains(ItemReferenceList, LibraryVariableStorage.DequeueText());
+        ItemReferenceListNotContains(ItemReferenceList, LibraryVariableStorage.DequeueText());
+
+        ItemReferenceList.Filter.SetFilter("Item No.", ItemNo);
+        ItemReferenceList.First(); // Return the item reference for the first item
+        ItemReferenceList.OK().Invoke();
+    end;
+
+    local procedure ItemReferenceListContains(var ItemReferenceList: TestPage "Item Reference List"; ItemNo: Code[20])
+    begin
+        ItemReferenceList.Filter.SetFilter("Item No.", ItemNo);
+        Assert.IsTrue(ItemReferenceList.First(), 'Item Reference List does not contain entry that should be visible');
+    end;
+
+    local procedure ItemReferenceListNotContains(var ItemReferenceList: TestPage "Item Reference List"; ItemNo: Code[20])
+    begin
+        ItemReferenceList.Filter.SetFilter("Item No.", ItemNo);
+        Assert.IsFalse(ItemReferenceList.First(), 'Item Reference List contains entry that should not be visible');
     end;
 }

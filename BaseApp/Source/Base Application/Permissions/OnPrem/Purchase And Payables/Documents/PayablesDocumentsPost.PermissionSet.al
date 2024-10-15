@@ -28,6 +28,7 @@ permissionset 862 "Payables Documents - Post"
                   tabledata "Gen. Journal Template" = R,
                   tabledata "General Ledger Setup" = rm,
                   tabledata "General Posting Setup" = R,
+                  tabledata "IC Bank Account" = R,
                   tabledata "IC Comment Line" = RIMD,
                   tabledata "IC Dimension" = R,
                   tabledata "IC Dimension Value" = R,
