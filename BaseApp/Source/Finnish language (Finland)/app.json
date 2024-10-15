@@ -2,7 +2,7 @@
     "id":  "f8555f70-8cfe-46a2-b961-444c8af4cf4f",
     "name":  "Finnish language (Finland)",
     "publisher":  "Microsoft",
-    "version":  "17.9.28504.0",
+    "version":  "17.10.29463.0",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "17.9.0.0"
+    "application":  "17.10.0.0"
 }

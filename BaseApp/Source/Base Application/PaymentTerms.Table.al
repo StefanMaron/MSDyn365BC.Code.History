@@ -148,6 +148,12 @@ table 3 "Payment Terms"
         exit(not PaymentTerms.IsEmpty);
     end;
 
+    [Scope('OnPrem')]
+    procedure GetDueDateCalculation(var DueDateCalculation: DateFormula)
+    begin
+        DueDateCalculation := "Due Date Calculation";
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterTranslateDescription(var PaymentTerms: Record "Payment Terms"; Language: Code[10])
     begin

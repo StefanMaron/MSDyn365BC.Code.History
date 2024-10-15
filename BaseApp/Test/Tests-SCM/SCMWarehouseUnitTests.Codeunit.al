@@ -612,6 +612,123 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure SortingPickWorksheetLinesByBinAndShelf()
+    var
+        Location: Record Location;
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        ItemNo: Code[20];
+        ShelfNo: array[3] of Code[10];
+        BinCode: array[3] of Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Pick Worksheet] [Sorting]
+        // [SCENARIO 406575] Pick worksheet lines sorted by bin code are then also sorted by shelf no.
+        Initialize();
+
+        // [GIVEN] Location with "Bin Mandatory" = TRUE.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+
+        ItemNo := LibraryUtility.GenerateGUID;
+        for i := 1 to 3 do begin
+            ShelfNo[i] := LibraryUtility.GenerateGUID();
+            BinCode[i] := LibraryUtility.GenerateGUID();
+        end;
+
+        // [GIVEN] Three pick worksheet lines:
+        // [GIVEN] Line 1: bin code = "B1", shelf no. = "S3".
+        // [GIVEN] Line 2: bin code = "B2", shelf no. = "S2"
+        // [GIVEN] Line 3: bin code = "B2", shelf no. = "S1"
+        MockPickWorksheetLineWithBinAndShelf(WhseWorksheetLine, Location.Code, ItemNo, BinCode[1], ShelfNo[3]);
+        MockPickWorksheetLineWithBinAndShelf(WhseWorksheetLine, Location.Code, ItemNo, BinCode[2], ShelfNo[2]);
+        MockPickWorksheetLineWithBinAndShelf(WhseWorksheetLine, Location.Code, ItemNo, BinCode[2], ShelfNo[1]);
+
+        // [WHEN] Sort pick worksheet lines by "Shelf/Bin No.".
+        WhseWorksheetLine.SortWhseWkshLines(
+          WhseWorksheetLine."Worksheet Template Name", WhseWorksheetLine.Name, Location.Code, "Whse. Activity Sorting Method"::"Shelf or Bin");
+
+        // [THEN] The pick worksheet lines are sorted by bin code first, then by shelf, as follows:
+        // [THEN] Line 1: bin code = "B1", shelf no. = "S3".
+        // [THEN] Line 2: bin code = "B2", shelf no. = "S1"
+        // [THEN] Line 3: bin code = "B2", shelf no. = "S2"
+        WhseWorksheetLine.Reset();
+        WhseWorksheetLine.SetCurrentKey("Sorting Sequence No.");
+        WhseWorksheetLine.SetRange("Item No.", ItemNo);
+
+        WhseWorksheetLine.FindSet();
+        WhseWorksheetLine.TestField("To Bin Code", BinCode[1]);
+        WhseWorksheetLine.TestField("Shelf No.", ShelfNo[3]);
+
+        WhseWorksheetLine.Next();
+        WhseWorksheetLine.TestField("To Bin Code", BinCode[2]);
+        WhseWorksheetLine.TestField("Shelf No.", ShelfNo[1]);
+
+        WhseWorksheetLine.Next();
+        WhseWorksheetLine.TestField("To Bin Code", BinCode[2]);
+        WhseWorksheetLine.TestField("Shelf No.", ShelfNo[2]);
+    end;
+
+    [Test]
+    procedure SortingWarehousePickLinesByBinAndShelf()
+    var
+        Location: Record Location;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemNo: Code[20];
+        ShelfNo: array[3] of Code[10];
+        BinCode: array[3] of Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Warehouse Pick] [Sorting]
+        // [SCENARIO 406575] Warehouse pick lines sorted by bin code are then also sorted by shelf no.
+        Initialize();
+
+        // [GIVEN] Location with "Bin Mandatory" = TRUE.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+
+        ItemNo := LibraryUtility.GenerateGUID();
+        for i := 1 to 3 do begin
+            ShelfNo[i] := LibraryUtility.GenerateGUID();
+            BinCode[i] := LibraryUtility.GenerateGUID();
+        end;
+
+        // [GIVEN] Warehouse pick with 3 lines:
+        // [GIVEN] Line 1: bin code = "B1", shelf no. = "S3".
+        // [GIVEN] Line 2: bin code = "B2", shelf no. = "S2"
+        // [GIVEN] Line 3: bin code = "B2", shelf no. = "S1"
+        MockWhseActivityHeader(WarehouseActivityHeader, WarehouseActivityHeader.Type::Pick, Location.Code);
+        MockWhseActivityLineWithBinAndShelf(
+          WarehouseActivityLine, WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Take, ItemNo, BinCode[1], ShelfNo[3]);
+        MockWhseActivityLineWithBinAndShelf(
+          WarehouseActivityLine, WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Take, ItemNo, BinCode[2], ShelfNo[2]);
+        MockWhseActivityLineWithBinAndShelf(
+          WarehouseActivityLine, WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Take, ItemNo, BinCode[2], ShelfNo[1]);
+
+        // [WHEN] Select "Shelf or Bin" sorting method on the warehouse pick header.
+        WarehouseActivityHeader.Validate("Sorting Method", "Whse. Activity Sorting Method"::"Shelf or Bin");
+
+        // [THEN] The pick lines are sorted by bin code first, then by shelf, as follows:
+        // [THEN] Line 1: bin code = "B1", shelf no. = "S3".
+        // [THEN] Line 2: bin code = "B2", shelf no. = "S1"
+        // [THEN] Line 3: bin code = "B2", shelf no. = "S2"
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetCurrentKey("Sorting Sequence No.");
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+
+        WarehouseActivityLine.FindSet();
+        WarehouseActivityLine.TestField("Bin Code", BinCode[1]);
+        WarehouseActivityLine.TestField("Shelf No.", ShelfNo[3]);
+
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.TestField("Bin Code", BinCode[2]);
+        WarehouseActivityLine.TestField("Shelf No.", ShelfNo[1]);
+
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.TestField("Bin Code", BinCode[2]);
+        WarehouseActivityLine.TestField("Shelf No.", ShelfNo[2]);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Unit Tests");
@@ -1607,6 +1724,25 @@ codeunit 137504 "SCM Warehouse Unit Tests"
             "Shelf No." := ShelfNo;
             Insert;
         end;
+    end;
+
+    local procedure MockPickWorksheetLineWithBinAndShelf(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LocationCode: Code[10]; ItemNo: Code[20]; BinCode: Code[20]; ShelfNo: Code[10])
+    var
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+    begin
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Pick);
+        LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
+
+        WhseWorksheetLine.Init();
+        WhseWorksheetLine."Worksheet Template Name" := WhseWorksheetTemplate.Name;
+        WhseWorksheetLine.Name := WhseWorksheetName.Name;
+        WhseWorksheetLine."Location Code" := LocationCode;
+        WhseWorksheetLine."Line No." := LibraryUtility.GetNewRecNo(WhseWorksheetLine, WhseWorksheetLine.FieldNo("Line No."));
+        WhseWorksheetLine."Item No." := ItemNo;
+        WhseWorksheetLine."To Bin Code" := BinCode;
+        WhseWorksheetLine."Shelf No." := ShelfNo;
+        WhseWorksheetLine.Insert();
     end;
 
     local procedure InsertReservEntry(var ReservEntry: Record "Reservation Entry"; QtyBase: Decimal; QtyPerUOM: Decimal)
