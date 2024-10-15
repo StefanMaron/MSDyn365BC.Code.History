@@ -7,6 +7,8 @@ namespace Microsoft.Intercompany.DataExchange;
 using Microsoft.Intercompany.Partner;
 using Microsoft.Intercompany.Inbox;
 using System.Globalization;
+using System.Telemetry;
+using Microsoft.Intercompany.GLAccount;
 
 codeunit 534 "IC Read Notification JR"
 {
@@ -52,18 +54,20 @@ codeunit 534 "IC Read Notification JR"
     begin
         ICPartner.Get(ICIncomingNotification."Source IC Partner Code");
         if not CrossIntercompanyConnector.RequestICPartnerICOutgoingNotification(ICPartner, ICIncomingNotification."Operation ID", JsonResponse) then begin
-            LogError(ICIncomingNotification);
+            LogError(ICIncomingNotification, ICIncomingNotification.Status::Failed, RequestICOutgoingNotificationEventNameTok);
             exit;
         end;
+        FeatureTelemetry.LogUsage('0000MV9', ICMapping.GetFeatureTelemetryName(), RequestICOutgoingNotificationEventNameTok);
 
         CurrentGlobalLanguage := GlobalLanguage();
         GlobalLanguage(Language.GetDefaultApplicationLanguageId());
         ICDataExchangeAPI.OnPopulateTransactionDataFromICOutgoingNotification(JsonResponse, Success);
         GlobalLanguage(CurrentGlobalLanguage);
         if not Success then begin
-            LogError(ICIncomingNotification);
+            LogError(ICIncomingNotification, ICIncomingNotification.Status::Failed, PopulateTransactionDataEventNameTok);
             exit;
         end;
+        FeatureTelemetry.LogUsage('0000MVA', ICMapping.GetFeatureTelemetryName(), PopulateTransactionDataEventNameTok);
 
         Commit();
         ICIncomingNotification.Status := ICIncomingNotification.Status::Processed;
@@ -78,9 +82,10 @@ codeunit 534 "IC Read Notification JR"
         end;
     end;
 
-    local procedure LogError(var ICIncomingNotification: Record "IC Incoming Notification")
+    local procedure LogError(var ICIncomingNotification: Record "IC Incoming Notification"; Status: Integer; EventName: Text)
     begin
-        ICIncomingNotification.Status := ICIncomingNotification.Status::Failed;
+        FeatureTelemetry.LogError('0000MV8', ICMapping.GetFeatureTelemetryName(), EventName, GetLastErrorText(), GetLastErrorCallStack());
+        ICIncomingNotification.Status := Status;
         ICIncomingNotification.SetErrorMessage(GetLastErrorText());
         ICIncomingNotification.Modify();
         ClearLastError();
@@ -99,14 +104,12 @@ codeunit 534 "IC Read Notification JR"
         TempICOutgoingNotification."Source IC Partner Code" := ICIncomingNotification."Source IC Partner Code";
         TempICOutgoingNotification."Target IC Partner Code" := ICIncomingNotification."Target IC Partner Code";
         ICDataExchangeAPI.CreateJsonContentFromICOutgoingNotification(TempICOutgoingNotification, ContentJsonText);
-        if CrossIntercompanyConnector.NotifyICPartnerFromBoundAction(ICPartner, ICIncomingNotification."Operation ID", SyncronizationCompletedTok) then
-            ICIncomingNotification.Delete()
-        else begin
-            ICIncomingNotification.Status := ICIncomingNotification.Status::"Scheduled for deletion failed";
-            ICIncomingNotification.SetErrorMessage(GetLastErrorText());
-            ICIncomingNotification.Modify();
-            ClearLastError();
-        end;
+        if CrossIntercompanyConnector.NotifyICPartnerFromBoundAction(ICPartner, ICIncomingNotification."Operation ID", SyncronizationCompletedTok) then begin
+            ICIncomingNotification.Delete();
+            FeatureTelemetry.LogUsage('0000MVB', ICMapping.GetFeatureTelemetryName(), CleanupNotificationsEventNameTok);
+        end
+        else
+            LogError(ICIncomingNotification, ICIncomingNotification.Status::"Scheduled for deletion failed", CleanupNotificationsEventNameTok);
     end;
 
     local procedure GetICInboxTransaction(JsonResponse: JsonObject; ICIncomingNotification: Record "IC Incoming Notification"; var ICInboxTransaction: Record "IC Inbox Transaction")
@@ -127,5 +130,12 @@ codeunit 534 "IC Read Notification JR"
             end;
         end;
     end;
+
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
+        RequestICOutgoingNotificationEventNameTok: Label 'IC Crossenvironment Request IC Outgoing Notification', Locked = true;
+        PopulateTransactionDataEventNameTok: Label 'IC Crossenvironment Populate Transaction Data', Locked = true;
+        CleanupNotificationsEventNameTok: Label 'IC Crossenvironment Cleanup Notifications', Locked = true;
 }
 
