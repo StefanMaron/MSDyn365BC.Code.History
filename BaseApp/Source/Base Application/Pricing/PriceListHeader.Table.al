@@ -561,6 +561,7 @@ table 7000 "Price List Header"
         PriceListLine.SetRange("Starting Date");
         PriceListLine.SetFilter("Ending Date", '<>%1', "Ending Date");
         SetStatusToDraft(PriceListLine);
+        OnUpdateDatesInLinesOnBeforePriceListLineModifyAllEndingDate(PriceListLine, Rec);
         PriceListLine.ModifyAll("Ending Date", "Ending Date");
     end;
 
@@ -633,7 +634,7 @@ table 7000 "Price List Header"
         PriceListLine: Record "Price List Line";
         ConfirmManagement: Codeunit "Confirm Management";
         PriceListManagement: Codeunit "Price List Management";
-        IsHandled: Boolean;
+        IsHandled, Confirmed : Boolean;
     begin
         IsHandled := false;
         OnBeforeUpdateStatus(Rec, Updated, IsHandled);
@@ -654,7 +655,12 @@ table 7000 "Price List Header"
                 exit(false);
         end;
 
-        if ConfirmManagement.GetResponse(StrSubstNo(StatusUpdateQst, Status), true) then
+        IsHandled := false;
+        OnUpdateStatusOnBeforeConfirmStatus(Rec, Updated, Confirmed, IsHandled);
+        if not IsHandled then
+            Confirmed := ConfirmManagement.GetResponse(StrSubstNo(StatusUpdateQst, Status), true);
+
+        if Confirmed then
             PriceListLine.ModifyAll(Status, Status)
         else
             Updated := false
@@ -719,6 +725,16 @@ table 7000 "Price List Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateStatus(var PriceListHeader: Record "Price List Header"; var Updated: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateStatusOnBeforeConfirmStatus(PriceListHeader: Record "Price List Header"; Updated: Boolean; var Confirmed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateDatesInLinesOnBeforePriceListLineModifyAllEndingDate(var PriceListLine: Record "Price List Line"; var PriceListHeader: Record "Price List Header")
     begin
     end;
 }

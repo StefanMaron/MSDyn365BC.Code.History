@@ -3137,7 +3137,7 @@
         Text030: Label 'Deleting this document will cause a gap in the number series for return receipts. An empty return receipt %1 will be created to fill this gap in the number series.\\Do you want to continue?';
         Text031: Label 'You have modified %1.\\Do you want to update the lines?', Comment = 'You have modified Shipment Date.\\Do you want to update the lines?';
         MaxAllowedValueIs100Err: Label 'The values must be less than or equal 100.';
-        DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to keep the existing dimensions?';
+        DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to recalculate/update dimensions?';
         GLSetup: Record "General Ledger Setup";
         GLAcc: Record "G/L Account";
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -4277,7 +4277,7 @@
 
         if (OldDimSetID <> "Dimension Set ID") and (OldDimSetID <> 0) and guiallowed then
             if CouldDimensionsBeKept() then
-                if ConfirmKeepExistingDimensions(OldDimSetID) then begin
+                if not ConfirmKeepExistingDimensions(OldDimSetID) then begin
                     "Dimension Set ID" := OldDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(Rec."Dimension Set ID", Rec."Shortcut Dimension 1 Code", Rec."Shortcut Dimension 2 Code");
                 end;
@@ -4816,7 +4816,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckCustomerContactRelation(Rec, Cont, IsHandled);
+        OnBeforeCheckCustomerContactRelation(Rec, Cont, IsHandled, CustomerNo, ContBusinessRelationNo);
         if IsHandled then
             exit;
 
@@ -7650,7 +7650,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckContactRelatedToCustomerCompany(Rec, CurrFieldNo, IsHandled);
+        OnBeforeCheckContactRelatedToCustomerCompany(Rec, CurrFieldNo, IsHandled, ContactNo, CustomerNo);
         if IsHandled then
             exit;
 
@@ -8383,7 +8383,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckCustomerContactRelation(var SalesHeader: Record "Sales Header"; Cont: Record Contact; var IsHandled: Boolean)
+    local procedure OnBeforeCheckCustomerContactRelation(var SalesHeader: Record "Sales Header"; Cont: Record Contact; var IsHandled: Boolean; CustomerNo: Code[20]; ContBusinessRelationNo: Code[20])
     begin
     end;
 
@@ -9358,7 +9358,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckContactRelatedToCustomerCompany(SalesHeader: Record "Sales Header"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeCheckContactRelatedToCustomerCompany(SalesHeader: Record "Sales Header"; CurrFieldNo: Integer; var IsHandled: Boolean; ContactNo: Code[20]; CustomerNo: Code[20])
     begin
     end;
 

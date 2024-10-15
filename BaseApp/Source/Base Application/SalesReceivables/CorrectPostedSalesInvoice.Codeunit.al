@@ -992,7 +992,13 @@
     var
         Item: Record Item;
         Location: Record Location;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestWMSLocation(SalesInvoiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesInvoiceLine.Type <> SalesInvoiceLine.Type::Item then
             exit;
         if not Item.Get(SalesInvoiceLine."No.") then
@@ -1164,6 +1170,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforePostCorrectiveSalesCrMemo(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestWMSLocation(var SalesInvoiceLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
     begin
     end;
 }
