@@ -13,6 +13,13 @@ page 4700 "VAT Group Submission Lines"
         {
             repeater(GroupName)
             {
+                field(id; ID)
+                {
+                    Editable = false;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'id', Locked = true;
+                    ToolTip = 'Specifies the record identifier.';
+                }
                 field(vatGroupSubmissionNo; "VAT Group Submission No.")
                 {
                     ApplicationArea = Basic, Suite;
