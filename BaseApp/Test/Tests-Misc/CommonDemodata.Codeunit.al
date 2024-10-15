@@ -288,6 +288,20 @@ codeunit 138500 "Common Demodata"
             until ContactBusinessRelation.Next() = 0;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SourceCodeSetupData();
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        // [FEATURE] [Deferral]
+        // [SCENARIO 422924] Source Code Setup has deferral source codes filled in
+        SourceCodeSetup.Get();
+        SourceCodeSetup.TestField("General Deferral");
+        SourceCodeSetup.TestField("Sales Deferral");
+        SourceCodeSetup.TestField("Purchase Deferral");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Common Demodata");
