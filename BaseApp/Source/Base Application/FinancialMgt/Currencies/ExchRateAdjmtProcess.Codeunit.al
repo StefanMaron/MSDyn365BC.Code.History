@@ -907,6 +907,7 @@
         SummarizeExchRateAdjmtBuffer(TempExchRateAdjmtBuffer, TempExchRateAdjmtBuffer2);
 
         // Post per posting group and per currency
+        TempExchRateAdjmtBuffer2.Reset();
         if TempExchRateAdjmtBuffer2.Find('-') then
             repeat
                 TempExchRateAdjmtBuffer.SetRange("Currency Code", TempExchRateAdjmtBuffer2."Currency Code");
@@ -963,6 +964,7 @@
     var
         Found: Boolean;
     begin
+        TempExchRateAdjmtBuffer.Reset();
         if TempExchRateAdjmtBuffer.Find('-') then
             // Summarize per currency and dimension combination
             repeat
@@ -1172,10 +1174,10 @@
                 Accumulate(TotalVATEntry."Add.-Currency Unrealized Base", -VATEntry."Add.-Currency Unrealized Base");
                 Accumulate(TotalVATEntry."Add.-Curr. Rem. Unreal. Amount", -VATEntry."Add.-Curr. Rem. Unreal. Amount");
                 Accumulate(TotalVATEntry."Add.-Curr. Rem. Unreal. Base", -VATEntry."Add.-Curr. Rem. Unreal. Base");
-                until VATEntry.Next() = 0;
+            until VATEntry.Next() = 0;
     end;
 
-        local procedure AdjustVATAmount(var AmountLCY: Decimal; var AmountAddCurr: Decimal)
+    local procedure AdjustVATAmount(var AmountLCY: Decimal; var AmountAddCurr: Decimal)
     begin
         case GLSetup."VAT Exchange Rate Adjustment" of
             GLSetup."VAT Exchange Rate Adjustment"::"Adjust Amount":

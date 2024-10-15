@@ -194,7 +194,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateInvLines(SalesHeader: Record "Sales Header")
+    local procedure OnAfterCreateInvLines(var SalesHeader: Record "Sales Header")
     begin
     end;
 

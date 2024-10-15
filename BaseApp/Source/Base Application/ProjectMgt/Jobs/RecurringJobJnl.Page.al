@@ -238,7 +238,7 @@ page 289 "Recurring Job Jnl."
                 }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to (when applicable).';
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")

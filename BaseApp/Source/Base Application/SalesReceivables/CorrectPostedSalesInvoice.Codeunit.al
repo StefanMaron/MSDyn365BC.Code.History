@@ -176,6 +176,9 @@
 
         CreateCopyDocument(SalesInvoiceHeader, SalesHeader, SalesHeader."Document Type"::"Credit Memo", false);
 
+        if SalesInvoiceLinesContainJob(SalesInvoiceHeader."No.") then
+            CreateAndProcessJobPlanningLines(SalesHeader);
+
         IsHandled := false;
         OnCreateCorrectiveCreditMemoOnBeforePageRun(SalesHeader, IsHandled);
         if not IsHandled then

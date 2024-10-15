@@ -16,10 +16,17 @@ codeunit 1406 "Return Shipment Header - Edit"
         ReturnShipmentHeader.TestField("No.", "No.");
         ReturnShipmentHeader.Modify();
         Rec := ReturnShipmentHeader;
+
+        OnRunOnAfterReturnShipmentHeaderEdit(Rec);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReturnShipmentHeaderModify(var ReturnShipmentHeader: Record "Return Shipment Header"; ReturnShipmentHeaderRec: Record "Return Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterReturnShipmentHeaderEdit(var ReturnShipmentHeader: Record "Return Shipment Header")
     begin
     end;
 }
