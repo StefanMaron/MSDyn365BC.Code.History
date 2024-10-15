@@ -185,7 +185,7 @@ page 9057 "Service Dispatcher Activities"
 
         SetRespCenterFilter;
         SetRange("Date Filter", 0D, WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
     end;
 
     var

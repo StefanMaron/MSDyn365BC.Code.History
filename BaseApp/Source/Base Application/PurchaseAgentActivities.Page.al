@@ -162,7 +162,7 @@ page 9063 "Purchase Agent Activities"
 
         SetRespCenterFilter;
         SetFilter("Date Filter", '>=%1', WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
     end;
 
     var
