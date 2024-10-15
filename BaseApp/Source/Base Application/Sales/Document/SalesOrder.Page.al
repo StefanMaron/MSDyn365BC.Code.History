@@ -1163,6 +1163,16 @@ page 42 "Sales Order"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies whether the goods or merchandise that are transported enter or leave the national territory.';
                 }
+                field("SAT Customs Regime"; Rec."SAT Customs Regime")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the system that regulates the transfer of goods of foreign origin when it enters or exits the country. This information is required by Carte Porte in Mexico.';
+                }
+                field("SAT Transfer Reason"; Rec."SAT Transfer Reason")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the reason that is associated with the transfer of goods and merchandise in exports. This information is required by Carte Porte in Mexico.';
+                }
                 field("Insurer Name"; Rec."Insurer Name")
                 {
                     ApplicationArea = BasicMX;
@@ -1196,7 +1206,7 @@ page 42 "Sales Order"
                 field("Exchange Rate USD"; Rec."Exchange Rate USD")
                 {
                     ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies the exchange rate for USD currency that is used to report foreing trade electronic invoices to Mexican SAT authorities.';
+                    ToolTip = 'Specifies the USD to MXN exchange rate that is used to report foreign trade documents to Mexican SAT authorities. This rate must match the rate used by the Mexican National Bank.';
                 }
             }
         }

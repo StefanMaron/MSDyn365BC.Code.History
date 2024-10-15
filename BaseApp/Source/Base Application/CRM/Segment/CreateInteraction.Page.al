@@ -694,6 +694,7 @@ page 5077 "Create Interaction"
                 end;
             Step::"Step 4":
                 begin
+                    InteractionLogEntry.CopyFromSegment(Rec);
                     InteractionLogEntry.Modify();
                     CurrPage.Close();
                 end;

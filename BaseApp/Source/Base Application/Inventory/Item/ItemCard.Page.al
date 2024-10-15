@@ -369,6 +369,12 @@ page 30 "Item Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the type of packaging that is required to transport the hazardous material.';
                 }
+                field("SAT Material Type"; Rec."SAT Material Type")
+                {
+                    ApplicationArea = BasicMX;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the production stage or state of this material. This information is required by Carte Porte in Mexico.';
+                }
                 field("Over-Receipt Code"; Rec."Over-Receipt Code")
                 {
                     ApplicationArea = All;

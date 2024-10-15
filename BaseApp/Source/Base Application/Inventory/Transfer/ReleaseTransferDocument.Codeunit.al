@@ -49,7 +49,11 @@ codeunit 5708 "Release Transfer Document"
 
         CheckTransLines(TransLine, TransferHeader);
 
-        OnRunOnBeforeSetStatusReleased(TransferHeader);
+        IsHandled := false;
+        OnRunOnBeforeSetStatusReleased(TransferHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         TransferHeader.Validate(Status, TransferHeader.Status::Released);
         TransferHeader.Modify();
 
@@ -145,7 +149,7 @@ codeunit 5708 "Release Transfer Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeSetStatusReleased(var TransferHeader: Record "Transfer Header")
+    local procedure OnRunOnBeforeSetStatusReleased(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 }

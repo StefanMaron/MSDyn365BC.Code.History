@@ -964,6 +964,10 @@
         Assert.IsTrue(SalesOrder."SAT Address ID".Editable, '');
         Assert.IsTrue(SalesOrder."SAT International Trade Term".Enabled, '');
         Assert.IsTrue(SalesOrder."SAT International Trade Term".Editable, '');
+        Assert.IsTrue(SalesOrder."SAT Customs Regime".Enabled(), '');
+        Assert.IsTrue(SalesOrder."SAT Customs Regime".Editable(), '');
+        Assert.IsTrue(SalesOrder."SAT Transfer Reason".Enabled(), '');
+        Assert.IsTrue(SalesOrder."SAT Transfer Reason".Editable(), '');
         Assert.IsTrue(SalesOrder."Exchange Rate USD".Enabled, '');
         Assert.IsTrue(SalesOrder."Exchange Rate USD".Editable, '');
         SalesOrder.Close();
@@ -979,6 +983,10 @@
         Assert.IsTrue(SalesInvoice."SAT Address ID".Editable, '');
         Assert.IsTrue(SalesInvoice."SAT International Trade Term".Enabled, '');
         Assert.IsTrue(SalesInvoice."SAT International Trade Term".Editable, '');
+        Assert.IsTrue(SalesInvoice."SAT Customs Regime".Enabled(), '');
+        Assert.IsTrue(SalesInvoice."SAT Customs Regime".Editable(), '');
+        Assert.IsTrue(SalesInvoice."SAT Transfer Reason".Enabled(), '');
+        Assert.IsTrue(SalesInvoice."SAT Transfer Reason".Editable(), '');
         Assert.IsTrue(SalesInvoice."Exchange Rate USD".Enabled, '');
         Assert.IsTrue(SalesInvoice."Exchange Rate USD".Editable, '');
         SalesInvoice.Close();
@@ -1056,6 +1064,53 @@
         Assert.IsTrue(ServiceCreditMemo."CFDI Purpose".Enabled, '');
         Assert.IsTrue(ServiceCreditMemo."CFDI Relation".Enabled, '');
         ServiceCreditMemo.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShipmentDocumentsCFDIFieldsEnabled()
+    var
+        TransferOrder: TestPage "Transfer Order";
+        PostedTransferShipment: TestPage "Posted Transfer Shipment";
+        SalesShipmentHeader: TestPage "Posted Sales Shipment";
+    begin
+        // [FEATURE] [UI] [Shipment]
+        // [SCENARIO 491440 ] Carta porte related fields are enabled for shipment documents
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        TransferOrder.OpenNew();
+        Assert.IsTrue(TransferOrder."CFDI Export Code".Enabled(), '');
+        Assert.IsTrue(TransferOrder."CFDI Export Code".Editable(), '');
+        Assert.IsTrue(TransferOrder.Control1310002.Enabled(), ''); // Foreign Trade
+        Assert.IsTrue(TransferOrder.Control1310002.Editable(), ''); // Foreign Trade
+        Assert.IsTrue(TransferOrder."SAT International Trade Term".Enabled(), '');
+        Assert.IsTrue(TransferOrder."SAT International Trade Term".Editable(), '');
+        Assert.IsTrue(TransferOrder."SAT Customs Regime".Enabled(), '');
+        Assert.IsTrue(TransferOrder."SAT Customs Regime".Editable(), '');
+        Assert.IsTrue(TransferOrder."SAT Transfer Reason".Enabled(), '');
+        Assert.IsTrue(TransferOrder."SAT Transfer Reason".Editable(), '');
+        Assert.IsTrue(TransferOrder."Exchange Rate USD".Enabled(), '');
+        Assert.IsTrue(TransferOrder."Exchange Rate USD".Editable(), '');
+        TransferOrder.Close();
+
+        PostedTransferShipment.OpenView();
+        Assert.IsTrue(PostedTransferShipment."CFDI Export Code".Enabled(), '');
+        Assert.IsTrue(PostedTransferShipment.Control1310010.Enabled(), ''); // Foreign Trade
+        Assert.IsTrue(PostedTransferShipment."SAT International Trade Term".Enabled(), '');
+        Assert.IsTrue(PostedTransferShipment."SAT Customs Regime".Enabled(), '');
+        Assert.IsTrue(PostedTransferShipment."SAT Transfer Reason".Enabled(), '');
+        Assert.IsTrue(PostedTransferShipment."Exchange Rate USD".Enabled(), '');
+        PostedTransferShipment.Close();
+
+        SalesShipmentHeader.OpenView();
+        Assert.IsTrue(SalesShipmentHeader."CFDI Export Code".Enabled(), '');
+        Assert.IsTrue(SalesShipmentHeader."Foreign Trade".Enabled(), ''); // Foreign Trade
+        Assert.IsTrue(SalesShipmentHeader."SAT Address ID".Enabled(), '');
+        Assert.IsTrue(SalesShipmentHeader."SAT International Trade Term".Enabled(), '');
+        Assert.IsTrue(SalesShipmentHeader."SAT Customs Regime".Enabled(), '');
+        Assert.IsTrue(SalesShipmentHeader."SAT Transfer Reason".Enabled(), '');
+        Assert.IsTrue(SalesShipmentHeader."Exchange Rate USD".Enabled(), '');
+        SalesShipmentHeader.Close();
     end;
 
     [Test]
@@ -2311,6 +2366,8 @@
         Assert.IsTrue(FixedAssetCard."SCT Permission No.".Editable, '');
         Assert.IsTrue(FixedAssetCard."SCT Permission Type".Enabled, '');
         Assert.IsTrue(FixedAssetCard."SCT Permission Type".Editable, '');
+        Assert.IsTrue(FixedAssetCard."Vehicle Gross Weight".Enabled(), '');
+        Assert.IsTrue(FixedAssetCard."Vehicle Gross Weight".Editable(), '');
         FixedAssetCard.Close();
     end;
 
@@ -2851,8 +2908,8 @@
         Field.SetRange(TableNo, DATABASE::"Document Header");
         FilterStr :=
             StrSubstNo(
-            '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9&<>%10&<>%11&<>%12&<>%13',
-            3, 10048, 10049, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058, 10059, 10060);
+            '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9&<>%10&<>%11&<>%12&<>%13&<>%14&<>%15&<>%16',
+            3, 10039, 10048, 10049, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058, 10059, 10060, 10061, 10062);
         Field.SetFilter("No.", FilterStr);
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();
@@ -2872,7 +2929,7 @@
     begin
         DataTypeManagement.GetRecordRef(CustomerDocumentLineVariant, CustDocLineRecRef);
         Field.SetRange(TableNo, DATABASE::"Document Line");
-        Field.SetFilter("No.", '<>%1&<>%2&<>%3&<>%4&<>%5', 3, 4, 89, 90, 10003); // except key fields
+        Field.SetFilter("No.", '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6', 3, 4, 89, 90, 10003, 10004); // except key fields
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();
         repeat
@@ -2921,8 +2978,8 @@
         Field.SetRange(TableNo, DATABASE::"Document Header");
         FilterStr :=
             StrSubstNo(
-            '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9&<>%10&<>%11&<>%12&<>%13',
-            3, 10048, 10049, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058, 10059, 10060);
+            '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9&<>%10&<>%11&<>%12&<>%13&<>%14&<>%15&<>%16',
+            3, 10039, 10048, 10049, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058, 10059, 10060, 10061, 10062);
         Field.SetFilter("No.", FilterStr);
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();
@@ -2948,7 +3005,7 @@
         DataTypeManagement.GetRecordRef(CustomerDocumentLineVariant, CustDocLineRecRef);
         DocLineRecRef.GetTable(TempDocumentLine);
         Field.SetRange(TableNo, DATABASE::"Document Line");
-        Field.SetFilter("No.", '<>%1&<>%2&<>%3', 3, 4, 10003);
+        Field.SetFilter("No.", '<>%1&<>%2&<>%3&<>%4', 3, 4, 10003, 10004);
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();
         repeat

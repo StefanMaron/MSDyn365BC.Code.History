@@ -3159,6 +3159,63 @@ codeunit 137154 "SCM Warehouse Management II"
         Assert.AreEqual(ItemVariant."Description 2", WhseWorksheetLine."Description 2", DescriptionMustBeSame);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GLPostingPreviewPageHandler')]
+    procedure PostPreview_WarehouseShipmentWithMultipleSources()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipment: TestPage "Warehouse Shipment";
+        Quantity: Decimal;
+    begin
+        // Bug - https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/497530
+        // [SCENARIO ] Posting Preview of Warehouse Shipment with lines from multiple Sales Orders, runs successfully.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a location with only 'Require Shipment' ON.
+        CreateAndUpdateLocation(Location, false, false, true, false, false);  // With Shipment.
+
+        // [GIVEN] Make current user as a warehouse employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] OR Create and post a positive adjustment journal line for the item and location and set the quantity as 5.
+        Quantity := 5;
+        CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity, Location.Code, '');
+
+        // [GIVEN] Create sales order for item and location and set the quanntity as 1.
+        LibrarySales.CreateCustomer(Customer);
+        CreateAndReleaseSalesOrder(SalesHeader, Customer."No.", Item."No.", Location.Code, 1);
+
+        // [GIVEN] Create the above 2 steps for another 4 times making 5 SOs with 1 quantity each.
+        CreateAndReleaseSalesOrder(SalesHeader, Customer."No.", Item."No.", Location.Code, 1);
+        CreateAndReleaseSalesOrder(SalesHeader, Customer."No.", Item."No.", Location.Code, 1);
+        CreateAndReleaseSalesOrder(SalesHeader, Customer."No.", Item."No.", Location.Code, 1);
+        CreateAndReleaseSalesOrder(SalesHeader, Customer."No.", Item."No.", Location.Code, 1);
+
+        // [GIVEN] Create a warehouse shipment for the location.
+        // [GIVEN] Create warehouse shipment lines by running 'Get Source Documents' action.
+        GetSourceDocumentOnWarehouseShipment(WarehouseShipmentHeader, Location.Code, false);
+        Commit();
+
+        // [GIVEN] Open the warehouse shipment page.
+        WarehouseShipment.OpenEdit();
+        WarehouseShipment.GoToRecord(WarehouseShipmentHeader);
+
+        // [WHEN] Preview Posting action is invoked.
+        WarehouseShipment.PreviewPosting.Invoke();
+
+        // [THEN] The action runs successfully.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3190,6 +3247,34 @@ codeunit 137154 "SCM Warehouse Management II"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse Management II");
+    end;
+
+    local procedure CreateAndReleaseSalesOrder(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[20]; Quantity: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify();
+
+        // [GIVEN] Release the sales order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure GetSourceDocumentOnWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LocationCode: Code[10]; DoNotFillQtyToHandle: Boolean)
+    var
+        WarehouseSourceFilter: Record "Warehouse Source Filter";
+        GetSourceDocuments: Report "Get Source Documents";
+    begin
+        CreateWarehouseShipmentHeaderWithLocation(WarehouseShipmentHeader, LocationCode);
+        GetSourceDocuments.SetOneCreatedShptHeader(WarehouseShipmentHeader);
+        WarehouseSourceFilter.SetFilters(GetSourceDocuments, LocationCode);
+        GetSourceDocuments.SetDoNotFillQtytoHandle(DoNotFillQtyToHandle);
+        GetSourceDocuments.SetHideDialog(true);
+        GetSourceDocuments.SetSkipBlockedItem(true);
+        GetSourceDocuments.UseRequestPage(false);
+        GetSourceDocuments.RunModal();
     end;
 
     local procedure CreateWhseReceiptForLocation(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; LocationCode: Code[20]) WhseReceiptNo: Code[20]
@@ -4932,6 +5017,12 @@ codeunit 137154 "SCM Warehouse Management II"
         SourceDocumentFilterCard.FILTER.SetFilter("Receipt Date Filter", DequeueVariable);
         SourceDocumentFilterCard."Sales Orders".SetValue(false);
         SourceDocumentFilterCard.Run.Invoke;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure GLPostingPreviewPageHandler(var ShowAllEntries: TestPage "G/L Posting Preview")
+    begin
     end;
 
     [MessageHandler]

@@ -1399,6 +1399,7 @@ codeunit 99000845 "Reservation Management"
                             DownToQuantity += CalcDownToQtySyncingToAssembly(ReservEntry);
                     end;
             end;
+            OnDeleteReservEntriesOnAfterItemTrackingHandling(ReservEntry, ItemTrackingHandling);
         end;
 
         if SignFactor * QtyTracked * DownToQuantity < 0 then
@@ -3318,6 +3319,11 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinishedAutoReserveOneLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteReservEntriesOnAfterItemTrackingHandling(var ReservationEntry: Record "Reservation Entry"; var ItemTrackingHandling: Option "None","Allow deletion",Match)
     begin
     end;
 }

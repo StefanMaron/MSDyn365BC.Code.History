@@ -1890,6 +1890,68 @@ codeunit 142055 "UT REP Vendor 1099"
         LibraryReportDataset.AssertElementWithValueExists(Amounts, InvoiceAmount - CrMemoAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099Misc2022RPH')]
+    procedure Vendor1099Misc2022PaymentAppliedToMultipleInvoicesEachWithPaymentDiscount()
+    var
+        InvVendorLedgerEntry: array[2] of Record "Vendor Ledger Entry";
+        PmtVendorLedgerEntry: Record "Vendor Ledger Entry";
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        VendorNo: Code[20];
+        IRS1099Code: Code[10];
+        InvAmount: array[2] of Decimal;
+        PmtDiscAmount: Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 498316] Stan can print "Vendor 1099 Misc 2022" report that considers payment discount correctly for multiple invoices applied to one payment
+
+        Initialize();
+        VendorNo := CreateVendor();
+        IRS1099Code := IRS1099CodeMisc;
+        // [GIVEN] Two posted invoices with "MISC-02" code and total amount = 1000
+        for i := 1 to ArrayLen(InvAmount) do begin
+            InvAmount[i] := LibraryRandom.RandIntInRange(1000, 2000);
+            CreateVendorLedgerEntry(
+                InvVendorLedgerEntry[i], InvVendorLedgerEntry[i]."Document Type"::Invoice, VendorNo, IRS1099Code, InvAmount[i]);
+            CreateDetailedVendorLedgerEntry(
+                InvVendorLedgerEntry[i]."Entry No.", 0, DetailedVendorLedgEntry."Entry Type"::"Initial Entry",
+                InvVendorLedgerEntry[i]."Vendor No.", -InvAmount[i], true);
+        end;
+        // [GIVEN] A single payment applied to both invoices with payment discount = 100
+        CreateVendorLedgerEntry(
+          PmtVendorLedgerEntry, PmtVendorLedgerEntry."Document Type"::Payment, VendorNo, IRS1099Code, 0);  // Using 0 for zero amount.
+        PmtVendorLedgerEntry."Closed by Entry No." := InvVendorLedgerEntry[2]."Entry No.";
+        PmtVendorLedgerEntry.Modify();
+        CreateDetailedVendorLedgerEntry(
+          PmtVendorLedgerEntry."Entry No.", 0, DetailedVendorLedgEntry."Entry Type"::"Initial Entry",
+          VendorNo, InvAmount[1] + InvAmount[2], true);
+        PmtDiscAmount := Round(InvAmount[1] / 3);
+        CreateDetailedVendorLedgerEntry(
+          PmtVendorLedgerEntry."Entry No.", 0, DetailedVendorLedgEntry."Entry Type"::"Payment Discount",
+          VendorNo, PmtDiscAmount, true);
+        for i := 1 to ArrayLen(InvAmount) do begin
+            InvVendorLedgerEntry[i]."Closed by Entry No." := PmtVendorLedgerEntry."Entry No.";
+            InvVendorLedgerEntry[i].Modify();
+            CreateDetailedVendorLedgerEntry(
+                InvVendorLedgerEntry[i]."Entry No.", InvVendorLedgerEntry[i]."Entry No.", DetailedVendorLedgEntry."Entry Type"::Application,
+                VendorNo, InvAmount[i], false);
+            CreateDetailedVendorLedgerEntry(
+                PmtVendorLedgerEntry."Entry No.", InvVendorLedgerEntry[i]."Entry No.", DetailedVendorLedgEntry."Entry Type"::Application,
+                VendorNo, -InvAmount[i], false);
+        end;
+        Commit();
+        LibraryVariableStorage.Enqueue(VendorNo);
+
+        // [WHEN] Run "Vendor 1099 Misc 2022" report
+        REPORT.Run(REPORT::"Vendor 1099 Misc 2022");
+
+        // [THEN] "MISC-02" code prints with amount equals 900
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtMISC02, InvAmount[1] + InvAmount[2] - PmtDiscAmount);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();

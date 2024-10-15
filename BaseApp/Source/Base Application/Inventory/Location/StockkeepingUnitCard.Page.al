@@ -256,6 +256,7 @@ page 5700 "Stockkeeping Unit Card"
             group(Planning)
             {
                 Caption = 'Planning';
+                Visible = IsInventoriable;
                 field("Reordering Policy"; Rec."Reordering Policy")
                 {
                     ApplicationArea = Planning;
@@ -399,6 +400,7 @@ page 5700 "Stockkeeping Unit Card"
             group(Control1907509201)
             {
                 Caption = 'Warehouse';
+                Visible = IsInventoriable;
                 field("Special Equipment Code"; Rec."Special Equipment Code")
                 {
                     ApplicationArea = Planning;
@@ -950,6 +952,7 @@ page 5700 "Stockkeeping Unit Card"
     trigger OnAfterGetRecord()
     begin
         SetItemFilters();
+        EnableControls();
         EnablePlanningControls();
         EnableCostingControls();
 
@@ -1006,6 +1009,7 @@ page 5700 "Stockkeeping Unit Card"
         OverflowLevelEnable: Boolean;
         StandardCostEnable: Boolean;
         UnitCostEnable: Boolean;
+        IsInventoriable: Boolean;
 
     local procedure EnablePlanningControls()
     var
@@ -1057,6 +1061,11 @@ page 5700 "Stockkeeping Unit Card"
             end;
             Item.SetFilter("Date Filter", Rec.GetFilter("Date Filter"));
         end;
+    end;
+
+    local procedure EnableControls()
+    begin
+        IsInventoriable := Item.IsInventoriableType();
     end;
 
     [IntegrationEvent(false, false)]

@@ -6,6 +6,7 @@ codeunit 124 "Calc. Running Inv. Balance"
 
     var
         ItemLedgerEntry2: Record "Item Ledger Entry";
+        ClientTypeManagement: Codeunit System.Environment."Client Type Management";
         DayTotals: Dictionary of [Date, Decimal];
         DayTotalsLoc: Dictionary of [Date, Decimal];
         EntryValues: Dictionary of [Integer, Decimal];
@@ -33,6 +34,8 @@ codeunit 124 "Calc. Running Inv. Balance"
     var
         DateTotal: Decimal;
     begin
+        if ClientTypeManagement.GetCurrentClientType() in [ClientType::OData, ClientType::ODataV4] then
+            exit;
         if PrevAccNo <> ItemLedgerEntry."Item No." then
             Clear(DayTotals2);
         if PerLocation and (PrevLocation <> ItemLedgerEntry."Location code") then begin
