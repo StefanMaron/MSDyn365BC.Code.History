@@ -4037,6 +4037,15 @@
       <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit SII Documents With EU Service - NamedType XPathSalesNoTaxTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1005776364 - NamedType 2068972770" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseTipoOperacion/%1/sii:Sujeta/sii:Exenta/sii:DetalleExenta/]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Documents With EU Service - NamedType XPathSalesExentaTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2395523379 - NamedType 3088887303" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The XML document was not generated properly.]]></Val>

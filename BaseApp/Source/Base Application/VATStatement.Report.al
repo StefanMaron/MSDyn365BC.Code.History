@@ -1,4 +1,4 @@
-report 12 "VAT Statement"
+﻿report 12 "VAT Statement"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VATStatement.rdlc';
@@ -525,7 +525,7 @@ report 12 "VAT Statement"
                             end;
 
                     end;
-
+                    OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine2, VATEntry, Amount);
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
             VATStmtLine2.Type::"Row Totaling":
@@ -703,6 +703,11 @@ report 12 "VAT Statement"
                         end;
                 until Next = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal)
+    begin
     end;
 }
 

@@ -47,8 +47,10 @@ codeunit 5330 "CRM Integration Management"
         CRMSolutionFileNotFoundErr: Label 'A file for a CRM solution could not be found.';
         MicrosoftDynamicsNavIntegrationTxt: Label 'MicrosoftDynamicsNavIntegration', Locked = true;
         AdminEmailPasswordWrongErr: Label 'Enter valid %1 administrator credentials.', Comment = '%1 = CRM product name';
-        AdminUserDoesNotHavePriviligesErr: Label 'The specified %1 administrator does not have sufficient privileges to import a %1 solution.', Comment = '%1 = CRM product name';
         InvalidUriErr: Label 'The value entered is not a valid URL.';
+        ConnectionFailureTxt: Label 'Connection failure.', Locked = true;
+        GeneralFailureErr: Label 'The import of the integration solution failed. This may be because the solution file is broken, or because the solution upgrade failed or because the specified administrator does not have sufficient privileges. If you have upgraded to Business Central 16, follow this document to upgrade your integration solution: https://docs.microsoft.com/en-us/dynamics365/business-central/admin-upgrade-sales-to-cds';
+        OrganizationServiceFailureErr: Label 'The import of the integration solution failed. This may be because the solution file is broken, or because the solution upgrade failed or because the specified administrator does not have sufficient privileges. If you have upgraded to Business Central 16, follow this document to upgrade your integration solution: https://docs.microsoft.com/en-us/dynamics365/business-central/admin-upgrade-sales-to-cds';
         MustUseHttpsErr: Label 'The application is set up to support secure connections (HTTPS) to %1 only. You cannot use HTTP.', Comment = '%1 = CRM product name';
         MustUseHttpOrHttpsErr: Label '%1 is not a valid URI scheme for %2 connections. You can only use HTTPS or HTTP as the scheme in the URL.', Comment = '%1 is a URI scheme, such as FTP, HTTP, chrome or file, %2 = CRM product name';
         ReplaceServerAddressQst: Label 'The URL is not valid. Do you want to replace it with the URL suggested below?\\Entered URL: "%1".\Suggested URL: "%2".', Comment = '%1 and %2 are URLs';
@@ -1374,14 +1376,26 @@ codeunit 5330 "CRM Integration Management"
     begin
         DotNetExceptionHandler.Collect;
 
-        if DotNetExceptionHandler.TryCastToType(GetDotNetType(FaultException)) then
+        if DotNetExceptionHandler.TryCastToType(GetDotNetType(FaultException)) then begin
+            SendTraceTag('0000CLW', CategoryTok, VERBOSITY::Normal, ConnectionFailureTxt, DataClassification::SystemMetadata);
             Error(AdminEmailPasswordWrongErr, CRMProductName.SHORT);
-        if DotNetExceptionHandler.TryCastToType(GetDotNetType(FileNotFoundException)) then
+        end;
+        if DotNetExceptionHandler.TryCastToType(GetDotNetType(FileNotFoundException)) then begin
+            SendTraceTag('0000CLX', CategoryTok, VERBOSITY::Normal, ConnectionFailureTxt, DataClassification::SystemMetadata);
             Error(CRMSolutionFileNotFoundErr);
-        if DotNetExceptionHandler.TryCastToType(CRMHelper.OrganizationServiceFaultExceptionType) then
-            Error(AdminUserDoesNotHavePriviligesErr, CRMProductName.SHORT);
-        if DotNetExceptionHandler.TryCastToType(CRMHelper.SystemNetWebException) then
+        end;
+        if DotNetExceptionHandler.TryCastToType(GetDotNetType(FaultException)) then begin
+            SendTraceTag('0000D7U', CategoryTok, VERBOSITY::Normal, ConnectionFailureTxt, DataClassification::SystemMetadata);
+            Error(GeneralFailureErr);
+        end;
+        if DotNetExceptionHandler.TryCastToType(CRMHelper.OrganizationServiceFaultExceptionType) then begin
+            SendTraceTag('0000CLY', CategoryTok, VERBOSITY::Normal, ConnectionFailureTxt, DataClassification::SystemMetadata);
+            Error(OrganizationServiceFailureErr)
+        end;
+        if DotNetExceptionHandler.TryCastToType(CRMHelper.SystemNetWebException) then begin
+            SendTraceTag('0000CLZ', CategoryTok, VERBOSITY::Normal, ConnectionFailureTxt, DataClassification::SystemMetadata);
             Error(CRMConnectionURLWrongErr, CRMProductName.SHORT);
+        end;
         if DotNetExceptionHandler.CastToType(ArgumentNullException, GetDotNetType(ArgumentNullException)) then
             case ArgumentNullException.ParamName of
                 'cred':

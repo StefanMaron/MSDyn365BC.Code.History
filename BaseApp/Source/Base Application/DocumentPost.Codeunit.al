@@ -556,6 +556,7 @@ codeunit 7000006 "Document-Post"
             SetRange("Bill Gr./Pmt. Order No.", PostedBillGroup."No.");
             SetRange(Type, Type::Receivable);
             SetRange(Status, Status::Open);
+            OnCloseBillGroupIfEmptyOnAfterPostedCarteraDocSetFilter(PostedCarteraDoc);
             if not Find('-') then begin
                 SetRange(Status);
                 Find('-');
@@ -1147,6 +1148,11 @@ codeunit 7000006 "Document-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePayableDoc(var CarteraDoc: Record "Cartera Doc."; GenJournalLine: Record "Gen. Journal Line"; var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCloseBillGroupIfEmptyOnAfterPostedCarteraDocSetFilter(var PostedCarteraDoc : Record "Posted Cartera Doc.")
     begin
     end;
 }

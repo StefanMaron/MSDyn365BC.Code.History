@@ -285,7 +285,7 @@ report 99001017 "Calculate Plan - Plan. Wksh."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterItemOnPreDataItem(Item: Record Item)
+    local procedure OnAfterItemOnPreDataItem(var Item: Record Item)
     begin
     end;
 

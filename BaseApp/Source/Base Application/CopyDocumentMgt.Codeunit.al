@@ -1,4 +1,4 @@
-codeunit 6620 "Copy Document Mgt."
+﻿codeunit 6620 "Copy Document Mgt."
 {
     Permissions = TableData "Cust. Ledger Entry" = rim;
 
@@ -1124,7 +1124,7 @@ codeunit 6620 "Copy Document Mgt."
         TempErrorMessage: Record "Error Message" temporary;
     begin
         if MissingExCostRevLink then
-            ErrorMessageMgt.LogWarning(0, SourceVariant, Text019, 0, '');
+            ErrorMessageMgt.LogWarning(0, Text019, SourceVariant, 0, '');
 
         if ErrorMessageMgt.GetErrors(TempErrorMessage) then begin
             TempErrorMessage.SetRange("Message Type", TempErrorMessage."Message Type"::Error);
@@ -1397,7 +1397,7 @@ codeunit 6620 "Copy Document Mgt."
             HandleAsmAttachedToSalesLine(ToSalesLine);
             if ToSalesLine.Reserve = ToSalesLine.Reserve::Always then
                 ToSalesLine.AutoReserve;
-            OnAfterInsertToSalesLine(ToSalesLine, FromSalesLine, RecalculateLines, DocLineNo);
+            OnAfterInsertToSalesLine(ToSalesLine, FromSalesLine, RecalculateLines, DocLineNo, FromSalesDocType);
         end else
             LinesNotCopied := LinesNotCopied + 1;
 
@@ -1481,9 +1481,11 @@ codeunit 6620 "Copy Document Mgt."
                 end;
                 ToSalesLine.Validate("Unit Cost (LCY)", FromSalesLine."Unit Cost (LCY)");
             end;
-            if VATPostingSetup.Get(ToSalesLine."VAT Bus. Posting Group", ToSalesLine."VAT Prod. Posting Group") then
+            if VATPostingSetup.Get(ToSalesLine."VAT Bus. Posting Group", ToSalesLine."VAT Prod. Posting Group") then begin
                 ToSalesLine."VAT Identifier" := VATPostingSetup."VAT Identifier";
-
+                ToSalesLine."VAT Clause Code" := VATPostingSetup."VAT Clause Code";
+            end;
+            
             ToSalesLine.UpdateWithWarehouseShip;
             if (ToSalesLine.Type = ToSalesLine.Type::Item) and (ToSalesLine."No." <> '') then begin
                 GetItem(ToSalesLine."No.");
@@ -4318,8 +4320,15 @@ codeunit 6620 "Copy Document Mgt."
         end;
     end;
 
-    local procedure IsCopyItemTrkg(var ItemLedgEntry: Record "Item Ledger Entry"; var CopyItemTrkg: Boolean; FillExactCostRevLink: Boolean): Boolean
+    local procedure IsCopyItemTrkg(var ItemLedgEntry: Record "Item Ledger Entry"; var CopyItemTrkg: Boolean; FillExactCostRevLink: Boolean) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsCopyItemTrkg(ItemLedgEntry, CopyItemTrkg, FillExactCostRevLink, Result, IsHandled);
+        If IsHandled then
+            exit(Result);
+
         with ItemLedgEntry do begin
             if IsEmpty then
                 exit(true);
@@ -7889,7 +7898,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertToSalesLine(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line"; RecalculateLines: Boolean; DocLineNo: Integer)
+    local procedure OnAfterInsertToSalesLine(var ToSalesLine: Record "Sales Line"; FromSalesLine: Record "Sales Line"; RecalculateLines: Boolean; DocLineNo: Integer; FromSalesDocType: Option)
     begin
     end;
 
@@ -7990,6 +7999,11 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCreditLimit(FromSalesHeader: Record "Sales Header"; ToSalesHeader: record "Sales Header"; var SkipTestCreditLimit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsCopyItemTrkg(var ItemLedgEntry: Record "Item Ledger Entry"; var CopyItemTrkg: Boolean; var FillExactCostRevLink: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -406,13 +406,18 @@ table 179 "Reversal Entry"
         GLRegDoc: Codeunit "G/L Reg.-Docs.";
         CarteraDoc: Record "Cartera Doc.";
         CarteraSetup: Record "Cartera Setup";
+        IsHandled: Boolean;
     begin
         OnBeforeCheckGLAcc(GLEntry);
 
         GLAcc.Get(GLEntry."G/L Account No.");
         CheckPostingDate(GLEntry."Posting Date", GLEntry.TableCaption, GLEntry."Entry No.");
-        GLAcc.TestField(Blocked, false);
-        GLEntry.TestField("Job No.", '');
+        IsHandled := false;
+        OnCheckGLAccOnBeforeTestFields(GLAcc, GLEntry, IsHandled);
+        if not IsHandled then begin
+            GLAcc.TestField(Blocked, false);
+            GLEntry.TestField("Job No.", '');
+        end;
 
         if CarteraSetup.ReadPermission then
             if (GLEntry."Bill No." <> '') or GLRegDoc.CheckPostedDocsInPostedBGPO(GLEntry) then
@@ -1572,6 +1577,11 @@ table 179 "Reversal Entry"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckCust(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckGLAccOnBeforeTestFields(GLAcc: Record "G/L Account"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
     begin
     end;
 }

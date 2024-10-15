@@ -31,7 +31,7 @@ codeunit 104103 "UPG SII Certificate"
         if MoveCertificate then begin
             IsolatedCertificate.Insert(true);
             TempBlob.FromRecord(SIISetup, SIISetup.FieldNo(Certificate));
-            IsolatedCertificate.Password := CopyStr(SIISetup.Password,1,MaxStrLen(IsolatedCertificate.Password));
+            CertificateManagement.SetCertPassword(SIISetup.Password);
             CertificateManagement.InitIsolatedCertificateFromBlob(IsolatedCertificate, TempBlob);
             IsolatedCertificate.Modify(true);
             SIISetup."Certificate Code" := IsolatedCertificate.Code;

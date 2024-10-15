@@ -852,7 +852,9 @@ table 21 "Cust. Ledger Entry"
 
     procedure HasPostedDocAttachment(): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesInvoiceHdr: Record "Sales Invoice Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         SalesCrMemoHdr: Record "Sales Cr.Memo Header";
         DocumentAttachment: Record "Document Attachment";
     begin
@@ -954,8 +956,13 @@ table 21 "Cust. Ledger Entry"
                   Rec.Description);
     end;
 
-    procedure SetStyle(): Text
+    procedure SetStyle() Style: Text
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeSetStyle(Style, IsHandled);
+        if IsHandled Then
+            exit(Style);
         if Open then begin
             if WorkDate > "Due Date" then
                 exit('Unfavorable')
@@ -1142,6 +1149,11 @@ table 21 "Cust. Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetAmountToApply(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetStyle(var Style: Text; var IsHandled: Boolean)
     begin
     end;
 

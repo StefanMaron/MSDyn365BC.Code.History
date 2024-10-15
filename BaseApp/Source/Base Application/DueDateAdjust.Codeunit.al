@@ -97,12 +97,14 @@ codeunit 10700 "Due Date-Adjust"
     begin
         PreviousFromDate := NonPaymentPeriod."From Date";
         NonPaymentPeriod."From Date" := DueDate;
-        if NonPaymentPeriod.Find('=<') and (DueDate <= NonPaymentPeriod."To Date") then
+        if NonPaymentPeriod.Find('=<') and (DueDate <= NonPaymentPeriod."To Date") then begin
             if ForwardCalculation then
                 DueDate := NonPaymentPeriod."To Date" + 1
             else
-                DueDate := NonPaymentPeriod."From Date" - 1
-        else
+                DueDate := NonPaymentPeriod."From Date" - 1;
+				
+			OnAdjustToNonPaymentPeriodOnAfterCalcDueDate();
+        end else
             if PreviousFromDate <> 0D then
                 NonPaymentPeriod."From Date" := PreviousFromDate;
         exit(DueDate)
@@ -161,6 +163,11 @@ codeunit 10700 "Due Date-Adjust"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPurchAdjustDueDate(var DueDate: Date; MinDate: Date; MaxDate: Date; VendorNo: Code[20]; var PaymentDay: Record "Payment Day")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustToNonPaymentPeriodOnAfterCalcDueDate()
     begin
     end;
 }

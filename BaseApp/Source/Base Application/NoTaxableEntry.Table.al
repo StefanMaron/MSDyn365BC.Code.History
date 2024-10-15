@@ -1,4 +1,4 @@
-table 10740 "No Taxable Entry"
+﻿table 10740 "No Taxable Entry"
 {
     Caption = 'No Taxable Entry';
     DrillDownPageID = "No Taxable Entries";
@@ -228,6 +228,8 @@ table 10740 "No Taxable Entry"
         "No. Series" := GenJournalLine."Posting No. Series";
         "EU 3-Party Trade" := GenJournalLine."EU 3-Party Trade";
         "VAT Registration No." := GenJournalLine."VAT Registration No.";
+
+        OnAfterInitFromGenJnlLine(Rec, GenJournalLine);
     end;
 
     [Scope('OnPrem')]
@@ -248,6 +250,8 @@ table 10740 "No Taxable Entry"
         "No. Series" := ServiceHeader."Posting No. Series";
         "EU 3-Party Trade" := ServiceHeader."EU 3-Party Trade";
         "VAT Registration No." := ServiceHeader."VAT Registration No.";
+
+        OnAfterInitFromServiceDocument(Rec, ServiceHeader);
     end;
 
     [Scope('OnPrem')]
@@ -266,6 +270,8 @@ table 10740 "No Taxable Entry"
         "EU 3-Party Trade" := EU3PartyTrade;
         "VAT Registration No." := VATRegistrationNo;
         "Transaction No." := VendorLedgerEntry."Transaction No.";
+
+        OnAfterInitFromVendorEntry(Rec, VendorLedgerEntry);
     end;
 
     [Scope('OnPrem')]
@@ -284,6 +290,8 @@ table 10740 "No Taxable Entry"
         "EU 3-Party Trade" := EU3PartyTrade;
         "VAT Registration No." := VATRegistrationNo;
         "Transaction No." := CustLedgerEntry."Transaction No.";
+
+        OnAfterInitFromCustomerEntry(Rec, CustLedgerEntry);
     end;
 
     [Scope('OnPrem')]
@@ -354,6 +362,26 @@ table 10740 "No Taxable Entry"
             exit(0);
 
         exit(NoTaxableEntry."Entry No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromGenJnlLine(var NoTaxableEntry: Record "No Taxable Entry"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromCustomerEntry(var NoTaxableEntry: Record "No Taxable Entry"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromServiceDocument(var NoTaxableEntry: Record "No Taxable Entry"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromVendorEntry(var NoTaxableEntry: Record "No Taxable Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
     end;
 }
 

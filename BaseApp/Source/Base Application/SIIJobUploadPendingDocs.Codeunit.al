@@ -336,22 +336,22 @@ codeunit 10753 "SII Job Upload Pending Docs."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSIIRequestForCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateSIIRequestForCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSIIRequestForDtldCustLedgEntry(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateSIIRequestForDtldCustLedgEntry(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSIIRequestForVendLedgEntry(VendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateSIIRequestForVendLedgEntry(var VendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSIIRequestForDtldVendLedgEntry(DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateSIIRequestForDtldVendLedgEntry(var DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 

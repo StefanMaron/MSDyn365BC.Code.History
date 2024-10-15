@@ -29,6 +29,7 @@ codeunit 147523 "SII Documents With EU Service"
         XPathSalesNoTaxTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseTipoOperacion/%1/sii:NoSujeta/sii:ImportePorArticulos7_14_Otros', Locked = true;
         IsInitialized: Boolean;
         UploadType: Option Regular,Intracommunity,RetryAccepted;
+        XPathSalesExentaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseTipoOperacion/%1/sii:Sujeta/sii:Exenta/sii:DetalleExenta/';
 
     [Test]
     [Scope('OnPrem')]
@@ -1134,6 +1135,51 @@ codeunit 147523 "SII Documents With EU Service"
         // [THEN] XML file has sii:CuotaRepercutida node for VAT Amount = -2.61
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesBaseImponibleTok, '/sii:CuotaRepercutida', SIIXMLCreator.FormatNumber(-2.61));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCrMemoNoTaxableEUServiceAndExemptionXml()
+    var
+        Customer: Record Customer;
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Exemption] [Credit Memo]
+        // [SCENARIO 363304] XML has correct structure with parent node "PrestacionServicios" for the Sales Credit Memo with "EU service" and "VAT Exemption"
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Cr Memo wit one line
+        LibrarySII.CreateForeignCustWithVATSetup(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+
+        // [GIVEN] Sales Line where "VAT Calculation Type" = "Normal VAT", "EU Service" is enabled, "VAT Clause" is specified
+        VATPostingSetup.Get(
+          SalesHeader."VAT Bus. Posting Group",
+          LibrarySII.CreateVATPostingSetupWithSIIExemptVATClause(Customer."VAT Bus. Posting Group"));
+        VATPostingSetup.Validate("EU Service", true);
+        VATPostingSetup.Modify(true);
+
+        ItemNo :=
+          LibrarySII.CreateItemNoWithSpecificVATSetup(VATPostingSetup."VAT Prod. Posting Group");
+        LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader, ItemNo);
+
+        CustLedgerEntry.SetRange("Sell-to Customer No.", Customer."No.");
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", LibrarySales.PostSalesDocument(SalesHeader, false, false));
+
+        // [WHEN] Create xml for Posted Sales Credit Memo
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file has "sii:PrestacionServicios/sii:Sujeta/sii:Exenta/sii:DetalleExenta/sii:BaseImponible" xpath
+        CustLedgerEntry.CalcFields(Amount);
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, StrSubstNo(XPathSalesExentaTok, 'sii:PrestacionServicios'),
+          'sii:BaseImponible', SIIXMLCreator.FormatNumber(CustLedgerEntry.Amount));
     end;
 
     local procedure Initialize()

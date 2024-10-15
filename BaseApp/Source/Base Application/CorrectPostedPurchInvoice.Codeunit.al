@@ -515,7 +515,13 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     var
         TempItemLedgEntry: Record "Item Ledger Entry" temporary;
         TempItemApplicationEntry: Record "Item Application Entry" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUnAppyCostApplication(InvNo, IsHandled);
+        if IsHandled then
+            exit(false);
+
         FindItemLedgEntries(TempItemLedgEntry, InvNo);
         if FindAppliedInbndEntries(TempItemApplicationEntry, TempItemLedgEntry) then begin
             repeat
@@ -748,6 +754,11 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchaseHeaderInsert(var PurchaseHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUnAppyCostApplication(InvNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

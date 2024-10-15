@@ -198,7 +198,7 @@ codeunit 8618 "Config. Excel Exchange"
         // Tag used for analytics - DO NOT MODIFY
         SendTraceTag('00009QB', RapidStartTxt, Verbosity::Normal, StrSubstNo(ExcelExportFinishMsg, DurationAsInt), DataClassification::SystemMetadata);
 
-
+        OnBeforeBLOBExport(TempBlob);
         if not FileOnServer then
             FileName := FileMgt.BLOBExport(TempBlob, FileName, not HideDialog)
         else
@@ -773,6 +773,11 @@ codeunit 8618 "Config. Excel Exchange"
         if IsHandled then
             exit(true);
         exit(FileMgt.BLOBImportWithFilter(TempBlob, ImportFromExcelMsg, '', FileExtensionFilterTok, ExcelFileExtensionTok) <> '');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBLOBExport(var TempBlob: Codeunit "Temp Blob")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

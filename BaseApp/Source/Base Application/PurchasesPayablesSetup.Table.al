@@ -283,6 +283,10 @@ table 312 "Purchases & Payables Setup"
                     UpdateNameInLedgerEntries.NotifyAboutBlankNamesInLedgerEntries(RecordId);
             end;
         }
+        field(59; "Copy Inv. No. To Pmt. Ref."; Boolean)
+        {
+            Caption = 'Copy Invoice No. To Payment Reference';
+        }
         field(170; "Insert Std. Purch. Lines Mode"; Option)
         {
             Caption = 'Insert Std. Purch. Lines Mode';

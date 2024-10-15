@@ -2445,7 +2445,7 @@
         end;
     end;
 
-    local procedure UpdatePaymentService()
+    protected procedure UpdatePaymentService()
     var
         PaymentServiceSetup: Record "Payment Service Setup";
     begin

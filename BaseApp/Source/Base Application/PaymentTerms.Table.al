@@ -1,4 +1,4 @@
-table 3 "Payment Terms"
+﻿table 3 "Payment Terms"
 {
     Caption = 'Payment Terms';
     DataCaptionFields = "Code", Description;
@@ -149,6 +149,7 @@ table 3 "Payment Terms"
     begin
         if PaymentTermsTranslation.Get(PaymentTerms.Code, Language) then
             PaymentTerms.Description := PaymentTermsTranslation.Description;
+        OnAfterTranslateDescription(PaymentTerms, Language);
     end;
 
     procedure CalculateMaxDueDate(BaseDate: Date): Date
@@ -184,6 +185,11 @@ table 3 "Payment Terms"
         PaymentTerms.SetFilter("Discount %", '<>%1', 0);
 
         exit(not PaymentTerms.IsEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTranslateDescription(var PaymentTerms: Record "Payment Terms"; Language: Code[10])
+    begin
     end;
 }
 
