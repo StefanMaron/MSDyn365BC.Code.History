@@ -191,6 +191,10 @@ table 5335 "Integration Table Mapping"
         {
             Caption = 'Create New in Case of No Match';
         }
+        field(33; "Disable Event Job Resch."; Boolean)
+        {
+            Caption = 'Disable Event-driven Synch. Job Rescheduling';
+        }
         field(100; "Full Sync is Running"; Boolean)
         {
             Caption = 'Full Sync is Running';

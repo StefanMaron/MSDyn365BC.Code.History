@@ -498,12 +498,12 @@ codeunit 9178 "Application Area Mgmt."
             'US':
                 exit(IsApplicationAreaEnabled(ApplicationAreaSetup.FieldName("Basic US")));
             else begin
-                    IsHandled := false;
-                    OnIsBasicCountryEnabled(CountryCode, IsEnabled, IsHandled);
-                    if IsHandled then
-                        exit(IsEnabled);
-                    Error(AppAreaNotSupportedErr, CountryCode);
-                end;
+                IsHandled := false;
+                OnIsBasicCountryEnabled(CountryCode, IsEnabled, IsHandled);
+                if IsHandled then
+                    exit(IsEnabled);
+                Error(AppAreaNotSupportedErr, CountryCode);
+            end;
         end;
     end;
 
@@ -736,7 +736,7 @@ codeunit 9178 "Application Area Mgmt."
             Error(ValuesNotAllowedErr);
 
         if not GetApplicationAreaSetupRecFromCompany(ApplicationAreaSetup, CompanyName) then begin
-            ApplicationAreaSetup."Company Name" := CopyStr(CompanyName, 1, StrLen(CompanyName));
+            ApplicationAreaSetup."Company Name" := CopyStr(CompanyName, 1, MaxStrLen(ApplicationAreaSetup."Company Name"));
             ApplicationAreaSetup.Insert();
         end;
 
@@ -748,10 +748,10 @@ codeunit 9178 "Application Area Mgmt."
             ExperienceTierSetup.Premium:
                 GetPremiumExperienceAppAreas(TempApplicationAreaSetup);
             else begin
-                    OnSetExperienceTier(ExperienceTierSetup, TempApplicationAreaSetup, ApplicationAreasSet);
-                    if not ApplicationAreasSet then
-                        exit;
-                end;
+                OnSetExperienceTier(ExperienceTierSetup, TempApplicationAreaSetup, ApplicationAreasSet);
+                if not ApplicationAreasSet then
+                    exit;
+            end;
         end;
 
         if not ValidateApplicationAreasSet(ExperienceTierSetup, TempApplicationAreaSetup) then begin

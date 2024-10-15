@@ -547,7 +547,7 @@
   </Item>
   <Item ItemId=";Codeunit 2918154554 - NamedType 3358936456" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[description]]></Val>
+      <Val><![CDATA[desc]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -556,7 +556,7 @@
   </Item>
   <Item ItemId=";Codeunit 2918154554 - NamedType 45028330" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[journalID]]></Val>
+      <Val><![CDATA[jrnID]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -581,15 +581,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Tax Authority - NamedType ReverseEntriesQst)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2918154554 - NamedType 3617301402" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[startDate]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Tax Authority - NamedType StartDateCap)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2918154554 - NamedType 13901620" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The journal lines have successfully been created.]]></Val>
@@ -610,7 +601,7 @@
   </Item>
   <Item ItemId=";Codeunit 2918154554 - NamedType 3569946914" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[taxRegistrationNr]]></Val>
+      <Val><![CDATA[taxRegIdent]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1272,24 +1263,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Audit - NamedType TestFieldErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4170492469 - NamedType 3356958339" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[NL#########B####]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Audit - NamedType VATRegNoFormatTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4170492469 - NamedType 634832222" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[NL123456789B5544]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Audit - NamedType VATRegNoTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 974487334 - NamedType 1496385397" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

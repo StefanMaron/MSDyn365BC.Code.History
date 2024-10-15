@@ -56,6 +56,11 @@ report 6665 "Batch Post Purch. Ret. Orders"
                         ApplicationArea = PurchReturnOrder;
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date that you want to use as the document date or the posting date when you post if you select the Replace Document Date check box or the Replace Posting Date check box.';
+
+                        trigger OnValidate()
+                        begin
+                            UpdateVATDate();
+                        end;
                     }
                     field(VATDate; VATDateReq)
                     {
@@ -75,6 +80,10 @@ report 6665 "Batch Post Purch. Ret. Orders"
                         begin
                             if ReplacePostingDate then
                                 Message(Text003);
+                            
+                            if VATReportingDateMgt.IsVATDateUsageSetToPostingDate() then
+                                ReplaceVATDateReq := ReplacePostingDate;
+                            UpdateVATDate();
                         end;
                     }
                     field(ReplaceDocumentDate; ReplaceDocumentDate)
@@ -82,6 +91,13 @@ report 6665 "Batch Post Purch. Ret. Orders"
                         ApplicationArea = PurchReturnOrder;
                         Caption = 'Replace Document Date';
                         ToolTip = 'Specifies if you want to replace the document date of the orders with the date in the Posting Date field.';
+
+                        trigger OnValidate()
+                        begin
+                            if VATReportingDateMgt.IsVATDateUsageSetToDocumentDate() then
+                                ReplaceVATDateReq := ReplaceDocumentDate;
+                            UpdateVATDate();
+                        end;
                     }
                     field(ReplaceVATDate; ReplaceVATDateReq)
                     {
@@ -154,6 +170,7 @@ report 6665 "Batch Post Purch. Ret. Orders"
     }
 
     var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
 
     protected var
@@ -167,6 +184,12 @@ report 6665 "Batch Post Purch. Ret. Orders"
         [InDataSet]
         PrintDocVisible: Boolean;
         VATDateEnabled: Boolean;
+
+    local procedure UpdateVATDate()
+    begin
+        if ReplaceVATDateReq then
+            VATDateReq := PostingDateReq;
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnOpenPage(var ShipReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean)
