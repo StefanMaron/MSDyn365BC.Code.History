@@ -214,26 +214,22 @@ codeunit 144562 "ERM Payment Slip"
         PaymentStatus: Record "Payment Status";
     begin
         LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, PaymentClassCode);
-        with PaymentStatus do begin
-            Validate(RIB, true);
-            Validate(Debit, true);
-            Validate(Credit, true);
-            Validate("Bank Account", true);
-            Validate("Payment in Progress", NewPaymentInProgress);
-            Modify(true);
-            exit(Line);
-        end;
+        PaymentStatus.Validate(RIB, true);
+        PaymentStatus.Validate(Debit, true);
+        PaymentStatus.Validate(Credit, true);
+        PaymentStatus.Validate("Bank Account", true);
+        PaymentStatus.Validate("Payment in Progress", NewPaymentInProgress);
+        PaymentStatus.Modify(true);
+        exit(PaymentStatus.Line);
     end;
 
     local procedure CreatePaymentStep(var PaymentStep: Record "Payment Step"; PaymentClassCode: Text[30]; PreviousStatus: Integer; NextStatus: Integer)
     begin
         LibraryFRLocalization.CreatePaymentStep(PaymentStep, PaymentClassCode);
-        with PaymentStep do begin
-            Validate("Previous Status", PreviousStatus);
-            Validate("Next Status", NextStatus);
-            Validate("Action Type", "Action Type"::None);
-            Modify(true);
-        end;
+        PaymentStep.Validate("Previous Status", PreviousStatus);
+        PaymentStep.Validate("Next Status", NextStatus);
+        PaymentStep.Validate("Action Type", PaymentStep."Action Type"::None);
+        PaymentStep.Modify(true);
     end;
 
     local procedure ExportPaymentClass(var PaymentClass: Record "Payment Class"): Text
@@ -312,12 +308,10 @@ codeunit 144562 "ERM Payment Slip"
     var
         PaymentLine: Record "Payment Line";
     begin
-        with PaymentLine do begin
-            SetRange("No.", PaymentHeaderNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedStatusNo, "Status No.", FieldCaption("Status No."));
-            Assert.AreEqual(ExpectedPaymentInProgress, "Payment in Progress", FieldCaption("Payment in Progress"));
-        end;
+        PaymentLine.SetRange("No.", PaymentHeaderNo);
+        PaymentLine.FindFirst();
+        Assert.AreEqual(ExpectedStatusNo, PaymentLine."Status No.", PaymentLine.FieldCaption("Status No."));
+        Assert.AreEqual(ExpectedPaymentInProgress, PaymentLine."Payment in Progress", PaymentLine.FieldCaption("Payment in Progress"));
     end;
 
     [ConfirmHandler]

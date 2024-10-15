@@ -259,7 +259,6 @@ report 722 "Phys. Inventory List"
 
     var
         ItemJournalTemplate: Record "Item Journal Template";
-        TempReservationEntryBuffer: Record "Reservation Entry" temporary;
         ItemTrackingManagement: Codeunit "Item Tracking Management";
         Note: Text[1];
         ShowNote: Boolean;
@@ -280,6 +279,7 @@ report 722 "Phys. Inventory List"
 
     protected var
         ItemJournalLine: Record "Item Journal Line";
+        TempReservationEntryBuffer: Record "Reservation Entry" temporary;
         ItemJnlLineFilter: Text;
         ItemJnlBatchFilter: Text;
         ShowQtyCalculated: Boolean;

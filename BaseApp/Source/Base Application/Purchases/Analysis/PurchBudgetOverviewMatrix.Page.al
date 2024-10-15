@@ -382,7 +382,11 @@ page 9219 "Purch. Budget Overview Matrix"
         PeriodType: Enum "Analysis Period Type";
         InternalDateFilter: Text;
         PeriodInitialized: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'You may only edit column 1 to %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         MATRIX_CurrentNoOfMatrixColumn: Integer;
         MATRIX_CellData: array[32] of Decimal;
         MATRIX_CaptionSet: array[32] of Text[80];

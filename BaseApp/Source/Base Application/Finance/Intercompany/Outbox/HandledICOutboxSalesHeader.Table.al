@@ -132,6 +132,11 @@ table 430 "Handled IC Outbox Sales Header"
             OptionCaption = 'Rejected by Current Company,Created by Current Company';
             OptionMembers = "Rejected by Current Company","Created by Current Company";
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(5790; "Requested Delivery Date"; Date)
         {
             Caption = 'Requested Delivery Date';

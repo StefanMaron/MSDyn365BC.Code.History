@@ -154,7 +154,9 @@ report 5939 "Service Item - Resource Usage"
         OrderProfitPct: Decimal;
         ShowDetail: Boolean;
         ServItemFilters: Text;
+#pragma warning disable AA0074
         Text0002: Label 'Total for';
+#pragma warning restore AA0074
         TotalForReportLbl: Label 'Total for report';
         ServItemResourceUsageCaptionLbl: Label 'Service Item - Resource Usage';
         CurrReportPageNoCaptionLbl: Label 'Page';

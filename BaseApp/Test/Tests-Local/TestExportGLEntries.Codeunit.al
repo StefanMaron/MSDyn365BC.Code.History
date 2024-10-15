@@ -2719,21 +2719,19 @@ codeunit 144563 "Test Export G/L Entries"
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         LineAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
 
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Payment, "Account Type"::Customer, Customer."No.", "Gen. Journal Account Type"::"G/L Account", '', -LineAmount);
-            Validate("Posting Date", PostingDate);
-            Modify(true);
-            DocumentNo := "Document No.";
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, Customer."No.", "Gen. Journal Account Type"::"G/L Account", '', -LineAmount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify(true);
+        DocumentNo := GenJournalLine."Document No.";
 
-            LibraryJournals.CreateGenJournalLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Payment, "Account Type"::Vendor, Vendor."No.", "Gen. Journal Account Type"::"G/L Account", '', LineAmount);
-            Validate("Document No.", DocumentNo);
-            Validate("Posting Date", PostingDate);
-            Modify(true);
-        end;
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", "Gen. Journal Account Type"::"G/L Account", '', LineAmount);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify(true);
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -2749,22 +2747,20 @@ codeunit 144563 "Test Export G/L Entries"
         LibrarySales.CreateCustomer(Customer[2]);
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         LineAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::" ", "Account Type"::Customer, Customer[1]."No.", "Gen. Journal Account Type"::"G/L Account", '', 0);
-            Validate("Posting Date", PostingDate);
-            Validate("Debit Amount", LineAmount);
-            Modify(true);
-            DocumentNo := "Document No.";
-            LibraryJournals.CreateGenJournalLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::" ", "Account Type"::Customer, Customer[2]."No.", "Gen. Journal Account Type"::"G/L Account", '', 0);
-            Validate("Document No.", DocumentNo);
-            Validate("Posting Date", PostingDate);
-            Validate("Credit Amount", LineAmount);
-            Modify(true);
-        end;
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, Customer[1]."No.", "Gen. Journal Account Type"::"G/L Account", '', 0);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Debit Amount", LineAmount);
+        GenJournalLine.Modify(true);
+        DocumentNo := GenJournalLine."Document No.";
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, Customer[2]."No.", "Gen. Journal Account Type"::"G/L Account", '', 0);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Credit Amount", LineAmount);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -2779,22 +2775,20 @@ codeunit 144563 "Test Export G/L Entries"
         LibraryPurchase.CreateVendor(Vendor[2]);
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         LineAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::" ", "Account Type"::Vendor, Vendor[1]."No.", "Gen. Journal Account Type"::"G/L Account", '', 0);
-            Validate("Posting Date", PostingDate);
-            Validate("Debit Amount", LineAmount);
-            Modify(true);
-            DocumentNo := "Document No.";
-            LibraryJournals.CreateGenJournalLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::" ", "Account Type"::Vendor, Vendor[2]."No.", "Gen. Journal Account Type"::"G/L Account", '', 0);
-            Validate("Document No.", DocumentNo);
-            Validate("Posting Date", PostingDate);
-            Validate("Credit Amount", LineAmount);
-            Modify(true);
-        end;
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Vendor, Vendor[1]."No.", "Gen. Journal Account Type"::"G/L Account", '', 0);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Debit Amount", LineAmount);
+        GenJournalLine.Modify(true);
+        DocumentNo := GenJournalLine."Document No.";
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Vendor, Vendor[2]."No.", "Gen. Journal Account Type"::"G/L Account", '', 0);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Credit Amount", LineAmount);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -3142,38 +3136,32 @@ codeunit 144563 "Test Export G/L Entries"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst();
-            CalcFields(Amount);
-            exit(Amount);
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields(Amount);
+        exit(CustLedgerEntry.Amount);
     end;
 
     local procedure GetVendInvoiceAmount(VendorNo: Code[20]): Decimal
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst();
-            CalcFields(Amount);
-            exit(Amount);
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields(Amount);
+        exit(VendorLedgerEntry.Amount);
     end;
 
     local procedure GetBankAccInvoiceAmount(BankAccountNo: Code[20]): Decimal
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
-        with BankAccountLedgerEntry do begin
-            SetRange("Bank Account No.", BankAccountNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst();
-            exit(Amount);
-        end;
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetRange("Document Type", BankAccountLedgerEntry."Document Type"::Invoice);
+        BankAccountLedgerEntry.FindFirst();
+        exit(BankAccountLedgerEntry.Amount);
     end;
 
     local procedure GetPostingGLAccount(GLEntry: Record "G/L Entry"): Code[20]
@@ -3574,21 +3562,19 @@ codeunit 144563 "Test Export G/L Entries"
 
     local procedure VerifyGLEntryFieldValues(FieldsValueArray: array[18] of Text[50]; GLEntry: Record "G/L Entry"; GLRegisterNo: Integer; GLRegisterCreationDate: Date)
     begin
-        with GLEntry do begin
-            CalcFields("G/L Account Name");
-            Assert.AreEqual("Source Code", FieldsValueArray[1], GetErrorTextForAssertStmnt(1));
-            Assert.AreEqual(GetSourceCodeDesc("Source Code"), FieldsValueArray[2], GetErrorTextForAssertStmnt(2));
-            Assert.AreEqual(Format(GLRegisterNo), FieldsValueArray[3], GetErrorTextForAssertStmnt(3));
-            Assert.AreEqual(GetFormattedDate("Posting Date"), FieldsValueArray[4], GetErrorTextForAssertStmnt(4));
-            Assert.AreEqual("G/L Account No.", FieldsValueArray[5], GetErrorTextForAssertStmnt(5));
-            Assert.AreEqual("G/L Account Name", FieldsValueArray[6], GetErrorTextForAssertStmnt(6));
-            Assert.AreEqual("Document No.", FieldsValueArray[9], GetErrorTextForAssertStmnt(9));
-            Assert.AreEqual(GetFormattedDate("Document Date"), FieldsValueArray[10], GetErrorTextForAssertStmnt(10));
-            Assert.AreEqual(Description, FieldsValueArray[11], GetErrorTextForAssertStmnt(11));
-            Assert.AreEqual(FormatAmount("Debit Amount"), FieldsValueArray[12], GetErrorTextForAssertStmnt(12));
-            Assert.AreEqual(FormatAmount("Credit Amount"), FieldsValueArray[13], GetErrorTextForAssertStmnt(13));
-            Assert.AreEqual(GetFormattedDate(GLRegisterCreationDate), FieldsValueArray[16], GetErrorTextForAssertStmnt(16));
-        end;
+        GLEntry.CalcFields("G/L Account Name");
+        Assert.AreEqual(GLEntry."Source Code", FieldsValueArray[1], GetErrorTextForAssertStmnt(1));
+        Assert.AreEqual(GetSourceCodeDesc(GLEntry."Source Code"), FieldsValueArray[2], GetErrorTextForAssertStmnt(2));
+        Assert.AreEqual(Format(GLRegisterNo), FieldsValueArray[3], GetErrorTextForAssertStmnt(3));
+        Assert.AreEqual(GetFormattedDate(GLEntry."Posting Date"), FieldsValueArray[4], GetErrorTextForAssertStmnt(4));
+        Assert.AreEqual(GLEntry."G/L Account No.", FieldsValueArray[5], GetErrorTextForAssertStmnt(5));
+        Assert.AreEqual(GLEntry."G/L Account Name", FieldsValueArray[6], GetErrorTextForAssertStmnt(6));
+        Assert.AreEqual(GLEntry."Document No.", FieldsValueArray[9], GetErrorTextForAssertStmnt(9));
+        Assert.AreEqual(GetFormattedDate(GLEntry."Document Date"), FieldsValueArray[10], GetErrorTextForAssertStmnt(10));
+        Assert.AreEqual(GLEntry.Description, FieldsValueArray[11], GetErrorTextForAssertStmnt(11));
+        Assert.AreEqual(FormatAmount(GLEntry."Debit Amount"), FieldsValueArray[12], GetErrorTextForAssertStmnt(12));
+        Assert.AreEqual(FormatAmount(GLEntry."Credit Amount"), FieldsValueArray[13], GetErrorTextForAssertStmnt(13));
+        Assert.AreEqual(GetFormattedDate(GLRegisterCreationDate), FieldsValueArray[16], GetErrorTextForAssertStmnt(16));
     end;
 
     local procedure VerifyExportGLEntriesReport2DecimalSymbols(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AccountName: Text[100]; Sign: Integer)

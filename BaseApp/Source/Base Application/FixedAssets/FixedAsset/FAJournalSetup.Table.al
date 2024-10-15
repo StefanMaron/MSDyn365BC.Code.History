@@ -103,7 +103,11 @@ table 5605 "FA Journal Setup"
     var
         DeprBook: Record "Depreciation Book";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You must specify %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GenJnlName(var DeprBook: Record "Depreciation Book"; var GenJnlLine: Record "Gen. Journal Line"; var NextLineNo: Integer)
     var

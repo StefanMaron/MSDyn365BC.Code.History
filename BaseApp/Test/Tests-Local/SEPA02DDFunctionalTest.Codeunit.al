@@ -505,17 +505,15 @@ codeunit 144077 "SEPA.02 DD Functional Test"
     local procedure CreateSEPABankAccount(var BankAccount: Record "Bank Account")
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            Validate(Balance, LibraryRandom.RandIntInRange(100000, 1000000));
-            Validate("Bank Account No.", LibraryUtility.GenerateRandomCode(FieldNo("Bank Account No."), DATABASE::"Bank Account"));
-            Validate("Country/Region Code", 'FR');
-            Validate(IBAN, LibraryUtility.GenerateRandomCode(FieldNo(IBAN), DATABASE::"Bank Account"));
-            Validate("SEPA Direct Debit Exp. Format", FindSEPADDPaymentFormat());
-            Validate("Direct Debit Msg. Nos.", LibraryERM.CreateNoSeriesCode());
-            Validate("SWIFT Code", LibraryUtility.GenerateRandomCode(FieldNo("SWIFT Code"), DATABASE::"Bank Account"));
-            Validate("Creditor No.", LibraryUtility.GenerateRandomCode(FieldNo("Creditor No."), DATABASE::"Bank Account"));
-            Modify(true);
-        end;
+        BankAccount.Validate(Balance, LibraryRandom.RandIntInRange(100000, 1000000));
+        BankAccount.Validate("Bank Account No.", LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Bank Account No."), DATABASE::"Bank Account"));
+        BankAccount.Validate("Country/Region Code", 'FR');
+        BankAccount.Validate(IBAN, LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(IBAN), DATABASE::"Bank Account"));
+        BankAccount.Validate("SEPA Direct Debit Exp. Format", FindSEPADDPaymentFormat());
+        BankAccount.Validate("Direct Debit Msg. Nos.", LibraryERM.CreateNoSeriesCode());
+        BankAccount.Validate("SWIFT Code", LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("SWIFT Code"), DATABASE::"Bank Account"));
+        BankAccount.Validate("Creditor No.", LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Creditor No."), DATABASE::"Bank Account"));
+        BankAccount.Modify(true);
     end;
 
     [Test]
@@ -582,21 +580,19 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         PaymentStep: Record "Payment Step";
     begin
         LibraryFRLocalization.CreatePaymentClass(PaymentClass);
-        with PaymentClass do begin
-            Validate(Name, '');
-            Validate("Header No. Series", LibraryUtility.GetGlobalNoSeriesCode());
-            Validate(Enable, true);
-            Validate(Suggestions, Suggestions::Customer);
-            Validate("SEPA Transfer Type", "SEPA Transfer Type"::"Direct Debit");
-            Modify(true);
-            LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, Code);
-            LibraryFRLocalization.CreatePaymentStep(PaymentStep, Code);
-            PaymentStep.Name := 'Export File';
-            PaymentStep."Action Type" := PaymentStep."Action Type"::File;
-            PaymentStep."Export Type" := PaymentStep."Export Type"::XMLport;
-            PaymentStep."Export No." := XMLPORT::"SEPA DD pain.008.001.02";
-            PaymentStep.Modify();
-        end;
+        PaymentClass.Validate(Name, '');
+        PaymentClass.Validate("Header No. Series", LibraryUtility.GetGlobalNoSeriesCode());
+        PaymentClass.Validate(Enable, true);
+        PaymentClass.Validate(Suggestions, PaymentClass.Suggestions::Customer);
+        PaymentClass.Validate("SEPA Transfer Type", PaymentClass."SEPA Transfer Type"::"Direct Debit");
+        PaymentClass.Modify(true);
+        LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, PaymentClass.Code);
+        LibraryFRLocalization.CreatePaymentStep(PaymentStep, PaymentClass.Code);
+        PaymentStep.Name := 'Export File';
+        PaymentStep."Action Type" := PaymentStep."Action Type"::File;
+        PaymentStep."Export Type" := PaymentStep."Export Type"::XMLport;
+        PaymentStep."Export No." := XMLPORT::"SEPA DD pain.008.001.02";
+        PaymentStep.Modify();
         exit(PaymentClass.Code);
     end;
 
@@ -608,13 +604,11 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         PaymentClassCode := CreatePaymentClass();
         LibraryVariableStorage.Enqueue(PaymentClassCode);
         LibraryFRLocalization.CreatePaymentHeader(PaymentHeader);
-        with PaymentHeader do begin
-            Validate("Account Type", "Account Type"::"Bank Account");
-            CreateSEPABankAccount(BankAccount);
-            Validate("Account No.", BankAccount."No.");
-            Validate("Partner Type", SEPAPartnerType);
-            Modify();
-        end;
+        PaymentHeader.Validate("Account Type", PaymentHeader."Account Type"::"Bank Account");
+        CreateSEPABankAccount(BankAccount);
+        PaymentHeader.Validate("Account No.", BankAccount."No.");
+        PaymentHeader.Validate("Partner Type", SEPAPartnerType);
+        PaymentHeader.Modify();
     end;
 
     local procedure CreatePaymentSlip(var PaymentHeader: Record "Payment Header"; var PaymentLine: Record "Payment Line"; CustomerNo: Code[20]; MandateID: Code[35]; SEPAPartnerType: Option)
@@ -622,13 +616,11 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         CreatePaymentHeader(PaymentHeader, SEPAPartnerType);
         LibraryFRLocalization.CreatePaymentLine(PaymentLine, PaymentHeader."No.");
 
-        with PaymentLine do begin
-            Validate("Account Type", "Account Type"::Customer);
-            Validate("Account No.", CustomerNo);
-            Validate("Credit Amount", LibraryRandom.RandDec(100, 2));
-            Validate("Direct Debit Mandate ID", MandateID);
-            Modify(true);
-        end;
+        PaymentLine.Validate("Account Type", PaymentLine."Account Type"::Customer);
+        PaymentLine.Validate("Account No.", CustomerNo);
+        PaymentLine.Validate("Credit Amount", LibraryRandom.RandDec(100, 2));
+        PaymentLine.Validate("Direct Debit Mandate ID", MandateID);
+        PaymentLine.Modify(true);
     end;
 
     local procedure CreateCustomerWithInvoice(var Customer: Record Customer; var CustLedgerEntry: Record "Cust. Ledger Entry"; SEPAPartnerType: Option)
@@ -693,27 +685,23 @@ codeunit 144077 "SEPA.02 DD Functional Test"
 
     local procedure CreateCustomerAddress(var Customer: Record Customer)
     begin
-        with Customer do begin
-            Validate(Address, LibraryUtility.GenerateRandomCode(FieldNo(Address), DATABASE::Customer));
-            Validate("Country/Region Code", 'FR');
-            Validate(City, LibraryUtility.GenerateRandomCode(FieldNo(City), DATABASE::Customer));
-            Validate("Post Code", LibraryUtility.GenerateRandomCode(FieldNo("Post Code"), DATABASE::Customer));
-            Modify(true);
-        end;
+        Customer.Validate(Address, LibraryUtility.GenerateRandomCode(Customer.FieldNo(Address), DATABASE::Customer));
+        Customer.Validate("Country/Region Code", 'FR');
+        Customer.Validate(City, LibraryUtility.GenerateRandomCode(Customer.FieldNo(City), DATABASE::Customer));
+        Customer.Validate("Post Code", LibraryUtility.GenerateRandomCode(Customer.FieldNo("Post Code"), DATABASE::Customer));
+        Customer.Modify(true);
     end;
 
     local procedure CreateDirectDebitMandate(var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate"; CustomerNo: Code[20]; CustomerBankAccountCode: Code[20])
     begin
-        with SEPADirectDebitMandate do begin
-            Init();
-            "Customer No." := CustomerNo;
-            "Customer Bank Account Code" := CustomerBankAccountCode;
-            "Valid From" := WorkDate();
-            "Valid To" := WorkDate() + LibraryRandom.RandIntInRange(300, 600);
-            "Date of Signature" := WorkDate();
-            "Expected Number of Debits" := LibraryRandom.RandInt(10);
-            Insert(true);
-        end;
+        SEPADirectDebitMandate.Init();
+        SEPADirectDebitMandate."Customer No." := CustomerNo;
+        SEPADirectDebitMandate."Customer Bank Account Code" := CustomerBankAccountCode;
+        SEPADirectDebitMandate."Valid From" := WorkDate();
+        SEPADirectDebitMandate."Valid To" := WorkDate() + LibraryRandom.RandIntInRange(300, 600);
+        SEPADirectDebitMandate."Date of Signature" := WorkDate();
+        SEPADirectDebitMandate."Expected Number of Debits" := LibraryRandom.RandInt(10);
+        SEPADirectDebitMandate.Insert(true);
     end;
 
     local procedure FindSEPADDPaymentFormat(): Code[20]
@@ -843,14 +831,12 @@ codeunit 144077 "SEPA.02 DD Functional Test"
     var
         PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
     begin
-        with PaymentJnlExportErrorText do begin
-            SetRange("Journal Template Name", '');
-            SetRange("Journal Batch Name", Format(SourceTableID));
-            SetRange("Document No.", PaymentDocNo);
-            SetRange("Journal Line No.", LineNo);
-            SetRange("Error Text", ExpErrorText);
-            Assert.AreEqual(ExpCount, Count, 'Error: ' + ExpErrorText + ', was encountered unexpectedly.');
-        end;
+        PaymentJnlExportErrorText.SetRange("Journal Template Name", '');
+        PaymentJnlExportErrorText.SetRange("Journal Batch Name", Format(SourceTableID));
+        PaymentJnlExportErrorText.SetRange("Document No.", PaymentDocNo);
+        PaymentJnlExportErrorText.SetRange("Journal Line No.", LineNo);
+        PaymentJnlExportErrorText.SetRange("Error Text", ExpErrorText);
+        Assert.AreEqual(ExpCount, PaymentJnlExportErrorText.Count, 'Error: ' + ExpErrorText + ', was encountered unexpectedly.');
     end;
 
     local procedure VerifyCollectionWasDeleted(PaymentHeader: Record "Payment Header")

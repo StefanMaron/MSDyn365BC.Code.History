@@ -702,12 +702,10 @@ codeunit 144055 "ERM Payment Management II"
             PaymentHeader.Modify(true);
         end;
         LibraryFRLocalization.CreatePaymentLine(PaymentLine, PaymentHeader."No.");
-        with PaymentLine do begin
-            Validate("Account Type", AccountType);
-            Validate("Account No.", AccountNo);
-            Validate(Amount, LineAmount);
-            Modify(true);
-        end;
+        PaymentLine.Validate("Account Type", AccountType);
+        PaymentLine.Validate("Account No.", AccountNo);
+        PaymentLine.Validate(Amount, LineAmount);
+        PaymentLine.Modify(true);
         exit(PaymentHeader."No.");
     end;
 
@@ -763,11 +761,9 @@ codeunit 144055 "ERM Payment Management II"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
-        with VendorBankAccount do begin
-            Validate("SWIFT Code", LibraryUtility.GenerateGUID());
-            Validate(IBAN, LibraryUtility.GenerateGUID());
-            Modify(true);
-        end;
+        VendorBankAccount.Validate("SWIFT Code", LibraryUtility.GenerateGUID());
+        VendorBankAccount.Validate(IBAN, LibraryUtility.GenerateGUID());
+        VendorBankAccount.Modify(true);
         Vendor.Validate("Preferred Bank Account Code", VendorBankAccount.Code);
         Vendor.Modify(true);
     end;
@@ -933,16 +929,14 @@ codeunit 144055 "ERM Payment Management II"
         CompanyInfo: Record "Company Information";
     begin
         CompanyInfo.Get();
-        with LibraryReportDataset do begin
-            LoadDataSetFile();
-            AssertElementWithValueExists('PaymtHeader__SWIFT_Code__Caption', BankAccount.FieldCaption("SWIFT Code"));
-            AssertElementWithValueExists('PaymtHeader__IBAN__Caption', BankAccount.FieldCaption(IBAN));
-            AssertElementWithValueExists('PaymtHeader_SWIFT_Code', BankAccount."SWIFT Code");
-            AssertElementWithValueExists('PaymtHeader_IBAN', BankAccount.IBAN);
-            AssertElementWithValueExists(
-              'HeaderText1',
-              StrSubstNo(HeaderTxt, VendorBankAccount."SWIFT Code", VendorBankAccount."Agency Code", VendorBankAccount.IBAN, WorkDate()));
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('PaymtHeader__SWIFT_Code__Caption', BankAccount.FieldCaption("SWIFT Code"));
+        LibraryReportDataset.AssertElementWithValueExists('PaymtHeader__IBAN__Caption', BankAccount.FieldCaption(IBAN));
+        LibraryReportDataset.AssertElementWithValueExists('PaymtHeader_SWIFT_Code', BankAccount."SWIFT Code");
+        LibraryReportDataset.AssertElementWithValueExists('PaymtHeader_IBAN', BankAccount.IBAN);
+        LibraryReportDataset.AssertElementWithValueExists(
+          'HeaderText1',
+          StrSubstNo(HeaderTxt, VendorBankAccount."SWIFT Code", VendorBankAccount."Agency Code", VendorBankAccount.IBAN, WorkDate()));
     end;
 
     [ModalPageHandler]

@@ -160,9 +160,13 @@ page 6057 "Contract Line Selection"
         ContractNo: Code[20];
         ContractType: Integer;
         LineNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 already exists in this service contract.', Comment = 'Service Item 1 already exists in this service contract.';
         Text001: Label '%1 %2 already belongs to one or more service contracts/quotes.\\Do you want to include this service item into the document?', Comment = 'Service Item 1 already belongs to one or more service contracts/quotes.\\Do you want to include this service item into the document?';
         Text002: Label '%1 %2 has a different ship-to code for this customer.\\Do you want to include this service item into the document?', Comment = 'Service Item 1 has a different ship-to code for this customer.\\Do you want to include this service item into the document?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SelectionFilter: Enum "Contract Line Selection";
 
     procedure SetSelection(CustNo: Code[20]; ShipNo: Code[10]; CtrType: Integer; CtrNo: Code[20])

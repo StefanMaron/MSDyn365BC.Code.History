@@ -653,16 +653,14 @@ codeunit 144565 "ERM Sales Pmt. Practices"
 
     local procedure MockCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; ExcludeFromPmtReporting: Boolean; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
     begin
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            "Document Type" := DocType;
-            "Posting Date" := PostingDate;
-            "Customer No." := MockCustomer(ExcludeFromPmtReporting);
-            "Due Date" := DueDate;
-            Open := IsOpen;
-            Insert();
-        end;
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Document Type" := DocType;
+        CustLedgerEntry."Posting Date" := PostingDate;
+        CustLedgerEntry."Customer No." := MockCustomer(ExcludeFromPmtReporting);
+        CustLedgerEntry."Due Date" := DueDate;
+        CustLedgerEntry.Open := IsOpen;
+        CustLedgerEntry.Insert();
     end;
 
     local procedure MockCustomer(ExcludeFromPmtReporting: Boolean): Code[20]
@@ -711,19 +709,17 @@ codeunit 144565 "ERM Sales Pmt. Practices"
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            Init();
-            "Entry Type" := EntryType;
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Document Type" := DocType;
-            "Posting Date" := PostingDate;
-            "Cust. Ledger Entry No." := LedgEntryNo;
-            "Applied Cust. Ledger Entry No." := AppliedLedgEntryNo;
-            "Amount (LCY)" := AppliedAmount;
-            "Ledger Entry Amount" := EntryType = "Entry Type"::"Initial Entry";
-            Insert();
-            exit("Entry No.");
-        end;
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry Type" := EntryType;
+        DetailedCustLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry."Document Type" := DocType;
+        DetailedCustLedgEntry."Posting Date" := PostingDate;
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := LedgEntryNo;
+        DetailedCustLedgEntry."Applied Cust. Ledger Entry No." := AppliedLedgEntryNo;
+        DetailedCustLedgEntry."Amount (LCY)" := AppliedAmount;
+        DetailedCustLedgEntry."Ledger Entry Amount" := EntryType = DetailedCustLedgEntry."Entry Type"::"Initial Entry";
+        DetailedCustLedgEntry.Insert();
+        exit(DetailedCustLedgEntry."Entry No.");
     end;
 
     local procedure RunPaymentPracticesReporting(StartingDate: Date; EndingDate: Date; ShowInvoices: Boolean)

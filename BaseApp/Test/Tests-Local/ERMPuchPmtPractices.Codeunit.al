@@ -738,16 +738,14 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
 
     local procedure MockVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; ExcludeFromPmtReporting: Boolean; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
     begin
-        with VendorLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Document Type" := DocType;
-            "Posting Date" := PostingDate;
-            "Vendor No." := MockVendor(ExcludeFromPmtReporting);
-            "Due Date" := DueDate;
-            Open := IsOpen;
-            Insert();
-        end;
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Document Type" := DocType;
+        VendorLedgerEntry."Posting Date" := PostingDate;
+        VendorLedgerEntry."Vendor No." := MockVendor(ExcludeFromPmtReporting);
+        VendorLedgerEntry."Due Date" := DueDate;
+        VendorLedgerEntry.Open := IsOpen;
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure MockVendor(ExcludeFromPmtReporting: Boolean): Code[20]
@@ -796,19 +794,17 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            Init();
-            "Entry Type" := EntryType;
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Document Type" := DocType;
-            "Posting Date" := PostingDate;
-            "Vendor Ledger Entry No." := LedgEntryNo;
-            "Applied Vend. Ledger Entry No." := AppliedLedgEntryNo;
-            "Amount (LCY)" := AppliedAmount;
-            "Ledger Entry Amount" := EntryType = "Entry Type"::"Initial Entry";
-            Insert();
-            exit("Entry No.");
-        end;
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry Type" := EntryType;
+        DetailedVendorLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry."Document Type" := DocType;
+        DetailedVendorLedgEntry."Posting Date" := PostingDate;
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := LedgEntryNo;
+        DetailedVendorLedgEntry."Applied Vend. Ledger Entry No." := AppliedLedgEntryNo;
+        DetailedVendorLedgEntry."Amount (LCY)" := AppliedAmount;
+        DetailedVendorLedgEntry."Ledger Entry Amount" := EntryType = DetailedVendorLedgEntry."Entry Type"::"Initial Entry";
+        DetailedVendorLedgEntry.Insert();
+        exit(DetailedVendorLedgEntry."Entry No.");
     end;
 
     local procedure MockTempPaymentApplicationBuffer(var TempPaymentApplicationBuffer: Record "Payment Application Buffer" temporary; PmtEntryNo: Integer; DaysSinceDueDate: Integer; PmtDaysDelayed: Integer; PmtAmount: Decimal; RemainingAmount: Decimal)

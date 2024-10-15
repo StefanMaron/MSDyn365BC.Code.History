@@ -41,22 +41,12 @@ page 6068 "Contract Gain/Loss (Reasons)"
                     ApplicationArea = Service;
                     Caption = 'Reason Code Filter';
                     ToolTip = 'Specifies the contract gain/loss by reason code.';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        ReasonCode.Reset();
-                        if PAGE.RunModal(0, ReasonCode) = ACTION::LookupOK then begin
-                            Text := ReasonCode.Code;
-                            exit(true);
-                        end;
-
-                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
-                    end;
+                    TableRelation = "Reason Code".Code;
 
                     trigger OnValidate()
                     begin
                         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
-                        ReasonFilterOnAfterValidate();
+                        CurrPage.Update(true);
                     end;
                 }
             }
@@ -171,7 +161,6 @@ page 6068 "Contract Gain/Loss (Reasons)"
     var
         MatrixRecords: array[32] of Record "Reason Code";
         MatrixRecord: Record "Reason Code";
-        ReasonCode: Record "Reason Code";
         MATRIX_CaptionSet: array[32] of Text[80];
         MATRIX_CaptionRange: Text;
         PKFirstRecInCurrSet: Text;
@@ -207,11 +196,6 @@ page 6068 "Contract Gain/Loss (Reasons)"
                 CurrentMatrixRecordOrdinal := CurrentMatrixRecordOrdinal + 1;
             until (CurrentMatrixRecordOrdinal > MATRIX_CurrentNoOfColumns) or (MatrixRecord.Next() <> 1);
         end;
-    end;
-
-    local procedure ReasonFilterOnAfterValidate()
-    begin
-        CurrPage.Update(true);
     end;
 }
 

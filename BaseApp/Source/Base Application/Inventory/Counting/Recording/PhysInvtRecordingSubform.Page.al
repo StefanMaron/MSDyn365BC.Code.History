@@ -93,7 +93,7 @@ page 5881 "Phys. Invt. Recording Subform"
                 {
                     ApplicationArea = Warehouse;
                     Editable = true;
-                    ToolTip = 'Specifies if it is necessary to record the item using serial numbers or lot numbers.';
+                    ToolTip = 'Specifies if it is necessary to record the item using serial, lot or package numbers.';
                 }
                 field("Serial No."; Rec."Serial No.")
                 {

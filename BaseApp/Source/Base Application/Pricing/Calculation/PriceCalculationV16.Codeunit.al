@@ -309,17 +309,6 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         exit(PriceListLine."Line Amount" < BestPriceListLine."Line Amount");
     end;
 
-    [Obsolete('AmountType::Cost is replaced by the combination of AmountType::Price with PriceType::Purchase.', '17.0')]
-    procedure AmountTypeFromPriceType(PriceType: enum "Price Type") AmountType: Enum "Price Amount Type";
-    begin
-        case PriceType of
-            PriceType::Sale:
-                AmountType := AmountType::Price;
-            PriceType::Purchase:
-                AmountType := AmountType::Cost;
-        end;
-    end;
-
     procedure FindLines(
         AmountType: Enum "Price Amount Type";
         var TempPriceListLine: Record "Price List Line" temporary;

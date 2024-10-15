@@ -154,7 +154,9 @@ page 970 "Time Sheet Allocation"
         DateQuantity: array[7] of Decimal;
         TotalQty: Decimal;
         AllocatedQty: Decimal;
+#pragma warning disable AA0074
         Text001: Label 'Allocated quantity must be equal to total quantity.';
+#pragma warning restore AA0074
 
     procedure InitParameters(TimeSheetNo: Code[20]; TimeSheetLineNo: Integer; QtyToAllocate: Decimal)
     begin

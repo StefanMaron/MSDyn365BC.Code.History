@@ -165,22 +165,18 @@ codeunit 134836 "Test Vendor Lookup"
 
     local procedure VerifyPurchQuoteAgainstVend(PurchaseQuote: TestPage "Purchase Quote"; Vend: Record Vendor)
     begin
-        with PurchaseQuote do begin
-            "Buy-from Vendor Name".AssertEquals(Vend.Name);
-            "Buy-from Address".AssertEquals(Vend.Address);
-            "Buy-from City".AssertEquals(Vend.City);
-            "Buy-from Post Code".AssertEquals(Vend."Post Code");
-        end;
+        PurchaseQuote."Buy-from Vendor Name".AssertEquals(Vend.Name);
+        PurchaseQuote."Buy-from Address".AssertEquals(Vend.Address);
+        PurchaseQuote."Buy-from City".AssertEquals(Vend.City);
+        PurchaseQuote."Buy-from Post Code".AssertEquals(Vend."Post Code");
     end;
 
     local procedure VerifyPurchQuoteAgainstBillToVend(PurchaseQuote: TestPage "Purchase Quote"; Vend: Record Vendor)
     begin
-        with PurchaseQuote do begin
-            "Pay-to Name".AssertEquals(Vend.Name);
-            "Pay-to Address".AssertEquals(Vend.Address);
-            "Pay-to City".AssertEquals(Vend.City);
-            "Pay-to Post Code".AssertEquals(Vend."Post Code");
-        end;
+        PurchaseQuote."Pay-to Name".AssertEquals(Vend.Name);
+        PurchaseQuote."Pay-to Address".AssertEquals(Vend.Address);
+        PurchaseQuote."Pay-to City".AssertEquals(Vend.City);
+        PurchaseQuote."Pay-to Post Code".AssertEquals(Vend."Post Code");
     end;
 
     [ModalPageHandler]
@@ -206,14 +202,12 @@ codeunit 134836 "Test Vendor Lookup"
     begin
         LibrarySmallBusiness.CreateVendor(Vend);
 
-        with Vend do begin
-            Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::Vendor));
-            Validate(City, LibraryUtility.GenerateRandomCode(FieldNo(City), DATABASE::Vendor));
-            Validate(Address, LibraryUtility.GenerateRandomCode(FieldNo(Address), DATABASE::Vendor));
-            Validate("Address 2", LibraryUtility.GenerateRandomCode(FieldNo("Address 2"), DATABASE::Vendor));
-            Validate("Post Code", LibraryUtility.GenerateRandomCode(FieldNo("Post Code"), DATABASE::Vendor));
-            Modify();
-        end;
+        Vend.Validate(Name, LibraryUtility.GenerateRandomCode(Vend.FieldNo(Name), DATABASE::Vendor));
+        Vend.Validate(City, LibraryUtility.GenerateRandomCode(Vend.FieldNo(City), DATABASE::Vendor));
+        Vend.Validate(Address, LibraryUtility.GenerateRandomCode(Vend.FieldNo(Address), DATABASE::Vendor));
+        Vend.Validate("Address 2", LibraryUtility.GenerateRandomCode(Vend.FieldNo("Address 2"), DATABASE::Vendor));
+        Vend.Validate("Post Code", LibraryUtility.GenerateRandomCode(Vend.FieldNo("Post Code"), DATABASE::Vendor));
+        Vend.Modify();
     end;
 
     [ConfirmHandler]

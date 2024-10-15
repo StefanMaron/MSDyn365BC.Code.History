@@ -59,14 +59,14 @@ table 10862 "Payment Step"
         }
         field(9; "Previous Status Name"; Text[50])
         {
-            CalcFormula = Lookup("Payment Status".Name where("Payment Class" = field("Payment Class"),
+            CalcFormula = lookup("Payment Status".Name where("Payment Class" = field("Payment Class"),
                                                               Line = field("Previous Status")));
             Caption = 'Previous Status Name';
             FieldClass = FlowField;
         }
         field(10; "Next Status Name"; Text[50])
         {
-            CalcFormula = Lookup("Payment Status".Name where("Payment Class" = field("Payment Class"),
+            CalcFormula = lookup("Payment Status".Name where("Payment Class" = field("Payment Class"),
                                                               Line = field("Next Status")));
             Caption = 'Next Status Name';
             FieldClass = FlowField;

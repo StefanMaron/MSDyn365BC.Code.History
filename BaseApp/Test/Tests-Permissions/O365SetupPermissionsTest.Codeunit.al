@@ -19,6 +19,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
+        LibraryNoSeries: Codeunit "Library - No. Series";
 
     [Test]
     [Scope('OnPrem')]
@@ -32,7 +33,7 @@ codeunit 139450 "O365 Setup Permissions Test"
         LibraryUtility.CreateNoSeries(NoSeries, true, false, true);
         LibraryUtility.CreateNoSeries(NoSeries2, true, false, true);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '001', '999');
-        LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeries2.Code);
+        LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, NoSeries2.Code);
     end;
 
     [Test]

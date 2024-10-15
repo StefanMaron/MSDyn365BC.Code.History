@@ -201,9 +201,13 @@ table 7346 "Internal Movement Header"
         NoSeries: Codeunit "No. Series";
         WmsManagement: Codeunit "WMS Management";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'You cannot rename a %1.';
         Text003: Label 'You cannot use Location Code %1.';
         Text004: Label 'You have changed the %1 on the %2, but it has not been changed on the existing internal movement lines.\You must update the existing internal movement lines manually.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NoAllowedLocationsErr: Label 'Internal movement is not possible at any locations where you are a warehouse employee.';
         LinesExistErr: Label 'You cannot change %1 because one or more lines exist.', Comment = '%1=Location Code';
 

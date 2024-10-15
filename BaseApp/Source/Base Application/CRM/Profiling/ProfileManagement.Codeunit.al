@@ -11,8 +11,10 @@ codeunit 5059 ProfileManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'General';
         Text001: Label 'No profile questionnaire is created for this contact.';
+#pragma warning restore AA0074
         TempProfileQuestionnaireHeader: Record "Profile Questionnaire Header" temporary;
 
     local procedure FindLegalProfileQuestionnaire(Cont: Record Contact)

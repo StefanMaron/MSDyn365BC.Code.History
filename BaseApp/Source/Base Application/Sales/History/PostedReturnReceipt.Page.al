@@ -373,6 +373,13 @@ page 6660 "Posted Return Receipt"
                         Caption = 'Country/Region';
                         Editable = false;
                     }
+                    field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                    }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = SalesReturnOrder;

@@ -623,9 +623,11 @@ page 6550 "Whse. Item Tracking Lines"
         FormSourceType: Integer;
         FormUpdated: Boolean;
         Reclass: Boolean;
+#pragma warning disable AA0074
         Text001: Label 'Line';
         Text002: Label 'The corrections cannot be saved as excess quantity has been defined.\Close the form anyway?';
         Text003: Label 'Placeholder';
+#pragma warning restore AA0074
         ConfirmWhenExitingQst: Label 'One or more lines have tracking specified, but Quantity (Base) is zero. If you continue, data on these lines will be lost. Do you want to close the page?';
 
     protected var

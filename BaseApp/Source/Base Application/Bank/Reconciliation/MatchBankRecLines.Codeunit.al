@@ -15,10 +15,14 @@ codeunit 1252 "Match Bank Rec. Lines"
     end;
 
     var
+#pragma warning disable AA0470
         MatchSummaryMsg: Label '%1 reconciliation lines out of %2 are matched.\\';
+#pragma warning restore AA0470
         MatchDetailsTxt: Label 'This statement line matched the corresponding bank account ledger entry on the following fields: %1.', Comment = '%1 - a comma-separated list of field captions.';
         MatchedManuallyTxt: Label 'This statement line was matched manually.';
+#pragma warning disable AA0470
         MissingMatchMsg: Label 'Text shorter than %1 characters cannot be matched.';
+#pragma warning restore AA0470
         ProgressBarMsgTemplateTok: Label '#1##############################', Locked = true;
         ProgressBarUpdateTxt: Label 'Processed %1 statement lines.', Comment = '%1 - an integer';
         ProgressBarMsg: Label 'Please wait while the operation is being completed.';

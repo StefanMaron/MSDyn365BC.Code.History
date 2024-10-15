@@ -149,15 +149,6 @@
       <Cmt Name="Dev"><![CDATA[%1=Field Caption,%2=Field Value;]D;]A;(LookupHint=Codeunit ERM Financial Reports - NamedType RowNotFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2837630026 - NamedType 3948080953" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The documents are not listed according to Posting Date because they were not entered in that order.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purch. Doc. Reports - II - NamedType WarningText)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 524386752 - NamedType 1097401065" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Purchases (LCY),Balance (LCY)]]></Val>
@@ -228,15 +219,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - Name of node; %2 - Value of node]D;]A;(LookupHint=Codeunit ERM Purchase Reports - NamedType ValidationErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2773184779 - NamedType 2481016571" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The documents are not listed according to Posting Date because they were not entered in that order.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Doc. Reports - NamedType DocumentOrderErrorTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2773184779 - NamedType 1279548425" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -905,6 +887,42 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Layout Test - NamedType WrongRegNoLblErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1429324707 - NamedType 255077649" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[IWATSTGIFLBOTG.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Layouts Test - NamedType AlternateLayoutTextTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1429324707 - NamedType 617258740" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[EditedLayout]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Layouts Test - NamedType EditedLayoutNameTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1429324707 - NamedType 122168779" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[NewLayout]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Layouts Test - NamedType NewLayoutNameTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1429324707 - NamedType 3895185133" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ATAKLOA, TINWTABSBATF.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Layouts Test - NamedType SampleTextTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3241257733 - NamedType 2272461218" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Object Options inserted.]]></Val>
@@ -1416,6 +1434,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Word & RDLC Report Selections - NamedType PlatformEmptyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Report 2118887905 - Property 2879900210" ItemType=";Report - Report" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TestReportLayoutsReport]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Report TestReportLayoutsReport - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

@@ -196,12 +196,10 @@ codeunit 144076 "SEPA.03 CT Functional Test"
     var
         CountryRegion: Record "Country/Region";
     begin
-        with CountryRegion do begin
-            Get(CountryRegionCode);
-            if not "SEPA Allowed" then begin
-                Validate("SEPA Allowed", true);
-                Modify(true);
-            end;
+        CountryRegion.Get(CountryRegionCode);
+        if not CountryRegion."SEPA Allowed" then begin
+            CountryRegion.Validate("SEPA Allowed", true);
+            CountryRegion.Modify(true);
         end;
     end;
 
@@ -216,16 +214,14 @@ codeunit 144076 "SEPA.03 CT Functional Test"
     local procedure CreateSEPABankAccount(var BankAccount: Record "Bank Account")
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            Validate(Balance, LibraryRandom.RandIntInRange(100000, 1000000));
-            Validate("Bank Account No.", LibraryUtility.GenerateRandomCode(FieldNo("Bank Account No."), DATABASE::"Bank Account"));
-            Validate("Country/Region Code", GetASEPACountryCode());
-            Validate(IBAN, 'ES7620770024003102575766');
-            Validate("Payment Export Format", SEPACTCode);
-            Validate("Credit Transfer Msg. Nos.", LibraryERM.CreateNoSeriesCode());
-            Validate("SWIFT Code", 'BSCHESMM');
-            Modify(true);
-        end;
+        BankAccount.Validate(Balance, LibraryRandom.RandIntInRange(100000, 1000000));
+        BankAccount.Validate("Bank Account No.", LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Bank Account No."), DATABASE::"Bank Account"));
+        BankAccount.Validate("Country/Region Code", GetASEPACountryCode());
+        BankAccount.Validate(IBAN, 'ES7620770024003102575766');
+        BankAccount.Validate("Payment Export Format", SEPACTCode);
+        BankAccount.Validate("Credit Transfer Msg. Nos.", LibraryERM.CreateNoSeriesCode());
+        BankAccount.Validate("SWIFT Code", 'BSCHESMM');
+        BankAccount.Modify(true);
     end;
 
     local procedure CreatePaymentClass(): Code[20]
@@ -236,15 +232,13 @@ codeunit 144076 "SEPA.03 CT Functional Test"
     begin
         NoSeries.FindFirst();
         LibraryFRLocalization.CreatePaymentClass(PaymentClass);
-        with PaymentClass do begin
-            Validate(Name, '');
-            Validate("Header No. Series", NoSeries.Code);
-            Validate(Enable, true);
-            Validate(Suggestions, Suggestions::Vendor);
-            Validate("SEPA Transfer Type", "SEPA Transfer Type"::"Credit Transfer");
-            Modify(true);
-            LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, Code);
-        end;
+        PaymentClass.Validate(Name, '');
+        PaymentClass.Validate("Header No. Series", NoSeries.Code);
+        PaymentClass.Validate(Enable, true);
+        PaymentClass.Validate(Suggestions, PaymentClass.Suggestions::Vendor);
+        PaymentClass.Validate("SEPA Transfer Type", PaymentClass."SEPA Transfer Type"::"Credit Transfer");
+        PaymentClass.Modify(true);
+        LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, PaymentClass.Code);
         exit(PaymentClass.Code);
     end;
 
@@ -257,24 +251,20 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         LibraryVariableStorage.Enqueue(PaymentClassCode);
 
         LibraryFRLocalization.CreatePaymentHeader(PaymentHeader);
-        with PaymentHeader do begin
-            Validate("Account Type", "Account Type"::"Bank Account");
-            CreateSEPABankAccount(BankAccount);
-            Validate("Account No.", BankAccount."No.");
-            Validate("Bank Country/Region Code", BankAccount."Country/Region Code");
-            Validate(IBAN, 'CH6309000000250097798');
-            Validate("SWIFT Code", 'INGBNL2A');
-            Modify(true);
-        end;
+        PaymentHeader.Validate("Account Type", PaymentHeader."Account Type"::"Bank Account");
+        CreateSEPABankAccount(BankAccount);
+        PaymentHeader.Validate("Account No.", BankAccount."No.");
+        PaymentHeader.Validate("Bank Country/Region Code", BankAccount."Country/Region Code");
+        PaymentHeader.Validate(IBAN, 'CH6309000000250097798');
+        PaymentHeader.Validate("SWIFT Code", 'INGBNL2A');
+        PaymentHeader.Modify(true);
 
         LibraryFRLocalization.CreatePaymentLine(PaymentLine, PaymentHeader."No.");
-        with PaymentLine do begin
-            Validate("Account Type", "Account Type"::Vendor);
-            Validate("Account No.", CreateVendor());
-            Validate(Amount, LibraryRandom.RandDecInRange(1, 1000, 1));
-            Validate("Due Date", CalcDate('1D', "Due Date"));
-            Modify(true);
-        end;
+        PaymentLine.Validate("Account Type", PaymentLine."Account Type"::Vendor);
+        PaymentLine.Validate("Account No.", CreateVendor());
+        PaymentLine.Validate(Amount, LibraryRandom.RandDecInRange(1, 1000, 1));
+        PaymentLine.Validate("Due Date", CalcDate('1D', PaymentLine."Due Date"));
+        PaymentLine.Modify(true);
     end;
 
     local procedure CreateVendor(): Code[20]
@@ -287,32 +277,27 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         CreateSEPABankAccount(BankAccount);
 
         LibraryPurchase.CreateVendor(Vendor);
-        with VendorBankAccount do begin
-            Init();
-            Validate(Code, BankAccount.Name);
-            Validate("Vendor No.", Vendor."No.");
-            Insert(true);
-        end;
+        VendorBankAccount.Init();
+        VendorBankAccount.Validate(Code, BankAccount.Name);
+        VendorBankAccount.Validate("Vendor No.", Vendor."No.");
+        VendorBankAccount.Insert(true);
 
-        with VendorBankAccount do begin
-            Validate(Name, BankAccount.Name);
-            Validate("Bank Account No.", BankAccount.Name);
-            Validate("Country/Region Code", BankAccount."Country/Region Code");
-            Validate(IBAN, BankAccount.IBAN);
-            Validate("SWIFT Code", BankAccount."SWIFT Code");
-            Modify(true);
-        end;
+        VendorBankAccount.Validate(Name, BankAccount.Name);
+        VendorBankAccount.Validate("Bank Account No.", BankAccount.Name);
+        VendorBankAccount.Validate("Country/Region Code", BankAccount."Country/Region Code");
+        VendorBankAccount.Validate(IBAN, BankAccount.IBAN);
+        VendorBankAccount.Validate("SWIFT Code", BankAccount."SWIFT Code");
+        VendorBankAccount.Modify(true);
 
-        with Vendor do begin
-            Validate("Country/Region Code", BankAccount."Country/Region Code");
-            Validate("Preferred Bank Account Code", BankAccount."No.");
-            Validate(Address, '´Š¢sterbrogade ´Š¢´Š¢'); // for testing non latin characters
-            PostCode.SetRange("Country/Region Code", "Country/Region Code");
-            PostCode.FindFirst();
-            Validate("Post Code", PostCode.Code);
-            Validate(City, PostCode.City);
-            Modify(true);
-        end;
+        Vendor.Validate("Country/Region Code", BankAccount."Country/Region Code");
+        Vendor.Validate("Preferred Bank Account Code", BankAccount."No.");
+        Vendor.Validate(Address, '´Š¢sterbrogade ´Š¢´Š¢');
+        // for testing non latin characters
+        PostCode.SetRange("Country/Region Code", Vendor."Country/Region Code");
+        PostCode.FindFirst();
+        Vendor.Validate("Post Code", PostCode.Code);
+        Vendor.Validate(City, PostCode.City);
+        Vendor.Modify(true);
 
         exit(Vendor."No.");
     end;
@@ -391,12 +376,10 @@ codeunit 144076 "SEPA.03 CT Functional Test"
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        with BankExportImportSetup do begin
-            Get(SEPACTCode);
-            if not ("Preserve Non-Latin Characters" = Preserve) then begin
-                Validate("Preserve Non-Latin Characters", Preserve);
-                Modify(true);
-            end;
+        BankExportImportSetup.Get(SEPACTCode);
+        if not (BankExportImportSetup."Preserve Non-Latin Characters" = Preserve) then begin
+            BankExportImportSetup.Validate("Preserve Non-Latin Characters", Preserve);
+            BankExportImportSetup.Modify(true);
         end;
     end;
 

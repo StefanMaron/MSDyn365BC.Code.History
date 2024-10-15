@@ -69,6 +69,10 @@ page 9017 "Service Technician Role Center"
             {
                 ApplicationArea = Suite;
             }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part(Control8; "My Job Queue")
             {
                 ApplicationArea = Service;

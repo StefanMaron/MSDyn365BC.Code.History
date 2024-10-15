@@ -342,7 +342,7 @@ codeunit 10861 "Payment-Apply"
     begin
         IsHandled := false;
         OnBeforeDeleteApply(Rec, CustLedgEntry, VendLedgEntry, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         if Rec."Applies-to ID" = '' then

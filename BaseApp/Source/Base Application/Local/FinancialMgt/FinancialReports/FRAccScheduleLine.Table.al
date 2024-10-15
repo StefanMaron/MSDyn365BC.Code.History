@@ -133,10 +133,10 @@ table 10801 "FR Acc. Schedule Line"
             Caption = 'G/L Entry Type Filter';
             FieldClass = FlowFilter;
             ObsoleteReason = 'Discontinued feature';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             OptionCaption = 'Definitive,Simulation';
             OptionMembers = Definitive,Simulation;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '25.0';
         }
     }
 

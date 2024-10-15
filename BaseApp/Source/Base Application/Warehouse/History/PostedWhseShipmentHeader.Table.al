@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Warehouse.History;
+namespace Microsoft.Warehouse.History;
 
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Foundation.Shipping;

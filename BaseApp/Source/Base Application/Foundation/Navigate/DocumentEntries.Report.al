@@ -21,8 +21,6 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.History;
-using Microsoft.Service.Ledger;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Ledger;
 using System.Utilities;
@@ -77,116 +75,6 @@ report 35 "Document Entries"
             }
             column(DocEntryTableNameCaption; DocEntryTableNameCaptionLbl)
             {
-            }
-            dataitem("Service Ledger Entry"; "Service Ledger Entry")
-            {
-                DataItemTableView = sorting("Document No.", "Posting Date");
-                column(PostDate_ServiceLedgEntry; Format("Posting Date"))
-                {
-                }
-                column(DocNo_ServLedgEntry; "Document No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(Desc_ServLedgEntry; Description)
-                {
-                    IncludeCaption = true;
-                }
-                column(AmtLCY_ServLedgEntry; "Amount (LCY)")
-                {
-                    IncludeCaption = true;
-                }
-                column(EntryNo_ServLedgEntry; "Entry No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(ServCntrtNo_ServLedgEntry; "Service Contract No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(ServLedgEntryPostDtCaption; ServLedgEntryPostDtCaptionLbl)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    if TempDocumentEntry."Table ID" <> DATABASE::"Service Ledger Entry" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("Document No.", "Posting Date");
-                    SetFilter("Document No.", DocNoFilter);
-                    SetFilter("Posting Date", PostingDateFilter);
-                end;
-            }
-            dataitem("Warranty Ledger Entry"; "Warranty Ledger Entry")
-            {
-                DataItemTableView = sorting("Document No.", "Posting Date");
-                column(EntryNo_WarrantyLedgEntry; "Entry No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(PostDt_WarrantyLedgEntry; Format("Posting Date"))
-                {
-                }
-                column(DocNo_WarrantyLedgEntry; "Document No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(Desc_WarrantyLedgEntry; Description)
-                {
-                    IncludeCaption = true;
-                }
-                column(Amt_WarrantyLedgEntry; Amount)
-                {
-                    IncludeCaption = true;
-                }
-                column(WarrantyLedgEntryPostDtCaption; WarrantyLedgEntryPostDtCaptionLbl)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    if TempDocumentEntry."Table ID" <> DATABASE::"Warranty Ledger Entry" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("Document No.", "Posting Date");
-                    SetFilter("Document No.", DocNoFilter);
-                    SetFilter("Posting Date", PostingDateFilter);
-                end;
-            }
-            dataitem("Service Shipment Header"; "Service Shipment Header")
-            {
-                DataItemTableView = sorting("No.");
-                column(CurrencyCaption; CurrencyCaption)
-                {
-                }
-                column(PostDate_ServShptHeader; Format("Posting Date"))
-                {
-                }
-                column(No_ServShptHeader; "No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(Desc_ServShptHeader; Description)
-                {
-                    IncludeCaption = true;
-                }
-                column(CurrencyCode_ServShptHeader; "Currency Code")
-                {
-                }
-                column(ServShptHeaderPostDateCaption; ServShptHeaderPostDateCaptionLbl)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    if TempDocumentEntry."Table ID" <> DATABASE::"Service Shipment Header" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("No.");
-                    SetFilter("No.", DocNoFilter);
-                    SetFilter("Posting Date", PostingDateFilter);
-                end;
             }
             dataitem("Sales Shipment Header"; "Sales Shipment Header")
             {
@@ -1885,20 +1773,20 @@ report 35 "Document Entries"
 
     var
         CurrExchRate: Record "Currency Exchange Rate";
+#pragma warning disable AA0074
         Text001: Label 'Document No. : ';
         Text002: Label 'Posting Date : ';
+#pragma warning restore AA0074
         PrintAmountsInLCY: Boolean;
-        CurrencyCaption: Text[30];
+#pragma warning disable AA0074
         Text003: Label 'Currency Code';
+#pragma warning restore AA0074
         CurrencyCaptionRBC: Text[30];
         DocEntriesCaptionLbl: Label 'Document Entries';
         PageNoCaptionLbl: Label 'Page';
         NavigateFiltersCaptionLbl: Label 'Navigate Filters';
         DocEntryNoofRecordsCptnLbl: Label 'No. of Records';
         DocEntryTableNameCaptionLbl: Label 'Table Name';
-        ServLedgEntryPostDtCaptionLbl: Label 'Posting Date';
-        WarrantyLedgEntryPostDtCaptionLbl: Label 'Posting Date';
-        ServShptHeaderPostDateCaptionLbl: Label 'Posting Date';
         SalesShptHeaderPostingDtCaptionLbl: Label 'Posting Date';
         SalesInvHeaderPostDateCaptionLbl: Label 'Posting Date';
         ReturnRcptHeaderPostDtCaptionLbl: Label 'Posting Date';
@@ -1936,6 +1824,7 @@ report 35 "Document Entries"
 
     protected var
         TempDocumentEntry: Record "Document Entry" temporary;
+        CurrencyCaption: Text[30];
         DocNoFilter: Text;
         PostingDateFilter: Text;
 

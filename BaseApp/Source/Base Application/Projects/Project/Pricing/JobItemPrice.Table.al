@@ -11,7 +11,7 @@ using Microsoft.Projects.Project.Job;
 table 1013 "Job Item Price"
 {
     Caption = 'Project Item Price';
-#if not CLEAN23
+#if not CLEAN25
     DrillDownPageID = "Job Item Prices";
     LookupPageID = "Job Item Prices";
     ObsoleteState = Pending;
@@ -31,7 +31,7 @@ table 1013 "Job Item Price"
             NotBlank = true;
             TableRelation = Job;
 
-#if not CLEAN23
+#if not CLEAN25
             trigger OnValidate()
             begin
                 GetJob();
@@ -44,7 +44,7 @@ table 1013 "Job Item Price"
             Caption = 'Project Task No.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
 
-#if not CLEAN23
+#if not CLEAN25
             trigger OnValidate()
             begin
                 if "Job Task No." <> '' then begin
@@ -59,7 +59,7 @@ table 1013 "Job Item Price"
             Caption = 'Item No.';
             TableRelation = Item;
 
-#if not CLEAN23
+#if not CLEAN25
             trigger OnValidate()
             begin
                 Item.Get("Item No.");
@@ -149,7 +149,7 @@ table 1013 "Job Item Price"
     {
     }
 
-#if not CLEAN23
+#if not CLEAN25
     trigger OnInsert()
     begin
         LockTable();

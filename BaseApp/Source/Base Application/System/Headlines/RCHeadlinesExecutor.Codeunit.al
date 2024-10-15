@@ -54,6 +54,7 @@ codeunit 1441 "RC Headlines Executor"
 
     local procedure TaskSchedulerAvailable(): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         JobQueueEntry: Record "Job Queue Entry";
     begin
         if not JobQueueEntry.WritePermission() then

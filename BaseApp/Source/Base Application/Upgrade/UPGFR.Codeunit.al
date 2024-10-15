@@ -1,4 +1,4 @@
-codeunit 104101 "UPG.FR"
+﻿codeunit 104101 "UPG.FR"
 {
     Subtype = Upgrade;
 
@@ -24,8 +24,8 @@ codeunit 104101 "UPG.FR"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpgradeDetailedCVLedgerEntriesTag()) THEN
-            EXIT;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpgradeDetailedCVLedgerEntriesTag()) then
+            exit;
 
         CODEUNIT.RUN(CODEUNIT::"Update Dtld. CV Ledger Entries");
 

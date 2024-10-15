@@ -650,16 +650,14 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         NoSeries: Record "No. Series";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            Validate(IBAN, 'FR14 2004 1010 0505 0001 3M02 606');
-            Validate("SWIFT Code", LibraryUtility.GenerateGUID());
-            Validate("Bank Account No.", LibraryUtility.GenerateGUID());
-            "Payment Export Format" := PaymentExportSetupCode;
-            NoSeries.FindFirst();
-            Validate("Credit Transfer Msg. Nos.", NoSeries.Code);
-            Modify(true);
-            exit("No.");
-        end;
+        BankAccount.Validate(IBAN, 'FR14 2004 1010 0505 0001 3M02 606');
+        BankAccount.Validate("SWIFT Code", LibraryUtility.GenerateGUID());
+        BankAccount.Validate("Bank Account No.", LibraryUtility.GenerateGUID());
+        BankAccount."Payment Export Format" := PaymentExportSetupCode;
+        NoSeries.FindFirst();
+        BankAccount.Validate("Credit Transfer Msg. Nos.", NoSeries.Code);
+        BankAccount.Modify(true);
+        exit(BankAccount."No.");
     end;
 
     local procedure CreatePaymentClass(var PaymentClass: Record "Payment Class")
@@ -669,16 +667,14 @@ codeunit 144075 "SEPA.03 CT Unit Test"
     begin
         NoSeries.FindFirst();
         LibraryFRLocalization.CreatePaymentClass(PaymentClass);
-        with PaymentClass do begin
-            Validate(Name, '');
-            Validate("Header No. Series", NoSeries.Code);
-            Validate(Enable, true);
-            Validate(Suggestions, Suggestions::Vendor);
-            Validate("SEPA Transfer Type", "SEPA Transfer Type"::"Credit Transfer");
-            Modify(true);
+        PaymentClass.Validate(Name, '');
+        PaymentClass.Validate("Header No. Series", NoSeries.Code);
+        PaymentClass.Validate(Enable, true);
+        PaymentClass.Validate(Suggestions, PaymentClass.Suggestions::Vendor);
+        PaymentClass.Validate("SEPA Transfer Type", PaymentClass."SEPA Transfer Type"::"Credit Transfer");
+        PaymentClass.Modify(true);
 
-            LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, Code);
-        end;
+        LibraryFRLocalization.CreatePaymentStatus(PaymentStatus, PaymentClass.Code);
     end;
 
     local procedure CreatePaymentHeader(var PaymentHeader: Record "Payment Header")
@@ -723,13 +719,11 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         CustomerBankAccount: Record "Customer Bank Account";
     begin
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CustomerNo);
-        with CustomerBankAccount do begin
-            Validate(IBAN, 'FR29 4515 9000 053J 1300 0000 051');
-            "SWIFT Code" := LibraryUtility.GenerateGUID();
-            Name := 'CustomerBankAcc';
-            Modify(true);
-            exit(Code);
-        end;
+        CustomerBankAccount.Validate(IBAN, 'FR29 4515 9000 053J 1300 0000 051');
+        CustomerBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
+        CustomerBankAccount.Name := 'CustomerBankAcc';
+        CustomerBankAccount.Modify(true);
+        exit(CustomerBankAccount.Code);
     end;
 
     local procedure CreateVendorBankAccount(VendorNo: Code[20]): Code[10]
@@ -737,13 +731,11 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorNo);
-        with VendorBankAccount do begin
-            Validate(IBAN, 'FR29 4515 9000 053J 1300 0000 051');
-            "SWIFT Code" := LibraryUtility.GenerateGUID();
-            Name := 'VendorBankAcc';
-            Modify(true);
-            exit(Code);
-        end;
+        VendorBankAccount.Validate(IBAN, 'FR29 4515 9000 053J 1300 0000 051');
+        VendorBankAccount."SWIFT Code" := LibraryUtility.GenerateGUID();
+        VendorBankAccount.Name := 'VendorBankAcc';
+        VendorBankAccount.Modify(true);
+        exit(VendorBankAccount.Code);
     end;
 
     local procedure FillExportBuffer(PaymentDocNo: Code[20]; var PaymentExportData: Record "Payment Export Data")
@@ -809,30 +801,29 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         GLAccount: Record "G/L Account";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
     begin
-        with GenJournalLine do begin
-            Init();
-            Validate("Posting Date", Today);
-            Validate("Document Type", DocumentType);
-            Validate("Account Type", AccountType);
-            Validate("Account No.", AccountNo);
-            Validate(Amount, -LineAmount);
-            Validate(
-              "Document No.", LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
-            Validate(
-              "External Document No.",
-              CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen("External Document No.")), 1, MaxStrLen("External Document No.")));
-            Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode());  // Unused but required for AU, NZ builds
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            if "Account Type" = "Account Type"::Customer then
-                GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale)
-            else
-                GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
-            LibraryERM.FindGLAccount(GLAccount);
-            Validate("Bal. Account No.", GLAccount."No.");
+        GenJournalLine.Init();
+        GenJournalLine.Validate("Posting Date", Today);
+        GenJournalLine.Validate("Document Type", DocumentType);
+        GenJournalLine.Validate("Account Type", AccountType);
+        GenJournalLine.Validate("Account No.", AccountNo);
+        GenJournalLine.Validate(Amount, -LineAmount);
+        GenJournalLine.Validate(
+          "Document No.", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
+        GenJournalLine.Validate(
+          "External Document No.",
+          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(GenJournalLine."External Document No.")), 1, MaxStrLen(GenJournalLine."External Document No.")));
+        GenJournalLine.Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode());
+        // Unused but required for AU, NZ builds
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer then
+            GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale)
+        else
+            GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
+        LibraryERM.FindGLAccount(GLAccount);
+        GenJournalLine.Validate("Bal. Account No.", GLAccount."No.");
 
-            GenJnlPostLine.RunWithCheck(GenJournalLine);
-            exit("Document No.");
-        end;
+        GenJnlPostLine.RunWithCheck(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure PostPurchaseInvoice(var VendLedgEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; Amount: Decimal)

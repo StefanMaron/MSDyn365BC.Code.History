@@ -547,7 +547,9 @@ page 1292 "Payment Application"
         Status: Text;
         AppliedManuallyStatusTxt: Label 'Applied Manually';
         NoApplicationStatusTxt: Label 'Not Applied';
+#pragma warning disable AA0470
         AppliedAutomaticallyStatusTxt: Label 'Applied Automatically - Match Confidence: %1';
+#pragma warning restore AA0470
         AcceptedStatusTxt: Label 'Accepted';
         LineEditable: Boolean;
         SortEntriesBasedOnProbabilityVisible: Boolean;

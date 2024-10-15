@@ -28,7 +28,6 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         isInitialized: Boolean;
         GLAccountOmitErr: Label 'When %1 is selected for';
         DecimalPlacesInDeferralPctErr: Label 'Wrong decimal places count in "Defferal %" field.';
-        AccTypeMustBeGLAccountErr: Label 'Account Type must be equal to ''G/L Account''';
         PostedDeferralHeaderNumberErr: Label 'The number of Posted Deferral Headers with given parameters is not equal to expected.';
         DeferralsPostingDateOutOfRangeErr: Label 'is not within the range of posting dates for deferrals for your company';
         WrongAllowDeferralPostingDatesErr: Label 'The date in the Allow Deferral Posting From field must not be after the date in the Allow Deferral Posting To field.';
@@ -822,7 +821,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         asserterror GenJournalLine.Validate("Deferral Code", CreateEqual5Periods());
 
         // [THEN] Error "You cannot specify a deferral code for this type of account." appears
-        Assert.ExpectedError(AccTypeMustBeGLAccountErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Account Type"), Format(GenJournalLine."Account Type"::"G/L Account"));
     end;
 
     [Test]
@@ -842,7 +841,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         asserterror GenJournalLine.Validate("Deferral Code", CreateEqual5Periods());
 
         // [THEN] Error "You cannot specify a deferral code for this type of account." appears
-        Assert.ExpectedError(AccTypeMustBeGLAccountErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Account Type"), Format(GenJournalLine."Account Type"::"G/L Account"));
     end;
 
     [Test]
@@ -862,7 +861,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         asserterror GenJournalLine.Validate("Deferral Code", CreateEqual5Periods());
 
         // [THEN] Error "You cannot specify a deferral code for this type of account." appears
-        Assert.ExpectedError(AccTypeMustBeGLAccountErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Account Type"), Format(GenJournalLine."Account Type"::"G/L Account"));
     end;
 
     [Test]
@@ -882,7 +881,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         asserterror GenJournalLine.Validate("Deferral Code", CreateEqual5Periods());
 
         // [THEN] Error "You cannot specify a deferral code for this type of account." appears
-        Assert.ExpectedError(AccTypeMustBeGLAccountErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Account Type"), Format(GenJournalLine."Account Type"::"G/L Account"));
     end;
 
     [Test]
@@ -902,7 +901,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         asserterror GenJournalLine.Validate("Deferral Code", CreateEqual5Periods());
 
         // [THEN] Error "You cannot specify a deferral code for this type of account." appears
-        Assert.ExpectedError(AccTypeMustBeGLAccountErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Account Type"), Format(GenJournalLine."Account Type"::"G/L Account"));
     end;
 
     [Test]
@@ -2241,11 +2240,10 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GLAccount.Modify();
 
         CreateGeneralJournalBatch(GenJournalBatch);
-        with GenJournalLine do
-            CreateGenJournalLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::" ", "Account Type"::"G/L Account", GLAccount."No.",
-              "Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(1000, 2));
+        CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+            GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(1000, 2));
     end;
 
     local procedure CreatePurchaseGenJournalLineWithDeferral(var GenJournalLine: Record "Gen. Journal Line")
@@ -2258,11 +2256,10 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GLAccount.Modify();
 
         CreateGeneralJournalBatch(GenJournalBatch);
-        with GenJournalLine do
-            CreateGenJournalLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::" ", "Account Type"::"G/L Account", GLAccount."No.",
-              "Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDec(1000, 2));
+        CreateGenJournalLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccount."No.",
+            GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDec(1000, 2));
     end;
 
     local procedure UpdateGeneralJournalInSourceCodeSetup()
@@ -2327,25 +2324,21 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
     local procedure FilterGLEntryGroups(var GLEntry: Record "G/L Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
-        with GLEntry do begin
-            SetRange("Gen. Posting Type", GenJournalLine."Gen. Posting Type");
-            SetRange("VAT Bus. Posting Group", GenJournalLine."VAT Bus. Posting Group");
-            SetRange("VAT Prod. Posting Group", GenJournalLine."VAT Prod. Posting Group");
-            SetRange("Gen. Bus. Posting Group", GenJournalLine."Gen. Bus. Posting Group");
-            SetRange("Gen. Prod. Posting Group", GenJournalLine."Gen. Prod. Posting Group");
-        end;
+        GLEntry.SetRange("Gen. Posting Type", GenJournalLine."Gen. Posting Type");
+        GLEntry.SetRange("VAT Bus. Posting Group", GenJournalLine."VAT Bus. Posting Group");
+        GLEntry.SetRange("VAT Prod. Posting Group", GenJournalLine."VAT Prod. Posting Group");
+        GLEntry.SetRange("Gen. Bus. Posting Group", GenJournalLine."Gen. Bus. Posting Group");
+        GLEntry.SetRange("Gen. Prod. Posting Group", GenJournalLine."Gen. Prod. Posting Group");
     end;
 
     local procedure GetTransactionNumberFromGenJournalLine(GenJournalLine: Record "Gen. Journal Line"): Integer
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document Type", GenJournalLine."Document Type");
-            SetRange("Document No.", GenJournalLine."Document No.");
-            FindFirst();
-            exit("Transaction No.");
-        end;
+        GLEntry.SetRange("Document Type", GenJournalLine."Document Type");
+        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        GLEntry.FindFirst();
+        exit(GLEntry."Transaction No.");
     end;
 
     local procedure VerifyValuesonGLDeferralSummary(PostedDeferralHeader: Record "Posted Deferral Header")
@@ -2426,12 +2419,10 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     var
         PostedDeferralHeader: Record "Posted Deferral Header";
     begin
-        with PostedDeferralHeader do begin
-            Reset();
-            SetRange("Deferral Doc. Type", "Deferral Document Type"::"G/L");
-            SetRange("Gen. Jnl. Document No.", GenJnlDocumentNo);
-            Assert.AreEqual(ExpectedNumber, Count, PostedDeferralHeaderNumberErr);
-        end;
+        PostedDeferralHeader.Reset();
+        PostedDeferralHeader.SetRange("Deferral Doc. Type", "Deferral Document Type"::"G/L");
+        PostedDeferralHeader.SetRange("Gen. Jnl. Document No.", GenJnlDocumentNo);
+        Assert.AreEqual(ExpectedNumber, PostedDeferralHeader.Count, PostedDeferralHeaderNumberErr);
     end;
 
     local procedure VerifyVATGLEntryForPostingAccount(GenJournalLine: Record "Gen. Journal Line")
@@ -2440,24 +2431,21 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DummyGenJournalLine: Record "Gen. Journal Line";
         PairAmount: Decimal;
     begin
-        with GLEntry do begin
-            SetRange("Document Type", GenJournalLine."Document Type");
-            SetRange("Document No.", GenJournalLine."Document No.");
-            SetRange("G/L Account No.", GenJournalLine."Account No.");
-            SetFilter("VAT Amount", '<>%1', 0);
-            FilterGLEntryGroups(GLEntry, GenJournalLine);
-            Assert.RecordCount(GLEntry, 1);
-            FindFirst();
-            PairAmount := Amount;
-
-            // Verify paired GLEntry
-            SetRange("VAT Amount");
-            SetFilter(Amount, '<%1', 0);
-            FilterGLEntryGroups(GLEntry, DummyGenJournalLine);
-            Assert.RecordCount(GLEntry, 1);
-            FindFirst();
-            TestField(Amount, -PairAmount);
-        end;
+        GLEntry.SetRange("Document Type", GenJournalLine."Document Type");
+        GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        GLEntry.SetRange("G/L Account No.", GenJournalLine."Account No.");
+        GLEntry.SetFilter("VAT Amount", '<>%1', 0);
+        FilterGLEntryGroups(GLEntry, GenJournalLine);
+        Assert.RecordCount(GLEntry, 1);
+        GLEntry.FindFirst();
+        PairAmount := GLEntry.Amount;
+        // Verify paired GLEntry
+        GLEntry.SetRange("VAT Amount");
+        GLEntry.SetFilter(Amount, '<%1', 0);
+        FilterGLEntryGroups(GLEntry, DummyGenJournalLine);
+        Assert.RecordCount(GLEntry, 1);
+        GLEntry.FindFirst();
+        GLEntry.TestField(Amount, -PairAmount);
     end;
 
     local procedure VerifyGLEntriesExistWithBlankDescription(GLAccountNo: Code[20])

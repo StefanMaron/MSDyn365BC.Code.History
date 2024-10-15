@@ -22,9 +22,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         Customer: Record Customer;
     begin
-        with Customer do
-            CheckFieldsAreBlankAfterValidation(DATABASE::Customer, FieldNo(City),
-              FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::Customer, Customer.FieldNo(City),
+              Customer.FieldNo("Post Code"), Customer.FieldNo(County), Customer.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -34,9 +33,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do
-            CheckFieldsAreBlankAfterValidation(DATABASE::Vendor, FieldNo(City),
-              FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::Vendor, Vendor.FieldNo(City),
+              Vendor.FieldNo("Post Code"), Vendor.FieldNo(County), Vendor.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -46,9 +44,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         Contact: Record Contact;
     begin
-        with Contact do
-            CheckFieldsAreBlankAfterValidation(DATABASE::Contact, FieldNo(City),
-              FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::Contact, Contact.FieldNo(City),
+              Contact.FieldNo("Post Code"), Contact.FieldNo(County), Contact.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -58,9 +55,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         SalesHeader: Record "Sales Header";
     begin
-        with SalesHeader do
-            CheckFieldsAreNotBlankAfterValidation(DATABASE::"Sales Header",
-              FieldNo("Sell-to City"), FieldNo("Sell-to Post Code"), FieldNo("Sell-to Country/Region Code"));
+        CheckFieldsAreNotBlankAfterValidation(DATABASE::"Sales Header",
+              SalesHeader.FieldNo("Sell-to City"), SalesHeader.FieldNo("Sell-to Post Code"), SalesHeader.FieldNo("Sell-to Country/Region Code"));
     end;
 
     [Test]
@@ -70,9 +66,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        with PurchaseHeader do
-            CheckFieldsAreNotBlankAfterValidation(DATABASE::"Purchase Header",
-              FieldNo("Buy-from City"), FieldNo("Buy-from Post Code"), FieldNo("Buy-from Country/Region Code"));
+        CheckFieldsAreNotBlankAfterValidation(DATABASE::"Purchase Header",
+              PurchaseHeader.FieldNo("Buy-from City"), PurchaseHeader.FieldNo("Buy-from Post Code"), PurchaseHeader.FieldNo("Buy-from Country/Region Code"));
     end;
 
     [Test]
@@ -82,9 +77,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         ShipToAddress: Record "Ship-to Address";
     begin
-        with ShipToAddress do
-            CheckFieldsAreBlankAfterValidation(DATABASE::"Ship-to Address",
-              FieldNo(City), FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::"Ship-to Address",
+              ShipToAddress.FieldNo(City), ShipToAddress.FieldNo("Post Code"), ShipToAddress.FieldNo(County), ShipToAddress.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -94,9 +88,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         Location: Record Location;
     begin
-        with Location do
-            CheckFieldsAreBlankAfterValidation(DATABASE::Location,
-              FieldNo(City), FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::Location,
+              Location.FieldNo(City), Location.FieldNo("Post Code"), Location.FieldNo(County), Location.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -106,9 +99,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         Resource: Record Resource;
     begin
-        with Resource do
-            CheckFieldsAreBlankAfterValidation(DATABASE::Resource,
-              FieldNo(City), FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::Resource,
+              Resource.FieldNo(City), Resource.FieldNo("Post Code"), Resource.FieldNo(County), Resource.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -118,9 +110,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         Job: Record Job;
     begin
-        with Job do
-            CheckFieldsAreBlankAfterValidation(DATABASE::Job,
-              FieldNo("Bill-to City"), FieldNo("Bill-to Post Code"), FieldNo("Bill-to County"), FieldNo("Bill-to Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::Job,
+              Job.FieldNo("Bill-to City"), Job.FieldNo("Bill-to Post Code"), Job.FieldNo("Bill-to County"), Job.FieldNo("Bill-to Country/Region Code"));
     end;
 
     [Test]
@@ -130,9 +121,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         BankAccount: Record "Bank Account";
     begin
-        with BankAccount do
-            CheckFieldsAreBlankAfterValidation(DATABASE::"Bank Account",
-              FieldNo(City), FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::"Bank Account",
+              BankAccount.FieldNo(City), BankAccount.FieldNo("Post Code"), BankAccount.FieldNo(County), BankAccount.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -142,9 +132,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         ReminderHeader: Record "Reminder Header";
     begin
-        with ReminderHeader do
-            CheckFieldsAreBlankAfterValidation(DATABASE::"Reminder Header",
-              FieldNo(City), FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::"Reminder Header",
+              ReminderHeader.FieldNo(City), ReminderHeader.FieldNo("Post Code"), ReminderHeader.FieldNo(County), ReminderHeader.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -154,9 +143,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
     begin
-        with FinanceChargeMemoHeader do
-            CheckFieldsAreBlankAfterValidation(DATABASE::"Finance Charge Memo Header",
-              FieldNo(City), FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::"Finance Charge Memo Header",
+              FinanceChargeMemoHeader.FieldNo(City), FinanceChargeMemoHeader.FieldNo("Post Code"), FinanceChargeMemoHeader.FieldNo(County), FinanceChargeMemoHeader.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -166,9 +154,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         ContactAltAddress: Record "Contact Alt. Address";
     begin
-        with ContactAltAddress do
-            CheckFieldsAreBlankAfterValidation(DATABASE::"Contact Alt. Address",
-              FieldNo(City), FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::"Contact Alt. Address",
+              ContactAltAddress.FieldNo(City), ContactAltAddress.FieldNo("Post Code"), ContactAltAddress.FieldNo(County), ContactAltAddress.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -178,9 +165,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         Employee: Record Employee;
     begin
-        with Employee do
-            CheckFieldsAreBlankAfterValidation(DATABASE::Employee,
-              FieldNo(City), FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::Employee,
+              Employee.FieldNo(City), Employee.FieldNo("Post Code"), Employee.FieldNo(County), Employee.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -190,9 +176,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         AlternativeAddress: Record "Alternative Address";
     begin
-        with AlternativeAddress do
-            CheckFieldsAreBlankAfterValidation(DATABASE::"Alternative Address", FieldNo(City),
-              FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::"Alternative Address", AlternativeAddress.FieldNo(City),
+              AlternativeAddress.FieldNo("Post Code"), AlternativeAddress.FieldNo(County), AlternativeAddress.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -202,9 +187,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         Union: Record Union;
     begin
-        with Union do
-            CheckFieldsAreBlankAfterValidation(DATABASE::Union,
-              FieldNo(City), FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::Union,
+              Union.FieldNo(City), Union.FieldNo("Post Code"), Union.FieldNo(County), Union.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -214,9 +198,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         ResponsibilityCenter: Record "Responsibility Center";
     begin
-        with ResponsibilityCenter do
-            CheckFieldsAreBlankAfterValidation(DATABASE::"Responsibility Center",
-              FieldNo(City), FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::"Responsibility Center",
+              ResponsibilityCenter.FieldNo(City), ResponsibilityCenter.FieldNo("Post Code"), ResponsibilityCenter.FieldNo(County), ResponsibilityCenter.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -226,9 +209,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         TransferHeader: Record "Transfer Header";
     begin
-        with TransferHeader do
-            CheckFieldsAreBlankAfterValidation(DATABASE::"Transfer Header", FieldNo("Transfer-from City"),
-              FieldNo("Transfer-from Post Code"), FieldNo("Transfer-from County"), FieldNo("Trsf.-from Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::"Transfer Header", TransferHeader.FieldNo("Transfer-from City"),
+              TransferHeader.FieldNo("Transfer-from Post Code"), TransferHeader.FieldNo("Transfer-from County"), TransferHeader.FieldNo("Trsf.-from Country/Region Code"));
     end;
 
     [Test]
@@ -238,9 +220,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         TransferHeader: Record "Transfer Header";
     begin
-        with TransferHeader do
-            CheckFieldsAreBlankAfterValidation(DATABASE::"Transfer Header", FieldNo("Transfer-to City"),
-              FieldNo("Transfer-to Post Code"), FieldNo("Transfer-to County"), FieldNo("Trsf.-to Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::"Transfer Header", TransferHeader.FieldNo("Transfer-to City"),
+              TransferHeader.FieldNo("Transfer-to Post Code"), TransferHeader.FieldNo("Transfer-to County"), TransferHeader.FieldNo("Trsf.-to Country/Region Code"));
     end;
 
     [Test]
@@ -250,9 +231,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         ServiceHeader: Record "Service Header";
     begin
-        with ServiceHeader do
-            CheckFieldsAreNotBlankAfterValidation(DATABASE::"Service Header", FieldNo("Bill-to City"),
-              FieldNo("Bill-to Post Code"), FieldNo("Bill-to Country/Region Code"));
+        CheckFieldsAreNotBlankAfterValidation(DATABASE::"Service Header", ServiceHeader.FieldNo("Bill-to City"),
+              ServiceHeader.FieldNo("Bill-to Post Code"), ServiceHeader.FieldNo("Bill-to Country/Region Code"));
     end;
 
     [Test]
@@ -262,9 +242,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         ServiceHeader: Record "Service Header";
     begin
-        with ServiceHeader do
-            CheckFieldsAreNotBlankAfterValidation(DATABASE::"Service Header", FieldNo(City), FieldNo("Post Code"),
-              FieldNo("Country/Region Code"));
+        CheckFieldsAreNotBlankAfterValidation(DATABASE::"Service Header", ServiceHeader.FieldNo(City), ServiceHeader.FieldNo("Post Code"),
+              ServiceHeader.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -274,9 +253,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         WorkCenter: Record "Work Center";
     begin
-        with WorkCenter do
-            CheckFieldsAreBlankAfterValidation(DATABASE::"Work Center", FieldNo(City),
-              FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::"Work Center", WorkCenter.FieldNo(City),
+              WorkCenter.FieldNo("Post Code"), WorkCenter.FieldNo(County), WorkCenter.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -286,9 +264,8 @@ codeunit 134995 "UT Country/Region Code"
     var
         MachineCenter: Record "Machine Center";
     begin
-        with MachineCenter do
-            CheckFieldsAreBlankAfterValidation(DATABASE::"Machine Center", FieldNo(City),
-              FieldNo("Post Code"), FieldNo(County), FieldNo("Country/Region Code"));
+        CheckFieldsAreBlankAfterValidation(DATABASE::"Machine Center", MachineCenter.FieldNo(City),
+              MachineCenter.FieldNo("Post Code"), MachineCenter.FieldNo(County), MachineCenter.FieldNo("Country/Region Code"));
     end;
 
     [Test]
@@ -546,12 +523,10 @@ codeunit 134995 "UT Country/Region Code"
     local procedure CreateCustomerWithAddressInfo(var Customer: Record Customer; CountryCode: Code[10]; PostCode: Code[20]; CityName: Text[30])
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            "Country/Region Code" := CountryCode;
-            "Post Code" := PostCode;
-            City := CityName;
-            Modify(true);
-        end;
+        Customer."Country/Region Code" := CountryCode;
+        Customer."Post Code" := PostCode;
+        Customer.City := CityName;
+        Customer.Modify(true);
     end;
 }
 

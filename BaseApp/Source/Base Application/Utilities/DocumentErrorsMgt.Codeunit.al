@@ -2,7 +2,6 @@
 
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using System.Environment.Configuration;
 using System.Utilities;
 
@@ -28,9 +27,6 @@ codeunit 9070 "Document Errors Mgt."
         GlobalPurchaseOrderPage: Page "Purchase Order";
         GlobalPurchaseCreditMemoPage: Page "Purchase Credit Memo";
         GlobalPurchaseReturnOrderPage: Page "Purchase Return Order";
-        GlobalServiceOrderPage: Page "Service Order";
-        GlobalServiceInvoicePage: Page "Service Invoice";
-        GlobalServiceCreditMemoPage: Page "Service Credit Memo";
         FullDocumentCheck: Boolean;
         EnableBackgroundValidationNotificationTxt: Label 'Enable Data Check';
         EnableBackgroundValidationNotificationDescriptionTxt: Label 'Notify me that Business Central can validate data in documents and journals while I''m working. Messages are shown in the Document Check FactBox.';
@@ -452,75 +448,5 @@ codeunit 9070 "Document Errors Mgt."
                     GlobalPurchaseReturnOrderPage.RunBackgroundCheck();
             end;
         end;
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Service Invoice Subform", 'OnModifyRecordEvent', '', false, false)]
-    local procedure OnModifyRecordEventServiceInvoiceSubform(var Rec: Record "Service Line"; var xRec: Record "Service Line"; var AllowModify: Boolean)
-    begin
-        if BackgroundValidationEnabled() then
-            GlobalServiceInvoicePage.RunBackgroundCheck();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Service Credit Memo Subform", 'OnModifyRecordEvent', '', false, false)]
-    local procedure OnModifyRecordEventServiceCreditMemoSubform(var Rec: Record "Service Line"; var xRec: Record "Service Line"; var AllowModify: Boolean)
-    begin
-        if BackgroundValidationEnabled() then
-            GlobalServiceCreditMemoPage.RunBackgroundCheck();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Service Order", 'OnAfterOnAfterGetRecord', '', false, false)]
-    local procedure OnAfterOnAfterGetRecordServiceOrder(var Sender: Page "Service Order"; var ServiceHeader: Record "Service Header")
-    begin
-        if BackgroundValidationEnabled() then
-            GlobalServiceOrderPage := Sender;
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Service Invoice", 'OnAfterOnAfterGetRecord', '', false, false)]
-    local procedure OnAfterOnAfterGetRecordServiceInvoice(var Sender: Page "Service Invoice"; var ServiceHeader: Record "Service Header")
-    begin
-        if BackgroundValidationEnabled() then
-            GlobalServiceInvoicePage := Sender;
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Service Credit Memo", 'OnAfterOnAfterGetRecord', '', false, false)]
-    local procedure OnAfterOnAfterGetRecordServiceCreditMemo(var Sender: Page "Service Credit Memo"; var ServiceHeader: Record "Service Header")
-    begin
-        if BackgroundValidationEnabled() then
-            GlobalServiceCreditMemoPage := Sender;
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Service Order", 'OnModifyRecordEvent', '', false, false)]
-    local procedure OnModifyRecordEventServiceOrder(var Rec: Record "Service Header"; var xRec: Record "Service Header"; var AllowModify: Boolean)
-    begin
-        if BackgroundValidationEnabled() then
-            GlobalServiceOrderPage.RunBackgroundCheck();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Service Invoice", 'OnModifyRecordEvent', '', false, false)]
-    local procedure OnModifyRecordEventServiceInvoice(var Rec: Record "Service Header"; var xRec: Record "Service Header"; var AllowModify: Boolean)
-    begin
-        if BackgroundValidationEnabled() then
-            GlobalServiceInvoicePage.RunBackgroundCheck();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Service Credit Memo", 'OnModifyRecordEvent', '', false, false)]
-    local procedure OnModifyRecordEventServiceCreditMemo(var Rec: Record "Service Header"; var xRec: Record "Service Header"; var AllowModify: Boolean)
-    begin
-        if BackgroundValidationEnabled() then
-            GlobalServiceCreditMemoPage.RunBackgroundCheck();
-    end;
-
-    [EventSubscriber(ObjectType::Page, Page::"Service Doc. Check Factbox", 'OnAfterGetCurrRecordEvent', '', false, false)]
-    local procedure OnAfterGetCurrRecordServiceDocCheckFactbox(var Rec: Record "Service Header")
-    begin
-        if BackgroundValidationEnabled() then
-            case Rec."Document Type" of
-                "Service Document Type"::Invoice:
-                    GlobalServiceInvoicePage.RunBackgroundCheck();
-                "Service Document Type"::Order:
-                    GlobalServiceOrderPage.RunBackgroundCheck();
-                "Service Document Type"::"Credit Memo":
-                    GlobalServiceCreditMemoPage.RunBackgroundCheck();
-            end;
     end;
 }

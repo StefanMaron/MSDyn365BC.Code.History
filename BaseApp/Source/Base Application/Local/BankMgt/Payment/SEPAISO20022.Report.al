@@ -422,10 +422,8 @@ report 10883 "SEPA ISO20022"
         GLSetup.Get();
         case GLSetup."Local Currency" of
             GLSetup."Local Currency"::Euro:
-                begin
-                    if CurrencyCode <> '' then
-                        Error(Text004, PaymentLine.TableCaption(), PaymentLine.FieldCaption("Line No."), PaymentLine."Line No.");
-                end;
+                if CurrencyCode <> '' then
+                    Error(Text004, PaymentLine.TableCaption(), PaymentLine.FieldCaption("Line No."), PaymentLine."Line No.");
             GLSetup."Local Currency"::Other:
                 begin
                     GLSetup.TestField("Currency Euro");

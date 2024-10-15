@@ -93,19 +93,7 @@ page 9155 "My Time Sheets"
     end;
 
     local procedure EditTimeSheet()
-#if not CLEAN22
-    var
-        TimeSheetLine: Record "Time Sheet Line";
-        TimeSheetMgt: Codeunit "Time Sheet Management";
-#endif
     begin
-#if not CLEAN22
-        if not TimeSheetMgt.TimeSheetV2Enabled() then begin
-            TimeSheetMgt.SetTimeSheetNo(Rec."Time Sheet No.", TimeSheetLine);
-            PAGE.Run(PAGE::"Time Sheet", TimeSheetLine);
-            exit;
-        end;
-#endif
         TimeSheetHeader.Get(Rec."Time Sheet No.");
         Page.Run(Page::"Time Sheet Card", TimeSheetHeader);
     end;

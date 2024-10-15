@@ -9,6 +9,7 @@ page 7325 "Warehouse Registers"
     Editable = false;
     PageType = List;
     SourceTable = "Warehouse Register";
+    SourceTableView = sorting("No.") order(descending);
     UsageCategory = History;
 
     layout
@@ -27,11 +28,13 @@ page 7325 "Warehouse Registers"
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the first item entry number in the register.';
+                    Visible = false;
                 }
                 field("To Entry No."; Rec."To Entry No.")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the last warehouse entry number in the register.';
+                    Visible = false;
                 }
                 field("Creation Date"; Rec."Creation Date")
                 {
@@ -103,6 +106,7 @@ page 7325 "Warehouse Registers"
                         WhseEntry: Record "Warehouse Entry";
                     begin
                         WhseEntry.SetRange("Entry No.", Rec."From Entry No.", Rec."To Entry No.");
+                        WhseEntry.SetFilter("Warehouse Register No.", '%1|%2', 0, Rec."No.");
                         PAGE.Run(PAGE::"Warehouse Entries", WhseEntry);
                     end;
                 }
@@ -120,5 +124,9 @@ page 7325 "Warehouse Registers"
             }
         }
     }
-}
 
+    trigger OnOpenPage()
+    begin
+        if Rec.FindFirst() then;
+    end;
+}

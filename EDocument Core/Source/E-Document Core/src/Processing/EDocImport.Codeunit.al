@@ -15,7 +15,6 @@ codeunit 6140 "E-Doc. Import"
     Permissions =
         tabledata "E-Document" = im,
         tabledata "E-Doc. Imported Line" = imd;
-
     internal procedure UploadDocument(var EDocument: Record "E-Document")
     var
         EDocumentService: Record "E-Document Service";
@@ -54,13 +53,28 @@ codeunit 6140 "E-Doc. Import"
         GetDocumentBasicInfo(EDocument, EDocService, TempBlob);
     end;
 
+    local procedure DeleteAttachments(EDocument: Record "E-Document")
+    var
+        EDocAttachmentProcessor: Codeunit "E-Doc. Attachment Processor";
+        RecordRef: RecordRef;
+    begin
+        RecordRef.GetTable(EDocument);
+        EDocAttachmentProcessor.DeleteAll(EDocument, RecordRef);
+
+        if RecordRef.Get(EDocument."Document Record ID") then
+            EDocAttachmentProcessor.DeleteAll(EDocument, RecordRef);
+    end;
+
     internal procedure ProcessDocument(var EDocument: Record "E-Document"; CreateJnlLine: Boolean)
     var
         EDocService: Record "E-Document Service";
         TempBlob: Codeunit "Temp Blob";
     begin
-        if EDocument.Status = EDocument.Status::Processed then
+        if EDocument.Status = EDocument.Status::Processed then // TODO: Change to test field
             exit;
+
+        DeleteAttachments(EDocument);
+
         EDocErrorHelper.ClearErrorMessages(EDocument);
         EDocService := EDocumentLog.GetLastServiceFromLog(EDocument);
         EDocumentLog.GetDocumentBlobFromLog(EDocument, EDocService, TempBlob, Enum::"E-Document Service Status"::Imported);
@@ -92,7 +106,7 @@ codeunit 6140 "E-Doc. Import"
         end else
             EDocErrorHelper.LogSimpleErrorMessage(EDocument, GetLastErrorText());
 
-        EDocument.Modify();
+        EDocument.Modify(true);
     end;
 
     internal procedure ReceiveDocument(EDocService: Record "E-Document Service")
@@ -166,19 +180,23 @@ codeunit 6140 "E-Doc. Import"
         if EDocument.Status = Enum::"E-Document Status"::Processed then
             exit;
 
-        // Release purchase header if it is pointing to this document
+        Vendor.Get(EDocument."Bill-to/Pay-to No.");
+        if not SelectPurchaseOrderFromList(EDocument, Vendor, DocumentHeader) then
+            exit;
 
+        // If new purchase order is selected 
+        // Release purchase header if it is pointing to this document
         if PurchaseHeader.Get(EDocument."Document Record ID") then
             if PurchaseHeader."E-Document Link" = EDocument.SystemId then begin
-                PurchaseHeader."E-Document Link" := NullGuid;
+                PurchaseHeader.Validate("E-Document Link", NullGuid);
                 PurchaseHeader.Modify();
             end;
 
         EDocument."Order No." := '';
         EDocument."Document Type" := EDocument."Document Type"::None;
-        Vendor.Get(EDocument."Bill-to/Pay-to No.");
-        if SelectPurchaseOrderFromList(EDocument, Vendor, DocumentHeader) then
-            ProcessDocument(EDocument, false);
+        EDocument.Modify();
+
+        ProcessDocument(EDocument, false);
     end;
 
     local procedure ProcessExistingOrder(var EDocument: Record "E-Document"; EDocService: Record "E-Document Service"; var SourceDocumentLine: RecordRef; var DocumentHeader: RecordRef; var EDocServiceStatus: Enum "E-Document Service Status")
@@ -338,12 +356,11 @@ codeunit 6140 "E-Doc. Import"
         UpdateEDocumentRecordId(EDocument, EDocument."Document Type", DocNo, RecordId);
     end;
 
-    local procedure UpdateEDocumentRecordId(var EDocument: Record "E-Document"; EDocType: enum "E-Document Type"; DocNo: Code[20];
-                                                                                              RecordId: RecordId)
+    local procedure UpdateEDocumentRecordId(var EDocument: Record "E-Document"; EDocType: enum "E-Document Type"; DocNo: Code[20]; RecordId: RecordId)
     begin
         EDocument."Document Type" := EDocType;
         EDocument."Document No." := DocNo;
-        EDocument."Document Record ID" := RecordId;
+        EDocument.Validate("Document Record ID", RecordId);
         EDocument.Modify();
     end;
 

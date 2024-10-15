@@ -969,6 +969,8 @@ report 5606 "Fixed Asset - Book Value 02"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Fixed Asset Book Value 02';
+        AboutText = 'The **Fixed Asset Book Value 02** report is useful when the user wants to view the movement in valuation of assets over a period time. There is further breakdown of values under additions and disposals during the period , further grouped under classes/subclasses if needed.';
 
         layout
         {
@@ -982,6 +984,8 @@ report 5606 "Fixed Asset - Book Value 02"
                         ApplicationArea = FixedAssets;
                         Caption = 'Depreciation Book';
                         TableRelation = "Depreciation Book";
+                        AboutTitle = 'Select Depreciation Book';
+                        AboutText = 'Choose the Depreciation Book and specify the Starting Date, Ending Date for which details are to be seen and group the total with the applicable option.';
                         ToolTip = 'Specifies the code for the depreciation book to be included in the report or batch job.';
                     }
                     field(StartingDate; StartingDate)
@@ -1007,6 +1011,8 @@ report 5606 "Fixed Asset - Book Value 02"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Print per Fixed Asset';
+                        AboutTitle = 'Enable Print per Fixed Asset';
+                        AboutText = 'Specify the applicable options to view the report details as required.';
                         ToolTip = 'Specifies if you want the report to print information separately for each fixed asset.';
 
                         trigger OnValidate()
@@ -1148,6 +1154,7 @@ report 5606 "Fixed Asset - Book Value 02"
         DerogDeprBookInfo5: Decimal;
         DeprBookInfo5: Decimal;
 
+#pragma warning disable AA0074
         Text000: Label 'Fixed Asset - Book Value 02';
         Text001: Label '(Budget Report)';
         Text002: Label 'Group Totals';
@@ -1155,9 +1162,12 @@ report 5606 "Fixed Asset - Book Value 02"
         Text004: Label 'Addition in Period';
         Text005: Label 'Disposal in Period';
         Text006: Label 'Group Total';
+#pragma warning disable AA0470
         Text007: Label '%1 has been modified in fixed asset %2.';
         Text10800: Label 'Increased in Period';
         Text10801: Label 'Decreased in Period';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PageCaptionLbl: Label 'Page';
         TotalCaptionLbl: Label 'Total';
 

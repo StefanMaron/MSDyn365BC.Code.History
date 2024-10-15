@@ -5,16 +5,15 @@
 namespace Microsoft.EServices.EDocument;
 
 using Microsoft.Finance.GeneralLedger.Journal;
-using Microsoft.Service.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.Document;
+using Microsoft.Utilities;
 using System;
 using System.IO;
 using System.Reflection;
 using System.Utilities;
 using System.Xml;
-using Microsoft.Utilities;
 
 table 133 "Incoming Document Attachment"
 {
@@ -619,7 +618,6 @@ table 133 "Incoming Document Attachment"
     procedure SetFiltersFromMainRecord(var MainRecordRef: RecordRef; var IncomingDocumentAttachment: Record "Incoming Document Attachment")
     var
         SalesHeader: Record "Sales Header";
-        ServiceHeader: Record "Service Header";
         PurchaseHeader: Record "Purchase Header";
         GenJournalLine: Record "Gen. Journal Line";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -644,13 +642,6 @@ table 133 "Incoming Document Attachment"
                     IncomingDocumentAttachment.SetRange("Document Table No. Filter", MainRecordRef.Number);
                     IncomingDocumentAttachment.SetRange("Document Type Filter", EnumAssignmentMgt.GetSalesIncomingDocumentType(SalesHeader."Document Type"));
                     IncomingDocumentAttachment.SetRange("Document No. Filter", SalesHeader."No.");
-                end;
-            DATABASE::"Service Header":
-                begin
-                    MainRecordRef.SetTable(ServiceHeader);
-                    IncomingDocumentAttachment.SetRange("Document Table No. Filter", MainRecordRef.Number);
-                    IncomingDocumentAttachment.SetRange("Document Type Filter", EnumAssignmentMgt.GetServiceIncomingDocumentType(ServiceHeader."Document Type"));
-                    IncomingDocumentAttachment.SetRange("Document No. Filter", ServiceHeader."No.");
                 end;
             DATABASE::"Purchase Header":
                 begin

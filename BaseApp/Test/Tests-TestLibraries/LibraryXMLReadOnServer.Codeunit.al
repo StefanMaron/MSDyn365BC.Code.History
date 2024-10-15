@@ -344,12 +344,11 @@ codeunit 131341 "Library - XML Read OnServer"
         RootNode: DotNet XmlNode;
     begin
         RootNode := Node.ParentNode;
-        while not IsNull(RootNode) and not Found do begin
+        while not IsNull(RootNode) and not Found do
             if RootNode.Name = RootNodeName then
                 Found := true
             else
                 RootNode := RootNode.ParentNode;
-        end;
     end;
 }
 

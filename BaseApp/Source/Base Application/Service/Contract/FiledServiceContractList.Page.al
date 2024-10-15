@@ -4,7 +4,8 @@ using System.Security.User;
 
 page 6073 "Filed Service Contract List"
 {
-    Caption = 'Filed Service Contract List';
+    ApplicationArea = Service;
+    Caption = 'Filed Service Contracts';
     CardPageID = "Filed Service Contract";
     DataCaptionFields = "Contract No. Relation";
     Editable = false;
@@ -12,6 +13,8 @@ page 6073 "Filed Service Contract List"
     ModifyAllowed = false;
     PageType = List;
     SourceTable = "Filed Service Contract Header";
+    UsageCategory = History;
+    AdditionalSearchTerms = 'Filed Service Contract Quotes';
 
     layout
     {
@@ -37,9 +40,9 @@ page 6073 "Filed Service Contract List"
 
                     trigger OnDrillDown()
                     var
-                        UserMgt: Codeunit "User Management";
+                        UserManagement: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation(Rec."Filed By");
+                        UserManagement.DisplayUserInformation(Rec."Filed By");
                     end;
                 }
                 field("Contract Type"; Rec."Contract Type")
@@ -91,7 +94,12 @@ page 6073 "Filed Service Contract List"
 
     trigger OnInit()
     begin
-        CurrPage.LookupMode := false;
+        CurrPage.LookupMode(false);
+    end;
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetSecurityFilterOnResponsibilityCenter();
     end;
 }
 

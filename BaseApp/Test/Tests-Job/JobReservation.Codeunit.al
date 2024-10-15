@@ -25,7 +25,6 @@ codeunit 136312 "Job Reservation"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         ReservationError: Label '%1 must not be changed when a quantity is reserved in %2 %3=''%4'',%5=''%6'',%7=''%8''.', Comment = '%1 Field Caption must not be changed when a quantity is reserved in %2 Table Caption%3 Field Caption=''%4'',%5 Field Caption=''%6'',%7 Field Caption =''%8''.';
-        PlanningLinesReservationErrorForReserve: Label '%1 must be equal to ''0''  in %2: %3=%4, %5=%6, %7=%8. Current value is ''%9''.', Comment = '%1 Field Caption %2 Table Caption %3 Field Caption%4 value, %5 Table Caption %6 value %7 Field Caption %8 value.%9 value.';
         PlanningDateError: Label 'The change leads to a date conflict with existing reservations.';
         ExpectedDateError: Label 'Validation error for Field: Expected Receipt Date,  Message = ''The change leads to a date conflict with existing reservations.';
         RequisitionLineError: Label 'You cannot reserve this entry because it is not a true demand or supply.';
@@ -305,12 +304,7 @@ codeunit 136312 "Job Reservation"
         asserterror JobPlanningLine.Validate(Reserve, JobPlanningLine.Reserve::Never);
 
         // Verify.
-        Assert.ExpectedError(
-          StrSubstNo(
-            PlanningLinesReservationErrorForReserve, JobPlanningLine.FieldCaption("Reserved Qty. (Base)"), JobPlanningLine.TableCaption(),
-            JobPlanningLine.FieldCaption("Job No."), JobPlanningLine."Job No.",
-            JobPlanningLine.FieldCaption("Job Task No."), JobPlanningLine."Job Task No.", JobPlanningLine.FieldCaption("Line No."),
-            JobPlanningLine."Line No.", JobPlanningLine."Reserved Qty. (Base)"));
+        Assert.ExpectedTestFieldError(JobPlanningLine.FieldCaption("Reserved Qty. (Base)"), Format(0));
     end;
 
     [Test]
@@ -1226,18 +1220,16 @@ codeunit 136312 "Job Reservation"
 
     local procedure CreateItemReference(var ItemReference: Record "Item Reference"; ItemNo: Code[20]; ItemVariantNo: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[30])
     begin
-        with ItemReference do begin
-            Init();
-            Validate("Item No.", ItemNo);
-            Validate("Variant Code", ItemVariantNo);
-            Validate("Reference Type", ReferenceType);
-            Validate("Reference Type No.", ReferenceTypeNo);
-            Validate(
-              "Reference No.",
-              LibraryUtility.GenerateRandomCode(FieldNo("Reference No."), DATABASE::"Item Reference"));
-            Validate(Description, ReferenceTypeNo);
-            Insert(true);
-        end;
+        ItemReference.Init();
+        ItemReference.Validate("Item No.", ItemNo);
+        ItemReference.Validate("Variant Code", ItemVariantNo);
+        ItemReference.Validate("Reference Type", ReferenceType);
+        ItemReference.Validate("Reference Type No.", ReferenceTypeNo);
+        ItemReference.Validate(
+          "Reference No.",
+          LibraryUtility.GenerateRandomCode(ItemReference.FieldNo("Reference No."), DATABASE::"Item Reference"));
+        ItemReference.Validate(Description, ReferenceTypeNo);
+        ItemReference.Insert(true);
     end;
 
     local procedure CreateItemWithVariantAndItemReference(var Vendor: Record Vendor; var Item: Record Item; var ItemVariant: Record "Item Variant"; var ItemReference1: Record "Item Reference"; var ItemReference2: Record "Item Reference")
@@ -1256,14 +1248,13 @@ codeunit 136312 "Job Reservation"
     local procedure CreateRequisitionWorksheetline(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; ItemVariantCode: Code[10])
     begin
         CreateBlankRequisitionLine(RequisitionLine);
-        with RequisitionLine do begin
-            Validate(Type, Type::Item);
-            Validate("No.", ItemNo);
-            Validate("Variant Code", ItemVariantCode);
-            Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Use Random for Quantity.
-            Validate("Due Date", WorkDate());
-            Modify(true);
-        end;
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", ItemNo);
+        RequisitionLine.Validate("Variant Code", ItemVariantCode);
+        RequisitionLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
+        // Use Random for Quantity.
+        RequisitionLine.Validate("Due Date", WorkDate());
+        RequisitionLine.Modify(true);
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; ShipmentDate: Date; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)

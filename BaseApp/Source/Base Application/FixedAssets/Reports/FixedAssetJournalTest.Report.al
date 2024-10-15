@@ -329,6 +329,8 @@ report 5602 "Fixed Asset Journal - Test"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 cannot be filtered when you post recurring journals.';
         Text001: Label '%1 must be specified.';
         Text002: Label '%1 cannot be a closing date.';
@@ -344,6 +346,8 @@ report 5602 "Fixed Asset Journal - Test"
         Text012: Label 'Insurance integration is not activated for %1 %2.';
         Text013: Label '%1 must be identical to %2.';
         Text014: Label '%1 %2 already exists.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         FA_Journal_Batch__NameCaptionLbl: Label 'Journal Batch';
         Fixed_Asset_Journal___TestCaptionLbl: Label 'Fixed Asset Journal - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

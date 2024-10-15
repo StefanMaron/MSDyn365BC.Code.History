@@ -162,7 +162,7 @@ table 10865 "Payment Header"
         }
         field(8; "Status Name"; Text[50])
         {
-            CalcFormula = Lookup("Payment Status".Name where("Payment Class" = field("Payment Class"),
+            CalcFormula = lookup("Payment Status".Name where("Payment Class" = field("Payment Class"),
                                                               Line = field("Status No.")));
             Caption = 'Status Name';
             Editable = false;
@@ -204,7 +204,7 @@ table 10865 "Payment Header"
         }
         field(11; "Payment Class Name"; Text[50])
         {
-            CalcFormula = Lookup("Payment Class".Name where(Code = field("Payment Class")));
+            CalcFormula = lookup("Payment Class".Name where(Code = field("Payment Class")));
             Caption = 'Payment Class Name';
             Editable = false;
             FieldClass = FlowField;
@@ -423,7 +423,7 @@ table 10865 "Payment Header"
         }
         field(43; "Archiving Authorized"; Boolean)
         {
-            CalcFormula = Lookup("Payment Status"."Archiving Authorized" where("Payment Class" = field("Payment Class"),
+            CalcFormula = lookup("Payment Status"."Archiving Authorized" where("Payment Class" = field("Payment Class"),
                                                                                 Line = field("Status No.")));
             Caption = 'Archiving Authorized';
             Editable = false;

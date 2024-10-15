@@ -246,8 +246,12 @@ page 9401 "VAT Amount Lines"
         InvoiceDiscountAmountEditable: Boolean;
         NonDeductibleVATVisible: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 can only be modified on the Invoicing tab.';
         Text001: Label 'The total %1 for a document must not exceed the value %2 in the %3 field.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin

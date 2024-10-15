@@ -4,9 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.VAT.Reporting;
 
-#if not CLEAN22
-using Microsoft.Foundation.Enums;
-#endif
 using System.Text;
 
 #pragma warning disable AS0106 // Protected variable VATDateType was removed before AS0106 was introduced.
@@ -69,25 +66,6 @@ page 474 "VAT Statement Preview"
                         UseAmtsInAddCurrOnPush();
                     end;
                 }
-#if not CLEAN22
-                field(VATDateType; VATDateType)
-                {
-                    ApplicationArea = VAT;
-                    Caption = 'VAT Date Type';
-                    ToolTip = 'Specifies what date will be used to filter the amounts in the window.';
-                    Visible = false;
-                    Enabled = false;
-                    ObsoleteReason = 'Selecting VAT Date is no longer supported';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-
-                    trigger OnValidate()
-                    begin
-                        UpdateSubForm();
-                        CurrPage.Update();
-                    end;
-                }
-#endif
                 field(DateFilter; DateFilter)
                 {
                     ApplicationArea = Basic, Suite;
@@ -160,9 +138,6 @@ page 474 "VAT Statement Preview"
         PeriodSelection: Enum "VAT Statement Report Period Selection";
         UseAmtsInAddCurr: Boolean;
         DateFilter: Text[30];
-#if not CLEAN22
-        VATDateType: Enum "VAT Date Type";
-#endif
 
     procedure UpdateSubForm()
     begin

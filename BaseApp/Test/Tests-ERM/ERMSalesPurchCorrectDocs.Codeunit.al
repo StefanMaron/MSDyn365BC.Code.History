@@ -1973,21 +1973,17 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         SalesLine: Record "Sales Line";
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
-            Validate("Unit Price", LibraryRandom.RandIntInRange(20, 40));
-            Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(20, 40));
+        SalesLine.Modify(true);
 
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
-            Validate("Unit Price", -LibraryRandom.RandIntInRange(5, 10));
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", -LibraryRandom.RandIntInRange(5, 10));
+        SalesLine.Modify(true);
 
-        with CustomerPostingGroup do begin
-            Get(Customer."Customer Posting Group");
-            Validate("Invoice Rounding Account", SalesLine."No.");
-            Modify(true);
-        end;
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        CustomerPostingGroup.Validate("Invoice Rounding Account", SalesLine."No.");
+        CustomerPostingGroup.Modify(true);
     end;
 
     local procedure CreatePurchaseLinesWithRoundingGLAcccount(PurchaseHeader: Record "Purchase Header"; Vendor: Record Vendor)
@@ -1995,21 +1991,17 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         PurchaseLine: Record "Purchase Line";
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
-            Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(20, 40));
-            Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(20, 40));
+        PurchaseLine.Modify(true);
 
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
-            Validate("Direct Unit Cost", -LibraryRandom.RandIntInRange(5, 10));
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", -LibraryRandom.RandIntInRange(5, 10));
+        PurchaseLine.Modify(true);
 
-        with VendorPostingGroup do begin
-            Get(Vendor."Vendor Posting Group");
-            Validate("Invoice Rounding Account", PurchaseLine."No.");
-            Modify(true);
-        end;
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        VendorPostingGroup.Validate("Invoice Rounding Account", PurchaseLine."No.");
+        VendorPostingGroup.Modify(true);
     end;
 
     local procedure CleanSalesLineDiscAccountOnGenPostingSetup(SalesLine: Record "Sales Line"; var OldGeneralPostingSetup: Record "General Posting Setup")
@@ -2374,7 +2366,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
     begin
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         asserterror SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
-        Assert.ExpectedError('The Sales Header does not exist.');
+        Assert.ExpectedErrorCannotFind(Database::"Sales Header");
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -2445,7 +2437,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibraryInventory.CreateNonInventoryTypeItem(Item[2]);
         LibraryWarehouse.CreateFullWMSLocation(Location, LibraryRandom.RandInt(5));
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, LibraryPurchase.CreateVendorNo(), Location.Code);
-        
+
         for i := 1 to ArrayLen(Item) do
             LibraryPurchase.CreatePurchaseLineWithUnitCost(
                 PurchaseLine[i],

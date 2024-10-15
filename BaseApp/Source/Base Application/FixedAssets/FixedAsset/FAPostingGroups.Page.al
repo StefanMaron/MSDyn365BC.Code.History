@@ -9,6 +9,8 @@ page 5613 "FA Posting Groups"
     PageType = List;
     SourceTable = "FA Posting Group";
     UsageCategory = Administration;
+    AboutTitle = 'About FA Posting Group';
+    AboutText = 'Here you create/ overview all registered FA posting groups with the G/L Accounts for different types of expenses and costs, such as Acquisition Cost Account, Accumulated Depreciation, Depreciation Expense, Maintenance, Gain and Loss Account on disposal.';
 
     layout
     {

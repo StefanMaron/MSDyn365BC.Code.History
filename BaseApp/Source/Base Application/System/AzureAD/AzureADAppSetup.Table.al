@@ -17,9 +17,14 @@ table 6300 "Azure AD App Setup"
         field(2; "Secret Key"; BLOB)
         {
             Caption = 'Secret Key';
-            ObsoleteState = Pending;
             ObsoleteReason = 'The Secret Key has been moved to Isolated Storage. Use GetSecretKeyFromIsolatedStorage/SetSecretKeyToIsolatedStorage to retrieve or set the Secret Key.';
+#if CLEAN25
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#endif
         }
         field(3; "Primary Key"; Integer)
         {
@@ -56,10 +61,19 @@ table 6300 "Azure AD App Setup"
 
     var
         OnlyOneRecordErr: Label 'There should be only one record for Microsoft Entra App Setup.';
+#if not CLEAN25
 
     [NonDebuggable]
     [Scope('OnPrem')]
-    procedure GetSecretKeyFromIsolatedStorage() SecretKey: Text
+    [Obsolete('Replaced by GetSecretKeyFromIsolatedStorageAsSecretText', '25.0')]
+    procedure GetSecretKeyFromIsolatedStorage(): Text
+    begin
+        exit(GetSecretKeyFromIsolatedStorageAsSecretText().Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetSecretKeyFromIsolatedStorageAsSecretText() SecretKey: SecretText
     begin
         if not IsNullGuid("Isolated Storage Secret Key") then
             if not IsolatedStorage.Get("Isolated Storage Secret Key", DataScope::Module, SecretKey) then;
@@ -68,8 +82,26 @@ table 6300 "Azure AD App Setup"
     end;
 
     [NonDebuggable]
+    local procedure StringToEncryptCanBeEncrypted(ToEncrypt: SecretText): Boolean
+    begin
+        exit(StrLen(ToEncrypt.Unwrap()) <= 215);
+    end;
+#if not CLEAN25
+
     [Scope('OnPrem')]
+    [Obsolete('Replaced by SetSecretKeyToIsolatedStorage(SecretKey: SecretText)', '25.0')]
+    [NonDebuggable]
     procedure SetSecretKeyToIsolatedStorage(SecretKey: Text)
+    var
+        SecretKeyAsSecretText: SecretText;
+    begin
+        SecretKeyAsSecretText := SecretKey;
+        SetSecretKeyToIsolatedStorage(SecretKeyAsSecretText);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure SetSecretKeyToIsolatedStorage(SecretKey: SecretText)
     var
         NewSecretGuid: Guid;
     begin
@@ -78,7 +110,7 @@ table 6300 "Azure AD App Setup"
 
         NewSecretGuid := CreateGuid();
 
-        if (not EncryptionEnabled() or (StrLen(SecretKey) > 215)) then
+        if (not EncryptionEnabled() or (not StringToEncryptCanBeEncrypted(SecretKey))) then
             IsolatedStorage.Set(NewSecretGuid, SecretKey, DataScope::Module)
         else
             IsolatedStorage.SetEncrypted(NewSecretGuid, SecretKey, DataScope::Module);

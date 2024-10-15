@@ -78,9 +78,11 @@ report 5686 "Cancel FA Entries"
         Text10800: Label 'You cannot cancel FA entries that were posted to a derogatory depreciation book. Instead you must\cancel the FA entries posted to the depreciation book integrated with G/L.';
         DerogFALedgEntry: Record "FA Ledger Entry";
 
+#pragma warning disable AA0074
         Text000: Label 'You must specify New Posting Date.';
         Text001: Label 'You must not specify New Posting Date.';
         Text002: Label 'You must not specify a closing date.';
+#pragma warning restore AA0074
 
     procedure GetFALedgEntry(var FALedgEntry2: Record "FA Ledger Entry")
     begin

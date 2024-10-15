@@ -25,24 +25,22 @@ codeunit 136354 "UT T Job WIP Method"
         LibraryJob: Codeunit "Library - Job";
         Method: Option "Completed Contract","Cost of Sales","Cost Value",POC,"Sales Value";
     begin
-        with JobWIPMethod do begin
-            // Verify that Job WIP Method is initialized correctly.
-            LibraryJob.GetJobWIPMethod(JobWIPMethod, Method::"Completed Contract");
-            if Count <> 1 then
-                Assert.Fail('Job WIP Method Completed Contract did not initalize correctly');
-            LibraryJob.GetJobWIPMethod(JobWIPMethod, Method::"Cost of Sales");
-            if Count <> 1 then
-                Assert.Fail('Job WIP Method Cost of Sales did not initalize correctly');
-            LibraryJob.GetJobWIPMethod(JobWIPMethod, Method::"Cost Value");
-            if Count <> 1 then
-                Assert.Fail('Job WIP Method Cost Value did not initalize correctly');
-            LibraryJob.GetJobWIPMethod(JobWIPMethod, Method::POC);
-            if Count <> 1 then
-                Assert.Fail('Job WIP Method POC Contract did not initalize correctly');
-            LibraryJob.GetJobWIPMethod(JobWIPMethod, Method::"Sales Value");
-            if Count <> 1 then
-                Assert.Fail('Job WIP Method Sales Value did not initalize correctly');
-        end;
+        // Verify that Job WIP Method is initialized correctly.
+        LibraryJob.GetJobWIPMethod(JobWIPMethod, Method::"Completed Contract");
+        if JobWIPMethod.Count <> 1 then
+            Assert.Fail('Job WIP Method Completed Contract did not initalize correctly');
+        LibraryJob.GetJobWIPMethod(JobWIPMethod, Method::"Cost of Sales");
+        if JobWIPMethod.Count <> 1 then
+            Assert.Fail('Job WIP Method Cost of Sales did not initalize correctly');
+        LibraryJob.GetJobWIPMethod(JobWIPMethod, Method::"Cost Value");
+        if JobWIPMethod.Count <> 1 then
+            Assert.Fail('Job WIP Method Cost Value did not initalize correctly');
+        LibraryJob.GetJobWIPMethod(JobWIPMethod, Method::POC);
+        if JobWIPMethod.Count <> 1 then
+            Assert.Fail('Job WIP Method POC Contract did not initalize correctly');
+        LibraryJob.GetJobWIPMethod(JobWIPMethod, Method::"Sales Value");
+        if JobWIPMethod.Count <> 1 then
+            Assert.Fail('Job WIP Method Sales Value did not initalize correctly');
     end;
 
     [Test]
@@ -53,30 +51,25 @@ codeunit 136354 "UT T Job WIP Method"
         JobWIPEntry: Record "Job WIP Entry";
         JobsSetup: Record "Jobs Setup";
     begin
-        with JobWIPMethod do begin
-            // Verify that system defined entries can't be deleted.
-            SetRange("System Defined", true);
-            asserterror DeleteAll(true);
-
-            // Verify that user defined entries can be deleted.
-            SetRange("System Defined", false);
-            CreateUserDefinedEntry(JobWIPMethod);
-            Assert.IsTrue(Delete(true), 'User defined Job WIP Method could not be deleted.');
-
-            // Verify that entries with referenced WIP entries can't be deleted.
-            CreateUserDefinedEntry(JobWIPMethod);
-            JobWIPEntry.Init();
-            JobWIPEntry."WIP Method Used" := Code;
-            JobWIPEntry.Insert();
-            asserterror Delete(true);
-
-            // Verify that the default WIP Method can't be deleted.
-            JobsSetup.Get();
-            CreateUserDefinedEntry(JobWIPMethod);
-            JobsSetup.Validate("Default WIP Method", Code);
-            JobsSetup.Modify();
-            asserterror Delete(true);
-        end;
+        // Verify that system defined entries can't be deleted.
+        JobWIPMethod.SetRange("System Defined", true);
+        asserterror JobWIPMethod.DeleteAll(true);
+        // Verify that user defined entries can be deleted.
+        JobWIPMethod.SetRange("System Defined", false);
+        CreateUserDefinedEntry(JobWIPMethod);
+        Assert.IsTrue(JobWIPMethod.Delete(true), 'User defined Job WIP Method could not be deleted.');
+        // Verify that entries with referenced WIP entries can't be deleted.
+        CreateUserDefinedEntry(JobWIPMethod);
+        JobWIPEntry.Init();
+        JobWIPEntry."WIP Method Used" := JobWIPMethod.Code;
+        JobWIPEntry.Insert();
+        asserterror JobWIPMethod.Delete(true);
+        // Verify that the default WIP Method can't be deleted.
+        JobsSetup.Get();
+        CreateUserDefinedEntry(JobWIPMethod);
+        JobsSetup.Validate("Default WIP Method", JobWIPMethod.Code);
+        JobsSetup.Modify();
+        asserterror JobWIPMethod.Delete(true);
     end;
 
     [Test]
@@ -85,17 +78,15 @@ codeunit 136354 "UT T Job WIP Method"
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
-        with JobWIPMethod do begin
-            // Verify that system defined entries can't be modified.
-            SetRange("System Defined", true);
-            FindFirst();
-            asserterror Validate(Code, 'Test');
-            asserterror Validate(Description, 'Test');
-            asserterror Validate("WIP Cost", not "WIP Cost");
-            asserterror Validate("WIP Sales", not "WIP Sales");
-            asserterror Validate("Recognized Costs", "Recognized Costs"::"At Completion");
-            asserterror Validate("Recognized Sales", "Recognized Sales"::"At Completion");
-        end;
+        // Verify that system defined entries can't be modified.
+        JobWIPMethod.SetRange("System Defined", true);
+        JobWIPMethod.FindFirst();
+        asserterror JobWIPMethod.Validate(Code, 'Test');
+        asserterror JobWIPMethod.Validate(Description, 'Test');
+        asserterror JobWIPMethod.Validate("WIP Cost", not JobWIPMethod."WIP Cost");
+        asserterror JobWIPMethod.Validate("WIP Sales", not JobWIPMethod."WIP Sales");
+        asserterror JobWIPMethod.Validate("Recognized Costs", JobWIPMethod."Recognized Costs"::"At Completion");
+        asserterror JobWIPMethod.Validate("Recognized Sales", JobWIPMethod."Recognized Sales"::"At Completion");
     end;
 
     [Test]
@@ -119,22 +110,19 @@ codeunit 136354 "UT T Job WIP Method"
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
-        with JobWIPMethod do begin
-            // Verify that you can't uncheck WIP Costs, unless "Recognized Costs" is "Usage (Total Cost)"
-            CreateUserDefinedEntry(JobWIPMethod);
-            SetRange("System Defined", false);
-            SetFilter("Recognized Costs", '<> %1', "Recognized Costs"::"Usage (Total Cost)");
-            if FindFirst() then
-                asserterror Validate("WIP Cost", false);
-
-            // Verify that you can uncheck WIP Costs, if "Recognized Costs" is "Usage (Total Cost)"
-            Reset();
-            CreateUserDefinedEntry(JobWIPMethod);
-            SetRange("System Defined", false);
-            FindFirst();
-            Validate("Recognized Costs", "Recognized Costs"::"Usage (Total Cost)");
-            Validate("WIP Cost", false);
-        end;
+        // Verify that you can't uncheck WIP Costs, unless "Recognized Costs" is "Usage (Total Cost)"
+        CreateUserDefinedEntry(JobWIPMethod);
+        JobWIPMethod.SetRange("System Defined", false);
+        JobWIPMethod.SetFilter("Recognized Costs", '<> %1', JobWIPMethod."Recognized Costs"::"Usage (Total Cost)");
+        if JobWIPMethod.FindFirst() then
+            asserterror JobWIPMethod.Validate("WIP Cost", false);
+        // Verify that you can uncheck WIP Costs, if "Recognized Costs" is "Usage (Total Cost)"
+        JobWIPMethod.Reset();
+        CreateUserDefinedEntry(JobWIPMethod);
+        JobWIPMethod.SetRange("System Defined", false);
+        JobWIPMethod.FindFirst();
+        JobWIPMethod.Validate("Recognized Costs", JobWIPMethod."Recognized Costs"::"Usage (Total Cost)");
+        JobWIPMethod.Validate("WIP Cost", false);
     end;
 
     [Test]
@@ -143,22 +131,19 @@ codeunit 136354 "UT T Job WIP Method"
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
-        with JobWIPMethod do begin
-            // Verify that you can't uncheck WIP Sales, unless "Recognized Sales" is "Contract (Invoiced Price)"
-            CreateUserDefinedEntry(JobWIPMethod);
-            SetRange("System Defined", false);
-            SetFilter("Recognized Sales", '<> %1', "Recognized Sales"::"Contract (Invoiced Price)");
-            if FindFirst() then
-                asserterror Validate("WIP Sales", false);
-
-            // Verify that you can uncheck WIP Sales, if "Recognized Sales" is "Contract (Invoiced Price)"
-            Reset();
-            CreateUserDefinedEntry(JobWIPMethod);
-            SetRange("System Defined", false);
-            FindFirst();
-            Validate("Recognized Sales", "Recognized Sales"::"Contract (Invoiced Price)");
-            Validate("WIP Sales", false);
-        end;
+        // Verify that you can't uncheck WIP Sales, unless "Recognized Sales" is "Contract (Invoiced Price)"
+        CreateUserDefinedEntry(JobWIPMethod);
+        JobWIPMethod.SetRange("System Defined", false);
+        JobWIPMethod.SetFilter("Recognized Sales", '<> %1', JobWIPMethod."Recognized Sales"::"Contract (Invoiced Price)");
+        if JobWIPMethod.FindFirst() then
+            asserterror JobWIPMethod.Validate("WIP Sales", false);
+        // Verify that you can uncheck WIP Sales, if "Recognized Sales" is "Contract (Invoiced Price)"
+        JobWIPMethod.Reset();
+        CreateUserDefinedEntry(JobWIPMethod);
+        JobWIPMethod.SetRange("System Defined", false);
+        JobWIPMethod.FindFirst();
+        JobWIPMethod.Validate("Recognized Sales", JobWIPMethod."Recognized Sales"::"Contract (Invoiced Price)");
+        JobWIPMethod.Validate("WIP Sales", false);
     end;
 
     [Test]
@@ -168,21 +153,18 @@ codeunit 136354 "UT T Job WIP Method"
         JobWIPMethod: Record "Job WIP Method";
         JobWIPEntry: Record "Job WIP Entry";
     begin
-        with JobWIPMethod do begin
-            // Verify that WIP Cost is checked, if "Recognized Costs" anything else than "Usage (Total Cost)"
-            CreateUserDefinedEntry(JobWIPMethod);
-            Validate("Recognized Costs", "Recognized Costs"::"Usage (Total Cost)");
-            Validate("WIP Cost", false);
-            Validate("Recognized Costs", "Recognized Costs"::"Cost of Sales");
-            Assert.IsTrue("WIP Cost", 'WIP Cost is not true after Recognized Costs is set to something else than Usage (Total Cost).');
-
-            // Verify that "Recognized Costs" from the default WIP Method can't be unchecked.
-            CreateUserDefinedEntry(JobWIPMethod);
-            JobWIPEntry.Init();
-            JobWIPEntry."WIP Method Used" := Code;
-            JobWIPEntry.Insert();
-            asserterror Validate("Recognized Costs", LibraryRandom.RandInt(4));
-        end;
+        // Verify that WIP Cost is checked, if "Recognized Costs" anything else than "Usage (Total Cost)"
+        CreateUserDefinedEntry(JobWIPMethod);
+        JobWIPMethod.Validate("Recognized Costs", JobWIPMethod."Recognized Costs"::"Usage (Total Cost)");
+        JobWIPMethod.Validate("WIP Cost", false);
+        JobWIPMethod.Validate("Recognized Costs", JobWIPMethod."Recognized Costs"::"Cost of Sales");
+        Assert.IsTrue(JobWIPMethod."WIP Cost", 'WIP Cost is not true after Recognized Costs is set to something else than Usage (Total Cost).');
+        // Verify that "Recognized Costs" from the default WIP Method can't be unchecked.
+        CreateUserDefinedEntry(JobWIPMethod);
+        JobWIPEntry.Init();
+        JobWIPEntry."WIP Method Used" := JobWIPMethod.Code;
+        JobWIPEntry.Insert();
+        asserterror JobWIPMethod.Validate("Recognized Costs", LibraryRandom.RandInt(4));
     end;
 
     [Test]
@@ -192,23 +174,20 @@ codeunit 136354 "UT T Job WIP Method"
         JobWIPMethod: Record "Job WIP Method";
         JobWIPEntry: Record "Job WIP Entry";
     begin
-        with JobWIPMethod do begin
-            // Verify that WIP Sales is checked, if "Recognized Sales" anything else than "Contract (Invoiced Price)"
-            CreateUserDefinedEntry(JobWIPMethod);
-            Validate("Recognized Sales", "Recognized Sales"::"Contract (Invoiced Price)");
-            Validate("WIP Sales", false);
-            Validate("Recognized Sales", "Recognized Sales"::"Sales Value");
-            Assert.IsTrue(
-              "WIP Sales",
-              'WIP Sales is not true after Recognized Sales is set to something else than Contract (Invoiced Price).');
-
-            // Verify that "Recognized Sales" from the default WIP Method can't be unchecked.
-            CreateUserDefinedEntry(JobWIPMethod);
-            JobWIPEntry.Init();
-            JobWIPEntry."WIP Method Used" := Code;
-            JobWIPEntry.Insert();
-            asserterror Validate("Recognized Sales", LibraryRandom.RandInt(4));
-        end;
+        // Verify that WIP Sales is checked, if "Recognized Sales" anything else than "Contract (Invoiced Price)"
+        CreateUserDefinedEntry(JobWIPMethod);
+        JobWIPMethod.Validate("Recognized Sales", JobWIPMethod."Recognized Sales"::"Contract (Invoiced Price)");
+        JobWIPMethod.Validate("WIP Sales", false);
+        JobWIPMethod.Validate("Recognized Sales", JobWIPMethod."Recognized Sales"::"Sales Value");
+        Assert.IsTrue(
+          JobWIPMethod."WIP Sales",
+          'WIP Sales is not true after Recognized Sales is set to something else than Contract (Invoiced Price).');
+        // Verify that "Recognized Sales" from the default WIP Method can't be unchecked.
+        CreateUserDefinedEntry(JobWIPMethod);
+        JobWIPEntry.Init();
+        JobWIPEntry."WIP Method Used" := JobWIPMethod.Code;
+        JobWIPEntry.Insert();
+        asserterror JobWIPMethod.Validate("Recognized Sales", LibraryRandom.RandInt(4));
     end;
 
     [Test]

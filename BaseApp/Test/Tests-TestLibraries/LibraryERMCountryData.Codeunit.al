@@ -302,29 +302,28 @@ codeunit 131305 "Library - ERM Country Data"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         LibraryERM.FindGeneralPostingSetupInvtFull(NormalGeneralPostingSetup);
-        with GeneralPostingSetup do
-            if FindSet() then
-                repeat
-                    if "Direct Cost Applied Account" = '' then
-                        Validate("Direct Cost Applied Account", NormalGeneralPostingSetup."Direct Cost Applied Account")
-                    else
-                        // Due to FR DDT COD119032 "Direct Cost Applied Account" may be equal to "Inventory Adjmt. Account"
-                        if "Direct Cost Applied Account" = "Inventory Adjmt. Account" then
-                            Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo());
-                    if "Overhead Applied Account" = '' then
-                        Validate("Overhead Applied Account", NormalGeneralPostingSetup."Overhead Applied Account");
-                    if "COGS Account" = '' then
-                        Validate("COGS Account", NormalGeneralPostingSetup."COGS Account");
-                    if "Purchase Variance Account" = '' then
-                        Validate("Purchase Variance Account", NormalGeneralPostingSetup."Purchase Variance Account");
-                    if "Inventory Adjmt. Account" = '' then
-                        Validate("Inventory Adjmt. Account", NormalGeneralPostingSetup."Inventory Adjmt. Account");
-                    if "Purch. Prepayments Account" = '' then
-                        Validate("Purch. Prepayments Account", NormalGeneralPostingSetup."Purch. Prepayments Account");
-                    if "Sales Prepayments Account" = '' then
-                        Validate("Sales Prepayments Account", NormalGeneralPostingSetup."Sales Prepayments Account");
-                    Modify(true);
-                until Next() = 0;
+        if GeneralPostingSetup.FindSet() then
+            repeat
+                if GeneralPostingSetup."Direct Cost Applied Account" = '' then
+                    GeneralPostingSetup.Validate("Direct Cost Applied Account", NormalGeneralPostingSetup."Direct Cost Applied Account")
+                else
+                    // Due to FR DDT COD119032 "Direct Cost Applied Account" may be equal to "Inventory Adjmt. Account"
+                    if GeneralPostingSetup."Direct Cost Applied Account" = GeneralPostingSetup."Inventory Adjmt. Account" then
+                        GeneralPostingSetup.Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo());
+                if GeneralPostingSetup."Overhead Applied Account" = '' then
+                    GeneralPostingSetup.Validate("Overhead Applied Account", NormalGeneralPostingSetup."Overhead Applied Account");
+                if GeneralPostingSetup."COGS Account" = '' then
+                    GeneralPostingSetup.Validate("COGS Account", NormalGeneralPostingSetup."COGS Account");
+                if GeneralPostingSetup."Purchase Variance Account" = '' then
+                    GeneralPostingSetup.Validate("Purchase Variance Account", NormalGeneralPostingSetup."Purchase Variance Account");
+                if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
+                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", NormalGeneralPostingSetup."Inventory Adjmt. Account");
+                if GeneralPostingSetup."Purch. Prepayments Account" = '' then
+                    GeneralPostingSetup.Validate("Purch. Prepayments Account", NormalGeneralPostingSetup."Purch. Prepayments Account");
+                if GeneralPostingSetup."Sales Prepayments Account" = '' then
+                    GeneralPostingSetup.Validate("Sales Prepayments Account", NormalGeneralPostingSetup."Sales Prepayments Account");
+                GeneralPostingSetup.Modify(true);
+            until GeneralPostingSetup.Next() = 0;
     end;
 
     local procedure CreateGLAccount(): Code[20]

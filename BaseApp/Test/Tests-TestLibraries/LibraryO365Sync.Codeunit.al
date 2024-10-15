@@ -42,25 +42,27 @@ codeunit 131013 "Library - O365 Sync"
         ExchangeSync.Insert();
     end;
 
+    [NonDebuggable]
     procedure SetupExchangeTableConnection(var ExchangeSync: Record "Exchange Sync"; var LocalConnectionID: Guid)
     var
         O365SyncManagement: Codeunit "O365 Sync. Management";
-        LocalConnectionString: Text;
+        LocalConnectionString: SecretText;
     begin
         LocalConnectionID := CreateGuid();
-        LocalConnectionString := O365SyncManagement.BuildExchangeConnectionString(ExchangeSync);
-        RegisterTableConnection(TABLECONNECTIONTYPE::Exchange, LocalConnectionID, LocalConnectionString);
+        LocalConnectionString := O365SyncManagement.BuildExchangeConnectionStringAsSecretText(ExchangeSync);
+        RegisterTableConnection(TABLECONNECTIONTYPE::Exchange, LocalConnectionID, LocalConnectionString.Unwrap());
         SetDefaultTableConnection(TABLECONNECTIONTYPE::Exchange, LocalConnectionID);
     end;
 
+    [NonDebuggable]
     procedure SetupBookingTableConnection(var BookingSync: Record "Booking Sync"; var LocalConnectionID: Guid)
     var
         O365SyncManagement: Codeunit "O365 Sync. Management";
-        LocalConnectionString: Text;
+        LocalConnectionString: SecretText;
     begin
         LocalConnectionID := CreateGuid();
-        LocalConnectionString := O365SyncManagement.BuildBookingsConnectionString(BookingSync);
-        RegisterTableConnection(TABLECONNECTIONTYPE::Exchange, LocalConnectionID, LocalConnectionString);
+        LocalConnectionString := O365SyncManagement.BuildBookingsConnectionStringAsSecretText(BookingSync);
+        RegisterTableConnection(TABLECONNECTIONTYPE::Exchange, LocalConnectionID, LocalConnectionString.Unwrap());
         SetDefaultTableConnection(TABLECONNECTIONTYPE::Exchange, LocalConnectionID);
     end;
 

@@ -14,6 +14,8 @@ page 9277 "FA Posting Types Overv. Matrix"
     LinksAllowed = false;
     PageType = List;
     SourceTable = "FA Depreciation Book";
+    AboutTitle = 'About FA Posting Types Overv. Matrix';
+    AboutText = 'With the **FA Posting Types Overv. Matrix**, you can review accumulated amounts for each field, such as book value, acquisition cost, and depreciation, and for each fixed asset. For every fixed asset, a separate line is shown for each depreciation book linked to the asset.';
 
     layout
     {
@@ -594,6 +596,8 @@ page 9277 "FA Posting Types Overv. Matrix"
                     Caption = 'Statistics';
                     Image = Statistics;
                     ShortCutKey = 'F7';
+                    AboutTitle = 'Review Fixed Asset Statistics';
+                    AboutText = 'Review the asset-wise Statistics details for main and component assets.';
                     ToolTip = 'View detailed historical information about the fixed asset.';
 
                     trigger OnAction()

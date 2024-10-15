@@ -14,7 +14,7 @@ codeunit 149122 "BCPT Post Purch. Inv." implements "BCPT Test Param. Provider"
 
     trigger OnRun();
     begin
-        if not IsInitialized or true then begin
+        if not IsInitialized then begin
             InitTest();
             IsInitialized := true;
         end;
@@ -33,11 +33,15 @@ codeunit 149122 "BCPT Post Purch. Inv." implements "BCPT Test Param. Provider"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         NoSeriesLine: Record "No. Series Line";
+        RecordModified: Boolean;
     begin
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.TestField("Invoice Nos.");
-        PurchasesPayablesSetup."Ext. Doc. No. Mandatory" := false;
-        PurchasesPayablesSetup.Modify();
+        if PurchasesPayablesSetup."Ext. Doc. No. Mandatory" then begin
+            PurchasesPayablesSetup."Ext. Doc. No. Mandatory" := false;
+            PurchasesPayablesSetup.Modify();
+            RecordModified := true;
+        end;
 
         NoSeriesLine.SetRange("Series Code", PurchasesPayablesSetup."Invoice Nos.");
         NoSeriesLine.FindSet(true);
@@ -46,9 +50,12 @@ codeunit 149122 "BCPT Post Purch. Inv." implements "BCPT Test Param. Provider"
                 NoSeriesLine."Ending No." := '';
                 NoSeriesLine.Validate(Implementation, Enum::"No. Series Implementation"::Sequence);
                 NoSeriesLine.Modify(true);
+                RecordModified := true;
             end;
         until NoSeriesLine.Next() = 0;
-        commit();
+
+        if RecordModified then
+            Commit();
 
         if Evaluate(NoOfLinesToCreate, GlobalBCPTTestContext.GetParameter(NoOfLinesParamLbl)) then;
     end;

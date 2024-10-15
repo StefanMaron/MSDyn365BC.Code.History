@@ -51,9 +51,15 @@ codeunit 64 "Sales-Get Shipment"
         UOMMgt: Codeunit "Unit of Measure Management";
         GetShipments: Page "Get Shipment Lines";
         LineListHasAttachments: Dictionary of [Code[20], Boolean];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The %1 on the %2 %3 and the %4 %5 must be the same.';
+#pragma warning restore AA0470
         Text002: Label 'Creating Sales Invoice Lines\';
+#pragma warning disable AA0470
         Text003: Label 'Inserted lines             #1######';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CreateInvLines(var SalesShptLine2: Record "Sales Shipment Line")
     var

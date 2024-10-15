@@ -602,6 +602,7 @@ page 5740 "Transfer Order"
                 {
                     ApplicationArea = Location;
                     Caption = 'Re&lease';
+                    Enabled = Rec.Status <> Rec.Status::Released;
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
@@ -615,6 +616,7 @@ page 5740 "Transfer Order"
                 {
                     ApplicationArea = Location;
                     Caption = 'Reo&pen';
+                    Enabled = Rec.Status <> Rec.Status::Open;
                     Image = ReOpen;
                     ToolTip = 'Reopen the transfer order after being released for warehouse handling.';
 
@@ -915,7 +917,11 @@ page 5740 "Transfer Order"
         IsToCountyVisible: Boolean;
         IsTransferLinesEditable: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Do you want to change %1 in all related records in the warehouse?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         EnableTransferFields: Boolean;

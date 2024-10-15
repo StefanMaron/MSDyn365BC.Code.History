@@ -155,9 +155,13 @@ report 1495 "Delete Check Ledger Entries"
         RegExists: Boolean;
 
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 must be specified.';
         Text004: Label 'Date compressing check ledger entries...\\Bank Account No.       #1##########\No. of entries deleted #4######';
+#pragma warning restore AA0470
         Text007: Label 'All records deleted';
+#pragma warning restore AA0074
 
     local procedure InitRegister()
     var

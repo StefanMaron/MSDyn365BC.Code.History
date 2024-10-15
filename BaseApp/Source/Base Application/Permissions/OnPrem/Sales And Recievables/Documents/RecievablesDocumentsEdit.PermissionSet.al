@@ -19,6 +19,7 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Registration;
 using Microsoft.Bank.BankAccount;
 using Microsoft.Warehouse.Structure;
 using Microsoft.Inventory.BOM;
@@ -48,7 +49,7 @@ using Microsoft.Pricing.Worksheet;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Projects.Resources.Resource;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Sales.History;
@@ -142,7 +143,7 @@ permissionset 8651 "Recievables Documents - Edit"
                   tabledata "Requisition Line" = Rim,
                   tabledata "Reservation Entry" = Rimd,
                   tabledata Resource = R,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,
 #endif
@@ -158,11 +159,11 @@ permissionset 8651 "Recievables Documents - Edit"
                   tabledata "Sales Invoice Line" = R,
                   tabledata "Sales Line" = RIMD,
                   tabledata "Sales Line Archive" = RIMD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Line Discount" = R,
 #endif
                   tabledata "Sales Planning Line" = Rimd,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Price" = R,
 #endif
                   tabledata "Sales Price Access" = R,
@@ -204,5 +205,6 @@ permissionset 8651 "Recievables Documents - Edit"
                   tabledata "VAT Setup Posting Groups" = R,
                   tabledata "VAT Setup" = R,
                   tabledata "VAT Posting Parameters" = R,
+                  tabledata "Alt. Cust. VAT Reg." = R,
                   tabledata "Work Type" = R;
 }

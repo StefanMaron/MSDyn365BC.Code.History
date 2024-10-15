@@ -98,12 +98,16 @@ report 1137 "Transfer Budget to Actual"
         Window: Dialog;
         LastEntryNo: Integer;
         NoInserted: Integer;
+#pragma warning disable AA0074
         Text000: Label 'Define the name of the source budget.';
         Text001: Label 'Date range must be defined.';
+#pragma warning disable AA0470
         Text002: Label 'The cost budget "%1" for the date range of "%2" will be transferred to the actual cost entries. \Do you want to start the job?';
         Text003: Label 'Copying budget entries\No of entries #1#####\Copied        #2#####';
         Text004: Label '%1 budget entries were transferred to actual cost entries.\\Do you want to copy entries?';
+#pragma warning restore AA0470
         Text005: Label 'Posting Cost Entries @1@@@@@@@@@@\';
+#pragma warning restore AA0074
 
     local procedure PostCostJournalLines()
     var

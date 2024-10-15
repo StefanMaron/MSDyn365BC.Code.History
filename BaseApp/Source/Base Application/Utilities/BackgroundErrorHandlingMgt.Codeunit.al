@@ -1,17 +1,16 @@
 namespace Microsoft.Utilities;
 
 using Microsoft.Finance.GeneralLedger.Journal;
-using System.Telemetry;
-using System.Utilities;
+using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Inventory.Journal;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Purchases.Document;
-using System.IO;
-using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Sales.Document;
 using System.Environment.Configuration;
+using System.IO;
+using System.Telemetry;
+using System.Utilities;
 
 codeunit 9079 "Background Error Handling Mgt."
 {
@@ -34,23 +33,6 @@ codeunit 9079 "Background Error Handling Mgt."
         DocumentTypeTxt: Label 'Document Type', Locked = true;
         TelemetryFeatureNameTxt: Label 'Check documents and journals while you work', Locked = true;
 
-#if not CLEAN22
-    [Obsolete('Feature made enabled by default', '22.0')]
-    procedure IsEnabled() Result: Boolean
-    begin
-        Result := true;
-        OnAfterIsEnabled(Result);
-    end;
-#endif
-
-#if not CLEAN22
-    [Obsolete('Feature made enabled by default', '22.0')]
-    procedure GetFeatureKey(): Text[50]
-    begin
-        exit('DocumentJournalBackgroundCheck');
-    end;
-#endif
-
     procedure BackgroundValidationFeatureEnabled(): Boolean
     var
         GLSetup: Record "General Ledger Setup";
@@ -58,13 +40,6 @@ codeunit 9079 "Background Error Handling Mgt."
         GLSetup.Get();
         exit(GLSetup."Enable Data Check");
     end;
-
-#if not CLEAN22
-    [Obsolete('Feature made enabled by default', '22.0')]
-    procedure TestIsEnabled()
-    begin
-    end;
-#endif
 
     procedure CleanTempErrorMessages(var TempErrorMessage: Record "Error Message" temporary; ErrorHandlingParameters: Record "Error Handling Parameters")
     begin
@@ -195,12 +170,15 @@ codeunit 9079 "Background Error Handling Mgt."
         ErrorHandlingParameters."Line No." := DocumentErrorsMgt.GetModifiedPurchaseLineNo();
     end;
 
-    procedure CollectServiceDocCheckParameters(ServiceHeader: Record "Service Header"; var ErrorHandlingParameters: Record "Error Handling Parameters")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Serv. Document Errors Mgt.', '25.0')]
+    procedure CollectServiceDocCheckParameters(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var ErrorHandlingParameters: Record "Error Handling Parameters")
     begin
         ErrorHandlingParameters."Document No." := ServiceHeader."No.";
         ErrorHandlingParameters."Service Document Type" := ServiceHeader."Document Type";
         ErrorHandlingParameters."Full Document Check" := true;
     end;
+#endif
 
     procedure GetErrorsFromItemJnlCheckResultValues(ResultValues: List of [Text]; var TempErrorMessage: Record "Error Message" temporary; ErrorHandlingParameters: Record "Error Handling Parameters")
     var
@@ -442,12 +420,15 @@ codeunit 9079 "Background Error Handling Mgt."
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
-    procedure FeatureTelemetryLogUsageService(ErrorsFound: Boolean; TableName: Text; DocumentType: Enum "Service Document Type")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit Serv. Document Errors Mgt.', '25.0')]
+    procedure FeatureTelemetryLogUsageService(ErrorsFound: Boolean; TableName: Text; DocumentType: Enum Microsoft.Service.Document."Service Document Type")
     begin
         TranslationHelper.SetGlobalLanguageToDefault();
         FeatureTelemetryLogUsageDocument(ErrorsFound, TableName, Format(DocumentType));
         TranslationHelper.RestoreGlobalLanguage();
     end;
+#endif
 
     procedure FeatureTelemetryLogUsagePurchase(ErrorsFound: Boolean; TableName: Text; DocumentType: Enum "Purchase Document Type")
     begin
@@ -482,12 +463,4 @@ codeunit 9079 "Background Error Handling Mgt."
             if Rec.Enabled then
                 FeatureTelemetry.LogUptake('0000GNL', TelemetryFeatureNameTxt, "Feature Uptake Status"::"Set up")
     end;
-
-#if not CLEAN22
-    [Obsolete('Feature made enabled by default', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterIsEnabled(var Result: Boolean)
-    begin
-    end;
-#endif
 }

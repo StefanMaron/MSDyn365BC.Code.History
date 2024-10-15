@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Inventory.Document;
 
 using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
@@ -23,6 +24,7 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
         ReservationManagement: Codeunit "Reservation Management";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
+        UOMMgt: Codeunit "Unit of Measure Management";
         Blocked: Boolean;
         DeleteItemTracking: Boolean;
         InvtSetupRead: Boolean;
@@ -31,7 +33,9 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
         MustBeFilledErr: Label 'must be filled in when a quantity is reserved';
         MustNotBeChangedErr: Label 'must not be changed when a quantity is reserved';
         DirectionTxt: Label 'Outbound,Inbound';
+        InventoryTxt: Label 'Inventory';
         SummaryTypeTxt: Label '%1, %2', Locked = true;
+        SourceDoc3Txt: Label '%1 %2 %3', Locked = true;
 
     procedure CreateReservation(var InvtDocumentLine: Record "Invt. Document Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservationEntry: Record "Reservation Entry")
     var
@@ -338,7 +342,7 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
         IsInbound :=
             ((InvtDocumentLine."Document Type" = InvtDocumentLine."Document Type"::Receipt) and not InvtDocumentLine.IsCorrection()) or
             ((InvtDocumentLine."Document Type" = InvtDocumentLine."Document Type"::Shipment) and InvtDocumentLine.IsCorrection());
-        TrackingSpecification.InitFromInvtDocLine(InvtDocumentLine);
+        InitFromInvtDocLine(TrackingSpecification, InvtDocumentLine);
         ItemTrackingLines.SetIsInvtDocumentCorrection(InvtDocumentLine.IsCorrection());
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, InvtDocumentLine."Document Date");
         ItemTrackingLines.SetInbound(IsInbound);
@@ -350,7 +354,7 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
         TrackingSpecification: Record "Tracking Specification";
         ItemTrackingLines: Page "Item Tracking Lines";
     begin
-        TrackingSpecification.InitFromInvtDocLine(InvtDocumentLine);
+        InitFromInvtDocLine(TrackingSpecification, InvtDocumentLine);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, InvtDocumentLine."Document Date");
         ItemTrackingLines.SetSecondSourceQuantity(SecondSourceQuantityArray);
         ItemTrackingLines.RunModal();
@@ -655,6 +659,139 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
         InvtDocumentLine.SetRange("Document No.", ReservationEntry."Source ID");
         InvtDocumentLine.SetRange("Line No.", ReservationEntry."Source Ref. No.");
         PAGE.RunModal(Page::"Invt. Document Lines", InvtDocumentLine);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnAfterAutoReserveOneLine', '', false, false)]
+    local procedure OnAfterAutoReserveOneLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer; CalcReservEntry: Record "Reservation Entry"; CalcReservEntry2: Record "Reservation Entry"; Positive: Boolean; var sender: Codeunit "Reservation Management")
+    begin
+        if MatchThisEntry(ReservSummEntryNo) then
+            AutoInvtDocLineReserve(
+                CalcReservEntry, sender, ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase,
+                Description, AvailabilityDate, Search, NextStep, Positive);
+    end;
+
+    local procedure AutoInvtDocLineReserve(var CalcReservEntry: Record "Reservation Entry"; var sender: Codeunit "Reservation Management"; ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer; Positive: Boolean)
+    var
+        CallTrackingSpecification: Record "Tracking Specification";
+        InvtDocLine: Record "Invt. Document Line";
+        QtyThisLine: Decimal;
+        QtyThisLineBase: Decimal;
+        ReservQty: Decimal;
+    begin
+        case ReservSummEntryNo of
+            Enum::"Reservation Summary Type"::"Inventory Receipt".AsInteger():
+                InvtDocLine.FilterReceiptLinesForReservation(CalcReservEntry, sender.GetAvailabilityFilter(AvailabilityDate), Positive);
+            Enum::"Reservation Summary Type"::"Inventory Shipment".AsInteger():
+                InvtDocLine.FilterShipmentLinesForReservation(CalcReservEntry, sender.GetAvailabilityFilter(AvailabilityDate), Positive);
+        end;
+
+        if InvtDocLine.Find(Search) then
+            repeat
+                case ReservSummEntryNo of
+                    Enum::"Reservation Summary Type"::"Inventory Shipment".AsInteger():
+                        begin
+                            InvtDocLine.CalcFields("Reserved Qty. Outbnd. (Base)");
+                            QtyThisLine := -InvtDocLine.Quantity;
+                            QtyThisLineBase := -InvtDocLine."Quantity (Base)";
+                            ReservQty := -InvtDocLine."Reserved Qty. Outbnd. (Base)";
+                            if Positive = (QtyThisLine < 0) then begin
+                                QtyThisLine := 0;
+                                QtyThisLineBase := 0;
+                            end;
+                        end;
+                    Enum::"Reservation Summary Type"::"Inventory Receipt".AsInteger():
+                        begin
+                            InvtDocLine.CalcFields("Reserved Qty. Inbnd. (Base)");
+                            QtyThisLine := InvtDocLine.Quantity;
+                            QtyThisLineBase := InvtDocLine."Quantity (Base)";
+                            ReservQty := InvtDocLine."Reserved Qty. Inbnd. (Base)";
+                            if Positive = (QtyThisLine < 0) then begin
+                                QtyThisLine := 0;
+                                QtyThisLineBase := 0;
+                            end;
+                        end;
+                end;
+                if QtyThisLine <> 0 then
+                    if Abs(QtyThisLine - ReservQty) > 0 then begin
+                        if Abs(QtyThisLine - ReservQty) > Abs(RemainingQtyToReserve) then begin
+                            QtyThisLine := RemainingQtyToReserve;
+                            QtyThisLineBase := RemainingQtyToReserveBase;
+                        end else begin
+                            QtyThisLineBase := QtyThisLineBase - ReservQty;
+                            QtyThisLine := Round(RemainingQtyToReserve / RemainingQtyToReserveBase * QtyThisLineBase, UOMMgt.QtyRndPrecision());
+                        end;
+
+                        sender.CopySign(RemainingQtyToReserve, QtyThisLine);
+                        sender.CopySign(RemainingQtyToReserveBase, QtyThisLineBase);
+
+                        CallTrackingSpecification.InitTrackingSpecification(
+                          Database::"Invt. Document Line", ReservSummEntryNo - Enum::"Reservation Summary Type"::"Inventory Receipt".AsInteger(),
+                          InvtDocLine."Document No.", '', 0, InvtDocLine."Line No.", InvtDocLine."Variant Code", InvtDocLine."Location Code", InvtDocLine."Qty. per Unit of Measure");
+                        CallTrackingSpecification.CopyTrackingFromReservEntry(CalcReservEntry);
+
+                        sender.CreateReservation(Description, InvtDocLine."Posting Date", QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
+
+                        RemainingQtyToReserve := RemainingQtyToReserve - QtyThisLine;
+                        RemainingQtyToReserveBase := RemainingQtyToReserveBase - QtyThisLineBase;
+                    end;
+            until (InvtDocLine.Next(NextStep) = 0) or (RemainingQtyToReserve = 0);
+    end;
+
+    // codeunit Reservation Engine Mgt. subscribers
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnGetActivePointerFieldsOnBeforeAssignArrayValues', '', false, false)]
+    local procedure OnGetActivePointerFieldsOnBeforeAssignArrayValues(TableID: Integer; var PointerFieldIsActive: array[6] of Boolean; var IsHandled: Boolean)
+    begin
+        if TableID = Database::"Invt. Document Line" then begin
+            PointerFieldIsActive[1] := true;  // Type
+            PointerFieldIsActive[2] := true;  // SubType
+            PointerFieldIsActive[3] := true;  // ID
+            PointerFieldIsActive[6] := true;  // RefNo
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnCreateText', '', false, false)]
+    local procedure OnAfterCreateText(ReservationEntry: Record "Reservation Entry"; var Description: Text)
+    begin
+        if ReservationEntry."Source Type" = Database::"Invt. Document Line" then
+            Description :=
+                StrSubstNo(
+                    SourceDoc3Txt, InventoryTxt,
+                    Enum::"Invt. Doc. Document Type".FromInteger(ReservationEntry."Source Subtype"), ReservationEntry."Source ID");
+    end;
+
+    procedure InitFromInvtDocLine(var TrackingSpecification: Record "Tracking Specification"; var InvtDocLine: Record "Invt. Document Line")
+    var
+        QtySignFactor: Integer;
+    begin
+        TrackingSpecification.Init();
+        TrackingSpecification.SetItemData(
+            InvtDocLine."Item No.", InvtDocLine.Description, InvtDocLine."Location Code", InvtDocLine."Variant Code",
+            InvtDocLine."Bin Code", InvtDocLine."Qty. per Unit of Measure", InvtDocLine."Qty. Rounding Precision (Base)");
+        TrackingSpecification.SetSource(
+            Database::"Invt. Document Line", InvtDocLine."Document Type".AsInteger(), InvtDocLine."Document No.", InvtDocLine."Line No.", '', 0);
+
+        QtySignFactor := 1;
+        if InvtDocLine.IsCorrection() then
+            QtySignFactor := -1;
+
+        TrackingSpecification.SetQuantities(
+          InvtDocLine."Quantity (Base)" * QtySignFactor, InvtDocLine.Quantity * QtySignFactor, InvtDocLine."Quantity (Base)" * QtySignFactor,
+          InvtDocLine.Quantity * QtySignFactor, InvtDocLine."Quantity (Base)" * QtySignFactor, 0, 0);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Tracking Specification", 'OnBeforeCheckApplyFromItemEntrySourceType', '', false, false)]
+    local procedure OnBeforeCheckApplyFromItemEntrySourceType(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+        if not MatchThisTable(TrackingSpecification."Source Type") then
+            exit;
+
+        if ((TrackingSpecification."Source Subtype" in [1, 3, 4, 5]) and (TrackingSpecification."Quantity (Base)" > 0)) or
+            ((TrackingSpecification."Source Subtype" in [0, 2, 6]) and (TrackingSpecification."Quantity (Base)" < 0))
+        then
+            TrackingSpecification.FieldError("Quantity (Base)");
+
+        IsHandled := true;
     end;
 }
 

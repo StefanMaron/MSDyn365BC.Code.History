@@ -87,10 +87,18 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         TempSKU: Record "Stockkeeping Unit" temporary;
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         SourceJnl: Option ItemJnl,WhseJnl,PhysInvtOrder,Custom;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Processing items    #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SortingMethod: Option " ",Item,Bin;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Do you want to update the Next Counting Period of the %1?';
+#pragma warning restore AA0470
         Text002: Label 'Cancelled.';
+#pragma warning restore AA0074
         HideValidationDialog: Boolean;
 
     local procedure InsertTempPhysCountBuffer(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; ShelfBin: Code[10]; PhysInvtCountCode: Code[10]; Description: Text[100]; CountingPeriodStartDate: Date; CountingPeriodEndDate: Date; LastCountDate: Date; SourceType: Option Item,SKU)

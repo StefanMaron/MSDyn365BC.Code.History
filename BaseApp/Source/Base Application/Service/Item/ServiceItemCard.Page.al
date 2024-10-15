@@ -461,10 +461,23 @@ page 5980 "Service Item Card"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Item"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Item"),
                               "No." = field("No.");
             }
@@ -1016,9 +1029,9 @@ page 5980 "Service Item Card"
 
     local procedure SetNoFieldVisible()
     var
-        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        ServDocumentNoVisibility: Codeunit "Serv. Document No. Visibility";
     begin
-        NoFieldVisible := DocumentNoVisibility.ServiceItemNoIsVisible();
+        NoFieldVisible := ServDocumentNoVisibility.ServiceItemNoIsVisible();
     end;
 }
 

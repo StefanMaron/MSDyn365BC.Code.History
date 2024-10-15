@@ -18,9 +18,6 @@ codeunit 137032 "SCM Costing Purch Returns II"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         PurchaseAmountMustBeSameErr: Label 'Purchase Amount must be same.';
-        GeneratedMustBeSameErr: Label 'Error Generated Must Be Same.';
-        ApplToItemEntryNoServiceTierErr: Label 'Appl.-to Item Entry must have a value in Purchase Line: Document Type=%1, Document No.=%2, Line No.=%3. It cannot be zero or empty.',
-            Comment = '%1: Document type; %2: Document No.; %3: Line No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -184,9 +181,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // 3. Verify: Verify Apply from Item Entry Error.
-        Assert.AreEqual(
-          StrSubstNo(ApplToItemEntryNoServiceTierErr, PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No."),
-          GetLastErrorText, GeneratedMustBeSameErr);
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Appl.-to Item Entry"), '');
 
         // 4. Tear Down: Set value of 'Ext. Doc. No. Mandatory' to default in Purchase and Payable Setup.
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, BaseExactCostReversingMand);
@@ -572,11 +567,9 @@ codeunit 137032 "SCM Costing Purch Returns II"
     begin
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Enum::"Costing Method"::Standard);
 
-        with Item do begin
-            Get(PurchaseLine."No.");
-            Validate("Standard Cost", LibraryRandom.RandDec(10, 2));
-            Modify(true);
-        end;
+        Item.Get(PurchaseLine."No.");
+        Item.Validate("Standard Cost", LibraryRandom.RandDec(10, 2));
+        Item.Modify(true);
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
@@ -610,12 +603,10 @@ codeunit 137032 "SCM Costing Purch Returns II"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        with InventorySetup do begin
-            Get();
-            Validate("Automatic Cost Posting", AutomaticCostPosting);
-            Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
-            Modify(true);
-        end;
+        InventorySetup.Get();
+        InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
+        InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
+        InventorySetup.Modify(true);
     end;
 
     local procedure CreatePurchaseReturnSetup(var PurchaseHeader: Record "Purchase Header"; var TempPurchaseLine: Record "Purchase Line" temporary; CostingMethod: Enum "Costing Method")
@@ -720,11 +711,9 @@ codeunit 137032 "SCM Costing Purch Returns II"
     local procedure UpdatePurchaseLineQty(var PurchaseLine: Record "Purchase Line"; SignFactor: Integer)
     begin
         // Update Purchase line qunatity and Unit Price with Sign Factor.
-        with PurchaseLine do begin
-            Validate(Quantity, SignFactor * Quantity);
-            Validate("Direct Unit Cost", SignFactor * "Direct Unit Cost");
-            Modify(true);
-        end;
+        PurchaseLine.Validate(Quantity, SignFactor * PurchaseLine.Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", SignFactor * PurchaseLine."Direct Unit Cost");
+        PurchaseLine.Modify(true);
     end;
 
     local procedure UpdateApplyToItemEntryNo(var PurchaseLine: Record "Purchase Line"; SignFactor: Integer)
@@ -745,16 +734,14 @@ codeunit 137032 "SCM Costing Purch Returns II"
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
-        with ItemChargeAssignmentPurch do begin
-            Init();
-            Validate("Document Type", PurchaseLine."Document Type");
-            Validate("Document No.", PurchaseLine."Document No.");
-            Validate("Document Line No.", PurchaseLine."Line No.");
-            Validate("Item Charge No.", PurchaseLine."No.");
-            Validate("Unit Cost", PurchaseLine."Direct Unit Cost");
-            AssignItemChargeToReceipt(ItemChargeAssignmentPurch, PurchaseOrderNo, ItemNo);
-            UpdateItemChargeQtyToAssign(PurchaseLine."Document Type", "Document No.", PurchaseLine.Quantity);
-        end;
+        ItemChargeAssignmentPurch.Init();
+        ItemChargeAssignmentPurch.Validate("Document Type", PurchaseLine."Document Type");
+        ItemChargeAssignmentPurch.Validate("Document No.", PurchaseLine."Document No.");
+        ItemChargeAssignmentPurch.Validate("Document Line No.", PurchaseLine."Line No.");
+        ItemChargeAssignmentPurch.Validate("Item Charge No.", PurchaseLine."No.");
+        ItemChargeAssignmentPurch.Validate("Unit Cost", PurchaseLine."Direct Unit Cost");
+        AssignItemChargeToReceipt(ItemChargeAssignmentPurch, PurchaseOrderNo, ItemNo);
+        UpdateItemChargeQtyToAssign(PurchaseLine."Document Type", ItemChargeAssignmentPurch."Document No.", PurchaseLine.Quantity);
     end;
 
     local procedure AssignItemChargeToReceipt(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchaseOrderNo: Code[20]; ItemNo: Code[20])
@@ -762,25 +749,21 @@ codeunit 137032 "SCM Costing Purch Returns II"
         PurchRcptLine: Record "Purch. Rcpt. Line";
         ItemChargeAssgntPurch: Codeunit "Item Charge Assgnt. (Purch.)";
     begin
-        with PurchRcptLine do begin
-            SetRange("Order No.", PurchaseOrderNo);
-            SetRange("No.", ItemNo);
-            FindFirst();
-            ItemChargeAssgntPurch.CreateRcptChargeAssgnt(PurchRcptLine, ItemChargeAssignmentPurch);
-        end;
+        PurchRcptLine.SetRange("Order No.", PurchaseOrderNo);
+        PurchRcptLine.SetRange("No.", ItemNo);
+        PurchRcptLine.FindFirst();
+        ItemChargeAssgntPurch.CreateRcptChargeAssgnt(PurchRcptLine, ItemChargeAssignmentPurch);
     end;
 
     local procedure UpdateItemChargeQtyToAssign(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; QtyToAssign: Decimal)
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
-        with ItemChargeAssignmentPurch do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Validate("Qty. to Assign", QtyToAssign);
-            Modify(true);
-        end;
+        ItemChargeAssignmentPurch.SetRange("Document Type", DocumentType);
+        ItemChargeAssignmentPurch.SetRange("Document No.", DocumentNo);
+        ItemChargeAssignmentPurch.FindFirst();
+        ItemChargeAssignmentPurch.Validate("Qty. to Assign", QtyToAssign);
+        ItemChargeAssignmentPurch.Modify(true);
     end;
 
     local procedure MoveNegativeLines(var PurchaseHeader: Record "Purchase Header"; var PurchaseHeader2: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; ToDocType: Enum "Purchase Document Type From")
@@ -794,49 +777,41 @@ codeunit 137032 "SCM Costing Purch Returns II"
 
     local procedure FindPurchaseLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst();
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
     end;
 
     local procedure TransferPurchaseLineToTemp(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", "Document Type");
-            SetRange("Document No.", "Document No.");
-            FindSet();
-            repeat
-                TempPurchaseLine := PurchaseLine;
-                TempPurchaseLine.Insert();
-            until Next() = 0;
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseLine."Document No.");
+        PurchaseLine.FindSet();
+        repeat
+            TempPurchaseLine := PurchaseLine;
+            TempPurchaseLine.Insert();
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure GetItemToBeInvUpdateQtyToRecv(var PurchaseLine: Record "Purchase Line") ItemNo: Code[20]
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", "Document No.");
-            SetRange(Type, Type::Item);
-            FindFirst();
-            ItemNo := "No.";
-            Next();
-            Validate("Qty. to Receive", 0);
-            Modify(true);
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange("Document No.", PurchaseLine."Document No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.FindFirst();
+        ItemNo := PurchaseLine."No.";
+        PurchaseLine.Next();
+        PurchaseLine.Validate("Qty. to Receive", 0);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CalcExpectedPurchaseDocAmount(var TempPurchaseLine: Record "Purchase Line" temporary) ExpectedPurchaseDocumnetAmount: Decimal
     begin
-        with TempPurchaseLine do begin
-            FindSet();
-            repeat
-                ExpectedPurchaseDocumnetAmount +=
-                  Quantity * "Direct Unit Cost" + "VAT %" * (Quantity * "Direct Unit Cost") / 100;
-            until Next() = 0;
-        end;
+        TempPurchaseLine.FindSet();
+        repeat
+            ExpectedPurchaseDocumnetAmount +=
+              TempPurchaseLine.Quantity * TempPurchaseLine."Direct Unit Cost" + TempPurchaseLine."VAT %" * (TempPurchaseLine.Quantity * TempPurchaseLine."Direct Unit Cost") / 100;
+        until TempPurchaseLine.Next() = 0;
     end;
 
     local procedure VerifyPurchAmountChargeReturn(var TempPurchaseLine: Record "Purchase Line" temporary; var TempPurchaseLine2: Record "Purchase Line" temporary)
@@ -892,14 +867,12 @@ codeunit 137032 "SCM Costing Purch Returns II"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange(Adjustment, IsAdjustment);
-            FindSet();
-            repeat
-                TestField("Entry Type", ExpectedEntryType);
-            until Next() = 0;
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange(Adjustment, IsAdjustment);
+        ValueEntry.FindSet();
+        repeat
+            ValueEntry.TestField("Entry Type", ExpectedEntryType);
+        until ValueEntry.Next() = 0;
     end;
 
     [MessageHandler]

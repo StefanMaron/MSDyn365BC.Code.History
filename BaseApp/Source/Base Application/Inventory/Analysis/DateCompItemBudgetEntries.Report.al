@@ -314,14 +314,20 @@ report 7139 "Date Comp. Item Budget Entries"
         SkipAnalysisViewUpdateCheck: Boolean;
 
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '%1 must be specified.';
+#pragma warning restore AA0470
         Text003: Label 'Date compressing Item budget entries...\\';
+#pragma warning disable AA0470
         Text004: Label 'Budget Name          #1##########\';
         Text005: Label 'Item No.             #2##########\';
         Text006: Label 'Date                 #3######\\';
         Text007: Label 'No. of new entries   #4######\';
         Text008: Label 'No. of entries del.  #5######';
+#pragma warning restore AA0470
         Text009: Label 'Retain Dimensions';
+#pragma warning restore AA0074
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 

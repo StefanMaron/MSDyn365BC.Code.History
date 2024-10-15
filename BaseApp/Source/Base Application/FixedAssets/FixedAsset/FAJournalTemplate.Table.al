@@ -188,7 +188,11 @@ table 5619 "FA Journal Template"
         FAJnlBatch: Record "FA Journal Batch";
         SourceCodeSetup: Record "Source Code Setup";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Only the %1 field can be filled in on recurring journals.';
         Text001: Label 'must not be %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

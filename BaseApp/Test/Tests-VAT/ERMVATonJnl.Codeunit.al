@@ -18,10 +18,7 @@ codeunit 134044 "ERM VAT on Jnl"
         VATAmountError: Label '%1 must be positive.';
         BalVATAmountError: Label '%1 must be negative.';
         AmountError: Label '%1 must be %2 in %3.';
-        AllowVATError: Label '%1 must be equal to ''%2''  in %3: %4=%5. Current value is ''%6''.';
         FieldValueError: Label 'The %1 must not be more than %2.';
-        AllowVATJnlLineError: Label '%1 must be equal to ''%2''  in %3: %4=%5, %6=%7. Current value is ''%8''.';
-        BalVATError: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.';
         CanceledErr: Label 'Canceled.';
 
     [Test]
@@ -337,10 +334,7 @@ codeunit 134044 "ERM VAT on Jnl"
         asserterror CreateGeneralJournalBatch(GenJournalTemplate.Name, true);
 
         // Verify: Verify the error message.
-        Assert.AreEqual(
-          StrSubstNo(AllowVATError, GenJournalTemplate.FieldCaption("Allow VAT Difference"), true, GenJournalTemplate.TableCaption(),
-            GenJournalTemplate.FieldCaption(Name), GenJournalTemplate.Name, GenJournalTemplate."Allow VAT Difference"),
-          GetLastErrorText, ErrorValidation);
+        Assert.ExpectedTestFieldError(GenJournalTemplate.FieldCaption("Allow VAT Difference"), '');
     end;
 
     [Test]
@@ -387,11 +381,7 @@ codeunit 134044 "ERM VAT on Jnl"
         asserterror GenJournalLine.Validate("VAT Amount", LibraryRandom.RandDec(100, 2));
 
         // Verify: Verify Error Message.
-        Assert.AreEqual(
-          StrSubstNo(AllowVATJnlLineError, GenJournalBatch.FieldCaption("Allow VAT Difference"), true, GenJournalBatch.TableCaption(),
-            GenJournalBatch.FieldCaption("Journal Template Name"), GenJournalBatch."Journal Template Name",
-            GenJournalBatch.FieldCaption(Name), GenJournalBatch.Name, GenJournalBatch."Allow VAT Difference"),
-          GetLastErrorText, ErrorValidation);
+        Assert.ExpectedTestFieldError(GenJournalBatch.FieldCaption("Allow VAT Difference"), '');
     end;
 
     [Test]
@@ -475,12 +465,7 @@ codeunit 134044 "ERM VAT on Jnl"
         asserterror GenJournalLine.Validate("Bal. VAT Amount", BalVATAmount);
 
         // Verify: Verify Bal. VAT Amount Error.
-        Assert.AreEqual(
-          StrSubstNo(BalVATError, GenJournalLine.FieldCaption("Bal. VAT %"), GenJournalLine.TableCaption(),
-            GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
-            GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
-            GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."),
-          GetLastErrorText, ErrorValidation);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Bal. VAT %"), '');
     end;
 
     [Test]

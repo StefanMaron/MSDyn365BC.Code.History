@@ -1244,7 +1244,7 @@ codeunit 10860 "Payment Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnProcessPaymentStepOnAfterCheckPaymentStep(var PaymentStep: Record "Payment Step"; Var PaymentHeader: Record "Payment Header"; Var PaymentLine: Record "Payment Line")
+    local procedure OnProcessPaymentStepOnAfterCheckPaymentStep(var PaymentStep: Record "Payment Step"; var PaymentHeader: Record "Payment Header"; var PaymentLine: Record "Payment Line")
     begin
     end;
 

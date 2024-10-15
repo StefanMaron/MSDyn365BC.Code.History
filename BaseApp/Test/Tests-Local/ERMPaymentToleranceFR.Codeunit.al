@@ -338,16 +338,14 @@ codeunit 144012 "ERM Payment Tolerance FR"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        with PaymentTerms do begin
-            LibraryERM.CreatePaymentTerms(PaymentTerms);
-            Evaluate("Due Date Calculation", '<' + Format(LibraryRandom.RandInt(2)) + 'M>');
-            Evaluate("Discount Date Calculation", '<' + Format(DiscountDateCalculationDays) + 'D>');
-            Validate("Due Date Calculation", "Due Date Calculation");
-            Validate("Discount Date Calculation", "Discount Date Calculation");
-            Validate("Discount %", LibraryRandom.RandDec(5, 2));
-            Modify(true);
-            exit(Code);
-        end;
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        Evaluate(PaymentTerms."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(2)) + 'M>');
+        Evaluate(PaymentTerms."Discount Date Calculation", '<' + Format(DiscountDateCalculationDays) + 'D>');
+        PaymentTerms.Validate("Due Date Calculation", PaymentTerms."Due Date Calculation");
+        PaymentTerms.Validate("Discount Date Calculation", PaymentTerms."Discount Date Calculation");
+        PaymentTerms.Validate("Discount %", LibraryRandom.RandDec(5, 2));
+        PaymentTerms.Modify(true);
+        exit(PaymentTerms.Code);
     end;
 
     local procedure CreatePaymentSlip(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Integer
@@ -380,22 +378,18 @@ codeunit 144012 "ERM Payment Tolerance FR"
 
     local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
-        with CustLedgerEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Customer No.", CustomerNo);
-            FindFirst();
-            CalcFields("Remaining Amount", Amount);
-        end;
+        CustLedgerEntry.SetRange("Document Type", DocumentType);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields("Remaining Amount", Amount);
     end;
 
     local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Vendor No.", VendorNo);
-            FindFirst();
-            CalcFields("Remaining Amount", Amount);
-        end;
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields("Remaining Amount", Amount);
     end;
 
     local procedure FindPaymentLine(var PaymentLine: Record "Payment Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
@@ -524,28 +518,24 @@ codeunit 144012 "ERM Payment Tolerance FR"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        with CustomerPostingGroup do begin
-            Get(PostingGroupCode);
-            Validate("Payment Disc. Debit Acc.", CreateGLAccountNo());
-            Validate("Payment Disc. Credit Acc.", CreateGLAccountNo());
-            Validate("Payment Tolerance Debit Acc.", CreateGLAccountNo());
-            Validate("Payment Tolerance Credit Acc.", CreateGLAccountNo());
-            Modify(true);
-        end;
+        CustomerPostingGroup.Get(PostingGroupCode);
+        CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccountNo());
+        CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccountNo());
+        CustomerPostingGroup.Validate("Payment Tolerance Debit Acc.", CreateGLAccountNo());
+        CustomerPostingGroup.Validate("Payment Tolerance Credit Acc.", CreateGLAccountNo());
+        CustomerPostingGroup.Modify(true);
     end;
 
     local procedure UpdateVendorPostingGroup(PostingGroupCode: Code[20])
     var
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        with VendorPostingGroup do begin
-            Get(PostingGroupCode);
-            Validate("Payment Disc. Debit Acc.", CreateGLAccountNo());
-            Validate("Payment Disc. Credit Acc.", CreateGLAccountNo());
-            Validate("Payment Tolerance Debit Acc.", CreateGLAccountNo());
-            Validate("Payment Tolerance Credit Acc.", CreateGLAccountNo());
-            Modify(true);
-        end;
+        VendorPostingGroup.Get(PostingGroupCode);
+        VendorPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccountNo());
+        VendorPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccountNo());
+        VendorPostingGroup.Validate("Payment Tolerance Debit Acc.", CreateGLAccountNo());
+        VendorPostingGroup.Validate("Payment Tolerance Credit Acc.", CreateGLAccountNo());
+        VendorPostingGroup.Modify(true);
     end;
 
     local procedure UpdateGeneralLedgerSetup()

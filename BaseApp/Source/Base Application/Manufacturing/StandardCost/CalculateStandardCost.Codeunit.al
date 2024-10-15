@@ -49,15 +49,23 @@ codeunit 5812 "Calculate Standard Cost"
         ColIdx: Option ,StdCost,ExpCost,ActCost,Dev,"Var";
         RowIdx: Option ,MatCost,ResCost,ResOvhd,AsmOvhd,Total;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Too many levels. Must be below %1.';
+#pragma warning restore AA0470
         Text001: Label '&Top level,&All levels';
         Text002: Label '@1@@@@@@@@@@@@@';
+#pragma warning disable AA0470
         CalcMfgPrompt: Label 'One or more subassemblies on the assembly list for item %1 use replenishment system Prod. Order. Do you want to calculate standard cost for those subassemblies?';
+#pragma warning restore AA0470
         TargetText: Label 'Standard Cost,Unit Price';
+#pragma warning disable AA0470
         RecursionInstruction: Label 'Calculate the %3 of item %1 %2 by rolling up the assembly list components. Select All levels to include and update the %3 of any subassemblies.', Comment = '%1 = Item No., %2 = Description';
         NonAssemblyItemError: Label 'Item %1 %2 does not use replenishment system Assembly. The %3 will not be calculated.', Comment = '%1 = Item No., %2 = Description';
         NoAssemblyListError: Label 'Item %1 %2 has no assembly list. The %3 will not be calculated.', Comment = '%1 = Item No., %2 = Description';
         NonAssemblyComponentWithList: Label 'One or more subassemblies on the assembly list for this item does not use replenishment system Assembly. The %1 for these subassemblies will not be calculated. Are you sure that you want to continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetProperties(NewCalculationDate: Date; NewCalcMultiLevel: Boolean; NewUseAssemblyList: Boolean; NewLogErrors: Boolean; NewStdCostWkshName: Text[50]; NewShowDialog: Boolean)
     begin
@@ -175,7 +183,7 @@ codeunit 5812 "Calculate Standard Cost"
 
     local procedure PrepareAssemblyCalculation(var Item: Record Item; var Depth: Integer; Target: Option "Standard Cost","Unit Price"; var ContainsProdBOM: Boolean) Instruction: Text[1024]
     var
-        CalculationTarget: Text[80];
+        CalculationTarget: Text;
         SubNonAssemblyItemWithList: Boolean;
     begin
         CalculationTarget := SelectStr(Target, TargetText);
@@ -667,7 +675,7 @@ codeunit 5812 "Calculate Standard Cost"
                 IsHandled := false;
                 OnCalcRtngCostOnBeforeCalcRtngLineCost(RtngLine, ParentItem, LogErrors, IsHandled);
                 if not IsHandled then
-                    CalcRtngLineCost(RtngLine, MfgItemQtyBase, SLCap, SLSub, SLCapOvhd);
+                    CalcRtngLineCost(RtngLine, MfgItemQtyBase, SLCap, SLSub, SLCapOvhd, ParentItem);
             until RtngLine.Next() = 0;
         end;
     end;
@@ -989,6 +997,13 @@ codeunit 5812 "Calculate Standard Cost"
 
     procedure CalcRtngLineCost(RoutingLine: Record "Routing Line"; MfgItemQtyBase: Decimal; var SLCap: Decimal; var SLSub: Decimal; var SLCapOvhd: Decimal)
     var
+        DummyParentItem: Record Item;
+    begin
+        CalcRtngLineCost(RoutingLine, MfgItemQtyBase, SLCap, SLSub, SLCapOvhd, DummyParentItem);
+    end;
+
+    internal procedure CalcRtngLineCost(RoutingLine: Record "Routing Line"; MfgItemQtyBase: Decimal; var SLCap: Decimal; var SLSub: Decimal; var SLCapOvhd: Decimal; var ParentItem: Record Item)
+    var
         WorkCenter: Record "Work Center";
         CostCalculationMgt: Codeunit "Cost Calculation Management";
         UnitCost: Decimal;
@@ -1020,7 +1035,7 @@ codeunit 5812 "Calculate Standard Cost"
             IncrCost(SLCap, DirUnitCost, CostTime);
         IncrCost(SLCapOvhd, CostCalcMgt.CalcOvhdCost(DirUnitCost, IndirCostPct, OvhdRate, 1), CostTime);
 
-        OnAfterCalcRtngLineCost(RoutingLine, MfgItemQtyBase, SLCap, SLSub, SLCapOvhd, StdCostWkshName);
+        OnAfterCalcRtngLineCost(RoutingLine, MfgItemQtyBase, SLCap, SLSub, SLCapOvhd, StdCostWkshName, ParentItem, CostTime);
     end;
 
     local procedure TestRtngVersionIsCertified(RtngVersionCode: Code[20]; RtngHeader: Record "Routing Header")
@@ -1041,7 +1056,7 @@ codeunit 5812 "Calculate Standard Cost"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcRtngLineCost(RoutingLine: Record "Routing Line"; MfgItemQtyBase: Decimal; var SLCap: Decimal; var SLSub: Decimal; var SLCapOvhd: Decimal; var StdCostWkshName: Text[50])
+    local procedure OnAfterCalcRtngLineCost(RoutingLine: Record "Routing Line"; MfgItemQtyBase: Decimal; var SLCap: Decimal; var SLSub: Decimal; var SLCapOvhd: Decimal; var StdCostWkshName: Text[50]; var ParentItem: Record Item; CostTime: Decimal)
     begin
     end;
 

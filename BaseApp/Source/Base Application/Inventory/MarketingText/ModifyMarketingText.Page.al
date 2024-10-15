@@ -48,6 +48,7 @@ page 5839 "Modify Marketing Text"
                 Caption = 'Suggest marketing text';
                 Tooltip = 'Get help writing engaging texts based on the item''s attributes';
                 Visible = CanCopilotSuggest;
+                Enabled = CanCopilotSuggest;
                 trigger OnAction()
                 begin
                     SuggestWithCopilot();

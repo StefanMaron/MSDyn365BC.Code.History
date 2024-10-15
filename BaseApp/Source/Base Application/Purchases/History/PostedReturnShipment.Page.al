@@ -380,6 +380,14 @@ page 6650 "Posted Return Shipment"
                         ApplicationArea = PurchReturnOrder;
                         Caption = 'Country/Region';
                         Editable = false;
+                        ToolTip = 'Specifies the country or region of the ship-to address.';
+                    }
+                    field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                    {
+                        ApplicationArea = PurchReturnOrder;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
                     }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {

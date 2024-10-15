@@ -16,7 +16,9 @@ codeunit 5707 "TransferOrder-Post + Print"
     var
         TransHeader: Record "Transfer Header";
 
+#pragma warning disable AA0074
         Text000: Label '&Ship,&Receive';
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

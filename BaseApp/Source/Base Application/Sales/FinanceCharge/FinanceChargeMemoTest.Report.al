@@ -746,12 +746,18 @@ report 123 "Finance Charge Memo - Test"
         ShowDim: Boolean;
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text010: Label '%1 must not be %2 for %3 %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         VALVATBaseLCY: Decimal;
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be specified.';
         Text002: Label '%1 must be %2.';
         Text003: Label '%1 %2 does not exist.';
@@ -760,9 +766,13 @@ report 123 "Finance Charge Memo - Test"
         Text007: Label 'Page %1';
         Text008: Label 'Finance Charge Memo: %1';
         Text009: Label '%1 must be positive or 0.';
+#pragma warning restore AA0470
         Text011: Label 'VAT Amount Specification in ';
         Text012: Label 'Local Currency';
+#pragma warning disable AA0470
         Text013: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CurrFactor: Decimal;
         TotalAmount: Decimal;
         TotalVatAmount: Decimal;

@@ -61,7 +61,7 @@ codeunit 144009 "UT Balance Sheet"
         // Setup.
         Initialize();
         CreateAndModifyFRAccScheduleLine(
-          FRAccScheduleLine, FRAccScheduleLine."G/L Entry Type Filter"::Definitive, FRAccScheduleLine."Calculate with"::Sign,
+          FRAccScheduleLine, FRAccScheduleLine."Calculate with"::Sign,
           false, FRAccScheduleLine."Totaling Type"::"Posting Accounts");
         FRAccountScheduleNames.OpenEdit();
         FRAccountScheduleNames.FILTER.SetFilter(Name, FRAccScheduleLine."Schedule Name");
@@ -92,7 +92,7 @@ codeunit 144009 "UT Balance Sheet"
         // Setup.
         Initialize();
         CreateAndModifyFRAccScheduleLine(
-          FRAccScheduleLine, FRAccScheduleLine."G/L Entry Type Filter"::Definitive, FRAccScheduleLine."Calculate with"::Sign,
+          FRAccScheduleLine, FRAccScheduleLine."Calculate with"::Sign,
           false, FRAccScheduleLine."Totaling Type"::"Posting Accounts");
         FRAccountSchedule.OpenEdit();
         FRAccountSchedule.FILTER.SetFilter("Schedule Name", FRAccScheduleLine."Schedule Name");
@@ -118,7 +118,7 @@ codeunit 144009 "UT Balance Sheet"
     begin
         // Purpose of the test is to validate OnAfterGetRecord - FR Acc. Schedule Name table code on Report FR Account Schedule.
         FRScheduleLineWithTotalingType(
-          FRAccScheduleLine."G/L Entry Type Filter"::Definitive, FRAccScheduleLine."Calculate with"::Sign,
+          FRAccScheduleLine."Calculate with"::Sign,
           false, FRAccScheduleLine."Totaling Type"::"Posting Accounts");
     end;
 
@@ -132,17 +132,17 @@ codeunit 144009 "UT Balance Sheet"
     begin
         // Purpose of the test is to validate OnAfterGetRecord - FR Acc. Schedule Line table code on Report FR Account Schedule.
         FRScheduleLineWithTotalingType(
-          FRAccScheduleLine."G/L Entry Type Filter"::Simulation, FRAccScheduleLine."Calculate with"::"Opposite Sign",
+          FRAccScheduleLine."Calculate with"::"Opposite Sign",
           true, FRAccScheduleLine."Totaling Type"::"Total Accounts");
     end;
 
-    local procedure FRScheduleLineWithTotalingType(GLEntryTypeFilter: Option; CalculateWith: Option; NewPage: Boolean; TotalingType: Option)
+    local procedure FRScheduleLineWithTotalingType(CalculateWith: Option; NewPage: Boolean; TotalingType: Option)
     var
         FRAccScheduleLine: Record "FR Acc. Schedule Line";
     begin
         // Setup.
         Initialize();
-        CreateAndModifyFRAccScheduleLine(FRAccScheduleLine, GLEntryTypeFilter, CalculateWith, NewPage, TotalingType);
+        CreateAndModifyFRAccScheduleLine(FRAccScheduleLine, CalculateWith, NewPage, TotalingType);
         LibraryVariableStorage.Enqueue(FRAccScheduleLine."Schedule Name");  // Enqueue for FRAccountSchedulePageHandler.
 
         // Exercise.
@@ -426,13 +426,12 @@ codeunit 144009 "UT Balance Sheet"
         exit(FRAccScheduleName.Name);
     end;
 
-    local procedure CreateAndModifyFRAccScheduleLine(var FRAccScheduleLine: Record "FR Acc. Schedule Line"; GLEntryTypeFilter: Option; CalculateWith: Option; NewPage: Boolean; TotalingType: Option)
+    local procedure CreateAndModifyFRAccScheduleLine(var FRAccScheduleLine: Record "FR Acc. Schedule Line"; CalculateWith: Option; NewPage: Boolean; TotalingType: Option)
     begin
         CreateFRAccScheduleLine(FRAccScheduleLine, TotalingType);
         FRAccScheduleLine.Description := LibraryUTUtility.GetNewCode();
         FRAccScheduleLine."Date Filter" := WorkDate();
         FRAccScheduleLine."Date Filter 2" := WorkDate();
-        FRAccScheduleLine."G/L Entry Type Filter" := GLEntryTypeFilter;
         FRAccScheduleLine."Calculate with" := CalculateWith;
         FRAccScheduleLine."New Page" := NewPage;
         FRAccScheduleLine.Totaling := CreateGLAccount();

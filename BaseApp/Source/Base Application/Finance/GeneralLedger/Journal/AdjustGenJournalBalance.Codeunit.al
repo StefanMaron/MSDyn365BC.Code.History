@@ -78,8 +78,12 @@ codeunit 407 "Adjust Gen. Journal Balance"
     var
         TempCurrTotalBuffer: Record "Currency Total Buffer" temporary;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The program cannot find a key between line number %1 and line number %2.';
         Text002: Label 'Rounding correction for %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CheckCurrBalance(): Boolean
     var

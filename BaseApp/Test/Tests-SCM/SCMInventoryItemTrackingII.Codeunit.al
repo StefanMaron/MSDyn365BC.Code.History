@@ -958,14 +958,14 @@ codeunit 137261 "SCM Inventory Item Tracking II"
 
         // [GIVEN] Create Warehouse Receipt from Purchase order, assign Serial and Lot Nos.
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
-        with WarehouseReceiptLine do begin
-            SetRange("Source Document", "Source Document"::"Purchase Order");
-            SetRange("Source No.", PurchaseHeader."No.");
-            FindFirst();
-            LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo); // Enqueue for ItemTrackingPageHandler.
-            LibraryVariableStorage.Enqueue(PurchQuantity); // Enqueue for EnterQuantityToCreateHandlerForSetQuantityAssignLot.
-            OpenItemTrackingLines();
-        end;
+        WarehouseReceiptLine.SetRange("Source Document", WarehouseReceiptLine."Source Document"::"Purchase Order");
+        WarehouseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        WarehouseReceiptLine.FindFirst();
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);
+        // Enqueue for ItemTrackingPageHandler.
+        LibraryVariableStorage.Enqueue(PurchQuantity);
+        // Enqueue for EnterQuantityToCreateHandlerForSetQuantityAssignLot.
+        WarehouseReceiptLine.OpenItemTrackingLines();
 
         // [WHEN] Post Warehouse Receipt.
         PostWarehouseReceipt(WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
@@ -1004,7 +1004,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [THEN] Error 'The Lot No. Information does not exist.' occurs.
-        Assert.ExpectedError(TheLotNoInfoDoesNotExistErr);
+        Assert.ExpectedErrorCannotFind(Database::"Lot No. Information");
     end;
 
     [Test]
@@ -1037,7 +1037,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [THEN] Error 'The Serial No. Information does not exist.' occurs.
-        Assert.ExpectedError(TheSerialNoInfoDoesNotExistErr);
+        Assert.ExpectedErrorCannotFind(Database::"Serial No. Information");
     end;
 
     [Test]
@@ -2697,16 +2697,14 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
-        with ItemTrackingCode do begin
-            Validate("Lot Specific Tracking", LotSpecific);
-            Validate("SN Specific Tracking", SNSpecific);
-            Validate("Lot Info. Inbound Must Exist", InboundLotNoInfoMustExist);
-            Validate("SN Info. Inbound Must Exist", InboundSNInfoMustExist);
-            Validate("Create Lot No. Info on posting", AutoLotInfo);
-            Validate("Create SN Info on Posting", AutoSNInfo);
-            Modify(true);
-            exit(Code);
-        end;
+        ItemTrackingCode.Validate("Lot Specific Tracking", LotSpecific);
+        ItemTrackingCode.Validate("SN Specific Tracking", SNSpecific);
+        ItemTrackingCode.Validate("Lot Info. Inbound Must Exist", InboundLotNoInfoMustExist);
+        ItemTrackingCode.Validate("SN Info. Inbound Must Exist", InboundSNInfoMustExist);
+        ItemTrackingCode.Validate("Create Lot No. Info on posting", AutoLotInfo);
+        ItemTrackingCode.Validate("Create SN Info on Posting", AutoSNInfo);
+        ItemTrackingCode.Modify(true);
+        exit(ItemTrackingCode.Code);
     end;
 
     local procedure CreateLotNoInformation(ItemNo: Code[20]): Code[20]
@@ -2753,24 +2751,22 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         WarehouseEmployee: Record "Warehouse Employee";
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        with Location do begin
-            Validate("Bin Mandatory", true);
-            Validate("Require Receive", true);
-            Validate("Require Shipment", true);
-            LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Code, false);
-            LibraryWarehouse.CreateBin(
-              Bin, Code, CopyStr(
-                LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), 1,
-                LibraryUtility.GetFieldLength(DATABASE::Bin, Bin.FieldNo(Code))), '', '');
-            Validate("Receipt Bin Code", Bin.Code);
-            LibraryWarehouse.CreateBin(
-              Bin, Code, CopyStr(
-                LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), 1,
-                LibraryUtility.GetFieldLength(DATABASE::Bin, Bin.FieldNo(Code))), '', '');
-            Validate("Shipment Bin Code", Bin.Code);
-            Modify(true);
-            exit(Code);
-        end;
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Require Receive", true);
+        Location.Validate("Require Shipment", true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryWarehouse.CreateBin(
+          Bin, Location.Code, CopyStr(
+            LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), 1,
+            LibraryUtility.GetFieldLength(DATABASE::Bin, Bin.FieldNo(Code))), '', '');
+        Location.Validate("Receipt Bin Code", Bin.Code);
+        LibraryWarehouse.CreateBin(
+          Bin, Location.Code, CopyStr(
+            LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin), 1,
+            LibraryUtility.GetFieldLength(DATABASE::Bin, Bin.FieldNo(Code))), '', '');
+        Location.Validate("Shipment Bin Code", Bin.Code);
+        Location.Modify(true);
+        exit(Location.Code);
     end;
 
     local procedure CreatePutawayPickLocation(): Code[10]
@@ -2786,13 +2782,11 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
-        with ItemTrackingCode do begin
-            Get(CreateItemTrackingCode(true, false, true));
-            Validate("Lot Warehouse Tracking", true);
-            Validate("SN Purchase Inbound Tracking", SNTracking);
-            Modify(true);
-            CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), Code);
-        end;
+        ItemTrackingCode.Get(CreateItemTrackingCode(true, false, true));
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCode.Validate("SN Purchase Inbound Tracking", SNTracking);
+        ItemTrackingCode.Modify(true);
+        CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), ItemTrackingCode.Code);
         Evaluate(Item."Expiration Calculation", '<1Y>');
         Item.Modify(true);
     end;
@@ -3298,13 +3292,11 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        with WarehouseEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindSet();
-            repeat
-                Assert.AreEqual(ExpectedSerialNo, "Serial No.", WrongSerialNoErr);
-            until Next() = 0;
-        end;
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.FindSet();
+        repeat
+            Assert.AreEqual(ExpectedSerialNo, WarehouseEntry."Serial No.", WrongSerialNoErr);
+        until WarehouseEntry.Next() = 0;
     end;
 
     local procedure CreateSalesRetOrderGetPstdDocLineToRev(var SalesHeader: Record "Sales Header"; ItemNo: Code[20])

@@ -345,7 +345,7 @@ table 5611 "Depreciation Book"
         }
         field(10801; "Used with Derogatory Book"; Code[10])
         {
-            CalcFormula = Lookup("Depreciation Book".Code where("Derogatory Calculation" = field(Code)));
+            CalcFormula = lookup("Depreciation Book".Code where("Derogatory Calculation" = field(Code)));
             Caption = 'Used with Derogatory Book';
             Editable = false;
             FieldClass = FlowField;
@@ -441,8 +441,12 @@ table 5611 "Depreciation Book"
         Text10803: Label 'Derogatory depreciation books cannot be integrated with the general ledger. Please make sure that none of the fields on the Integration tab are checked.';
         Text10804: Label 'The depreciation book %1 is a derogatory depreciation book.';
 
+#pragma warning disable AA0074
         Text000: Label 'The book cannot be deleted because it is in use.';
+#pragma warning disable AA0470
         Text001: Label 'The book cannot be deleted because %1 %2 = %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         FAPostingTypeSetup: Record "FA Posting Type Setup";

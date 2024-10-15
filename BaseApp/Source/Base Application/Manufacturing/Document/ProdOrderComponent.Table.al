@@ -4,6 +4,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Costing;
 using Microsoft.Inventory.Item;
@@ -995,12 +996,16 @@ table 5407 "Prod. Order Component"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'A finished production order component cannot be inserted, modified, or deleted.';
+#pragma warning disable AA0470
         Text001: Label 'The changed %1 now points to bin %2. Do you want to update the bin on this line?';
         Text99000000: Label 'You cannot delete item %1 in line %2 because at least one item ledger entry is associated with it.';
         Text99000001: Label 'You cannot rename a %1.';
         Text99000002: Label 'You cannot change flushing method to %1 when there is at least one record in table %2 associated with it.';
         Text99000003: Label 'You cannot change %1 when %2 is %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         WrongPrecisionItemAndUOMExpectedQtyErr: Label 'The value in the %1 field on the %2 page, and %3 field on the %4 page, are causing the rounding precision for the %5 field to be incorrect.', Comment = '%1 = field caption, %2 = table caption, %3 field caption, %4 = table caption, %5 = field caption';
         WrongPrecOnUOMExpectedQtyErr: Label 'The value in the %1 field on the %2 page is causing the rounding precision for the %3 field to be incorrect.', Comment = '%1 = field caption, %2 = table caption, %3 field caption';
         Item: Record Item;
@@ -1018,9 +1023,13 @@ table 5407 "Prod. Order Component"
         Reservation: Page Reservation;
         Blocked: Boolean;
         GLSetupRead: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text99000007: Label 'You cannot change flushing method to %1 because a pick has already been created for production order component %2.';
         Text99000008: Label 'You cannot change flushing method to %1 because production order component %2 has already been picked.';
+#pragma warning restore AA0470
         Text99000009: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
+#pragma warning restore AA0074
         ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = Qty. Posted, %4 = ("Expected Quantity" - "Remaining Quantity"), %5 = TableCaption';
         IgnoreErrors: Boolean;
         ErrorOccured: Boolean;
@@ -1140,6 +1149,14 @@ table 5407 "Prod. Order Component"
         end;
         OnGetNeededQtyOnAfterCalcBasedOn(Rec);
         exit(Round("Remaining Quantity", RoundingPrecision));
+    end;
+
+    procedure ShowOrderTracking()
+    var
+        OrderTracking: Page "Order Tracking";
+    begin
+        OrderTracking.SetVariantRec(Rec, Rec."Item No.", Rec."Remaining Qty. (Base)", Rec."Due Date", Rec."Due Date");
+        OrderTracking.RunModal();
     end;
 
     procedure ShowReservation()

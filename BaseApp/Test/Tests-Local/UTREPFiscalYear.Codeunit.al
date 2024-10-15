@@ -346,16 +346,14 @@ codeunit 144072 "UT REP Fiscal Year"
 
     local procedure CreateGLEntry(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20]; DebitAmount: Decimal; PostingDate: Date)
     begin
-        with GLEntry do begin
-            if FindLast() then
-                Init();
-            "Entry No." += 1;
-            "G/L Account No." := GLAccountNo;
-            "Debit Amount" := DebitAmount;
-            Amount := DebitAmount;
-            "Posting Date" := PostingDate;
-            Insert();
-        end;
+        if GLEntry.FindLast() then
+            GLEntry.Init();
+        GLEntry."Entry No." += 1;
+        GLEntry."G/L Account No." := GLAccountNo;
+        GLEntry."Debit Amount" := DebitAmount;
+        GLEntry.Amount := DebitAmount;
+        GLEntry."Posting Date" := PostingDate;
+        GLEntry.Insert();
     end;
 
     local procedure LocalGLReportErrors(ReportID: Integer; PeriodStart: Variant; ErrorCode: Text)

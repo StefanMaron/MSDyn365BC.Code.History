@@ -75,25 +75,31 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         exit(FeatureTelemetryNameTok);
     end;
 
-    [NonDebuggable()]
     internal procedure AcquireTokenAndStoreInIsolatedStorage(BusinessUnit: Record "Business Unit")
     var
-        StorageKey, Token : Text;
+        StorageKey: Text;
+        Token: SecretText;
     begin
         SetAPIParameters(BusinessUnit."AAD Tenant ID", BusinessUnit."Log Requests");
         StorageKey := IsolatedStorageKey(AADTenantId);
         Token := GetToken(CurrentAuthorityUrl());
-        if (not EncryptionEnabled()) or (StrLen(Token) > 215) then
+        if (not EncryptionEnabled()) or (GetTokenLength(Token) > 215) then
             IsolatedStorage.Set(StorageKey, Token, DataScope::Company)
         else
             IsolatedStorage.SetEncrypted(StorageKey, Token, DataScope::Company);
     end;
 
-    [NonDebuggable()]
+    [NonDebuggable]
+    local procedure GetTokenLength(Token: SecretText): Integer
+    begin
+        exit(StrLen(Token.Unwrap()));
+    end;
+
     internal procedure IsStoredTokenValidForBusinessUnit(BusinessUnit: Record "Business Unit"): Boolean
     var
         StatusCode: Integer;
-        Token, StatusReason, StorageKey : Text;
+        Token: SecretText;
+        StatusReason, StorageKey : Text;
     begin
         StorageKey := IsolatedStorageKey(GuidToText(BusinessUnit."AAD Tenant ID"));
         if not IsolatedStorage.Contains(StorageKey, DataScope::Company) then
@@ -247,15 +253,18 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         LogRequests := NewLogRequests;
     end;
 
-    [NonDebuggable()]
-    local procedure GetToken(AuthorityURL: Text): Text
+    local procedure GetToken(AuthorityURL: Text): SecretText
     var
         AzureKeyVault: Codeunit "Azure Key Vault";
         EnvironmentInformation: Codeunit "Environment Information";
         OAuth2: Codeunit OAuth2;
         Scopes: List of [Text];
-        ClientId, ClientSecret, Certificate, CertificateName, FinancialsScope, RedirectURL : Text;
-        AccessToken, IdToken, AuthError : Text;
+        ClientSecret: SecretText;
+        [NonDebuggable]
+        ClientId, Certificate : Text;
+        CertificateName, FinancialsScope, RedirectURL : Text;
+        AccessToken: SecretText;
+        IdToken, AuthError : Text;
         IsEnvPPE: Boolean;
     begin
         IsEnvPPE := IsPPE();
@@ -290,23 +299,23 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         Scopes.Add(FinancialsScope);
         if IsEnvPPE then begin
             if OAuth2.AcquireAuthorizationCodeTokenFromCache(ClientId, ClientSecret, RedirectURL, AuthorityURL, Scopes, AccessToken) then
-                if AccessToken <> '' then
+                if not AccessToken.IsEmpty() then
                     exit(AccessToken);
             if OAuth2.AcquireTokensByAuthorizationCode(ClientId, ClientSecret, AuthorityURL, RedirectURL, Scopes, Enum::"Prompt Interaction"::"Admin Consent", AccessToken, IdToken, AuthError) then
                 exit(AccessToken);
         end else begin
             if OAuth2.AcquireAuthorizationCodeTokenFromCacheWithCertificate(ClientId, Certificate, RedirectURL, AuthorityURL, Scopes, AccessToken) then
-                if AccessToken <> '' then
+                if not AccessToken.IsEmpty() then
                     exit(AccessToken);
             if OAuth2.AcquireTokensByAuthorizationCodeWithCertificate(ClientId, Certificate, AuthorityURL, RedirectUrl, Scopes, Enum::"Prompt Interaction"::"Select Account", AccessToken, IdToken, AuthError) then
                 exit(AccessToken);
         end;
     end;
 
-    [NonDebuggable()]
     local procedure HttpGetTextWithTokenInIsolatedStorage(Uri: Text; var StatusCode: Integer; var StatusReasonPhrase: Text): Text
     var
-        StorageKey, Token : Text;
+        StorageKey: Text;
+        Token: SecretText;
     begin
         StorageKey := IsolatedStorageKey(AADTenantId);
         if IsolatedStorage.Contains(StorageKey, DataScope::Company) then
@@ -314,8 +323,7 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         exit(HttpGetText(Uri, Token, StatusCode, StatusReasonPhrase));
     end;
 
-    [NonDebuggable()]
-    local procedure HttpGetText(Uri: Text; Token: Text; var StatusCode: Integer; var StatusReasonPhrase: Text): Text
+    local procedure HttpGetText(Uri: Text; Token: SecretText; var StatusCode: Integer; var StatusReasonPhrase: Text): Text
     var
         HttpRequestMessage: HttpRequestMessage;
         HttpHeaders: HttpHeaders;
@@ -327,7 +335,7 @@ codeunit 102 "Import Consolidation from API" implements "Import Consolidation Da
         HttpRequestMessage.SetRequestUri(Uri);
         HttpHeaders := HttpClient.DefaultRequestHeaders();
         HttpHeaders.Add('Accept', 'application/json');
-        HttpHeaders.Add('Authorization', 'Bearer ' + Token);
+        HttpHeaders.Add('Authorization', SecretStrSubstNo('Bearer %1', Token));
         HttpClient.Send(HttpRequestMessage, HttpResponseMessage);
         StatusCode := HttpResponseMessage.HttpStatusCode();
         StatusReasonPhrase := HttpResponseMessage.ReasonPhrase();

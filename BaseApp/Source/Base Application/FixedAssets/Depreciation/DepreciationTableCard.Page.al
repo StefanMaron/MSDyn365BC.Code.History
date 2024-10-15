@@ -5,6 +5,8 @@ page 5659 "Depreciation Table Card"
     Caption = 'Depreciation Table Card';
     PageType = ListPlus;
     SourceTable = "Depreciation Table Header";
+    AboutTitle = 'About Depreciation Table Card';
+    AboutText = 'In the **Depreciation Table Card** you specify the information about the period length, total number of units the asset is expected to produce in its lifetime against which this depreciation table will be used.';
 
     layout
     {
@@ -16,6 +18,8 @@ page 5659 "Depreciation Table Card"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = FixedAssets;
+                    AboutTitle = 'For Depreciation Table creation';
+                    AboutText = 'Specify the unique code and description to create a depreciation table with period length and total number of units the asset is expected to produce in its lifetime.';
                     ToolTip = 'Specifies a code for the depreciation table.';
                 }
                 field(Description; Rec.Description)
@@ -37,6 +41,8 @@ page 5659 "Depreciation Table Card"
             part(Control9; "Depreciation Table Lines")
             {
                 ApplicationArea = FixedAssets;
+                AboutTitle = 'About Depreciation Table Line';
+                AboutText = 'In the **Depreciation Table Line**, you specify information about the number of depreciation periods, depreciation percentage to apply to the period and the no. of units produced by the asset during the period.';
                 SubPageLink = "Depreciation Table Code" = field(Code);
             }
         }

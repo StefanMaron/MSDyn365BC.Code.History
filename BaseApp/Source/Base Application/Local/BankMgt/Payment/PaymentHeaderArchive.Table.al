@@ -59,7 +59,7 @@ table 10867 "Payment Header Archive"
         }
         field(8; "Status Name"; Text[50])
         {
-            CalcFormula = Lookup("Payment Status".Name where("Payment Class" = field("Payment Class"),
+            CalcFormula = lookup("Payment Status".Name where("Payment Class" = field("Payment Class"),
                                                               Line = field("Status No.")));
             Caption = 'Status Name';
             Editable = false;
@@ -77,7 +77,7 @@ table 10867 "Payment Header Archive"
         }
         field(11; "Payment Class Name"; Text[50])
         {
-            CalcFormula = Lookup("Payment Class".Name where(Code = field("Payment Class")));
+            CalcFormula = lookup("Payment Class".Name where(Code = field("Payment Class")));
             Caption = 'Payment Class Name';
             Editable = false;
             FieldClass = FlowField;

@@ -386,29 +386,39 @@ report 1131 "Cost Allocation"
         MsgText: Text;
         AllocSourceErrorFound: Boolean;
         AllocTargetErrorFound: Boolean;
+#pragma warning disable AA0074
         Text000: Label 'Allocation date must be defined.';
         Text001: Label 'From Alloc. Level must not be higher than To Alloc. Level.';
         Text002: Label 'Budget cost from budget';
         Text003: Label 'Actual cost';
+#pragma warning disable AA0470
         Text004: Label '%1 will be allocated for levels %2 to %3.\Posting date: %4,  group: "%5"\Do you want to start the job?';
         Text005: Label 'Cost allocation\Level                      #1####### \Source ID                  #2####### \Sum source entries         #3####### \Write allocation entries   #4####### ';
+#pragma warning restore AA0470
         Text006: Label 'No entries have been created for the selected allocations.';
+#pragma warning disable AA0470
         Text007: Label '%1 allocation entries have been generated and processed.';
+#pragma warning restore AA0470
         Text008: Label 'Alloc. Source:';
         Text009: Label 'Alloc. Target: ';
+#pragma warning disable AA0470
         Text010: Label 'Alloc: %1 of %2 shares. Base LCY %3';
         Text011: Label 'Alloc: %1 pct of %2 shares';
         Text012: Label 'Alloc: %1 LCY of %2 shares';
+#pragma warning restore AA0470
         Text013: Label ' ... etc.';
+#pragma warning disable AA0470
         Text014: Label 'Alloc. level %1 of %2';
         Text015: Label 'Not all cost types for debit and credit are defined for allocation ID %1.';
         Text016: Label 'For allocation ID %1, cost center or cost object must be defined for debit and credit. Cost center: "%2", cost object "%3".';
+#pragma warning restore AA0470
         Text017: Label 'Cost Type';
         Text018: Label 'Cost Center';
         Text019: Label 'Cost Object';
         Text020: Label 'One or more allocation targets do not have a cost center or cost object defined. The allocation cannot continue.';
         Text021: Label 'One or more allocation sources do not have a cost center or cost object defined. The allocation cannot continue.';
         Text022: Label 'Posting Cost Entries @1@@@@@@@@@@\';
+#pragma warning restore AA0074
 
     protected var
         CostAccSetup: Record "Cost Accounting Setup";

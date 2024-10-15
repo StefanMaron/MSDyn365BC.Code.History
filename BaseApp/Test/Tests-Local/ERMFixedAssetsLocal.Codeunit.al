@@ -764,16 +764,14 @@ codeunit 144002 "ERM Fixed Assets - Local"
         // Create two FA Depreciation Books with Period = [01-01-SS..31-12-EE], where SS - starting year, EE - ending year
         CreateNormalAndTaxDeprBooks(NormalDeprBookCode, TaxDeprBookCode);
         CreateFAPostingGroup(FixedAsset);
-        with FixedAsset do begin
-            CreateFADeprBookWithDates(
-              "No.", NormalDeprBookCode, "FA Posting Group",
-              CalcDate('<-CY>', WorkDate()),
-              CalcDate('<' + Format(NoOfYearsNormal - 1) + 'Y+CY>', WorkDate()));
-            CreateFADeprBookWithDates(
-              "No.", TaxDeprBookCode, "FA Posting Group",
-              CalcDate('<-CY>', WorkDate()),
-              CalcDate('<' + Format(NoOfYearsTax - 1) + 'Y+CY>', WorkDate()));
-        end;
+        CreateFADeprBookWithDates(
+            FixedAsset."No.", NormalDeprBookCode, FixedAsset."FA Posting Group",
+            CalcDate('<-CY>', WorkDate()),
+            CalcDate('<' + Format(NoOfYearsNormal - 1) + 'Y+CY>', WorkDate()));
+        CreateFADeprBookWithDates(
+          FixedAsset."No.", TaxDeprBookCode, FixedAsset."FA Posting Group",
+          CalcDate('<-CY>', WorkDate()),
+          CalcDate('<' + Format(NoOfYearsTax - 1) + 'Y+CY>', WorkDate()));
         UpdateIntegrationInBook(NormalDeprBookCode, false);
 
         CreateFAJournalLine(
@@ -795,11 +793,9 @@ codeunit 144002 "ERM Fixed Assets - Local"
     begin
         CreateNormalAndTaxDeprBooks(NormalDeprBookCode, TaxDeprBookCode);
         CreateFAPostingGroup(FixedAsset);
-        with FixedAsset do begin
-            CreateFADeprBook("No.", NormalDeprBookCode, "FA Posting Group");
-            CreateFADeprBook("No.", TaxDeprBookCode, "FA Posting Group");
-            exit("No.");
-        end;
+        CreateFADeprBook(FixedAsset."No.", NormalDeprBookCode, FixedAsset."FA Posting Group");
+        CreateFADeprBook(FixedAsset."No.", TaxDeprBookCode, FixedAsset."FA Posting Group");
+        exit(FixedAsset."No.");
     end;
 
     local procedure CreateFAWithBooks(var NormalDeprBookCode: Code[10]; var TaxDeprBookCode: Code[10]; StartingDate: Date; EndingDate: Date): Code[20]
@@ -809,26 +805,22 @@ codeunit 144002 "ERM Fixed Assets - Local"
     begin
         CreateNormalAndTaxDeprBooks(NormalDeprBookCode, TaxDeprBookCode);
         CreateFAPostingGroup(FixedAsset);
-        with DepreciationBook do begin
-            Get(NormalDeprBookCode);
-            "Use Rounding in Periodic Depr." := true;
-            "G/L Integration - Depreciation" := true;
-            "Use FA Ledger Check" := true;
-            "Use Same FA+G/L Posting Dates" := true;
-            "Used with Derogatory Book" := TaxDeprBookCode;
-            Modify(true);
+        DepreciationBook.Get(NormalDeprBookCode);
+        DepreciationBook."Use Rounding in Periodic Depr." := true;
+        DepreciationBook."G/L Integration - Depreciation" := true;
+        DepreciationBook."Use FA Ledger Check" := true;
+        DepreciationBook."Use Same FA+G/L Posting Dates" := true;
+        DepreciationBook."Used with Derogatory Book" := TaxDeprBookCode;
+        DepreciationBook.Modify(true);
 
-            Get(TaxDeprBookCode);
-            "Allow more than 360/365 Days" := true;
-            "Use FA Ledger Check" := true;
-            "Use Same FA+G/L Posting Dates" := true;
-            Modify(true);
-        end;
-        with FixedAsset do begin
-            CreateFADeprBookWithDates("No.", NormalDeprBookCode, "FA Posting Group", StartingDate, EndingDate);
-            CreateFADeprBookWithDates("No.", TaxDeprBookCode, "FA Posting Group", StartingDate, EndingDate);
-            exit("No.");
-        end;
+        DepreciationBook.Get(TaxDeprBookCode);
+        DepreciationBook."Allow more than 360/365 Days" := true;
+        DepreciationBook."Use FA Ledger Check" := true;
+        DepreciationBook."Use Same FA+G/L Posting Dates" := true;
+        DepreciationBook.Modify(true);
+        CreateFADeprBookWithDates(FixedAsset."No.", NormalDeprBookCode, FixedAsset."FA Posting Group", StartingDate, EndingDate);
+        CreateFADeprBookWithDates(FixedAsset."No.", TaxDeprBookCode, FixedAsset."FA Posting Group", StartingDate, EndingDate);
+        exit(FixedAsset."No.");
     end;
 
     local procedure CreateNormalAndTaxDeprBooks(var NormalDeprBookCode: Code[10]; var TaxDeprBookCode: Code[10])
@@ -843,12 +835,10 @@ codeunit 144002 "ERM Fixed Assets - Local"
         DeprBook: Record "Depreciation Book";
     begin
         CreateAndSetupDeprBook(DeprBook);
-        with DeprBook do begin
-            Validate("Use Same FA+G/L Posting Dates", false);
-            Validate("Derogatory Calculation", DerogDeprBookCode);
-            Modify(true);
-            exit(Code);
-        end;
+        DeprBook.Validate("Use Same FA+G/L Posting Dates", false);
+        DeprBook.Validate("Derogatory Calculation", DerogDeprBookCode);
+        DeprBook.Modify(true);
+        exit(DeprBook.Code);
     end;
 
     local procedure CreatePostAcquisitionAndDerogatory(var AcqCostAmount: Decimal; var DerogAmount: Decimal; FANo: Code[20]; DeprBookCode: Code[10])
@@ -880,17 +870,15 @@ codeunit 144002 "ERM Fixed Assets - Local"
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Assets);
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name, "Document Type"::" ", "Account Type"::"Fixed Asset", FANo, LineAmount);
-            Validate("FA Posting Type", FAPostingType);
-            Validate("FA Posting Date", FAPostingDate);
-            Validate("Posting Date", WorkDate());
-            Validate("Depreciation Book Code", DeprBookCode);
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", CreateGLAccount());
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+          GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJnlLine."Document Type"::" ", GenJnlLine."Account Type"::"Fixed Asset", FANo, LineAmount);
+        GenJnlLine.Validate("FA Posting Type", FAPostingType);
+        GenJnlLine.Validate("FA Posting Date", FAPostingDate);
+        GenJnlLine.Validate("Posting Date", WorkDate());
+        GenJnlLine.Validate("Depreciation Book Code", DeprBookCode);
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
+        GenJnlLine.Validate("Bal. Account No.", CreateGLAccount());
+        GenJnlLine.Modify(true);
     end;
 
     local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Enum "FA Journal Line FA Posting Type"; Amount: Decimal)
@@ -905,10 +893,8 @@ codeunit 144002 "ERM Fixed Assets - Local"
           FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name,
           FAJournalLine."Document Type"::" ", FAPostingType,
           FANo, Amount);
-        with FAJournalLine do begin
-            Validate("Depreciation Book Code", DepreciationBookCode);
-            Modify(true);
-        end;
+        FAJournalLine.Validate("Depreciation Book Code", DepreciationBookCode);
+        FAJournalLine.Modify(true);
     end;
 
     local procedure CreateFADeprBook(FANo: Code[20]; DeprBookCode: Code[10]; FAPostingGroup: Code[20])
@@ -922,13 +908,11 @@ codeunit 144002 "ERM Fixed Assets - Local"
         FADeprBook: Record "FA Depreciation Book";
     begin
         LibraryFixedAsset.CreateFADepreciationBook(FADeprBook, FANo, DeprBookCode);
-        with FADeprBook do begin
-            Validate("Depreciation Book Code", DeprBookCode);
-            Validate("Depreciation Starting Date", StartingDate);
-            Validate("Depreciation Ending Date", EndingDate);
-            Validate("FA Posting Group", FAPostingGroup);
-            Modify(true);
-        end;
+        FADeprBook.Validate("Depreciation Book Code", DeprBookCode);
+        FADeprBook.Validate("Depreciation Starting Date", StartingDate);
+        FADeprBook.Validate("Depreciation Ending Date", EndingDate);
+        FADeprBook.Validate("FA Posting Group", FAPostingGroup);
+        FADeprBook.Modify(true);
     end;
 
     local procedure CreateFixedAsset(var FixedAsset: Record "Fixed Asset")
@@ -1039,13 +1023,11 @@ codeunit 144002 "ERM Fixed Assets - Local"
     var
         DeprBook: Record "Depreciation Book";
     begin
-        with DeprBook do begin
-            Get(DeprBookCode);
-            Validate("G/L Integration - Acq. Cost", Value);
-            Validate("G/L Integration - Depreciation", Value);
-            Validate("G/L Integration - Derogatory", Value);
-            Modify(true);
-        end;
+        DeprBook.Get(DeprBookCode);
+        DeprBook.Validate("G/L Integration - Acq. Cost", Value);
+        DeprBook.Validate("G/L Integration - Depreciation", Value);
+        DeprBook.Validate("G/L Integration - Derogatory", Value);
+        DeprBook.Modify(true);
     end;
 
     local procedure UpdateFAJournalSetup(var FAJournalSetup: Record "FA Journal Setup")
@@ -1062,11 +1044,9 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
     local procedure UpdateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; FANo: Code[20]; TaxDeprBookCode: Code[10]; EndingDate: Date)
     begin
-        with FADepreciationBook do begin
-            Get(FANo, TaxDeprBookCode);
-            Validate("Depreciation Ending Date", CalcDate(StrSubstNo('<-%1M>', LibraryRandom.RandIntInRange(5, 7)), EndingDate));
-            Modify(true);
-        end;
+        FADepreciationBook.Get(FANo, TaxDeprBookCode);
+        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate(StrSubstNo('<-%1M>', LibraryRandom.RandIntInRange(5, 7)), EndingDate));
+        FADepreciationBook.Modify(true);
     end;
 
     local procedure CalcDerogatoryDate(): Date
@@ -1103,12 +1083,10 @@ codeunit 144002 "ERM Fixed Assets - Local"
     begin
         RunCalculateDepreciationReport(FixedAssetNo, DepreciationBookCode, PostingDate, BalanceAccount);
 
-        with GenJournalLine do begin
-            SetRange("Account Type", "Account Type"::"Fixed Asset");
-            SetRange("Account No.", FixedAssetNo);
-            FindFirst();
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"Fixed Asset");
+        GenJournalLine.SetRange("Account No.", FixedAssetNo);
+        GenJournalLine.FindFirst();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure RunCalculateDepReportForDifferentPostingDates(FANo: Code[20]; NormalDeprBookCode: Code[10]; DepreciationEndingDate: Date)
@@ -1133,17 +1111,15 @@ codeunit 144002 "ERM Fixed Assets - Local"
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        with FALedgerEntry do begin
-            SetRange("FA No.", FANo);
-            SetFilter(
-              "FA Posting Type", '%1|%2',
-              "FA Posting Type"::Depreciation,
-              "FA Posting Type"::Derogatory);
-            FindSet();
-            repeat
-                TestField("FA Posting Date", CalcDerogatoryDate());
-            until Next() = 0;
-        end;
+        FALedgerEntry.SetRange("FA No.", FANo);
+        FALedgerEntry.SetFilter(
+          "FA Posting Type", '%1|%2',
+          FALedgerEntry."FA Posting Type"::Depreciation,
+          FALedgerEntry."FA Posting Type"::Derogatory);
+        FALedgerEntry.FindSet();
+        repeat
+            FALedgerEntry.TestField("FA Posting Date", CalcDerogatoryDate());
+        until FALedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyBookValueAmounts(FANo: Code[20]; DeprBookCode: Code[10]; ExpectedBookValueAmt: Decimal; ExpectedDerogatoryAmt: Decimal)
@@ -1151,13 +1127,11 @@ codeunit 144002 "ERM Fixed Assets - Local"
         FADeprBook: Record "FA Depreciation Book";
     begin
         VerifyExcludeDerogatory(FANo, DeprBookCode);
-        with FADeprBook do begin
-            Get(FANo, DeprBookCode);
-            CalcFields("Book Value");
-            CalcFields(Derogatory);
-            TestField("Book Value", ExpectedBookValueAmt);
-            TestField(Derogatory, ExpectedDerogatoryAmt);
-        end;
+        FADeprBook.Get(FANo, DeprBookCode);
+        FADeprBook.CalcFields("Book Value");
+        FADeprBook.CalcFields(Derogatory);
+        FADeprBook.TestField("Book Value", ExpectedBookValueAmt);
+        FADeprBook.TestField(Derogatory, ExpectedDerogatoryAmt);
     end;
 
     local procedure VerifyExcludeDerogatory(FANo: Code[20]; DeprBookCode: Code[10])
@@ -1168,16 +1142,14 @@ codeunit 144002 "ERM Fixed Assets - Local"
     begin
         DeprBook.Get(DeprBookCode);
         DerogatoryBook := DeprBook.IsDerogatoryBook();
-        with FALedgEntry do begin
-            SetRange("FA No.", FANo);
-            SetRange("Depreciation Book Code", DeprBookCode);
-            FindSet();
-            repeat
-                TestField(
-                  "Exclude Derogatory",
-                  ("FA Posting Type" = "FA Posting Type"::Derogatory) and not DerogatoryBook);
-            until Next() = 0;
-        end;
+        FALedgEntry.SetRange("FA No.", FANo);
+        FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
+        FALedgEntry.FindSet();
+        repeat
+            FALedgEntry.TestField(
+              "Exclude Derogatory",
+              (FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::Derogatory) and not DerogatoryBook);
+        until FALedgEntry.Next() = 0;
     end;
 
     local procedure VerifyFAJournalLine(FANo: Code[20])
@@ -1231,14 +1203,12 @@ codeunit 144002 "ERM Fixed Assets - Local"
     var
         FALedgEntry: Record "FA Ledger Entry";
     begin
-        with FALedgEntry do begin
-            SetRange("FA No.", FANo);
-            SetRange("Depreciation Book Code", DeprBookCode);
-            SetRange("FA Posting Type", "FA Posting Type"::Depreciation);
-            Assert.IsFalse(IsEmpty, NoPurchInvoiceExistErr);
-            SetRange("FA Posting Type", "FA Posting Type"::Derogatory);
-            Assert.IsFalse(IsEmpty, NoPurchInvoiceExistErr);
-        end;
+        FALedgEntry.SetRange("FA No.", FANo);
+        FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
+        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
+        Assert.IsFalse(FALedgEntry.IsEmpty, NoPurchInvoiceExistErr);
+        FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Derogatory);
+        Assert.IsFalse(FALedgEntry.IsEmpty, NoPurchInvoiceExistErr);
     end;
 
     local procedure VerifyFinalDepreciationWithNegativeDerogatory(FixedAssetNo: Code[20])
@@ -1247,17 +1217,15 @@ codeunit 144002 "ERM Fixed Assets - Local"
         DepreciationSum: Decimal;
         AcqusiutionSum: Decimal;
     begin
-        with FALedgerEntry do begin
-            SetRange("FA No.", FixedAssetNo);
-            SetFilter("FA Posting Type", '%1|%2', "FA Posting Type"::Depreciation, "FA Posting Type"::Derogatory);
-            CalcSums(Amount);
-            DepreciationSum := Amount;
+        FALedgerEntry.SetRange("FA No.", FixedAssetNo);
+        FALedgerEntry.SetFilter("FA Posting Type", '%1|%2', FALedgerEntry."FA Posting Type"::Depreciation, FALedgerEntry."FA Posting Type"::Derogatory);
+        FALedgerEntry.CalcSums(Amount);
+        DepreciationSum := FALedgerEntry.Amount;
 
-            SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-            SetRange("Depreciation Book Code");
-            CalcSums(Amount);
-            AcqusiutionSum := Amount;
-        end;
+        FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Acquisition Cost");
+        FALedgerEntry.SetRange("Depreciation Book Code");
+        FALedgerEntry.CalcSums(Amount);
+        AcqusiutionSum := FALedgerEntry.Amount;
 
         Assert.AreEqual(DepreciationSum, -AcqusiutionSum, DepreciationErr);
     end;

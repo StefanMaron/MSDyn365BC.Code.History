@@ -285,20 +285,25 @@ report 81 "Import Budget from Excel"
         BudgetDim4Code: Code[20];
         ImportOption: Option "Replace entries","Add entries";
 
+#pragma warning disable AA0074
         Text000: Label 'You must specify a budget name to import to.';
+#pragma warning disable AA0470
         Text001: Label 'Do you want to create a %1 with the name %2?';
         Text002: Label '%1 %2 is blocked. You cannot import entries.';
         Text003: Label 'Are you sure that you want to %1 for the budget name %2?';
         Text004: Label '%1 table has been successfully updated with %2 entries.';
+#pragma warning restore AA0470
         Text005: Label 'Imported from Excel ';
         Text006: Label 'Import Excel File';
         Text007: Label 'Analyzing Data % #1###', Comment = 'Progress indicator. % #1### just means %';
         Text008: Label 'You cannot specify more than 8 dimensions in your Excel worksheet.';
         Text010: Label 'G/L Account No.';
         Text011: Label 'The text G/L Account No. can only be specified once in the Excel worksheet.';
+#pragma warning restore AA0074
         DimensionValueCodeEqualToDimensionCodeTelemetryMsg: Label 'Detected dimension value code in the Excel budget that is equal to the code of a dimension.', Locked = true;
         DimensionsNeedsCodeCaptionErr: Label 'To be able to import Budget from Excel. Dimensions need a Code Caption Please specify Code Caption for Dimension %1.', Comment = '%1 is a dimension value';
         TelemetryCategoryTxt: Label 'AL Import Budget', Locked = true;
+#pragma warning disable AA0074
         Text013: Label 'Dimension', Locked = true;
         Text014: Label 'Date';
         Text015: Label 'Dimension1', Locked = true;
@@ -313,9 +318,14 @@ report 81 "Import Budget from Excel"
         Text024: Label 'The combination G/L Account No. - Dimensions - Date must be unique: %1', Comment = '%1 - Record ID';
         Text025: Label 'G/L Accounts have not been found in the Excel worksheet.';
         Text026: Label 'Dates have not been recognized in the Excel worksheet.';
+#pragma warning restore AA0074
         TheUsedDimensionValueAreAlsoUsedAsACaptionForADimensionErr: Label 'The used Dimension value %1 are also used as a caption for a Dimension.', Comment = '%1 is a dimension value';
+#pragma warning disable AA0074
         Text027: Label 'Replace Entries,Add Entries';
+#pragma warning disable AA0470
         Text028: Label 'A filter has been used on the %1 when the budget was exported. When a filter on a dimension has been used, a column with the same dimension must be present in the worksheet imported. The column in the worksheet must specify the dimension value codes the program should use when importing the budget.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InsertingEntriesLbl: Label 'Inserting new entries % #1###', Comment = 'Progress indicator. % #1### just means %';
         ExcelFileExtensionTok: Label '.xlsx', Locked = true;
 

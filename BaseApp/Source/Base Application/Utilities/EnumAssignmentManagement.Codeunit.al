@@ -6,7 +6,6 @@ namespace Microsoft.Utilities;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Purchases.Document;
-using Microsoft.Service.Document;
 using Microsoft.Sales.Document;
 using System.Automation;
 
@@ -17,7 +16,9 @@ codeunit 500 "Enum Assignment Management"
     end;
 
     var
+#pragma warning disable AA0470
         DocumentTypeEnumErr: Label '%1 Document Type %2 enum cannot be converted to %3 Document Type enum.';
+#pragma warning restore AA0470
 
     procedure GetSalesApprovalDocumentType(SalesDocumentType: Enum "Sales Document Type") ApprovalDocumentType: Enum "Approval Document Type"
     var
@@ -71,27 +72,15 @@ codeunit 500 "Enum Assignment Management"
         end;
     end;
 
-    procedure GetServiceIncomingDocumentType(ServiceDocumentType: Enum "Service Document Type") IncomingDocumentType: Enum "Incoming Document Type"
+#if not CLEAN25
+    [Obsolete('Replaced by sane procedure in codeunit ServDocExchangeMgt', '25.0')]
+    procedure GetServiceIncomingDocumentType(ServiceDocumentType: Enum Microsoft.Service.Document."Service Document Type") IncomingDocumentType: Enum "Incoming Document Type"
     var
-        IsHandled: Boolean;
+        ServDocExchangeMgt: Codeunit "Serv. Doc. Exchange Mgt.";
     begin
-        case ServiceDocumentType of
-            ServiceDocumentType::Quote:
-                exit(IncomingDocumentType::Quote);
-            ServiceDocumentType::Order:
-                exit(IncomingDocumentType::Order);
-            ServiceDocumentType::Invoice:
-                exit(IncomingDocumentType::Invoice);
-            ServiceDocumentType::"Credit Memo":
-                exit(IncomingDocumentType::"Credit Memo");
-            else begin
-                IsHandled := false;
-                OnGetSalesIncomingDocumentType(ServiceDocumentType, IncomingDocumentType, IsHandled);
-                if not IsHandled then
-                    error(DocumentTypeEnumErr, 'Service', ServiceDocumentType, 'Incoming');
-            end;
-        end;
+        exit(ServDocExchangeMgt.GetServiceIncomingDocumentType(ServiceDocumentType));
     end;
+#endif
 
     procedure GetPurchApprovalDocumentType(PurchDocumentType: Enum "Purchase Document Type") ApprovalDocumentType: Enum "Approval Document Type"
     var

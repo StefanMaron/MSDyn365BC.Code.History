@@ -82,11 +82,13 @@ page 5330 "CRM Connection Setup"
                     var
                         FeatureTelemetry: Codeunit "Feature Telemetry";
                         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+                        Dynamics365SalesEnabledLbl: Label 'User %1 enabled integration to Dynamics 365 Sales.', Locked = true;
                     begin
                         CurrPage.Update(true);
                         if Rec."Is Enabled" then begin
                             FeatureTelemetry.LogUptake('0000H7A', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::"Set up");
                             Session.LogMessage('0000CM7', CRMConnEnabledOnPageTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                            Session.LogAuditMessage(StrSubstNo(Dynamics365SalesEnabledLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
 
                             if (Rec."Server Address" <> '') and (Rec."Server Address" <> TestServerAddressTok) then
                                 if CDSIntegrationImpl.MultipleCompaniesConnected() then
@@ -362,6 +364,7 @@ page 5330 "CRM Connection Setup"
                     TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
                     CDSConnectionSetup: Record "CDS Connection Setup";
                     CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+                    EmptySecretText: SecretText;
                 begin
                     TempCDSConnectionSetup."Server Address" := Rec."Server Address";
                     TempCDSConnectionSetup."User Name" := Rec."User Name";
@@ -376,13 +379,13 @@ page 5330 "CRM Connection Setup"
                         if CDSConnectionSetup.Get() then
                             if CDSConnectionSetup."Is Enabled" then begin
                                 CDSConnectionSetup."User Name" := TempCDSConnectionSetup."User Name";
-                                CDSConnectionSetup.SetPassword('');
+                                CDSConnectionSetup.SetPassword(EmptySecretText);
                                 CDSConnectionSetup."Proxy Version" := TempCDSConnectionSetup."Proxy Version";
                                 CDSConnectionSetup."Connection String" := TempCDSConnectionSetup."Connection String";
                                 CDSConnectionSetup.Modify();
                             end;
                         Rec."User Name" := TempCDSConnectionSetup."User Name";
-                        Rec.SetPassword('');
+                        Rec.SetPassword(EmptySecretText);
                         Rec."Proxy Version" := TempCDSConnectionSetup."Proxy Version";
                         Rec.SetConnectionString(TempCDSConnectionSetup."Connection String");
                         CurrPage.Update(false);
@@ -499,21 +502,6 @@ page 5330 "CRM Connection Setup"
                     Message(SyncNowScheduledMsg, IntegrationSynchJobList.Caption)
                 end;
             }
-#if not CLEAN22
-#pragma warning disable AA0194
-            action("Generate Integration IDs")
-            {
-                ApplicationArea = Suite;
-                Caption = 'Generate Integration IDs';
-                Image = Reconcile;
-                ToolTip = 'Create integration IDs for new records that were added while the connection was disabled, for example, after you re-enable a Dynamics 365 Sales connection.';
-                Visible = false;
-                ObsoleteReason = 'This functionality is deprecated.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-            }
-#pragma warning restore AA0194
-#endif
         }
         area(navigation)
         {
@@ -577,6 +565,7 @@ page 5330 "CRM Connection Setup"
                 Image = Setup;
                 Visible = SoftwareAsAService;
                 ToolTip = 'Go to Microsoft AppSource to get the Field Service Integration app. The app will let you integrate Dynamics 365 Field Service with Business Central.';
+
                 trigger OnAction()
                 var
                     CRMIntegrationManagement: Codeunit "CRM Integration Management";
@@ -652,6 +641,7 @@ page 5330 "CRM Connection Setup"
             {
                 Caption = 'Field Service';
                 Visible = SoftwareAsAService;
+
                 actionref(FieldServiceIntegrationApp_Promoted; FieldServiceIntegrationApp)
                 {
                 }
@@ -693,7 +683,7 @@ page 5330 "CRM Connection Setup"
             Rec.Insert();
             Rec.LoadConnectionStringElementsFromCDSConnectionSetup();
         end else begin
-            CRMPassword := Rec.GetPassword();
+            CRMPassword := '**********';
             if not Rec."Is Enabled" then
                 Rec.LoadConnectionStringElementsFromCDSConnectionSetup();
             ConnectionString := Rec.GetConnectionString();

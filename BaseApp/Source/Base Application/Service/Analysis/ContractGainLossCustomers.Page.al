@@ -210,7 +210,9 @@ page 6067 "Contract Gain/Loss (Customers)"
         PeriodStart: Date;
         CustomerNo: Code[20];
         ShipToCodeFilter: Text[250];
+#pragma warning disable AA0074
         Text003: Label 'You must choose a customer in Filters, Customer No. Filter.';
+#pragma warning restore AA0074
 
     local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var

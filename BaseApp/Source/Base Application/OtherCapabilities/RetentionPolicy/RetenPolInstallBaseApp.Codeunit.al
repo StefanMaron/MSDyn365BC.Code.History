@@ -37,8 +37,6 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
     procedure AddAllowedTables(ForceUpdate: Boolean)
     var
         JobQueueLogEntry: Record "Job Queue Log Entry";
-        IntegrationSyncJob: Record "Integration Synch. Job";
-        IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
         RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
         UpgradeTag: Codeunit "Upgrade Tag";
         IsInitialSetup: Boolean;
@@ -49,14 +47,9 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
             AddChangeLogEntryToAllowedTables(IsInitialSetup);
             RetenPolAllowedTables.AddAllowedTable(Database::"Job Queue Log Entry", JobQueueLogEntry.FieldNo("End Date/Time"));
             RetenPolAllowedTables.AddAllowedTable(Database::"Workflow Step Instance Archive");
-            RetenPolAllowedTables.AddAllowedTable(Database::"Integration Synch. Job", IntegrationSyncJob.FieldNo("Finish Date/Time"));
-            RetenPolAllowedTables.AddAllowedTable(Database::"Integration Synch. Job Errors", IntegrationSynchJobErrors.FieldNo("Date/Time"));
             RetenPolAllowedTables.AddAllowedTable(Database::"Report Inbox");
-            if IsInitialSetup then begin
-                CreateRetentionPolicySetup(Database::"Integration Synch. Job", FindOrCreateRetentionPeriod("Retention Period Enum"::"1 Month"));
-                CreateRetentionPolicySetup(Database::"Integration Synch. Job Errors", FindOrCreateRetentionPeriod("Retention Period Enum"::"1 Month"));
+            if IsInitialSetup then
                 UpgradeTag.SetUpgradeTag(GetRetenPolBaseAppTablesUpgradeTag());
-            end;
         end;
 
         IsInitialSetup := not UpgradeTag.HasUpgradeTag(GetRetenPolDocArchivesTablesUpgradeTag());
@@ -100,6 +93,13 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
                 if IsInitialSetup then
                     UpgradeTag.SetUpgradeTag(GetRetenPolSentNotifcationEntryUpgradeTag());
             end;
+        end;
+
+        IsInitialSetup := not UpgradeTag.HasUpgradeTag(GetRetenPolCRMIntegrationSynchUpgradeTag());
+        if IsInitialSetup or ForceUpdate then begin
+            AddCRMIntegrationSynch(IsInitialSetup);
+            if IsInitialSetup then
+                UpgradeTag.SetUpgradeTag(GetRetenPolCRMIntegrationSynchUpgradeTag());
         end;
     end;
 
@@ -215,6 +215,8 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         RecRef.GetTable(JobArchive);
         RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, "Retention Period Enum"::"Never Delete", JobArchive.FieldNo("Last Archived Date"), true, true, RecRef); // locked
         RetenPolAllowedTables.AddAllowedTable(Database::"Job Archive", JobArchive.FieldNo("Last Archived Date"), 0, "Reten. Pol. Filtering"::"Document Archive Filtering", "Reten. Pol. Deleting"::Default, TableFilters);
+
+        OnAfterAddDocumentArchiveTablesToAllowedTables();
     end;
 
     local procedure AddDataverseEntityChange(IsInitialSetup: Boolean)
@@ -243,6 +245,25 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         RetenPolAllowedTables.AddAllowedTable(Database::"Sent Notification Entry", SentNotificationEntry.FieldNo("Sent Date-Time"), TableFilters);
     end;
 
+    local procedure AddCRMIntegrationSynch(IsInitialSetup: Boolean)
+    var
+        IntegrationSyncJob: Record "Integration Synch. Job";
+        IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
+        RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
+    begin
+        RetenPolAllowedTables.AddAllowedTable(Database::"Integration Synch. Job", IntegrationSyncJob.FieldNo("Finish Date/Time"));
+        RetenPolAllowedTables.AddAllowedTable(Database::"Integration Synch. Job Errors", IntegrationSynchJobErrors.FieldNo("Date/Time"));
+
+        if not IsInitialSetup then
+            exit;
+
+        CreateRetentionPolicySetup(Database::"Integration Synch. Job", FindOrCreateRetentionPeriod("Retention Period Enum"::"1 Month"));
+        EnableRetentionPolicySetup(Database::"Integration Synch. Job");
+
+        CreateRetentionPolicySetup(Database::"Integration Synch. Job Errors", FindOrCreateRetentionPeriod("Retention Period Enum"::"1 Month"));
+        EnableRetentionPolicySetup(Database::"Integration Synch. Job Errors");
+    end;
+
     local procedure FindOrCreateRetentionPeriod(RetentionPeriodEnum: Enum "Retention Period Enum"): Code[20]
     var
         RetentionPolicySetup: Codeunit "Retention Policy Setup";
@@ -266,6 +287,7 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
     local procedure EnableRetentionPolicySetup(TableId: Integer)
     var
         RetentionPolicySetup: Record "Retention Policy Setup";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         JobQueueEntry: Record "Job Queue Entry";
     begin
         if not TaskScheduler.CanCreateTask() then
@@ -319,6 +341,11 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         exit('MS-GIT-422-RetenPolSentNotifcationEntry-20230829');
     end;
 
+    local procedure GetRetenPolCRMIntegrationSynchUpgradeTag(): Code[250]
+    begin
+        exit('MS-542758-RetenPolCRMIntegrationSynch-20240820');
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reten. Pol. Allowed Tables", 'OnRefreshAllowedTables', '', false, false)]
     local procedure AddAllowedTablesOnRefreshAllowedTables()
     begin
@@ -329,5 +356,10 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
     local procedure AddAllowedTablesOnBeforeCompanyInit()
     begin
         AddAllowedTables();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddDocumentArchiveTablesToAllowedTables()
+    begin
     end;
 }

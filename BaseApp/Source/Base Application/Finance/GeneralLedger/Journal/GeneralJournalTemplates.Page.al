@@ -263,8 +263,12 @@ page 101 "General Journal Templates"
         GeneralLedgerSetup: Record "General Ledger Setup";
         IsJournalTemplNameMandatoryVisible: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Do you want to update the %1 field on all general journal batches?';
+#pragma warning restore AA0470
         Text002: Label 'Canceled.';
+#pragma warning restore AA0074
         EnableCopyToPostedQst: Label 'Do you want to enable copying of journal lines to posted general journal on journal batches that belong to selected general journal template?';
 
     trigger OnOpenPage()

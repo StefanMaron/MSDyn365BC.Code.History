@@ -209,11 +209,16 @@ table 348 Dimension
         UsedAsItemAnalysisViewDim: Boolean;
         CheckDimErr: Text;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1\This dimension is also used in posted or budget entries.\You cannot delete it.';
         Text001: Label '%1\You cannot delete it.';
+#pragma warning restore AA0470
         Text002: Label 'You cannot delete this dimension value, because it has been used in one or more documents or budget entries.';
         Text006: Label 'Period';
+#pragma warning disable AA0470
         Text007: Label '%1 can not be %2, %3, %4, %5 or Period. These names are used internally by the system.';
+#pragma warning restore AA0470
         Text008: Label 'Code';
         Text009: Label 'Filter';
         Text010: Label 'This dimension is used in the following setup: ';
@@ -222,6 +227,7 @@ table 348 Dimension
         Text013: Label 'Analysis View Card, ';
         Text014: Label 'Item Budget Names, ';
         Text015: Label 'Item Analysis View Card, ';
+#pragma warning restore AA0074
 
     local procedure UpdateText("Code": Code[20]; AddText: Text[30]; var Text: Text[80])
     begin

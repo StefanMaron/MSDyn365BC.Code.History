@@ -1808,13 +1808,11 @@ codeunit 134263 "Test Bank Payment Application"
     var
         DimCombination: Record "Dimension Combination";
     begin
-        with DimCombination do begin
-            Init();
-            Validate("Dimension 1 Code", DimCode1);
-            Validate("Dimension 2 Code", DimCode2);
-            Validate("Combination Restriction", "Combination Restriction"::Blocked);
-            Insert();
-        end;
+        DimCombination.Init();
+        DimCombination.Validate("Dimension 1 Code", DimCode1);
+        DimCombination.Validate("Dimension 2 Code", DimCode2);
+        DimCombination.Validate("Combination Restriction", DimCombination."Combination Restriction"::Blocked);
+        DimCombination.Insert();
         Commit();
     end;
 
@@ -1924,11 +1922,9 @@ codeunit 134263 "Test Bank Payment Application"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        with SourceCodeSetup do begin
-            Get();
-            Validate("Payment Reconciliation Journal", NewSourceCode);
-            Modify(true);
-        end;
+        SourceCodeSetup.Get();
+        SourceCodeSetup.Validate("Payment Reconciliation Journal", NewSourceCode);
+        SourceCodeSetup.Modify(true);
     end;
 
     local procedure SetupCurrencyWithExchRates(): Code[10]
@@ -1950,32 +1946,28 @@ codeunit 134263 "Test Bank Payment Application"
     var
         AppliedPmtEntry: Record "Applied Payment Entry";
     begin
-        with AppliedPmtEntry do begin
-            Clear(AppliedPmtEntry);
-            TransferFromBankAccReconLine(BankAccReconLine);
+        Clear(AppliedPmtEntry);
+        AppliedPmtEntry.TransferFromBankAccReconLine(BankAccReconLine);
 
-            Validate("Account Type", "Account Type"::Customer);
-            Validate("Account No.", CustLedgEntry."Customer No.");
-            Validate("Applies-to Entry No.", CustLedgEntry."Entry No.");
-            Insert(true);
-            Commit();
-        end;
+        AppliedPmtEntry.Validate("Account Type", AppliedPmtEntry."Account Type"::Customer);
+        AppliedPmtEntry.Validate("Account No.", CustLedgEntry."Customer No.");
+        AppliedPmtEntry.Validate("Applies-to Entry No.", CustLedgEntry."Entry No.");
+        AppliedPmtEntry.Insert(true);
+        Commit();
     end;
 
     local procedure ApplyVendLedgEntry(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; VendLedgEntry: Record "Vendor Ledger Entry")
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
-        with AppliedPaymentEntry do begin
-            Clear(AppliedPaymentEntry);
-            TransferFromBankAccReconLine(BankAccReconLine);
+        Clear(AppliedPaymentEntry);
+        AppliedPaymentEntry.TransferFromBankAccReconLine(BankAccReconLine);
 
-            Validate("Account Type", "Account Type"::Vendor);
-            Validate("Account No.", VendLedgEntry."Vendor No.");
-            Validate("Applies-to Entry No.", VendLedgEntry."Entry No.");
-            Insert(true);
-            Commit();
-        end;
+        AppliedPaymentEntry.Validate("Account Type", AppliedPaymentEntry."Account Type"::Vendor);
+        AppliedPaymentEntry.Validate("Account No.", VendLedgEntry."Vendor No.");
+        AppliedPaymentEntry.Validate("Applies-to Entry No.", VendLedgEntry."Entry No.");
+        AppliedPaymentEntry.Insert(true);
+        Commit();
     end;
 
     local procedure VerifyCustLedgEntry(CustNo: Code[20])
@@ -2017,13 +2009,11 @@ codeunit 134263 "Test Bank Payment Application"
         GLRegister.FindLast();
         Assert.AreEqual(ExpectedSourceCode, GLRegister."Source Code", GLRegister.FieldCaption("Source Code"));
 
-        with GLEntry do begin
-            SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
-            FindSet();
-            repeat
-                Assert.AreEqual(ExpectedSourceCode, "Source Code", FieldCaption("Source Code"));
-            until Next() = 0;
-        end;
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        GLEntry.FindSet();
+        repeat
+            Assert.AreEqual(ExpectedSourceCode, GLEntry."Source Code", GLEntry.FieldCaption("Source Code"));
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyMinMaxAmounts(Amount: Decimal; TolerancePct: Decimal; MinAmount: Decimal; MaxAmount: Decimal)
@@ -2038,18 +2028,17 @@ codeunit 134263 "Test Bank Payment Application"
         GLAcc: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAcc);
-        with CustPostingGroup do
-            if FindSet() then
-                repeat
-                    if "Payment Disc. Debit Acc." = '' then begin
-                        Validate("Payment Disc. Debit Acc.", GLAcc."No.");
-                        Modify(true);
-                    end;
-                    if "Payment Disc. Credit Acc." = '' then begin
-                        Validate("Payment Disc. Credit Acc.", GLAcc."No.");
-                        Modify(true);
-                    end;
-                until Next() = 0;
+        if CustPostingGroup.FindSet() then
+            repeat
+                if CustPostingGroup."Payment Disc. Debit Acc." = '' then begin
+                    CustPostingGroup.Validate("Payment Disc. Debit Acc.", GLAcc."No.");
+                    CustPostingGroup.Modify(true);
+                end;
+                if CustPostingGroup."Payment Disc. Credit Acc." = '' then begin
+                    CustPostingGroup.Validate("Payment Disc. Credit Acc.", GLAcc."No.");
+                    CustPostingGroup.Modify(true);
+                end;
+            until CustPostingGroup.Next() = 0;
     end;
 
     local procedure OpenPmtReconJnl(BankAccRecon: Record "Bank Acc. Reconciliation"; var PmtReconJnl: TestPage "Payment Reconciliation Journal")

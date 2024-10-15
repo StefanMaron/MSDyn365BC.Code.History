@@ -606,8 +606,12 @@ page 5124 "Opportunity Card"
 
     var
         GlobalContact: Record Contact;
+#pragma warning disable AA0074
         Text001: Label 'There is no sales quote assigned to this opportunity.';
+#pragma warning disable AA0470
         Text002: Label 'Sales quote %1 doesn''t exist.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         OppNo: Code[20];
         SalesCycleCodeEditable: Boolean;
         SalesDocumentNoEditable: Boolean;

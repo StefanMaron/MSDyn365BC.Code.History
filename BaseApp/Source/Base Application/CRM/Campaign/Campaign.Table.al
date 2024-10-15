@@ -426,8 +426,12 @@ table 5071 Campaign
         DimMgt: Codeunit DimensionManagement;
         CampaignMgmt: Codeunit "Campaign Target Group Mgt";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be before %2.';
         Text001: Label '%1 must be after %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure AssistEdit(OldCampaign: Record Campaign): Boolean
     begin

@@ -9,7 +9,6 @@ using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Structure;
 
@@ -183,8 +182,12 @@ table 5404 "Item Unit of Measure"
     var
         Item: Record Item;
 
+#pragma warning disable AA0074
         Text000: Label 'must be greater than 0';
+#pragma warning disable AA0470
         Text001: Label 'You cannot rename %1 %2 for item %3 because it is the item''s %4 and there are one or more open ledger entries for the item.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CannotModifyBaseUnitOfMeasureErr: Label 'You cannot modify item unit of measure %1 for item %2 because it is the item''s base unit of measure.', Comment = '%1 Value of Measure (KG, PCS...), %2 Item ID';
         CannotModifySalesUnitOfMeasureErr: Label 'You cannot modify item unit of measure %1 for item %2 because it is the item''s sales unit of measure.', Comment = '%1 Value of Measure (KG, PCS...), %2 Item ID';
         CannotModifyPurchUnitOfMeasureErr: Label 'You cannot modify item unit of measure %1 for item %2 because it is the item''s purchase unit of measure.', Comment = '%1 Value of Measure (KG, PCS...), %2 Item ID';
@@ -308,7 +311,6 @@ table 5404 "Item Unit of Measure"
         CheckNoOutstandingQtyTransferLine();
         CheckNoRemQtyProdOrderLine();
         CheckNoRemQtyProdOrderComponent();
-        CheckNoOutstandingQtyServiceLine();
         CheckNoRemQtyAssemblyHeader();
         CheckNoRemQtyAssemblyLine();
 
@@ -414,26 +416,6 @@ table 5404 "Item Unit of Measure"
               ProdOrderComponent.TableCaption(), ProdOrderComponent.FieldCaption("Remaining Quantity"));
     end;
 
-    local procedure CheckNoOutstandingQtyServiceLine()
-    var
-        ServiceLine: Record "Service Line";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCheckNoOutstandingQtyServiceLine(Rec, xRec, ServiceLine, IsHandled);
-        if IsHandled then
-            exit;
-
-        ServiceLine.SetRange(Type, ServiceLine.Type::Item);
-        ServiceLine.SetRange("No.", "Item No.");
-        ServiceLine.SetRange("Unit of Measure Code", Code);
-        ServiceLine.SetFilter("Outstanding Quantity", '<>%1', 0);
-        if not ServiceLine.IsEmpty() then
-            Error(
-              CannotModifyUnitOfMeasureErr, TableCaption(), xRec.Code, "Item No.",
-              ServiceLine.TableCaption(), ServiceLine.FieldCaption("Qty. to Ship"));
-    end;
-
     local procedure CheckNoRemQtyAssemblyHeader()
     var
         AssemblyHeader: Record "Assembly Header";
@@ -490,6 +472,11 @@ table 5404 "Item Unit of Measure"
                     BaseRoundingPrecision);
     end;
 
+    procedure GetCannotModifyUnitOfMeasureErr(): Text
+    begin
+        exit(CannotModifyUnitOfMeasureErr);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcCubage(var ItemUnitOfMeasure: Record "Item Unit of Measure")
     begin
@@ -540,10 +527,18 @@ table 5404 "Item Unit of Measure"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckNoOutstandingQtyServiceLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckNoOutstandingQtyServiceLine(ItemUnitOfMeasure, xItemUnitOfMeasure, ServiceLine, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Item Unit of Measure', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckNoOutstandingQtyServiceLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckNoOutstandingQtyServiceLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckNoOutstandingQtyTransferLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)

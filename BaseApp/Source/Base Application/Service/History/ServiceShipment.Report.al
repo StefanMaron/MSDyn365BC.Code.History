@@ -649,8 +649,12 @@ report 5913 "Service - Shipment"
         DimTxtArrLength: Integer;
         DimTxtArr: array[500] of Text[50];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Service - Shipment %1';
         Text003: Label 'Page %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ItemTrackingAppendixCaptionLbl: Label 'Item Tracking - Appendix';
         PhoneNoCaptionLbl: Label 'Phone No.';
         VATRegNoCaptionLbl: Label 'VAT Registration No.';
@@ -725,10 +729,12 @@ report 5913 "Service - Shipment"
     end;
 
     local procedure FormatAddressFields(var ServiceShipmentHeader: Record "Service Shipment Header")
+    var
+        ServiceFormatAddress: Codeunit "Service Format Address";
     begin
         FormatAddr.GetCompanyAddr(ServiceShipmentHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
-        FormatAddr.ServiceShptShipTo(ShipToAddr, ServiceShipmentHeader);
-        ShowCustAddr := FormatAddr.ServiceShptBillTo(CustAddr, ShipToAddr, ServiceShipmentHeader);
+        ServiceFormatAddress.ServiceShptShipTo(ShipToAddr, ServiceShipmentHeader);
+        ShowCustAddr := ServiceFormatAddress.ServiceShptBillTo(CustAddr, ShipToAddr, ServiceShipmentHeader);
     end;
 
     local procedure FormatDocumentFields(ServiceShipmentHeader: Record "Service Shipment Header")

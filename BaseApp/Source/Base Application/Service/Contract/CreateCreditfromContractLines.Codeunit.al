@@ -50,11 +50,19 @@ codeunit 5945 CreateCreditfromContractLines
         ServItemLine: Record "Service Item Line";
         ServContractMgt: Codeunit ServContractManagement;
         CreditNoteNo: Code[20];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Credit Memo %1 was created.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ServItemLineExist: Boolean;
         LinesToDelete: Integer;
+#pragma warning disable AA0074
         Text001: Label 'Some service contract lines are part of a service order/s.\You have to update this service order/s manually.';
+#pragma warning disable AA0470
         Text002: Label 'This %1 is part of a service order/s.\You have to update this service order/s manually.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetSelectionFilterNo(LinesSelected: Integer)
     begin

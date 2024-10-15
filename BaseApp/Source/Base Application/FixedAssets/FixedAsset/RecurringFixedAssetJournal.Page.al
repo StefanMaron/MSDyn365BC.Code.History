@@ -16,6 +16,8 @@ page 5634 "Recurring Fixed Asset Journal"
     SaveValues = true;
     SourceTable = "FA Journal Line";
     UsageCategory = Tasks;
+    AboutTitle = 'About Recurring Fixed Asset Journal';
+    AboutText = 'With the **Recurring Fixed Asset Journal**, you can create and post transactions that reoccur with few or no changes to fixed assets.';
 
     layout
     {
@@ -47,11 +49,15 @@ page 5634 "Recurring Fixed Asset Journal"
                 field("Recurring Method"; Rec."Recurring Method")
                 {
                     ApplicationArea = FixedAssets;
+                    AboutTitle = 'Recurring Method';
+                    AboutText = 'Specifies a recurring method F Fixed or V Variable.';
                     ToolTip = 'Specifies a recurring method, if you have indicated that the journal is recurring.';
                 }
                 field("Recurring Frequency"; Rec."Recurring Frequency")
                 {
                     ApplicationArea = FixedAssets;
+                    AboutTitle = 'Recurring Frequency';
+                    AboutText = 'This field contains a formula that determines how frequently the entry in the recurring fixed asset journal will be posted.';
                     ToolTip = 'Specifies a recurring frequency if you indicated that the journal is a recurring.';
                 }
                 field("FA Posting Date"; Rec."FA Posting Date")

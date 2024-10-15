@@ -43,11 +43,15 @@ codeunit 5633 "FA Jnl.-Post Batch"
         PreviewMode: Boolean;
         SuppressCommit: Boolean;
         SetupCombErr: Label 'must not be specified when %1 = %2 in %3', Comment = 'must not be specified when G/L Integration - Derogatory = TRUE in Depreciation Book';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Journal Batch Name    #1##########\\';
         Text002: Label 'Checking lines        #2######\';
         Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
         Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
         Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

@@ -12,7 +12,6 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.History;
-using Microsoft.Service.History;
 
 table 6507 "Item Entry Relation"
 {
@@ -163,11 +162,13 @@ table 6507 "Item Entry Relation"
         SetOrderInfo(TransferReceiptLine."Transfer Order No.", TransferReceiptLine."Line No.");
     end;
 
-    procedure TransferFieldsServShptLine(var ServiceShipmentLine: Record "Service Shipment Line")
+#if not CLEAN25
+    [Obsolete('Moved to table Service Shipment Line', '25.0')]
+    procedure TransferFieldsServShptLine(var ServiceShipmentLine: Record Microsoft.Service.History."Service Shipment Line")
     begin
-        SetSource(DATABASE::"Service Shipment Line", 0, ServiceShipmentLine."Document No.", ServiceShipmentLine."Line No.");
-        SetOrderInfo(ServiceShipmentLine."Order No.", ServiceShipmentLine."Order Line No.");
+        ServiceShipmentLine.TransferToItemEntryRelation(Rec);
     end;
+#endif
 
     procedure TransferFieldsPostedAsmHeader(var PostedAssemblyHeader: Record "Posted Assembly Header")
     begin

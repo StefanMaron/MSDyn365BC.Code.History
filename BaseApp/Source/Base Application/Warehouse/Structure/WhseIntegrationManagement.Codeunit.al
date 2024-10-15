@@ -1,12 +1,12 @@
 ﻿namespace Microsoft.Warehouse.Structure;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
+#if not CLEAN25
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.WorkCenter;
-using Microsoft.Service.Document;
+#endif
 using Microsoft.Warehouse.Document;
 
 codeunit 7317 "Whse. Integration Management"
@@ -17,12 +17,24 @@ codeunit 7317 "Whse. Integration Management"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must not be the Adjustment Bin Code of the location %2.';
         Text001: Label 'The bin %1 is Dedicated.\Do you still want to use this bin?';
+#pragma warning restore AA0470
         Text002: Label 'The update has been interrupted.';
+#pragma warning disable AA0470
         Text003: Label 'Location %1 must be set up with Bin Mandatory if the %2 %3 uses it.', Comment = '%2 = Object No., %3 = Object No.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#if not CLEAN25
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'You cannot enter a bin code of bin type %1, %2, or %3.', Comment = 'You cannot enter a bin code of bin type Receive, Ship, or Pick.';
         Text005: Label 'You cannot enter a bin code of bin type %1 or %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#endif
 
 #if not CLEAN24
     [Obsolete('Replaced by procedure CheckBinTypeAndCode()', '24.0')]
@@ -42,12 +54,9 @@ codeunit 7317 "Whse. Integration Management"
     procedure CheckBinTypeAndCode(SourceTable: Integer; BinCodeFieldCaption: Text; LocationCode: Code[10]; BinCode: Code[20]; AdditionalIdentifier: Option)
     var
         BinType: Record "Bin Type";
-        MachineCenter: Record "Machine Center";
-        WorkCenter: Record "Work Center";
         ItemJournalLine: Record "Item Journal Line";
         Location: Record Location;
         Bin: Record Bin;
-        ServiceLine: Record "Service Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -85,49 +94,24 @@ codeunit 7317 "Whse. Integration Management"
             Database::"Warehouse Receipt Header",
             Database::"Warehouse Receipt Line":
                 BinType.TestField(Receive, true);
-            Database::"Production Order",
-            Database::"Prod. Order Line",
-            Database::"Assembly Header":
-                AllowPutawayPickOrQCBinsOnly(BinType);
-            Database::"Prod. Order Component",
-            Database::"Assembly Line":
-                AllowPutawayOrQCBinsOnly(BinType);
-            Database::"Machine Center":
-                case BinCodeFieldCaption of
-                    MachineCenter.FieldCaption("Open Shop Floor Bin Code"),
-                    MachineCenter.FieldCaption("To-Production Bin Code"):
-                        AllowPutawayOrQCBinsOnly(BinType);
-                    MachineCenter.FieldCaption("From-Production Bin Code"):
-                        AllowPutawayPickOrQCBinsOnly(BinType);
-                end;
-            Database::"Work Center":
-                case BinCodeFieldCaption of
-                    WorkCenter.FieldCaption("Open Shop Floor Bin Code"),
-                    WorkCenter.FieldCaption("To-Production Bin Code"):
-                        AllowPutawayOrQCBinsOnly(BinType);
-                    WorkCenter.FieldCaption("From-Production Bin Code"):
-                        AllowPutawayPickOrQCBinsOnly(BinType);
-                end;
             Database::Location:
                 case BinCodeFieldCaption of
                     Location.FieldCaption("Open Shop Floor Bin Code"),
                     Location.FieldCaption("To-Production Bin Code"),
-                    Location.FieldCaption("To-Assembly Bin Code"):
-                        AllowPutawayOrQCBinsOnly(BinType);
+                    Location.FieldCaption("To-Assembly Bin Code"),
+                    Location.FieldCaption("To-Job Bin Code"):
+                        BinType.AllowPutawayOrQCBinsOnly();
                     Location.FieldCaption("From-Production Bin Code"),
                     Location.FieldCaption("From-Assembly Bin Code"):
-                        AllowPutawayPickOrQCBinsOnly(BinType);
+                        BinType.AllowPutawayPickOrQCBinsOnly();
                 end;
             Database::"Item Journal Line":
                 case AdditionalIdentifier of
                     ItemJournalLine."Entry Type"::Output.AsInteger():
-                        AllowPutawayPickOrQCBinsOnly(BinType);
+                        BinType.AllowPutawayPickOrQCBinsOnly();
                     ItemJournalLine."Entry Type"::Consumption.AsInteger():
-                        AllowPutawayOrQCBinsOnly(BinType);
+                        BinType.AllowPutawayOrQCBinsOnly();
                 end;
-            Database::"Service Line":
-                if AdditionalIdentifier = ServiceLine."Document Type"::Invoice.AsInteger() then
-                    BinType.TestField(Pick, true);
             else
 #if not CLEAN24
                 begin
@@ -140,6 +124,8 @@ codeunit 7317 "Whse. Integration Management"
         end;
     end;
 
+#if not CLEAN25
+    [Obsolete('Moved to same procedure in table BinType', '25.0')]
     procedure AllowPutawayOrQCBinsOnly(var BinType: Record "Bin Type")
     var
         IsHandled: Boolean;
@@ -152,7 +138,10 @@ codeunit 7317 "Whse. Integration Management"
         if BinType.Receive or BinType.Ship or BinType.Pick then
             Error(Text004, BinType.FieldCaption(Receive), BinType.FieldCaption(Ship), BinType.FieldCaption(Pick));
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Moved to same procedure in table BinType', '25.0')]
     procedure AllowPutawayPickOrQCBinsOnly(var BinType: Record "Bin Type")
     var
         IsHandled: Boolean;
@@ -165,6 +154,7 @@ codeunit 7317 "Whse. Integration Management"
         if BinType.Receive or BinType.Ship then
             Error(Text005, BinType.FieldCaption(Receive), BinType.FieldCaption(Ship));
     end;
+#endif
 
     procedure CheckIfBinDedicatedOnSrcDoc(LocationCode: Code[10]; var BinCode: Code[20]; IssueWarning: Boolean)
     var
@@ -183,6 +173,8 @@ codeunit 7317 "Whse. Integration Management"
                         BinCode := '';
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckBinCodeForLocation()', '25.0')]
     procedure CheckBinCode(LocationCode: Code[10]; BinCode: Code[20]; BinCaption: Text[30]; SourceTable: Integer; Number: Code[20])
     var
         Bin: Record Bin;
@@ -195,7 +187,24 @@ codeunit 7317 "Whse. Integration Management"
             CheckBinTypeAndCode(SourceTable, BinCaption, LocationCode, BinCode, 0);
         end;
     end;
+#endif
 
+    procedure CheckBinCodeForLocation(LocationCode: Code[10]; BinCode: Code[20]; BinCaption: Text; Number: Code[20])
+    var
+        Bin: Record Bin;
+        Location: Record Location;
+    begin
+        if BinCode <> '' then begin
+            Location.Get(LocationCode);
+            if not Location."Bin Mandatory" then
+                Error(Text003, Location.Code, Location.TableCaption(), Number);
+            Bin.Get(LocationCode, BinCode);
+            CheckBinTypeAndCode(Database::Location, BinCaption, LocationCode, BinCode, 0);
+        end;
+    end;
+
+#if not CLEAN25
+    [Obsolete('Not used anymore, code separated between table Location and Work Center', '25.0')]
     procedure CheckLocationCode(Location: Record Location; SourceTable: Integer; Number: Code[20])
     var
         WorkCenter: Record "Work Center";
@@ -211,55 +220,57 @@ codeunit 7317 "Whse. Integration Management"
                 CaptionText := Location.TableCaption();
         end;
         if not Location."Bin Mandatory" then
-            Error(Text003,
-              Location.Code,
-              CaptionText,
-              Number);
+            Error(Text003, Location.Code, CaptionText, Number);
     end;
+#endif
 
-    procedure IsOpenShopFloorBin(LocationCode: Code[10]; BinCode: Code[20]): Boolean
+    procedure IsOpenShopFloorBin(LocationCode: Code[10]; BinCode: Code[20]) Result: Boolean
     var
         Location: Record Location;
-        WorkCenter: Record "Work Center";
-        MachineCenter: Record "Machine Center";
     begin
         Location.Get(LocationCode);
         if BinCode = Location."Open Shop Floor Bin Code" then
             exit(true);
 
-        WorkCenter.SetRange("Location Code", LocationCode);
-        WorkCenter.SetRange("Open Shop Floor Bin Code", BinCode);
-        if not WorkCenter.IsEmpty() then
-            exit(true);
-
-        MachineCenter.SetRange("Location Code", LocationCode);
-        MachineCenter.SetRange("Open Shop Floor Bin Code", BinCode);
-        if not MachineCenter.IsEmpty() then
-            exit(true);
-
-        exit(false);
+        OnAfterIsOpenShopFloorBin(LocationCode, BinCode, Result);
+        exit(Result);
     end;
 
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ProdOrderWarehouseMgt', '25.0')]
     procedure CheckLocationOnManufBins(Location: Record Location)
     var
-        WorkCenter: Record "Work Center";
+        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
     begin
-        WorkCenter.SetRange("Location Code", Location.Code);
-        if WorkCenter.FindSet(false) then
-            repeat
-                CheckLocationCode(Location, Database::"Work Center", WorkCenter."No.");
-            until WorkCenter.Next() = 0;
+        ProdOrderWarehouseMgt.CheckLocationOnBins(Location);
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeAllowPutawayOrQCBinsOnly(var BinType: Record "Bin Type"; var IsHandled: Boolean)
+    begin
+        OnBeforeAllowPutawayOrQCBinsOnly(BinType, IsHandled);
     end;
 
+    [Obsolete('Replaced by same event in table BinType', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAllowPutawayOrQCBinsOnly(var BinType: Record "Bin Type"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeAllowPutawayPickOrQCBinsOnly(var BinType: Record "Bin Type"; var IsHandled: Boolean)
+    begin
+        OnBeforeAllowPutawayPickOrQCBinsOnly(BinType, IsHandled);
+    end;
+
+    [Obsolete('Replaced by same event in table BinType', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAllowPutawayPickOrQCBinsOnly(var BinType: Record "Bin Type"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
 #if not CLEAN24
     [Obsolete('Replaced by event OnCheckBinTypeCodeOnBeforeCheckPerSource', '24.0')]
@@ -296,6 +307,11 @@ codeunit 7317 "Whse. Integration Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBinTypeAndCode(SourceTable: Integer; BinCodeFieldCaption: Text; LocationCode: Code[10]; BinCode: Code[20]; AdditionalIdentifier: Option; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsOpenShopFloorBin(LocationCode: Code[10]; BinCode: Code[20]; var Result: Boolean);
     begin
     end;
 }

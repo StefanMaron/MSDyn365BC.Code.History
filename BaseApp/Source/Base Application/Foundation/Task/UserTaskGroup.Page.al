@@ -25,6 +25,7 @@ page 1175 "User Task Group"
             part(Control4; "User Task Group Members")
             {
                 ApplicationArea = Basic, Suite;
+                Editable = Rec.Code <> '';
                 SubPageLink = "User Task Group Code" = field(Code);
             }
         }

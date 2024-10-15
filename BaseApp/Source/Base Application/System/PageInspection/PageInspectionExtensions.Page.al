@@ -60,6 +60,26 @@ page 9633 "Page Inspection Extensions"
 
     actions
     {
+        area(Processing)
+        {
+            action("Open Source in VS Code")
+            {
+                AccessByPermission = System "Tools, Zoom" = X;
+                ApplicationArea = All;
+                Caption = 'Open Source in VS Code';
+                Enabled = IsSourceSpecificationEnabled;
+                Image = Download;
+                Scope = Repeater;
+                ToolTip = 'Open the source code for the extension based on the source control information.';
+
+                trigger OnAction()
+                var
+                    PageInspectionVSCodeHelper: Codeunit "Page Inspection VS Code Helper";
+                begin
+                    PageInspectionVSCodeHelper.OpenExtensionSourceInVSCode(PublishedApplication);
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
@@ -134,12 +154,16 @@ page 9633 "Page Inspection Extensions"
             SeparatorText := '';
 
         TypeOfExtension := StrSubstNo(TypeOfExtensionFmtLbl, ExtensionInfo, SeparatorText, ExtensionType);
+
+        SetSourceSpecification();
     end;
 
     var
+        PublishedApplication: Record "Published Application";
         Version: Text;
         PublishedBy: Text;
         IsExtensionListVisible: Boolean;
+        IsSourceSpecificationEnabled: Boolean;
         TypeOfExtension: Text;
         CurrentFormId: Guid;
         CurrentPageId: Integer;
@@ -154,7 +178,7 @@ page 9633 "Page Inspection Extensions"
 
     procedure FilterForExtAffectingPage(PageId: Integer; TableId: Integer; FormId: Guid)
     var
-        VSCodeRequestHelper: Codeunit "VS Code Request Helper";
+        VSCodeRequestHelper: Codeunit "Page Inspection VS Code Helper";
     begin
         if (PageId = CurrentPageId) and (TableId = CurrentTableId) then
             exit;
@@ -171,5 +195,14 @@ page 9633 "Page Inspection Extensions"
     procedure SetExtensionListVisibility(NewVisibilityValue: Boolean)
     begin
         IsExtensionListVisible := NewVisibilityValue;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetSourceSpecification()
+    var
+        PageInspectionVSCodeHelper: Codeunit "Page Inspection VS Code Helper";
+    begin
+        PageInspectionVSCodeHelper.FindPublishedApplication(Rec, PublishedApplication);
+        IsSourceSpecificationEnabled := PublishedApplication."Source Repository Url" <> '';
     end;
 }

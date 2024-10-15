@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.History;
+namespace Microsoft.Sales.History;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;

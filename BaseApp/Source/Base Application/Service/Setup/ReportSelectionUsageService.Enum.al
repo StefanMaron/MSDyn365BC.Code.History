@@ -13,4 +13,5 @@ enum 5932 "Report Selection Usage Service"
     value(8; "Contract") { Caption = 'Contract'; }
     value(9; "Service Document - Test") { Caption = 'Service Document - Test'; }
     value(10; "Shipment") { Caption = 'Shipment'; }
+    value(15; "Item Worksheet") { Caption = 'Item Worksheet'; }
 }

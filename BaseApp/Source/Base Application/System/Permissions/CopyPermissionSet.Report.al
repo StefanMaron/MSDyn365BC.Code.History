@@ -19,6 +19,7 @@ report 9802 "Copy Permission Set"
                 PermissionSetLink: Record "Permission Set Link";
                 PermissionManager: Codeunit "Permission Manager";
                 PermissionSetRelation: Codeunit "Permission Set Relation";
+                PermissionSetCopiedLbl: Label 'The permission set %1 has been copied by UserSecurityId %2.', Locked = true;
             begin
                 PermissionSetRelation.CopyPermissionSet(InputRoleID, Name, "Role ID", "App ID", Scope, InputCopyType);
 
@@ -30,6 +31,7 @@ report 9802 "Copy Permission Set"
                         PermissionSetLink."Source Hash" := PermissionManager.GenerateHashForPermissionSet("Role ID");
                         PermissionSetLink.Insert();
                     end;
+                Session.LogAuditMessage(StrSubstNo(PermissionSetCopiedLbl, "App ID", UserSecurityId()), SecurityOperationResult::Success, AuditCategory::UserManagement, 2, 0);
             end;
 
 
@@ -105,6 +107,7 @@ report 9802 "Copy Permission Set"
     }
 
     trigger OnPostReport()
+    var
     begin
         Message(CopySuccessMsg, InputRoleID);
     end;
@@ -119,7 +122,9 @@ report 9802 "Copy Permission Set"
     var
         InputRoleID: Code[20];
         InputCopyType: Enum "Permission Set Copy Type";
+#pragma warning disable AA0470
         CopySuccessMsg: Label 'New permission set, %1, has been created.', Comment = 'New permission set, D365 Basic Set, has been created.';
+#pragma warning restore AA0470
         MissingSourceErr: Label 'There is no permission set to copy from.';
         MultipleSourcesErr: Label 'You can only copy one permission set at a time.';
         TargetExistsErr: Label 'The new permission set already exists.';

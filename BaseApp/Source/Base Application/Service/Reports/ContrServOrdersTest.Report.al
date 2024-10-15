@@ -231,9 +231,13 @@ report 5988 "Contr. Serv. Orders - Test"
         ServContractFilters: Text;
         ShowFullBody: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'You must fill in the ending date field.';
         Text001: Label 'Starting Date is greater than Ending Date.';
+#pragma warning disable AA0470
         Text002: Label 'The date range you have entered is a longer period than is allowed in the %1 table.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Contract_Service_Orders___TestCaptionLbl: Label 'Contract Service Orders - Test';
         StartDateCaptionLbl: Label 'Starting Date';

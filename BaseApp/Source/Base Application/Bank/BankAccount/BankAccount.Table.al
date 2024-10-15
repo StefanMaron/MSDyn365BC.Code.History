@@ -720,7 +720,7 @@ table 270 "Bank Account"
             Caption = 'Positive Pay Export Code';
             TableRelation = "Bank Export/Import Setup".Code where(Direction = const("Export-Positive Pay"));
         }
-        field(1280; "Check Transmitted"; boolean)
+        field(1280; "Check Transmitted"; Boolean)
         {
             Caption = 'Check Transmitted';
             ToolTip = 'Specifies to check transmitted before posting the Payment Journal';
@@ -900,13 +900,18 @@ table 270 "Bank Account"
         MoveEntries: Codeunit MoveEntries;
         UpdateContFromBank: Codeunit "BankCont-Update";
         DimMgt: Codeunit DimensionManagement;
+        RIBKey: Codeunit "RIB Key";
         InsertFromContact: Boolean;
-
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot change %1 because there are one or more open ledger entries for this bank account.';
         Text003: Label 'Do you wish to create a contact for %1 %2?';
         Text10800: Label 'You must enter 6 positions in this field.';
-        RIBKey: Codeunit "RIB Key";
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a %1 or an %2.';
+#pragma warning restore AA0470
         InvalidPercentageValueErr: Label 'If %1 is %2, then the value must be between 0 and 99.', Comment = '%1 is "field caption and %2 is "Percentage"';
         InvalidValueErr: Label 'The value must be positive.';
         DataExchNotSetErr: Label 'The Data Exchange Code field must be filled.';

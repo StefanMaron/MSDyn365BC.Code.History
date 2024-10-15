@@ -184,7 +184,7 @@ table 10866 "Payment Line"
         }
         field(18; "Status Name"; Text[50])
         {
-            CalcFormula = Lookup("Payment Status".Name where("Payment Class" = field("Payment Class"),
+            CalcFormula = lookup("Payment Status".Name where("Payment Class" = field("Payment Class"),
                                                               Line = field("Status No.")));
             Caption = 'Status Name';
             Editable = false;

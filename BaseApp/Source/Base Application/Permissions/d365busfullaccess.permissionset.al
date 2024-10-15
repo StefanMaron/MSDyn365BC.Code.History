@@ -120,7 +120,7 @@ using Microsoft.Projects.Project.WIP;
 using Microsoft.Projects.Resources.Analysis;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -131,7 +131,7 @@ using Microsoft.Purchases.Comment;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Purchases.Pricing;
 #endif
 using Microsoft.Purchases.RoleCenters;
@@ -144,21 +144,11 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Sales.Pricing;
 #endif
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.RoleCenters;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
-using Microsoft.Service.Item;
-using Microsoft.Service.Ledger;
-using Microsoft.Service.Loaner;
-using Microsoft.Service.Maintenance;
-using Microsoft.Service.Resources;
-using Microsoft.Service.RoleCenters;
-using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.ADCS;
 using Microsoft.Warehouse.Comment;
@@ -196,6 +186,17 @@ using System.Tooling;
 using System.Utilities;
 using System.Visualization;
 using System.Xml;
+
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Loaner;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Resources;
+using Microsoft.Service.RoleCenters;
+using Microsoft.Service.Setup;
 
 permissionset 959 "D365 BUS FULL ACCESS"
 {
@@ -237,18 +238,17 @@ permissionset 959 "D365 BUS FULL ACCESS"
     Permissions = system "Tools, Security, Roles" = X,
                   tabledata "Add-in" = imd,
                   tabledata "All Profile" = imd,
+                  tabledata "All Profile Extension" = imd,
+                  tabledata "All Profile Page Metadata" = imd,
                   tabledata AllObjWithCaption = R,
-                  tabledata "Designed Query Group" = IMD,
-                  tabledata "Designed Query Permission" = IMD,
                   tabledata "Object Access Intent Override" = Rimd,
                   tabledata Permission = imd,
                   tabledata "Permission Set" = imd,
                   tabledata "Profile Configuration Symbols" = imd,
                   tabledata "Published Application" = Rimd,
-#pragma warning disable AL0432
                   tabledata "Tenant Profile" = imd,
-#pragma warning restore AL0432
                   tabledata "Tenant Profile Extension" = imd,
+                  tabledata "Tenant Profile Page Metadata" = imd,
                   tabledata "Tenant Profile Setting" = imd,
                   tabledata "Tenant Web Service" = R,
                   tabledata User = D,
@@ -355,10 +355,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Contact Alt. Addr. Date Range" = RIMD,
                   tabledata "Contact Alt. Address" = RIMD,
                   tabledata "Contact Dupl. Details Buffer" = RIMD,
-                  tabledata "Contract Change Log" = RIMD,
-                  tabledata "Contract Gain/Loss Entry" = RIM,
-                  tabledata "Contract Group" = RIMD,
-                  tabledata "Contract Trend Buffer" = RIMD,
                   tabledata "Company Size" = RIMD,
                   tabledata "Copy Gen. Journal Parameters" = RIMD,
                   tabledata "Copy Item Buffer" = RIMD,
@@ -476,15 +472,8 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "FA Reclass. Journal Template" = IMD,
                   tabledata "FA Setup" = IMD,
                   tabledata "FA Subclass" = IMD,
-                  tabledata "Fault Area" = RIMD,
-                  tabledata "Fault Area/Symptom Code" = RIMD,
-                  tabledata "Fault Code" = RIMD,
-                  tabledata "Fault Reason Code" = RIMD,
-                  tabledata "Fault/Resol. Cod. Relationship" = RIMD,
                   tabledata "Field Buffer" = RIMD,
                   tabledata "Field Monitoring Setup" = Rm,
-                  tabledata "Filed Contract Line" = RIMD,
-                  tabledata "Filed Service Contract Header" = rm,
                   tabledata "Filter Item Attributes Buffer" = RIMD,
                   tabledata "Finance Cue" = RIMD,
                   tabledata "Flow Service Configuration" = Rimd,
@@ -523,11 +512,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Intermediate Data Import" = IM,
                   tabledata "Internal Movement Header" = RIMD,
                   tabledata "Internal Movement Line" = RIMD,
-#if not CLEAN22
-                  tabledata "Advanced Intrastat Checklist" = RIMD,
-                  tabledata "Intrastat Jnl. Batch" = RIMD,
-                  tabledata "Intrastat Jnl. Template" = RIMD,
-#endif
                   tabledata "Invalidated Dim Correction" = R,
                   tabledata "Inventory Adjmt. Entry (Order)" = Rim,
                   tabledata "Inventory Adjustment Buffer" = Rimd,
@@ -594,6 +578,9 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Job Difference Buffer" = Rimd,
                   tabledata "Job Queue Entry" = RIMD,
                   tabledata "Job Queue Entry Buffer" = RIMD,
+                  tabledata "Job Queue Role Center Cue" = RIMD,
+                  tabledata "Job Queue Notification Setup" = RIMD,
+                  tabledata "Job Queue Notified Admin" = RIMD,
                   tabledata "Job WIP Buffer" = Rimd,
                   tabledata "Journal User Preferences" = RIMD,
                   tabledata "JSON Buffer" = RIMD,
@@ -601,8 +588,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Ledger Entry Matching Buffer" = RIMD,
                   tabledata "Line Number Buffer" = RIMD,
                   tabledata "Load Buffer" = RIMD,
-                  tabledata Loaner = RIMD,
-                  tabledata "Loaner Entry" = RIMD,
                   tabledata "Logged Segment" = RIM,
                   tabledata "Lot Bin Buffer" = RIMD,
                   tabledata Maintenance = IMD,
@@ -657,9 +642,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Outstanding Bank Transaction" = RIMD,
                   tabledata "Over-Receipt Code" = RIMD,
                   tabledata "Overdue Approval Entry" = Rimd,
-#if not CLEAN22
-                  tabledata "Payment Buffer" = RIMD,
-#endif
                   tabledata "Vendor Payment Buffer" = RIMD,
                   tabledata "Payment Export Data" = Rimd,
                   tabledata "Payment Export Remittance Text" = RIMD,
@@ -693,9 +675,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Posted Docs. With No Inc. Buf." = RIMD,
                   tabledata "Posted Gen. Journal Batch" = RIMD,
                   tabledata "Posted Gen. Journal Line" = RIMD,
-#if not CLEAN22
-                  tabledata "Power BI Service Status Setup" = RIMD,
-#endif
 #if not CLEAN23
                   tabledata "Power BI User Configuration" = RIMD,
                   tabledata "Power BI Report Configuration" = RIMD,
@@ -735,7 +714,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Purch. Cr. Memo Hdr." = IM,
                   tabledata "Purch. Inv. Entity Aggregate" = RIMD,
                   tabledata "Purch. Inv. Line Aggregate" = RIMD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Purch. Price Line Disc. Buff." = RIMD,
 #endif
                   tabledata "Purch. Rcpt. Header" = IM,
@@ -760,7 +739,6 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata Relative = RIMD,
                   tabledata "Reminder Terms Translation" = RIMD,
                   tabledata "Reminder Text" = IMD,
-                  tabledata "Repair Status" = RIMD,
                   tabledata "Report Inbox" = RIMD,
                   tabledata "Report Layout Selection" = RIMD,
                   tabledata "Report Layout Update Log" = RIMD,
@@ -779,19 +757,16 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Reservation Wksh. Batch" = RIMD,
                   tabledata "Reservation Wksh. Line" = RIMD,
                   tabledata "Reservation Worksheet Log" = RIMD,
-                  tabledata "Resolution Code" = RIMD,
                   tabledata Resource = RIMD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Resource Cost" = IM,
 #endif
                   tabledata "Resource Group" = RIMD,
-                  tabledata "Resource Location" = RIMD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Resource Price" = IM,
                   tabledata "Resource Price Change" = RIMD,
 #endif
                   tabledata "Resource Register" = RIMD,
-                  tabledata "Resource Service Zone" = RIMD,
                   tabledata "Resource Unit of Measure" = IM,
                   tabledata "Resources Setup" = IM,
                   tabledata "Return Receipt Line" = d,
@@ -811,7 +786,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Sales Invoice Entity Aggregate" = RIMD,
                   tabledata "Sales Invoice Line Aggregate" = RIMD,
                   tabledata "Sales Order Entity Buffer" = RIMD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Price and Line Disc Buff" = RIMD,
 #endif
                   tabledata "Sales Quote Entity Buffer" = RIMD,
@@ -823,23 +798,14 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Semi-Manual Test Wizard" = RIMD,
                   tabledata "SEPA Direct Debit Mandate" = RIMD,
                   tabledata "Service Connection" = RIMD,
-                  tabledata "Service Cue" = RIMD,
-                  tabledata "Service Item Trend Buffer" = RIMD,
-                  tabledata "Service Mgt. Setup" = RI,
-                  tabledata "Service Shipment Buffer" = RimD,
                   tabledata "Shipment Method Translation" = RIMD,
-                  tabledata "Skill Code" = RIMD,
                   tabledata "Sorting Table" = RIMD,
                   tabledata "Standard Address" = Rimd,
                   tabledata "Standard Cost Worksheet" = RIMD,
                   tabledata "Standard Cost Worksheet Name" = RIMD,
                   tabledata "Standard General Journal" = RIMD,
-                  tabledata "Standard Service Code" = RIMD,
-                  tabledata "Standard Service Item Gr. Code" = RIMD,
-                  tabledata "Standard Service Line" = RIMD,
                   tabledata "Standard Text" = RIMD,
                   tabledata "Support Contact Information" = R,
-                  tabledata "Symptom Code" = RIMD,
                   tabledata "Table Filter" = RIMD,
                   tabledata "Tax Area Buffer" = RIMD,
                   tabledata "Tax Group Buffer" = RIMD,
@@ -866,19 +832,11 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Trial Balance Cache Info" = RIMD,
                   tabledata "Trial Balance Entity Buffer" = RIMD,
                   tabledata "Trial Balance Setup" = RIMD,
-                  tabledata "Troubleshooting Header" = RIMD,
-                  tabledata "Troubleshooting Line" = RIMD,
                   tabledata Union = RIMD,
                   tabledata "Unit of Measure" = RIMD,
                   tabledata "Unit of Measure Translation" = RIMD,
                   tabledata "Unlinked Attachment" = RIMD,
                   tabledata "Untracked Planning Element" = RIM,
-#if not CLEAN22
-                  tabledata "User Group" = R,
-                  tabledata "User Group Access Control" = R,
-                  tabledata "User Group Permission Set" = R,
-                  tabledata "User Group Plan" = Rimd,
-#endif
                   tabledata "User Preference" = RIMD,
                   tabledata "User Security Status" = RIM,
                   tabledata "User Task" = RIMD,
@@ -898,13 +856,11 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Warehouse Source Filter" = RIM,
                   tabledata "Warehouse WMS Cue" = RIMD,
                   tabledata "Warehouse Worker WMS Cue" = RIMD,
-                  tabledata "Warranty Ledger Entry" = ID,
                   tabledata "WF Event/Response Combination" = RIMD,
                   tabledata "Where Used Base Calendar" = RIMD,
                   tabledata "Whse. Item Tracking Line" = RIMD,
                   tabledata "Work Center" = RIM,
                   tabledata "Work Type" = IM,
-                  tabledata "Work-Hour Template" = RIMD,
                   tabledata "Workflow - Record Change" = Rimd,
                   tabledata "Workflow Buffer" = RIMD,
                   tabledata "Workflow Category" = RIMD,
@@ -919,5 +875,53 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "XML Schema" = RIMD,
                   tabledata "XML Schema Element" = RIMD,
                   tabledata "XML Schema Restriction" = RIMD,
-                  tabledata "Report Settings Override" = Rimd;
+                  tabledata "Report Settings Override" = Rimd,
+
+                  // Service
+                  tabledata "Contract Change Log" = RIMD,
+                  tabledata "Contract Gain/Loss Entry" = RIM,
+                  tabledata "Contract Group" = RIMD,
+                  tabledata "Contract Trend Buffer" = RIMD,
+                  tabledata "Fault Area" = RIMD,
+                  tabledata "Fault Area/Symptom Code" = RIMD,
+                  tabledata "Fault Code" = RIMD,
+                  tabledata "Fault Reason Code" = RIMD,
+                  tabledata "Fault/Resol. Cod. Relationship" = RIMD,
+                  tabledata "Filed Service Contract Header" = rm,
+                  tabledata "Filed Contract Line" = RIMD,
+                  tabledata "Filed Serv. Contract Cmt. Line" = RIMD,
+                  tabledata "Filed Contract Service Hour" = RIMD,
+                  tabledata "Filed Contract/Serv. Discount" = RIMD,
+                  tabledata Loaner = RIMD,
+                  tabledata "Loaner Entry" = RIMD,
+                  tabledata "Repair Status" = RIMD,
+                  tabledata "Resolution Code" = RIMD,
+                  tabledata "Resource Location" = RIMD,
+                  tabledata "Resource Service Zone" = RIMD,
+                  tabledata "Service Cue" = RIMD,
+                  tabledata "Service Item Trend Buffer" = RIMD,
+                  tabledata "Service Mgt. Setup" = RI,
+                  tabledata "Service Shipment Buffer" = RimD,
+                  tabledata "Skill Code" = RIMD,
+                  tabledata "Standard Service Code" = RIMD,
+                  tabledata "Standard Service Item Gr. Code" = RIMD,
+                  tabledata "Standard Service Line" = RIMD,
+                  tabledata "Symptom Code" = RIMD,
+                  tabledata "Troubleshooting Header" = RIMD,
+                  tabledata "Troubleshooting Line" = RIMD,
+                  tabledata "Warranty Ledger Entry" = ID,
+                  tabledata "Work-Hour Template" = RIMD,
+
+                  //Extension management
+                  tabledata "Application Dependency" = Rimd,
+                  tabledata "Application Object Metadata" = Rimd,
+                  tabledata "Application Resource" = Rimd,
+                  tabledata "Extension Pending Setup" = rimd,
+                  tabledata "Inplace Installed Application" = Rimd,
+                  tabledata "Installed Application" = Rimd,
+                  tabledata "NAV App Capabilities" = Rimd,
+                  tabledata "NAV App Data Archive" = Rimd,
+                  tabledata "NAV App Object Prerequisites" = Rimd,
+                  tabledata "NAV App Tenant Add-In" = Rimd,
+                  tabledata "NAV App Tenant Operation" = RIMD;
 }

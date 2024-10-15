@@ -19,6 +19,8 @@ codeunit 5951 "Service-Disc. (Yes/No)"
     var
         ServiceLine: Record "Service Line";
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to calculate the invoice discount?';
+#pragma warning restore AA0074
 }
 

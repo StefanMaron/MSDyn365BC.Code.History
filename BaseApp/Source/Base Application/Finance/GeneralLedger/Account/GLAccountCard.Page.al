@@ -438,21 +438,6 @@ page 17 "G/L Account Card"
                         CalcGLAccWhereUsed.CheckGLAcc(Rec."No.");
                     end;
                 }
-#if not CLEAN22
-                action("Apply Entries")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Apply Entries';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by feature Review General Ledger Entries';
-                    ObsoleteTag = '22.0';
-                    Image = ApplyEntries;
-                    RunObject = Page "Apply G/L Entries";
-                    RunPageLink = "G/L Account No." = field("No.");
-                    ShortCutKey = 'Shift+F11';
-                    ToolTip = 'Apply open entries to the general ledger account.';
-                }
-#endif
             }
             group("&Balance")
             {

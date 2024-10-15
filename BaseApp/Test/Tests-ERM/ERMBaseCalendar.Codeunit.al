@@ -411,61 +411,51 @@ codeunit 134233 "ERM Base Calendar"
     local procedure CreateCustomizedCalendarChange(var CustomizedCalendarChange: Record "Customized Calendar Change"; BaseCalendarCode: Code[10]; SourceType: Enum "Calendar Source Type"; SourceCode: Code[20]; AdditionalSourceCode: Code[10]; NewDate: Date; IsNonworking: Boolean)
     begin
         Clear(CustomizedCalendarChange);
-        with CustomizedCalendarChange do begin
-            Validate("Source Type", SourceType);
-            Validate("Source Code", SourceCode);
-            Validate("Additional Source Code", AdditionalSourceCode);
-            Validate("Base Calendar Code", BaseCalendarCode);
-            Validate(Date, NewDate);
-            Validate(Nonworking, IsNonworking);
-            Insert(true);
-        end;
+        CustomizedCalendarChange.Validate("Source Type", SourceType);
+        CustomizedCalendarChange.Validate("Source Code", SourceCode);
+        CustomizedCalendarChange.Validate("Additional Source Code", AdditionalSourceCode);
+        CustomizedCalendarChange.Validate("Base Calendar Code", BaseCalendarCode);
+        CustomizedCalendarChange.Validate(Date, NewDate);
+        CustomizedCalendarChange.Validate(Nonworking, IsNonworking);
+        CustomizedCalendarChange.Insert(true);
     end;
 
     local procedure CreateCustomizedCalendarEntry(var CustomizedCalendarEntry: Record "Customized Calendar Entry"; BaseCalendarCode: Code[10]; SourceType: Enum "Calendar Source Type"; SourceCode: Code[20]; NewDescription: Text[30]; IsNonworking: Boolean)
     begin
         Clear(CustomizedCalendarEntry);
-        with CustomizedCalendarEntry do begin
-            Validate("Source Type", SourceType);
-            Validate("Source Code", SourceCode);
-            Validate("Additional Source Code", '');
-            Validate("Base Calendar Code", BaseCalendarCode);
-            Validate(Date, WorkDate());
-            Validate(Description, NewDescription);
-            Validate(Nonworking, IsNonworking);
-            Insert(true);
-        end;
+        CustomizedCalendarEntry.Validate("Source Type", SourceType);
+        CustomizedCalendarEntry.Validate("Source Code", SourceCode);
+        CustomizedCalendarEntry.Validate("Additional Source Code", '');
+        CustomizedCalendarEntry.Validate("Base Calendar Code", BaseCalendarCode);
+        CustomizedCalendarEntry.Validate(Date, WorkDate());
+        CustomizedCalendarEntry.Validate(Description, NewDescription);
+        CustomizedCalendarEntry.Validate(Nonworking, IsNonworking);
+        CustomizedCalendarEntry.Insert(true);
     end;
 
     local procedure FilterCustomizedCalendarChange(var CustomizedCalendarChange: Record "Customized Calendar Change"; BaseCalendarCode: Code[10]; SourceType: Enum "Calendar Source Type"; SourceCode: Code[20]; AdditionalSourceCode: Code[20]; DatePar: Date)
     begin
-        with CustomizedCalendarChange do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Source Code", SourceCode);
-            SetRange("Additional Source Code", AdditionalSourceCode);
-            SetRange("Base Calendar Code", BaseCalendarCode);
-            SetRange(Date, DatePar);
-        end;
+        CustomizedCalendarChange.SetRange("Source Type", SourceType);
+        CustomizedCalendarChange.SetRange("Source Code", SourceCode);
+        CustomizedCalendarChange.SetRange("Additional Source Code", AdditionalSourceCode);
+        CustomizedCalendarChange.SetRange("Base Calendar Code", BaseCalendarCode);
+        CustomizedCalendarChange.SetRange(Date, DatePar);
     end;
 
     local procedure FilterCustomizedCalendarEntry(var CustomizedCalendarEntry: Record "Customized Calendar Entry"; BaseCalendarCode: Code[10]; SourceType: Enum "Calendar Source Type"; SourceCode: Code[20]; AdditionalSourceCode: Code[20]; DatePar: Date)
     begin
-        with CustomizedCalendarEntry do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Source Code", SourceCode);
-            SetRange("Additional Source Code", AdditionalSourceCode);
-            SetRange("Base Calendar Code", BaseCalendarCode);
-            SetRange(Date, DatePar);
-        end;
+        CustomizedCalendarEntry.SetRange("Source Type", SourceType);
+        CustomizedCalendarEntry.SetRange("Source Code", SourceCode);
+        CustomizedCalendarEntry.SetRange("Additional Source Code", AdditionalSourceCode);
+        CustomizedCalendarEntry.SetRange("Base Calendar Code", BaseCalendarCode);
+        CustomizedCalendarEntry.SetRange(Date, DatePar);
     end;
 
     local procedure FilterWhereUsedBaseCalendar(var WhereUsedBaseCalendar: Record "Where Used Base Calendar"; BaseCalendarCode: Code[10]; SourceType: Enum "Calendar Source Type"; SourceCode: Code[20])
     begin
-        with WhereUsedBaseCalendar do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Source Code", SourceCode);
-            SetRange("Base Calendar Code", BaseCalendarCode);
-        end;
+        WhereUsedBaseCalendar.SetRange("Source Type", SourceType);
+        WhereUsedBaseCalendar.SetRange("Source Code", SourceCode);
+        WhereUsedBaseCalendar.SetRange("Base Calendar Code", BaseCalendarCode);
     end;
 
     local procedure CreateBaseCalendarWithCustomizedCalendarChange(): Code[10]

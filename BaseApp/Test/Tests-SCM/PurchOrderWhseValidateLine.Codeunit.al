@@ -261,8 +261,10 @@ codeunit 137222 "PurchOrder Whse Validate Line"
             ExpectedErrorMessage := StrSubstNo(ErrStatusMustBeOpen, PurchaseHeader.TableCaption());
 
         asserterror UpdatePurchaseLine(PurchaseLine, FieldNo, Value);
-        if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
-            Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
+        if Reopen then
+            Assert.ExpectedTestFieldError(FieldRef.Name, '')
+        else
+            Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Open));
         ClearLastError();
     end;
 
@@ -283,6 +285,9 @@ codeunit 137222 "PurchOrder Whse Validate Line"
         end;
 
         asserterror PurchaseLine.DeleteAll(true);
+        if not Reopen then
+            Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Open));
+
         if StrPos(GetLastErrorText, ExpectedErrorMessage) = 0 then
             Assert.Fail(StrSubstNo(UnexpectedMessage, GetLastErrorText, ExpectedErrorMessage));
         ClearLastError();

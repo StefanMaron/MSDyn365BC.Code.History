@@ -32,9 +32,7 @@ codeunit 134118 "Price List Header UT"
         ParentSourceJobErr: Label 'Parent Source No. must be blank for Project source type.';
         CustomParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. (custom) must have a value';
         JobsParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. (projects) must have a value';
-        ParentSourceNoMustBeBlankErr: Label 'Assign-to Parent No. (projects) must be equal to ''''';
         SourceNoCustomMustBeFilledErr: Label 'Assign-to No. (custom) must have a value';
-        SourceNoCustomMustBeBlankErr: Label 'Assign-to No. (custom) must be equal to ''''';
         MissingPriceListCodeErr: Label '%1 must have a value', Comment = '%1 - field caption.';
         CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 - table caption';
         IsInitialized: Boolean;
@@ -1032,7 +1030,7 @@ codeunit 134118 "Price List Header UT"
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
         // [THEN] Error: "Assign-to No. (custom) must be equal to ''''"
-        Assert.ExpectedError(SourceNoCustomMustBeBlankErr);
+        Assert.ExpectedTestFieldError(PriceListHeader.FieldCaption("Source No."), '''');
     end;
 
     [Test]
@@ -1248,7 +1246,7 @@ codeunit 134118 "Price List Header UT"
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
         // [THEN] Error: "Assign-to No. (custom) must be equal to ''''"
-        Assert.ExpectedError(SourceNoCustomMustBeBlankErr);
+        Assert.ExpectedTestFieldError(PriceListHeader.FieldCaption("Source No."), '''');
     end;
 
     [Test]
@@ -1270,7 +1268,7 @@ codeunit 134118 "Price List Header UT"
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
         // [THEN] Error: "Assign-to No. (custom) must have a value"
-        Assert.ExpectedError(SourceNoCustomMustBeFilledErr);
+        Assert.ExpectedTestFieldError(PriceListHeader.FieldCaption("Source No."), '');
     end;
 
     [Test]
@@ -1292,7 +1290,7 @@ codeunit 134118 "Price List Header UT"
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
         // [THEN] Error: "Assign-to Parent No. (custom) must be equal to ''''"
-        Assert.ExpectedError(ParentSourceNoMustBeBlankErr);
+        Assert.ExpectedTestFieldError(PriceListHeader.FieldCaption("Parent Source No."), '''');
     end;
 
     [Test]
@@ -1637,7 +1635,7 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T101_DeletePricesOnContactDeletion()
     var
-        Contact: Array[2] of Record Contact;
+        Contact: array[2] of Record Contact;
     begin
         Initialize();
         // [GIVEN] Two Contacts 'A' and 'B' have related prices
@@ -1655,7 +1653,7 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T102_DeletePricesOnCustomerDeletion()
     var
-        Customer: Array[2] of Record Customer;
+        Customer: array[2] of Record Customer;
     begin
         Initialize();
         // [GIVEN] Two Customers 'A' and 'B' have related prices
@@ -1673,7 +1671,7 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T103_DeletePricesOnCustomerPriceGroupDeletion()
     var
-        CustomerPriceGroup: Array[2] of Record "Customer Price Group";
+        CustomerPriceGroup: array[2] of Record "Customer Price Group";
     begin
         Initialize();
         // [GIVEN] Two Customer Price Groups 'A' and 'B' have related prices
@@ -1693,7 +1691,7 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T104_DeletePricesOnCustomerDiscGroupDeletion()
     var
-        CustomerDiscountGroup: Array[2] of Record "Customer Discount Group";
+        CustomerDiscountGroup: array[2] of Record "Customer Discount Group";
     begin
         Initialize();
         // [GIVEN] Two Customer Disc Groups 'A' and 'B' have related prices
@@ -1713,7 +1711,7 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T105_DeletePricesOnVendorDeletion()
     var
-        Vendor: Array[2] of Record Vendor;
+        Vendor: array[2] of Record Vendor;
     begin
         Initialize();
         // [GIVEN] Two Vendors 'A' and 'B' have related prices
@@ -1731,7 +1729,7 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T106_DeletePricesOnJobDeletion()
     var
-        Job: Array[2] of Record Job;
+        Job: array[2] of Record Job;
     begin
         Initialize();
         // [GIVEN] Two Jobs 'A' and 'B' have related prices
@@ -1750,7 +1748,7 @@ codeunit 134118 "Price List Header UT"
     procedure T107_DeletePricesOnJobTaskDeletion()
     var
         Job: Record Job;
-        JobTask: Array[2] of Record "Job Task";
+        JobTask: array[2] of Record "Job Task";
     begin
         Initialize();
         // [GIVEN] Two Job Tasks 'A' and 'B' have related prices
@@ -1789,7 +1787,7 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T111_ModifyPricesOnContactRename()
     var
-        Contact: Array[2] of Record Contact;
+        Contact: array[2] of Record Contact;
         OldNo: Code[20];
     begin
         Initialize();
@@ -1809,7 +1807,7 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T112_ModifyPricesOnCustomerRename()
     var
-        Customer: Array[2] of Record Customer;
+        Customer: array[2] of Record Customer;
         OldNo: Code[20];
     begin
         Initialize();
@@ -1829,7 +1827,7 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T113_ModifyPricesOnCustomerPriceGroupRename()
     var
-        CustomerPriceGroup: Array[2] of Record "Customer Price Group";
+        CustomerPriceGroup: array[2] of Record "Customer Price Group";
         OldNo: Code[20];
     begin
         Initialize();
@@ -1851,7 +1849,7 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T114_ModifyPricesOnCustomerDiscGroupRename()
     var
-        CustomerDiscountGroup: Array[2] of Record "Customer Discount Group";
+        CustomerDiscountGroup: array[2] of Record "Customer Discount Group";
         OldNo: Code[20];
     begin
         Initialize();
@@ -1873,7 +1871,7 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T115_ModifyPricesOnVendorRename()
     var
-        Vendor: Array[2] of Record Vendor;
+        Vendor: array[2] of Record Vendor;
         OldNo: Code[20];
     begin
         Initialize();
@@ -1893,7 +1891,7 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure T116_ModifyPricesOnJobRename()
     var
-        Job: Array[2] of Record Job;
+        Job: array[2] of Record Job;
         OldNo: Code[20];
     begin
         Initialize();
@@ -1917,7 +1915,7 @@ codeunit 134118 "Price List Header UT"
     procedure T117_ModifyPricesOnJobTaskRename()
     var
         Job: Record Job;
-        JobTask: Array[2] of Record "Job Task";
+        JobTask: array[2] of Record "Job Task";
         OldNo: Code[20];
     begin
         Initialize();
@@ -1940,9 +1938,9 @@ codeunit 134118 "Price List Header UT"
     var
         Job: Record Job;
         JobTask: Record "Job Task";
-        PriceListHeader: Array[2] of Record "Price List Header";
+        PriceListHeader: array[2] of Record "Price List Header";
         NewPriceListHeader: Record "Price List Header";
-        PriceListLine: Array[6] of Record "Price List Line";
+        PriceListLine: array[6] of Record "Price List Line";
         NewPriceListLine: Record "Price List Line";
         CopyJob: Codeunit "Copy Job";
         NewJobNo: Code[20];
@@ -2278,11 +2276,11 @@ codeunit 134118 "Price List Header UT"
     [Test]
     procedure VerifyValuesOnPriceListHeaderAndPriceListLineWhenResourceAndJobTaskRename()
     var
-        PriceListHeader: Array[2] of Record "Price List Header";
-        PriceListLine: Array[2] of Record "Price List Line";
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
         Resource: Record Resource;
-        Job: Array[2] of Record Job;
-        JobTask: Array[2] of Record "Job Task";
+        Job: array[2] of Record Job;
+        JobTask: array[2] of Record "Job Task";
         JobTask2: Record "Job Task";
         ResourceNo: Code[20];
     begin
@@ -2509,11 +2507,9 @@ codeunit 134118 "Price List Header UT"
     var
         BlankGuid: Guid;
     begin
-        with PriceListHeader do begin
-            Testfield("Parent Source No.", '');
-            Testfield("Source No.", '');
-            Testfield("Source ID", BlankGuid);
-        end;
+        PriceListHeader.Testfield("Parent Source No.", '');
+        PriceListHeader.Testfield("Source No.", '');
+        PriceListHeader.Testfield("Source ID", BlankGuid);
     end;
 
     local procedure VerifyDates(PriceListHeader: Record "Price List Header"; StartingDate: Date; EndingDate: Date)
@@ -2586,7 +2582,7 @@ codeunit 134118 "Price List Header UT"
             repeat
                 PriceListHeader.TestField("Filter Source No.", NewSourceNo);
                 PriceListHeader.TestField("Assign-to No.", NewSourceNo);
-            Until PriceListHeader.Next() = 0;
+            until PriceListHeader.Next() = 0;
     end;
 
     [ModalPageHandler]

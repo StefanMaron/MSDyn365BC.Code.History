@@ -508,7 +508,7 @@ codeunit 137044 "SCM Order Promising"
         CreateSalesOrderForThreeItems(SalesHeader, InventoryItemNo, ServiceItemNo, NonStockItemNo);
 
         // [WHEN] Transferring Sales Lines to Order Promising Lines
-        AvailabilityManagement.SetSalesHeader(TempOrderPromisingLine, SalesHeader);
+        AvailabilityManagement.SetSourceRecord(TempOrderPromisingLine, SalesHeader);
 
         // [THEN] Order Promising Lines contain Item of Type Inventory
         TempOrderPromisingLine.SetRange("Item No.", InventoryItemNo);
@@ -545,7 +545,7 @@ codeunit 137044 "SCM Order Promising"
         CreateJobForThreeItems(Job, InventoryItemNo, ServiceItemNo, NonStockItemNo);
 
         // [WHEN] Transferring Job Planning Lines to Order Promising Lines
-        AvailabilityManagement.SetJob(TempOrderPromisingLine, Job);
+        AvailabilityManagement.SetSourceRecord(TempOrderPromisingLine, Job);
 
         // [THEN] Order Promising Lines contain Item of Type Inventory
         TempOrderPromisingLine.SetRange("Item No.", InventoryItemNo);
@@ -969,7 +969,7 @@ codeunit 137044 "SCM Order Promising"
         AsmStartingDate := AssemblyHeader."Starting Date";
 
         // [WHEN] In the "Order Promising" window, set the "Planned Delivery Date" to 26.01.2020, do not accept the change
-        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, SalesHeader);
         OrderPromisingLine.Validate("Planned Delivery Date", SalesLine."Planned Delivery Date" + 1);
 
         // [THEN] "Starting Date" in the assembly order is 25.01.2020
@@ -1003,7 +1003,7 @@ codeunit 137044 "SCM Order Promising"
         UpdateCompanyInfoBaseCalendarCode(BaseCalendar.Code);
 
         // [WHEN] In the "Order Promising" window, set the "Planned Delivery Date" to 26.01.2020
-        AvailabilityManagement.SetSalesHeader(OrderPromisingLine, SalesHeader);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, SalesHeader);
         OrderPromisingLine.Validate("Planned Delivery Date", SalesLine."Planned Delivery Date" + 1);
 
         // [THEN] "Planned Delivery Date" and "Earliest Shipment Date" in the Order Promising are changed to 27.01.2020
@@ -1045,7 +1045,7 @@ codeunit 137044 "SCM Order Promising"
         LibraryService.AutoReserveServiceLine(ServiceLine);
 
         // [WHEN] In the "Order Promising" window, set the "Planned Delivery Date" to 26.01.2020, do not accept the change
-        AvailabilityManagement.SetServHeader(OrderPromisingLine, ServiceHeader);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, ServiceHeader);
         OrderPromisingLine.Validate("Planned Delivery Date", ServiceLine."Planned Delivery Date" + 1);
 
         // [THEN] "Shipment Date" in reservation entry is 25.01.2020
@@ -1078,7 +1078,7 @@ codeunit 137044 "SCM Order Promising"
         JobPlanningLine.AutoReserve();
 
         // [WHEN] In the "Order Promising" window, set the "Planned Delivery Date" to 26.01.2020, do not accept the change
-        AvailabilityManagement.SetJob(OrderPromisingLine, Job);
+        AvailabilityManagement.SetSourceRecord(OrderPromisingLine, Job);
         OrderPromisingLine.Validate("Planned Delivery Date", JobPlanningLine."Planned Delivery Date" + 1);
 
         // [THEN] "Shipment Date" in reservation entry is 25.01.2020
@@ -1472,55 +1472,47 @@ codeunit 137044 "SCM Order Promising"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate("Base Calendar Code", BaseCalendarCode);
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Base Calendar Code", BaseCalendarCode);
+        CompanyInformation.Modify(true);
     end;
 
     local procedure UpdateManufacturingSetup()
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        with ManufacturingSetup do begin
-            Get();
-            Validate("Normal Starting Time", 080000T);
-            Validate("Normal Ending Time", 160000T);
-            Validate("Planned Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Modify(true);
-        end;
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Normal Starting Time", 080000T);
+        ManufacturingSetup.Validate("Normal Ending Time", 160000T);
+        ManufacturingSetup.Validate("Planned Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        ManufacturingSetup.Modify(true);
     end;
 
     local procedure UpdateSalesReceivablesSetup()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesReceivablesSetup do begin
-            Get();
-            Validate("Credit Warnings", "Credit Warnings"::"No Warning");
-            Validate("Stockout Warning", false);
-            Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Modify(true);
-        end;
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Credit Warnings", SalesReceivablesSetup."Credit Warnings"::"No Warning");
+        SalesReceivablesSetup.Validate("Stockout Warning", false);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Modify(true);
     end;
 
     local procedure UpdatePurchaseSetup()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     local procedure CalcSalesHeaderAvailableToPromise(var TempOrderPromisingLine: Record "Order Promising Line" temporary; SalesHeader: Record "Sales Header")
     var
         AvailabilityMgt: Codeunit AvailabilityManagement;
     begin
-        AvailabilityMgt.SetSalesHeader(TempOrderPromisingLine, SalesHeader);
+        AvailabilityMgt.SetSourceRecord(TempOrderPromisingLine, SalesHeader);
         AvailabilityMgt.CalcAvailableToPromise(TempOrderPromisingLine);
     end;
 
@@ -1555,12 +1547,10 @@ codeunit 137044 "SCM Order Promising"
     local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     begin
         // Random values used are important for test.
-        with Item do begin
-            LibraryManufacturing.CreateItemManufacturing(
-              Item, "Costing Method"::Standard, LibraryRandom.RandDec(50, 2), "Reordering Policy", "Flushing Method"::Manual, '', '');
-            Validate("Replenishment System", ReplenishmentSystem);
-            Modify(true);
-        end;
+        LibraryManufacturing.CreateItemManufacturing(
+          Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(50, 2), Item."Reordering Policy", Item."Flushing Method"::Manual, '', '');
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Modify(true);
     end;
 
     local procedure CreateAssembleToOrderItemWithComponent(var AsmItem: Record Item; var CompItem: Record Item)
@@ -1842,7 +1832,7 @@ codeunit 137044 "SCM Order Promising"
         CreateSalesOrder(SalesHeader, ShipmentDate, LocationCode[1], Item."No.", SalesOrderQty);
 
         // Exercise: Run Available to Promise.
-        AvailabilityMgt.SetSalesHeader(TempOrderPromisingLine, SalesHeader);
+        AvailabilityMgt.SetSourceRecord(TempOrderPromisingLine, SalesHeader);
         AvailabilityMgt.CalcAvailableToPromise(TempOrderPromisingLine);
 
         // Verify: Verify the Earliest Shipment date in Order Promising Table.
@@ -1867,7 +1857,7 @@ codeunit 137044 "SCM Order Promising"
         CreateSupplyDocuments(Item."No.", ShipmentDate, NoOfSupplyDocuments);
 
         // Exercise: Run Available to Promise.
-        AvailabilityMgt.SetSalesHeader(TempOrderPromisingLine, SalesHeader);
+        AvailabilityMgt.SetSourceRecord(TempOrderPromisingLine, SalesHeader);
         AvailabilityMgt.CalcAvailableToPromise(TempOrderPromisingLine);
 
         // Verify: Verify the Earliest Shipment date in Order Promising Table.
@@ -1878,22 +1868,18 @@ codeunit 137044 "SCM Order Promising"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate("Check-Avail. Period Calc.", CheckAvailPeriodCalc);
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Check-Avail. Period Calc.", CheckAvailPeriodCalc);
+        CompanyInformation.Modify(true);
     end;
 
     local procedure UpdateCompanyInformationCalcBucket(CheckAvailTimeBucket: Option Day,Week,Month,Quarter,Year)
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate("Check-Avail. Time Bucket", CheckAvailTimeBucket);
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Check-Avail. Time Bucket", CheckAvailTimeBucket);
+        CompanyInformation.Modify(true);
     end;
 
     local procedure UpdateItem(var Item: Record Item; ProductionBOMHeaderNo: Code[20]; RoutingNo: Code[20])
@@ -1913,14 +1899,12 @@ codeunit 137044 "SCM Order Promising"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Evaluate("Outbound Whse. Handling Time", WhseHandlingTimeFormula);
-            Evaluate("Shipping Time", ShippingTimeFormula);
-            Modify(true);
-        end;
+        SalesLine.SetRange("Document Type", DocumentType);
+        SalesLine.SetRange("Document No.", DocumentNo);
+        SalesLine.FindFirst();
+        Evaluate(SalesLine."Outbound Whse. Handling Time", WhseHandlingTimeFormula);
+        Evaluate(SalesLine."Shipping Time", ShippingTimeFormula);
+        SalesLine.Modify(true);
     end;
 
     local procedure UpdateShipmentDateOnSalesOrderPage(SalesHeaderNo: Code[20]; ShipmentDate: Date)
@@ -2063,12 +2047,11 @@ codeunit 137044 "SCM Order Promising"
     var
         ActualEarliestShipmentDate: Date;
     begin
-        if not DemandMoreThanSupply then begin
+        if not DemandMoreThanSupply then
             if SalesHeader."Shipment Date" <> 0D then
                 ActualEarliestShipmentDate := SalesHeader."Shipment Date"
             else
                 ActualEarliestShipmentDate := SalesHeader."Order Date";
-        end;
 
         Assert.AreEqual(EarliestShipmentDate, ActualEarliestShipmentDate, ErrDateMustBeSame);
     end;
@@ -2084,12 +2067,10 @@ codeunit 137044 "SCM Order Promising"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            TestField("Shipment Date", ShipmentDate);
-        end;
+        ReservationEntry.SetRange("Source Type", SourceType);
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Shipment Date", ShipmentDate);
     end;
 
     [ModalPageHandler]

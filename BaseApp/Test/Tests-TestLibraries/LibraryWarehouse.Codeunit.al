@@ -1,4 +1,4 @@
-codeunit 132204 "Library - Warehouse"
+﻿codeunit 132204 "Library - Warehouse"
 {
     // Unsupported version tags:
     // 
@@ -1009,9 +1009,9 @@ codeunit 132204 "Library - Warehouse"
 
     procedure CreateWhseShipmentFromServiceOrder(ServiceHeader: Record "Service Header")
     var
-        GetSourceDocOutbound: Codeunit "Get Source Doc. Outbound";
+        ServGetSourceDocOutbound: Codeunit "Serv. Get Source Doc. Outbound";
     begin
-        GetSourceDocOutbound.CreateFromServiceOrderHideDialog(ServiceHeader);
+        ServGetSourceDocOutbound.CreateFromServiceOrderHideDialog(ServiceHeader);
     end;
 
     procedure CreateWhseShipmentFromSO(var SalesHeader: Record "Sales Header")

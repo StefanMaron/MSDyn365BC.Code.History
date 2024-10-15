@@ -2480,65 +2480,55 @@ codeunit 137068 "SCM Inventory Orders-II"
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
-        with ItemChargeAssignmentPurch do begin
-            LibraryInventory.CreateItemChargeAssignPurchase(
-              ItemChargeAssignmentPurch, PurchaseLineCharge,
-              PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", PurchaseLine."No.");
-            Validate("Qty. to Assign", QtyToAssign);
-            Modify(true);
-        end;
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLineCharge,
+          PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.", PurchaseLine."No.");
+        ItemChargeAssignmentPurch.Validate("Qty. to Assign", QtyToAssign);
+        ItemChargeAssignmentPurch.Modify(true);
     end;
 
     local procedure FindSalesLineType(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Enum "Sales Line Type")
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange(Type, LineType);
-            FindFirst();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, LineType);
+        SalesLine.FindFirst();
     end;
 
     local procedure UpdateLineAmountsSales(SalesHeader: Record "Sales Header"; AddAmount: Decimal) Result: Decimal
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindSet();
-            repeat
-                Validate("Unit Price", "Unit Price" + AddAmount);
-                Modify(true);
-                Result += Amount;
-            until Next() = 0;
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
+        repeat
+            SalesLine.Validate("Unit Price", SalesLine."Unit Price" + AddAmount);
+            SalesLine.Modify(true);
+            Result += SalesLine.Amount;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure FindPurchLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type")
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            SetRange(Type, LineType);
-            FindFirst();
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, LineType);
+        PurchaseLine.FindFirst();
     end;
 
     local procedure UpdateLineAmounts(PurchaseHeader: Record "Purchase Header"; AddAmount: Decimal) Result: Decimal
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            FindSet();
-            repeat
-                Validate("Direct Unit Cost", "Direct Unit Cost" + AddAmount);
-                Modify(true);
-                Result += Amount;
-            until Next() = 0;
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindSet();
+        repeat
+            PurchaseLine.Validate("Direct Unit Cost", PurchaseLine."Direct Unit Cost" + AddAmount);
+            PurchaseLine.Modify(true);
+            Result += PurchaseLine.Amount;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure CarryOutReqWkshWithRequestPage(var RequisitionLine: Record "Requisition Line"; ExpirationDate: Date; OrderDate: Date; PostingDate: Date; ExpectedReceiptDate: Date)
@@ -2928,11 +2918,9 @@ codeunit 137068 "SCM Inventory Orders-II"
     begin
         CreateRequisitionLine(RequisitionLine);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom::"Sales Line");
-        with RequisitionLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", SalesLine."No.");
-            FindFirst();
-        end;
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", SalesLine."No.");
+        RequisitionLine.FindFirst();
     end;
 
     local procedure CreateReqLineWithDropShipmentAndLocation(var ReqLine: Record "Requisition Line"; LocationCode: Code[10])
@@ -3127,21 +3115,17 @@ codeunit 137068 "SCM Inventory Orders-II"
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LotNo: Code[50])
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Entry Type", EntryType);
-            SetRange("Item No.", ItemNo);
-            SetRange("Lot No.", LotNo);
-            FindFirst();
-        end;
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Lot No.", LotNo);
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgerEntryNo: Integer; DocumentNo: Code[20])
     begin
-        with ValueEntry do begin
-            SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.FindFirst();
     end;
 
     local procedure FindPurchaseLineBySalesDropShpment(var PurchaseLine: Record "Purchase Line"; SalesHeader: Record "Sales Header")
@@ -3477,19 +3461,18 @@ codeunit 137068 "SCM Inventory Orders-II"
         ReportSelections: Record "Report Selections";
         SavedReportSelections: Record "Report Selections";
     begin
-        with ReportSelections do begin
-            SetRange(Usage, Usage::"P.Order");  // Purchase Order. Number is used instead of an option value to avoid codeunit localization
-            FindFirst();
-            SavedReportSelections := ReportSelections;
-            DeleteAll();
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"P.Order");
+        // Purchase Order. Number is used instead of an option value to avoid codeunit localization
+        ReportSelections.FindFirst();
+        SavedReportSelections := ReportSelections;
+        ReportSelections.DeleteAll();
 
-            Init();
-            ReportSelections := SavedReportSelections;
-            Validate(Usage, Usage::"P.Order");
-            Validate(Sequence, LibraryUtility.GenerateGUID());
-            Validate("Report ID", ReportID);
-            Insert(true);
-        end;
+        ReportSelections.Init();
+        ReportSelections := SavedReportSelections;
+        ReportSelections.Validate(Usage, ReportSelections.Usage::"P.Order");
+        ReportSelections.Validate(Sequence, LibraryUtility.GenerateGUID());
+        ReportSelections.Validate("Report ID", ReportID);
+        ReportSelections.Insert(true);
     end;
 
     local procedure CreateItemJournalLineWithLocation(LocationCode: Code[10]; ItemNo: Code[20]; var ItemJournalBatch: Record "Item Journal Batch")
@@ -3528,12 +3511,10 @@ codeunit 137068 "SCM Inventory Orders-II"
 
     local procedure UpdateVendorOnRequisitionLine(var RequisitionLine: Record "Requisition Line"; SalesOrderNo: Code[20]; VendorNo: Code[20])
     begin
-        with RequisitionLine do begin
-            SetRange("Sales Order No.", SalesOrderNo);
-            FindFirst();
-            Validate("Vendor No.", VendorNo);
-            Modify(true);
-        end;
+        RequisitionLine.SetRange("Sales Order No.", SalesOrderNo);
+        RequisitionLine.FindFirst();
+        RequisitionLine.Validate("Vendor No.", VendorNo);
+        RequisitionLine.Modify(true);
     end;
 
     local procedure UpdateAndCarryOut(var RequisitionLine: Record "Requisition Line"; var SalesHeader: array[2] of Record "Sales Header") Created: Integer
@@ -3644,24 +3625,20 @@ codeunit 137068 "SCM Inventory Orders-II"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            CalcFields("Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
-            Assert.AreNearlyEqual(
-              ExpectedAmount, "Cost Amount (Actual)" + "Cost Amount (Non-Invtbl.)", LibraryERM.GetAmountRoundingPrecision(), AmountErr);
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
+        Assert.AreNearlyEqual(
+          ExpectedAmount, ItemLedgerEntry."Cost Amount (Actual)" + ItemLedgerEntry."Cost Amount (Non-Invtbl.)", LibraryERM.GetAmountRoundingPrecision(), AmountErr);
     end;
 
     local procedure VerifyItemLedgEntrySalesAmount(ItemNo: Code[20]; LotNo: Code[50]; ExpectedAmount: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            FindItemLedgerEntry(ItemLedgerEntry, "Entry Type"::Sale, ItemNo, LotNo);
-            CalcFields("Sales Amount (Actual)");
-            TestField("Sales Amount (Actual)", ExpectedAmount);
-        end;
+        FindItemLedgerEntry(ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Sale, ItemNo, LotNo);
+        ItemLedgerEntry.CalcFields("Sales Amount (Actual)");
+        ItemLedgerEntry.TestField("Sales Amount (Actual)", ExpectedAmount);
     end;
 
     local procedure VerifyItemLedgEntriesAmount(ItemNo: Code[20]; EntryType: Option Purchase,Sale; ExpectedAmount: Decimal; Total: Boolean)
@@ -3670,22 +3647,20 @@ codeunit 137068 "SCM Inventory Orders-II"
         TotalAmount: Decimal;
         WrongCostAmountErr: Label 'Wrong Cost/Sales Amount in Entry %1', Comment = '%1: Item Ledger Entry No.';
     begin
-        with ItemLedgerEntry do begin
-            SetAutoCalcFields("Cost Amount (Actual)", "Sales Amount (Actual)");
-            SetRange("Entry Type", EntryType);
-            SetRange("Item No.", ItemNo);
-            FindSet();
-            repeat
-                if Total then
-                    TotalAmount += "Cost Amount (Actual)" + "Sales Amount (Actual)"
-                else
-                    Assert.AreEqual(
-                      ExpectedAmount, "Cost Amount (Actual)" + "Sales Amount (Actual)",
-                      StrSubstNo(WrongCostAmountErr, "Entry No."));
-            until Next() = 0;
+        ItemLedgerEntry.SetAutoCalcFields("Cost Amount (Actual)", "Sales Amount (Actual)");
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindSet();
+        repeat
             if Total then
-                Assert.AreEqual(ExpectedAmount, TotalAmount, AmountErr);
-        end;
+                TotalAmount += ItemLedgerEntry."Cost Amount (Actual)" + ItemLedgerEntry."Sales Amount (Actual)"
+            else
+                Assert.AreEqual(
+                  ExpectedAmount, ItemLedgerEntry."Cost Amount (Actual)" + ItemLedgerEntry."Sales Amount (Actual)",
+                  StrSubstNo(WrongCostAmountErr, ItemLedgerEntry."Entry No."));
+        until ItemLedgerEntry.Next() = 0;
+        if Total then
+            Assert.AreEqual(ExpectedAmount, TotalAmount, AmountErr);
     end;
 
     local procedure VerifyItemLedgerEntry(ItemNo: Code[20]; Quantity: Decimal)
@@ -3750,24 +3725,20 @@ codeunit 137068 "SCM Inventory Orders-II"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Document Type", "Document Type"::"Purchase Invoice");
-            CalcSums("Cost Amount (Actual)");
-            TestField("Cost Amount (Actual)", ExpectedAmount);
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Invoice");
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        ValueEntry.TestField("Cost Amount (Actual)", ExpectedAmount);
     end;
 
     local procedure VerifySalesAmountActualSum(ItemNo: Code[20]; ExpectedAmount: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Document Type", "Document Type"::"Sales Invoice");
-            CalcSums("Sales Amount (Actual)");
-            TestField("Sales Amount (Actual)", ExpectedAmount);
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Invoice");
+        ValueEntry.CalcSums("Sales Amount (Actual)");
+        ValueEntry.TestField("Sales Amount (Actual)", ExpectedAmount);
     end;
 
     local procedure VerifyTransferReceiptLine(TransferOrderNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; TransferToCode: Code[10]; TransferFromCode: Code[10]; TransferToBinCode: Code[20])

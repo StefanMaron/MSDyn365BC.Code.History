@@ -746,20 +746,18 @@ codeunit 144046 "UT TAB Payment Management"
     var
         EntryNo: Integer;
     begin
-        with CustLedgerEntry do begin
-            if FindLast() then
-                EntryNo := "Entry No." + 1
-            else
-                EntryNo := 1;
+        if CustLedgerEntry.FindLast() then
+            EntryNo := CustLedgerEntry."Entry No." + 1
+        else
+            EntryNo := 1;
 
-            Init();
-            "Entry No." := EntryNo;
-            "Applies-to ID" := AppliesToID;
-            "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
-            "Document Type" := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(7));
-            Open := true;
-            Insert();
-        end;
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := EntryNo;
+        CustLedgerEntry."Applies-to ID" := AppliesToID;
+        CustLedgerEntry."Document No." := LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
+        CustLedgerEntry."Document Type" := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(7));
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry.Insert();
     end;
 
     local procedure MockPaymentSlipWithPaymentLine(var PaymentHeader: Record "Payment Header"; AccountType: Enum "Gen. Journal Account Type"; AppliesToID: Code[50]; AppliesToDocNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type")
@@ -785,20 +783,18 @@ codeunit 144046 "UT TAB Payment Management"
     var
         EntryNo: Integer;
     begin
-        with VendorLedgerEntry do begin
-            if FindLast() then
-                EntryNo := "Entry No." + 1
-            else
-                EntryNo := 1;
+        if VendorLedgerEntry.FindLast() then
+            EntryNo := VendorLedgerEntry."Entry No." + 1
+        else
+            EntryNo := 1;
 
-            Init();
-            "Entry No." := EntryNo;
-            "Applies-to ID" := AppliesToID;
-            "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Vendor Ledger Entry");
-            "Document Type" := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(7));
-            Open := true;
-            Insert();
-        end;
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := EntryNo;
+        VendorLedgerEntry."Applies-to ID" := AppliesToID;
+        VendorLedgerEntry."Document No." := LibraryUtility.GenerateRandomCode(VendorLedgerEntry.FieldNo("Document No."), DATABASE::"Vendor Ledger Entry");
+        VendorLedgerEntry."Document Type" := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(7));
+        VendorLedgerEntry.Open := true;
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure PaymentLineSetAccountNo(var PaymentLine: Record "Payment Line"; AccountNo: Code[20])

@@ -21,7 +21,9 @@ codeunit 1550 "Record Restriction Mgt."
     end;
 
     var
+#pragma warning disable AA0470
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
+#pragma warning restore AA0470
         RestrictLineUsageDetailsTxt: Label 'The restriction was imposed because the line requires approval.';
         RestrictBatchUsageDetailsTxt: Label 'The restriction was imposed because the journal batch requires approval.';
 

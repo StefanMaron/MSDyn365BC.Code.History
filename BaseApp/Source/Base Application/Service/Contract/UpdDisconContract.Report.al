@@ -74,10 +74,14 @@ report 6035 "Upd. Disc.% on Contract"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Service contract lines have been updated.';
+#pragma warning restore AA0074
         DiscountPct: Decimal;
         i: Integer;
+#pragma warning disable AA0074
         Text001: Label 'You must enter a value in the "Add/Subtract Discount ''%''" field.';
+#pragma warning restore AA0074
 
     procedure InitializeRequest(DiscountPercent: Decimal)
     begin

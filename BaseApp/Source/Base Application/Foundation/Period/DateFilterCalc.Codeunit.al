@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -22,7 +22,11 @@ codeunit 358 "DateFilter-Calc"
         Text10802: Label 'The ending date must be the last day of a month.';
         DateInsteadOfPeriodErr: Label 'You must enter a date interval, such as 01.01.17..31.01.17.';
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Fiscal Year %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CreateFiscalYearFilter(var "Filter": Text[30]; var Name: Text[30]; Date: Date; NextStep: Integer)
     begin

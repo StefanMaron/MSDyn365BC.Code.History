@@ -28,10 +28,16 @@ codeunit 5624 "Cancel FA Ledger Entries"
         GenJnlDocumentNo: Code[20];
         HideValidationDialog: Boolean;
 
+#pragma warning disable AA0074
         Text001: Label 'must be the same in all canceled ledger entries';
+#pragma warning disable AA0470
         Text002: Label '%1 = %2 has already been canceled.';
+#pragma warning restore AA0470
         Text003: Label 'The ledger entries have been transferred to the journal.';
+#pragma warning disable AA0470
         Text004: Label '%1 = %2 cannot be canceled. Use %3 = %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure TransferLine(var FALedgEntry: Record "FA Ledger Entry"; BalAccount: Boolean; NewPostingDate: Date)
     var

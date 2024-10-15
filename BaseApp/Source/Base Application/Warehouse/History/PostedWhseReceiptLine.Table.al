@@ -302,7 +302,9 @@ table 7319 "Posted Whse. Receipt Line"
 
     var
         Location: Record Location;
+#pragma warning disable AA0074
         Text000: Label 'Nothing to handle.';
+#pragma warning restore AA0074
 
     protected var
         HideValidationDialog: Boolean;
