@@ -867,8 +867,10 @@
                 PaymentServiceSetup: Record "Payment Service Setup";
 #if not CLEAN19
                 O365PaymentInstructions: Record "O365 Payment Instructions";
-#endif                
+#endif
+#if not CLEAN22
                 ArchiveManagement: Codeunit ArchiveManagement;
+#endif
                 SalesPost: Codeunit "Sales-Post";
             begin
                 FirstLineHasBeenOutput := false;
@@ -922,8 +924,10 @@
                 if SellToContact.Get("Sell-to Contact No.") then;
                 if BillToContact.Get("Bill-to Contact No.") then;
 
+#if not CLEAN22
                 if not IsReportInPreviewMode and ArchiveDocument then
                     ArchiveManagement.StoreSalesDocument(Header, false);
+#endif
 
                 TotalSubTotal := 0;
                 TotalInvDiscAmount := 0;
@@ -950,12 +954,24 @@
                 group(Options)
                 {
                     Caption = 'Options';
+                    field(LogInteractionField; LogInteraction)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Log Interaction';
+                        Enabled = LogInteractionEnable;
+                        ToolTip = 'Specifies that interactions with the contact are logged.';
+                    }
+#if not CLEAN22
                     field(ArchiveDocument; ArchiveDocument)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Archive Document';
-                        ToolTip = 'Specifies if the document is archived after you print it.';
+                        ToolTip = 'Specifies if the document is archived after you print it. Note: This option is going to be discontinued in future releases. Instead, for sales invoice versioning you can use the feature to attach draft invoice printout as PDF document.';
+                        ObsoleteReason = 'Archiving of Sales Invoice document is not supported.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
                     }
+#endif
                 }
             }
         }
@@ -966,7 +982,16 @@
 
         trigger OnInit()
         begin
+            LogInteractionEnable := true;
+#if not CLEAN22
             ArchiveDocument := SalesSetup."Archive Orders";
+#endif
+        end;
+
+        trigger OnOpenPage()
+        begin
+            InitLogInteraction();
+            LogInteractionEnable := LogInteraction;
         end;
     }
 
@@ -988,7 +1013,30 @@
         if Header.GetFilters = '' then
             Error(NoFilterSetErr);
 
+        if not CurrReport.UseRequestPage() then
+            InitLogInteraction();
+
         CompanyLogoPosition := SalesSetup."Logo Position on Documents";
+    end;
+
+    trigger OnPostReport()
+    begin
+        if LogInteraction and not IsReportInPreviewMode() then begin
+            Header.SetLoadFields("No.", "Bill-to Contact No.", "Bill-to Customer No.", "Salesperson Code", "Campaign No.", "Posting Description", "Opportunity No.");
+            if Header.FindSet() then
+                repeat
+                    if Header."Bill-to Contact No." <> '' then
+                        SegManagement.LogDocument(
+                          26, Header."No.", 0, 0,
+                          DATABASE::Contact, Header."Bill-to Contact No.",
+                          Header."Salesperson Code", Header."Campaign No.", Header."Posting Description", Header."Opportunity No.")
+                    else
+                        SegManagement.LogDocument(
+                          26, Header."No.", 0, 0,
+                          DATABASE::Customer, Header."Bill-to Customer No.",
+                          Header."Salesperson Code", Header."Campaign No.", Header."Posting Description", Header."Opportunity No.");
+                until Header.Next() = 0;
+        end;
     end;
 
     var
@@ -1048,6 +1096,7 @@
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
+        SegManagement: Codeunit SegManagement;
         WorkDescriptionInstream: InStream;
         WorkDescriptionLine: Text;
         CustAddr: array[8] of Text[100];
@@ -1066,7 +1115,12 @@
         MoreLines: Boolean;
         ShowWorkDescription: Boolean;
         ShowShippingAddr: Boolean;
+#if not CLEAN22
         ArchiveDocument: Boolean;
+#endif
+        LogInteraction: Boolean;
+        [InDataSet]
+        LogInteractionEnable: Boolean;
         TotalSubTotal: Decimal;
         TotalAmount: Decimal;
         TotalAmountInclVAT: Decimal;
@@ -1111,6 +1165,11 @@
         LineAmountLbl: Label 'Line Amount';
         SalespersonLbl2: Label 'Salesperson';
         NextInvoiceNo: Text;
+
+    local procedure InitLogInteraction()
+    begin
+        LogInteraction := SegManagement.FindInteractTmplCode(26) <> '';
+    end;
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
     begin
@@ -1212,7 +1271,7 @@
         if not IsHandled then
             FormatDocument.SetSalesLine(CurrLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnHeaderOnAfterGetRecordOnAfterUpdateVATOnLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
@@ -1222,7 +1281,7 @@
     local procedure OnLineOnAfterGetRecordOnAfterCalcTotals(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATBaseAmount: Decimal; var VATAmount: Decimal; var TotalAmountInclVAT: Decimal)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatLineValues(SalesLine: Record "Sales Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text; var IsHandled: Boolean)
     begin

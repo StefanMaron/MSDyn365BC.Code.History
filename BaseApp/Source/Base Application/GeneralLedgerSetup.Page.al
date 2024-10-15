@@ -529,6 +529,11 @@
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies if tax information is disabled in payment reports to Mexican SAT authorities.';
                 }
+                field("USD Currency Code"; "USD Currency Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the code for USD currency that is used to calculate exchange rate to report foreing trade electronic invoices to Mexican SAT authorities.';
+                }
 
             }
             group("Gen. Journal Templates")

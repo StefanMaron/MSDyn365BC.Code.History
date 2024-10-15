@@ -268,6 +268,15 @@
             Caption = 'SAT Trailer Type';
             TableRelation = "SAT Trailer Type";
         }
+        field(10006; "SCT Permission Type"; Code[10])
+        {
+            Caption = 'SCT Permission Type';
+            TableRelation = "SAT Permission Type";
+        }
+        field(10007; "SCT Permission Number"; Code[20])
+        {
+            Caption = 'SCT Permission Number';
+        }
         field(27000; "SAT Classification Code"; Code[10])
         {
             Caption = 'SAT Classification Code';
