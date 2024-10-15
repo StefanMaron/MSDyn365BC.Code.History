@@ -2666,6 +2666,49 @@ codeunit 136305 "Job Journal"
         JobPlanningLine.TestField("Direct Unit Cost (LCY)", UnitCostLCY);
     end;
 
+    [Test]
+    [HandlerFunctions('JobTransferToSalesInvoiceRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure AddCampaignOnInvoice()
+    var
+        Campaign: Record Campaign;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SegmentHeader: Record "Segment Header";
+        SegmentLine: Record "Segment Line";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LibraryJob: Codeunit "Library - Job";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        i: Integer;
+    begin
+        // [FEATURE] [Sales] [Campaign]        
+        // [SCENARIO 465382] Campaign No. can not be set when sales invoice is created from Job Planning
+        Initialize();
+
+        // [GIVEN] Create campaign   
+        LibraryMarketing.CreateCampaign(Campaign);
+
+        // [GIVEN] A Job Planning Line for a new Job, Create Sales Invoice from Job Planning Line and find the created Sales Invoice.
+        Initialize();
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        Commit();  // Using Commit to prevent Test Failure.
+        LibraryVariableStorage.Enqueue(WorkDate());
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+        FindSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, JobTask."Job No.", SalesLine.Type::Item);
+
+        //Exercise: Campaign No. is not set
+        Assert.AreEqual('', SalesHeader."Campaign No.", 'Campaign is already assigned to sales invoice');
+
+        // [WHEN] Set campaign no. on sales invoice
+        // [THEN] Veirfy an error
+        asserterror SalesHeader.Validate("Campaign No.", Campaign."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

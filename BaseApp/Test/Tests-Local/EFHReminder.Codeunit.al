@@ -133,7 +133,7 @@ codeunit 144005 "EHF Reminder"
         VerifyXMLGeneralInfo(IssuedReminderHeader, IssuedReminderHeader."Your Reference");
         VerifyXmlTotalAmounts(
           IssuedReminderHeader."Interest Amount" + IssuedReminderHeader."Additional Fee",
-          IssuedReminderHeader."VAT Amount", LibraryERM.GetCurrencyCode(IssuedReminderHeader."Currency Code"));
+          IssuedReminderHeader."VAT Amount", 0, LibraryERM.GetCurrencyCode(IssuedReminderHeader."Currency Code"));
         // [THEN] 'InvoiceLine' is exported with 'InvoicedQuantity' and 'LineExtensionAmount' = 0, 'PriceAmount' is taked from line amount
         IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
         IssuedReminderLine.FindSet();
@@ -178,7 +178,7 @@ codeunit 144005 "EHF Reminder"
         VerifyXMLGeneralInfo(IssuedReminderHeader, IssuedFinChargeMemoHeader."Your Reference");
         VerifyXmlTotalAmounts(
           IssuedFinChargeMemoHeader."Interest Amount" + IssuedFinChargeMemoHeader."Additional Fee",
-          IssuedFinChargeMemoHeader."VAT Amount", LibraryERM.GetCurrencyCode(IssuedFinChargeMemoHeader."Currency Code"));
+          IssuedFinChargeMemoHeader."VAT Amount", 0, LibraryERM.GetCurrencyCode(IssuedFinChargeMemoHeader."Currency Code"));
         // [THEN] 'InvoiceLine' is exported with 'InvoicedQuantity' and 'LineExtensionAmount' = 0, 'PriceAmount' is taked from line amount
         IssuedFinChargeMemoLine.SetRange("Finance Charge Memo No.", IssuedFinChargeMemoHeader."No.");
         IssuedFinChargeMemoLine.FindSet();
@@ -215,6 +215,112 @@ codeunit 144005 "EHF Reminder"
         VerifyXMLGeneralInfo(IssuedReminderHeader, IssuedReminderHeader."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ExportIssuedReminderWithInvRoundingNegative()
+    var
+        ReminderHeader: Record "Reminder Header";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ExportEHFReminder: Codeunit "Export EHF Reminder";
+        FileName: Text;
+    begin
+        // [SCENARIO 363865] Export issued reminder with negative invoice rounding
+        Initialize();
+
+        // [GIVEN] Invoice Rounding = 1 in General Ledger Setup
+        UpdateGLSetupInvoiceRounding(1);
+
+        // [GIVEN] Issued Reminder with 2 line with amount = 703, 101, VAT% = 11, invoice rounding = -0.44
+        EInvoiceReminderHelper.CreateReminderHeader(ReminderHeader);
+        CreateVATPostingSetup(VATPostingSetup, ReminderHeader."VAT Bus. Posting Group", 11);
+        CreateReminderLineWithValues(ReminderHeader."No.", VATPostingSetup."VAT Prod. Posting Group", 703, 1);
+        CreateReminderLineWithValues(ReminderHeader."No.", VATPostingSetup."VAT Prod. Posting Group", 101, 2);
+        IssuedReminderHeader.Get(EInvoiceReminderHelper.IssueReminder(ReminderHeader."No."));
+
+        // [WHEN] Export Issued Reminder
+        FileName := ExportEHFReminder.GenerateXMLFile(IssuedReminderHeader);
+
+        // [THEN] 'LegalMonetaryTotal' node has TaxInclusiveAmount = 892.44, PayableRoundingAmount = -0.44, PayableAmount = 892
+        InitXMLData(FileName);
+        VerifyXMLGeneralInfo(IssuedReminderHeader, IssuedReminderHeader."Your Reference");
+        VerifyXmlTotalAmounts(
+          804, 88.44, -0.44, LibraryERM.GetCurrencyCode(IssuedReminderHeader."Currency Code"));
+        // [THEN] Two 'InvoiceLine' nodes are exported
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//cac:InvoiceLine', 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ExportIssuedReminderWithInvRoundingPositive()
+    var
+        ReminderHeader: Record "Reminder Header";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ExportEHFReminder: Codeunit "Export EHF Reminder";
+        FileName: Text;
+    begin
+        // [SCENARIO 363865] Export issued reminder with positive invoice rounding
+        Initialize();
+
+        // [GIVEN] Invoice Rounding = 1 in General Ledger Setup
+        UpdateGLSetupInvoiceRounding(1);
+
+        // [GIVEN] Issued Reminder with 2 line with amount = 705, 101, VAT% = 11, invoice rounding = 0.34
+        EInvoiceReminderHelper.CreateReminderHeader(ReminderHeader);
+        CreateVATPostingSetup(VATPostingSetup, ReminderHeader."VAT Bus. Posting Group", 11);
+        CreateReminderLineWithValues(ReminderHeader."No.", VATPostingSetup."VAT Prod. Posting Group", 705, 1);
+        CreateReminderLineWithValues(ReminderHeader."No.", VATPostingSetup."VAT Prod. Posting Group", 101, 2);
+        IssuedReminderHeader.Get(EInvoiceReminderHelper.IssueReminder(ReminderHeader."No."));
+
+        // [WHEN] Export Issued Reminder
+        FileName := ExportEHFReminder.GenerateXMLFile(IssuedReminderHeader);
+
+        // [THEN] 'LegalMonetaryTotal' node has TaxInclusiveAmount = 894.66, PayableRoundingAmount = 0.34, PayableAmount = 895
+        InitXMLData(FileName);
+        VerifyXmlTotalAmounts(
+          806, 88.66, 0.34, LibraryERM.GetCurrencyCode(IssuedReminderHeader."Currency Code"));
+        // [THEN] Two 'InvoiceLine' nodes are exported
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//cac:InvoiceLine', 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure ExportIssuedFinChargeMemoWithInvRoundingPositive()
+    var
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ExportEHFReminder: Codeunit "Export EHF Reminder";
+        FileName: Text;
+    begin
+        // [SCENARIO 363865] Export issued finance charge memo with positive invoice rounding
+        Initialize();
+
+        // [GIVEN] Invoice Rounding = 1 in General Ledger Setup
+        UpdateGLSetupInvoiceRounding(1);
+
+        // [GIVEN] Issued finance charge memo with 2 line with amount = 705, 101, VAT% = 11, invoice rounding = 0.34
+        EInvoiceFinChMemoHelper.CreateFinChMemoHeader(FinanceChargeMemoHeader);
+        CreateVATPostingSetup(VATPostingSetup, FinanceChargeMemoHeader."VAT Bus. Posting Group", 11);
+        CreateFinChargeMemoLineWithValues(FinanceChargeMemoHeader."No.", VATPostingSetup."VAT Prod. Posting Group", 705, 1);
+        CreateFinChargeMemoLineWithValues(FinanceChargeMemoHeader."No.", VATPostingSetup."VAT Prod. Posting Group", 101, 2);
+        IssuedFinChargeMemoHeader.Get(EInvoiceFinChMemoHelper.IssueFinanceChargeMemo(FinanceChargeMemoHeader."No."));
+
+        // [WHEN] Export Issued finance charge memo
+        FileName := ExportEHFReminder.GenerateXMLFile(IssuedFinChargeMemoHeader);
+
+        // [THEN] 'LegalMonetaryTotal' node has TaxInclusiveAmount = 894.66, PayableRoundingAmount = 0.34, PayableAmount = 895
+        InitXMLData(FileName);
+        VerifyXmlTotalAmounts(
+          806, 88.66, 0.34, LibraryERM.GetCurrencyCode(IssuedFinChargeMemoHeader."Currency Code"));
+        // [THEN] Two 'InvoiceLine' nodes are exported
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//cac:InvoiceLine', 2);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -225,6 +331,7 @@ codeunit 144005 "EHF Reminder"
 
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         isInitialized := true;
     end;
 
@@ -234,6 +341,42 @@ codeunit 144005 "EHF Reminder"
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
         LibraryXPathXMLReader.AddAdditionalNamespace('cbc', 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2');
         LibraryXPathXMLReader.AddAdditionalNamespace('cac', 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2');
+    end;
+
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostGr: Code[20]; VATPct: Decimal): Code[20]
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostGr, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("VAT %", VATPct);
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Tax Category", 'S');
+        VATPostingSetup.Modify(true);
+        exit(VATProductPostingGroup.Code);
+    end;
+
+    local procedure CreateReminderLineWithValues(ReminderNo: Code[20]; VATProdPostingGroup: Code[20]; LineAmount: Decimal; LineNo: Integer)
+    var
+        ReminderLine: Record "Reminder Line";
+    begin
+        EInvoiceReminderHelper.CreateReminderLines(ReminderNo, 1, VATProdPostingGroup, LineNo);
+        ReminderLine.Get(ReminderNo, LineNo);
+        ReminderLine.Validate(Amount, LineAmount);
+        ReminderLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        ReminderLine.Modify(true);
+    end;
+
+    local procedure CreateFinChargeMemoLineWithValues(FinChargeMemoNo: Code[20]; VATProdPostingGroup: Code[20]; LineAmount: Decimal; LineNo: Integer)
+    var
+        FinanceChargeMemoLine: Record "Finance Charge Memo Line";
+    begin
+        EInvoiceFinChMemoHelper.CreateFinChMemoLines(FinChargeMemoNo, 1, VATProdPostingGroup, LineNo);
+        FinanceChargeMemoLine.Get(FinChargeMemoNo, LineNo);
+        FinanceChargeMemoLine.Validate(Amount, LineAmount);
+        FinanceChargeMemoLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        FinanceChargeMemoLine.Modify(true);
     end;
 
     local procedure GetGiroKID(DocumentType: Integer; DocumentNo: Code[20]): Code[30]
@@ -249,6 +392,16 @@ codeunit 144005 "EHF Reminder"
           true, DocumentType, DocumentNo, '', 0, '',
           GiroAmountKr, GiroAmountkre, CheckDigit, GiroKID, KIDError);
         exit(GiroKID);
+    end;
+
+    local procedure UpdateGLSetupInvoiceRounding(InvoiceRounding: Decimal)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Inv. Rounding Type (LCY)", GeneralLedgerSetup."Inv. Rounding Type (LCY)"::Nearest);
+        GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", InvoiceRounding);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     local procedure UpdateSalesSetupKID()
@@ -284,7 +437,7 @@ codeunit 144005 "EHF Reminder"
         LibraryXPathXMLReader.VerifyNodeValue('//cbc:BuyerReference', YourReference);
     end;
 
-    local procedure VerifyXmlTotalAmounts(ChargeAmount: Decimal; TaxAmount: Decimal; CurrencyCode: Code[10])
+    local procedure VerifyXmlTotalAmounts(ChargeAmount: Decimal; TaxAmount: Decimal; InvRoundingAmount: Decimal; CurrencyCode: Code[10])
     begin
         // AllowanceCharge
         LibraryXPathXMLReader.VerifyNodeValue('//cac:AllowanceCharge/cbc:ChargeIndicator', 'true');
@@ -301,7 +454,10 @@ codeunit 144005 "EHF Reminder"
         LibraryXPathXMLReader.VerifyNodeValue('//cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount', Format(ChargeAmount + TaxAmount, 0, 9));
         LibraryXPathXMLReader.VerifyNodeValue('//cac:LegalMonetaryTotal/cbc:AllowanceTotalAmount', '0');
         LibraryXPathXMLReader.VerifyNodeValue('//cac:LegalMonetaryTotal/cbc:ChargeTotalAmount', Format(ChargeAmount, 0, 9));
-        LibraryXPathXMLReader.VerifyNodeValue('//cac:LegalMonetaryTotal/cbc:PayableAmount', Format(ChargeAmount + TaxAmount, 0, 9));
+        LibraryXPathXMLReader.VerifyNodeValue(
+          '//cac:LegalMonetaryTotal/cbc:PayableAmount', Format(ChargeAmount + TaxAmount + InvRoundingAmount, 0, 9));
+        LibraryXPathXMLReader.VerifyNodeValue(
+          '//cac:LegalMonetaryTotal/cbc:PayableRoundingAmount', Format(InvRoundingAmount, 0, 9));
     end;
 
     local procedure VerifyXmlLine(IssuedReminderLine: Record "Issued Reminder Line"; Index: Integer)
@@ -313,6 +469,13 @@ codeunit 144005 "EHF Reminder"
           '//cac:InvoiceLine/cac:Item/cbc:Name', IssuedReminderLine.Description, Index);
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
           '//cac:InvoiceLine/cac:Price/cbc:PriceAmount', Format(IssuedReminderLine.Amount, 0, 9), Index);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 
