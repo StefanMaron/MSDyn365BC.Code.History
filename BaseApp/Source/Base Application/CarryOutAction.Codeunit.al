@@ -853,7 +853,6 @@ codeunit 99000813 "Carry Out Action"
             TransHeader."Shipment Date" := "Transfer Shipment Date";
             TransHeader."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
             TransHeader."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
-            TransHeader."Dimension Set ID" := "Dimension Set ID";
             OnBeforeTransHeaderInsert(TransHeader, ReqLine);
             OnInsertTransHeaderOnBeforeTransHeaderModify(TransHeader, ReqLine);
             TransHeader.Modify();

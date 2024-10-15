@@ -64,10 +64,11 @@ codeunit 1530 "Request Page Parameters Helper"
         end;
     end;
 
-    local procedure FindNodes(var FoundXmlNodeList: DotNet XmlNodeList; Parameters: Text; NodePath: Text): Boolean
+    local procedure FindNodes(var FoundXmlNodeList: DotNet XmlNodeList; Parameters: Text; NodePath: Text) Result: Boolean
     var
         XMLDOMMgt: Codeunit "XML DOM Management";
         ParametersXmlDoc: DotNet XmlDocument;
+        ShowNotFoundError: Boolean;
     begin
         if not XMLDOMMgt.LoadXMLDocumentFromText(Parameters, ParametersXmlDoc) then
             exit(false);
@@ -75,10 +76,13 @@ codeunit 1530 "Request Page Parameters Helper"
         if IsNull(ParametersXmlDoc.DocumentElement) then
             exit(false);
 
-        if not XMLDOMMgt.FindNodes(ParametersXmlDoc.DocumentElement, NodePath, FoundXmlNodeList) then
+        ShowNotFoundError := not XMLDOMMgt.FindNodes(ParametersXmlDoc.DocumentElement, NodePath, FoundXmlNodeList);
+        OnFindNodesOnAfterCalcShowNotFoundError(ShowNotFoundError);
+        if ShowNotFoundError then
             Error(XmlNodesNotFoundErr, NodePath, ParametersXmlDoc.DocumentElement.InnerXml);
 
-        exit(true);
+        Result := true;
+        OnAfterFindNodes(Result);
     end;
 
     local procedure GetFiltersForTable(RecRef: RecordRef; FoundXmlNodeList: DotNet XmlNodeList): Boolean
@@ -280,6 +284,16 @@ codeunit 1530 "Request Page Parameters Helper"
             if Format(TempValue) = Format(OptionName) then
                 exit(FoundXmlNode.InnerText);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindNodes(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindNodesOnAfterCalcShowNotFoundError(var ShowNotFoundError: Boolean)
+    begin
     end;
 }
 

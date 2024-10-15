@@ -27,6 +27,13 @@ page 7005 "Price List Line Review"
                         PriceUXManagement.EditPriceList(Rec."Price List Code");
                     end;
                 }
+                field(PriceListDescription; GetPriceListDescription())
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    Caption = 'Price List Description';
+                    ToolTip = 'Specifies the description of the price list.';
+                }
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = All;
@@ -37,21 +44,21 @@ page 7005 "Price List Line Review"
                 }
                 field("Source Type"; Rec."Source Type")
                 {
-                    Caption = 'Applies-to Type';
+                    Caption = 'Assign-to Type';
                     ApplicationArea = All;
                     Editable = false;
                     Visible = not HideSourceControls;
-                    ToolTip = 'Specifies the type of the source the price applies to.';
+                    ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
                     Style = Attention;
                     StyleExpr = LineToVerify;
                 }
                 field("Source No."; Rec."Source No.")
                 {
-                    Caption = 'Applies-to No.';
+                    Caption = 'Assign-to';
                     ApplicationArea = All;
                     Editable = false;
                     Visible = not HideSourceControls;
-                    ToolTip = 'Specifies the unique identifier of the source of the price on the price list line.';
+                    ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
                     Style = Attention;
                     StyleExpr = LineToVerify;
                 }
@@ -159,8 +166,7 @@ page 7005 "Price List Line Review"
                     Editable = AmountEditable and PriceEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and IsSalesPrice;
-                    Style = Attention;
-                    StyleExpr = not PriceMandatory;
+                    StyleExpr = PriceStyle;
                     ToolTip = 'Specifies the unit price of the product.';
                     trigger OnValidate()
                     begin
@@ -173,8 +179,7 @@ page 7005 "Price List Line Review"
                     Editable = AmountEditable and PriceEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and IsSalesPrice;
-                    Style = Attention;
-                    StyleExpr = not PriceMandatory;
+                    StyleExpr = PriceStyle;
                     ToolTip = 'Specifies the unit cost factor for job-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                     trigger OnValidate()
                     begin
@@ -188,8 +193,7 @@ page 7005 "Price List Line Review"
                     Editable = AmountEditable and PriceEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and not IsSalesPrice;
-                    Style = Attention;
-                    StyleExpr = not PriceMandatory;
+                    StyleExpr = PriceStyle;
                     ToolTip = 'Specifies the direct unit cost of the product.';
                     trigger OnValidate()
                     begin
@@ -202,8 +206,7 @@ page 7005 "Price List Line Review"
                     Editable = AmountEditable and PriceEditable and ResourceAsset;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and not IsSalesPrice and ResourceAsset;
-                    Style = Attention;
-                    StyleExpr = not PriceMandatory;
+                    StyleExpr = PriceStyle;
                     ToolTip = 'Specifies the unit cost of the resource.';
                     trigger OnValidate()
                     begin
@@ -228,8 +231,6 @@ page 7005 "Price List Line Review"
                     Visible = PriceVisible;
                     Enabled = PriceMandatory;
                     Editable = PriceMandatory and PriceEditable;
-                    Style = Attention;
-                    StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
                     trigger OnValidate()
                     begin
@@ -243,8 +244,7 @@ page 7005 "Price List Line Review"
                     Visible = DiscountVisible and IsSalesPrice;
                     Enabled = DiscountMandatory;
                     Editable = DiscountMandatory and PriceEditable;
-                    Style = Attention;
-                    StyleExpr = not DiscountMandatory;
+                    StyleExpr = DiscountStyle;
                     ToolTip = 'Specifies the line discount percentage for the product.';
                     trigger OnValidate()
                     begin
@@ -258,8 +258,7 @@ page 7005 "Price List Line Review"
                     Visible = DiscountVisible and not IsSalesPrice;
                     Enabled = DiscountMandatory;
                     Editable = DiscountMandatory and PriceEditable;
-                    Style = Attention;
-                    StyleExpr = not DiscountMandatory;
+                    StyleExpr = DiscountStyle;
                     ToolTip = 'Specifies the line discount percentage for the product.';
                     trigger OnValidate()
                     begin
@@ -272,8 +271,6 @@ page 7005 "Price List Line Review"
                     Visible = PriceVisible and IsSalesPrice;
                     Enabled = PriceMandatory;
                     Editable = PriceMandatory and PriceEditable;
-                    Style = Attention;
-                    StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
                     trigger OnValidate()
                     begin
@@ -295,6 +292,7 @@ page 7005 "Price List Line Review"
                 Image = EditLines;
                 Promoted = true;
                 PromotedCategory = Process;
+                PromotedOnly = true;
                 Visible = LineExists;
                 ToolTip = 'View or edit the price list.';
 
@@ -310,6 +308,7 @@ page 7005 "Price List Line Review"
                 Image = CheckDuplicates;
                 Promoted = true;
                 PromotedCategory = Process;
+                PromotedOnly = true;
                 Caption = 'Verify Lines';
                 ToolTip = 'Checks data consistency in the new and modified price list lines. Finds the duplicate price lines and suggests the resolution of the line conflicts.';
 
@@ -322,10 +321,14 @@ page 7005 "Price List Line Review"
                     PriceListManagement.ActivateDraftLines(PriceListLine);
                 end;
             }
+#if not CLEAN20
             group(New)
             {
                 Image = New;
                 Caption = 'New';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'No actions under the New group.';
+                ObsoleteTag = '20.0';
                 action(PriceLists)
                 {
                     ApplicationArea = All;
@@ -334,6 +337,10 @@ page 7005 "Price List Line Review"
                     Promoted = true;
                     PromotedCategory = Process;
                     ToolTip = 'Review the existing price lists and create a new price list or add a line to the existing one.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Duplicate to the action SalesPriceLists.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -348,6 +355,10 @@ page 7005 "Price List Line Review"
                     Promoted = true;
                     PromotedCategory = Process;
                     ToolTip = 'Review the existing price lists that apply to all jobs, to one job, or to a job task and create a new price list or add a line to the existing one.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Duplicate to the action SalesJobPriceLists.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -355,6 +366,7 @@ page 7005 "Price List Line Review"
                     end;
                 }
             }
+#endif
             action(SalesPriceLists)
             {
                 ApplicationArea = All;
@@ -362,6 +374,7 @@ page 7005 "Price List Line Review"
                 Image = Sales;
                 Promoted = true;
                 PromotedCategory = Process;
+                PromotedOnly = true;
                 Visible = IsSalesPrice;
                 ToolTip = 'View the list of all sales price lists.';
 
@@ -377,6 +390,7 @@ page 7005 "Price List Line Review"
                 Image = Sales;
                 Promoted = true;
                 PromotedCategory = Process;
+                PromotedOnly = true;
                 Visible = IsSalesPrice;
                 ToolTip = 'View the list of all sales job price lists.';
 
@@ -392,6 +406,7 @@ page 7005 "Price List Line Review"
                 Image = Purchase;
                 Promoted = true;
                 PromotedCategory = Process;
+                PromotedOnly = true;
                 Visible = not IsSalesPrice;
                 ToolTip = 'View the list of all purchase price lists.';
 
@@ -407,6 +422,7 @@ page 7005 "Price List Line Review"
                 Image = Purchase;
                 Promoted = true;
                 PromotedCategory = Process;
+                PromotedOnly = true;
                 Visible = not IsSalesPrice;
                 ToolTip = 'View the list of all purchase job price lists.';
 
@@ -420,18 +436,18 @@ page 7005 "Price List Line Review"
 
     trigger OnAfterGetRecord()
     begin
-        SetEditable();
-        SetMandatoryAmount();
         LineExists := false;
         LineToVerify := Rec.IsLineToVerify();
+        SetMandatoryAmount();
+        SetEditable();
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetEditable();
-        SetMandatoryAmount();
         LineExists := Rec."Price List Code" <> '';
         LineToVerify := Rec.IsLineToVerify();
+        SetMandatoryAmount();
+        SetEditable();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean;
@@ -446,14 +462,17 @@ page 7005 "Price List Line Review"
     end;
 
     var
+        PriceListHeader: Record "Price List Header";
         PriceUXManagement: Codeunit "Price UX Management";
         AmountEditable: Boolean;
         UOMEditable: Boolean;
         ItemAsset: Boolean;
         ResourceAsset: Boolean;
         DiscountMandatory: Boolean;
+        DiscountStyle: Text;
         DiscountVisible: Boolean;
         PriceMandatory: Boolean;
+        PriceStyle: Text;
         PriceVisible: Boolean;
         IsSalesPrice: Boolean;
         PriceEditable: Boolean;
@@ -470,6 +489,15 @@ page 7005 "Price List Line Review"
         DataCaptionExpr: Text;
         PriceType: Enum "Price Type";
         ViewAmountType: Enum "Price Amount Type";
+
+    local procedure GetStyle(Mandatory: Boolean): Text;
+    begin
+        if LineToVerify and Mandatory then
+            exit('Attention');
+        if Mandatory then
+            exit('Strong');
+        exit('Subordinate');
+    end;
 
     local procedure HasDraftLines(): Boolean;
     var
@@ -602,7 +630,9 @@ page 7005 "Price List Line Review"
     local procedure SetMandatoryAmount()
     begin
         DiscountMandatory := Rec.IsAmountMandatory(Rec."Amount Type"::Discount);
+        DiscountStyle := GetStyle(DiscountMandatory);
         PriceMandatory := Rec.IsAmountMandatory(Rec."Amount Type"::Price);
+        PriceStyle := GetStyle(PriceMandatory);
     end;
 
     local procedure UpdateColumnVisibility()
@@ -611,5 +641,15 @@ page 7005 "Price List Line Review"
         DiscountVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Discount];
         PriceVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Price];
         IsSalesPrice := PriceType = PriceType::Sale;
+    end;
+
+    local procedure GetPriceListDescription(): Text
+    begin
+        if Rec."Price List Code" = '' then
+            exit('');
+        if Rec."Price List Code" <> PriceListHeader.Code then
+            if not PriceListHeader.Get(Rec."Price List Code") then
+                exit('');
+        Exit(PriceListHeader.Description);
     end;
 }

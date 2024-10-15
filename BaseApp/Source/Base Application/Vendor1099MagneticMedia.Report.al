@@ -489,7 +489,7 @@ report 10115 "Vendor 1099 Magnetic Media"
         Clear(ARecNum);
 
         LastMISCNo := 17;
-        LastDIVNo := 16;
+        LastDIVNo := 18;
         LastINTNo := 13;
         LastNECNo := 4;
         MagMediaManagement.Run;
@@ -562,6 +562,7 @@ report 10115 "Vendor 1099 Magnetic Media"
         MiscCodeTok: Label 'MISC-', Locked = true;
         NecCodeTok: Label 'NEC-', Locked = true;
         HashTagTok: Label '#', Locked = true;
+        BlankTagTok: Label ' ', Locked = true;
         FileName: Text;
         IsDirectSales: Boolean;
 
@@ -727,8 +728,9 @@ report 10115 "Vendor 1099 Magnetic Media"
               MagMediaManagement.GetAmt(GetFullMiscCode(12), FormType, EndLine), 12)) +
           StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetAmt(GetFullMiscCode(14), FormType, EndLine), 12)) +
-          StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(0, 12)) +
-          StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(0, 12)) +
+          StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(
+              MagMediaManagement.GetAmt(GetFullMiscCode(11), FormType, EndLine), 12)) + // Fish purchased for resale
+          StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(0, 12)) +
           StrSubstNo(' ') + // Foreign Country Indicator
           StrSubstNo('#1######################################', Vendor.Name) +
           StrSubstNo('#1######################################', Vendor."Name 2") +
@@ -805,17 +807,21 @@ report 10115 "Vendor 1099 Magnetic Media"
               MagMediaManagement.GetAmt('DIV-11', FormType, EndLine), 12)) + // Exempt-interest dividends F (223-234)
           StrSubstNo('#1##########', MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetAmt('DIV-12', FormType, EndLine), 12)) + // Specified private activity bond... G (235-246)
-          StrSubstNo(' ') + // Foreign Country Indicator (247)
-          StrSubstNo('#1######################################', Vendor.Name) +
-          StrSubstNo('#1######################################', Vendor."Name 2") +
-          StrSubstNo('                                        ') + // blank 40
-          StrSubstNo('#1######################################', Vendor.Address) +
-          StrSubstNo('                                        ') + // blank 40
-          StrSubstNo('#1######################################', Vendor.City) +
+          StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(
+              MagMediaManagement.GetAmt('DIV-02-E', FormType, EndLine), 12)) + // Section 897 Ordinary Dividens (247-258)
+          StrSubstNo(GetHashTagStringWithLength(12), MagMediaManagement.FormatMoneyAmount(
+              MagMediaManagement.GetAmt('DIV-02-F', FormType, EndLine), 12)) + // Section 897 Capital Gains (259-270)
+          GetBlankedStringWithLength(16) + // blank 16 (271-286)
+          GetBlankedStringWithLength(1) + // Foreign Country Indicator (287)
+          StrSubstNo(GetHashTagStringWithLength(40), GetFullVendorName(Vendor)) +
+          GetBlankedStringWithLength(40) + // blank 40
+          StrSubstNo(GetHashTagStringWithLength(40), Vendor.Address) +
+          GetBlankedStringWithLength(40) + // blank 40
+          StrSubstNo(GetHashTagStringWithLength(40), Vendor.City) +
           StrSubstNo('#1', Vendor.County) +
           StrSubstNo('#1#######', Vendor."Post Code") +
           StrSubstNo(' ') +
-          StrSubstNo('#1######', MagMediaManagement.FormatAmount(SequenceNo, 8)) + // sequence number for all rec types
+          StrSubstNo('#1######', MagMediaManagement.FormatAmount(SequenceNo, 8)) + // sequence (500-507) number for all rec types
           StrSubstNo('                                    ') +
           StrSubstNo(' ') + // Second TIN Notice (Optional) (544)
           StrSubstNo('  ') + // Blank (545-546)
@@ -984,9 +990,10 @@ report 10115 "Vendor 1099 Magnetic Media"
               MagMediaManagement.GetTotal(GetFullMiscCode(10), FormType, EndLine), 18)) +
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetTotal(GetFullMiscCode(12), FormType, EndLine), 18)) +
-          StrSubstNo('#1################', MagMediaManagement.FormatMoneyAmount(
+          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetTotal(GetFullMiscCode(14), FormType, EndLine), 18)) +
-          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
+          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(
+              MagMediaManagement.GetTotal(GetFullMiscCode(11), FormType, EndLine), 18)) +
           StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(0, 18)) +
           StrSubstNo('                                                  ') +
           StrSubstNo('                                                  ') +
@@ -1042,12 +1049,13 @@ report 10115 "Vendor 1099 Magnetic Media"
               MagMediaManagement.GetTotal('DIV-10', FormType, EndLine), 18)) + // non-cash liquidation E
           StrSubstNo('#1################', MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetTotal('DIV-11', FormType, EndLine), 18)) + // Exempt-interest dividends F
-          StrSubstNo('#1################', MagMediaManagement.FormatMoneyAmount(
+          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(
               MagMediaManagement.GetTotal('DIV-12', FormType, EndLine), 18)) + // Specified private activity bond interest dividends G
-          StrSubstNo('                                                  ') +
-          StrSubstNo('                                                  ') +
-          StrSubstNo('                                                  ') +
-          StrSubstNo('                                              ') +
+          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(
+              MagMediaManagement.GetTotal('DIV-02-E', FormType, EndLine), 18)) + // Specified 897 Ordinary Dividends
+          StrSubstNo(GetHashTagStringWithLength(18), MagMediaManagement.FormatMoneyAmount(
+              MagMediaManagement.GetTotal('DIV-02-F', FormType, EndLine), 18)) + // Specified 897 Capital Gains
+          GetBlankedStringWithLength(160) +
           StrSubstNo('#1######', MagMediaManagement.FormatAmount(SequenceNo, 8)) + // sequence number for all rec types
           StrSubstNo('                                                  ') +
           StrSubstNo('                                                  ') +
@@ -1195,6 +1203,15 @@ report 10115 "Vendor 1099 Magnetic Media"
         exit(Result);
     end;
 
+    local procedure GetBlankedStringWithLength(Length: Integer) Result: Text
+    var
+        j: Integer;
+    begin
+        for j := 1 to Length do
+            Result += BlankTagTok;
+        exit(Result);
+    end;
+
     procedure IncrementSequenceNo()
     begin
         SequenceNo := SequenceNo + 1;
@@ -1209,6 +1226,11 @@ report 10115 "Vendor 1099 Magnetic Media"
     procedure InitializeRequest(NewFileName: Text)
     begin
         FileName := NewFileName;
+    end;
+
+    local procedure GetFullVendorName(Vendor: Record Vendor): Text
+    begin
+        exit(Vendor.Name + Vendor."Name 2");
     end;
 }
 

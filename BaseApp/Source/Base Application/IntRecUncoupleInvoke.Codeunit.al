@@ -127,7 +127,6 @@ codeunit 5357 "Int. Rec. Uncouple Invoke"
     var
         IntegrationRecordManagement: Codeunit "Integration Record Management";
         IntegrationManagement: Codeunit "Integration Management";
-        LocalRecordId: RecordId;
         IntegrationTableUidFieldRef: FieldRef;
         IntegrationTableUid: Variant;
         DestinationTableID: Integer;
@@ -140,11 +139,8 @@ codeunit 5357 "Int. Rec. Uncouple Invoke"
         IntegrationTableUid := IntegrationTableUidFieldRef.Value();
         DestinationTableID := IntegrationTableMapping."Table ID";
 
-        if LocalRecordRef.Number() <> 0 then
-            if not IsNullGuid(LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value()) then
-                LocalRecordId := LocalRecordRef.RecordId();
         IntegrationRecordManagement.RemoveIntegrationTableCoupling(
-          IntegrationTableConnectionType, IntegrationTableUid, DestinationTableID, LocalRecordId, Removed);
+          IntegrationTableConnectionType, IntegrationTableUid, DestinationTableID, LocalRecordRef, Removed);
         exit(Removed);
     end;
 

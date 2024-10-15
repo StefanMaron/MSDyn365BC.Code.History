@@ -13,8 +13,12 @@ codeunit 104152 "UPG. Data Exchange Definition"
         TempDataExchDefGenericExport: Record "Data Exch. Def" temporary;
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+        HybridDeployment: Codeunit "Hybrid Deployment";
         DataExchDefType: Enum "Data Exchange Definition Type";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+         
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetDataExchDefinitionTypeTag) THEN
             EXIT;
 

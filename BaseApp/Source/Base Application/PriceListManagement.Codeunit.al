@@ -214,6 +214,25 @@ codeunit 7017 "Price List Management"
         end;
     end;
 
+    procedure FindDuplicatePrice(PriceListLine: Record "Price List Line"): Boolean;
+    var
+        PriceListHeader: Record "Price List Header";
+        DuplicatePriceLine: Record "Duplicate Price Line";
+        DuplicatePriceListLine: Record "Price List Line";
+        LineNo: Integer;
+    begin
+        if PriceListHeader.Get(PriceListLine."Price List Code") then;
+        if FindDuplicatePrice(
+            PriceListLine, PriceListHeader."Allow Updating Defaults", true,
+            DuplicatePriceLine, LineNo, DuplicatePriceListLine)
+        then
+            exit(true);
+        exit(
+            FindDuplicatePrice(
+                PriceListLine, PriceListHeader."Allow Updating Defaults", false,
+                DuplicatePriceLine, LineNo, DuplicatePriceListLine));
+    end;
+
     procedure FindDuplicatePrices(PriceListHeader: Record "Price List Header"; SearchInside: Boolean; var DuplicatePriceLine: Record "Duplicate Price Line") Found: Boolean;
     var
         PriceListLine: Record "Price List Line";
@@ -233,13 +252,21 @@ codeunit 7017 "Price List Management"
 
         if PriceListLine.FindSet() then
             repeat
-                if not DuplicatePriceLine.Get(PriceListLine."Price List Code", PriceListLine."Line No.") then
-                    if FindDuplicatePrice(PriceListLine, PriceListHeader."Allow Updating Defaults", SearchInside, DuplicatePriceListLine) then
-                        if DuplicatePriceLine.Get(DuplicatePriceListLine."Price List Code", DuplicatePriceListLine."Line No.") then
-                            DuplicatePriceLine.Add(LineNo, DuplicatePriceLine."Duplicate To Line No.", PriceListLine)
-                        else
-                            DuplicatePriceLine.Add(LineNo, PriceListLine, DuplicatePriceListLine);
+                FindDuplicatePrice(
+                    PriceListLine, PriceListHeader."Allow Updating Defaults", SearchInside,
+                    DuplicatePriceLine, LineNo, DuplicatePriceListLine);
             until PriceListLine.Next() = 0;
+        Found := LineNo > 0;
+    end;
+
+    local procedure FindDuplicatePrice(PriceListLine: Record "Price List Line"; AsLineDefaults: Boolean; SearchInside: Boolean; var DuplicatePriceLine: Record "Duplicate Price Line"; var LineNo: Integer; var DuplicatePriceListLine: Record "Price List Line") Found: Boolean;
+    begin
+        if not DuplicatePriceLine.Get(PriceListLine."Price List Code", PriceListLine."Line No.") then
+            if FindDuplicatePrice(PriceListLine, AsLineDefaults, SearchInside, DuplicatePriceListLine) then
+                if DuplicatePriceLine.Get(DuplicatePriceListLine."Price List Code", DuplicatePriceListLine."Line No.") then
+                    DuplicatePriceLine.Add(LineNo, DuplicatePriceLine."Duplicate To Line No.", PriceListLine)
+                else
+                    DuplicatePriceLine.Add(LineNo, PriceListLine, DuplicatePriceListLine);
         Found := LineNo > 0;
     end;
 
@@ -431,7 +458,10 @@ codeunit 7017 "Price List Management"
                     if ResolveDuplicatePrices(PriceListHeader) then begin
                         PriceListLineLocal.SetRange("Price List Code", PriceListHeader.Code);
                         PriceListLineLocal.SetRange(Status, "Price Status"::Draft);
-                        PriceListLineLocal.ModifyAll(Status, "Price Status"::Active);
+                        if not PriceListLineLocal.IsEmpty() then begin
+                            PriceListLineLocal.ModifyAll(Status, "Price Status"::Active);
+                            Commit();
+                        end
                     end;
                 end;
             until PriceListLine.Next() = 0;
@@ -657,7 +687,7 @@ codeunit 7017 "Price List Management"
         PriceWorksheetLine.SetFilter("Price List Code", '<>%1', '');
         if PriceWorksheetLine.FindSet(true) then begin
             repeat
-                if not PriceWorksheetLine.Verify() then
+                if not PriceWorksheetLine.TryVerify() then
                     InsertedUpdatedLeft[3] += 1
                 else
                     if not ImplementNewPrice(PriceWorksheetLine, PriceListLine, InsertedUpdatedLeft) then

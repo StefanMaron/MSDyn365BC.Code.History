@@ -1314,6 +1314,13 @@ page 27 "Vendor List"
                     //PromotedCategory = "Report";
                     RunObject = Report "Vendor 1099 Int";
                     ToolTip = 'View the federal form 1099-INT for interest income.';
+
+                    trigger OnAction()
+                    var
+                        IRS1099Management: Codeunit "IRS 1099 Management";
+                    begin
+                        IRS1099Management.Run1099DivReport();
+                    end;
                 }
                 action("Vendor 1099 Misc")
                 {

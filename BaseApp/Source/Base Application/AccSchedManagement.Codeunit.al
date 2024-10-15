@@ -1,4 +1,4 @@
-codeunit 8 AccSchedManagement
+﻿codeunit 8 AccSchedManagement
 {
     TableNo = "Acc. Schedule Line";
 
@@ -836,7 +836,14 @@ codeunit 8 AccSchedManagement
     end;
 
     procedure SetGLAccRowFilters(var GLAcc: Record "G/L Account"; var AccSchedLine2: Record "Acc. Schedule Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetGLAccRowFilters(GLAcc, AccSchedLine2, IsHandled);
+        if IsHandled then
+            exit;
+
         with AccSchedLine2 do
             case "Totaling Type" of
                 "Totaling Type"::"Posting Accounts":
@@ -1007,7 +1014,14 @@ codeunit 8 AccSchedManagement
     end;
 
     procedure SetCFAccRowFilter(var CFAccount: Record "Cash Flow Account"; var AccSchedLine2: Record "Acc. Schedule Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetCFAccRowFilter(CFAccount, AccSchedLine2, IsHandled);
+        if IsHandled then
+            exit;
+
         with AccSchedLine2 do begin
             CopyFilter("Cash Flow Forecast Filter", CFAccount."Cash Flow Forecast Filter");
 
@@ -2101,7 +2115,13 @@ codeunit 8 AccSchedManagement
     var
         AccScheduleOverview: Page "Acc. Schedule Overview";
         ErrorType: Option "None","Division by Zero","Period Error",Both;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDrillDown(TempColumnLayout, AccScheduleLine, PeriodLength, IsHandled);
+        if IsHandled then
+            exit;
+
         with AccScheduleLine do begin
             if TempColumnLayout."Column Type" = TempColumnLayout."Column Type"::Formula then begin
                 CalcFieldError(ErrorType, "Line No.", TempColumnLayout."Line No.");
@@ -2467,6 +2487,11 @@ codeunit 8 AccSchedManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDrillDown(TempColumnLayout: Record "Column Layout" temporary; var AccScheduleLine: Record "Acc. Schedule Line"; PeriodLength: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestBalance(var GLAccount: Record "G/L Account"; var AccScheduleName: Record "Acc. Schedule Name"; var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; AmountType: Integer; var ColValue: Decimal; CalcAddCurr: Boolean; var TestBalance: Boolean; var GLEntry: Record "G/L Entry"; var GLBudgetEntry: Record "G/L Budget Entry"; var Balance: Decimal)
     begin
     end;
@@ -2488,6 +2513,16 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertGLAccounts(var AccScheduleLine: Record "Acc. Schedule Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetGLAccRowFilters(var GLAcc: Record "G/L Account"; var AccSchedLine2: Record "Acc. Schedule Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCFAccRowFilter(var CFAccount: Record "Cash Flow Account"; var AccSchedLine2: Record "Acc. Schedule Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -735,8 +735,7 @@
                             GenJnlLine3."Account Type" := GenJnlLine3."Account Type"::"Bank Account";
                             GenJnlLine3.Validate("Account No.", BankAcc2."No.");
                             if BalancingType <> BalancingType::"G/L Account" then
-                                GenJnlLine3.Description :=
-                                    StrSubstNo(Text014, SelectStr(BalancingType.AsInteger() + 1, Text062), BalancingNo);
+                                GenJnlLine3.Description := StrSubstNo(Text014, BalancingType, BalancingNo);
                             GenJnlLine3.Validate(Amount, -TotalLineAmount);
                             if TotalLineAmount <> "TotalLineAmount$" then
                                 GenJnlLine3.Validate("Amount (LCY)", -"TotalLineAmount$");
@@ -1153,7 +1152,6 @@
         Text063: Label 'Net Amount %1';
         Text064: Label '%1 must not be %2 for %3 %4.';
         Text065: Label 'Subtotal';
-        Text062: Label 'G/L Account,Customer,Vendor,Bank Account,,,Employee';
         USText001: Label 'Warning:  Checks cannot be financially voided when Force Doc. Balance is set to No in the Journal Template.  Do you want to continue anyway?';
         USText002: Label 'Process cancelled at user request.';
         USText004: Label 'Last Check No. must include at least one digit, so that it can be incremented.';

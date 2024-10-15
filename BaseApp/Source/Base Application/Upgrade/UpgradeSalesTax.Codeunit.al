@@ -7,7 +7,12 @@ codeunit 104154 "Upgrade - Sales Tax"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+
         UpgradeSalesTaxDiffPositiveField();
     end;
 

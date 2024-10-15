@@ -39,7 +39,7 @@ table 1524 "Workflow Rule"
         }
         field(10; "Field Caption"; Text[250])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table ID"),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table ID"),
                                                               "No." = FIELD("Field No.")));
             Caption = 'Field Caption';
             FieldClass = FlowField;
@@ -47,7 +47,6 @@ table 1524 "Workflow Rule"
         field(11; "Workflow Step Instance ID"; Guid)
         {
             Caption = 'Workflow Step Instance ID';
-            TableRelation = "Workflow Step Instance".ID;
         }
     }
 

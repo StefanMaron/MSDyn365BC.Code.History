@@ -287,7 +287,14 @@ page 7377 "Inventory Pick"
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
+                var
+                    IsHandled: Boolean;
                 begin
+                    IsHandled := false;
+                    OnBeforeActionPrint(Rec, IsHandled);
+                    if IsHandled then
+                        exit;
+
                     WhseActPrint.PrintInvtPickHeader(Rec, false);
                 end;
             }
@@ -358,6 +365,11 @@ page 7377 "Inventory Pick"
     begin
         CurrPage.Update();
         CurrPage.WhseActivityLines.PAGE.UpdateForm;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeActionPrint(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
