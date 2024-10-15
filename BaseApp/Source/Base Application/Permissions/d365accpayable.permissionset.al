@@ -88,6 +88,7 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Sales Invoice Line" = Rimd,
                   tabledata "Sales Line" = RIMD,
                   tabledata "VAT Registration No. Format" = IMD,
+                  tabledata "VAT Setup" = RM,
                   tabledata Vendor = D,
                   tabledata "Vendor Invoice Disc." = IMD,
                   tabledata "Work Type" = R;
