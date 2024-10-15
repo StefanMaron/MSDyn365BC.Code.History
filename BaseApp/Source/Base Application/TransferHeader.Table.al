@@ -693,6 +693,26 @@
             Caption = 'SAT Weight Unit Of Measure';
             TableRelation = "SAT Weight Unit of Measure";
         }
+        field(10059; "SAT International Trade Term"; Code[10])
+        {
+            Caption = 'SAT International Trade Term';
+            TableRelation = "SAT International Trade Term";
+        }
+        field(10060; "Exchange Rate USD"; Decimal)
+        {
+            Caption = 'Exchange Rate USD';
+            DecimalPlaces = 0 : 6;
+        }
+        field(10061; "SAT Customs Regime"; Code[10])
+        {
+            Caption = 'SAT Customs Regime';
+            TableRelation = "SAT Customs Regime";
+        }
+        field(10062; "SAT Transfer Reason"; Code[10])
+        {
+            Caption = 'SAT Transfer Reason';
+            TableRelation = "SAT Transfer Reason";
+        }
         field(27004; "CFDI Export Code"; Code[10])
         {
             Caption = 'CFDI Export Code';
