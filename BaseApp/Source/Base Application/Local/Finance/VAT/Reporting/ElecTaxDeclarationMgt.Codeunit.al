@@ -14,10 +14,10 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
     var
         VATReportHeaderForResponseMessage: Record "VAT Report Header";
         SchemaVersionTxt: Label '2019v13.0', Locked = true;
-        BDDataEndpointTxt: Label 'http://www.nltaxonomie.nl/nt17/bd/20221207/dictionary/bd-data', Locked = true;
-        BDTuplesEndpointTxt: Label 'http://www.nltaxonomie.nl/nt17/bd/20221207/dictionary/bd-tuples', Locked = true;
-        VATDeclarationSchemaEndpointTxt: Label 'http://www.nltaxonomie.nl/nt17/bd/20221207/entrypoints/bd-rpt-ob-aangifte-2023.xsd', Locked = true;
-        ICPDeclarationSchemaEndpointTxt: Label 'http://www.nltaxonomie.nl/nt17/bd/20221207/entrypoints/bd-rpt-icp-opgaaf-2023.xsd', Locked = true;
+        BDDataEndpointTxt: Label 'http://www.nltaxonomie.nl/nt18/bd/20231213/dictionary/bd-data', Locked = true;
+        BDTuplesEndpointTxt: Label 'http://www.nltaxonomie.nl/nt18/bd/20231213/dictionary/bd-tuples', Locked = true;
+        VATDeclarationSchemaEndpointTxt: Label 'http://www.nltaxonomie.nl/nt18/bd/20231213/entrypoints/bd-rpt-ob-aangifte-2024.xsd', Locked = true;
+        ICPDeclarationSchemaEndpointTxt: Label 'http://www.nltaxonomie.nl/nt18/bd/20231213/entrypoints/bd-rpt-icp-opgaaf-2024.xsd', Locked = true;
         CannotDeleteCertificateErr: Label 'You cannot delete certificate since it is used in table %1, field %2.', Comment = '%1 - table caption;%2 - field caption.';
         SubmitErr: Label 'Submission of declaration %1 failed with error code %2 and the following message: \\%3.', Comment = '%1 = Fault.foutcode, %2 = Fault.foutbeschrijving, %3 = message text.';
         WindowStatusMsg: Label 'Submitting Electronic Tax Declaration...\\Status          #1##################', Comment = '%1 - any text that represents the status';

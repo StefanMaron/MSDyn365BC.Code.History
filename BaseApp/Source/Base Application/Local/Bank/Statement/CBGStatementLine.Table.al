@@ -112,7 +112,7 @@ table 11401 "CBG Statement Line"
         field(13; "Account No."; Code[20])
         {
             Caption = 'Account No.';
-            TableRelation = if ("Account Type" = const("G/L Account")) "G/L Account"."No."
+            TableRelation = if ("Account Type" = const("G/L Account")) "G/L Account"."No." where("Account Type" = const(Posting), Blocked = const(false), "Direct Posting" = const(true))
             else
             if ("Account Type" = const(Customer)) Customer."No."
             else

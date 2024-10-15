@@ -110,7 +110,7 @@ page 837 "Reminder Terms List"
             action(TransferOldTexts)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Transfer old texts';
+                Caption = 'Transfer texts';
                 Image = Reminder;
                 Tooltip = 'Copy the existing reminder text and translations to the new communication tables.';
 

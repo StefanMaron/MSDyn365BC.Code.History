@@ -371,6 +371,128 @@ codeunit 137268 "SCM Package Tracking Fixes"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure ItemApplicationFollowsPackageTrackingFromInWarehousePick()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: array[2] of Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemLedgerEntryInbound: Record "Item Ledger Entry";
+        ItemLedgerEntryOutbound: Record "Item Ledger Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
+        QuantityForPackage: array[2] of Decimal;
+        PackageNo: array[2] of Code[50];
+    begin
+        // [FEATURE] [Item Tracking] [Warehouse Pick] [Package Tracking]
+        // [SCENARIO 522547] Item Application is adhering to Package Tracking in Warehouse Pick, when Reservation exists.
+        Initialize();
+
+        PackageNo[1] := LibraryUtility.GenerateGUID();
+        PackageNo[2] := LibraryUtility.GenerateGUID();
+        QuantityForPackage[1] := LibraryRandom.RandDecInDecimalRange(50, 70, 1);
+        QuantityForPackage[2] := LibraryRandom.RandDecInDecimalRange(10, 40, 1);
+
+        // [GIVEN] Location set up with Require Pick.
+        WarehouseEmployee.DeleteAll();
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Require Shipment", true);
+        Location.Validate("Require Pick", true);
+        LibraryWarehouse.CreateBin(
+            Bin, Location.Code, CopyStr(
+                LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), Database::Bin), 1,
+                LibraryUtility.GetFieldLength(Database::Bin, Bin.FieldNo(Code))), '', '');
+        Location.Validate("Shipment Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        LibraryWarehouse.CreateBin(
+            Bin, Location.Code, CopyStr(
+                LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), Database::Bin), 1,
+                LibraryUtility.GetFieldLength(Database::Bin, Bin.FieldNo(Code))), '', '');
+
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Item with package warehouse tracking and reserve always.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false, true);
+        ItemTrackingCode.Validate("Package Warehouse Tracking", true);
+        ItemTrackingCode.Modify(true);
+        LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        // [GIVEN] Post inventory with two packages.
+        SelectItemJournal(ItemJournalBatch);
+
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine[1], ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine[1]."Entry Type"::"Positive Adjmt.", Item."No.", QuantityForPackage[1]);
+        ItemJournalLine[1].Validate("Location Code", Location.Code);
+        ItemJournalLine[1].Validate("Bin Code", Bin.Code);
+        ItemJournalLine[1].Modify(true);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine[1], '', '', PackageNo[1], QuantityForPackage[1]);
+
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine[2], ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine[2]."Entry Type"::"Positive Adjmt.", Item."No.", QuantityForPackage[2]);
+        ItemJournalLine[2].Validate("Location Code", Location.Code);
+        ItemJournalLine[2].Validate("Bin Code", Bin.Code);
+        ItemJournalLine[2].Modify(true);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine[2], '', '', PackageNo[2], QuantityForPackage[2]);
+
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Find the inbound item ledger entry for the second package.
+        LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntryInbound, Item."No.", Location.Code, '', '', PackageNo[2], QuantityForPackage[2]);
+
+        // [GIVEN] Sales order with quantity of the first package.
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader[1], SalesLine, "Sales Document Type"::Order, '', Item."No.", QuantityForPackage[1], Location.Code, WorkDate());
+
+        // [GIVEN] Sales order with quantity of the second package.
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader[2], SalesLine, "Sales Document Type"::Order, SalesHeader[1]."Sell-to Customer No.", Item."No.", QuantityForPackage[2], Location.Code, WorkDate());
+
+        // [GIVEN] Release sales order and create warehouse shipment and pick for the first sales order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader[1]);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader[1]);
+
+        WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
+        WarehouseShipmentHeader.FindFirst();
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        // [GIVEN] Set the quantity to handle for the second package.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Qty. to Handle", QuantityForPackage[2]);
+            WarehouseActivityLine.Validate("Package No.", PackageNo[2]);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
+
+        // [GIVEN] Register the warehouse pick for the first sales order.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Post the warehouse shipment for the first sales order for picked quantity.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] Item entry for the sales has second package. Item application is made against the inbound item ledger entry of the second package.
+        LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntryOutbound, Item."No.", Location.Code, '', '', PackageNo[2], -QuantityForPackage[2]);
+        ItemLedgerEntryOutbound.TestField("Entry Type", ItemLedgerEntryOutbound."Entry Type"::Sale);
+
+        ItemApplicationEntry.SetRange("Outbound Item Entry No.", ItemLedgerEntryOutbound."Entry No.");
+        Assert.RecordCount(ItemApplicationEntry, 1);
+        ItemApplicationEntry.FindFirst();
+        Assert.AreEqual(ItemLedgerEntryInbound."Entry No.", ItemApplicationEntry."Inbound Item Entry No.", 'Wrong item application entry');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -499,6 +621,15 @@ codeunit 137268 "SCM Package Tracking Fixes"
 
             TestField("New Package No.", ExpectedPackageNo);
         end;
+    end;
+
+    local procedure SelectItemJournal(var ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
     [ModalPageHandler]

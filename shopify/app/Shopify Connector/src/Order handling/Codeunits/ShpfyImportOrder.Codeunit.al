@@ -594,7 +594,6 @@ codeunit 30161 "Shpfy Import Order"
             end;
     end;
 
-    [NonDebuggable]
     local procedure TranslateCurrencyCode(ShopifyCurrencyCode: Text): Code[10]
     var
         Currency: Record Currency;
@@ -615,7 +614,6 @@ codeunit 30161 "Shpfy Import Order"
             exit(CurrencyCode);
     end;
 
-    [NonDebuggable]
     local procedure ImportCustomAttributtes(ShopifyOrderId: BigInteger; JCustomAttributtes: JsonArray)
     var
         OrderAttribute: Record "Shpfy Order Attribute";
@@ -638,13 +636,13 @@ codeunit 30161 "Shpfy Import Order"
         end;
     end;
 
-    [NonDebuggable]
     local procedure ImportCustomAttributtes(ShopifyOrderId: BigInteger; OrderLineId: Guid; JCustomAttributtes: JsonArray)
     var
         OrderLineAttribute: Record "Shpfy Order Line Attribute";
         JToken: JsonToken;
     begin
         OrderLineAttribute.SetRange("Order Id", ShopifyOrderId);
+        OrderLineAttribute.SetRange("Order Line Id", OrderLineId);
         if not OrderLineAttribute.IsEmpty then
             OrderLineAttribute.DeleteAll();
         foreach JToken in JCustomAttributtes do begin
@@ -657,7 +655,6 @@ codeunit 30161 "Shpfy Import Order"
         end;
     end;
 
-    [NonDebuggable]
     local procedure ImportRisks(OrderHeader: Record "Shpfy Order Header"; JRisks: JsonArray)
     var
         ShpfyOrderRisks: Codeunit "Shpfy Order Risks";
@@ -730,7 +727,6 @@ codeunit 30161 "Shpfy Import Order"
     /// </summary>
     /// <param name="ParentId">Parameter of type BigInteger.</param>
     /// <param name="JTaxLines">Parameter of type JsonArray.</param>
-    [NonDebuggable]
     local procedure AddTaxLines(ParentId: BigInteger; JTaxLines: JsonArray)
     var
         OrderTaxLine: Record "Shpfy Order Tax Line";
@@ -850,14 +846,20 @@ codeunit 30161 "Shpfy Import Order"
     local procedure UpdateLocationIdAndDeliveryMethodOnOrderLine(var OrderLine: Record "Shpfy Order Line")
     var
         FulfillmentOrderLine: Record "Shpfy FulFillment Order Line";
+        TotalQuantity: Integer;
     begin
         FulfillmentOrderLine.Reset();
         FulfillmentOrderLine.SetRange("Shopify Order Id", OrderLine."Shopify Order Id");
         FulfillmentOrderLine.SetRange("Shopify Variant Id", OrderLine."Shopify Variant Id");
-        FulfillmentOrderLine.SetRange("Total Quantity", OrderLine.Quantity);
-        if FulfillmentOrderLine.FindFirst() then begin
-            OrderLine."Location Id" := FulfillmentOrderLine."Shopify Location Id";
-            OrderLine."Delivery Method Type" := FulfillmentOrderLine."Delivery Method Type";
+        if FulfillmentOrderLine.FindSet() then begin
+            repeat
+                TotalQuantity += FulfillmentOrderLine."Total Quantity";
+            until FulfillmentOrderLine.Next() = 0;
+
+            if TotalQuantity = OrderLine.Quantity then begin
+                OrderLine."Location Id" := FulfillmentOrderLine."Shopify Location Id";
+                OrderLine."Delivery Method Type" := FulfillmentOrderLine."Delivery Method Type";
+            end;
         end;
     end;
 

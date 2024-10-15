@@ -69,10 +69,10 @@ codeunit 144051 "ERM EVAT"
         AttrBdObTok: Label 'xmlns:bd-ob';
         DownloadSubmissionMessageQst: Label 'Do you want to download the submission message?';
         NoSubmissionMessageAvailableErr: Label 'The submission message of the report is not available.';
-        BDDataEndpointTxt: Label 'http://www.nltaxonomie.nl/nt17/bd/20221207/dictionary/bd-data', Locked = true;
-        VATDeclarationSchemaEndpointTxt: Label 'http://www.nltaxonomie.nl/nt17/bd/20221207/entrypoints/bd-rpt-ob-aangifte-2023.xsd', Locked = true;
-        BDTuplesEndpointTxt: Label 'http://www.nltaxonomie.nl/nt17/bd/20221207/dictionary/bd-tuples', Locked = true;
-        ICPDeclarationSchemaEndpointTxt: Label 'http://www.nltaxonomie.nl/nt17/bd/20221207/entrypoints/bd-rpt-icp-opgaaf-2023.xsd', Locked = true;
+        BDDataEndpointTxt: Label 'http://www.nltaxonomie.nl/nt18/bd/20231213/dictionary/bd-data', Locked = true;
+        VATDeclarationSchemaEndpointTxt: Label 'http://www.nltaxonomie.nl/nt18/bd/20231213/entrypoints/bd-rpt-ob-aangifte-2024.xsd', Locked = true;
+        BDTuplesEndpointTxt: Label 'http://www.nltaxonomie.nl/nt18/bd/20231213/dictionary/bd-tuples', Locked = true;
+        ICPDeclarationSchemaEndpointTxt: Label 'http://www.nltaxonomie.nl/nt18/bd/20231213/entrypoints/bd-rpt-icp-opgaaf-2024.xsd', Locked = true;
 
     [Test]
     [HandlerFunctions('CreateElecVATDeclarationRequestPageHandler,VATStatementRequestPageHandler')]
@@ -559,8 +559,8 @@ codeunit 144051 "ERM EVAT"
 
         // [THEN] XBLR content generats correctly for Tax Declaration
         // [THEN] "xmlns:bd-ob" attribute does not exists in XBLR content
-        // Work item id 454920: NT17 changes
-        // [THEN] Endpoints are of nt17 version
+        // Work item id 503180: NT18 Changes
+        // [THEN] Endpoints are of nt18 version
         VerifyVATXBLRDocContent(ElecTaxDeclHeader, TempFile);
     end;
 
@@ -656,8 +656,8 @@ codeunit 144051 "ERM EVAT"
         TempFile := BuildDeclarationDocumentPreview(ElecTaxDeclHeader);
 
         // [THEN] The XBRL structure is correct
-        // Work item id 454920: NT17 changes
-        // [THEN] Endpoints are of nt17 version
+        // Work item id 503180: NT18 Changes
+        // [THEN] Endpoints are of nt18 version
         VerifyICPXBLRDocContent(ElecTaxDeclHeader, TempFile);
         VATEntry[1].Base += VATEntry[2].Base;
         VerifyICPVATEntry(VATEntry[1]);

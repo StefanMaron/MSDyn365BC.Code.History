@@ -244,11 +244,13 @@ page 1392 "Help And Chart Wrapper"
     begin
         OnBeforeInitializeSelectedChart(SelectedChartDefinition);
         ChartManagement.SetDefaultPeriodLength(SelectedChartDefinition, BusinessChartBuffer);
+        BindSubscription(ChartManagement);
         if not ChartManagement.UpdateChartSafe(SelectedChartDefinition, BusinessChartBuffer, Period::" ", ErrorText) then begin
+            UnbindSubscription(ChartManagement);
             StatusText := ErrorText;
             exit;
         end;
-
+        UnbindSubscription(ChartManagement);
         PreviousNextActionEnabled := ChartManagement.UpdateNextPrevious(SelectedChartDefinition);
         ChartManagement.UpdateStatusText(SelectedChartDefinition, BusinessChartBuffer, StatusText);
         UpdateChart();

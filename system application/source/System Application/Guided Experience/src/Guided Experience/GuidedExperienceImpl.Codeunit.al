@@ -580,7 +580,7 @@ codeunit 1991 "Guided Experience Impl."
         end;
     end;
 
-    local procedure GetCode(Type: Enum "Guided Experience Type"; ObjectType: Enum "Guided Experience Object Type"; ObjectID: Integer; Link: Text[250]; VideoUrl: Text[250]; SpotlightTourType: Enum "Spotlight Tour Type"): Code[300]
+    internal procedure GetCode(Type: Enum "Guided Experience Type"; ObjectType: Enum "Guided Experience Object Type"; ObjectID: Integer; Link: Text[250]; VideoUrl: Text[250]; SpotlightTourType: Enum "Spotlight Tour Type"): Code[300]
     var
         Url: Text[250];
     begin
@@ -910,7 +910,7 @@ codeunit 1991 "Guided Experience Impl."
             GuidedExperienceItem.ModifyAll(Completed, true);
     end;
 
-    local procedure Reset(GuidedExperienceItem: Record "Guided Experience Item")
+    local procedure Reset(var GuidedExperienceItem: Record "Guided Experience Item")
     begin
         if GuidedExperienceItem.FindSet() then
             repeat

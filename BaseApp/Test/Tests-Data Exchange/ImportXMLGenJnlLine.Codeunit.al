@@ -518,6 +518,44 @@ codeunit 132549 "Import XML Gen Jnl Line"
         VerifyDataExchFieldIsDeleted(GetLastDataExch());
     end;
 
+    [Test]
+    [HandlerFunctions('DiffCurrConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CurrencyFactorShouldSameGLAccDifferentStatementCurrency()
+    var
+        GenJnlLineTemplate: Record "Gen. Journal Line";
+        TempExpdGenJnlLine: Record "Gen. Journal Line" temporary;
+        CurrExchRate: Record "Currency Exchange Rate";
+        TempBlobOEM: Codeunit "Temp Blob";
+        TempBlobUTF8: Codeunit "Temp Blob";
+        OutStream: OutStream;
+        Encoding: DotNet Encoding;
+        FileCurrencyCode: Code[10];
+        CurrencyFactor: Decimal;
+    begin
+        // [SCENARIO 524613] Wrong amounts in LCY when importing a bank statement into the general journal lines.
+        Initialize();
+
+        // [GIVEN] Pre-Setup
+        TempBlobOEM.CreateOutStream(OutStream);
+        FileCurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1);
+        CurrencyFactor := CurrExchRate.ExchangeRate(WorkDate(), FileCurrencyCode);
+        WriteCAMTFileWithCurrency(OutStream, 'UTF-8', FileCurrencyCode);
+        ConvertEncoding(TempBlobOEM, TempBlobUTF8, Encoding.UTF8);
+
+        // [GIVEN] Setup and Create General Journal Template For G/L Account Import
+        SetupSourceMoq('SEPA CAMT', TempBlobUTF8);
+        CreateGenJnlTemplateForGLAccountImport(GenJnlLineTemplate, 'SEPA CAMT');
+
+        // [WHEN] Exercise Import Bank Statement
+        GenJnlLineTemplate.ImportBankStatement();
+
+        // [THEN] Validate Imported Data and Verify Currency Factor
+        PrepareImportedDataValidation(TempExpdGenJnlLine, GenJnlLineTemplate, FileCurrencyCode);
+        AssertDataInTable(TempExpdGenJnlLine, GenJnlLineTemplate, '');
+        Assert.AreEqual(CurrencyFactor, TempExpdGenJnlLine."Currency Factor", '');
+    end;
+
     [Normal]
     local procedure Initialize()
     begin

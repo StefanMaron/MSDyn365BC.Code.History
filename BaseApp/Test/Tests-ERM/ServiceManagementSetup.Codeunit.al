@@ -1658,6 +1658,52 @@ codeunit 136110 "Service Management Setup"
         Assert.AreEqual(ServiceLine."Line Discount %", 0, LineDiscountPerError);
     end;
 
+    [Test]
+    [HandlerFunctions('ServiceLinesPageHandler,ConfirmHandler')]
+    procedure TestLineDiscountOnChangingFaultReasonCodeServicetItemLine()
+    var
+        FaultReasonCode: Record "Fault Reason Code";
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+        Item: Record Item;
+        ServiceOrder: TestPage "Service Order";
+        ServiceLines: TestPage "Service Lines";
+        LineDiscountPct: Decimal;
+    begin
+        // [SCENARIO 506177] Line Discount % is deleted in the service line when changing the fault reason code in the service order.
+        Initialize();
+
+        // [GIVEN] Create a new Fault Reason Code with Exclude Warranty Discount and Exclude Contract Discount should be true
+        LibraryService.CreateFaultReasonCode(FaultReasonCode, true, true);
+
+        // [GIVEN] Setup Warranty Discount on Service Management and Create Service Order
+        SetupServiceMgtWarrantyDisc(ServiceMgtSetup, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+        ServiceItemLine.Validate(Warranty, true);
+        ServiceItemLine.Modify(true);
+
+        // [WHEN] Initialize "Line Discount %" and Enqueue to perform verification on ServiceLinesPageHandler 
+        LineDiscountPct := LibraryRandom.RandDecInRange(10, 20, 2);
+        LibraryVariableStorage.Enqueue(LineDiscountPct);
+
+        // [THEN] Create Service Line and set "Line Discount %"
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItem(Item));
+        ServiceLine.Validate("Line Discount %", LineDiscountPct);
+        ServiceLine.Modify(true);
+
+        // [WHEN] Input the new Fault Reason Code on Service Item Line
+        ServiceItemLine.Validate("Fault Reason Code", FaultReasonCode.Code);
+        ServiceItemLine.Modify();
+
+        // [THEN] Verify: Open Service Line Page and check "Line Discount %" should be equal to LineDiscountPct
+        ServiceOrder.OpenEdit();
+        ServiceOrder.GoToRecord(ServiceHeader);
+        ServiceLines.Trap();
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+    end;
 
     local procedure CreateAndPostServiceOrderForResource(var ServiceHeader: Record "Service Header"; ServiceContractLine: Record "Service Contract Line"; CustomerNo: Code[20]; ContractNo: Code[20]; Invoice: Boolean)
     var
@@ -2277,4 +2323,14 @@ codeunit 136110 "Service Management Setup"
         NoSeriesList.GoToRecord(NoSeries);
         NoSeriesList.OK().Invoke();
     end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceLinesPageHandler(var ServiceLines: TestPage "Service Lines")
+    begin
+        ServiceLines.SelectionFilter.SetValue('All');
+        ServiceLines.First();
+        ServiceLines."Line Discount %".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+    end;
+
 }

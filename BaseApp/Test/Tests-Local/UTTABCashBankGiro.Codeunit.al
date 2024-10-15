@@ -475,6 +475,33 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         Assert.ExpectedErrorCode('NCLCSRTS:TableErrorStr');
     end;
 
+    [Test]
+    procedure AccountNoTableRelationOnCBGStatementLine()
+    var
+        CBGStatementLine: Record "CBG Statement Line";
+        GLAccountNo: array[3] of Code[20];
+        i: Integer;
+        ExpectedErrorCodeLbl: Label 'DB:NothingInsideFilter', Locked = true;
+    begin
+        // [SCENARIO 495747] Account no. has table relation filters "Account Type" = Posting, Blocked = false and "Direct Posting" = true for type "G/L Account" on CBG statement line
+        Initialize();
+
+        // [GIVEN] Create three G/L accounts
+        // [GIVEN] G/L account "A" has "Account Type" = "Begin Total"
+        GLAccountNo[1] := CreateGLAccount("G/L Account Type"::"Begin-Total", false, true);
+        // [GIVEN] G/L account "B" is blocked
+        GLAccountNo[2] := CreateGLAccount("G/L Account Type"::Posting, true, true);
+        // [GIVEN] G/L account "C" has not Direct Posting option
+        GLAccountNo[3] := CreateGLAccount();
+
+        //[WHEN] Validate "Account No." on the CBG Statement Line with these G/L accounts 
+        for i := 1 to ArrayLen(GLAccountNo) do
+            asserterror CBGStatementLine.Validate("Account No.", GLAccountNo[i]);
+
+        //[THEN] The error "G/L Acount No. can't be found in G/L Account table" is executed
+        Assert.ExpectedErrorCode(ExpectedErrorCodeLbl);
+    end;
+
     local procedure Initialize()
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -605,6 +632,18 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         GLAccount: Record "G/L Account";
     begin
         GLAccount."No." := LibraryUTUtility.GetNewCode();
+        GLAccount.Insert();
+        exit(GLAccount."No.");
+    end;
+
+    local procedure CreateGLAccount(GLAccountType: Enum Microsoft.Finance.GeneralLedger.Account."G/L Account Type"; Blocked: Boolean; DirectPosting: Boolean): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
+        GLAccount."Account Type" := GLAccountType;
+        GLAccount.Blocked := Blocked;
+        GLAccount."Direct Posting" := DirectPosting;
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;

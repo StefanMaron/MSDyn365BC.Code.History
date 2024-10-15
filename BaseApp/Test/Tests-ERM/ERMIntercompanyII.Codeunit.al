@@ -31,22 +31,25 @@ codeunit 134152 "ERM Intercompany II"
         APIMockEvents: Codeunit "API Mock Events";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
-        ValidationErr: Label '%1 must be %2 in %3.';
-        SameICPartnerErr: Label 'The IC Partner Code %1 has been assigned to Customer %2.';
-        BlockedErr: Label 'Vendor %1 is linked to a blocked IC Partner.';
-        ICGLAccountBlockErr: Label 'Blocked must be equal to ''No''  in IC G/L Account: No.=%1. Current value is ''Yes''.';
-        ICPartnerBlockErr: Label 'Blocked must be equal to ''No''  in IC Partner: Code=%1. Current value is ''Yes''.';
-        ICCustomerBlockedAllErr: Label 'You cannot create this type of document when Customer %1 is blocked';
-        DatesErr: Label '%1 of %2 must be equal to %3 of %4';
-        TableFieldErr: Label 'Wrong table field value: table "%1", field "%2".';
+        ValidationErr: Label '%1 must be %2 in %3.', Comment = '%1 = field name, %2 = field value, %3 = table name';
+        SameICPartnerErr: Label 'The IC Partner Code %1 has been assigned to Customer %2.', Comment = '%1 = IC partner code, %2 = customer no.';
+        BlockedErr: Label 'Vendor %1 is linked to a blocked IC Partner.', Comment = '%1 = Vendor no.';
+        ICGLAccountBlockErr: Label 'Blocked must be equal to ''No''  in IC G/L Account: No.=%1. Current value is ''Yes''.', Comment = '%1 = GL account no.';
+        ICPartnerBlockErr: Label 'Blocked must be equal to ''No''  in IC Partner: Code=%1. Current value is ''Yes''.', Comment = '%1 = IC partner code';
+        ICCustomerBlockedAllErr: Label 'You cannot create this type of document when Customer %1 is blocked', Comment = '%1 = Customer no.';
+        DatesErr: Label '%1 of %2 must be equal to %3 of %4', Comment = '%1 = table name, %2 = date field, %3 = table name, %4 = date field';
+        TableFieldErr: Label 'Wrong table field value: table "%1", field "%2".', Comment = '%1 = table name, %2 = field name';
         ReservationEntryNotExistErr: Label 'Reservation Entry doen''s exist.';
         NoGLEntryWithICPartnerCodeErr: Label 'G/L Entry with IC Partner Code is not created.';
         NoItemForCommonItemErr: Label 'There is no Item related to Common Item No. %1', Comment = '%1 = Common Item No value';
-        WrongCompanyErr: Label 'The selected xml file contains data sent to IC Partner %1. Current company''s IC Partner Code is %2.', Comment = '.';
+        WrongCompanyErr: Label 'The selected xml file contains data sent to IC Partner %1. Current company''s IC Partner Code is %2.', Comment = '%1 = IC partner code, %2 = IC partner code';
         ICPartnerCodeModifyErr: Label 'You cannot change the contents of the %1 field because this %2 has one or more open ledger entries.', Comment = '%1 = Field caption, %2 = Table caption';
         ItemTrackingDoesNotMatchDocLineErr: Label 'Item tracking does not match document line.';
         PostedInvoiceDuplicateQst: Label 'Posted invoice %1 already exists for order %2. To avoid duplicate postings, do not post order %2.\Do you still want to post order %2?', Comment = '%1 = Invoice No., %2 = Order No.';
         PostedInvoiceFromSameTransactionQst: Label 'Posted invoice %1 originates from the same IC transaction as invoice %2. To avoid duplicate postings, do not post invoice %2.\Do you still want to post invoice %2?', Comment = '%1 and %2 = Invoice No.';
+        GLAccountDescriptionLbl: Label 'Custom GL Account description', Locked = true;
+        ItemDescriptionLbl: Label 'Custom item description', Locked = true;
+        DateLbl: Label '<%1D>', Locked = true;
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -56,7 +59,7 @@ codeunit 134152 "ERM Intercompany II"
         ICInboxTransaction: Record "IC Inbox Transaction";
         PurchaseHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
-        TestClientType: Codeunit "Test Client Type Subscriber";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         CustomerNo: Code[20];
         VendorNo: Code[20];
         ICPartnerCode: array[2] of Code[20];
@@ -65,8 +68,8 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Import Transaction File]
         // [SCENARIO 375225] IC Transaction file should be imported when IC Partner Codes of two companies are different
         Initialize();
-        BindSubscription(TestClientType);
-        TestClientType.SetClientType(ClientType::Windows);
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(ClientType::Windows);
 
         // [GIVEN] Two Companies, where "IC Partner Code" are "A" and "B"
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
@@ -117,7 +120,7 @@ codeunit 134152 "ERM Intercompany II"
         ICInboxTransaction.FindFirst();
         ICInboxTransaction.TestField("Document No.", SalesHeader."No.");
 
-        UnbindSubscription(TestClientType);
+        UnbindSubscription(TestClientTypeSubscriber);
     end;
 
     [Test]
@@ -126,7 +129,7 @@ codeunit 134152 "ERM Intercompany II"
     procedure ExportImportICTransactionToSameCompanyError()
     var
         PurchaseHeader: Record "Purchase Header";
-        TestClientType: Codeunit "Test Client Type Subscriber";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
         VendorNo: Code[20];
         ICPartnerCode: array[2] of Code[20];
         FileName: Text;
@@ -134,8 +137,8 @@ codeunit 134152 "ERM Intercompany II"
         // [FEATURE] [Import Transaction File]
         // [SCENARIO 375225] IC Transaction file should not be imported to Company with wrong IC Partner Code
         Initialize();
-        BindSubscription(TestClientType);
-        TestClientType.SetClientType(ClientType::Windows);
+        BindSubscription(TestClientTypeSubscriber);
+        TestClientTypeSubscriber.SetClientType(ClientType::Windows);
 
         // [GIVEN] IC Partner "A", where "Inbox Type" is "File Location"
         ICPartnerCode[1] := CreateICPartnerWithInboxTypeFileLocation();
@@ -164,7 +167,7 @@ codeunit 134152 "ERM Intercompany II"
         // [THEN] Error message: 'Data Sent to IC Partner "B". Current company's IC Partner Code "A"'
         Assert.ExpectedError(StrSubstNo(WrongCompanyErr, ICPartnerCode[1], ICPartnerCode[2]));
 
-        UnbindSubscription(TestClientType);
+        UnbindSubscription(TestClientTypeSubscriber);
     end;
 
     [Test]
@@ -1529,6 +1532,91 @@ codeunit 134152 "ERM Intercompany II"
     end;
 
     [Test]
+    procedure ReceivePurchaseInvoiceWithCustomDescriptionOnLines()
+    var
+        ReceivedPurchaseHeader: Record "Purchase Header";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICInboxPurchaseHeader: Record "IC Inbox Purchase Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        ItemNo: Code[20];
+        SalesInvoiceNo: Code[20];
+        VendorNo: Code[20];
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 504540] Description on created IC purchase invoice line is transferred from sales invoice line
+        Initialize();
+
+        // [GIVEN] Create VAT posting setup, customer, vendor, G/L account, item
+        CreateICGLAccountWithVATPostingGroup(GLAccount, VATPostingSetup);
+        VendorNo := CreateICVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        CustomerNo := CreateICCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        ItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Add permissions
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddSalesDocsPost();
+        LibraryLowerPermissions.AddO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
+
+        // [GIVEN] Create sales invoice with four lines where two lines are with custom description. Post sales invoice
+        SalesInvoiceNo := CreateAndPostSalesInvoice(CustomerNo, GLAccount."No.", ItemNo);
+
+        // [GIVEN] Send sales invoice to intercompany process
+        SendICSalesInvoice(ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, SalesInvoiceNo, GetICPartnerFromVendor(VendorNo));
+
+        // [WHEN] Accept purchase invoice in partner company
+        ReceiveICPurchaseInvoice(ReceivedPurchaseHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, SalesInvoiceNo, VendorNo);
+
+        // [THEN] Purchase invoice lines have the same description as sales invoice lines in partner company
+        VerifyDescriptionOnPurchaseLines(ReceivedPurchaseHeader, SalesInvoiceNo);
+    end;
+
+    [Test]
+    procedure ReceiveSalesInvoiceWithCustomDescriptionOnLines()
+    var
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICInboxSalesHeader: Record "IC Inbox Sales Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        PurchaseInvoiceNo: Code[20];
+        CustomerNo: Code[20];
+        VendorNo: Code[20];
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 504540] Description on created IC sales invoice line is transferred from purchase invoice line
+        Initialize();
+
+        // [GIVEN] Create VAT posting setup, customer, vendor, G/L account, item
+        CreateICGLAccountWithVATPostingGroup(GLAccount, VATPostingSetup);
+        VendorNo := CreateICVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        CustomerNo := CreateICCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        ItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Add permissions
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddSalesDocsPost();
+        LibraryLowerPermissions.AddO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
+
+        // [GIVEN] Create purchase invoice with four lines where two lines are with custom description
+        PurchaseInvoiceNo := CreatePurchaseInvoiceWithLines(PurchaseHeader, VendorNo, GLAccount."No.", ItemNo);
+
+        //[GIVEN] Send purchase invoice to partner company
+        SendICPurchaseDocument(PurchaseHeader, GetICPartnerFromCustomer(CustomerNo), ICOutboxTransaction, ICInboxTransaction, ICInboxSalesHeader);
+
+        // [WHEN] Receive sales document from IC partner
+        ReceiveICSalesInvoice(SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxSalesHeader, PurchaseHeader."No.", CustomerNo);
+
+        // [THEN] Received sales lines have the same description as purchase invoice lines in partner company
+        VerifyDescriptionOnSalesLines(SalesHeader, PurchaseInvoiceNo);
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseReturnOrderInvoicedQtyAfterPostReceivedPurchCrMemo()
@@ -2547,7 +2635,7 @@ codeunit 134152 "ERM Intercompany II"
     procedure LCYCodeFromGenLedgSetupIsNotAssignedToICOutboxSalesOrder()
     var
         SalesHeader: Record "Sales Header";
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         CustomerNo: Code[20];
         ICPartnerCode: array[2] of Code[20];
         InvNo: Code[20];
@@ -2578,13 +2666,13 @@ codeunit 134152 "ERM Intercompany II"
         CreateSalesDocument(
           SalesHeader, SalesHeader."Document Type"::Order, CustomerNo, CreateItem());
         InvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        GLSetup.Get();
+        GeneralLedgerSetup.Get();
 
         // [THEN] IC Outbox Sales Header for Sales Order has blank "Currency Code"
-        VerifyCurrencyCodeInICOutboxSalesHeader(ICPartnerCode[1], SalesHeader."No.", GLSetup."LCY Code");
+        VerifyCurrencyCodeInICOutboxSalesHeader(ICPartnerCode[1], SalesHeader."No.", GeneralLedgerSetup."LCY Code");
 
         // [THEN] IC Outbox Sales Header for Posted Invoice has blank "Currency Code"
-        VerifyCurrencyCodeInICOutboxSalesHeader(ICPartnerCode[1], InvNo, GLSetup."LCY Code");
+        VerifyCurrencyCodeInICOutboxSalesHeader(ICPartnerCode[1], InvNo, GeneralLedgerSetup."LCY Code");
     end;
 
     [Test]
@@ -2592,7 +2680,7 @@ codeunit 134152 "ERM Intercompany II"
     procedure LCYCodeFromGenLedgSetupIsNotAssignedToICOutboxSalesCrMemo()
     var
         SalesHeader: Record "Sales Header";
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         CustomerNo: Code[20];
         ICPartnerCode: array[2] of Code[20];
         CrMemoNo: Code[20];
@@ -2623,9 +2711,9 @@ codeunit 134152 "ERM Intercompany II"
         CreateSalesDocument(
           SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo, CreateItem());
         CrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        GLSetup.Get();
+        GeneralLedgerSetup.Get();
         // [THEN] IC Outbox Sales Header for Posted Sales Credit Memo has blank "Currency Code"
-        VerifyCurrencyCodeInICOutboxSalesHeader(ICPartnerCode[1], CrMemoNo, GLSetup."LCY Code");
+        VerifyCurrencyCodeInICOutboxSalesHeader(ICPartnerCode[1], CrMemoNo, GeneralLedgerSetup."LCY Code");
     end;
 
     [Test]
@@ -2633,7 +2721,7 @@ codeunit 134152 "ERM Intercompany II"
     procedure LCYCodeFromGenLedgSetupIsNotAssignedToICOutboxPurchOrder()
     var
         PurchaseHeader: Record "Purchase Header";
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         VendorNo: Code[20];
         ICPartnerCode: array[2] of Code[20];
     begin
@@ -2663,10 +2751,10 @@ codeunit 134152 "ERM Intercompany II"
         CreatePurchaseDocument(
           PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo, CreateItem());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        GLSetup.Get();
+        GeneralLedgerSetup.Get();
 
         // [THEN] IC Outbox Purchase Header has blank "Currency Code"
-        VerifyCurrencyCodeInICOutboxPurchHeader(ICPartnerCode[1], PurchaseHeader."No.", GLSetup."LCY Code");
+        VerifyCurrencyCodeInICOutboxPurchHeader(ICPartnerCode[1], PurchaseHeader."No.", GeneralLedgerSetup."LCY Code");
     end;
 
     [Test]
@@ -4249,16 +4337,16 @@ codeunit 134152 "ERM Intercompany II"
     procedure ReceiveICSalesDocumentWithCurrencyEqualGLSetupLCYCode()
     var
         ICInboxTransaction: Record "IC Inbox Transaction";
-        ICOutboxTransaction: record "IC Outbox Transaction";
-        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICOutboxTransaction: Record "IC Outbox Transaction";
         ICInboxPurchaseHeader: Record "IC Inbox Purchase Header";
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
         ICOutboxSalesHeader: Record "IC Outbox Sales Header";
         ICPartner: Record "IC Partner";
         ICSetup: Record "IC Setup";
         Customer: Record Customer;
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         ICPartnerVendorCode: Code[20];
     begin
         // [SCENARIO 416829] Intercompany Inbox Sales Document with Currency = GLSetup LCY Currency should be transferred to Purch Doc with empty currency
@@ -4301,13 +4389,13 @@ codeunit 134152 "ERM Intercompany II"
           SalesHeader."No.", ICOutboxSalesHeader."Document Type");
 
         // [GIVEN] Receiving Company has General Ledger LCY Code = 'LCY'
-        GLSetup.Get();
-        GLSetup."LCY Code" := LibraryUtility.GenerateGUID();
-        GLSetup.Modify();
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."LCY Code" := LibraryUtility.GenerateGUID();
+        GeneralLedgerSetup.Modify();
 
         // [WHEN] Received document transferred to Receiving company
         ICInboxOutboxMgt.OutboxTransToInbox(ICOutboxTransaction, ICInboxTransaction, ICPartnerVendorCode);
-        ICOutboxSalesHeader."Currency Code" := GLSetup."LCY Code";
+        ICOutboxSalesHeader."Currency Code" := GeneralLedgerSetup."LCY Code";
         ICOutboxSalesHeader.Modify();
         ICInboxOutboxMgt.OutboxSalesHdrToInbox(ICInboxTransaction, ICOutboxSalesHeader, ICInboxPurchaseHeader);
 
@@ -4323,16 +4411,16 @@ codeunit 134152 "ERM Intercompany II"
     procedure ReceiveICPurchDocumentWithCurrencyEqualGLSetupLCYCode()
     var
         ICInboxTransaction: Record "IC Inbox Transaction";
-        ICOutboxTransaction: record "IC Outbox Transaction";
-        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
+        ICOutboxTransaction: Record "IC Outbox Transaction";
         ICInboxSalesHeader: Record "IC Inbox Sales Header";
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
-        ICOutboxPurchHeader: Record "IC Outbox Purchase Header";
+        ICOutboxPurchaseHeader: Record "IC Outbox Purchase Header";
         Vendor: Record Vendor;
         ICPartner: Record "IC Partner";
         ICSetup: Record "IC Setup";
+        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         ICPartnerVendorCode: Code[20];
     begin
         // [SCENARIO 416829] Intercompany Inbox Purch Document with Currency = GLSetup LCY Currency should be transferred to Sales Doc with empty currency
@@ -4366,25 +4454,25 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Sales IC Purchase Document
         ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
         ICOutboxTransaction."Document Type" := ICOutboxTransaction."Document Type"::Invoice;
-        ICOutboxPurchHeader."Document Type" := ICOutboxPurchHeader."Document Type"::Invoice;
+        ICOutboxPurchaseHeader."Document Type" := ICOutboxPurchaseHeader."Document Type"::Invoice;
 
         FindICOutboxTransaction(
           ICOutboxTransaction, PurchaseHeader."No.", ICOutboxTransaction."Document Type",
           ICOutboxTransaction."Source Type"::"Purchase Document");
         FindICOutboxPurchaseHeader(
-          ICOutboxPurchHeader, ICOutboxTransaction."Transaction No.",
-          PurchaseHeader."No.", ICOutboxPurchHeader."Document Type");
+          ICOutboxPurchaseHeader, ICOutboxTransaction."Transaction No.",
+          PurchaseHeader."No.", ICOutboxPurchaseHeader."Document Type");
 
         // [GIVEN] Receiving Company has General Ledger LCY Code = 'LCY'
-        GLSetup.Get();
-        GLSetup."LCY Code" := LibraryUtility.GenerateGUID();
-        GLSetup.Modify();
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."LCY Code" := LibraryUtility.GenerateGUID();
+        GeneralLedgerSetup.Modify();
 
         // [WHEN] Received document transferred to Receiving company
         ICInboxOutboxMgt.OutboxTransToInbox(ICOutboxTransaction, ICInboxTransaction, ICPartnerVendorCode);
-        ICOutboxPurchHeader."Currency Code" := GLSetup."LCY Code";
-        ICOutboxPurchHeader.Modify();
-        ICInboxOutboxMgt.OutboxPurchHdrToInbox(ICInboxTransaction, ICOutboxPurchHeader, ICInboxSalesHeader);
+        ICOutboxPurchaseHeader."Currency Code" := GeneralLedgerSetup."LCY Code";
+        ICOutboxPurchaseHeader.Modify();
+        ICInboxOutboxMgt.OutboxPurchHdrToInbox(ICInboxTransaction, ICOutboxPurchaseHeader, ICInboxSalesHeader);
 
         // [THEN] Created Purchase Document has Currency Code = ''
         ReceiveICSalesInvoice(
@@ -4500,7 +4588,7 @@ codeunit 134152 "ERM Intercompany II"
         exit(Item."No.");
     end;
 
-    local procedure CreateItemReference(ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[30]; ReferenceNo: Code[20]): Code[20]
+    local procedure CreateItemReference(ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; ReferenceType: Enum "Item Reference Type"; ReferenceTypeNo: Code[20]; ReferenceNo: Code[20]): Code[20]
     var
         ItemReference: Record "Item Reference";
     begin
@@ -4517,14 +4605,12 @@ codeunit 134152 "ERM Intercompany II"
 
     local procedure CreateAssembledItem(var Item: Record Item)
     begin
-        with Item do begin
-            LibraryAssembly.SetupAssemblyItem(
-              Item, "Costing Method"::Standard, "Costing Method"::Standard, "Replenishment System"::Assembly,
-              '', false, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5),
-              LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
-            Validate("Assembly Policy", "Assembly Policy"::"Assemble-to-Order");
-            Modify(true);
-        end;
+        LibraryAssembly.SetupAssemblyItem(
+          Item, "Costing Method"::Standard, "Costing Method"::Standard, "Replenishment System"::Assembly,
+          '', false, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5),
+          LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));
+        Item.Validate("Assembly Policy", Item."Assembly Policy"::"Assemble-to-Order");
+        Item.Modify(true);
     end;
 
     local procedure CreateItemRefWithVariant(ItemNo: Code[20]; CustNo: Code[20]; VendNo: Code[20]): Code[20]
@@ -4595,13 +4681,11 @@ codeunit 134152 "ERM Intercompany II"
     var
         ICPartner: Record "IC Partner";
     begin
-        with ICPartner do begin
-            Get(CreateICPartner());
-            Validate("Outbound Sales Item No. Type", "Outbound Sales Item No. Type"::"Common Item No.");
-            Validate("Outbound Purch. Item No. Type", "Outbound Purch. Item No. Type"::"Common Item No.");
-            Modify();
-            exit(Code);
-        end;
+        ICPartner.Get(CreateICPartner());
+        ICPartner.Validate("Outbound Sales Item No. Type", ICPartner."Outbound Sales Item No. Type"::"Common Item No.");
+        ICPartner.Validate("Outbound Purch. Item No. Type", ICPartner."Outbound Purch. Item No. Type"::"Common Item No.");
+        ICPartner.Modify();
+        exit(ICPartner.Code);
     end;
 
     local procedure CreateICPartner(): Code[20]
@@ -4629,13 +4713,13 @@ codeunit 134152 "ERM Intercompany II"
     local procedure CreateICPartnerWithInboxTypeFileLocation(): Code[20]
     var
         ICPartner: Record "IC Partner";
-        FileMgt: Codeunit "File Management";
+        FileManagement: Codeunit "File Management";
         FileName: Text;
     begin
         CreateICPartnerBase(ICPartner);
-        FileName := FileMgt.ServerTempFileName('');
+        FileName := FileManagement.ServerTempFileName('');
         ICPartner.Validate("Inbox Type", ICPartner."Inbox Type"::"File Location");
-        ICPartner.Validate("Inbox Details", FileMgt.GetDirectoryName(FileName));
+        ICPartner.Validate("Inbox Details", FileManagement.GetDirectoryName(FileName));
         ICPartner.Modify(true);
         exit(ICPartner.Code);
     end;
@@ -4713,6 +4797,19 @@ codeunit 134152 "ERM Intercompany II"
         GLAccount.Modify(true);
     end;
 
+    local procedure CreateICGLAccountWithVATPostingGroup(var GLAccount: Record "G/L Account"; var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        ICGLAccount: Record "IC G/L Account";
+    begin
+        LibraryERM.CreateICGLAccount(ICGLAccount);
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInDecimalRange(10, 25, 0));
+        GLAccount.Get(
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        GLAccount.Validate("Default IC Partner G/L Acc. No", ICGLAccount."No.");
+        GLAccount.Modify(true);
+    end;
+
     local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; ICPartnerGLAccNo: Code[20]; SignFactor: Integer)
     begin
         // Take Random Amount.
@@ -4757,6 +4854,32 @@ codeunit 134152 "ERM Intercompany II"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo,
           LibraryRandom.RandDecInRange(100, 200, 2));  // Using Random value for Quantity.
+    end;
+
+    local procedure CreatePurchaseInvoiceWithLines(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; GLAccountNo: Code[20]; ItemNo: Code[20]): Code[20]
+    var
+        PurchaseLine: array[4] of Record "Purchase Line";
+        i: Integer;
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, Enum::"Purchase Document Type"::Invoice, VendorNo);
+
+        // Two lines where "Type" = "G/L Account"
+        for i := 1 to 2 do
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine[i], PurchaseHeader, PurchaseLine[i].Type::"G/L Account", GLAccountNo, 1);
+
+        //add custom description for second line
+        PurchaseLine[2].Description := GLAccountDescriptionLbl;
+        PurchaseLine[2].Modify();
+
+        // Two Lines where "Type" = "Item"
+        for i := 3 to 4 do
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine[i], PurchaseHeader, PurchaseLine[i].Type::Item, ItemNo, 1);
+
+        //add custom description for fourth line
+        PurchaseLine[4].Description := ItemDescriptionLbl;
+        PurchaseLine[4].Modify();
+
+        exit(PurchaseHeader."No.");
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; VATBusPostingGroup: Code[20]; GLAccountNo: Code[20])
@@ -4814,10 +4937,10 @@ codeunit 134152 "ERM Intercompany II"
 
         SalesHeader.Validate(
           "Requested Delivery Date",
-          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate()));
+          CalcDate(StrSubstNo(DateLbl, LibraryRandom.RandIntInRange(5, 10)), WorkDate()));
         SalesHeader.Validate(
           "Promised Delivery Date",
-          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(1, 4)), WorkDate()));
+          CalcDate(StrSubstNo(DateLbl, LibraryRandom.RandIntInRange(1, 4)), WorkDate()));
         SalesHeader.Modify(true);
     end;
 
@@ -4878,10 +5001,10 @@ codeunit 134152 "ERM Intercompany II"
 
         PurchaseHeader.Validate(
           "Requested Receipt Date",
-          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate()));
+          CalcDate(StrSubstNo(DateLbl, LibraryRandom.RandIntInRange(5, 10)), WorkDate()));
         PurchaseHeader.Validate(
           "Promised Receipt Date",
-          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(1, 4)), WorkDate()));
+          CalcDate(StrSubstNo(DateLbl, LibraryRandom.RandIntInRange(1, 4)), WorkDate()));
         PurchaseHeader.Modify(true);
     end;
 
@@ -4940,12 +5063,12 @@ codeunit 134152 "ERM Intercompany II"
     local procedure CreateSalesInvoiceWithGetShipmentLines(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
     var
         SalesShipmentLine: Record "Sales Shipment Line";
-        SalesGetShpt: Codeunit "Sales-Get Shipment";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        SalesGetShpt.SetSalesHeader(SalesHeader);
+        SalesGetShipment.SetSalesHeader(SalesHeader);
         SalesShipmentLine.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesGetShpt.CreateInvLines(SalesShipmentLine);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine);
     end;
 
     local procedure CreateSalesCrMemoWithGetRetReceiptLines(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
@@ -5037,6 +5160,33 @@ codeunit 134152 "ERM Intercompany II"
         UpdateSalesDocumentLocation(SalesHeader, CreateLocation());
         UpdateSalesDocumentExternalDocumentNo(SalesHeader, PurchaseHeader."No.");
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    local procedure CreateAndPostSalesInvoice(CustomerNo: Code[20]; GLAccountNo: Code[20]; ItemNo: Code[20]): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[4] of Record "Sales Line";
+        i: Integer;
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+
+        // Two lines where "Type" = "G/L Account"
+        for i := 1 to 2 do
+            LibrarySales.CreateSalesLine(SalesLine[i], SalesHeader, SalesLine[i].Type::"G/L Account", GLAccountNo, 1);
+
+        //add custom description for second line
+        SalesLine[2].Description := GLAccountDescriptionLbl;
+        SalesLine[2].Modify();
+
+        // Two Lines where "Type" = "Item"
+        for i := 3 to 4 do
+            LibrarySales.CreateSalesLine(SalesLine[i], SalesHeader, SalesLine[i].Type::Item, ItemNo, 1);
+
+        //add custom description for fourth line
+        SalesLine[4].Description := ItemDescriptionLbl;
+        SalesLine[4].Modify();
+
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
     local procedure CreatePostSalesInvoiceWithGetShipmentLines(CustomerNo: Code[20]): Code[20]
@@ -5143,34 +5293,30 @@ codeunit 134152 "ERM Intercompany II"
 
     local procedure CreateVendorLedgEntry(VendorNo: Code[20]; PostingDate: Date; IsOpen: Boolean)
     var
-        VendorLedgEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
         RecRef: RecordRef;
     begin
-        with VendorLedgEntry do begin
-            Init();
-            RecRef.GetTable(VendorLedgEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Posting Date" := PostingDate;
-            "Vendor No." := VendorNo;
-            Open := IsOpen;
-            Insert();
-        end;
+        VendorLedgerEntry.Init();
+        RecRef.GetTable(VendorLedgerEntry);
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Posting Date" := PostingDate;
+        VendorLedgerEntry."Vendor No." := VendorNo;
+        VendorLedgerEntry.Open := IsOpen;
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure CreateCustLedgEntry(CustomerNo: Code[20]; PostingDate: Date; IsOpen: Boolean)
     var
-        CustLedgEntry: Record "Cust. Ledger Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
         RecRef: RecordRef;
     begin
-        with CustLedgEntry do begin
-            Init();
-            RecRef.GetTable(CustLedgEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Posting Date" := PostingDate;
-            "Customer No." := CustomerNo;
-            Open := IsOpen;
-            Insert();
-        end;
+        CustLedgerEntry.Init();
+        RecRef.GetTable(CustLedgerEntry);
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Posting Date" := PostingDate;
+        CustLedgerEntry."Customer No." := CustomerNo;
+        CustLedgerEntry.Open := IsOpen;
+        CustLedgerEntry.Insert();
     end;
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
@@ -5263,21 +5409,19 @@ codeunit 134152 "ERM Intercompany II"
 
     local procedure MockICInboxSalesLine(var ICInboxSalesLine: Record "IC Inbox Sales Line"; ICInboxSalesHeader: Record "IC Inbox Sales Header"; ItemNo: Code[20]; UnitPrice: Decimal; Qty: Decimal; AmtInclVAT: Decimal)
     begin
-        with ICInboxSalesLine do begin
-            "IC Transaction No." := ICInboxSalesHeader."IC Transaction No.";
-            "IC Partner Code" := ICInboxSalesHeader."IC Partner Code";
-            "Transaction Source" := ICInboxSalesHeader."Transaction Source";
-            "Document Type" := ICInboxSalesHeader."Document Type";
-            "Line No." := LibraryUtility.GetNewRecNo(ICInboxSalesLine, FieldNo("Line No."));
-            "IC Partner Ref. Type" := "IC Partner Ref. Type"::Item;
-            "IC Partner Reference" := ItemNo;
-            "Unit Price" := UnitPrice;
-            Quantity := Qty;
-            "Line Amount" := "Unit Price" * Quantity;
-            "VAT Base Amount" := "Unit Price" * Quantity;
-            "Amount Including VAT" := AmtInclVAT;
-            Insert();
-        end;
+        ICInboxSalesLine."IC Transaction No." := ICInboxSalesHeader."IC Transaction No.";
+        ICInboxSalesLine."IC Partner Code" := ICInboxSalesHeader."IC Partner Code";
+        ICInboxSalesLine."Transaction Source" := ICInboxSalesHeader."Transaction Source";
+        ICInboxSalesLine."Document Type" := ICInboxSalesHeader."Document Type";
+        ICInboxSalesLine."Line No." := LibraryUtility.GetNewRecNo(ICInboxSalesLine, ICInboxSalesLine.FieldNo("Line No."));
+        ICInboxSalesLine."IC Partner Ref. Type" := ICInboxSalesLine."IC Partner Ref. Type"::Item;
+        ICInboxSalesLine."IC Partner Reference" := ItemNo;
+        ICInboxSalesLine."Unit Price" := UnitPrice;
+        ICInboxSalesLine.Quantity := Qty;
+        ICInboxSalesLine."Line Amount" := ICInboxSalesLine."Unit Price" * ICInboxSalesLine.Quantity;
+        ICInboxSalesLine."VAT Base Amount" := ICInboxSalesLine."Unit Price" * ICInboxSalesLine.Quantity;
+        ICInboxSalesLine."Amount Including VAT" := AmtInclVAT;
+        ICInboxSalesLine.Insert();
     end;
 
     local procedure UpdateGLAccountDefaultICPartnerGLAccNo(var GLAccount: Record "G/L Account"; ICGLAccountNo: Code[20])
@@ -5314,12 +5458,12 @@ codeunit 134152 "ERM Intercompany II"
 
     local procedure VerifyCurrencyCodeInICOutboxPurchHeader(ICPartnerCode: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10])
     var
-        ICOutboxPurchHeader: Record "IC Outbox Purchase Header";
+        ICOutboxPurchaseHeader: Record "IC Outbox Purchase Header";
     begin
-        ICOutboxPurchHeader.SetRange("IC Partner Code", ICPartnerCode);
-        ICOutboxPurchHeader.SetRange("No.", DocNo);
-        ICOutboxPurchHeader.FindFirst();
-        ICOutboxPurchHeader.TestField("Currency Code", CurrencyCode);
+        ICOutboxPurchaseHeader.SetRange("IC Partner Code", ICPartnerCode);
+        ICOutboxPurchaseHeader.SetRange("No.", DocNo);
+        ICOutboxPurchaseHeader.FindFirst();
+        ICOutboxPurchaseHeader.TestField("Currency Code", CurrencyCode);
     end;
 
     local procedure VerifyShipmentReceiptNosInICOutboxSalesLine(PostedDocNo: Code[20]; ICOutboxTransDocType: Enum "IC Transaction Document Type"; ICOutboxSalesDocType: Enum "IC Outbox Sales Document Type"; ShipmentNo: Code[20]; ShipmentLineNo: Integer; ReturnReceiptNo: Code[20]; ReturnReceiptLineNo: Integer)
@@ -5474,12 +5618,12 @@ codeunit 134152 "ERM Intercompany II"
 
     local procedure ReceiveICSalesInvoice(var SalesHeader: Record "Sales Header"; var ICOutboxTransaction: Record "IC Outbox Transaction"; var ICInboxTransaction: Record "IC Inbox Transaction"; var ICInboxSalesHeader: Record "IC Inbox Sales Header"; PurchInvoiceNo: Code[20]; CustomerNo: Code[20])
     var
-        ICOutboxPurchLine: Record "IC Outbox Purchase Line";
+        ICOutboxPurchaseLine: Record "IC Outbox Purchase Line";
     begin
         ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
-        ICOutboxPurchLine."Document Type" := ICOutboxPurchLine."Document Type"::Invoice;
+        ICOutboxPurchaseLine."Document Type" := ICOutboxPurchaseLine."Document Type"::Invoice;
         InboxICSalesDocument(
-          SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxSalesHeader, ICOutboxPurchLine, PurchInvoiceNo, CustomerNo);
+          SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxSalesHeader, ICOutboxPurchaseLine, PurchInvoiceNo, CustomerNo);
     end;
 
     local procedure ReceiveICPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var ICOutboxTransaction: Record "IC Outbox Transaction"; var ICInboxTransaction: Record "IC Inbox Transaction"; var ICInboxPurchaseHeader: Record "IC Inbox Purchase Header"; VendorNo: Code[20])
@@ -5580,16 +5724,17 @@ codeunit 134152 "ERM Intercompany II"
     var
         ICOutboxTransaction: Record "IC Outbox Transaction";
         ICPartner: Record "IC Partner";
-        FileMgt: Codeunit "File Management";
+        FileManagement: Codeunit "File Management";
+        FileNameLbl: Label '%1\%2_1_1.xml', Locked = true;
     begin
         ICOutboxTransaction.SetFilter("Document No.", DocumentNoFilter);
         ICOutboxTransaction.FindFirst();
         ICPartner.Get(ICOutboxTransaction."IC Partner Code");
         ICOutboxTransaction.ModifyAll("Line Action", ICOutboxTransaction."Line Action"::"Send to IC Partner");
 
-        FileName := StrSubstNo('%1\%2_1_1.xml', ICPartner."Inbox Details", ICPartner.Code);
-        if FileMgt.ServerFileExists(FileName) then
-            FileMgt.DeleteServerFile(FileName);
+        FileName := StrSubstNo(FileNameLbl, ICPartner."Inbox Details", ICPartner.Code);
+        if FileManagement.ServerFileExists(FileName) then
+            FileManagement.DeleteServerFile(FileName);
 
         CODEUNIT.Run(CODEUNIT::"IC Outbox Export", ICOutboxTransaction);
     end;
@@ -5933,33 +6078,27 @@ codeunit 134152 "ERM Intercompany II"
 
     local procedure UpdatePurchaseLineICPartnerInfo(var PurchaseLine: Record "Purchase Line"; ICPartnerCode: Code[20]; ICPartnerRefType: Enum "IC Partner Reference Type"; ICGLAccountNo: Code[20])
     begin
-        with PurchaseLine do begin
-            Validate("IC Partner Code", ICPartnerCode);
-            Validate("IC Partner Ref. Type", ICPartnerRefType);
-            Validate("IC Partner Reference", ICGLAccountNo);
-            Modify(true);
-        end;
+        PurchaseLine.Validate("IC Partner Code", ICPartnerCode);
+        PurchaseLine.Validate("IC Partner Ref. Type", ICPartnerRefType);
+        PurchaseLine.Validate("IC Partner Reference", ICGLAccountNo);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure UpdateSalesLineICPartnerInfo(var SalesLine: Record "Sales Line"; ICPartnerCode: Code[20]; ICPartnerRefType: Enum "IC Partner Reference Type"; ICGLAccountNo: Code[20])
     begin
-        with SalesLine do begin
-            Validate("IC Partner Code", ICPartnerCode);
-            Validate("IC Partner Ref. Type", ICPartnerRefType);
-            Validate("IC Partner Reference", ICGLAccountNo);
-            Modify(true);
-        end;
+        SalesLine.Validate("IC Partner Code", ICPartnerCode);
+        SalesLine.Validate("IC Partner Ref. Type", ICPartnerRefType);
+        SalesLine.Validate("IC Partner Reference", ICGLAccountNo);
+        SalesLine.Modify(true);
     end;
 
     local procedure UpdateCommonItemNo(ItemNo: Code[20]; NewCommonItemNo: Code[20])
     var
         Item: Record Item;
     begin
-        with Item do begin
-            Get(ItemNo);
-            Validate("Common Item No.", NewCommonItemNo);
-            Modify();
-        end;
+        Item.Get(ItemNo);
+        Item.Validate("Common Item No.", NewCommonItemNo);
+        Item.Modify();
     end;
 
     local procedure UpdateICPartnerWithOutboundType(ICPartnerCode: Code[20]; OutboundType: Enum "IC Outb. Sales Item No. Type")
@@ -6000,11 +6139,11 @@ codeunit 134152 "ERM Intercompany II"
 
     local procedure UpdateLCYCodeInGLSetup()
     var
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get();
-        GLSetup."LCY Code" := LibraryUtility.GenerateGUID();
-        GLSetup.Modify();
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."LCY Code" := LibraryUtility.GenerateGUID();
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure UpdateCustomerWithDefaultGlobalDimensionSet(CustomerNo: Code[20])
@@ -6206,30 +6345,24 @@ codeunit 134152 "ERM Intercompany II"
         SalesLine: Record "Sales Line";
         AssemblyHeader: Record "Assembly Header";
     begin
-        with SalesLine do begin
-            SetRange("Document No.", SalesHeaderNo);
-            FindFirst();
-            CalcFields("Reserved Quantity");
-            TestField("Reserved Quantity", Qty);
-        end;
+        SalesLine.SetRange("Document No.", SalesHeaderNo);
+        SalesLine.FindFirst();
+        SalesLine.CalcFields("Reserved Quantity");
+        SalesLine.TestField("Reserved Quantity", Qty);
 
-        with AssemblyHeader do begin
-            SetRange("Item No.", SalesLine."No.");
-            FindFirst();
-            TestField(Quantity, Qty);
-        end;
+        AssemblyHeader.SetRange("Item No.", SalesLine."No.");
+        AssemblyHeader.FindFirst();
+        AssemblyHeader.TestField(Quantity, Qty);
     end;
 
     local procedure VerifyGLEntryWithBalAccTypeICPartner(DocumentNo: Code[20]; ICPartnerCode: Code[20]; AccountNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            FilterGLEntry(GLEntry, "Document Type"::Invoice, DocumentNo, AccountNo);
-            SetRange("Bal. Account Type", "Bal. Account Type"::"IC Partner");
-            SetRange("IC Partner Code", ICPartnerCode);
-            Assert.IsFalse(IsEmpty, NoGLEntryWithICPartnerCodeErr);
-        end;
+        FilterGLEntry(GLEntry, GLEntry."Document Type"::Invoice, DocumentNo, AccountNo);
+        GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"IC Partner");
+        GLEntry.SetRange("IC Partner Code", ICPartnerCode);
+        Assert.IsFalse(GLEntry.IsEmpty, NoGLEntryWithICPartnerCodeErr);
     end;
 
     local procedure VerifySentSalesDocumentDates(SalesHeader: Record "Sales Header"; PurchaseHeader: Record "Purchase Header")
@@ -6351,11 +6484,9 @@ codeunit 134152 "ERM Intercompany II"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Source Subtype", DocumentType);
-            SetRange("Source ID", DocumentNo);
-            Assert.IsFalse(IsEmpty, ReservationEntryNotExistErr);
-        end;
+        ReservationEntry.SetRange("Source Subtype", DocumentType);
+        ReservationEntry.SetRange("Source ID", DocumentNo);
+        Assert.IsFalse(ReservationEntry.IsEmpty(), ReservationEntryNotExistErr);
     end;
 
     local procedure VerifyReservationEntryQty(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; ExpectedQty: Decimal)
@@ -6405,10 +6536,8 @@ codeunit 134152 "ERM Intercompany II"
         FindICOutboxSalesLine(
           ICOutboxSalesLine, ICOutboxTransaction."Transaction No.",
           ICOutboxTransaction."Document No.", ICOutboxSalesLine."Document Type"::Order);
-        with ICOutboxSalesLine do begin
-            Assert.AreEqual("IC Partner Ref. Type"::"Common Item No.", "IC Partner Ref. Type", FieldCaption("IC Partner Ref. Type"));
-            Assert.AreEqual(ExpectedCommonItemNo, "IC Partner Reference", FieldCaption("IC Partner Reference"));
-        end;
+        Assert.AreEqual(ICOutboxSalesLine."IC Partner Ref. Type"::"Common Item No.", ICOutboxSalesLine."IC Partner Ref. Type", ICOutboxSalesLine.FieldCaption("IC Partner Ref. Type"));
+        Assert.AreEqual(ExpectedCommonItemNo, ICOutboxSalesLine."IC Partner Reference", ICOutboxSalesLine.FieldCaption("IC Partner Reference"));
     end;
 
     local procedure VerifyOutboxPurchLineCommonItem(DocumentNo: Code[20]; ExpectedCommonItemNo: Code[20])
@@ -6422,10 +6551,8 @@ codeunit 134152 "ERM Intercompany II"
         FindICOutboxPurchaseLine(
           ICOutboxPurchaseLine, ICOutboxTransaction."Transaction No.",
           ICOutboxTransaction."Document No.", ICOutboxPurchaseLine."Document Type"::Order);
-        with ICOutboxPurchaseLine do begin
-            Assert.AreEqual("IC Partner Ref. Type"::"Common Item No.", "IC Partner Ref. Type", FieldCaption("IC Partner Ref. Type"));
-            Assert.AreEqual(ExpectedCommonItemNo, "IC Partner Reference", FieldCaption("IC Partner Reference"));
-        end;
+        Assert.AreEqual(ICOutboxPurchaseLine."IC Partner Ref. Type"::"Common Item No.", ICOutboxPurchaseLine."IC Partner Ref. Type", ICOutboxPurchaseLine.FieldCaption("IC Partner Ref. Type"));
+        Assert.AreEqual(ExpectedCommonItemNo, ICOutboxPurchaseLine."IC Partner Reference", ICOutboxPurchaseLine.FieldCaption("IC Partner Reference"));
     end;
 
     local procedure VerifyPurchDocItemInfo(PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
@@ -6475,15 +6602,13 @@ codeunit 134152 "ERM Intercompany II"
           ICOutboxTransaction, PurchaseHeader."No.", ICOutboxTransaction."Document Type"::Order,
           ICOutboxTransaction."Source Type"::"Purchase Document");
 
-        with ICOutboxPurchaseLine do begin
-            SetRange("IC Transaction No.", ICOutboxTransaction."Transaction No.");
-            SetRange("IC Partner Code", ICOutboxTransaction."IC Partner Code");
-            SetRange("Transaction Source", ICOutboxTransaction."Transaction Source");
-            FindFirst();
+        ICOutboxPurchaseLine.SetRange("IC Transaction No.", ICOutboxTransaction."Transaction No.");
+        ICOutboxPurchaseLine.SetRange("IC Partner Code", ICOutboxTransaction."IC Partner Code");
+        ICOutboxPurchaseLine.SetRange("Transaction Source", ICOutboxTransaction."Transaction Source");
+        ICOutboxPurchaseLine.FindFirst();
 
-            TestField("IC Partner Ref. Type", PurchaseLine."IC Partner Ref. Type");
-            TestField("IC Partner Reference", PurchaseLine."IC Partner Reference");
-        end;
+        ICOutboxPurchaseLine.TestField("IC Partner Ref. Type", PurchaseLine."IC Partner Ref. Type");
+        ICOutboxPurchaseLine.TestField("IC Partner Reference", PurchaseLine."IC Partner Reference");
     end;
 
     local procedure VerifyItemTrackingOnPurchaseLines(var PurchaseHeader: Record "Purchase Header")
@@ -6511,6 +6636,48 @@ codeunit 134152 "ERM Intercompany II"
         ReservationEntry.SetRange("Source ID", PurchaseLine."Document No.");
         ReservationEntry.SetRange("Source Ref. No.", PurchaseLine."Line No.");
         Assert.RecordIsEmpty(ReservationEntry);
+    end;
+
+    local procedure VerifyDescriptionOnPurchaseLines(PurchaseHeader: Record "Purchase Header"; SalesInvoiceNo: Code[20])
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceNo);
+        if SalesInvoiceLine.IsEmpty() then
+            exit;
+
+        SalesInvoiceLine.SetLoadFields(Description);
+        SalesInvoiceLine.FindSet();
+
+        PurchaseLine.SetLoadFields(Description);
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        if PurchaseLine.FindSet() then
+            repeat
+                PurchaseLine.TestField(Description, SalesInvoiceLine.Description);
+            until (PurchaseLine.Next() = 0) or (SalesInvoiceLine.Next() = 0);
+    end;
+
+    local procedure VerifyDescriptionOnSalesLines(SalesHeader: Record "Sales Header"; PurchaseInvoiceNo: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+        SalesLine: Record "Sales Line";
+    begin
+        PurchaseLine.SetRange("Document No.", PurchaseInvoiceNo);
+        if PurchaseLine.IsEmpty() then
+            exit;
+
+        PurchaseLine.SetLoadFields(Description);
+        PurchaseLine.FindSet();
+
+        SalesLine.SetLoadFields(Description);
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                SalesLine.TestField(Description, PurchaseLine.Description);
+            until (SalesLine.Next() = 0) or (PurchaseLine.Next() = 0);
     end;
 
     [ModalPageHandler]

@@ -79,12 +79,20 @@ report 4405 "EXR Trial Balance Excel"
             column(Dim2Name; Dimension2.Name) { IncludeCaption = true; }
         }
     }
+    requestpage
+    {
+        SaveValues = true;
+        AboutTitle = 'Trial Balance Excel';
+        AboutText = 'This report contains aggregated general ledger data for the trial balance with debit/credit columns for net change and balance. A report is shown for both local currency (LCY) and additional reporting currency (ACY), the latter only showing data if Additional Reporting Currency is in use. The aggregation is for the period specified in the report''s request page''s Datefilter parameter and summarized per the 2 global dimensions per g/l account category.';
+    }
     rendering
     {
         layout(TrialBalanceExcelLayout)
         {
             Type = Excel;
             LayoutFile = './ReportLayouts/Excel/GeneralLedger/TrialBalanceExcel.xlsx';
+            Caption = 'Trial Balance Excel';
+            Summary = 'Built in layout for Trial Balance Excel. This report contains aggregated general ledger data for the trial balance with debit/credit columns for net change and balance. Report uses Query connections.';
         }
     }
     labels
@@ -94,6 +102,7 @@ report 4405 "EXR Trial Balance Excel"
         TrialBalanceACY = 'Trial Balance (Additional Reporting Currency)';
         DataRetrieved = 'Data retrieved:';
     }
+
     trigger OnPreReport()
     begin
         TrialBalanceData.SecurityFiltering(SecurityFilter::Filtered);
