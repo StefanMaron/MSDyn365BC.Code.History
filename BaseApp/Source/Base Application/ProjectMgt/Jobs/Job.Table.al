@@ -1104,6 +1104,8 @@ table 167 Job
     var
         WhseRequest: Record "Warehouse Request";
     begin
+        ConfirmDeletion();
+
         MoveEntries.MoveJobEntries(Rec);
 
         DeleteRelatedJobTasks();
@@ -1208,6 +1210,7 @@ table 167 Job
         SellToCustomerTxt: Label 'Sell-to Customer';
         BillToCustomerTxt: Label 'Bill-to Customer';
         StatusCompletedErr: Label 'You cannot select Job No.: %1 as it is already completed.', Comment = '%1= The Job No.';
+        ConfirmDeleteQst: Label 'The items have been picked. If you delete the Job, then the items will remain in the operation area until you put them away.\Related item tracking information that is defined during the pick will be deleted.\Are you sure that you want to delete the Job?';
 
     protected var
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -2057,6 +2060,7 @@ table 167 Job
 
         JobTask.SetCurrentKey("Job No.");
         JobTask.SetRange("Job No.", "No.");
+        JobTask.SuspendDeletionCheck(true);
         JobTask.DeleteAll(true);
     end;
 
@@ -2589,6 +2593,22 @@ table 167 Job
     local procedure RefreshModifiedRec()
     begin
         Rec.Find('=');
+    end;
+
+    local procedure ConfirmDeletion()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        Confirmed: Boolean;
+    begin
+        JobPlanningLine.SetRange("Job No.", "No.");
+        if JobPlanningLine.FindSet() then
+            repeat
+                if JobPlanningLine."Qty. Posted" < JobPlanningLine."Qty. Picked" then begin
+                    if not Confirm(ConfirmDeleteQst) then
+                        Error('');
+                    Confirmed := true;
+                end;
+            until (JobPlanningLine.Next() = 0) or Confirmed;
     end;
 
 #if not CLEAN20
