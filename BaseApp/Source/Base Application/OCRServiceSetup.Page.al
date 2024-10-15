@@ -111,6 +111,7 @@ page 1270 "OCR Service Setup"
                     }
                     field(ShowEnableWarning; ShowEnableWarning)
                     {
+                        ShowCaption = false;
                         ApplicationArea = Basic, Suite;
                         AssistEdit = false;
                         Editable = false;

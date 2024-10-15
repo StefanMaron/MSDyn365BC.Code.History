@@ -108,6 +108,8 @@ table 6502 "Item Tracking Code"
                     TestSetSpecific(FieldCaption("SN Warehouse Tracking"));
                 end else
                     TestRemoveSpecific(FieldCaption("SN Warehouse Tracking"));
+
+                TestNoWhseEntriesExist(FieldCaption("SN Warehouse Tracking"));
             end;
         }
         field(21; "SN Purchase Inbound Tracking"; Boolean)
@@ -286,6 +288,8 @@ table 6502 "Item Tracking Code"
                     TestSetSpecific(FieldCaption("Lot Warehouse Tracking"));
                 end else
                     TestRemoveSpecific(FieldCaption("Lot Warehouse Tracking"));
+
+                TestNoWhseEntriesExist(FieldCaption("Lot Warehouse Tracking"));
             end;
         }
         field(51; "Lot Purchase Inbound Tracking"; Boolean)
@@ -448,6 +452,8 @@ table 6502 "Item Tracking Code"
                     TestSetSpecific(FieldCaption("CD Warehouse Tracking"));
                 end else
                     TestRemoveSpecific(FieldCaption("CD Warehouse Tracking"));
+
+                TestNoWhseEntriesExist(FieldCaption("CD Warehouse Tracking"));
             end;
         }
     }
@@ -479,6 +485,7 @@ table 6502 "Item Tracking Code"
         ExpDateCalcSetOnItemsErr: Label 'You cannot stop using expiration dates because they are set up for %1 item(s).', Comment = '%1 is the number of items';
         IgnoreButManExpirDateReqdErr: Label 'You cannot stop using expiration dates if you require manual expiration date entry on the item tracking code.';
         IgnoreButStrictExpirationPostingErr: Label 'You cannot stop using expiration dates if you require strict expiration posting on the item tracking code.';
+        WhseEntriesExistErr: Label 'You cannot change %1 because there are one or more warehouse entries for item %2.', Comment = '%1: Changed field name; %2: Item No.';
 
     local procedure EnsureNoExpirationDatesExistInRelatedItemLedgerEntries()
     var
@@ -583,6 +590,20 @@ table 6502 "Item Tracking Code"
     procedure IsWarehouseTracking(): Boolean
     begin
         exit("SN Warehouse Tracking" or "Lot Warehouse Tracking" or "CD Warehouse Tracking");
+    end;
+    
+    local procedure TestNoWhseEntriesExist(CurrentFieldName: Text)
+    var
+        TrackedItem: Record Item;
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        TrackedItem.SetRange("Item Tracking Code", Code);
+        if TrackedItem.FindSet() then
+            repeat
+                WarehouseEntry.SetRange("Item No.", TrackedItem."No.");
+                if not WarehouseEntry.IsEmpty() then
+                    Error(WhseEntriesExistErr, CurrentFieldName, TrackedItem."No.");
+            until TrackedItem.Next() = 0;
     end;
 }
 

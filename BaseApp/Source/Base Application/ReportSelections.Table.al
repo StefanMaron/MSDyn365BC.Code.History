@@ -1,4 +1,4 @@
-table 77 "Report Selections"
+﻿table 77 "Report Selections"
 {
     Caption = 'Report Selections';
 
@@ -732,7 +732,13 @@ table 77 "Report Selections"
     var
         TempBodyReportSelections: Record "Report Selections" temporary;
         EmailAddress: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetEmailAddressIgnoringLayout(ReportUsage, RecordVariant, TempBodyReportSelections, CustNo, EmailAddress, IsHandled);
+        if IsHandled then
+            exit(EmailAddress);
+
         EmailAddress := GetEmailAddress(ReportUsage, RecordVariant, CustNo, TempBodyReportSelections);
         exit(EmailAddress);
     end;
@@ -751,7 +757,7 @@ table 77 "Report Selections"
         EmailAddress: Text[250];
         IsHandled: Boolean;
     begin
-        OnBeforeGetEmailAddress(ReportUsage.AsInteger(), RecordVariant, TempBodyReportSelections, EmailAddress, IsHandled);
+        OnBeforeGetEmailAddress(ReportUsage.AsInteger(), RecordVariant, TempBodyReportSelections, EmailAddress, IsHandled, CustNo);
         if IsHandled then
             exit(EmailAddress);
 
@@ -780,6 +786,7 @@ table 77 "Report Selections"
                 end;
 
         EmailAddress := GetEmailAddressForCust(CustNo, ReportUsage);
+        OnGetEmailAddressOnAfterGetEmailAddressForCust(ReportUsage, RecordVariant, TempBodyReportSelections, EmailAddress);
         if EmailAddress <> '' then
             exit(EmailAddress);
 
@@ -854,6 +861,7 @@ table 77 "Report Selections"
         RecRef.SetRecFilter;
         ParamString := JobQueueEntry."Parameter String";  // Are set in function SendEmailToCust
         GetJobQueueParameters(ParamString, ReportUsage, DocNo, DocName, No);
+        OnSendEmailInBackgroundOnAfterGetJobQueueParameters(RecRef, ParamString);
 
         if ParamString = 'Vendor' then
             SendEmailToVendorDirectly("Report Selection Usage".FromInteger(ReportUsage), RecRef, DocNo, DocName, false, No)
@@ -867,6 +875,11 @@ table 77 "Report Selections"
         WasSuccessful := WasSuccessful and Evaluate(DocNo, GetNextJobQueueParam(ParameterString));
         WasSuccessful := WasSuccessful and Evaluate(DocName, GetNextJobQueueParam(ParameterString));
         WasSuccessful := WasSuccessful and Evaluate(CustNo, GetNextJobQueueParam(ParameterString));
+    end;
+
+    procedure RunGetNextJobQueueParam(var Parameter: Text): Text
+    begin
+        exit(GetNextJobQueueParam(Parameter));
     end;
 
     local procedure GetNextJobQueueParam(var Parameter: Text): Text
@@ -1000,6 +1013,7 @@ table 77 "Report Selections"
         ReportUsageEnum: Enum "Report Selection Usage";
         UpdateDocumentSentHistory: Boolean;
         Handled: Boolean;
+        ParameterString: Text;
     begin
         OnBeforeSendEmailToCust(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, CustNo, Handled);
         if Handled then
@@ -1032,7 +1046,9 @@ table 77 "Report Selections"
         RecRef.GetTable(RecordVariant);
         if RecRef.FindSet() then
             repeat
-                EnqueueMailingJob(RecRef.RecordId, StrSubstNo('%1|%2|%3|%4|', ReportUsage, DocNo, DocName, CustNo), DocName);
+                ParameterString := StrSubstNo('%1|%2|%3|%4|', ReportUsage, DocNo, DocName, CustNo);
+                OnSendEmailToCustOnAfterSetParameterString(RecRef, ParameterString);
+                EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
             until RecRef.Next() = 0;
     end;
 
@@ -1047,6 +1063,7 @@ table 77 "Report Selections"
         VendorEmail: Text[250];
         UpdateDocumentSentHistory: Boolean;
         Handled: Boolean;
+        ParameterString: Text;
     begin
         OnBeforeSendEmailToVendor(ReportUsage, RecordVariant, DocNo, DocName, ShowDialog, VendorNo, Handled);
         if Handled then
@@ -1076,7 +1093,9 @@ table 77 "Report Selections"
         RecRef.GetTable(RecordVariant);
         if RecRef.FindSet() then
             repeat
-                EnqueueMailingJob(RecRef.RecordId, StrSubstNo('%1|%2|%3|%4|%5', ReportUsage, DocNo, DocName, VendorNo, 'Vendor'), DocName);
+                ParameterString := StrSubstNo('%1|%2|%3|%4|%5', ReportUsage, DocNo, DocName, VendorNo, 'Vendor');
+                OnSendEmailToVendorOnAfterSetParameterString(RecRef, ParameterString);
+                EnqueueMailingJob(RecRef.RecordId, ParameterString, DocName);
             until RecRef.Next() = 0;
     end;
 
@@ -1333,7 +1352,10 @@ table 77 "Report Selections"
 
     procedure GetEmailAddressForVend(BuyFromVendorNo: Code[20]; RecVar: Variant; ReportUsage: Enum "Report Selection Usage"): Text[250]
     var
+        Contact: Record Contact;
+        PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;
+        RecRef: RecordRef;
         ToAddress: Text[250];
         IsHandled: Boolean;
     begin
@@ -1342,6 +1364,15 @@ table 77 "Report Selections"
             exit(ToAddress);
 
         ToAddress := GetPurchaseOrderEmailAddress(BuyFromVendorNo, RecVar, ReportUsage);
+
+        if ToAddress = '' then begin
+            RecRef.GetTable(RecVar);
+            if RecRef.Number = DATABASE::"Purchase Header" then begin
+                PurchaseHeader := RecVar;
+                if Contact.Get(PurchaseHeader."Buy-from Contact No.") then
+                    ToAddress := Contact."E-Mail";
+            end;
+        end;
 
         if ToAddress = '' then
             if Vendor.Get(BuyFromVendorNo) then
@@ -1654,6 +1685,38 @@ table 77 "Report Selections"
         exit(true);
     end;
 
+    local procedure GetLastSequenceNo(var TempReportSelectionsSource: Record "Report Selections" temporary; ReportUsage: Enum "Report Selection Usage"): Code[10]
+    var
+        TempReportSelections: Record "Report Selections" temporary;
+    begin
+        TempReportSelections.Copy(TempReportSelectionsSource, true);
+        TempReportSelections.SetRange(Usage, ReportUsage);
+        if TempReportSelections.FindLast then;
+        if TempReportSelections.Sequence = '' then
+            TempReportSelections.Sequence := '1';
+        exit(TempReportSelections.Sequence);
+    end;
+
+    procedure IsSalesDocument(RecordRef: RecordRef): Boolean
+    begin
+        if RecordRef.Number in
+           [DATABASE::"Sales Header", DATABASE::"Sales Shipment Header",
+            DATABASE::"Sales Cr.Memo Header", DATABASE::"Sales Invoice Header"]
+        then
+            exit(true);
+        exit(false);
+    end;
+
+    local procedure HasReportWithUsage(var TempReportSelectionsSource: Record "Report Selections" temporary; ReportUsage: Enum "Report Selection Usage"; ReportID: Integer): Boolean
+    var
+        TempReportSelections: Record "Report Selections" temporary;
+    begin
+        TempReportSelections.Copy(TempReportSelectionsSource, true);
+        TempReportSelections.SetRange(Usage, ReportUsage);
+        TempReportSelections.SetRange("Report ID", ReportID);
+        exit(TempReportSelections.FindFirst());
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetCustomReportSelection(var CustomReportSelection: Record "Custom Report Selection"; AccountNo: Code[20]; TableNo: Integer)
     begin
@@ -1680,7 +1743,12 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetEmailAddress(ReportUsage: Option; RecordVariant: Variant; var TempBodyReportSelections: Record "Report Selections" temporary; var EmailAddress: Text[250]; var IsHandled: Boolean)
+    local procedure OnBeforeGetEmailAddress(ReportUsage: Option; RecordVariant: Variant; var TempBodyReportSelections: Record "Report Selections" temporary; var EmailAddress: Text[250]; var IsHandled: Boolean; CustNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetEmailAddressIgnoringLayout(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; var TempBodyReportSelections: Record "Report Selections" temporary; CustNo: Code[20]; var EmailAddress: Text[250]; var IsHandled: Boolean)
     begin
     end;
 
@@ -1795,6 +1863,11 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnGetEmailAddressOnAfterGetEmailAddressForCust(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; var TempBodyReportSelections: Record "Report Selections" temporary; var EmailAddress: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnGetEmailBodyCustomerTextOnAfterNotFindEmailBodyUsage(ReportUsage: Integer; RecordVariant: Variant; CustNo: Code[20]; var TempBodyReportSelections: Record "Report Selections" temporary; var IsHandled: Boolean)
     begin
     end;
@@ -1805,7 +1878,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPrintDocumentsOnAfterSelectTempReportSelectionsToPrint(RecordVariant: Variant; var TempReportSelections: Record "Report Selections" temporary; var TempNameValueBuffer: Record "Name/Value Buffer" temporary; WithCheck: Boolean; ReportUsage: Integer; TableNo: Integer)
+    local procedure OnPrintDocumentsOnAfterSelectTempReportSelectionsToPrint(RecordVariant: Variant; var TempReportSelections: Record "Report Selections" temporary; var TempNameValueBuffer: Record "Name/Value Buffer" temporary; var WithCheck: Boolean; ReportUsage: Integer; TableNo: Integer)
     begin
     end;
 
@@ -1814,36 +1887,19 @@ table 77 "Report Selections"
     begin
     end;
 
-    local procedure GetLastSequenceNo(var TempReportSelectionsSource: Record "Report Selections" temporary; ReportUsage: Enum "Report Selection Usage"): Code[10]
-    var
-        TempReportSelections: Record "Report Selections" temporary;
+    [IntegrationEvent(false, false)]
+    local procedure OnSendEmailInBackgroundOnAfterGetJobQueueParameters(var RecRef: RecordRef; var ParamString: Text)
     begin
-        TempReportSelections.Copy(TempReportSelectionsSource, true);
-        TempReportSelections.SetRange(Usage, ReportUsage);
-        if TempReportSelections.FindLast then;
-        if TempReportSelections.Sequence = '' then
-            TempReportSelections.Sequence := '1';
-        exit(TempReportSelections.Sequence);
     end;
 
-    local procedure IsSalesDocument(RecordRef: RecordRef): Boolean
+    [IntegrationEvent(false, false)]
+    local procedure OnSendEmailToCustOnAfterSetParameterString(var RecRef: RecordRef; var ParameterString: Text)
     begin
-        if RecordRef.Number in
-           [DATABASE::"Sales Header", DATABASE::"Sales Shipment Header",
-            DATABASE::"Sales Cr.Memo Header", DATABASE::"Sales Invoice Header"]
-        then
-            exit(true);
-        exit(false);
     end;
 
-    local procedure HasReportWithUsage(var TempReportSelectionsSource: Record "Report Selections" temporary; ReportUsage: Enum "Report Selection Usage"; ReportID: Integer): Boolean
-    var
-        TempReportSelections: Record "Report Selections" temporary;
+    [IntegrationEvent(false, false)]
+    local procedure OnSendEmailToVendorOnAfterSetParameterString(var RecRef: RecordRef; var ParameterString: Text)
     begin
-        TempReportSelections.Copy(TempReportSelectionsSource, true);
-        TempReportSelections.SetRange(Usage, ReportUsage);
-        TempReportSelections.SetRange("Report ID", ReportID);
-        exit(TempReportSelections.FindFirst());
     end;
 }
 

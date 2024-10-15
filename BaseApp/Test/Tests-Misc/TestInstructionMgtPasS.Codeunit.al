@@ -47,7 +47,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
         ReportSelections.DeleteAll();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('EmailEditorHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure PostingInstructionNotShownAfterPostingAndSending()
@@ -139,6 +139,7 @@ codeunit 139003 "Test Instruction Mgt. PasS"
     [Scope('OnPrem')]
     procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
     begin
+        EmailEditor.ToField.Value('recipient@recipient.com');
         EmailEditor.Send.Invoke();
     end;
 

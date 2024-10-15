@@ -133,6 +133,8 @@ xmlport 1230 "Export Generic CSV"
                 if ColumnsAsRows then
                     currXMLport.FieldDelimiter := '';
             end;
+
+        OnAfterInitializeGlobals(DataExchEntryNo);
     end;
 
     procedure CheckColumnSequence()
@@ -175,6 +177,11 @@ xmlport 1230 "Export Generic CSV"
             end;
             exit(not IsEmpty);
         end;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitializeGlobals(DataExchEntryNo: Integer)
+    begin
     end;
 }
 

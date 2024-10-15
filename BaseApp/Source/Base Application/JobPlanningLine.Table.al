@@ -1,4 +1,4 @@
-table 1003 "Job Planning Line"
+﻿table 1003 "Job Planning Line"
 {
     Caption = 'Job Planning Line';
     DrillDownPageID = "Job Planning Lines";
@@ -163,8 +163,7 @@ table 1003 "Job Planning Line"
                             Error(MissingItemResourceGLErr, Type, GLAcc.FieldCaption("No."));
                 end;
 
-                "Quantity (Base)" :=
-                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                CalcQuantityBase();
 
                 if "Usage Link" and (xRec."No." = "No.") then begin
                     Delta := Quantity - xRec.Quantity;
@@ -1255,6 +1254,19 @@ table 1003 "Job Planning Line"
         Description := StandardText.Description;
     end;
 
+    local procedure CalcQuantityBase()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Quantity (Base)" :=
+            UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+    end;
+
     local procedure GetLocation(LocationCode: Code[10])
     begin
         if LocationCode = '' then
@@ -1299,7 +1311,7 @@ table 1003 "Job Planning Line"
                 Clear(Item);
     end;
 
-    local procedure GetSKU(): Boolean
+    local procedure GetSKU() Result: Boolean
     begin
         if (SKU."Location Code" = "Location Code") and
            (SKU."Item No." = "No.") and
@@ -1310,7 +1322,8 @@ table 1003 "Job Planning Line"
         if SKU.Get("Location Code", "No.", "Variant Code") then
             exit(true);
 
-        exit(false);
+        Result := false;
+        OnAfterGetSKU(Rec, Result);
     end;
 
     local procedure InitRoundingPrecisions()
@@ -1801,6 +1814,7 @@ table 1003 "Job Planning Line"
         end else
             ClearValues;
 
+        OnUseOnBeforeModify(Rec);
         Modify(true);
     end;
 
@@ -2169,6 +2183,7 @@ table 1003 "Job Planning Line"
             ToJobPlanningLine.Validate("Unit Price", FromJobPlanningLine."Unit Price");
         end;
 
+        OnAfterInitFromJobPlanningLine(ToJobPlanningLine, FromJobPlanningLine);
         Rec := ToJobPlanningLine;
     end;
 
@@ -2229,6 +2244,11 @@ table 1003 "Job Planning Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSKU(JobPlanningLine: Record "Job Planning Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFilterLinesWithItemToPlan(var JobPlanningLine: Record "Job Planning Line"; var Item: Record Item);
     begin
     end;
@@ -2245,6 +2265,11 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitJobPlanningLine(var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromJobPlanningLine(var ToJobPlanningLine: Record "Job Planning Line"; FromJobPlanningLine: Record "Job Planning Line")
     begin
     end;
 
@@ -2276,6 +2301,11 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateModification(var JobPlanningLine: Record "Job Planning Line"; FieldChanged: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQuantityBase(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -2331,6 +2361,11 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnControlUsageLinkOnAfterGetJob(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; CallingFieldNo: Integer; var IsHandling: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUseOnBeforeModify(var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

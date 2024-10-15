@@ -1,4 +1,4 @@
-page 497 "Reservation Entries"
+﻿page 497 "Reservation Entries"
 {
     Caption = 'Reservation Entries';
     DataCaptionExpression = TextCaption;
@@ -212,6 +212,7 @@ page 497 "Reservation Entries"
                             repeat
                                 ReservEntry.TestField("Reservation Status", "Reservation Status"::Reservation);
                                 ReservEntry.TestField("Disallow Cancellation", false);
+                                OnCancelReservationOnBeforeConfirm(ReservEntry);
                                 if Confirm(
                                      Text001, false, ReservEntry."Quantity (Base)",
                                      ReservEntry."Item No.", ReservEngineMgt.CreateForText(Rec),
@@ -391,6 +392,11 @@ page 497 "Reservation Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookupReserved(var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCancelReservationOnBeforeConfirm(var ReservEntry: Record "Reservation Entry")
     begin
     end;
 }

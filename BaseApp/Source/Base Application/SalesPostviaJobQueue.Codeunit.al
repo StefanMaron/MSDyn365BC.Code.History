@@ -20,11 +20,13 @@ codeunit 88 "Sales Post via Job Queue"
 
         SavedLockTimeout := LockTimeout;
         SetJobQueueStatus(SalesHeader, SalesHeader."Job Queue Status"::Posting);
+        OnRunOnBeforeRunSalesPost(SalesHeader);
         if not Codeunit.Run(Codeunit::"Sales-Post", SalesHeader) then begin
             SetJobQueueStatus(SalesHeader, SalesHeader."Job Queue Status"::Error);
             BatchProcessingMgt.ResetBatchID;
             Error(GetLastErrorText);
         end;
+        OnRunOnAfterRunSalesPost(SalesHeader);
         if SalesHeader."Print Posted Documents" then begin
             RecRefToPrint.GetTable(SalesHeader);
             BatchPostingPrintMgt.PrintSalesDocument(RecRefToPrint);
@@ -198,6 +200,16 @@ codeunit 88 "Sales Post via Job Queue"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterRunSalesPost(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeRunSalesPost(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

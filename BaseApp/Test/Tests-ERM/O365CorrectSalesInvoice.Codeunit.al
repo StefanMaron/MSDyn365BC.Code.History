@@ -15,8 +15,10 @@ codeunit 138015 "O365 Correct Sales Invoice"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
         LibraryJob: Codeunit "Library - Job";
+        LibraryInventory: Codeunit "Library - Inventory";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
@@ -29,6 +31,9 @@ codeunit 138015 "O365 Correct Sales Invoice"
         ShippedQtyReturnedCorrectErr: Label 'You cannot correct this posted sales invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
         ShippedQtyReturnedCancelErr: Label 'You cannot cancel this posted sales invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
         AmountSalesInvErr: Label 'Amount must have a value in Sales Invoice Header';
+        CorrectPostedInvoiceFromSingleOrderQst: Label 'The invoice was posted from an order. The invoice will be cancelled, and the order will open so that you can make the correction.\ \Do you want to continue?';
+        CorrectPostedInvoiceFromDeletedOrderQst: Label 'The invoice was posted from an order. The order has been deleted, and the invoice will be cancelled. You can create a new invoice or order by using the Copy Document action.\ \Do you want to continue?';
+        CorrectPostedInvoiceFromMultipleOrderQst: Label 'The invoice was posted from multiple orders. It will now be cancelled, and you can make a correction manually in the original orders.\ \Do you want to continue?';
 
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesInvoicePageHandler')]
@@ -1449,6 +1454,231 @@ codeunit 138015 "O365 Correct Sales Invoice"
         SalesLine.TestField("Unit Price", 10);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerify')]
+    procedure CorrectPartialInvoicePostedFromOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PostedSalesInvoicePage: TestPage "Posted Sales Invoice";
+        SalesOrderPage: TestPage "Sales Order";
+        InvoiceNo: Code[20];
+        ShipmentNo: Code[20];
+    begin
+        // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
+        // [SCENARIO 365667] System opens sales order when Stan corrects invoice posted from that sales order
+        Initialize();
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        CreateSalesLineWithPartialQtyToShip(SalesLine, SalesHeader);
+
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        VerifySalesShipmentLine(SalesLine, SalesLine."Qty. to Ship", SalesLine."Qty. to Ship", 0);
+
+        GetSalesInvoiceHeaderAndCheckCancelled(SalesInvoiceHeader, InvoiceNo, false);
+
+        LibraryVariableStorage.Enqueue(CorrectPostedInvoiceFromSingleOrderQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        PostedSalesInvoicePage.Trap();
+        Page.Run(Page::"Posted Sales Invoice", SalesInvoiceHeader);
+
+        SalesOrderPage.Trap();
+        PostedSalesInvoicePage.CorrectInvoice.Invoke();
+
+        SalesOrderPage.SalesLines."Qty. to Ship".AssertEquals(SalesLine.Quantity);
+        SalesOrderPage.SalesLines."Quantity Shipped".AssertEquals(0);
+
+        GetSalesInvoiceHeaderAndCheckCancelled(SalesInvoiceHeader, InvoiceNo, true);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerify')]
+    procedure CorrectInvoicePostedFromTwoShipmentsOfSingleOrder()
+    var
+        SalesHeaderOrder: Record "Sales Header";
+
+        SalesLineOrder: array[2] of Record "Sales Line";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineInvoice: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PostedSalesInvoicePage: TestPage "Posted Sales Invoice";
+        SalesOrderPage: TestPage "Sales Order";
+        InvoiceNo: Code[20];
+        ShipmentNo: Code[20];
+    begin
+        // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
+        // [SCENARIO 365667] System opens sales order when Stan corrects invoice posted via "get shipment lines" and all shipments relate to that single order
+        Initialize();
+
+        LibrarySales.CreateSalesHeader(SalesHeaderOrder, SalesHeaderOrder."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        CreateSalesLineWithPartialQtyToShip(SalesLineOrder[1], SalesHeaderOrder);
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+        SalesLineOrder[1].Find();
+        SalesLineOrder[1].TestField("Quantity Invoiced", 0);
+
+        LibrarySales.ReopenSalesDocument(SalesHeaderOrder);
+        SalesLineOrder[1].Find();
+        SalesLineOrder[1].Validate("Qty. to Ship", 0);
+        SalesLineOrder[1].Modify();
+
+        CreateSalesLineWithPartialQtyToShip(SalesLineOrder[2], SalesHeaderOrder);
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+        SalesLineOrder[2].Find();
+        SalesLineOrder[2].TestField("Quantity Invoiced", 0);
+
+        VerifySalesShipmentLine(
+            SalesLineOrder[1],
+            SalesLineOrder[1]."Quantity Shipped", SalesLineOrder[1]."Quantity Invoiced", SalesLineOrder[1]."Quantity Shipped");
+        VerifySalesShipmentLine(
+            SalesLineOrder[2],
+             SalesLineOrder[2]."Quantity Shipped", SalesLineOrder[2]."Quantity Invoiced", SalesLineOrder[1]."Quantity Shipped");
+
+        CreateSalesInvoiceFromShipment(SalesHeaderInvoice, SalesLineInvoice, SalesHeaderOrder."Sell-to Customer No.", SalesLineOrder);
+
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true);
+
+        GetSalesInvoiceHeaderAndCheckCancelled(SalesInvoiceHeader, InvoiceNo, false);
+
+        LibraryVariableStorage.Enqueue(CorrectPostedInvoiceFromSingleOrderQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        PostedSalesInvoicePage.Trap();
+        Page.Run(Page::"Posted Sales Invoice", SalesInvoiceHeader);
+
+        SalesOrderPage.Trap();
+        PostedSalesInvoicePage.CorrectInvoice.Invoke();
+
+        VerifySalesOrderLineReverted(SalesOrderPage, SalesLineOrder[1]);
+        SalesOrderPage.SalesLines.Next();
+        VerifySalesOrderLineReverted(SalesOrderPage, SalesLineOrder[2]);
+
+        GetSalesInvoiceHeaderAndCheckCancelled(SalesInvoiceHeader, InvoiceNo, true);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerify')]
+    procedure CorrectInvoicePostedFromTwoShipmentsOfTwoOrders()
+    var
+        SalesHeaderOrder: array[2] of Record "Sales Header";
+        SalesLineOrder: array[2] of Record "Sales Line";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineInvoice: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PostedSalesInvoicePage: TestPage "Posted Sales Invoice";
+        SalesOrderPage: TestPage "Sales Order";
+        InvoiceNo: Code[20];
+        ShipmentNo: Code[20];
+    begin
+        // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
+        // [SCENARIO 365667] System warns that it can't open a particular sales order when Stan corrects invoice posted via "get shipment lines" and shipments relate to different single orders
+        Initialize();
+
+        LibrarySales.CreateSalesHeader(SalesHeaderOrder[1], SalesHeaderOrder[1]."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        CreateSalesLineWithPartialQtyToShip(SalesLineOrder[1], SalesHeaderOrder[1]);
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder[1], true, false);
+        SalesLineOrder[1].Find();
+        SalesLineOrder[1].TestField("Quantity Invoiced", 0);
+
+        LibrarySales.CreateSalesHeader(SalesHeaderOrder[2], SalesHeaderOrder[2]."Document Type"::Order, SalesHeaderOrder[1]."Sell-to Customer No.");
+        CreateSalesLineWithPartialQtyToShip(SalesLineOrder[2], SalesHeaderOrder[2]);
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder[2], true, false);
+        SalesLineOrder[2].Find();
+        SalesLineOrder[2].TestField("Quantity Invoiced", 0);
+
+        VerifySalesShipmentLine(
+            SalesLineOrder[1],
+            SalesLineOrder[1]."Quantity Shipped", SalesLineOrder[1]."Quantity Invoiced", SalesLineOrder[1]."Quantity Shipped");
+        VerifySalesShipmentLine(
+            SalesLineOrder[2],
+             SalesLineOrder[2]."Quantity Shipped", SalesLineOrder[2]."Quantity Invoiced", SalesLineOrder[1]."Quantity Shipped");
+
+        CreateSalesInvoiceFromShipment(SalesHeaderInvoice, SalesLineInvoice, SalesHeaderOrder[1]."Sell-to Customer No.", SalesLineOrder);
+
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true);
+
+        GetSalesInvoiceHeaderAndCheckCancelled(SalesInvoiceHeader, InvoiceNo, false);
+
+        LibraryVariableStorage.Enqueue(CorrectPostedInvoiceFromMultipleOrderQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        PostedSalesInvoicePage.Trap();
+        Page.Run(Page::"Posted Sales Invoice", SalesInvoiceHeader);
+
+        PostedSalesInvoicePage.CorrectInvoice.Invoke();
+
+        SalesOrderPage.Trap();
+        SalesHeaderOrder[1].Find();
+        Page.Run(Page::"Sales Order", SalesHeaderOrder[1]);
+
+        VerifySalesOrderLineReverted(SalesOrderPage, SalesLineOrder[1]);
+
+        SalesOrderPage.Close();
+
+        SalesOrderPage.Trap();
+        SalesHeaderOrder[2].Find();
+        Page.Run(Page::"Sales Order", SalesHeaderOrder[2]);
+
+        VerifySalesOrderLineReverted(SalesOrderPage, SalesLineOrder[2]);
+
+        SalesOrderPage.Close();
+
+        GetSalesInvoiceHeaderAndCheckCancelled(SalesInvoiceHeader, InvoiceNo, true);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerify')]
+    procedure CorrectFullInvoicePostedFromOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+        InvoiceNo: Code[20];
+        ShipmentNo: Code[20];
+    begin
+        // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
+        // [SCENARIO 365667] System warns that sales order deleted when Stan corrects invoice posted from that fully invoices and deleted sales order. Invoice is cancelled only.
+        Initialize();
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(5, 10) * 3);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Modify(true);
+
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        SalesHeader.SetRecFilter();
+        Assert.RecordIsEmpty(SalesHeader);
+
+        VerifySalesShipmentLine(SalesLine, SalesLine.Quantity, SalesLine.Quantity, 0);
+
+        GetSalesInvoiceHeaderAndCheckCancelled(SalesInvoiceHeader, InvoiceNo, false);
+
+        LibraryVariableStorage.Enqueue(CorrectPostedInvoiceFromDeletedOrderQst);
+        LibraryVariableStorage.Enqueue(true);
+
+        PostedSalesInvoice.Trap();
+        Page.Run(Page::"Posted Sales Invoice", SalesInvoiceHeader);
+        PostedSalesInvoice.CorrectInvoice.Invoke();
+
+        SalesHeader.SetRecFilter();
+        Assert.RecordIsEmpty(SalesHeader);
+
+        GetSalesInvoiceHeaderAndCheckCancelled(SalesInvoiceHeader, InvoiceNo, true);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -1570,6 +1800,15 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Item.Modify();
     end;
 
+    local procedure CreateSalesLineWithPartialQtyToShip(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
+    begin
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(2, 10) * 3);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 100));
+        SalesLine.Validate("Qty. to Ship", SalesLine.Quantity / 3);
+        SalesLine.Modify(true);
+    end;
+
     local procedure SellItem(SellToCust: Record Customer; Item: Record Item; Qty: Decimal; var SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         SalesHeader: Record "Sales Header";
@@ -1683,6 +1922,25 @@ codeunit 138015 "O365 Correct Sales Invoice"
         LibrarySmallBusiness.CreateSalesOrderHeader(SalesHeader, Cust);
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, Qty);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure CreateSalesInvoiceFromShipment(var SalesHeaderInvoice: Record "Sales Header"; var SalesLineInvoice: Record "Sales Line"; CustomerNo: code[20]; SalesLineOrder: array[2] of Record "Sales Line")
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, CustomerNo);
+        SalesShipmentLine.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesGetShipment.SetSalesHeader(SalesHeaderInvoice);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine);
+
+        SalesLineInvoice.SetRange("Document Type", SalesHeaderInvoice."Document Type");
+        SalesLineInvoice.SetRange("Document No.", SalesHeaderInvoice."No.");
+        SalesLineInvoice.SetRange(Type, SalesLineInvoice.Type::Item);
+        SalesLineInvoice.SetRange("No.", SalesLineOrder[1]."No.");
+        Assert.RecordCount(SalesLineInvoice, 1);
+        SalesLineInvoice.SetRange("No.", SalesLineOrder[2]."No.");
+        Assert.RecordCount(SalesLineInvoice, 1);
     end;
 
     local procedure CorrectAndCancelWithFailureAndVerificaltion(SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -1810,11 +2068,46 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Assert.IsTrue(SalesHeader.IsEmpty, 'The Credit Memo should not have been created');
     end;
 
+    local procedure GetSalesInvoiceHeaderAndCheckCancelled(var SalesInvoiceHeader: Record "Sales Invoice Header"; InvoiceNo: Code[20]; ExpectedCancelled: Boolean)
+    begin
+        SalesInvoiceHeader.Get(InvoiceNo);
+        SalesInvoiceHeader.CalcFields(Cancelled);
+        SalesInvoiceHeader.TestField(Cancelled, ExpectedCancelled);
+    end;
+
+    local procedure VerifySalesShipmentLine(SalesLineOrder: Record "Sales Line"; ExpectedQuantity: Decimal; ExpectedQtyInvoiced: Decimal; ExpectedQtyNotInvoiced: Decimal)
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        SalesShipmentLine.Reset();
+        SalesShipmentLine.SetRange("Order No.", SalesLineOrder."Document No.");
+        SalesShipmentLine.SetRange("Order Line No.", SalesLineOrder."Line No.");
+        SalesShipmentLine.FindFirst();
+
+        SalesShipmentLine.TestField("Qty. Shipped Not Invoiced", ExpectedQtyNotInvoiced);
+        SalesShipmentLine.TestField("Quantity Invoiced", ExpectedQtyInvoiced);
+        SalesShipmentLine.TestField(Quantity, ExpectedQuantity);
+    end;
+
+    local procedure VerifySalesOrderLineReverted(var SalesOrderPage: TestPage "Sales Order"; SalesLineOrder: Record "Sales Line")
+    begin
+        SalesOrderPage.SalesLines."No.".AssertEquals(SalesLineOrder."No.");
+        SalesOrderPage.SalesLines."Qty. to Ship".AssertEquals(SalesLineOrder.Quantity);
+        SalesOrderPage.SalesLines."Quantity Shipped".AssertEquals(0);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerVerify(Question: Text; var Reply: Boolean)
+    begin
+        Assert.ExpectedConfirm(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [MessageHandler]

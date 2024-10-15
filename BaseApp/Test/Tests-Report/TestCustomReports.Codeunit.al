@@ -2072,6 +2072,198 @@ codeunit 134761 "Test Custom Reports"
         Assert.AreEqual(Format(PurchaseLine."Line Amount"), FormattedLineAmount, 'Invalid value');
     end;
 
+    [Test]
+    [HandlerFunctions('StandardStatementPDFHandler')]
+    [Scope('OnPrem')]
+    procedure StandardStatementPreviewForEmptyCustomerWithBothInclude()
+    var
+        Customer: Record Customer;
+        CustomLayoutReporting: Codeunit "Custom Layout Reporting";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Statement]
+        // [SCENARIO 218263] An error has been thrown "No data was returned for the report using the selected data filters."
+        // [SCENARIO 218263] in case of SaveAs PDF REP 1316 "Standard Statement" filtered by not existing customer "No."
+        Initialize();
+
+        // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement".
+        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+
+        // [WHEN] Run "Statement" (Preview) report filtered by empty Customer, "Include All Customers with a Balance" = true, "Include All Customers with Ledger Entries" = true.
+        Customer.SetRange("No.", LibrarySales.CreateCustomerNo());
+        ErrorMessages.Trap();
+        asserterror RunCustomerStatementSetInclude(Customer, CustomLayoutReporting, TemporaryPath, false, true, WorkDate, true, true);
+
+        // [THEN] An error has been thrown: "No data was returned for the report using the selected data filters.".
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First(), NoOutputErr);
+        AssertNoMoreErrorMessageOnPage(ErrorMessages);
+
+        // Tear Down
+        InitReportSelections();
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardStatementPDFHandler')]
+    [Scope('OnPrem')]
+    procedure StandardStatementPreviewForEmptyCustomerWithIncludeBalance()
+    var
+        Customer: Record Customer;
+        CustomLayoutReporting: Codeunit "Custom Layout Reporting";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Statement]
+        // [SCENARIO 218263] An error has been thrown "No data was returned for the report using the selected data filters."
+        // [SCENARIO 218263] in case of SaveAs PDF REP 1316 "Standard Statement" filtered by not existing customer "No."
+        Initialize();
+
+        // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement".
+        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+
+        // [WHEN] Run "Statement" (Preview) report filtered by empty Customer, "Include All Customers with a Balance" = true, "Include All Customers with Ledger Entries" = false.
+        Customer.SetRange("No.", LibrarySales.CreateCustomerNo());
+        ErrorMessages.Trap();
+        asserterror RunCustomerStatementSetInclude(Customer, CustomLayoutReporting, TemporaryPath, false, true, WorkDate, true, false);
+
+        // [THEN] An error has been thrown: "No data was returned for the report using the selected data filters.".
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First(), NoOutputErr);
+        AssertNoMoreErrorMessageOnPage(ErrorMessages);
+
+        // Tear Down
+        InitReportSelections();
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardStatementPDFHandler')]
+    [Scope('OnPrem')]
+    procedure StandardStatementPreviewForEmptyCustomerWithIncludeLE()
+    var
+        Customer: Record Customer;
+        CustomLayoutReporting: Codeunit "Custom Layout Reporting";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Statement]
+        // [SCENARIO 218263] An error has been thrown "No data was returned for the report using the selected data filters."
+        // [SCENARIO 218263] in case of SaveAs PDF REP 1316 "Standard Statement" filtered by not existing customer "No."
+        Initialize();
+
+        // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement".
+        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+
+        // [WHEN] Run "Statement" (Preview) report filtered by empty Customer, "Include All Customers with a Balance" = false, "Include All Customers with Ledger Entries" = true.
+        Customer.SetRange("No.", LibrarySales.CreateCustomerNo());
+        ErrorMessages.Trap();
+        asserterror RunCustomerStatementSetInclude(Customer, CustomLayoutReporting, TemporaryPath, false, true, WorkDate, false, true);
+
+        // [THEN] An error has been thrown: "No data was returned for the report using the selected data filters.".
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First(), NoOutputErr);
+        AssertNoMoreErrorMessageOnPage(ErrorMessages);
+
+        // Tear Down
+        InitReportSelections();
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardStatementPDFHandler')]
+    [Scope('OnPrem')]
+    procedure StandardStatementPreviewForCustomerWithBothInclude()
+    var
+        Customer: Record Customer;
+        CustomLayoutReporting: Codeunit "Custom Layout Reporting";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Statement]
+        // [SCENARIO 218263] An error has been thrown "No data was returned for the report using the selected data filters."
+        // [SCENARIO 218263] in case of SaveAs PDF REP 1316 "Standard Statement" filtered by customer with ledger entries after filtered date.
+        Initialize();
+
+        // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement".
+        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+
+        // [GIVEN] Customer has ledger entries for 02/02/2020.
+        LibrarySales.CreateCustomer(Customer);
+        InsertCustLedgerEntry(Customer."No.", LibraryRandom.RandDec(100, 2), CalcDate('<CD+6Y>'), CalcDate('<CD+6Y>'));
+
+        // [WHEN] Run "Statement" (Preview) report filtered by Customer and with End Date = 01/01/2019, "Include All Customers with a Balance" = true, "Include All Customers with Ledger Entries" = true.
+        Customer.SetRange("No.", Customer."No.");
+        ErrorMessages.Trap();
+        asserterror RunCustomerStatementSetInclude(Customer, CustomLayoutReporting, TemporaryPath, false, true, WorkDate, true, true);
+
+        // [THEN] An error has been thrown: "No data was returned for the report using the selected data filters.".
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First(), NoOutputErr);
+        AssertNoMoreErrorMessageOnPage(ErrorMessages);
+
+        // Tear Down
+        InitReportSelections();
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardStatementPDFHandler')]
+    [Scope('OnPrem')]
+    procedure StandardStatementPreviewForCustomerWithIncludeBalance()
+    var
+        Customer: Record Customer;
+        CustomLayoutReporting: Codeunit "Custom Layout Reporting";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Statement]
+        // [SCENARIO 218263] An error has been thrown "No data was returned for the report using the selected data filters."
+        // [SCENARIO 218263] in case of SaveAs PDF REP 1316 "Standard Statement" filtered by not existing customer "No."
+        Initialize();
+
+        // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement".
+        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+
+        // [GIVEN] Customer has ledger entries for 02/02/2020.
+        LibrarySales.CreateCustomer(Customer);
+        InsertCustLedgerEntry(Customer."No.", LibraryRandom.RandDec(100, 2), CalcDate('<CD+6Y>'), CalcDate('<CD+6Y>'));
+
+        // [WHEN] Run "Statement" (Preview) report filtered by Customer and with End Date = 01/01/2019, "Include All Customers with a Balance" = true, "Include All Customers with Ledger Entries" = false.
+        Customer.SetRange("No.", Customer."No.");
+        ErrorMessages.Trap();
+        asserterror RunCustomerStatementSetInclude(Customer, CustomLayoutReporting, TemporaryPath, false, true, WorkDate, true, false);
+
+        // [THEN] An error has been thrown: "No data was returned for the report using the selected data filters.".
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First(), NoOutputErr);
+        AssertNoMoreErrorMessageOnPage(ErrorMessages);
+
+        // Tear Down
+        InitReportSelections();
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardStatementPDFHandler')]
+    [Scope('OnPrem')]
+    procedure StandardStatementPreviewForCustomerWithIncludeLE()
+    var
+        Customer: Record Customer;
+        CustomLayoutReporting: Codeunit "Custom Layout Reporting";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [Statement]
+        // [SCENARIO 218263] An error has been thrown "No data was returned for the report using the selected data filters."
+        // [SCENARIO 218263] in case of SaveAs PDF REP 1316 "Standard Statement" filtered by not existing customer "No."
+        Initialize();
+
+        // [GIVEN] Report Selections setup: Usage = "C.Statement", Report ID = "Standard Statement".
+        LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
+
+        // [GIVEN] Customer has ledger entries for 02/02/2020.
+        LibrarySales.CreateCustomer(Customer);
+        InsertCustLedgerEntry(Customer."No.", LibraryRandom.RandDec(100, 2), CalcDate('<CD+6Y>'), CalcDate('<CD+6Y>'));
+
+        // [WHEN] Run "Statement" (Preview) report filtered by Customer and with End Date = 01/01/2019, "Include All Customers with a Balance" = false, "Include All Customers with Ledger Entries" = true.
+        Customer.SetRange("No.", Customer."No.");
+        ErrorMessages.Trap();
+        asserterror RunCustomerStatementSetInclude(Customer, CustomLayoutReporting, TemporaryPath, false, true, WorkDate, false, true);
+
+        // [THEN] An error has been thrown: "No data was returned for the report using the selected data filters.".
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First(), NoOutputErr);
+        AssertNoMoreErrorMessageOnPage(ErrorMessages);
+
+        // Tear Down
+        InitReportSelections();
+    end;
+
     [Scope('OnPrem')]
     procedure Initialize()
     var
@@ -2488,6 +2680,16 @@ codeunit 134761 "Test Custom Reports"
         // page handlers to work as expected.
         Commit();
         LibraryVariableStorage.Enqueue(StartDate);
+        RunCustStatement(CustomLayoutReporting, Customer, UseSameIterator);
+    end;
+
+    local procedure RunCustomerStatementSetInclude(var Customer: Record Customer; var CustomLayoutReporting: Codeunit "Custom Layout Reporting"; SavePath: Text; SuppressOutput: Boolean; UseSameIterator: Boolean; StartDate: Date; IncludeAllCustomerswithBalance: Boolean; IncludeAllCustomerswithLE: Boolean)
+    begin
+        InitializeCustomLayoutReporting(CustomLayoutReporting, SavePath, SuppressOutput);
+        Commit();
+        LibraryVariableStorage.Enqueue(StartDate);
+        LibraryVariableStorage.Enqueue(IncludeAllCustomerswithBalance);
+        LibraryVariableStorage.Enqueue(IncludeAllCustomerswithLE);
         RunCustStatement(CustomLayoutReporting, Customer, UseSameIterator);
     end;
 
@@ -2951,7 +3153,7 @@ codeunit 134761 "Test Custom Reports"
           ExpectedCustomReportLayout.Code, CustomReportSelection."Custom Report Layout Code",
           'Incorrect Value in Customer Report Selections');
     end;
-
+    
     [EventSubscriber(ObjectType::Codeunit, 8800, 'OnIsTestMode', '', false, false)]
     local procedure EnableTestModeOnIsTestMode(var TestMode: Boolean)
     begin

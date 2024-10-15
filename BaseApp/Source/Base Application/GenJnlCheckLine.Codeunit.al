@@ -89,8 +89,7 @@
             if "Bal. Account No." = '' then
                 LogTestField(GenJnlLine, FieldNo("Account No."));
 
-            if NeedCheckZeroAmount and not (IsRecurring and IsBatchMode) then
-                LogTestField(GenJnlLine, FieldNo(Amount));
+            CheckZeroAmount(GenJnlLine);
 
             if ((Amount < 0) xor ("Amount (LCY)" < 0)) and (Amount <> 0) and ("Amount (LCY)" <> 0) then
                 LogFieldError(GenJnlLine, FieldNo("Amount (LCY)"), StrSubstNo(Text003, FieldCaption(Amount)));
@@ -98,7 +97,7 @@
             if ("Account Type" = "Account Type"::"G/L Account") and
                ("Bal. Account Type" = "Bal. Account Type"::"G/L Account")
             then
-                LogTestField(GenJnlLine, FieldNo("Applies-to Doc. No."), '');
+                CheckAppliesToDocNo(GenJnlLine);
 
             if ("Recurring Method" in
                 ["Recurring Method"::"B  Balance", "Recurring Method"::"RB Reversing Balance"]) and
@@ -500,7 +499,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckPurchDocNoIsNotUsed(GenJournalLine."Document Type".AsInteger(), GenJournalLine."Document No.", IsHandled);
+        OnBeforeCheckPurchDocNoIsNotUsed(GenJournalLine."Document Type".AsInteger(), GenJournalLine."Document No.", IsHandled, GenJournalLine);
         if IsHandled then
             exit;
 
@@ -678,10 +677,29 @@
         end;
     end;
 
-    local procedure IsVendorPaymentToCrMemo(GenJournalLine: Record "Gen. Journal Line"): Boolean
+    local procedure CheckZeroAmount(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckZeroAmount(GenJnlLine, IsBatchMode, IsHandled);
+        if IsHandled then
+            exit;
+
+        if GenJnlLine.NeedCheckZeroAmount and not (GenJnlLine.IsRecurring and IsBatchMode) then
+            LogTestField(GenJnlLine, GenJnlLine.FieldNo(Amount));
+    end;
+
+    local procedure IsVendorPaymentToCrMemo(GenJournalLine: Record "Gen. Journal Line") Result: Boolean
     var
         GenJournalTemplate: Record "Gen. Journal Template";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsVendorPaymentToCrMemo(GenJournalLine, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJournalLine do begin
             if ("Account Type" = "Account Type"::Vendor) and
                ("Document Type" = "Document Type"::Payment) and
@@ -850,6 +868,18 @@
             DimMgt.SetCollectErrorsMode();
     end;
 
+    local procedure CheckAppliesToDocNo(GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := true;
+        OnBeforeCheckAppliesToDocNo(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        LogTestField(GenJnlLine, GenJnlLine.FieldNo("Applies-to Doc. No."), '');
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckAccountNo(var GenJournalLine: Record "Gen. Journal Line")
     begin
@@ -911,7 +941,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckPurchDocNoIsNotUsed(DocType: Option; DocNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeCheckPurchDocNoIsNotUsed(DocType: Option; DocNo: Code[20]; var IsHandled: Boolean; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -947,6 +977,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBalAccountType(GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAppliesToDocNo(GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckZeroAmount(GenJnlLine: Record "Gen. Journal Line"; IsBatchMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsVendorPaymentToCrMemo(GenJnlLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

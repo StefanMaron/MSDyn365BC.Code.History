@@ -102,12 +102,16 @@ codeunit 9018 "Azure AD Plan Impl."
         AddNewlyAssignedUserPlans(TempPlan, UserSecurityId, HasUserBeenSetupBefore, AppendPermissionsOnNewPlan);
     end;
 
-    procedure UpdateUserPlans(UserSecurityId: Guid; AppendPermissionsOnNewPlan: Boolean; RemoveUserGroupsOnDeletePlan: Boolean)
+    procedure UpdateUserPlans(UserSecurityId: Guid; AppendPermissionsOnNewPlan: Boolean; RemoveUserGroupsOnDeletePlan: Boolean; RemovePlansOnDeleteUser: Boolean)
     var
+        TempDummyPlan: Record Plan temporary;
         GraphUser: DotNet UserInfo;
     begin
         if AzureADGraphUser.GetGraphUser(UserSecurityID, true, GraphUser) then
-            UpdateUserPlans(UserSecurityId, GraphUser, AppendPermissionsOnNewPlan, RemoveUserGroupsOnDeletePlan);
+            UpdateUserPlans(UserSecurityId, GraphUser, AppendPermissionsOnNewPlan, RemoveUserGroupsOnDeletePlan)
+        else
+            if RemovePlansOnDeleteUser then
+                RemoveUnassignedUserPlans(TempDummyPlan, UserSecurityId, RemoveUserGroupsOnDeletePlan);
     end;
 
     procedure UpdateUserPlans()
@@ -121,7 +125,7 @@ codeunit 9018 "Azure AD Plan Impl."
             exit;
 
         repeat
-            UpdateUserPlans(User."User Security ID", true, true);
+            UpdateUserPlans(User."User Security ID", true, true, false);
         until User.Next() = 0;
     end;
 

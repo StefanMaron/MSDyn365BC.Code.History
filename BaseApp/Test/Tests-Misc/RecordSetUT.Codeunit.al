@@ -1776,6 +1776,8 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record By Description]
         // [SCENARIO 203978] COD 703 "Find Record Management".FindRecordByDescription() returns an empty result for the empty search text or Type differs from the source Type
+        Initialize();
+
         MockItem('TEST_ITEM', 'TEST_ITEM', '');
 
         VerifyFindRecordByDescription(Type::" ", '', 0, '');
@@ -1795,6 +1797,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record By Description]
         // [SCENARIO 203978] COD 703 "Find Record Management".FindRecordByDescription() finds a record with exact/starting with/containing/similar description
+        Initialize();
 
         for Type := Type::" " to Type::"Charge (Item)" do begin
             // "No."       "Description"
@@ -1867,6 +1870,8 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record By Description] [Item]
         // [SCENARIO 203978] COD 703 "Find Record Management".FindRecordByDescription() finds an Item looking into "Base Unit of Measure" field
+        Initialize();
+
         Type := Type::Item;
         NoString := 'AXBX,AXBXCX,BXCX,CX';
         DescriptionString := 'BXCX,BXCXDX,CXDX,DX';
@@ -1900,6 +1905,8 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record By No]
         // [SCENARIO 215821] COD 703 "Find Record Management".FindNoFromTypedValue() returns search string for the negative search result
+        Initialize();
+
         SearchString := LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(GLAccount."No."), 0);
         VerifyFindRecordByNo(Type::" ", SearchString, SearchString);
         VerifyFindRecordByNo(Type::"G/L Account", SearchString, SearchString);
@@ -1917,6 +1924,7 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record By No]
         // [SCENARIO 215821] COD 703 "Find Record Management".FindNoFromTypedValue() finds a record with exact/starting with/containing/similar "No."/"Description" field value
+        Initialize();
 
         for Type := Type::" " to Type::"Charge (Item)" do begin
             // "No." "Description"
@@ -1985,6 +1993,8 @@ codeunit 134235 "Record Set UT"
         // [FEATURE] [Find Record By No]
         // [SCENARIO 215821] COD 703 "Find Record Management".FindNoFromTypedValue() finds only G/L Account with filters ("Direct Posting" = TRUE, Blocked = FALSE, "Account Type" = Posting)
         // [SCENARIO 215821] when called with UseDefaultFilters = TRUE
+        Initialize();
+
         MockGLAccount('_TEST_GL_ACC_NO1_', '', false, GLAccount."Account Type"::Posting, false);
         MockGLAccount('_TEST_GL_ACC_NO2_', '', true, GLAccount."Account Type"::Heading, false);
         MockGLAccount('_TEST_GL_ACC_NO3_', '', true, GLAccount."Account Type"::Posting, true);
@@ -2009,6 +2019,8 @@ codeunit 134235 "Record Set UT"
         // [FEATURE] [Find Record By No]
         // [SCENARIO 215821] COD 703 "Find Record Management".FindNoFromTypedValue() finds any G/L Account without filters
         // [SCENARIO 215821] when called with UseDefaultFilters = FALSE
+        Initialize();
+
         MockGLAccount('_TEST_GL_ACC_NO1_', '', false, GLAccount."Account Type"::Posting, false);
         MockGLAccount('_TEST_GL_ACC_NO2_', '', true, GLAccount."Account Type"::Heading, false);
         MockGLAccount('_TEST_GL_ACC_NO3_', '', true, GLAccount."Account Type"::Posting, true);
@@ -2029,6 +2041,8 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record By No]
         // [SCENARIO 225605] COD 703 "Find Record Management".FindNoFromTypedValue() finds an Item "70011" (instead of "1100") by search value "*11"
+        Initialize();
+
         Type := Type::Item;
         MockItem('TEST_ITEM', '', '');
         MockItem('TEST_ITEM_TEST', '', '');
@@ -2044,6 +2058,8 @@ codeunit 134235 "Record Set UT"
         // [FEATURE] [Find Record By Description]
         // [SCENARIO 225605] COD 703 "Find Record Management".FindRecordByDescription() finds an Item with Description "&&&&"/"||||"/"(())"
         // [SCENARIO 252065]
+        Initialize();
+
         Type := Type::Item;
         MockItem('TEST_ITEM1', 'Black & White', '');
         MockItem('TEST_ITEM2', 'Black|White', '');
@@ -2091,6 +2107,8 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record Management]
         // [SCENARIO 333173] GetIntFieldValues() returns the list of Integer field values
+        Initialize();
+
         // [GIVEN] G/L Entry, where "Entry No." = 1, "Transaction No." = 2, Amount = 10.0, "Reversed Entry No." = 3
         GLEntry."Entry No." := 1;
         GLEntry."Transaction No." := 2;
@@ -2126,6 +2144,8 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record Management]
         // [SCENARIO 333173] GetIntFieldValues() returns the Integer flowfield value
+        Initialize();
+
         // [GIVEN] Customer, where "No. of Ship-to Addresses" = 1
         Customer."No." := 'X';
         ShiptoAddress.DeleteAll();
@@ -2155,6 +2175,8 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record Management]
         // [SCENARIO 333173] GetIntFieldValue() returns the Integer value
+        Initialize();
+
         // [GIVEN] Customer, where "No. of Ship-to Addresses" = 1
         Customer."No." := 'X';
         ShiptoAddress.DeleteAll();
@@ -2182,6 +2204,8 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record Management]
         // [SCENARIO 333173] FindLastEntryIgnoringSecurityFilter() reposition RecRef to last entry and keeps SecurityFiltering
+        Initialize();
+
         // [GIVEN] GLEntry record variable with SecurityFilter::Validated, last "entry No." is 'X'
         Assert.IsTrue(GLEntry.FindLast(), 'empty G/L Entry table');
         ExpectedLastEntryNo := GLEntry."Entry No.";
@@ -2214,6 +2238,8 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record Management]
         // [SCENARIO 333173] FindLastEntryIgnoringSecurityFilter() reposition RecRef to last entry considering current filters
+        Initialize();
+
         // [GIVEN] GLEntry record variable with SecurityFilter::Validated, last "entry No." is 'X'
         Assert.IsTrue(GLEntry.FindLast(), 'empty G/L Entry table');
         ExpectedLastEntryNo := GLEntry."Entry No.";
@@ -2243,6 +2269,8 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record Management]
         // [SCENARIO 333173] GLEntry.GetLastEntryNo() returns the last entry number ignoring filters
+        Initialize();
+
         // [GIVEN] GLEntry, last "Entry No." is 'X'
         Assert.IsTrue(GLEntry.FindLast(), 'empty G/L Entry table');
         GLEntry."Entry No." += 1;
@@ -2270,6 +2298,8 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record Management]
         // [SCENARIO 333173] GLEntry.GetLastEntryNo() returns the last entry number of the temporary table
+        Initialize();
+
         // [GIVEN] GLEntry, where last entry is 'X'
         GLEntry.FindLast();
         ExpectedLastEntryNo := GLEntry."Entry No." - 1;
@@ -2302,6 +2332,8 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [Find Record Management]
         // [SCENARIO 333173] GLEntry.GetLastEntry() returns the last entry and last transaction numbers
+        Initialize();
+
         // [GIVEN] GLEntry, last "Entry No." is 'X'
         Assert.IsTrue(GLEntry.FindLast(), 'empty G/L Entry table');
         ExpectedLastEntryNo := GLEntry."Entry No.";
@@ -2612,6 +2644,8 @@ codeunit 134235 "Record Set UT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO] Length of "Data Exch. Mapping"."Name" must be equal to 250
+        Initialize();
+
         NewName := LibraryUtility.GenerateRandomText(250);
         DataExchMapping.Name := CopyStr(NewName, 1, MaxStrLen(DataExchMapping.Name));
         DataExchMapping.TestField(Name, NewName);

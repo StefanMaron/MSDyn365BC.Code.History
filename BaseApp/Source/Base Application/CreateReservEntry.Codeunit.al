@@ -243,6 +243,8 @@
         InsertReservEntry."Qty. to Handle (Base)" := QtyToHandleBase;
         InsertReservEntry."Qty. to Invoice (Base)" := QtyToInvoiceBase;
         QtyToHandleAndInvoiceIsSet := true;
+
+        OnAfterSetQtyToHandleAndInvoice(InsertReservEntry);
     end;
 
     [Obsolete('Replaced by SetNewTrackingFrom() procedures.', '17.0')]
@@ -323,6 +325,8 @@
           OldReservEntry."Location Code", OldReservEntry.Description,
           OldReservEntry."Expected Receipt Date", OldReservEntry."Shipment Date",
           OldReservEntry."Entry No.", OldReservEntry."Reservation Status");
+
+        OnAfterCreateRemainingReservEntry(OldReservEntry, LastReservEntry);
     end;
 
     procedure TransferReservEntry(NewType: Option; NewSubtype: Integer; NewID: Code[20]; NewBatchName: Code[10]; NewProdOrderLine: Integer; NewRefNo: Integer; QtyPerUOM: Decimal; OldReservEntry: Record "Reservation Entry"; TransferQty: Decimal): Decimal
@@ -338,6 +342,7 @@
         QtyToInvoiceThisLine: Decimal;
         QtyInvoiced: Decimal;
         UseQtyToHandle: Boolean;
+        IsHandled: Boolean;
     begin
         if TransferQty = 0 then
             exit;
@@ -403,29 +408,33 @@
 
         if (TransferQty >= 0) <> OldReservEntry.Positive then begin // If sign has swapped due to negative posting
                                                                     // Create a new but unchanged version of the original reserventry:
-            SetQtyToHandleAndInvoice(QtyToHandleThisLine, QtyToInvoiceThisLine);
-            CreateRemainingReservEntry(OldReservEntry,
-              OldReservEntry.Quantity * CurrSignFactor,
-              OldReservEntry."Quantity (Base)" * CurrSignFactor);
-            NewReservEntry.Validate("Quantity (Base)", TransferQty);
-            // Correct primary key - swap "Positive":
-            NewReservEntry.Positive := not NewReservEntry.Positive;
-
-            if not ReservEntry.Get(NewReservEntry."Entry No.", NewReservEntry.Positive) then begin
-                // Means that only one record exists = surplus or prospect
-                NewReservEntry.Insert();
-                OnTransferReservEntryOnAfterNewReservEntryInsert(NewReservEntry);
-                // Delete the original record:
+            IsHandled := false;
+            OnTransferReservEntryOnBeforeCreateNewReservEntry(NewReservEntry, OldReservEntry, IsHandled, TransferQty);
+            if not IsHandled then begin
+                SetQtyToHandleAndInvoice(QtyToHandleThisLine, QtyToInvoiceThisLine);
+                CreateRemainingReservEntry(OldReservEntry,
+                  OldReservEntry.Quantity * CurrSignFactor,
+                  OldReservEntry."Quantity (Base)" * CurrSignFactor);
+                NewReservEntry.Validate("Quantity (Base)", TransferQty);
+                // Correct primary key - swap "Positive":
                 NewReservEntry.Positive := not NewReservEntry.Positive;
-                NewReservEntry.Delete();
-            end else begin // A set of records exist = reservation or tracking
-                OnTransferReservEntryOnBeforeNewReservEntryModify(NewReservEntry, false);
-                NewReservEntry.Modify();
-                // Get the original record and modify quantity:
-                NewReservEntry.Get(NewReservEntry."Entry No.", not NewReservEntry.Positive); // Get partner-record
-                NewReservEntry.Validate("Quantity (Base)", -TransferQty);
-                OnTransferReservEntryOnBeforeNewReservEntryModify(NewReservEntry, true);
-                NewReservEntry.Modify();
+
+                if not ReservEntry.Get(NewReservEntry."Entry No.", NewReservEntry.Positive) then begin
+                    // Means that only one record exists = surplus or prospect
+                    NewReservEntry.Insert();
+                    OnTransferReservEntryOnAfterNewReservEntryInsert(NewReservEntry);
+                    // Delete the original record:
+                    NewReservEntry.Positive := not NewReservEntry.Positive;
+                    NewReservEntry.Delete();
+                end else begin // A set of records exist = reservation or tracking
+                    OnTransferReservEntryOnBeforeNewReservEntryModify(NewReservEntry, false);
+                    NewReservEntry.Modify();
+                    // Get the original record and modify quantity:
+                    NewReservEntry.Get(NewReservEntry."Entry No.", not NewReservEntry.Positive); // Get partner-record
+                    NewReservEntry.Validate("Quantity (Base)", -TransferQty);
+                    OnTransferReservEntryOnBeforeNewReservEntryModify(NewReservEntry, true);
+                    NewReservEntry.Modify();
+                end;
             end;
         end else
             if Abs(TransferQty) < Abs(OldReservEntry."Quantity (Base)") then begin
@@ -920,6 +929,7 @@
             repeat
                 ReservEntry."Qty. to Handle (Base)" := ReservEntry."Quantity (Base)";
                 ReservEntry."Qty. to Invoice (Base)" := ReservEntry."Quantity (Base)";
+                OnUpdateItemTrackingAfterPostingOnBeforeReservEntryModify(ReservEntry);
                 ReservEntry.Modify();
                 if ReservEntry.Next = 0 then
                     ReachedEndOfResvEntries := true;
@@ -1096,6 +1106,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferReservEntryOnNewItemTracking(var NewReservEntry: Record "Reservation Entry"; var InsertReservEntry: Record "Reservation Entry"; TransferQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateRemainingReservEntry(OldReservEntry: Record "Reservation Entry"; LastReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReservEntryOnBeforeCreateNewReservEntry(var NewReservEntry: Record "Reservation Entry"; OldReservEntry: Record "Reservation Entry"; var IsHandled: Boolean; TransferQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemTrackingAfterPostingOnBeforeReservEntryModify(var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetQtyToHandleAndInvoice(var InsertReservEntry: Record "Reservation Entry")
     begin
     end;
 }

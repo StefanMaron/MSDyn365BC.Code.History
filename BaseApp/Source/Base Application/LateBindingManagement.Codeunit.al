@@ -628,6 +628,7 @@
         if QtyToReserveBase > UnreservedQty then
             QtyToReserveBase := UnreservedQty;
 
+        OnReserveItemTrackingLineOnBeforeAutoReserveOneLine(ReservEntry);
         ReservMgt.AutoReserveOneLine(1, QtyToReserve, QtyToReserveBase, '', AvailabilityDate);
     end;
 
@@ -693,6 +694,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempSupplyReservEntryInsert(var ReservationEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReserveItemTrackingLineOnBeforeAutoReserveOneLine(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 }

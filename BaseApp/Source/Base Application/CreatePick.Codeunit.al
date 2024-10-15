@@ -452,7 +452,7 @@
             end;
 
             IsHandled := false;
-            OnFindBWPickBinOnBeforeFindFromBinContent(FromBinContent, SourceType, TotalQtyPickedBase, IsHandled);
+            OnFindBWPickBinOnBeforeFindFromBinContent(FromBinContent, SourceType, TotalQtyPickedBase, IsHandled, TotalQtyToPickBase);
             if not IsHandled then
                 if FindSet() then
                     repeat
@@ -646,6 +646,12 @@
                         AvailableQtyBase := TotalQtytoPickBase;
 
                     OnCalcAvailQtyOnFindPickBin(
+                        ItemNo, VariantCode,
+                        WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required", WhseItemTrkgExists,
+                        TempWhseItemTrackingLine."Lot No.", TempWhseItemTrackingLine."Serial No.",
+                        FromBinContent."Location Code", FromBinContent."Bin Code",
+                        SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, TotalQtytoPickBase, AvailableQtyBase);
+                    OnCalcAvailQtyOnFindPickBin2(
                         ItemNo, VariantCode,
                         WhseItemTrackingSetup."Serial No. Required", WhseItemTrackingSetup."Lot No. Required", WhseItemTrkgExists,
                         TempWhseItemTrackingLine."Lot No.", TempWhseItemTrackingLine."Serial No.",
@@ -1119,7 +1125,10 @@
             exit;
         end;
 
-        OnBeforeCreateWhseDocument(TempWhseActivLine, WhseSource);
+        IsHandled := false;
+        OnBeforeCreateWhseDocument(TempWhseActivLine, WhseSource, IsHandled);
+        if IsHandled then
+            exit;
 
         WhseActivHeader.LockTable();
         if WhseActivHeader.FindLast then;
@@ -1195,7 +1204,7 @@
                 OldLocationCode := TempWhseActivLine."Location Code";
                 OnCreateWhseDocumentOnAfterSaveOldValues(TempWhseActivLine);
             until TempWhseActivLine.Next() = 0;
-            OnCreateWhseDocumentOnBeforeClearFilters(TempWhseActivLine);
+            OnCreateWhseDocumentOnBeforeClearFilters(TempWhseActivLine, WhseActivHeader);
             TempWhseActivLine.SetRange("Bin Code");
             TempWhseActivLine.SetRange("Zone Code");
             TempWhseActivLine.SetRange("Location Code");
@@ -2445,13 +2454,12 @@
         exit(Filter);
     end;
 
-    procedure CheckOutBound(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer): Decimal
+    procedure CheckOutBound(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer) OutBoundQty: Decimal
     var
         WhseShipLine: Record "Warehouse Shipment Line";
         WhseActLine: Record "Warehouse Activity Line";
         ProdOrderComp: Record "Prod. Order Component";
         AsmLine: Record "Assembly Line";
-        OutBoundQty: Decimal;
     begin
         case SourceType of
             DATABASE::"Sales Line", DATABASE::"Purchase Line", DATABASE::"Transfer Line":
@@ -2502,7 +2510,7 @@
                         OutBoundQty := 0;
                 end;
         end;
-        exit(OutBoundQty);
+        OnAfterCheckOutBound(SourceType, SourceSubType, SourceNo, SourceLineNo, OutBoundQty);
     end;
 
     procedure SetCrossDock(CrossDock2: Boolean)
@@ -2674,7 +2682,7 @@
                     TransferFromMovWkshLine(WhseWkshLine);
             end;
 
-            OnCreateTempActivityLineOnAfterTransferFrom(TempWhseActivLine);
+            OnCreateTempActivityLineOnAfterTransferFrom(TempWhseActivLine, WhseSource);
 
             if (WhseSource = WhseSource::Shipment) and WhseShptLine."Assemble to Order" then
                 WhseSource2 := WhseSource::Assembly
@@ -2738,6 +2746,8 @@
                               AssemblyLine."Pick Qty. (Base)");
                         end;
                 end;
+
+            OnCreateTempActivityLineOnAfterCalcQtyToPick(TempWhseActivLine, QtyToPick, QtyToPickBase, WhseSource, WhseSource2);
 
             if (LocationCode <> '') and (BinCode <> '') then begin
                 GetBin(LocationCode, BinCode);
@@ -3031,9 +3041,9 @@
     local procedure AddToFilterText(var TextVar: Text[250]; Separator: Code[1]; Comparator: Code[2]; Addendum: Code[20])
     begin
         if TextVar = '' then
-            TextVar := Comparator + Addendum
+            TextVar := Comparator + '''' + Addendum + ''''
         else
-            TextVar += Separator + Comparator + Addendum;
+            TextVar += Separator + Comparator + '''' + Addendum + '''';
     end;
 
     procedure CreateAssemblyPickLine(AsmLine: Record "Assembly Line")
@@ -3352,6 +3362,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckOutBound(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var OutBoundQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterWhseActivLineInsert(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -3443,7 +3458,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateWhseDocument(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; WhseSource: Option "Pick Worksheet",Shipment,"Movement Worksheet","Internal Pick",Production,Assembly)
+    local procedure OnBeforeCreateWhseDocument(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; WhseSource: Option "Pick Worksheet",Shipment,"Movement Worksheet","Internal Pick",Production,Assembly; var IsHandled: Boolean)
     begin
     end;
 
@@ -3523,7 +3538,13 @@
     end;
 
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by event OnCalcAvailQtyOnFindPickBin2', '18.0')]
     local procedure OnCalcAvailQtyOnFindPickBin(ItemNo: Code[20]; VariantCode: Code[10]; SNRequired: Boolean; LNRequired: Boolean; WhseItemTrkgExists: Boolean; SerialNo: Code[50]; LotNo: Code[50]; LocationCode: Code[10]; BinCode: Code[20]; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; TotalQtyToPickBase: Decimal; var QtyAvailableBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAvailQtyOnFindPickBin2(ItemNo: Code[20]; VariantCode: Code[10]; SNRequired: Boolean; LNRequired: Boolean; WhseItemTrkgExists: Boolean; LotNo: Code[50]; SerialNo: Code[50]; LocationCode: Code[10]; BinCode: Code[20]; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; TotalQtyToPickBase: Decimal; var QtyAvailableBase: Decimal)
     begin
     end;
 
@@ -3543,7 +3564,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateTempActivityLineOnAfterTransferFrom(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary)
+    local procedure OnCreateTempActivityLineOnAfterTransferFrom(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WhseSource: Option)
     begin
     end;
 
@@ -3559,6 +3580,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateTempLineOnBeforeCheckReservation(SourceType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var QtyBaseMaxAvailToPick: Decimal; var isHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempActivityLineOnAfterCalcQtyToPick(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; QtyToPick: Decimal; QtyToPickBase: Decimal; WhseSource: Option "Pick Worksheet",Shipment,"Movement Worksheet","Internal Pick",Production,Assembly; WhseSource2: Option)
     begin
     end;
 
@@ -3587,7 +3613,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateWhseDocumentOnBeforeClearFilters(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary)
+    local procedure OnCreateWhseDocumentOnBeforeClearFilters(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var WhseActivHeader: Record "Warehouse Activity Header")
     begin
     end;
 
@@ -3617,7 +3643,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindBWPickBinOnBeforeFindFromBinContent(var FromBinContent: Record "Bin Content"; SourceType: Integer; var TotalQtyToPickBase: Decimal; var IsHandled: Boolean)
+    local procedure OnFindBWPickBinOnBeforeFindFromBinContent(var FromBinContent: Record "Bin Content"; SourceType: Integer; var TotalQtyToPickBase: Decimal; var IsHandled: Boolean; var TotalQtyToPickBase2: Decimal)
     begin
     end;
 

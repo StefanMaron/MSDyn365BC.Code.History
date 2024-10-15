@@ -43,13 +43,17 @@
     procedure Apply(CustLedgEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date): Boolean
     var
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
+        IsHandled: Boolean;
     begin
         OnBeforeApply(CustLedgEntry, DocumentNo, ApplicationDate);
         GLSetup.Get();
         with CustLedgEntry do begin
-            if not PreviewMode then
-                if not PaymentToleranceMgt.PmtTolCust(CustLedgEntry) then
-                    exit(false);
+            IsHandled := false;
+            OnApplyOnBeforePmtTolCust(CustLedgEntry, PaymentToleranceMgt, PreviewMode, IsHandled);
+            if not IsHandled then
+                if not PreviewMode then
+                    if not PaymentToleranceMgt.PmtTolCust(CustLedgEntry) then
+                        exit(false);
             Get("Entry No.");
 
             if ApplicationDate = 0D then
@@ -320,7 +324,7 @@
             CollectAffectedLedgerEntries(TempCustLedgerEntry, DtldCustLedgEntry2);
             GenJnlPostLine.UnapplyCustLedgEntry(GenJnlLine, DtldCustLedgEntry2);
             AdjustExchangeRates.AdjustExchRateCust(GenJnlLine, TempCustLedgerEntry);
-            OnAfterPostUnapplyCustLedgEntry(GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine);
+            OnAfterPostUnapplyCustLedgEntry(GenJnlLine, CustLedgEntry, DtldCustLedgEntry2, GenJnlPostLine, CommitChanges);
 
             if GLSetup."Enable Russian Accounting" then begin
                 AmtDiffManagement.SetInitialVATTransactionNo("Transaction No.");
@@ -551,7 +555,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostUnapplyCustLedgEntry(GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnAfterPostUnapplyCustLedgEntry(GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; CommitChanges: Boolean)
     begin
     end;
 
@@ -627,6 +631,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostUnApplyCustomerCommitOnAfterGetCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyOnBeforePmtTolCust(CustLedgEntry: Record "Cust. Ledger Entry"; var PaymentToleranceMgt: Codeunit "Payment Tolerance Management"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

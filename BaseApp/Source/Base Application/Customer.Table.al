@@ -1,4 +1,4 @@
-table 18 Customer
+﻿table 18 Customer
 {
     Caption = 'Customer';
     DataCaptionFields = "No.", Name;
@@ -13,6 +13,8 @@ table 18 Customer
                   TableData "Service Contract Header" = rm,
                   TableData "Price List Header" = rd,
                   TableData "Price List Line" = rd,
+                  TableData "Sales Price Access" = rd,
+                  TableData "Sales Discount Access" = rd,
                   TableData "Sales Price" = rd,
                   TableData "Sales Line Discount" = rd;
 
@@ -870,12 +872,8 @@ table 18 Customer
             ExtendedDatatype = EMail;
 
             trigger OnValidate()
-            var
-                MailManagement: Codeunit "Mail Management";
             begin
-                if "E-Mail" = '' then
-                    exit;
-                MailManagement.CheckValidEmailAddresses("E-Mail");
+                ValidateEmail();
             end;
         }
         field(103; "Home Page"; Text[80])
@@ -1867,6 +1865,9 @@ table 18 Customer
         key(Key17; SystemModifiedAt)
         {
         }
+        key(Key20; "Partner Type", "Country/Region Code")
+        {
+        }
     }
 
     fieldgroups
@@ -2043,6 +2044,7 @@ table 18 Customer
     begin
         ApprovalsMgmt.OnRenameRecordInApprovalRequest(xRec.RecordId, RecordId);
         DimMgt.RenameDefaultDim(DATABASE::Customer, xRec."No.", "No.");
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::Customer, xRec."No.", "No.");
 
         SetLastModifiedDateTime;
         if xRec."Invoice Disc. Code" = xRec."No." then
@@ -3094,7 +3096,13 @@ table 18 Customer
     local procedure SetDefaultSalesperson()
     var
         UserSetup: Record "User Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetDefaultSalesperson(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not UserSetup.Get(UserId) then
             exit;
 
@@ -3117,6 +3125,7 @@ table 18 Customer
         ResultRecordRef: RecordRef;
         ApplicableCountryCode: Code[10];
         IsHandled: Boolean;
+        LogNotVerified: Boolean;
     begin
         IsHandled := false;
         OnBeforeVATRegistrationValidation(Rec, IsHandled);
@@ -3125,17 +3134,37 @@ table 18 Customer
 
         if not VATRegistrationNoFormat.Test("VAT Registration No.", "Country/Region Code", "No.", DATABASE::Customer) then
             exit;
-        VATRegistrationLogMgt.LogCustomer(Rec);
-        if ("Country/Region Code" = '') and (VATRegistrationNoFormat."Country/Region Code" = '') then
-            exit;
-        ApplicableCountryCode := "Country/Region Code";
-        if ApplicableCountryCode = '' then
-            ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
-        if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
-            VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
-                ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Customer.AsInteger(), ApplicableCountryCode);
-            ResultRecordRef.SetTable(Rec);
+
+        LogNotVerified := true;
+        if ("Country/Region Code" <> '') or (VATRegistrationNoFormat."Country/Region Code" <> '') then begin
+            ApplicableCountryCode := "Country/Region Code";
+            if ApplicableCountryCode = '' then
+                ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
+            if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
+                LogNotVerified := false;
+                VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
+                    ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Customer.AsInteger(), ApplicableCountryCode);
+                ResultRecordRef.SetTable(Rec);
+            end;
         end;
+
+        if LogNotVerified then
+            VATRegistrationLogMgt.LogCustomer(Rec);
+    end;
+
+    local procedure ValidateEmail()
+    var
+        MailManagement: Codeunit "Mail Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateEmail(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "E-Mail" = '' then
+            exit;
+        MailManagement.CheckValidEmailAddresses("E-Mail");
     end;
 
     procedure SetAddress(CustomerAddress: Text[100]; CustomerAddress2: Text[50]; CustomerPostCode: Code[20]; CustomerCity: Text[30]; CustomerCounty: Text[30]; CustomerCountryCode: Code[10]; CustomerContact: Text[100])
@@ -3476,6 +3505,11 @@ table 18 Customer
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultSalesperson(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateCity(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
     begin
     end;
@@ -3522,6 +3556,11 @@ table 18 Customer
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateContact(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateEmail(Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 

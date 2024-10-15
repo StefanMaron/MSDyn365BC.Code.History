@@ -17,8 +17,7 @@ codeunit 1387 "Employee Templ. Mgt."
         Employee.Init();
         Employee.Insert(true);
 
-        ApplyTemplate(Employee, EmployeeTempl);
-        InsertDimensions(Employee."No.", EmployeeTempl.Code);
+        ApplyEmployeeTemplate(Employee, EmployeeTempl);
 
         exit(true);
     end;
@@ -37,9 +36,14 @@ codeunit 1387 "Employee Templ. Mgt."
         Employee.Modify(true);
     end;
 
+    procedure SelectEmployeeTemplateFromContact(var EmployeeTempl: Record "Employee Templ."): Boolean
+    begin
+        exit(SelectEmployeeTemplate(EmployeeTempl));
+    end;
+
     local procedure SelectEmployeeTemplate(var EmployeeTempl: Record "Employee Templ."): Boolean
     var
-        EmployeeTemplList: Page "Employee Templ. List";
+        SelectEmployeeTemplList: Page "Select Employee Templ. List";
     begin
         if EmployeeTempl.Count = 1 then begin
             EmployeeTempl.FindFirst();
@@ -47,9 +51,10 @@ codeunit 1387 "Employee Templ. Mgt."
         end;
 
         if (EmployeeTempl.Count > 1) and GuiAllowed then begin
-            EmployeeTemplList.LookupMode(true);
-            if EmployeeTemplList.RunModal() = Action::LookupOK then begin
-                EmployeeTemplList.GetRecord(EmployeeTempl);
+            SelectEmployeeTemplList.SetTableView(EmployeeTempl);
+            SelectEmployeeTemplList.LookupMode(true);
+            if SelectEmployeeTemplList.RunModal() = Action::LookupOK then begin
+                SelectEmployeeTemplList.GetRecord(EmployeeTempl);
                 exit(true);
             end;
         end;
@@ -72,7 +77,8 @@ codeunit 1387 "Employee Templ. Mgt."
                 DestDefaultDimension.Validate("Dimension Code", SourceDefaultDimension."Dimension Code");
                 DestDefaultDimension.Validate("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
-                DestDefaultDimension.Insert(true);
+                if not DestDefaultDimension.Get(DestDefaultDimension."Table ID", DestDefaultDimension."No.", DestDefaultDimension."Dimension Code") then
+                    DestDefaultDimension.Insert(true);
             until SourceDefaultDimension.Next() = 0;
     end;
 
@@ -86,6 +92,13 @@ codeunit 1387 "Employee Templ. Mgt."
         exit(not EmployeeTempl.IsEmpty);
     end;
 
+    procedure ApplyEmployeeTemplate(var Employee: Record Employee; EmployeeTempl: Record "Employee Templ.")
+    begin
+        ApplyTemplate(Employee, EmployeeTempl);
+        InsertDimensions(Employee."No.", EmployeeTempl.Code);
+    end;
+
+    [Obsolete('Replaced by ApplyEmployeeTemplate with different set of parameters', '18.0')]
     procedure ApplyContactEmployeeTemplate(var Employee: Record Employee)
     var
         EmployeeTempl: Record "Employee Templ.";
@@ -96,11 +109,10 @@ codeunit 1387 "Employee Templ. Mgt."
         if not SelectEmployeeTemplate(EmployeeTempl) then
             exit;
 
-        ApplyTemplate(Employee, EmployeeTempl);
-        InsertDimensions(Employee."No.", EmployeeTempl.Code);
+        ApplyEmployeeTemplate(Employee, EmployeeTempl);
     end;
 
-    local procedure IsEnabled() Result: Boolean
+    procedure IsEnabled() Result: Boolean
     var
         TemplateFeatureMgt: Codeunit "Template Feature Mgt.";
     begin

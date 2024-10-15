@@ -575,8 +575,15 @@
           ("Pick Quantity (Base)" + TotalATOComponentsPickQtyBase - ExcludeQtyBase + TotalNegativeAdjmtQtyBase));
     end;
 
-    procedure CalcQtyAvailToPick(ExcludeQtyBase: Decimal): Decimal
+    procedure CalcQtyAvailToPick(ExcludeQtyBase: Decimal) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcQtyAvailToPick(Rec, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if (not Dedicated) and (not ("Block Movement" in ["Block Movement"::Outbound, "Block Movement"::All])) then
             exit(CalcQtyAvailToTake(ExcludeQtyBase) - CalcQtyWithBlockedItemTracking);
     end;
@@ -748,7 +755,13 @@
         TotalWeight: Decimal;
         Cubage: Decimal;
         Weight: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBinMaxCubageAndWeight(BinContent, Bin, IsHandled);
+        if IsHandled then
+            exit;
+
         GetBin("Location Code", "Bin Code");
         if (Bin."Maximum Cubage" <> 0) or (Bin."Maximum Weight" <> 0) then begin
             BinContent.SetRange("Location Code", "Location Code");
@@ -1457,6 +1470,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnBeforeValidateVariantCode(var BinContent: Record "Bin Content"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBinMaxCubageAndWeight(var BinContent: Record "Bin Content"; var Bin: Record Bin; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyAvailToPick(BinContent: Record "Bin Content"; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

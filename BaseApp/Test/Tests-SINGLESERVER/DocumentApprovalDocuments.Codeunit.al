@@ -26,7 +26,7 @@ codeunit 134203 "Document Approval - Documents"
         IsInitialized: Boolean;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseBlanketOrderCommentFactbox()
@@ -58,7 +58,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoCommentFactbox()
@@ -90,7 +90,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceCommentFactbox()
@@ -122,7 +122,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseOrderCommentFactbox()
@@ -154,7 +154,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseQuoteCommentFactbox()
@@ -186,7 +186,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseReturnOrderCommentFactbox()
@@ -218,7 +218,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesBlanketOrderCommentFactbox()
@@ -250,7 +250,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesCreditMemoCommentFactbox()
@@ -282,7 +282,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesInvoiceCommentFactbox()
@@ -314,7 +314,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesOrderCommentFactbox()
@@ -346,7 +346,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesQuoteCommentFactbox()
@@ -378,7 +378,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesReturnOrderCommentFactbox()
@@ -410,7 +410,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseOrderWithPrepaymentApproval()
@@ -444,7 +444,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers,MessageHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesOrderWithPrepaymentApproval()
@@ -608,7 +608,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseOrderApprovalFactbox()
@@ -634,7 +633,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseQuoteApprovalFactbox()
@@ -660,7 +658,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure BlanketPurchaseOrderApprovalFactbox()
@@ -686,7 +683,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseInvioceApprovalFactbox()
@@ -712,7 +708,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoApprovalFactbox()
@@ -738,7 +733,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseReturnOrderApprovalFactbox()
@@ -764,7 +758,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesOrderApprovalFactbox()
@@ -790,7 +783,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesQuoteApprovalFactbox()
@@ -816,7 +808,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure BlanketSalesOrderApprovalFactbox()
@@ -842,7 +833,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesInvioiceApprovalFactbox()
@@ -868,7 +858,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesCreditMemoApprovalFactbox()
@@ -894,7 +883,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesReturnOrderApprovalFactbox()
@@ -945,7 +933,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYesNoForUsers')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure ApprovalFactboxSenderAsApprover()
@@ -973,6 +960,69 @@ codeunit 134203 "Document Approval - Documents"
         ApprovalFactBox.GetRecord(ApprovalEntry);
         asserterror ApprovalEntry.Find;
         Assert.AssertRecordNotFound;
+    end;
+
+    [Test]
+    procedure CreateUserUT()
+    var
+        User: Record User;
+        AccessControl: Record "Access Control";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 375285] Run CreateUser() of codeunit Library - Document Approvals.
+
+        // [WHEN] Run CreateUser() function of codeunit Library - Document Approvals.
+        LibraryDocumentApprovals.CreateUser(LibraryUtility.GenerateGUID(), UserId());
+
+        // [THEN] A windows user is created. The user has SUPER permission set assigned.
+        User.SetRange("User Name", UserId());
+        User.FindFirst();
+        User.TestField("User Security ID");
+        User.TestField("Windows Security ID", SID(UserId()));
+
+        AccessControl.SetRange("User Security ID", User."User Security ID");
+        AccessControl.FindFirst();
+        AccessControl.TestField("Role ID", 'SUPER');
+        AccessControl.TestField("Company Name", '');
+        AccessControl.TestField(Scope, AccessControl.Scope::System);
+
+        // Tear down
+        User.Delete();
+    end;
+
+    [Test]
+    procedure CreateNonWindowsUserUT()
+    var
+        User: Record User;
+        AccessControl: Record "Access Control";
+        UserName: Code[50];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 375285] Run CreateNonWindowsUser() of codeunit Library - Document Approvals.
+
+        // [GIVEN] A SUPER user with Windows authentification type is created to avoid an error: "You must assign at least one user the SUPER permission set".
+        LibraryDocumentApprovals.CreateUser(LibraryUtility.GenerateGUID(), UserId());
+
+        // [WHEN] Run CreateNonWindowsUser() function of codeunit Library - Document Approvals.
+        UserName := LibraryUtility.GenerateGUID();
+        LibraryDocumentApprovals.CreateNonWindowsUser(UserName);
+
+        // [THEN] A non-windows user is created. The user has SUPER permission set assigned.
+        User.SetRange("User Name", UserName);
+        User.FindFirst();
+        User.TestField("User Security ID");
+        User.TestField("Windows Security ID", '');
+
+        AccessControl.SetRange("User Security ID", User."User Security ID");
+        AccessControl.FindFirst();
+        AccessControl.TestField("Role ID", 'SUPER');
+        AccessControl.TestField("Company Name", '');
+        AccessControl.TestField(Scope, AccessControl.Scope::System);
+
+        // Tear down
+        User.Delete();
+        User.SetRange("User Name", UserId());
+        User.DeleteAll();
     end;
 
     local procedure CreatePurchDocument(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
@@ -1287,11 +1337,9 @@ codeunit 134203 "Document Approval - Documents"
 
     [ConfirmHandler]
     [Scope('OnPrem')]
-    procedure ConfirmHandlerYesNoForUsers(Question: Text[1024]; var Reply: Boolean)
-    var
-        User: Record User;
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := not User.IsEmpty;
+        Reply := true;
     end;
 
     [MessageHandler]

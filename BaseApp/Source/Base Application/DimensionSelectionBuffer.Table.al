@@ -150,6 +150,8 @@ table 368 "Dimension Selection Buffer"
             DimSelectionChange.GetDimSelBuf(TempDimSelectionBuf);
             SetDimSelection(ObjectType, ObjectID, '', SelectedDimText, TempDimSelectionBuf);
         end;
+
+        OnAfterSetDimSelectionChange(Rec, TempDimSelectionBuf);
     end;
 
     procedure CompareDimText(ObjectType: Integer; ObjectID: Integer; AnalysisViewCode: Code[10]; SelectedDimText: Text[250]; DimTextFieldName: Text[100])
@@ -320,6 +322,11 @@ table 368 "Dimension Selection Buffer"
         SelectedDim.SetRange("Object Type", ObjectType);
         SelectedDim.SetRange("Object ID", ObjectID);
         SelectedDim.SetRange("Analysis View Code", AnalysisViewCode);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDimSelectionChange(var DimensionSelectionBuffer: Record "Dimension Selection Buffer"; var TheDimSelectionBuf: Record "Dimension Selection Buffer" temporary)
+    begin
     end;
 }
 

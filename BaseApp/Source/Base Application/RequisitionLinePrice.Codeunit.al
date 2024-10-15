@@ -126,6 +126,8 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
         PriceCalculationBuffer."Location Code" := RequisitionLine."Location Code";
         PriceCalculationBuffer."Is SKU" := IsSKU;
         PriceCalculationBuffer."Document Date" := RequisitionLine."Order Date";
+        if PriceCalculationBuffer."Document Date" = 0D then
+            PriceCalculationBuffer."Document Date" := WorkDate();
 
         // Currency
         PriceCalculationBuffer.Validate("Currency Code", RequisitionLine."Currency Code");
@@ -157,7 +159,7 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
         if AmountType = AmountType::Discount then
             RequisitionLine."Line Discount %" := PriceListLine."Line Discount %"
         else begin
-            RequisitionLine."Direct Unit Cost" := PriceListLine."Unit Cost";
+            RequisitionLine."Direct Unit Cost" := PriceListLine."Direct Unit Cost";
             if PriceListLine.IsRealLine() then
                 DiscountIsAllowed := PriceListLine."Allow Line Disc.";
             PriceCalculated := true;

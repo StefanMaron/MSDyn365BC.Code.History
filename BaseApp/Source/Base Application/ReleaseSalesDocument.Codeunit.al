@@ -57,6 +57,11 @@
             TestField("Sell-to Customer No.");
             TestAgreement(SalesHeader);
 
+            IsHandled := false;
+            OnCodeOnAfterCheckCustomerCreated(SalesHeader, PreviewMode, IsHandled);
+            if IsHandled then
+                exit;
+
             SalesLine.SetRange("Document Type", "Document Type");
             SalesLine.SetRange("Document No.", "No.");
             SalesLine.SetFilter(Type, '>0');
@@ -546,6 +551,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPerformManualReleaseOnBeforeTestSalesPrepayment(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCheckCustomerCreated(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

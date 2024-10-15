@@ -1,4 +1,4 @@
-table 5740 "Transfer Header"
+﻿table 5740 "Transfer Header"
 {
     Caption = 'Transfer Header';
     DataCaptionFields = "No.";
@@ -33,15 +33,13 @@ table 5740 "Transfer Header"
                 TestStatusOpen;
 
                 IsHandled := false;
-                OnBeforeValidateTransferFromCode(Rec, xRec, IsHandled);
+                OnBeforeValidateTransferFromCode(Rec, xRec, IsHandled, HideValidationDialog);
                 if IsHandled then
                     exit;
 
-                if ("Transfer-from Code" = "Transfer-to Code") and ("Transfer-from Code" <> '') then
-                    Error(
-                      Text001,
-                      FieldCaption("Transfer-from Code"), FieldCaption("Transfer-to Code"),
-                      TableCaption, "No.");
+                if "Transfer-from Code" <> '' then
+                    CheckTransferFromAndToCodesNotTheSame();
+
                 if xRec."Transfer-from Code" <> "Transfer-from Code" then begin
                     if HideValidationDialog or
                        (xRec."Transfer-from Code" = '')
@@ -169,16 +167,18 @@ table 5740 "Transfer Header"
             var
                 Location: Record Location;
                 Confirmed: Boolean;
+                IsHandled: Boolean;
             begin
                 TestStatusOpen;
 
-                if ("Transfer-from Code" = "Transfer-to Code") and
-                   ("Transfer-to Code" <> '')
-                then
-                    Error(
-                      Text001,
-                      FieldCaption("Transfer-from Code"), FieldCaption("Transfer-to Code"),
-                      TableCaption, "No.");
+                IsHandled := false;
+                OnBeforeValidateTransferToCode(Rec, xRec, IsHandled, HideValidationDialog);
+                if IsHandled then
+                    exit;
+
+                if "Transfer-to Code" <> '' then
+                    CheckTransferFromAndToCodesNotTheSame();
+
                 if xRec."Transfer-to Code" <> "Transfer-to Code" then begin
                     if HideValidationDialog or (xRec."Transfer-to Code" = '') then
                         Confirmed := true
@@ -1309,12 +1309,12 @@ table 5740 "Transfer Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateTransferFromCode(var TransferHeader: Record "Transfer Header"; var xTransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateTransferFromCode(var TransferHeader: Record "Transfer Header"; var xTransferHeader: Record "Transfer Header"; var IsHandled: Boolean; var HideValidationDialog: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateTransferToCode(var TransferHeader: Record "Transfer Header"; var xTransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateTransferToCode(var TransferHeader: Record "Transfer Header"; var xTransferHeader: Record "Transfer Header"; var IsHandled: Boolean; var HideValidationDialog: Boolean)
     begin
     end;
 

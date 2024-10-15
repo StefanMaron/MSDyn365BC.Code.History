@@ -985,6 +985,7 @@
                     }
                     action(GetPrices)
                     {
+                        AccessByPermission = TableData "Sales Price Access" = R;
                         ApplicationArea = Basic, Suite;
                         Caption = 'Get Price';
                         Ellipsis = true;
@@ -999,6 +1000,7 @@
                     }
                     action(GetLineDiscount)
                     {
+                        AccessByPermission = TableData "Sales Discount Access" = R;
                         ApplicationArea = Basic, Suite;
                         Caption = 'Get Li&ne Discount';
                         Ellipsis = true;
@@ -1443,7 +1445,14 @@
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAfterGetCurrRecord(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetTotalSalesHeader();
         CalculateTotals();
         SetLocationCodeMandatory();
@@ -1553,7 +1562,7 @@
         ItemChargeStyleExpression: Text;
         TypeAsText: Text[30];
         SuppressTotals: Boolean;
-		[InDataSet]
+        [InDataSet]
         ItemReferenceVisible: Boolean;
 
     protected var
@@ -1724,6 +1733,8 @@
 
         SaveAndAutoAsmToOrder();
 
+        OnNoOnAfterValidateOnAfterSaveAndAutoAsmToOrder(Rec);
+
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord();
             if ("Outstanding Qty. (Base)" <> 0) and ("No." <> xRec."No.") then begin
@@ -1844,7 +1855,14 @@
     end;
 
     local procedure CalculateTotals()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateTotals(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if SuppressTotals then
             exit;
 
@@ -2008,12 +2026,27 @@
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnNoOnAfterValidateOnAfterSaveAndAutoAsmToOrder(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnNoOnAfterValidateOnBeforeSaveAndAutoAsmToOrder()
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeQtyToAsmToOrderOnAfterValidate(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAfterGetCurrRecord(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

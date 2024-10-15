@@ -1,4 +1,4 @@
-table 901 "Assembly Line"
+﻿table 901 "Assembly Line"
 {
     Caption = 'Assembly Line';
     DrillDownPageID = "Assembly Lines";
@@ -309,6 +309,7 @@ table 901 "Assembly Line"
 
                 RoundQty(Quantity);
                 "Quantity (Base)" := CalcBaseQty(Quantity);
+                OnValidateQuantityOnAfterCalcBaseQty(Rec, xRec, CurrFieldNo);
                 InitRemainingQty;
                 InitQtyToConsume;
 
@@ -741,7 +742,7 @@ table 901 "Assembly Line"
         exit("Remaining Quantity (Base)");
     end;
 
-    local procedure GetSKU(): Boolean
+    local procedure GetSKU() Result: Boolean
     begin
         if Type = Type::Item then
             if (StockkeepingUnit."Location Code" = "Location Code") and
@@ -752,7 +753,8 @@ table 901 "Assembly Line"
         if StockkeepingUnit.Get("Location Code", "No.", "Variant Code") then
             exit(true);
 
-        exit(false);
+        Result := false;
+        OnAfterGetSKU(Rec, Result);
     end;
 
     procedure GetUnitCost(): Decimal
@@ -830,7 +832,13 @@ table 901 "Assembly Line"
     var
         AssemblySetup: Record "Assembly Setup";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckItemAvailable(Rec, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if not UpdateAvailWarning then
             exit;
 
@@ -1697,6 +1705,8 @@ table 901 "Assembly Line"
 
     local procedure CopyFromItem()
     begin
+        OnBeforeCopyFromItem(Rec);
+
         GetItemResource;
         if IsInventoriableItem then begin
             "Location Code" := AssemblyHeader."Location Code";
@@ -1721,6 +1731,8 @@ table 901 "Assembly Line"
 
     local procedure CopyFromResource()
     begin
+        OnBeforeCopyFromResource(Rec);
+
         GetItemResource;
         Resource.TestField("Gen. Prod. Posting Group");
         "Gen. Prod. Posting Group" := Resource."Gen. Prod. Posting Group";
@@ -1773,6 +1785,11 @@ table 901 "Assembly Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSKU(AssemblyLine: Record "Assembly Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetUnitCost(var AssemblyLine: Record "Assembly Line"; var UnitCost: Decimal)
     begin
     end;
@@ -1819,6 +1836,26 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var AssemblyLine: Record "Assembly Line"; var xAssemblyLine: Record "Assembly Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemAvailable(var AssemblyLine: Record "Assembly Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromItem(var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromResource(var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnAfterCalcBaseQty(var AssemblyLine: Record "Assembly Line"; xAssemblyLine: Record "Assembly Line"; CurrentFieldNo: Integer)
     begin
     end;
 }

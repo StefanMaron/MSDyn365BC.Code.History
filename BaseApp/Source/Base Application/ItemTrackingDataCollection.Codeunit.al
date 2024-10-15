@@ -1,4 +1,4 @@
-codeunit 6501 "Item Tracking Data Collection"
+﻿codeunit 6501 "Item Tracking Data Collection"
 {
     Permissions = TableData "Item Entry Relation" = rd,
                   TableData "Value Entry Relation" = rd;
@@ -62,6 +62,7 @@ codeunit 6501 "Item Tracking Data Collection"
         ItemTrackingSummaryForm.SetTableView(TempGlobalEntrySummary);
 
         TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.", "CD No.");
+        OnAssistEditTrackingNoOnBeforeLookupMode(TempGlobalEntrySummary, TempTrackingSpecification);
         case LookupMode of
             LookupMode::"Serial No.":
                 begin
@@ -154,6 +155,7 @@ codeunit 6501 "Item Tracking Data Collection"
             TransferExpDateFromSummary(TempTrackingSpecification, TempGlobalEntrySummary);
             if TempTrackingSpecification.IsReclass or DirectTransfer then
                 TempTrackingSpecification.CopyNewTrackingFromTrackingSpec(TempTrackingSpecification);
+            OnAssistEditTrackingNoOnAfterCopyNewTrackingFromTrackingSpec(TempTrackingSpecification);
 
             NewQtyOnLine := QtyOnLine + AdjustmentQty + QtyHandledOnLine;
             if TempTrackingSpecification."Serial No." <> '' then
@@ -470,6 +472,7 @@ codeunit 6501 "Item Tracking Data Collection"
                         TempGlobalEntrySummary.SetFilter("Table ID", '<>%1', 0);
                 end;
         end;
+        OnCreateEntrySummary2OnAfterSetFilters(TempGlobalEntrySummary, TempReservEntry);
 
         // If no summary exists, create new record
         if not TempGlobalEntrySummary.FindFirst then begin
@@ -585,6 +588,7 @@ codeunit 6501 "Item Tracking Data Collection"
                 TransferExpDateFromSummary(TempTrackingSpecification, TempEntrySummary);
                 if TempTrackingSpecification.IsReclass then
                     TempTrackingSpecification.CopyNewTrackingFromTrackingSpec(TempTrackingSpecification);
+                OnAddSelectedTrackingToDataSetOnAfterCopyNewTrackingFromTrackingSpec(TempTrackingSpecification);
                 TempTrackingSpecification.Validate("Quantity (Base)", TempEntrySummary."Selected Quantity");
                 OnBeforeTempTrackingSpecificationInsert(TempTrackingSpecification, TempEntrySummary);
                 TempTrackingSpecification.Insert();
@@ -710,6 +714,7 @@ codeunit 6501 "Item Tracking Data Collection"
         LastEntryNo := TempGlobalEntrySummary.GetLastEntryNo();
 
         TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.", "CD No.");
+        OnUpdateTempSummaryWithChangeOnAfterSetCurrentKey(TempGlobalEntrySummary, ChangedEntrySummary);
         if ChangedEntrySummary."Serial No." <> '' then begin
             TempGlobalEntrySummary.SetTrackingFilterFromEntrySummary(ChangedEntrySummary);
             if TempGlobalEntrySummary.FindFirst then begin
@@ -839,6 +844,7 @@ codeunit 6501 "Item Tracking Data Collection"
     local procedure UpdateBinContent(var TempEntrySummary: Record "Entry Summary" temporary)
     var
         WarehouseEntry: Record "Warehouse Entry";
+        IsHandled: Boolean;
     begin
         if CurrBinCode = '' then
             exit;
@@ -860,6 +866,12 @@ codeunit 6501 "Item Tracking Data Collection"
         if CurrItemTrackingCode."CD Warehouse Tracking" then
             if TempEntrySummary."CD No." <> '' then
                 WarehouseEntry.SetRange("CD No.", TempEntrySummary."CD No.");
+
+        IsHandled := false;
+        OnUpdateBinContentOnBeforeCalcSumsQtyBase(TempEntrySummary, WarehouseEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         WarehouseEntry.CalcSums("Qty. (Base)");
 
         TempEntrySummary."Bin Content" := WarehouseEntry."Qty. (Base)";
@@ -1039,6 +1051,7 @@ codeunit 6501 "Item Tracking Data Collection"
                 end;
         end;
         TempTrackingSpecification.SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup);
+        OnFindRelatedParentTrkgSpecOnAfterSetFilters(TempTrackingSpecification, ItemJnlLine);
         exit(TempTrackingSpecification.FindFirst);
     end;
 
@@ -1291,6 +1304,41 @@ codeunit 6501 "Item Tracking Data Collection"
 
     [IntegrationEvent(false, false)]
     local procedure OnAddSelectedTrackingToDataSetOnAfterInitTrackingSpecification2(var TrackingSpecification: Record "Tracking Specification"; TempTrackingSpecification: Record "Tracking Specification" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateEntrySummary2OnAfterSetFilters(var TempGlobalEntrySummary: Record "Entry Summary"; var TempReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssistEditTrackingNoOnAfterCopyNewTrackingFromTrackingSpec(var TempTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddSelectedTrackingToDataSetOnAfterCopyNewTrackingFromTrackingSpec(var TempTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateTempSummaryWithChangeOnAfterSetCurrentKey(var TempGlobalEntrySummary: Record "Entry Summary"; var ChangedEntrySummary: Record "Entry Summary")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBinContentOnBeforeCalcSumsQtyBase(var TempEntrySummary: Record "Entry Summary"; var WarehouseEntry: Record "Warehouse Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRelatedParentTrkgSpecOnAfterSetFilters(var TempTrackingSpecification: Record "Tracking Specification"; ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssistEditTrackingNoOnBeforeLookupMode(var TempGlobalEntrySummary: Record "Entry Summary"; var TempTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 }

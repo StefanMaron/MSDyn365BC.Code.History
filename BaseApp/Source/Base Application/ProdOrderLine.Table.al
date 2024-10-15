@@ -1,4 +1,4 @@
-table 5406 "Prod. Order Line"
+﻿table 5406 "Prod. Order Line"
 {
     Caption = 'Prod. Order Line';
     DataCaptionFields = "Prod. Order No.";
@@ -205,7 +205,14 @@ table 5406 "Prod. Order Line"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantity(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 "Quantity (Base)" := Quantity * "Qty. per Unit of Measure";
                 "Remaining Quantity" := Quantity - "Finished Quantity";
                 if "Remaining Quantity" < 0 then
@@ -895,7 +902,13 @@ table 5406 "Prod. Order Line"
     procedure ShowReservation()
     var
         Reservation: Page Reservation;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowReservation(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Item No.");
         Clear(Reservation);
         Reservation.SetReservSource(Rec);
@@ -1001,18 +1014,30 @@ table 5406 "Prod. Order Line"
             Item.Get("Item No.");
     end;
 
-    local procedure GetSKU(): Boolean
+    local procedure GetSKU() Result: Boolean
     begin
         if (SKU."Location Code" = "Location Code") and
            (SKU."Item No." = "Item No.") and
            (SKU."Variant Code" = "Variant Code")
         then
             exit(true);
-        exit(SKU.Get("Location Code", "Item No.", "Variant Code"));
+
+        if SKU.Get("Location Code", "Item No.", "Variant Code") then
+            exit(true);
+
+        Result := false;
+        OnAfterGetSKU(Rec, Result);
     end;
 
     local procedure GetUpdateFromSKU()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetUpdateFromSKU(Rec, SKU, Item, IsHandled);
+        if IsHandled then
+            exit;
+
         GetItem;
         if GetSKU then
             "Unit Cost" := SKU."Unit Cost"
@@ -1244,7 +1269,13 @@ table 5406 "Prod. Order Line"
     var
         ProdOrderComp: Record "Prod. Order Component";
         ModifyRecord: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateProdOrderComp(Rec, QtyPerUnitOfMeasure, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ProdOrderComp.SetRange(Status, Status);
         ProdOrderComp.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderComp.SetRange("Prod. Order Line No.", "Line No.");
@@ -1386,6 +1417,11 @@ table 5406 "Prod. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSKU(ProdOrderLine: Record "Prod. Order Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteProdOrderRtngLines(var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
@@ -1421,12 +1457,22 @@ table 5406 "Prod. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetUpdateFromSKU(var ProdOrderLine: Record "Prod. Order Line"; SKU: Record "Stockkeeping Unit"; Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteRelations(var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteProdOrderRtngLines(var ProdOrderLine: Record "Prod. Order Line"; var ModifyRecord: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReservation(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1452,6 +1498,16 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateProdOrderCompOnBeforeModify(var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantity(var ProdOrderLine: Record "Prod. Order Line"; xProdOrderLine: Record "Prod. Order Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateProdOrderComp(var ProdOrderLine: Record "Prod. Order Line"; QtyPerUnitOfMeasure: Decimal; CurrFieldNo: Integer; var IsHandled: Boolean)    
     begin
     end;
 }

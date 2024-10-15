@@ -390,7 +390,13 @@ table 951 "Time Sheet Line"
     var
         Resource: Record Resource;
         WorkType: Record "Work Type";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWorkType(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if WorkType.Get("Work Type Code") then begin
             GetTimeSheetResource(Resource);
             WorkType.TestField("Unit of Measure Code", Resource."Base Unit of Measure");
@@ -491,6 +497,11 @@ table 951 "Time Sheet Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterGetAllowEdit(FldNo: Integer; ManagerRole: Boolean; var AllowEdit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWorkType(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -56,6 +56,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         VATPostingSetup: Record "VAT Posting Setup";
         VATAmount: Decimal;
         TaxRegisterSetup: Record "Tax Register Setup";
+        IsHandled: Boolean;
     begin
         GLSetup.Get();
         if NextEntryNo = 0 then begin
@@ -188,16 +189,19 @@ codeunit 5600 "FA Insert Ledger Entry"
                   Text000,
                   FAName(DeprBookCode), FALedgEntry2.FieldCaption("Entry No."), ErrorEntryNo);
             FALedgEntry2.CheckRealizedVAT(ErrorEntryNo);
-            if (FALedgEntry2."Depreciation Book Code" <> FALedgEntry."Depreciation Book Code") or
-               (FALedgEntry2."FA No." <> FALedgEntry."FA No.") or
-               (FALedgEntry2."FA Posting Category" <> FALedgEntry."FA Posting Category") or
-               (FALedgEntry2."FA Posting Type" <> FALedgEntry."FA Posting Type") or
-               (FALedgEntry2.Amount <> -FALedgEntry.Amount) or
-               (FALedgEntry2."FA Posting Date" <> FALedgEntry."FA Posting Date")
-            then
-                Error(
-                  Text001,
-                  FAName(DeprBookCode), FAJnlLine.FieldCaption("FA Error Entry No."), ErrorEntryNo);
+            IsHandled := false;
+            OnInsertFAOnBeforeCheckFALedgEntry(FALedgEntry, FALedgEntry2, IsHandled);
+            if not IsHandled then
+                if (FALedgEntry2."Depreciation Book Code" <> FALedgEntry."Depreciation Book Code") or
+                   (FALedgEntry2."FA No." <> FALedgEntry."FA No.") or
+                   (FALedgEntry2."FA Posting Category" <> FALedgEntry."FA Posting Category") or
+                   (FALedgEntry2."FA Posting Type" <> FALedgEntry."FA Posting Type") or
+                   (FALedgEntry2.Amount <> -FALedgEntry.Amount) or
+                   (FALedgEntry2."FA Posting Date" <> FALedgEntry."FA Posting Date")
+                then
+                    Error(
+                      Text001,
+                      FAName(DeprBookCode), FAJnlLine.FieldCaption("FA Error Entry No."), ErrorEntryNo);
             FALedgEntry."Canceled from FA No." := FALedgEntry."FA No.";
             FALedgEntry2."Canceled from FA No." := FALedgEntry2."FA No.";
             FALedgEntry2."FA No." := '';
@@ -1140,6 +1144,11 @@ codeunit 5600 "FA Insert Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckFADocNo(FALedgEntry: Record "FA Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFAOnBeforeCheckFALedgEntry(FALedgEntry: Record "FA Ledger Entry"; FALedgEntry2: Record "FA Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

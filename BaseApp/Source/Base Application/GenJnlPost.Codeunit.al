@@ -94,6 +94,8 @@ codeunit 231 "Gen. Jnl.-Post"
                                 exit;
 
                             GenJnlPostBatch.Run(GenJnlLine);
+
+                            OnCodeOnAfterGenJnlPostBatchRun(GenJnlLine);
                         end;
                     end;
                 JnlType::"VAT Settlement":
@@ -152,6 +154,11 @@ codeunit 231 "Gen. Jnl.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlPostBatchRun(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterGenJnlPostBatchRun(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 

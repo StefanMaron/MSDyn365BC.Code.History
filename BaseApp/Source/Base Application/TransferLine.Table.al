@@ -44,6 +44,8 @@
                 OnValidateItemNoOnAfterInitLine(Rec, TempTransferLine);
 
                 GetTransHeaderExternal();
+
+                OnValidateItemNoOnAfterGetTransHeaderExternal(Rec, TransHeader, TempTransferLine);
                 GetItem;
                 GetDefaultBin("Transfer-from Code", "Transfer-to Code");
 
@@ -102,7 +104,7 @@
                 InitQtyToReceive;
                 CheckItemAvailable(FieldNo(Quantity));
 
-                ReserveTransferLine.VerifyQuantity(Rec, xRec);
+                VerifyReserveTransferLineQuantity();
 
                 UpdateWithWarehouseShipReceive;
 
@@ -508,6 +510,7 @@
                     GetDefaultBin("Transfer-from Code", '');
                 end;
 
+                OnValidateTransferFromCodeOnBeforeCheckItemAvailable(Rec);
                 CheckItemAvailable(FieldNo("Transfer-from Code"));
                 ReserveTransferLine.VerifyChange(Rec, xRec);
                 UpdateWithWarehouseShipReceive;
@@ -530,6 +533,7 @@
                     GetDefaultBin('', "Transfer-to Code");
                 end;
 
+                OnValidateTransferToCodeOnBeforeVerifyChange(Rec);
                 ReserveTransferLine.VerifyChange(Rec, xRec);
                 UpdateWithWarehouseShipReceive;
                 WhseValidateSourceLine.TransLineVerifyChange(Rec, xRec);
@@ -944,7 +948,14 @@
         TransLine2: Record "Transfer Line";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, xRec, TransHeader, IsHandled);
+        If IsHandled then
+            exit;
+
         TestStatusOpen();
+
+        IsHandled := false;
         OnInsertOnBeforeAssignLineNo(Rec, IsHandled);
         if not IsHandled then begin
             TransLine2.Reset();
@@ -1258,7 +1269,13 @@
     procedure ShowReservation()
     var
         OptionNumber: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowReservation(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Item No.");
         Clear(Reservation);
         OptionNumber := StrMenu(Text011);
@@ -1341,6 +1358,7 @@
             end;
         end;
 
+        OnCheckWarehouseOnBeforeShowDialog(Rec, Location, ShowDialog, DialogText);
         case ShowDialog of
             ShowDialog::Message:
                 Message(Text003 + Text004, DialogText, FieldCaption("Line No."), "Line No.");
@@ -1570,10 +1588,11 @@
             until TransLine.Next = 0;
     end;
 
-    procedure IsShippedDimChanged(): Boolean
+    procedure IsShippedDimChanged() Result: Boolean
     begin
-        exit(("Dimension Set ID" <> xRec."Dimension Set ID") and
-          (("Quantity Shipped" <> 0) or ("Qty. Shipped (Base)" <> 0)));
+        Result := ("Dimension Set ID" <> xRec."Dimension Set ID") and (("Quantity Shipped" <> 0) or ("Qty. Shipped (Base)" <> 0));
+
+        OnAfterIsShippedDimChanged(Rec, Result);
     end;
 
     procedure ConfirmShippedDimChange(): Boolean
@@ -1636,6 +1655,18 @@
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         exit(ItemTrackingMgt.ComposeRowID(DATABASE::"Transfer Line", Direction.AsInteger(), "Document No.", '', "Derived From Line No.", "Line No."));
+    end;
+
+    local procedure VerifyReserveTransferLineQuantity()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeVerifyReserveTransferLineQuantity(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReserveTransferLine.VerifyQuantity(Rec, xRec);
     end;
 
     local procedure SetItemLedgerEntryFilters(var ItemLedgEntry: Record "Item Ledger Entry")
@@ -1741,6 +1772,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var TransferLine: Record "Transfer Line"; var xTransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestStatusOpen(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header")
     begin
     end;
@@ -1756,12 +1792,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyReserveTransferLineQuantity(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforeDeleteRelatedData(var TransferLine: Record "Transfer Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterInitLine(var TransferLine: Record "Transfer Line"; TempTransferLine: Record "Transfer Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterGetTransHeaderExternal(var TransferLine: Record "Transfer Line"; var TransHeader: Record "Transfer Header"; TempTransferLine: Record "Transfer Line" temporary)
     begin
     end;
 
@@ -1796,7 +1842,32 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckWarehouseOnBeforeShowDialog(TransferLine: Record "Transfer Line"; Location: Record Location; ShowDialog: Option " ",Message,Error; var DialogText: Text[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertOnBeforeAssignLineNo(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsShippedDimChanged(var TransferLine: Record "Transfer Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReservation(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateTransferFromCodeOnBeforeCheckItemAvailable(var TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateTransferToCodeOnBeforeVerifyChange(var TransferLine: Record "Transfer Line")
     begin
     end;
 }
