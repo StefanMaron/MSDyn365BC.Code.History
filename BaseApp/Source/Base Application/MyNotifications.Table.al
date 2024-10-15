@@ -106,7 +106,14 @@ table 1518 "My Notifications"
             Description.CreateOutStream(OutStream);
             OutStream.Write(DescriptionText);
             Result := true;
-        end;
+        end else
+            if NotificationName <> Name then begin
+                Name := NotificationName;
+                Description.CreateOutStream(OutStream, TextEncoding::UTF8);
+                OutStream.Write(DescriptionText);
+                Modify(false);
+                Result := false;
+            end;
     end;
 
     procedure InsertDefault(NotificationId: Guid; NotificationName: Text[128]; DescriptionText: Text; DefaultState: Boolean)
